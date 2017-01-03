@@ -14,12 +14,3 @@
 Route::get('/', function () {
     return view('welcome');
 });
-
-
-Route::get('/kopfbild_tool', function () {
-    //include public_path().'/scripts/kopfbild_tool.html';
-    return File::get(public_path() . '/../scripts/kopfbild_tool.html');
-});
-
-
-Route::get('/kopfbildtool', ['uses' => 'KopfbildToolController@index']);
