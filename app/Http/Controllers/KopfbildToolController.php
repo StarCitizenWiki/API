@@ -15,6 +15,12 @@ class KopfbildToolController extends Controller
                 'outputhight' => 125
             ]
         ];
-        return view('kopfbildtool.index', compact('kopfbildSettings'));
+
+        $settings = [
+            'bootstrap-css' => true,
+            'bootstrap-js' => false,
+        ];
+
+        return view('kopfbildtool.index', compact('kopfbildSettings'), compact('settings'));
     }
 }
