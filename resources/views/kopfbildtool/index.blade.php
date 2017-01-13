@@ -14,8 +14,8 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="slider">Auswahl mit Slider oder Pfeiltasten bewegen</label>
-                        <input type="range"  min="0" max="100" class="form-control mt-1" id="slider" onchange="change(this.value)" oninput="change(this.value)"/>
+                        <label for="rectangleSlider">Auswahlbereich per Slider bewegen</label>
+                        <input type="range" min="0" max="100" class="form-control mt-1" id="rectangleSlider" onchange="moveSelectionRectangle(this.value)" oninput="moveSelectionRectangle(this.value)"/>
                     </div>
                 </form>
             </div>
@@ -33,90 +33,89 @@
 
 @section('scripts')
     <script>
-        var ready = false;
-        var img = new Image();
+        window.addEventListener("keydown", moveSelectionRectangle);
+
+        const displayWidth = {{ $kopfbildSettings['default']['displayWidth'] }};
+        const displayHeight = {{ $kopfbildSettings['default']['displayHeight'] }};
+        const outputWidth = {{ $kopfbildSettings['default']['outputWidth'] }};
+        const outputHeight = {{ $kopfbildSettings['default']['outputHeight'] }};
+        const HALF_SELECTION_RECTANGLE_SIZE = outputHeight / 2;
+        const selectionRectangleColor = "{{ $kopfbildSettings['default']['selectionRectangleColor'] }}";
+
+        var selectionRectangleOffset = 0;
+        var aspectRatio = 0;
+        var imageLoaded = false;
+
+
+        var canvasImage = new Image();
         var imageLoader = document.getElementById('image');
-        imageLoader.addEventListener('change', handleImage, false);
+            imageLoader.addEventListener('change', handleImage, false);
 
-        var slider = document.getElementById('slider');
+        var rectangleSlider = document.getElementById('rectangleSlider');
 
-        var canvas = document.getElementById('imageCanvas');
-        var ctx = canvas.getContext('2d');
+        var mainCanvas = document.getElementById('imageCanvas');
+            mainCanvas.width = displayWidth;
+        var mainCanvasContext = mainCanvas.getContext('2d');
 
-        var canvasHidden = document.getElementById('hiddenCanvas');
-        var ctxHidden = canvasHidden.getContext('2d');
+        var hiddenFullSizeCanvas = document.getElementById('hiddenCanvas');
+            hiddenFullSizeCanvas.width = outputWidth;
+        var hiddenCanvasContext = hiddenFullSizeCanvas.getContext('2d');
 
-        var rect_y = 0;
-        var width = {!! $kopfbildSettings['default']['width'] !!} / 2;
-        var aspect = 0;
-        canvas.width = width;
-        canvasHidden.width = {!! $kopfbildSettings['default']['width'] !!};
-
-        function handleImage(event){
+        function handleImage(event) {
             var reader = new FileReader();
-            reader.onload = function(event){
-                img.onload = function(){
-                    aspect = img.width / img.height;
-                    canvas.height = (width / aspect);
-                    slider.max = (canvas.height-125);
-                    canvasHidden.height = ({!! $kopfbildSettings['default']['width'] !!} / aspect);
-                    ctxHidden.drawImage(img, 0, 0, canvasHidden.width, canvasHidden.height);
-                    ctx.drawImage(img, 0, 0, width, canvas.height);
-                    drawRect(0, rect_y, {!! $kopfbildSettings['default']['outputwidth'] !!}, {!! $kopfbildSettings['default']['outputhight'] !!});
-                    ready = true;
-                }
-                img.src = event.target.result;
+            reader.onload = function(event) {
+                canvasImage.onload = function() {
+                    aspectRatio = canvasImage.width / canvasImage.height;
 
-                document.getElementById('save').onclick = function(){
-                    crop(this, canvasHidden, 0, rect_y*2, {!! $kopfbildSettings['default']['width'] !!}, {!! $kopfbildSettings['default']['hight'] !!});
+                    mainCanvas.height = displayWidth / aspectRatio;
+                    hiddenFullSizeCanvas.height = outputWidth / aspectRatio;
+
+                    rectangleSlider.max = mainCanvas.height - HALF_SELECTION_RECTANGLE_SIZE;
+
+                    mainCanvasContext.drawImage(canvasImage, 0, 0, displayWidth, mainCanvas.height);
+                    hiddenCanvasContext.drawImage(canvasImage, 0, 0, outputWidth, hiddenFullSizeCanvas.height);
+
+                    drawRectangle(0, selectionRectangleOffset, displayWidth, displayHeight);
+                    imageLoaded = true;
                 };
-            }
+                canvasImage.src = event.target.result;
+
+                document.getElementById('save').onclick = function() {
+                    saveImageToDisk(hiddenFullSizeCanvas, this);
+                };
+            };
             reader.readAsDataURL(event.target.files[0]);
         }
 
-        function drawRect(x,y,wid,hei) {
-            ctx.strokeStyle = '#ff0000';
-            ctx.strokeRect(x, y, wid, hei);
+        function drawRectangle(offsetX, offsetY, rectangleWidth, rectangleHeight) {
+            mainCanvasContext.strokeStyle = selectionRectangleColor;
+            mainCanvasContext.strokeRect(offsetX, offsetY, rectangleWidth, rectangleHeight);
         }
 
-        window.addEventListener("keydown", change);
-
-        function change(e) {
-            if (ready)
+        function moveSelectionRectangle(offsetY) {
+            if (imageLoaded)
             {
-                e = e || window.event;
-                if (e.keyCode == '38') {
-                    e.preventDefault();
-                    if (rect_y > 0) {
-                        rect_y--;
-                    }
+                if (offsetY < 0) {
+                    offsetY = 0;
+                } else if (offsetY > mainCanvas.height - HALF_SELECTION_RECTANGLE_SIZE) {
+                    offsetY = mainCanvas.height - HALF_SELECTION_RECTANGLE_SIZE;
                 }
-                else if (e.keyCode == '40') {
-                    e.preventDefault();
-                    if (rect_y < canvas.height) {
-                        rect_y++;
-                    }
-                }
-                else {
-                    rect_y = e;
-                }
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img,0,0, width, canvas.height);
-                drawRect(0, rect_y, {!! $kopfbildSettings['default']['outputwidth'] !!}, {!! $kopfbildSettings['default']['outputhight'] !!});
+                selectionRectangleOffset = offsetY;
+                mainCanvasContext.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                mainCanvasContext.drawImage(canvasImage,0,0, displayWidth, mainCanvas.height);
+                drawRectangle(0, selectionRectangleOffset, displayWidth, displayHeight);
             }
-        };
+        }
 
-        var crop = function(link, canvasB, offsetX, offsetY, width, height) {
+        function saveImageToDisk(sourceCanvas, windowContext) {
             var buffer = document.createElement('canvas');
-            var b_ctx = buffer.getContext('2d');
-            buffer.width = width;
-            buffer.height = height;
-            b_ctx.drawImage(canvasB, offsetX, offsetY, width, height, 0, 0, buffer.width, buffer.height);
-            var image = buffer.toDataURL("image/jpeg");
-            link.href = image;
-            link.download = 'kopfbild.jpg';
-            // window.location.href = image;
-        };
-
+            var bufferContext = buffer.getContext('2d');
+            var offsetY = selectionRectangleOffset * 2;
+            buffer.width = outputWidth;
+            buffer.height = outputHeight;
+            bufferContext.drawImage(sourceCanvas, 0, offsetY, outputWidth, outputHeight, 0, 0, outputWidth, outputHeight);
+            windowContext.href = buffer.toDataURL("image/jpeg");
+            windowContext.download = 'kopfbild.jpg';
+        }
     </script>
 @endsection

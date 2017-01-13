@@ -9,18 +9,19 @@ class KopfbildToolController extends Controller
     public function index() {
         $kopfbildSettings = [
             'default' => [
-                'width' => 1920,
-                'hight' => 250,
-                'outputwidth' => 960,
-                'outputhight' => 125
+                'outputWidth' => 1920,
+                'outputHeight' => 250,
+                'displayWidth' => 960,
+                'displayHeight' => 125,
+                'selectionRectangleColor' => '#ff0000'
             ]
         ];
 
-        $settings = [
-            'bootstrap-css' => true,
-            'bootstrap-js' => false,
+        $bootstrapModules = [
+            'enableCSS' =>  true,
+            'enableJS' => false,
         ];
 
-        return view('kopfbildtool.index', compact('kopfbildSettings'), compact('settings'));
+        return view('kopfbildtool.index', compact('kopfbildSettings'), compact('bootstrapModules'));
     }
 }
