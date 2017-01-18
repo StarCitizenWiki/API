@@ -1,0 +1,15 @@
+image: php:7.1
+
+cache:  
+  paths:
+  - vendor/
+
+before_script:  
+- bash ci/docker_install.sh > /dev/null
+- cp ci/php.ini /usr/local/etc/php/conf.d/test.ini
+- curl -sS https://getcomposer.org/installer | php
+- php composer.phar install
+
+phpunit:  
+  script:
+  - vendor/bin/phpunit --coverage-text --colors=never --configuration phpunit.xml
