@@ -5,32 +5,32 @@
  * Time: 12:49
  */
 
-namespace app\Repositories\StarCitizen\APIv1\Community;
+namespace App\Repositories\StarCitizen\APIv1\Community;
 
 
 interface CommunityInterface
 {
     /**
      * https://robertsspaceindustries.com/api/community/getTrackedPosts
-     * @return string json
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function getTrackedPosts();
 
     /**
      * https://robertsspaceindustries.com/api/community/getCitizenSpotlights
-     * @return string json
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function getCitizenSpotlights();
 
     /**
      * https://robertsspaceindustries.com/api/community/getDeepSpaceRadar
-     * @return string json
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function getDeepSpaceRadar();
 
     /**
      * https://robertsspaceindustries.com/api/community/getLiveStreamers
-     * @return string json
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function getLiveStreamers();
 }

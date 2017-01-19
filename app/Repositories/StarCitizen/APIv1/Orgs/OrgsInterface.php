@@ -5,14 +5,14 @@
  * Time: 13:04
  */
 
-namespace app\Repositories\StarCitizen\APIv1\Orgs;
+namespace App\Repositories\StarCitizen\APIv1\Orgs;
 
 
 interface OrgsInterface
 {
     /**
      * https://robertsspaceindustries.com/api/orgs/getOrgs
-     * @return string json
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function getOrgs();
 }

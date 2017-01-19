@@ -5,7 +5,7 @@
  * Time: 13:31
  */
 
-namespace app\Repositories\StarCitizen\APIv1\Comments;
+namespace App\Repositories\StarCitizen\APIv1\Comments;
 
 
 interface CommentsInterface
@@ -15,7 +15,7 @@ interface CommentsInterface
      * https://robertsspaceindustries.com/api/comments/listing
      * {id: 15677, reference_id: null}
      * @param int $postID
-     * @return mixed
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function getComments(Integer $postID);
 }

@@ -5,7 +5,7 @@
  * Time: 12:45
  */
 
-namespace app\Repositories\StarCitizen\APIv1\Store;
+namespace App\Repositories\StarCitizen\APIv1\Store;
 
 
 interface StoreInterface

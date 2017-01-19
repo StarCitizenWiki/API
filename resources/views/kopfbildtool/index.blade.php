@@ -33,8 +33,6 @@
 
 @section('scripts')
     <script>
-        window.addEventListener("keydown", moveSelectionRectangle);
-
         const displayWidth = {{ $kopfbildSettings['default']['displayWidth'] }};
         const displayHeight = {{ $kopfbildSettings['default']['displayHeight'] }};
         const outputWidth = {{ $kopfbildSettings['default']['outputWidth'] }};
@@ -46,10 +44,9 @@
         var aspectRatio = 0;
         var imageLoaded = false;
 
-
         var canvasImage = new Image();
         var imageLoader = document.getElementById('image');
-            imageLoader.addEventListener('change', handleImage, false);
+            imageLoader.addEventListener('change', loadImageToCanvas, false);
 
         var rectangleSlider = document.getElementById('rectangleSlider');
 
@@ -61,33 +58,40 @@
             hiddenFullSizeCanvas.width = outputWidth;
         var hiddenCanvasContext = hiddenFullSizeCanvas.getContext('2d');
 
-        function handleImage(event) {
+        var saveButton = document.getElementById('save');
+            saveButton.onclick = function() {
+                saveImageToDisk(hiddenFullSizeCanvas, this);
+            };
+
+        function loadImageToCanvas(event) {
             var reader = new FileReader();
             reader.onload = function(event) {
                 canvasImage.onload = function() {
-                    aspectRatio = canvasImage.width / canvasImage.height;
-
-                    mainCanvas.height = displayWidth / aspectRatio;
-                    hiddenFullSizeCanvas.height = outputWidth / aspectRatio;
-
-                    rectangleSlider.max = mainCanvas.height - HALF_SELECTION_RECTANGLE_SIZE;
-
-                    mainCanvasContext.drawImage(canvasImage, 0, 0, displayWidth, mainCanvas.height);
-                    hiddenCanvasContext.drawImage(canvasImage, 0, 0, outputWidth, hiddenFullSizeCanvas.height);
-
-                    drawRectangle(0, selectionRectangleOffset, displayWidth, displayHeight);
+                    setCanvasAttributes();
+                    drawImages();
+                    drawSelectionRectangle(0, selectionRectangleOffset, displayWidth, displayHeight);
                     imageLoaded = true;
                 };
                 canvasImage.src = event.target.result;
-
-                document.getElementById('save').onclick = function() {
-                    saveImageToDisk(hiddenFullSizeCanvas, this);
-                };
             };
             reader.readAsDataURL(event.target.files[0]);
         }
 
-        function drawRectangle(offsetX, offsetY, rectangleWidth, rectangleHeight) {
+        function setCanvasAttributes() {
+            aspectRatio = canvasImage.width / canvasImage.height;
+
+            mainCanvas.height = displayWidth / aspectRatio;
+            hiddenFullSizeCanvas.height = outputWidth / aspectRatio;
+
+            rectangleSlider.max = mainCanvas.height - HALF_SELECTION_RECTANGLE_SIZE;
+        }
+
+        function drawImages() {
+            mainCanvasContext.drawImage(canvasImage, 0, 0, displayWidth, mainCanvas.height);
+            hiddenCanvasContext.drawImage(canvasImage, 0, 0, outputWidth, hiddenFullSizeCanvas.height);
+        }
+
+        function drawSelectionRectangle(offsetX, offsetY, rectangleWidth, rectangleHeight) {
             mainCanvasContext.strokeStyle = selectionRectangleColor;
             mainCanvasContext.strokeRect(offsetX, offsetY, rectangleWidth, rectangleHeight);
         }
@@ -103,7 +107,7 @@
                 selectionRectangleOffset = offsetY;
                 mainCanvasContext.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
                 mainCanvasContext.drawImage(canvasImage,0,0, displayWidth, mainCanvas.height);
-                drawRectangle(0, selectionRectangleOffset, displayWidth, displayHeight);
+                drawSelectionRectangle(0, selectionRectangleOffset, displayWidth, displayHeight);
             }
         }
 

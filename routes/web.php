@@ -16,3 +16,8 @@ Route::get('/', function () {
 });
 
 Route::get('/kopfbildtool', ['uses' => 'KopfbildToolController@index']);
+
+Route::get('/test', function () {
+    $stats = new \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository();
+    return $stats->lastMonths()->getCrowdfundStats()->getBody()->getContents();
+});

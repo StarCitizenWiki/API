@@ -5,7 +5,7 @@
  * Time: 12:54
  */
 
-namespace app\Repositories\StarCitizen\APIv1\IssueCouncil;
+namespace App\Repositories\StarCitizen\APIv1\IssueCouncil;
 
 
 interface IssueCouncilInterface
@@ -13,7 +13,7 @@ interface IssueCouncilInterface
     /**
      * @TODO API unklar
      * https://robertsspaceindustries.com/community/issue-council/api/issue/list
-     * @return string json
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function getIssues();
 
