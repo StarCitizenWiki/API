@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:api');
+
+Route::group(['namespace' => 'StarCitizen', 'prefix' => 'v1', 'middleware' => ['api', 'throttle:60,1']], function () {
+    Route::get('crowdfunding', ['uses' => 'StatsAPIController@getStatsAsJSON']);
+});

@@ -7,7 +7,9 @@
 
 namespace App\Repositories\StarCitizen\APIv1\Stats;
 
+use App\Exceptions\EmptyResponseException;
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI as BaseStarCitizenAPI;
+use GuzzleHttp\Psr7\Response;
 
 class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 {
@@ -15,6 +17,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     private $_getFans = true;
     private $_getFleet = true;
     private $_chartType = 'hour';
+
+    /** @var  Response */
+    private $_response;
 
     function __construct()
     {
@@ -26,7 +31,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      * @return \GuzzleHttp\Psr7\Response
      *
      */
-    public function getCrowdfundStats()
+    public function getCrowdfundStats() : StatsRepository
     {
         $response = $this->_connection->request('POST', 'stats/getCrowdfundStats', [
             'json' => [
@@ -36,7 +41,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
             ]
         ]);
 
-        return $response;
+        $this->_response = $response;
+
+        return $this;
     }
 
     /**
@@ -79,4 +86,28 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
         return $this;
     }
 
+    public function asJSON() : String
+    {
+        $this->_checkIfResponseIsEmpty();
+        return $this->_response->getBody()->getContents();
+    }
+
+    public function asArray() : array
+    {
+        $this->_checkIfResponseIsEmpty();
+        return json_decode($this->_response->getBody()->getContents(), true);
+    }
+
+    public function asResponse() : Response
+    {
+        $this->_checkIfResponseIsEmpty();
+        return $this->_response;
+    }
+
+    private function _checkIfResponseIsEmpty()
+    {
+        if ($this->_response === null) {
+            throw new EmptyResponseException();
+        }
+    }
 }

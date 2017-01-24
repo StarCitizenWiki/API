@@ -16,7 +16,3 @@ Route::get('/', function () {
 });
 
 Route::get('/kopfbildtool', ['uses' => 'KopfbildToolController@index']);
-
-Route::group(['namespace' => 'StarCitizen', 'prefix' => 'apiv1'], function () {
-   Route::get('crowdfunding', ['uses' => 'StatsAPIController@getStatsAsJSON']);
-});

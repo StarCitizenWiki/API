@@ -3,14 +3,21 @@
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 
 class CrowdfundingStatsTest extends TestCase
 {
+    /** @var  \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository */
+    private $_api;
+
+    public function setUp()
+    {
+        parent::setUp();
+        $this->_api = $this->app->make('StarCitizen\StatsAPI');
+    }
+
     public function testCrowdfundingStats()
     {
-        $api = new StatsRepository();
-        $crowdfundingStats = $api->getCrowdfundStats();
+        $crowdfundingStats = $this->_api->getCrowdfundStats()->asResponse();
         $content = $crowdfundingStats->getBody()->getContents();
 
         $this->assertSame('application/json', $crowdfundingStats->getHeader('Content-Type')[0]);
@@ -20,6 +27,12 @@ class CrowdfundingStatsTest extends TestCase
 
     public function testView()
     {
-        $this->visit('/apiv1/crowdfunding')->see('success');
+        $this->visit('/api/v1/crowdfunding')->see('success');
+    }
+
+    public function testEmptyResponseException()
+    {
+        $this->expectException(\App\Exceptions\EmptyResponseException::class);
+        $this->_api->asJSON();
     }
 }
