@@ -17,7 +17,6 @@ Route::get('/', function () {
 
 Route::get('/kopfbildtool', ['uses' => 'KopfbildToolController@index']);
 
-Route::get('/test', function () {
-    $stats = new \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository();
-    return $stats->lastMonths()->getCrowdfundStats()->getBody()->getContents();
+Route::group(['namespace' => 'StarCitizen', 'prefix' => 'apiv1'], function () {
+   Route::get('crowdfunding', ['uses' => 'StatsAPIController@getStatsAsJSON']);
 });

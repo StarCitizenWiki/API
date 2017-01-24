@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\APIv1;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
-class BaseStarCitizenAPI
+abstract class BaseStarCitizenAPI
 {
     protected $_connection;
     const API_URL = 'https://robertsspaceindustries.com/api/';
