@@ -16,6 +16,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 
     private $_getFans = true;
     private $_getFleet = true;
+    private $_getFunds = true;
     private $_chartType = 'hour';
 
     /** @var  Response */
@@ -37,7 +38,8 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
             'json' => [
                 'chart' => $this->_chartType,
                 'fans' => $this->_getFans,
-                'fleet' => $this->_getFleet
+                'fleet' => $this->_getFleet,
+                'funds' => $this->_getFunds
             ]
         ]);
 

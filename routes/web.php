@@ -16,3 +16,5 @@ Route::get('/', function () {
 });
 
 Route::get('/kopfbildtool', ['uses' => 'KopfbildToolController@index']);
+
+Route::get('/fundImage', ['uses' => 'StarCitizen\FundingimageController@getImage']);
