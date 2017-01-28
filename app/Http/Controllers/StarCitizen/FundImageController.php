@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\StarCitizen;
 
+use App\Exceptions\MissingExtensionException;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +33,7 @@ class FundImageController extends Controller
 
     public function __construct(Request $request, StatsRepository $api)
     {
+        $this->_checkIfImageCanBeCreated();
         $this->_request = $request;
         $this->_api = $api;
         $this->_font['path'] = resource_path('assets/fonts/orbitron-light-webfont.ttf');
@@ -72,6 +74,13 @@ class FundImageController extends Controller
     {
         $this->_image['type'] = FundImageController::FUNDING_AND_TEXT;
         return $this;
+    }
+
+    private function _checkIfImageCanBeCreated()
+    {
+        if (!in_array('gd', get_loaded_extensions())) {
+            throw new MissingExtensionException('GD Library is missing!');
+        }
     }
 
     private function _determineImageHeight()

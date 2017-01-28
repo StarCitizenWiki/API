@@ -1,15 +1,15 @@
 <?php
 /**
  * User: Hannes
- * Date: 24.01.2017
- * Time: 22:19
+ * Date: 28.01.2017
+ * Time: 23:14
  */
 
 namespace App\Exceptions;
 
 use Exception;
 
-class EmptyResponseException extends Exception
+class MissingExtensionException extends Exception
 {
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {
