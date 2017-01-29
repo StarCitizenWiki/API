@@ -19,9 +19,6 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     private $_getFunds = true;
     private $_chartType = 'hour';
 
-    /** @var  Response */
-    private $_response;
-
     function __construct()
     {
         parent::__construct();
@@ -29,12 +26,12 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 
     /**
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
-     * @return \GuzzleHttp\Psr7\Response
+     * @return StatsRepository
      *
      */
     public function getCrowdfundStats() : StatsRepository
     {
-        $response = $this->_connection->request('POST', 'stats/getCrowdfundStats', [
+        $this->request('POST', 'stats/getCrowdfundStats', [
             'json' => [
                 'chart' => $this->_chartType,
                 'fans' => $this->_getFans,
@@ -42,8 +39,6 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
                 'funds' => $this->_getFunds
             ]
         ]);
-
-        $this->_response = $response;
 
         return $this;
     }
@@ -90,26 +85,16 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 
     public function asJSON() : String
     {
-        $this->_checkIfResponseIsEmpty();
         return $this->_response->getBody()->getContents();
     }
 
     public function asArray() : array
     {
-        $this->_checkIfResponseIsEmpty();
         return json_decode($this->_response->getBody()->getContents(), true);
     }
 
     public function asResponse() : Response
     {
-        $this->_checkIfResponseIsEmpty();
         return $this->_response;
-    }
-
-    private function _checkIfResponseIsEmpty()
-    {
-        if ($this->_response === null) {
-            throw new EmptyResponseException();
-        }
     }
 }
