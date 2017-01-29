@@ -9,11 +9,7 @@ namespace App\Exceptions;
 
 use Exception;
 
-<<<<<<< HEAD:app/Exceptions/EmptyResponseException.php
-class EmptyResponseException extends Exception
-=======
-class InvalidDataException extends \Exception
->>>>>>> Add Validity check to request:app/Exceptions/InvalidDataException.php
+class InvalidDataException extends Exception
 {
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {

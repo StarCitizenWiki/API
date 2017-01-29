@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\StarCitizen;
 
+use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use Illuminate\Http\Request;
@@ -42,35 +43,40 @@ class FundImageController extends Controller
 
     public function getImage()
     {
-        $this->_getFundsFromAPI();
-        $this->_formatFunds();
-        $this->_determineImageHeight();
-        $this->_initImage();
-        $this->_addDataToImage();
-        $this->_flushImageToString();
-        $this->_saveImageToDisk();
-        return response()->file(storage_path('app/public/'.$this->_image['name']));
+        // @TODO Aus $request schließen welche Bildversion verlangt wird, abgleichen ob Bild im Cache
+        try {
+            $this->_getFundsFromAPI();
+            $this->_formatFunds();
+            $this->_determineImageHeight();
+            $this->_initImage();
+            $this->_addDataToImage();
+            $this->_flushImageToString();
+            $this->_saveImageToDisk();
+            return response()->file(storage_path('app/public/'.$this->_image['name']));
+        } catch (InvalidDataException $e) {
+            // @TODO Bild aus Cache laden
+        }
     }
 
-    public function blackColor()
+    public function blackColor() : FundImageController
     {
         $this->_font['color'] = FundImageController::COLORS['black'];
         return $this;
     }
 
-    public function blueColor()
+    public function blueColor() : FundImageController
     {
         $this->_font['color'] = FundImageController::COLORS['blue'];
         return $this;
     }
 
-    public function fundingOnly()
+    public function fundingOnly() : FundImageController
     {
         $this->_image['type'] = FundImageController::FUNDING_ONLY;
         return $this;
     }
 
-    public function fundingAndText()
+    public function fundingAndText() : FundImageController
     {
         $this->_image['type'] = FundImageController::FUNDING_AND_TEXT;
         return $this;
@@ -83,7 +89,7 @@ class FundImageController extends Controller
         }
     }
 
-    private function _determineImageHeight()
+    private function _determineImageHeight() : void
     {
         if ($this->_image['type'] === FundImageController::FUNDING_ONLY) {
             $this->_image['height'] = 35;
@@ -92,7 +98,7 @@ class FundImageController extends Controller
         }
     }
 
-    private function _initImage()
+    private function _initImage() : void
     {
         $this->_image['width'] = 280;
         $this->_image['pointer'] = imagecreatetruecolor( $this->_image['width'], $this->_image['height'] );
@@ -102,7 +108,7 @@ class FundImageController extends Controller
         imagefill($this->_image['pointer'], 0, 0, $transparentColor);
     }
 
-    private function _addDataToImage()
+    private function _addDataToImage() : void
     {
         $fontColor = $this->_makeColorFromArray();
         if ($this->_image['type'] === FundImageController::FUNDING_AND_TEXT) {
@@ -118,7 +124,7 @@ class FundImageController extends Controller
         return imagecolorallocate($this->_image['pointer'], $this->_font['color'][0], $this->_font['color'][1], $this->_font['color'][2]);
     }
 
-    private function _flushImageToString()
+    private function _flushImageToString() : void
     {
         ob_start();
         imagepng($this->_image['pointer']);
@@ -126,13 +132,13 @@ class FundImageController extends Controller
         ob_end_clean();
     }
 
-    private function _saveImageToDisk()
+    private function _saveImageToDisk() : void
     {
         $this->_assembleFileName();
         Storage::disk('public')->put($this->_image['name'], $this->_image['data']);
     }
 
-    private function _assembleFileName()
+    private function _assembleFileName() : void
     {
         if ($this->_font['color'] === FundImageController::COLORS['black']) {
             $color = '_black';
@@ -142,13 +148,13 @@ class FundImageController extends Controller
         $this->_image['name'] = $this->_image['type'].$color.'.png';
     }
 
-    private function _getFundsFromAPI()
+    private function _getFundsFromAPI() : void
     {
         $funds = $this->_api->lastHours()->getCrowdfundStats()->asArray();
         $this->_funds = $funds['data']['funds'];
     }
 
-    private function _formatFunds()
+    private function _formatFunds() : void
     {
         $this -> _funds = number_format(substr($this->_funds, 0, -2), 0, ',', '.') . '$';
     }
