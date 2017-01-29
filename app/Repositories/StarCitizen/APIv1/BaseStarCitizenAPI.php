@@ -11,13 +11,13 @@ use App\Exceptions\InvalidDataException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 
-abstract class BaseStarCitizenAPI
+class BaseStarCitizenAPI
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
 
     private $_connection;
     /** @var  Response */
-    protected $_response;
+    private $_response;
 
     function __construct()
     {
@@ -27,10 +27,15 @@ abstract class BaseStarCitizenAPI
         ]);
     }
 
-    protected function request(String $requestMethod, String $uri, array $data = null)
+    public function request(String $requestMethod, String $uri, array $data = null)
     {
         $this->_response = $this->_connection->request($requestMethod, $uri, $data);
+    }
+
+    public function getResponse()
+    {
         $this->_checkIfResponseIsValid();
+        return $this->_response;
     }
 
     private function _checkIfResponseIsValid()

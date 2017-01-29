@@ -9,7 +9,11 @@ namespace App\Exceptions;
 
 use Exception;
 
+<<<<<<< HEAD:app/Exceptions/MissingExtensionException.php
 class MissingExtensionException extends Exception
+=======
+class InvalidDataException extends Exception
+>>>>>>> Inject BaseStarCitizenAPI instead of Extending it:app/Exceptions/InvalidDataException.php
 {
     public function __construct($message = "", $code = 0, Exception $previous = null)
     {

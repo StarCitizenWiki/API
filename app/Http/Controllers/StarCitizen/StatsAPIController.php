@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\StarCitizen;
 
-use App\Exceptions\EmptyResponseException;
+use App\Exceptions\InvalidDataException;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use App\Http\Controllers\Controller;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 
 class StatsAPIController extends Controller
@@ -20,6 +19,11 @@ class StatsAPIController extends Controller
 
     public function getStatsAsJSON() : String
     {
-        return $this->_api->getCrowdfundStats()->asJSON();
+        try {
+            return $this->_api->getCrowdfundStats()->asJSON();
+        } catch (InvalidDataException $e) {
+            return $e->getMessage();
+        }
+
     }
 }

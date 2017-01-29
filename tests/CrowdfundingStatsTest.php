@@ -7,18 +7,18 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class CrowdfundingStatsTest extends TestCase
 {
     /** @var  \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository */
-    private $_api;
+    private $_statsAPI;
 
     public function setUp()
     {
         parent::setUp();
-        $this->_api = $this->app->make('StarCitizen\StatsAPI');
+        $this->_statsAPI = $this->app->make('StarCitizen\StatsAPI');
     }
 
     public function testCrowdfundingStats()
     {
-        $crowdfundingStats = $this->_api->getCrowdfundStats()->asResponse();
-        $content = $crowdfundingStats->getBody()->getContents();
+        $crowdfundingStats = $this->_statsAPI->getCrowdfundStats()->asResponse();
+        $content = (string) $crowdfundingStats->getBody();
 
         $this->assertSame('application/json', $crowdfundingStats->getHeader('Content-Type')[0]);
         $this->assertNotEmpty($content);
@@ -32,7 +32,7 @@ class CrowdfundingStatsTest extends TestCase
 
     public function testEmptyResponseException()
     {
-        $this->expectException(\App\Exceptions\EmptyResponseException::class);
-        $this->_api->asJSON();
+        $this->expectException(\App\Exceptions\ResponseNotRequestedException::class);
+        $this->_statsAPI->asJSON();
     }
 }

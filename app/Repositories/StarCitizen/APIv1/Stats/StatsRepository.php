@@ -7,11 +7,11 @@
 
 namespace App\Repositories\StarCitizen\APIv1\Stats;
 
-use App\Exceptions\EmptyResponseException;
+use App\Exceptions\ResponseNotRequestedException;
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI as BaseStarCitizenAPI;
 use GuzzleHttp\Psr7\Response;
 
-class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
+class StatsRepository implements StatsInterface
 {
 
     private $_getFans = true;
@@ -19,9 +19,13 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     private $_getFunds = true;
     private $_chartType = 'hour';
 
-    function __construct()
+    private $_api;
+    /** @var  Response */
+    private $_response;
+
+    function __construct(BaseStarCitizenAPI $api)
     {
-        parent::__construct();
+        $this->_api = $api;
     }
 
     /**
@@ -31,7 +35,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getCrowdfundStats() : StatsRepository
     {
-        $this->request('POST', 'stats/getCrowdfundStats', [
+        $this->_api->request('POST', 'stats/getCrowdfundStats', [
             'json' => [
                 'chart' => $this->_chartType,
                 'fans' => $this->_getFans,
@@ -39,6 +43,8 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
                 'funds' => $this->_getFunds
             ]
         ]);
+
+        $this->_saveResponse();
 
         return $this;
     }
@@ -85,16 +91,31 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 
     public function asJSON() : String
     {
-        return $this->_response->getBody()->getContents();
+        $this->_checkIfResponseRequested();
+        return $this->_response->getBody();
     }
 
     public function asArray() : array
     {
-        return json_decode($this->_response->getBody()->getContents(), true);
+        $this->_checkIfResponseRequested();
+        return json_decode((string) $this->_response->getBody(), true);
     }
 
     public function asResponse() : Response
     {
+        $this->_checkIfResponseRequested();
         return $this->_response;
+    }
+
+    private function _saveResponse()
+    {
+        $this->_response = $this->_api->getResponse();
+    }
+
+    private function _checkIfResponseRequested()
+    {
+        if ($this->_response === null) {
+            throw new ResponseNotRequestedException('You need to request a response first');
+        }
     }
 }
