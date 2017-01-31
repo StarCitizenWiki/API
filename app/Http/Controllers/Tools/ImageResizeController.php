@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tools;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class KopfbildToolController extends Controller
+class ImageResizeController extends Controller
 {
     public function index() {
-        $kopfbildSettings = [
+        $imageResizeSettings = [
             'default' => [
                 'outputWidth' => 1920,
                 'outputHeight' => 250,
@@ -22,6 +23,6 @@ class KopfbildToolController extends Controller
             'enableJS' => false,
         ];
 
-        return view('kopfbildtool.index', compact('kopfbildSettings'), compact('bootstrapModules'));
+        return view('tools.imageresizer', compact('imageResizeSettings'), compact('bootstrapModules'));
     }
 }
