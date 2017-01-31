@@ -11,3 +11,4 @@ composer.phar
 /public/css/*.map
 /public/js/*.map
 /Vagrantfile
+/composer.lock
