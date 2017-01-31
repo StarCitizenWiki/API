@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\StarCitizen;
+namespace App\Http\Controllers\Tools;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
