@@ -42,8 +42,8 @@ Route::group(['namespace' => 'Tools'], function () {
         Route::group(['prefix' => 'images'], function () {
             Route::get('funds', ['uses' => 'FundImageController@getImage']);
             Route::group(['prefix' => 'funds'], function () {
-                Route::get('text', ['uses' => 'FundImageController@getImage']);
-                Route::get('bar', ['uses' => 'FundImageController@getImage']);
+                Route::get('text', ['uses' => 'FundImageController@getImageWithText']);
+                Route::get('bar', ['uses' => 'FundImageController@getImageWithBars']);
             });
         });
 
@@ -52,11 +52,3 @@ Route::group(['namespace' => 'Tools'], function () {
         });
     });
 });
-
-Route::group(['namespace' => 'Tools', 'prefix' => 'media'], function () {
-    Route::group(['prefix' => 'media'], function () {
-
-    });
-});
-
-
