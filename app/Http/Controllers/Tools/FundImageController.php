@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Tools;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 
@@ -14,8 +13,8 @@ class FundImageController extends Controller
     const COLORS = ['blue' => [0, 231, 255], 'black' => [51, 51, 51]];
     const FUNDING_ONLY = 'funding_only';
     const FUNDING_AND_TEXT = 'funding_and_text';
+    const FUNDING_AND_BARS = 'funding_and_bars';
 
-    private $_request;
     private $_api;
     private $_funds;
     private $_image = [
@@ -23,7 +22,7 @@ class FundImageController extends Controller
         'width' => null,
         'height' => null,
         'data' => null,
-        'type' => FundImageController::FUNDING_AND_TEXT,
+        'type' => FundImageController::FUNDING_ONLY,
         'text' => 'Crowdfunding:',
         'name' => null
     ];
@@ -32,13 +31,24 @@ class FundImageController extends Controller
         'color' => null,
     ];
 
-    public function __construct(Request $request, StatsRepository $api)
+    public function __construct(StatsRepository $api)
     {
         $this->_checkIfImageCanBeCreated();
-        $this->_request = $request;
         $this->_api = $api;
         $this->_font['path'] = resource_path('assets/fonts/orbitron-light-webfont.ttf');
         $this->_font['color'] = FundImageController::COLORS['black'];
+    }
+
+    public function getImageWithText()
+    {
+        $this->_image['type'] = FundImageController::FUNDING_AND_TEXT;
+        return $this->getImage();
+    }
+
+    public function getImageWithBars()
+    {
+        $this->_image['type'] = FundImageController::FUNDING_AND_BARS;
+        return $this->getImage();
     }
 
     public function getImage()
@@ -158,4 +168,5 @@ class FundImageController extends Controller
     {
         $this -> _funds = number_format(substr($this->_funds, 0, -2), 0, ',', '.') . '$';
     }
+
 }
