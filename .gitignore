@@ -13,4 +13,3 @@ composer.phar
 /Vagrantfile
 /composer.lock
 .gitignore
-tools/
