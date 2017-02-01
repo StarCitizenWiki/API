@@ -1,27 +1,21 @@
 <?php
 
-namespace App\Http\Controllers\Tools;
+namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
 
 class FundImageController extends Controller
 {
     const COLORS = ['blue' => [0, 231, 255], 'black' => [51, 51, 51]];
-    const FUNDING_ONLY = FUNDIMAGE_FUNDING_ONLY;
-    const FUNDING_AND_TEXT = FUNDIMAGE_FUNDING_AND_TEXT;
-    const FUNDING_AND_BARS = FUNDIMAGE_FUNDING_AND_BARS;
+    const FUNDING_ONLY = 'funding_only';
+    const FUNDING_AND_TEXT = 'funding_and_text';
 
-	const SUPPORTED_FUNDS = [
-		FundImageController::FUNDING_ONLY,
-		FundImageController::FUNDING_AND_TEXT,
-		FundImageController::FUNDING_AND_BARS
-	];
-
+    private $_request;
     private $_api;
     private $_funds;
     private $_image = [
@@ -29,7 +23,7 @@ class FundImageController extends Controller
         'width' => null,
         'height' => null,
         'data' => null,
-        'type' => FundImageController::FUNDING_ONLY,
+        'type' => FundImageController::FUNDING_AND_TEXT,
         'text' => 'Crowdfunding:',
         'name' => null
     ];
@@ -38,31 +32,19 @@ class FundImageController extends Controller
         'color' => null,
     ];
 
-    public function __construct(StatsRepository $api)
+    public function __construct(Request $request, StatsRepository $api)
     {
         $this->_checkIfImageCanBeCreated();
+        $this->_request = $request;
         $this->_api = $api;
         $this->_font['path'] = resource_path('assets/fonts/orbitron-light-webfont.ttf');
         $this->_font['color'] = FundImageController::COLORS['black'];
-    }
-
-    public function getImageWithText()
-    {
-        $this->_image['type'] = FundImageController::FUNDING_AND_TEXT;
-        return $this->getImage();
-    }
-
-    public function getImageWithBars()
-    {
-        $this->_image['type'] = FundImageController::FUNDING_AND_BARS;
-        return $this->getImage();
     }
 
     public function getImage()
     {
         // @TODO Aus $request schließen welche Bildversion verlangt wird, abgleichen ob Bild im Cache
         try {
-	        $this->_setImageType();
             $this->_getFundsFromAPI();
             $this->_formatFunds();
             $this->_determineImageHeight();
@@ -176,15 +158,4 @@ class FundImageController extends Controller
     {
         $this -> _funds = number_format(substr($this->_funds, 0, -2), 0, ',', '.') . '$';
     }
-
-	private function _setImageType() : void
-	{
-		if (in_array(Route::getCurrentRoute()->getAction()['type'], FundImageController::SUPPORTED_FUNDS)) {
-			$this->_image['type'] = Route::getCurrentRoute()->getAction()['type'];
-		} else {
-			throw new \InvalidArgumentException('FundImage function only accepts Supported Image Types('
-				.implode(", ",FundImageController::SUPPORTED_FUNDS).'). Input was: '
-				.Route::getCurrentRoute()->getAction()['type']);
-		}
-	}
 }
