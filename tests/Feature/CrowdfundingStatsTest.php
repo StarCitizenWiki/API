@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests\Feature;
+
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -27,7 +30,7 @@ class CrowdfundingStatsTest extends TestCase
 
     public function testView()
     {
-        $this->visit('/api/v1/crowdfunding')->see('success');
+        $this->getJson('/api/v1/stats/funds')->assertStatus(200);
     }
 
     public function testEmptyResponseException()
