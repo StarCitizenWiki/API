@@ -81,7 +81,7 @@ class FundImageController extends Controller
         } catch (\InvalidArgumentException $e) {
             abort(400);
         }
-        
+
         $this->_assembleFileName();
 
         if ($this->_checkIfImageCanBeLoadedFromCache()) {

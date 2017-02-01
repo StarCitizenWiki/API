@@ -11,9 +11,9 @@ class FundImageTest extends TestCase
     {
         if (!in_array('gd', get_loaded_extensions())) {
             $this->expectException(\App\Exceptions\MissingExtensionException::class);
-            $this->visit('/fundImage');
+            $this->visit('/media/images/funds');
         } else {
-            $this->visit('/fundImage');
+            $this->get('/media/images/funds');
             $this->assertResponseOk();
         }
     }
