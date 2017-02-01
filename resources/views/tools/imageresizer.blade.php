@@ -33,12 +33,12 @@
 
 @section('scripts')
     <script>
-        const displayWidth = {{ $kopfbildSettings['default']['displayWidth'] }};
-        const displayHeight = {{ $kopfbildSettings['default']['displayHeight'] }};
-        const outputWidth = {{ $kopfbildSettings['default']['outputWidth'] }};
-        const outputHeight = {{ $kopfbildSettings['default']['outputHeight'] }};
+        const displayWidth = {{ $imageResizeSettings['default']['displayWidth'] }};
+        const displayHeight = {{ $imageResizeSettings['default']['displayHeight'] }};
+        const outputWidth = {{ $imageResizeSettings['default']['outputWidth'] }};
+        const outputHeight = {{ $imageResizeSettings['default']['outputHeight'] }};
         const HALF_SELECTION_RECTANGLE_SIZE = outputHeight / 2;
-        const selectionRectangleColor = "{{ $kopfbildSettings['default']['selectionRectangleColor'] }}";
+        const selectionRectangleColor = "{{ $imageResizeSettings['default']['selectionRectangleColor'] }}";
 
         var selectionRectangleOffset = 0;
         var aspectRatio = 0;
