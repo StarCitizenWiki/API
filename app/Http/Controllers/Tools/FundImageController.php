@@ -46,23 +46,49 @@ class FundImageController extends Controller
         $this->_font['color'] = FundImageController::COLORS['black'];
     }
 
+    /**
+     * Sets the Image Type to FUNDING_AND_TEXT
+     *
+     * @return mixed
+     */
     public function getImageWithText()
     {
         $this->_image['type'] = FundImageController::FUNDING_AND_TEXT;
         return $this->getImage();
     }
 
+    /**
+     * Sets the Image Type to FUNDING_AND_BARS
+     *
+     * @return mixed
+     */
     public function getImageWithBars()
     {
         $this->_image['type'] = FundImageController::FUNDING_AND_BARS;
         return $this->getImage();
     }
 
+
+    /**
+     * Generates the Image with the defined Values
+     *
+     * @return mixed
+     */
     public function getImage()
     {
-        // @TODO Aus $request schließen welche Bildversion verlangt wird, abgleichen ob Bild im Cache
         try {
-	        $this->_setImageType();
+            $this->_setImageType();
+        } catch (\InvalidArgumentException $e) {
+            abort(400);
+        }
+        
+        $this->_assembleFileName();
+
+        if ($this->_checkIfImageCanBeLoadedFromCache()) {
+            return $this->_loadImageFromDisk();
+        }
+
+        try {
             $this->_getFundsFromAPI();
             $this->_formatFunds();
             $this->_determineImageHeight();
@@ -70,37 +96,36 @@ class FundImageController extends Controller
             $this->_addDataToImage();
             $this->_flushImageToString();
             $this->_saveImageToDisk();
-            return response()->file(storage_path('app/public/'.$this->_image['name']));
         } catch (InvalidDataException $e) {
-            // @TODO Bild aus Cache laden
+            // @TODO Logging und Mailversand
+        } finally {
+            return $this->_loadImageFromDisk();
         }
     }
 
+    /**
+     * @deprecated Farbe über Request ermitteln
+     *
+     * @return FundImageController
+     */
     public function blackColor() : FundImageController
     {
         $this->_font['color'] = FundImageController::COLORS['black'];
         return $this;
     }
 
+    /**
+     * @deprecated Farbe über Request ermitteln
+     *
+     * @return FundImageController
+     */
     public function blueColor() : FundImageController
     {
         $this->_font['color'] = FundImageController::COLORS['blue'];
         return $this;
     }
 
-    public function fundingOnly() : FundImageController
-    {
-        $this->_image['type'] = FundImageController::FUNDING_ONLY;
-        return $this;
-    }
-
-    public function fundingAndText() : FundImageController
-    {
-        $this->_image['type'] = FundImageController::FUNDING_AND_TEXT;
-        return $this;
-    }
-
-    private function _checkIfImageCanBeCreated()
+    private function _checkIfImageCanBeCreated() : void
     {
         if (!in_array('gd', get_loaded_extensions())) {
             throw new MissingExtensionException('GD Library is missing!');
@@ -152,8 +177,12 @@ class FundImageController extends Controller
 
     private function _saveImageToDisk() : void
     {
-        $this->_assembleFileName();
-        Storage::disk('public')->put($this->_image['name'], $this->_image['data']);
+        Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->put($this->_image['name'], $this->_image['data']);
+    }
+
+    private function _loadImageFromDisk()
+    {
+        return response()->file(storage_path(FUNDIMAGE_RELATIVE_SAVE_PATH.$this->_image['name']));
     }
 
     private function _assembleFileName() : void
@@ -187,4 +216,14 @@ class FundImageController extends Controller
 				.Route::getCurrentRoute()->getAction()['type']);
 		}
 	}
+
+	private function _checkIfImageCanBeLoadedFromCache() : bool
+    {
+        if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->_image['name']) &&
+            Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->lastModified($this->_image['name']) > time() - FUNDIMAGE_CACHE_TIME) {
+            return true;
+        }
+        return false;
+    }
+
 }
