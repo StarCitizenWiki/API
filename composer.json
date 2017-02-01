@@ -22,10 +22,7 @@
         ],
         "psr-4": {
             "App\\": "app/"
-        },
-        "files": [
-            "app/constants.php"
-        ]
+        }
     },
     "autoload-dev": {
         "classmap": [
