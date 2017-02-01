@@ -8,35 +8,13 @@
 namespace App\Repositories\StarCitizen\APIv1;
 
 use App\Exceptions\InvalidDataException;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
+use App\Repositories\BaseAPI;
 
 class BaseStarCitizenAPI
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
 
-    private $_connection;
-    /** @var  Response */
-    private $_response;
-
-    function __construct()
-    {
-        $this->_connection = new Client([
-            'base_uri' => BaseStarCitizenAPI::API_URL,
-            'timeout' => 3.0
-        ]);
-    }
-
-    public function request(String $requestMethod, String $uri, array $data = null)
-    {
-        $this->_response = $this->_connection->request($requestMethod, $uri, $data);
-    }
-
-    public function getResponse()
-    {
-        $this->_checkIfResponseIsValid();
-        return $this->_response;
-    }
+    use BaseAPI;
 
     private function _checkIfResponseIsValid()
     {
