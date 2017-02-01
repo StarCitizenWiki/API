@@ -32,6 +32,23 @@ Route::get('/', function() {
     echo "</table>";
 });
 
-Route::get('/kopfbildtool', ['uses' => 'KopfbildToolController@index']);
 
-Route::get('/fundImage', ['uses' => 'StarCitizen\FundImageController@getImage']);
+Route::group(['namespace' => 'Tools'], function () {
+    Route::group(['prefix' => 'tools'], function () {
+        Route::get('imageresizer', ['uses' => 'ImageResizeController@index']);
+    });
+
+    Route::group(['prefix' => 'media', 'middleware' => ['api']], function () {
+        Route::group(['prefix' => 'images'], function () {
+            Route::get('funds', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_ONLY]);
+            Route::group(['prefix' => 'funds'], function () {
+                Route::get('text', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_AND_TEXT]);
+                Route::get('bar', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_AND_BARS]);
+            });
+        });
+
+        Route::group(['prefix' => 'videos'], function () {
+
+        });
+    });
+});
