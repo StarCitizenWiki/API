@@ -178,6 +178,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+	    /*
+	     * Fractal service
+	     */
+	    Spatie\Fractal\FractalServiceProvider::class,
     ],
 
     /*
