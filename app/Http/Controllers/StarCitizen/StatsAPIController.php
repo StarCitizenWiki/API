@@ -5,8 +5,6 @@ namespace App\Http\Controllers\StarCitizen;
 use App\Exceptions\InvalidDataException;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use App\Http\Controllers\Controller;
-//use Illuminate\Http\Request;
-//use Illuminate\Support\Facades\Route;
 
 class StatsAPIController extends Controller
 {
@@ -16,7 +14,6 @@ class StatsAPIController extends Controller
     public function __construct(StatsRepository $api)
     {
         $this->_api = $api;
-	    //Route::getCurrentRoute()->setParameter('transformator', 'StatsTransformator');
     }
 
     public function getStatsAsJSON() : String
@@ -32,11 +29,18 @@ class StatsAPIController extends Controller
     {
         try {
             $stats = $this->_api->getCrowdfundStats()->asArray();
-            return $stats['data']['funds']; /** @TODO */
+            return $stats['data']['data']['funds']; /** @TODO */
         } catch (InvalidDataException $e) {
             return $e->getMessage();
         }
+    }
 
-
+    public function getAll() : String
+    {
+	    try {
+		    return $this->_api->getCrowdfundStats()->asJSON();
+	    } catch (InvalidDataException $e) {
+		    return $e->getMessage();
+	    }
     }
 }

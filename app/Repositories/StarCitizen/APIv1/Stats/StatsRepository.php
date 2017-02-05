@@ -17,6 +17,11 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     private $_getFunds = true;
     private $_chartType = 'hour';
 
+	function __construct()
+	{
+		$this->_transformator = new StatsTransformator();
+		parent::__construct();
+	}
 
     /**
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
@@ -33,8 +38,6 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
                 'funds' => $this->_getFunds
             ]
         ]);
-
-        $this->_saveResponse();
 
         return $this;
     }
@@ -78,8 +81,5 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
         $this->_chartType = 'month';
         return $this;
     }
-
-
-
 
 }

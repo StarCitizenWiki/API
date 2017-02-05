@@ -13,7 +13,14 @@ use App\Repositories\StarCitizen\APIv1\Common\BaseAPITransformator;
 class StatsTransformator extends BaseAPITransformator {
 
 	public function transform($response) {
-		return $response;
+		$responseBody = (String) $response->getBody();
+
+		// TODO Add spezific data transformation
+		$responseContent = json_decode($responseBody, true);
+
+		$this->setSuccess($responseContent['success'] === 1);
+		$this->setStatusCode($response->getStatusCode());
+		return $responseContent;
 	}
 
 

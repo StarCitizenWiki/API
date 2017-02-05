@@ -7,6 +7,7 @@ use \League\Fractal\TransformerAbstract;
 abstract class BaseApiTransformator extends TransformerAbstract {
 
 	protected $statusCode = 200;
+	protected $success = true;
 	/**
 	 * @return int
 	 */
@@ -23,4 +24,19 @@ abstract class BaseApiTransformator extends TransformerAbstract {
 		$this->statusCode = $statusCode;
 	}
 
+	/**
+	 * @return boolean
+	 */
+	public function isSuccess(): bool
+	{
+		return $this->success;
+	}
+
+	/**
+	 * @param boolean $success
+	 */
+	public function setSuccess(bool $success)
+	{
+		$this->success = $success;
+	}
 }

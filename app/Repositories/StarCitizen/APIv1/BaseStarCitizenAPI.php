@@ -40,7 +40,7 @@ class BaseStarCitizenAPI
 
     private function _checkIfResponseStatusIs200()
     {
-        return $this->_response->getStatusCode() === 200;
+        return $this->_transformator->getStatusCode() === 200;
     }
 
     /**
@@ -49,7 +49,6 @@ class BaseStarCitizenAPI
      */
     private function _checkIfResponseDataIsValid()
     {
-        $responseData = json_decode($this->_response->getBody()->getContents(), true);
-        return $responseData['success'] === 1;
+		return $this->_transformator->isSuccess();
     }
 }
