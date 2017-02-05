@@ -1,7 +1,7 @@
-
 // Fonts
-@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
+//@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
+@import "node_modules/font-awesome/scss/font-awesome.scss";
 
-$enable-flex: true;
 // Bootstrap
+$enable-flex: true;
 @import "node_modules/bootstrap/scss/bootstrap.scss";

@@ -11,11 +11,7 @@
 |
 */
 
-Route::get('/', function() {
-    $routeCollection = Route::getRoutes();
-
-    dd($routeCollection);
-});
+Route::get('/', ['uses' => 'APIPageController@getIndex']);
 
 
 Route::group(['namespace' => 'Tools'], function () {
