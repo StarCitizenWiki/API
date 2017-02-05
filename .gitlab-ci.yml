@@ -8,6 +8,7 @@ before_script:
 - bash ci/docker_install.sh > /dev/null
 - curl -sS https://getcomposer.org/installer | php
 - php composer.phar install
+- php composer.phar update
 
 phpunit:  
   script:
