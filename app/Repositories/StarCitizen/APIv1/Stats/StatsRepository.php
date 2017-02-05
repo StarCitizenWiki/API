@@ -8,6 +8,7 @@
 namespace App\Repositories\StarCitizen\APIv1\Stats;
 
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI as BaseStarCitizenAPI;
+use App\Transformers\StarCitizen\StatsTransformer;
 
 class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 {

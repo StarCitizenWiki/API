@@ -6,7 +6,7 @@
  * Time: 21:29
  */
 
-namespace App\Repositories\StarCitizen\APIv1\Stats;
+namespace App\Transformers\StarCitizen;
 
 use App\Transformers\BaseAPITransformer;
 use GuzzleHttp\Psr7\Response;
