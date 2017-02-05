@@ -46,7 +46,7 @@ trait BaseAPI
 
 	public function getResponse()
 	{
-		$transformedResponse = fractal($this->_response, new $this->_transformator())->include;
+		$transformedResponse = fractal($this->_response, new $this->_transformator());
 		$this->_checkIfResponseIsValid();
 
 		return $transformedResponse;
