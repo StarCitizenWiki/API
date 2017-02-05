@@ -17,9 +17,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     private $_getFunds = true;
     private $_chartType = 'hour';
 
-	function __construct()
+	function __construct(StatsTransformer $transformer)
 	{
-		$this->_transformator = new StatsTransformator();
+		$this->_transformer = $transformer;
 		parent::__construct();
 	}
 

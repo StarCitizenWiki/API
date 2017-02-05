@@ -20,7 +20,7 @@ class BaseStarCitizenAPI
     {
         if ($this->_checkIfResponseIsNotNull() &&
             $this->_checkIfResponseIsNotEmpty() &&
-            $this->_checkIfResponseStatusIs200() &&
+            $this->_checkIfResponseStatusIsOK() &&
             $this->_checkIfResponseDataIsValid()) {
             return true;
         } else {
@@ -28,27 +28,27 @@ class BaseStarCitizenAPI
         }
     }
 
-    private function _checkIfResponseIsNotNull()
+    private function _checkIfResponseIsNotNull() : bool
     {
         return $this->_response !== null;
     }
 
-    private function _checkIfResponseIsNotEmpty()
+    private function _checkIfResponseIsNotEmpty() : bool
     {
         return !empty($this->_response);
     }
 
-    private function _checkIfResponseStatusIs200()
+    private function _checkIfResponseStatusIsOK() : bool
     {
-        return $this->_transformator->getStatusCode() === 200;
+        return $this->_transformer->getStatusCode() === 200;
     }
 
     /**
      * JSON aus API enthält (bis jetzt) immer ein success field
      * @return bool
      */
-    private function _checkIfResponseDataIsValid()
+    private function _checkIfResponseDataIsValid() : bool
     {
-		return $this->_transformator->isSuccess();
+		return $this->_transformer->isSuccess();
     }
 }

@@ -8,15 +8,18 @@
 
 namespace App\Repositories;
 
+use App\Transformers\BaseAPITransformerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use Spatie\Fractal\Fractal;
 
 trait BaseAPI
 {
 	private $_connection;
 	/** @var  Response */
 	private $_response;
-	protected $_transformator;
+	/** @var  BaseAPITransformerInterface */
+	protected $_transformer;
 
 	function __construct()
 	{
@@ -31,34 +34,25 @@ trait BaseAPI
 	/**
 	 * @return mixed
 	 */
-	public function getTransformator()
+	public function getTransformer()
 	{
-		return $this->_transformator;
+		return $this->_transformer;
 	}
 
 	/**
-	 * @param mixed $transformator
+	 * @param mixed $transformer
 	 */
-	public function setTransformator($transformator)
+	public function setTransformer(BaseAPITransformerInterface $transformer)
 	{
-		$this->_transformator = $transformator;
+		$this->_transformer = $transformer;
 	}
 
-	public function getResponse()
+	public function getResponse() : Fractal
 	{
-		$transformedResponse = fractal($this->_response, new $this->_transformator());
+		$transformedResponse = fractal($this->_response, new $this->_transformer());
 		$this->_checkIfResponseIsValid();
 
 		return $transformedResponse;
-	}
-
-	/*
-	 * Alias to getResponse
-	 * TODO check if neccessary
-	 */
-	public function asResponse() : Response
-	{
-		return getResponse();
 	}
 
 	public function asJSON() : String

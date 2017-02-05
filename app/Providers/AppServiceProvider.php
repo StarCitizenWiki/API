@@ -24,6 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('StarCitizen\StatsAPI', StatsRepository::class);
+        $this->app->bind('StarCitizen\StatsRepository', StatsRepository::class);
     }
 }

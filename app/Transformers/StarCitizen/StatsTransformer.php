@@ -8,11 +8,14 @@
 
 namespace App\Repositories\StarCitizen\APIv1\Stats;
 
-use App\Repositories\StarCitizen\APIv1\Common\BaseAPITransformator;
+use App\Transformers\BaseAPITransformer;
+use GuzzleHttp\Psr7\Response;
 
-class StatsTransformator extends BaseAPITransformator {
+class StatsTransformer extends BaseAPITransformer
+{
 
-	public function transform($response) {
+	public function transform(Response $response)
+    {
 		$responseBody = (String) $response->getBody();
 
 		// TODO Add spezific data transformation
@@ -22,6 +25,5 @@ class StatsTransformator extends BaseAPITransformator {
 		$this->setStatusCode($response->getStatusCode());
 		return $responseContent;
 	}
-
 
 }

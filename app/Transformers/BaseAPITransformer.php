@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Repositories\StarCitizen\APIv1\Common;
+namespace App\Transformers;
 
+use GuzzleHttp\Psr7\Response;
 use \League\Fractal\TransformerAbstract;
 
-abstract class BaseApiTransformator extends TransformerAbstract {
+abstract class BaseAPITransformer extends TransformerAbstract implements BaseAPITransformerInterface {
 
 	protected $statusCode = 200;
 	protected $success = true;
@@ -19,7 +20,7 @@ abstract class BaseApiTransformator extends TransformerAbstract {
 	/**
 	 * @param int $statusCode
 	 */
-	public function setStatusCode( int $statusCode )
+	public function setStatusCode(int $statusCode) : void
 	{
 		$this->statusCode = $statusCode;
 	}
@@ -29,14 +30,19 @@ abstract class BaseApiTransformator extends TransformerAbstract {
 	 */
 	public function isSuccess(): bool
 	{
-		return $this->success;
+		return $this->success === true;
 	}
 
 	/**
 	 * @param boolean $success
 	 */
-	public function setSuccess(bool $success)
+	public function setSuccess(bool $success) : void
 	{
 		$this->success = $success;
 	}
+
+	public function transform(Response $response)
+    {
+        throw new \Exception('transform function not implemented!');
+    }
 }
