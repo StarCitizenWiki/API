@@ -13,3 +13,4 @@ composer.phar
 /Vagrantfile
 /composer.lock
 .gitignore
+/ci/
