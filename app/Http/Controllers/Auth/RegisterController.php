@@ -27,7 +27,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = AUTH_HOME;
+    protected $redirectTo = AUTH_ACCOUNT;
 
     /**
      * Create a new controller instance.
@@ -37,6 +37,16 @@ class RegisterController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+
+    /**
+     * Show the application registration form.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showRegistrationForm()
+    {
+        return redirect(AUTH_HOME);
     }
 
     /**
@@ -60,10 +70,13 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $api_token = str_random(60);
         return User::create([
+            'name' => null,
             'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'auth_api'
+            'api_token' => $api_token,
+            'password' => bcrypt($api_token),
+            'requests_per_minute' => 60
         ]);
     }
 }

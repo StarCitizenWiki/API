@@ -13,4 +13,10 @@ define('FUNDIMAGE_RELATIVE_SAVE_PATH', join(DIRECTORY_SEPARATOR, array('app', 't
 define('FUNDIMAGE_CACHE_TIME', 600);
 
 /** Auth */
-define('AUTH_HOME', '/home');
+define('AUTH_HOME', '/');
+define('AUTH_ACCOUNT', '/account');
+define('AUTH_LOGIN', '/login');
+
+/** Throttling */
+define('THROTTLE_PERIOD', 1);
+define('THROTTLE_GUEST_REQUESTS', 10);

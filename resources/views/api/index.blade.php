@@ -1,22 +1,23 @@
 @extends('layouts.app')
 @section('title', 'Star Citizen Wiki API')
+@section('lead', 'Dokumentation')
 
 @section('content')
+    @include('layouts.heading')
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-12 text-center mt-5">
-                <img src="https://star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/157px-Star_Citizen_Wiki_Logo.png" class="center-block mb-2">
-                <h1>Star Citizen Wiki API</h1>
-                <p class="lead">Dokumentation</p>
                 <br>
-                <form class="col-lg-12 mt-5">
-                    <div class="input-group input-group-lg offset-sm-4 col-sm-4">
-                        <input type="text" class="center-block form-control input-lg" required title="Beantrage deinen API-Key" placeholder="E-Mail-Adresse">
-                        <span class="input-group-btn">
-                            <button class="btn btn-lg btn-primary" type="submit">API-Key beantragen</button>
-                        </span>
-                    </div>
-                </form>
+                @if (Auth::guest())
+                    <form class="col-lg-12 mt-3" role="form" method="POST" action="{{ route('register') }}">
+                        {{ csrf_field() }}
+                        <div class="input-group input-group-lg offset-sm-4 col-sm-4">
+                            <input id="email" type="email" class="center-block form-control input-lg" name="email" value="{{ old('email') }}" required title="Beantrage deinen API-Key" placeholder="E-Mail-Adresse">
+                            <span class="input-group-btn">
+                                <button class="btn btn-lg btn-primary" type="submit">API-Key beantragen</button>
+                            </span>
+                        </div>
+                    </form>
+                @endif
             </div>
         </div>
     </div>
@@ -86,6 +87,9 @@
         </div>
 
         @if(env('APP_ENV') === 'local')
+            @unless(Auth::guest())
+                <pre>{{ Auth::user()->api_token }}</pre>
+            @endunless
             <div class="row">
                 <div class="col-lg-12">
                     <h4>Routen:</h4>

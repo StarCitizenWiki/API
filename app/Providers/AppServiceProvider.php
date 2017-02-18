@@ -16,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $bootstrapModules = [
-            'enableCSS' =>  false,
+            'enableCSS' =>  true,
             'enableJS' => false,
         ];
 
