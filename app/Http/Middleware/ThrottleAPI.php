@@ -26,7 +26,7 @@ class ThrottleAPI extends ThrottleRequests
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        $user = DB::table('users')->where('api_token', $request->get('api_token', null))->first();
+        $user = DB::table('users')->where('api_token', $request->get('key', null))->first();
 
         // Whitelist hat kein Throttling
         if (!is_null($user) && $user->whitelisted) {

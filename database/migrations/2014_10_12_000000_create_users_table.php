@@ -22,6 +22,8 @@ class CreateUsersTable extends Migration
             $table->integer('requests_per_minute')->unsigned();
             $table->boolean('whitelisted')->default(0);
             $table->boolean('blacklisted')->default(0);
+            $table->text('notes')->nullable();
+            $table->timestamp('last_login');
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

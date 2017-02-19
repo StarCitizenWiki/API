@@ -18,7 +18,9 @@ class User extends Authenticatable
         'email',
         'api_token',
         'password',
-        'requests_per_minute'
+        'requests_per_minute',
+        'last_login',
+        'notes'
     ];
 
     /**
@@ -37,6 +39,16 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    public function isWhitelisted() : bool
+    {
+        return $this->whitelisted == 1;
+    }
+
+    public function isBlacklisted() : bool
+    {
+        return $this->blacklisted == 1;
     }
 
 }

@@ -7,9 +7,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6 col-md-2 offset-sm-3 offset-md-5 mt-3">
-                @foreach ($errors->all() as $error)
-                    <div>{{ $error }}</div>
-                @endforeach
+                @include('snippets.errors')
                 <form role="form" method="POST" action="{{ route('login') }}">
                     {{ csrf_field() }}
                     <div class="form-group">

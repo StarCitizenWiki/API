@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="h-100" style="overflow-y: scroll">
+<html style="overflow-y: scroll">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -20,8 +20,8 @@
         ]) !!};
         </script>
     </head>
-    <body class="h-100">
-        <ul class="nav nav-pills mt-2 mr-2 justify-content-end fixed-top">
+    <body>
+        <ul class="nav nav-pills mt-2 mr-2 justify-content-end ">
             @if(App::isLocal() || Auth::user()->isAdmin())
                 <li class="nav-item dropdown mr-2">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Admin</a>

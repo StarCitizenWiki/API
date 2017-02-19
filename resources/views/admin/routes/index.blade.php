@@ -3,14 +3,12 @@
 @section('lead', 'Routes')
 
 @section('content')
-    @include('layouts.heading');
+    @include('layouts.heading')
     <div class="container">
         <div class="row">
             <div class="col-12 mt-5">
-                @include('snippets.routelist');
+                @include('snippets.routelist')
             </div>
         </div>
     </div>
 @endsection
-
-

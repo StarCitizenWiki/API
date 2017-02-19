@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 */
 
 
-Route::group(['middleware' => ['api', 'throttle:60,1']], function () {
+Route::group(['middleware' => ['throttle:60,1']], function () {
 
     Route::group(['prefix' => 'v1'], function () {
 

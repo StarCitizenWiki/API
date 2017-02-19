@@ -6,9 +6,9 @@
     @include('layouts.heading')
     <div class="container-fluid">
         <div class="row">
-                <br>
+            <div class="col-12 mt-3">
                 @if (Auth::guest())
-                    <form class="col-lg-12 mt-3" role="form" method="POST" action="{{ route('register') }}">
+                    <form role="form" method="POST" action="{{ route('register') }}">
                         {{ csrf_field() }}
                         <div class="input-group input-group-lg offset-sm-4 col-sm-4">
                             <input id="email" type="email" class="center-block form-control input-lg" name="email" value="{{ old('email') }}" required title="Beantrage deinen API-Key" placeholder="E-Mail-Adresse">
@@ -17,6 +17,10 @@
                             </span>
                         </div>
                     </form>
+                @else
+                    <p class="text-center">
+                        <b>API Key:</b>&nbsp;<code>{{ Auth::user()->api_token }}</code>
+                    </p>
                 @endif
             </div>
         </div>

@@ -1,14 +1,45 @@
-<div class="text-left">
-    <ul class="list-unstyled">
-        @foreach(Route::getRoutes() as $route)
-            <li>
-                <div class="row mb-1">
-                    <span class="col-1 badge badge-info mr-3 pt-1">{{ implode(' | ', $route->methods()) }}</span>
-                    <span class="col-4 mr-3">{{ $route->uri() }}</span>
-                    <span class="col-2 mr-3">{{ $route->getActionName() }}</span>
-                    <span class="col-3 mr-3">{{ $route->domain() }}</span>
-                </div>
-            </li>
-        @endforeach
-    </ul>
-</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th><span>Methods</span></th>
+            <th><span>Path</span></th>
+            <th><span>Name</span></th>
+            <th><span>Action</span></th>
+            <th><span>Middleware</span></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach(Route::getRoutes() as $route)
+        <?php $methods = implode(' | ', $route->methods()); ?>
+        <tr>
+            <td>
+                <span class="badge
+                    @if($methods === 'POST')
+                        {{ 'badge-info' }}
+                    @elseif($methods === 'GET | HEAD' || $methods === 'GET')
+                        {{ 'badge-success' }}
+                    @elseif($methods === 'DELETE')
+                        {{ 'badge-danger' }}
+                    @else
+                        {{ 'badge-default' }}
+                    @endif
+                    ">
+                    {{ $methods }}
+                </span>
+            </td>
+            <td>
+                {{ $route->uri() }}
+            </td>
+            <td>
+                {{ $route->getName() }}
+            </td>
+            <td>
+                {{ $route->getActionName() }}
+            </td>
+            <td>
+                {{ implode(', ', $route->middleware()) }}
+            </td>
+        </tr>
+    @endforeach
+    </tbody>
+</table>

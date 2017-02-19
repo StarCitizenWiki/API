@@ -1,6 +1,12 @@
 @extends('layouts.app')
 @section('title', 'Star Citizen Wiki API - Account')
-@section('lead', 'Account')
+@if($user->isBlacklisted())
+    @section('lead')
+        <span class="text-danger">Account gesperrt</span>
+    @endsection
+@else
+    @section('lead', 'Account')
+@endif
 
 @section('content')
     @include('layouts.heading');
@@ -11,7 +17,7 @@
                     <h4>API Key:</h4>
                     <p class="">
                         <code>
-                            {{ Auth::user()->api_token }}
+                            {{ $user->api_token }}
                         </code>
                     </p>
                 </div>
@@ -20,7 +26,7 @@
                     <h4>Requests per Minute:</h4>
                     <p class="">
                         <code>
-                            {{ Auth::user()->requests_per_minute }}
+                            {{ $user->requests_per_minute }}
                         </code>
                     </p>
                 </div>
@@ -29,7 +35,7 @@
                     <h4>E-Mail:</h4>
                     <p class="">
                         <code>
-                            {{ Auth::user()->email }}
+                            {{ $user->email }}
                         </code>
                     </p>
                 </div>
@@ -38,13 +44,14 @@
 
                 <div class="mt-4">
                     <h4>Danger-Zone:</h4>
-                    <p>
-                    <form role="form" method="POST" action="{{ route('delete_account') }}">
+                    <a href="{{ route('edit_account') }}" class="btn btn-warning d-inline-block mr-2">Edit Account</a>
+                    @unless($user->isBlacklisted())
+                    <form role="form" method="POST" action="{{ route('delete_account') }}" class="d-inline-block">
                         {{ csrf_field() }}
                         <input name="_method" type="hidden" value="DELETE">
                         <button class="btn btn-danger" type="submit">Delete Account</button>
                     </form>
-                    </p>
+                    @endunless
                 </div>
             </div>
         </div>

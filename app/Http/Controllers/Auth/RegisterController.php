@@ -79,7 +79,8 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'api_token' => $api_token,
             'password' => bcrypt($password),
-            'requests_per_minute' => 60
+            'requests_per_minute' => 60,
+            'last_login' => date('Y-m-d H:i:s'),
         ]);
 
         event(new UserRegistered($user, $password));

@@ -12,8 +12,11 @@
 */
 Route::get('/', ['uses' => 'APIPageController@getIndex']);
 
-Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
+Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'namespace' => 'auth'], function () {
     Route::get('users', ['uses' => 'AdminController@users']);
+    Route::delete('users/{ID}/delete', ['uses' => 'AdminController@deleteUser']);
+    Route::get('users/{ID}/edit', ['uses' => 'AdminController@editUser']);
+    Route::patch('users/{ID}', ['uses' => 'AdminController@patchUser']);
     Route::get('routes', ['uses' => 'AdminController@routes']);
 });
 
@@ -49,3 +52,5 @@ Route::post('register', ['uses' => 'Auth\RegisterController@register']);
 // Account Routes...
 Route::get('account', ['uses' => 'Auth\AccountController@show', 'middleware' => 'auth'])->name('account');
 Route::delete('account/delete', ['uses' => 'Auth\AccountController@delete', 'middleware' => 'auth'])->name('delete_account');
+Route::get('account/edit', ['uses' => 'Auth\AccountController@showEditForm', 'middleware' => 'auth'])->name('edit_account');
+Route::patch('account/edit', ['uses' => 'Auth\AccountController@patchAccount', 'middleware' => 'auth']);
