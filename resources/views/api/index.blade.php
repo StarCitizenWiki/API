@@ -85,18 +85,6 @@
                 <p class="pull-right mt-5"><a href="https://star-citizen.wiki">Star Citizen Wiki</a> &dash; <a href="mailto:api@star-citizen.wiki"><i class="fa fa-envelope-o"></i></a> &dash; &copy; {{ date("Y") }}</p>
             </div>
         </div>
-
-        @if(env('APP_ENV') === 'local')
-            @unless(Auth::guest())
-                <pre>{{ Auth::user()->api_token }}</pre>
-            @endunless
-            <div class="row">
-                <div class="col-lg-12">
-                    <h4>Routen:</h4>
-                    @include('snippets.routelist')
-                </div>
-            </div>
-        @endif
     </div>
 
 

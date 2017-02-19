@@ -1,10 +1,9 @@
 @component('mail::message')
 # Star Citizen Wiki API
 
-**API Key:** `{{ $user->api_key }}`
+**API Key:** `{{ $user->api_token }}`
 
-Wichtig!
-Der API Key dient gleichzeitig als Account-Passwort. Gebe deinen Key niemals weiter und benutze ihn nicht als `GET` Parameter.
+**Password:** `{{ $user->password }}`
 
 @component('mail::button', ['url' => 'https://api.star-citizen.wiki'])
 Dokumentation

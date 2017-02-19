@@ -18,18 +18,36 @@ class ThrottleAPI extends ThrottleRequests
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure $next
+     * @param int $maxAttempts
+     * @param int $decayMinutes
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        $rpm = DB::table('users')->where('api_token', $request->get('user', null))->value('requests_per_minute');
+        $user = DB::table('users')->where('api_token', $request->get('api_token', null))->first();
 
-        if ($rpm === null) {
-            $rpm = THROTTLE_GUEST_REQUESTS;
+        // Whitelist hat kein Throttling
+        if (!is_null($user) && $user->whitelisted) {
+            return $next($request);
         }
 
+        $rpm = $this->_determinteRequestsPerMinute($user);
+
         return parent::handle($request, $next, $rpm, THROTTLE_PERIOD);
+    }
+
+    private function _determinteRequestsPerMinute($user)
+    {
+        if (is_null($user)) {
+            return THROTTLE_GUEST_REQUESTS;
+        }
+
+        if ($user->blacklisted) {
+            return 0;
+        }
+
+        return $user->requests_per_minute;
     }
 }

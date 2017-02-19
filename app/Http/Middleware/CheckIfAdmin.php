@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+
+class CheckIfAdmin
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string|null  $guard
+     * @return mixed
+     */
+    public function handle($request, Closure $next, $guard = null)
+    {
+        if (App::isLocal()) {
+            return $next($request);
+        }
+
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            if (in_array($user->id, AUTH_ADMIN_IDS)) {
+                return $next($request);
+            }
+        }
+        return abort(403);
+    }
+}

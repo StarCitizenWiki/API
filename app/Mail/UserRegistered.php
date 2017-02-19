@@ -31,6 +31,7 @@ class UserRegistered extends Mailable
      */
     public function build()
     {
+        $this->subject('Star Citizen Wiki API - Account');
         return $this->markdown('mail.registered');
     }
 }

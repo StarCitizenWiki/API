@@ -30,4 +30,13 @@ class User extends Authenticatable
         'password'
     ];
 
+    public function isAdmin() : bool
+    {
+        if (in_array($this->id, AUTH_ADMIN_IDS)) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

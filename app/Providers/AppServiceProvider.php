@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $bootstrapModules = [
             'enableCSS' =>  true,
-            'enableJS' => false,
+            'enableJS' => true,
         ];
 
         View::share('bootstrapModules', $bootstrapModules);

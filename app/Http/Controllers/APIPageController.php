@@ -10,7 +10,7 @@ class APIPageController extends Controller
     {
         $bootstrapModules = [
             'enableCSS' =>  true,
-            'enableJS' =>  false
+            'enableJS' =>  true
         ];
         return view('api.index', compact('bootstrapModules'));
     }

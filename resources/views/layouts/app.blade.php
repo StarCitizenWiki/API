@@ -22,15 +22,24 @@
     </head>
     <body class="h-100">
         <ul class="nav nav-pills mt-2 mr-2 justify-content-end fixed-top">
+            @if(App::isLocal() || Auth::user()->isAdmin())
+                <li class="nav-item dropdown mr-2">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Admin</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ url('admin/users') }}">User</a>
+                        <a class="dropdown-item" href="{{ url('admin/routes') }}">Routes</a>
+                    </div>
+                </li>
+            @endif
             @if (Auth::guest())
                 <li class="nav-item">
                     <a class="nav-link active" href="{{ url('/login') }}"><i class="fa fa-sign-in"></i> Login</a>
                 </li>
             @else
-                <li class="nav-item">
+                <li class="nav-item mr-2">
                     <a class="nav-link active" href="{{ url('/account') }}">Account</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item mr-2">
                     <a class="nav-link" href="{{ url('/logout') }}"
                        onclick="event.preventDefault();
                                 document.getElementById('logout-form').submit();">

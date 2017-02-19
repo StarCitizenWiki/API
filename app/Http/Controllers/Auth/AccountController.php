@@ -16,7 +16,8 @@ class AccountController extends Controller
 
     public function delete()
     {
-        User::destroy(Auth::user()->id);
+        $user = User::find(Auth::user()->id);
+        $user->delete();
         Auth::logout();
         return redirect(AUTH_HOME);
     }

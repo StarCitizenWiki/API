@@ -17,6 +17,9 @@ define('AUTH_HOME', '/');
 define('AUTH_ACCOUNT', '/account');
 define('AUTH_LOGIN', '/login');
 
+define('AUTH_ADMIN_IDS', [1]);
+
+
 /** Throttling */
 define('THROTTLE_PERIOD', 1);
 define('THROTTLE_GUEST_REQUESTS', 10);

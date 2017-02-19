@@ -20,6 +20,8 @@ class CreateUsersTable extends Migration
             $table->string('api_token', 60)->unique();
             $table->string('password', 60);
             $table->integer('requests_per_minute')->unsigned();
+            $table->boolean('whitelisted')->default(0);
+            $table->boolean('blacklisted')->default(0);
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

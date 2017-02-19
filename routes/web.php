@@ -12,6 +12,11 @@
 */
 Route::get('/', ['uses' => 'APIPageController@getIndex']);
 
+Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
+    Route::get('users', ['uses' => 'AdminController@users']);
+    Route::get('routes', ['uses' => 'AdminController@routes']);
+});
+
 Route::group(['namespace' => 'Tools'], function () {
     Route::group(['prefix' => 'tools'], function () {
         Route::get('imageresizer', ['uses' => 'ImageResizeController@index']);

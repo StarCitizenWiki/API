@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\UserRegistered;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -71,12 +72,18 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         $api_token = str_random(60);
-        return User::create([
+        $password = str_random(32);
+
+        $user = User::create([
             'name' => null,
             'email' => $data['email'],
             'api_token' => $api_token,
-            'password' => bcrypt($api_token),
+            'password' => bcrypt($password),
             'requests_per_minute' => 60
         ]);
+
+        event(new UserRegistered($user, $password));
+
+        return $user;
     }
 }
