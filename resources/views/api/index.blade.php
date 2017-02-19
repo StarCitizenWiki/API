@@ -87,12 +87,9 @@
         </div>
 
         @if(env('APP_ENV') === 'local')
-<<<<<<< HEAD
             @unless(Auth::guest())
                 <pre>{{ Auth::user()->api_token }}</pre>
             @endunless
-=======
->>>>>>> cb20b7053aa518e5f247b7df31f553e101de49d7
             <div class="row">
                 <div class="col-lg-12">
                     <h4>Routen:</h4>

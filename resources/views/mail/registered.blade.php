@@ -3,7 +3,10 @@
 
 **API Key:** `{{ $user->api_key }}`
 
-@component('mail::button', ['url' => config('app.url')])
+Wichtig!
+Der API Key dient gleichzeitig als Account-Passwort. Gebe deinen Key niemals weiter und benutze ihn nicht als `GET` Parameter.
+
+@component('mail::button', ['url' => 'https://api.star-citizen.wiki'])
 Dokumentation
 @endcomponent
 
