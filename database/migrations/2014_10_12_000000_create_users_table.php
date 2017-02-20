@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->boolean('blacklisted')->default(0);
             $table->text('notes')->nullable();
             $table->timestamp('last_login');
+            $table->timestamp('api_token_last_used')->nullable();
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

@@ -20,7 +20,8 @@ class User extends Authenticatable
         'password',
         'requests_per_minute',
         'last_login',
-        'notes'
+        'notes',
+        'api_token_last_used'
     ];
 
     /**

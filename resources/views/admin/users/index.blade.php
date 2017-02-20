@@ -14,6 +14,7 @@
                             <th><span>Name</span></th>
                             <th><span>Erstellt</span></th>
                             <th><span>Letzter Login</span></th>
+                            <th><span>Letzte Abfrage</span></th>
                             <th class="text-center"><span>Status</span></th>
                             <th><span>E-Mail</span></th>
                             <th><span>API Key</span></th>
@@ -37,6 +38,13 @@
                                 </td>
                                 <td>
                                     {{ Carbon\Carbon::parse($user->last_login)->format('d.m.Y') }}
+                                </td>
+                                <td>
+                                    @unless(is_null($user->api_token_last_used))
+                                        {{ Carbon\Carbon::parse($user->api_token_last_used)->format('d.m.Y H:i:s') }}
+                                    @else
+                                        Nie
+                                    @endunless
                                 </td>
                                 <td class="text-center">
                                     @if($user->deleted_at)
