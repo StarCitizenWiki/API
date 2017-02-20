@@ -33,11 +33,11 @@
             @endif
             @if (Auth::guest())
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ url('/login') }}"><i class="fa fa-sign-in"></i> Login</a>
+                    <a class="nav-link" href="{{ url('/login') }}"><i class="fa fa-sign-in"></i> Login</a>
                 </li>
             @else
                 <li class="nav-item mr-2">
-                    <a class="nav-link active" href="{{ url('/account') }}">Account</a>
+                    <a class="nav-link" href="{{ url('/account') }}">Account</a>
                 </li>
                 <li class="nav-item mr-2">
                     <a class="nav-link" href="{{ url('/logout') }}"
