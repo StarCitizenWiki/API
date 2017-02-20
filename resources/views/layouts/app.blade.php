@@ -22,7 +22,7 @@
     </head>
     <body>
         <ul class="nav nav-pills mt-2 mr-2 justify-content-end ">
-            @if(App::isLocal() || Auth::user()->isAdmin())
+            @if(App::isLocal() || (!is_null(Auth::user()) && Auth::user()->isAdmin()))
                 <li class="nav-item dropdown mr-2">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Admin</a>
                     <div class="dropdown-menu">
