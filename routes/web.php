@@ -20,22 +20,24 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'namespace' => 'auth
     Route::get('routes', ['uses' => 'AdminController@routes']);
 });
 
-Route::group(['namespace' => 'Tools'], function () {
-    Route::group(['prefix' => 'tools'], function () {
-        Route::get('imageresizer', ['uses' => 'ImageResizeController@index']);
-    });
-
-    Route::group(['prefix' => 'media', 'middleware' => ['api']], function () {
-        Route::group(['prefix' => 'images'], function () {
-            Route::get('funds', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_ONLY]);
-            Route::group(['prefix' => 'funds'], function () {
-                Route::get('text', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_AND_TEXT]);
-                Route::get('bar', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_AND_BARS]);
-            });
+Route::group(['domain' => 'tools.star-citizen.wiki'], function () {
+    Route::group(['namespace' => 'Tools'], function () {
+        Route::group(['prefix' => 'tools'], function () {
+            Route::get('imageresizer', ['uses' => 'ImageResizeController@index']);
         });
 
-        Route::group(['prefix' => 'videos'], function () {
+        Route::group(['prefix' => 'media', 'middleware' => ['api']], function () {
+            Route::group(['prefix' => 'images'], function () {
+                Route::get('funds', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_ONLY]);
+                Route::group(['prefix' => 'funds'], function () {
+                    Route::get('text', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_AND_TEXT]);
+                    Route::get('bar', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_AND_BARS]);
+                });
+            });
 
+            Route::group(['prefix' => 'videos'], function () {
+
+            });
         });
     });
 });
