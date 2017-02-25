@@ -13,10 +13,9 @@ class CheckIfAdmin
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  string|null  $guard
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next)
     {
         if (App::isLocal()) {
             return $next($request);
@@ -29,6 +28,7 @@ class CheckIfAdmin
                 return $next($request);
             }
         }
-        return abort(403);
+
+        return abort(403, 'No Permission');
     }
 }

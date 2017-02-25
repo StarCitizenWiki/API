@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\UserBlacklistedException;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -9,7 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class ThrottleAPI extends ThrottleRequests
 {
-
+    /**
+     * ThrottleAPI constructor.
+     * @param RateLimiter $limiter
+     */
     public function __construct(RateLimiter $limiter)
     {
         parent::__construct($limiter);
@@ -33,19 +37,28 @@ class ThrottleAPI extends ThrottleRequests
             return $next($request);
         }
 
-        $rpm = $this->_determinteRequestsPerMinute($user);
+        try {
+            $rpm = $this->_determineRequestsPerMinute($user);
+        } catch (UserBlacklistedException $e) {
+            abort(403, 'API Key blacklisted');
+        }
 
         return parent::handle($request, $next, $rpm, THROTTLE_PERIOD);
     }
 
-    private function _determinteRequestsPerMinute($user)
+    /**
+     * @param $user
+     * @return int
+     * @throws UserBlacklistedException
+     */
+    private function _determineRequestsPerMinute($user)
     {
         if (is_null($user)) {
             return THROTTLE_GUEST_REQUESTS;
         }
 
         if ($user->blacklisted) {
-            return 0;
+            throw new UserBlacklistedException();
         }
 
         return $user->requests_per_minute;

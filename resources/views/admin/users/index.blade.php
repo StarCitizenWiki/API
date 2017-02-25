@@ -2,12 +2,16 @@
 @section('title', 'Star Citizen Wiki API - Users')
 @section('lead', 'Users')
 
+@section('header')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.13/css/dataTables.bootstrap4.min.css" integrity="sha256-8q/3ffDrRz4p4BiTZBtd2pgHADVDicr2W2Xvd43ABkI=" crossorigin="anonymous" />
+@endsection
+
 @section('content')
-    @include('layouts.heading');
+    @include('layouts.heading')
     <div class="container-fluid">
         <div class="row">
-            <div class="col-8 mx-auto mt-5">
-                <table class="table">
+            <div class="col-10 mx-auto mt-5">
+                <table class="table table-striped" id="userTable" cellspacing="0" width="100%">
                     <thead>
                         <tr>
                             <th><span>ID</span></th>
@@ -61,7 +65,7 @@
                                     {{ $user->email }}
                                 </td>
                                 <td>
-                                    <i class="fa fa-key" data-placement="top" data-toggle="popover" title="Key" data-content="{{ $user->api_token }}" data-trigger="focus" tabindex="0"></i>
+                                    <i class="fa fa-key" data-placement="top" data-toggle="popover" title="Key" data-content="{{ $user->api_token }}" tabindex="0"></i>
                                 </td>                                <td>
                                     <i class="fa fa-book" data-placement="top" data-toggle="popover" title="Notizen" data-content="{{ $user->notes }}" data-trigger="focus" tabindex="1"></i>
                                 </td>
@@ -103,7 +107,6 @@
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha256-gL1ibrbVcRIHKlCO5OXOPC/lZz/gpdApgQAzskqqXp8=" crossorigin="anonymous"></script>
 @endsection
 
 @section('scripts')
@@ -111,5 +114,8 @@
         $(function () {
             $('[data-toggle="popover"]').popover()
         })
+        $(document).ready(function() {
+            $('#userTable').DataTable();
+        } );
     </script>
 @endsection

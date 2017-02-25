@@ -19,6 +19,7 @@
             'csrfToken' => csrf_token(),
         ]) !!};
         </script>
+        @yield('header')
     </head>
     <body>
         <ul class="nav nav-pills mt-2 mr-2 justify-content-end ">
@@ -54,6 +55,7 @@
         @yield('content')
 
         @if ($bootstrapModules['enableJS'])
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.js" integrity="sha256-jVfFb7AbGi7S/SLNl8SB4/MYaf549eEs+NlIWMoARHg=" crossorigin="anonymous"></script>
             <script src="{{ URL::asset('/js/app.js') }}"></script>
         @endif
 
