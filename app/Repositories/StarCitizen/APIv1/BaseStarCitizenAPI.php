@@ -8,41 +8,19 @@
 namespace App\Repositories\StarCitizen\APIv1;
 
 use App\Exceptions\InvalidDataException;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
+use App\Repositories\BaseAPI;
 
 class BaseStarCitizenAPI
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
 
-    private $_connection;
-    /** @var  Response */
-    private $_response;
-
-    function __construct()
-    {
-        $this->_connection = new Client([
-            'base_uri' => BaseStarCitizenAPI::API_URL,
-            'timeout' => 3.0
-        ]);
-    }
-
-    public function request(String $requestMethod, String $uri, array $data = null)
-    {
-        $this->_response = $this->_connection->request($requestMethod, $uri, $data);
-    }
-
-    public function getResponse()
-    {
-        $this->_checkIfResponseIsValid();
-        return $this->_response;
-    }
+    use BaseAPI;
 
     private function _checkIfResponseIsValid()
     {
         if ($this->_checkIfResponseIsNotNull() &&
             $this->_checkIfResponseIsNotEmpty() &&
-            $this->_checkIfResponseStatusIs200() &&
+            $this->_checkIfResponseStatusIsOK() &&
             $this->_checkIfResponseDataIsValid()) {
             return true;
         } else {
@@ -50,28 +28,27 @@ class BaseStarCitizenAPI
         }
     }
 
-    private function _checkIfResponseIsNotNull()
+    private function _checkIfResponseIsNotNull() : bool
     {
         return $this->_response !== null;
     }
 
-    private function _checkIfResponseIsNotEmpty()
+    private function _checkIfResponseIsNotEmpty() : bool
     {
         return !empty($this->_response);
     }
 
-    private function _checkIfResponseStatusIs200()
+    private function _checkIfResponseStatusIsOK() : bool
     {
-        return $this->_response->getStatusCode() === 200;
+        return $this->_transformer->getStatusCode() === 200;
     }
 
     /**
      * JSON aus API enthält (bis jetzt) immer ein success field
      * @return bool
      */
-    private function _checkIfResponseDataIsValid()
+    private function _checkIfResponseDataIsValid() : bool
     {
-        $responseData = json_decode($this->_response->getBody()->getContents(), true);
-        return $responseData['success'] === 1;
+		return $this->_transformer->isSuccess();
     }
 }

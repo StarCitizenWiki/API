@@ -15,7 +15,13 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'email',
+        'api_token',
+        'password',
+        'requests_per_minute',
+        'last_login',
+        'notes',
+        'api_token_last_used'
     ];
 
     /**
@@ -24,6 +30,26 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password'
     ];
+
+    public function isAdmin() : bool
+    {
+        if (in_array($this->id, AUTH_ADMIN_IDS)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isWhitelisted() : bool
+    {
+        return $this->whitelisted == 1;
+    }
+
+    public function isBlacklisted() : bool
+    {
+        return $this->blacklisted == 1;
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\UserRegistered;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -27,7 +28,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = AUTH_ACCOUNT;
 
     /**
      * Create a new controller instance.
@@ -40,6 +41,16 @@ class RegisterController extends Controller
     }
 
     /**
+     * Show the application registration form.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showRegistrationForm()
+    {
+        return redirect(AUTH_HOME);
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
@@ -48,9 +59,7 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6|confirmed',
         ]);
     }
 
@@ -62,10 +71,20 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
+        $api_token = str_random(60);
+        $password = str_random(32);
+
+        $user = User::create([
+            'name' => null,
             'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'api_token' => $api_token,
+            'password' => bcrypt($password),
+            'requests_per_minute' => 60,
+            'last_login' => date('Y-m-d H:i:s'),
         ]);
+
+        event(new UserRegistered($user, $password));
+
+        return $user;
     }
 }

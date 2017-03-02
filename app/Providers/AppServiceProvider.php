@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,7 +15,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $bootstrapModules = [
+            'enableCSS' =>  true,
+            'enableJS' => true,
+        ];
+
+        View::share('bootstrapModules', $bootstrapModules);
     }
 
     /**
@@ -24,6 +30,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('StarCitizen\StatsAPI', StatsRepository::class);
+        $this->app->bind('StarCitizen\StatsRepository', StatsRepository::class);
     }
 }

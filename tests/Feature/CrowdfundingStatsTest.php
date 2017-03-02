@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\InvalidDataException;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -15,17 +16,14 @@ class CrowdfundingStatsTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->_statsAPI = $this->app->make('StarCitizen\StatsAPI');
+        $this->_statsAPI = $this->app->make('StarCitizen\StatsRepository');
     }
 
     public function testCrowdfundingStats()
     {
-        $crowdfundingStats = $this->_statsAPI->getCrowdfundStats()->asResponse();
-        $content = (string) $crowdfundingStats->getBody();
-
-        $this->assertSame('application/json', $crowdfundingStats->getHeader('Content-Type')[0]);
+        $content = $this->_statsAPI->getCrowdfundStats()->getResponse();
         $this->assertNotEmpty($content);
-        $this->assertContains('OK', $content);
+        $this->assertContains('OK', $content->toJson());
     }
 
     public function testView()
@@ -35,7 +33,7 @@ class CrowdfundingStatsTest extends TestCase
 
     public function testEmptyResponseException()
     {
-        $this->expectException(\App\Exceptions\ResponseNotRequestedException::class);
+        $this->expectException(InvalidDataException::class);
         $this->_statsAPI->asJSON();
     }
 }
