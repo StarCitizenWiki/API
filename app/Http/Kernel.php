@@ -36,7 +36,7 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
             'token_usage',
-	        'afterApiRequest'
+	        'add_api_headers'
         ],
     ];
 
@@ -56,6 +56,6 @@ class Kernel extends HttpKernel
         'throttle' => \App\Http\Middleware\ThrottleAPI::class,
         'admin' => \App\Http\Middleware\CheckIfAdmin::class,
         'token_usage' => \App\Http\Middleware\UpdateTokenTimestamp::class,
-	    'afterApiRequest' => \App\Http\Middleware\AfterApiRequest::class
+	    'add_api_headers' => \App\Http\Middleware\AddAPIHeaders::class
     ];
 }

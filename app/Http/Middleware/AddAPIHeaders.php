@@ -14,7 +14,7 @@ use Closure;
  * Class AfterApiRequest
  * @package App\Http\Middleware
  */
-class AfterApiRequest
+class AddAPIHeaders
 {
 	/**
 	 * Sets Header for API Requests
@@ -32,7 +32,7 @@ class AfterApiRequest
 		$response->header("Content-Length", strlen($response->getOriginalContent()));
 		$response->header("Vary", "Accept-Encoding");
 		$response->header("Connection", "keep-alive");
-		$response->header("star-citizen-API-Version", "1.0");
+		$response->header("X-SCW-API-Version", "1.0");
 
 		return $response;
 	}
