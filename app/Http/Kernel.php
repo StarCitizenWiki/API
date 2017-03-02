@@ -35,7 +35,8 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:60,1',
             'bindings',
-            'token_usage'
+            'token_usage',
+	        'add_api_headers'
         ],
     ];
 
@@ -54,6 +55,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \App\Http\Middleware\ThrottleAPI::class,
         'admin' => \App\Http\Middleware\CheckIfAdmin::class,
-        'token_usage' => \App\Http\Middleware\UpdateTokenTimestamp::class
+        'token_usage' => \App\Http\Middleware\UpdateTokenTimestamp::class,
+	    'add_api_headers' => \App\Http\Middleware\AddAPIHeaders::class
     ];
 }
