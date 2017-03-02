@@ -92,4 +92,3 @@ Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortUrl']
     });
 
 });
-
