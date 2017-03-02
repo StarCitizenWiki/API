@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -12,8 +10,15 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+if (App::isLocal() || App::runningUnitTests()) {
+    $api_domain = env('APP_URL');
+    $tools_domain = env('APP_URL');
+} else {
+    $api_domain = API_DOMAIN;
+    $tools_domain = TOOLS_DOMAIN;
+}
 
-Route::group(['domain' => 'api.star-citizen.wiki'], function () {
+Route::group(['domain' => $api_domain], function () {
     Route::group(['middleware' => ['api', 'throttle:60,1']], function () {
 
         Route::group(['prefix' => 'v1'], function () {

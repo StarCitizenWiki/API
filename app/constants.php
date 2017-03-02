@@ -23,3 +23,7 @@ define('AUTH_ADMIN_IDS', [1]);
 /** Throttling */
 define('THROTTLE_PERIOD', 1);
 define('THROTTLE_GUEST_REQUESTS', 10);
+
+/** Domains */
+define('TOOLS_DOMAIN', 'tools.star-citizen.wiki');
+define('API_DOMAIN', 'api.star-citizen.wiki');
