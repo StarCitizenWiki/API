@@ -53,7 +53,7 @@ Route::group(['domain' => $tools_domain], function () {
             Route::get('imageresizer', ['uses' => 'ImageResizeController@index']);
         });
 
-        Route::group(['prefix' => 'media', 'middleware' => ['api']], function () {
+        Route::group(['prefix' => 'media', 'middleware' => ['token_usage', 'throttle']], function () {
             Route::group(['prefix' => 'images'], function () {
                 Route::get('funds', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_ONLY]);
                 Route::group(['prefix' => 'funds'], function () {
