@@ -93,4 +93,3 @@ Route::group(['domain' => $short_url_domain, 'namespace' => 'ShortUrl'], functio
     });
 
 });
-
