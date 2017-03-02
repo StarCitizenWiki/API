@@ -93,21 +93,19 @@ class FundImageController extends Controller
 
         $this->_assembleFileName();
 
-        if ($this->_checkIfImageCanBeLoadedFromCache()) {
-            return $this->_loadImageFromDisk();
-        }
-
-        try {
-            $this->_getFundsFromAPI();
-            $this->_formatFunds();
-            $this->_determineImageWidth();
-            $this->_determineImageHeight();
-            $this->_initImage();
-            $this->_addDataToImage();
-            $this->_flushImageToString();
-            $this->_saveImageToDisk();
-        } catch (\Exception $e) {
-            // @TODO Logging und Mailversand
+        if (!$this->_checkIfImageCanBeLoadedFromCache()) {
+            try {
+                $this->_getFundsFromAPI();
+                $this->_formatFunds();
+                $this->_determineImageWidth();
+                $this->_determineImageHeight();
+                $this->_initImage();
+                $this->_addDataToImage();
+                $this->_flushImageToString();
+                $this->_saveImageToDisk();
+            } catch (\Exception $e) {
+                // @TODO Logging und Mailversand
+            }
         }
 
         return $this->_loadImageFromDisk();
@@ -150,10 +148,11 @@ class FundImageController extends Controller
         return false;
     }
 
-    private function _getFundsFromAPI() : void
+    private function _getFundsFromAPI()
     {
         $funds = $this->_api->lastHours()->getCrowdfundStats()->asArray();
-        $this->_funds['current'] = substr($funds['data']['funds'], 0, -2);
+        // @Todo anpassen wenn Transformator steht
+        $this->_funds['current'] = substr($funds['data']['data']['funds'], 0, -2);
     }
 
     private function _formatFunds($source = 'current') : void
