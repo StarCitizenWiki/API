@@ -6,6 +6,7 @@ use App\Exceptions\UserBlacklistedException;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 class ThrottleAPI extends ThrottleRequests
@@ -32,8 +33,8 @@ class ThrottleAPI extends ThrottleRequests
     {
         $user = DB::table('users')->where('api_token', $request->get('key', null))->first();
 
-        // Whitelist hat kein Throttling
-        if (!is_null($user) && $user->whitelisted) {
+        // Whitelist / Locale hat kein Throttling
+        if (!is_null($user) && $user->whitelisted || App::isLocal()) {
             return $next($request);
         }
 
