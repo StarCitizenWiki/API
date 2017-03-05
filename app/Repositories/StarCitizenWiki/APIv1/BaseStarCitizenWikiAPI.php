@@ -17,4 +17,13 @@ class BaseStarCitizenWikiAPI
     const API_URL = BaseStarCitizenWikiAPI::URL.'api.php';
 
     use BaseAPI;
+
+    /**
+     * JSON aus API enthält (bis jetzt) immer ein success field
+     * @return bool
+     */
+    private function _checkIfResponseDataIsValid() : bool
+    {
+        return true;
+    }
 }

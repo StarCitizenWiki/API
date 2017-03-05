@@ -18,7 +18,7 @@ interface ShipsInterface
     public function getShip(String $shipName);
 
     /**
-     * @return \GuzzleHttp\Psr7\Response
+     * @return String
      *
      */
     public function getShipList();

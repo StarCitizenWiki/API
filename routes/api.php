@@ -74,11 +74,11 @@ Route::group(['domain' => $api_domain], function () {
 
             });
 
-            Route::group(['namespace' => 'Wiki'], function () {
+            Route::group(['namespace' => 'StarCitizenWiki'], function () {
 
                 Route::group(['prefix' => 'ships'], function () {
                     Route::post('search', function(){});
-                    Route::get('list', function(){});
+                    Route::get('list', ['uses' => 'ShipsAPIController@getShipList']);
                     Route::get('{name}', function($name){ return $name; });
                 });
 

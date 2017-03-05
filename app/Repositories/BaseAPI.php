@@ -8,6 +8,7 @@
 
 namespace App\Repositories;
 
+use App\Exceptions\InvalidDataException;
 use App\Transformers\BaseAPITransformerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -17,7 +18,7 @@ trait BaseAPI
 {
 	private $_connection;
 	/** @var  Response */
-	private $_response;
+	protected $_response;
 	/** @var  BaseAPITransformerInterface */
 	protected $_transformer;
 
@@ -28,7 +29,7 @@ trait BaseAPI
 
 	public function request(String $requestMethod, String $uri, array $data = null)
 	{
-		$this->_response = $this->_connection->request($requestMethod, $uri, $data);
+		return $this->_connection->request($requestMethod, $uri, $data);
 	}
 
 	/**
@@ -64,4 +65,31 @@ trait BaseAPI
 	{
 		return $this->getResponse()->toArray();
 	}
+
+    private function _checkIfResponseIsValid()
+    {
+        if ($this->_checkIfResponseIsNotNull() &&
+            $this->_checkIfResponseIsNotEmpty() &&
+            $this->_checkIfResponseStatusIsOK() &&
+            $this->_checkIfResponseDataIsValid()) {
+            return true;
+        } else {
+            throw new InvalidDataException('Response Data is not valid');
+        }
+    }
+
+    private function _checkIfResponseIsNotNull() : bool
+    {
+        return $this->_response !== null;
+    }
+
+    private function _checkIfResponseIsNotEmpty() : bool
+    {
+        return !empty($this->_response);
+    }
+
+    private function _checkIfResponseStatusIsOK() : bool
+    {
+        return $this->_transformer->getStatusCode() === 200;
+    }
 }
