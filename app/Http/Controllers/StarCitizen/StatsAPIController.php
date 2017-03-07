@@ -25,11 +25,12 @@ class StatsAPIController extends Controller
         }
     }
 
-    public function getFunds() : String
+    public function getFunds()
     {
         try {
             $stats = $this->_api->getCrowdfundStats()->asArray();
-            return $stats['data']['data']['funds']; /** @TODO */
+             /** @TODO */
+            return response()->json($stats['data'][1]['funds'], 200, [], JSON_PRETTY_PRINT);
         } catch (InvalidDataException $e) {
             return $e->getMessage();
         }

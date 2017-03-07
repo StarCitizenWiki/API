@@ -79,7 +79,7 @@ Route::group(['domain' => $api_domain], function () {
                 Route::group(['prefix' => 'ships'], function () {
                     Route::post('search', function(){});
                     Route::get('list', ['uses' => 'ShipsAPIController@getShipList']);
-                    Route::get('{name}', function($name){ return $name; });
+                    Route::get('{name}', ['uses' => 'ShipsAPIController@getShip']);
                 });
 
                 Route::group(['prefix' => 'weapons'], function () {

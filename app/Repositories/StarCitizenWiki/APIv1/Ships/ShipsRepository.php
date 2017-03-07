@@ -8,24 +8,20 @@
 namespace App\Repositories\StarCitizenWiki\APIv1\Ships;
 
 use App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI;
+use App\Transformers\StarCitizenWiki\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\ShipsTransformer;
 
 class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
 {
 
-    public function __construct(ShipsTransformer $transformer)
-    {
-        $this->_transformer = $transformer;
-        parent::__construct();
-    }
-
     /**
      * @param String $shipName
      * @return ShipsRepository
      */
-    public function getShip(String $shipName)
+    public function getShip(String $shipName) : ShipsRepository
     {
-        // TODO: Implement getShip() method.
+        $this->_transformer = new ShipsTransformer();
+        $this->request('GET', '?action=browsebysubject&format=json&subject='.$shipName, []);
         return $this;
     }
 
@@ -34,6 +30,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function getShipList() : ShipsRepository
     {
+        $this->_transformer = new ShipsListTransformer();
         $offset = 0;
         $data = [];
         do {
