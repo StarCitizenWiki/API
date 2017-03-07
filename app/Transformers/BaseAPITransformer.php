@@ -7,23 +7,7 @@ use \League\Fractal\TransformerAbstract;
 
 abstract class BaseAPITransformer extends TransformerAbstract implements BaseAPITransformerInterface {
 
-	protected $statusCode = 200;
 	protected $success = true;
-	/**
-	 * @return int
-	 */
-	public function getStatusCode(): int
-	{
-		return $this->statusCode;
-	}
-
-	/**
-	 * @param int $statusCode
-	 */
-	public function setStatusCode(int $statusCode) : void
-	{
-		$this->statusCode = $statusCode;
-	}
 
 	/**
 	 * @return boolean
@@ -41,7 +25,7 @@ abstract class BaseAPITransformer extends TransformerAbstract implements BaseAPI
 		$this->success = $success;
 	}
 
-	public function transform(Response $response)
+	public function transform($data)
     {
         throw new \Exception('transform function not implemented!');
     }

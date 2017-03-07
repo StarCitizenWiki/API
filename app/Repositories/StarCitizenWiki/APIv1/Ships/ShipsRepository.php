@@ -21,18 +21,18 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
 
     /**
      * @param String $shipName
-     * @return \GuzzleHttp\Psr7\Response
+     * @return ShipsRepository
      */
     public function getShip(String $shipName)
     {
         // TODO: Implement getShip() method.
+        return $this;
     }
 
     /**
-     * @return String
-     *
+     * @return ShipsRepository
      */
-    public function getShipList()
+    public function getShipList() : ShipsRepository
     {
         $offset = 0;
         $data = [];
@@ -45,15 +45,17 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             }
         } while (array_key_exists('query-continue-offset', $response));
 
-        return json_encode($data, JSON_PRETTY_PRINT);
+        $this->_responseBody = $data;
+        return $this;
     }
 
     /**
      * @param String $shipName
-     * @return \GuzzleHttp\Psr7\Response
+     * @return ShipsRepository
      */
     public function searchShips(String $shipName)
     {
         // TODO: Implement searchShips() method.
+        return $this;
     }
 }

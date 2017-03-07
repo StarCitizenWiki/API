@@ -8,24 +8,22 @@
 
 namespace App\Repositories\StarCitizenWiki\APIv1\Ships;
 
-
 interface ShipsInterface
 {
     /**
      * @param String $shipName
-     * @return \GuzzleHttp\Psr7\Response
+     * @return ShipsRepository
      */
     public function getShip(String $shipName);
 
     /**
-     * @return String
-     *
+     * @return ShipsRepository
      */
     public function getShipList();
 
     /**
      * @param String $shipName
-     * @return \GuzzleHttp\Psr7\Response
+     * @return ShipsRepository
      */
     public function searchShips(String $shipName);
 }

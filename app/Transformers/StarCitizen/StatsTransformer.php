@@ -14,16 +14,9 @@ use GuzzleHttp\Psr7\Response;
 class StatsTransformer extends BaseAPITransformer
 {
 
-	public function transform(Response $response)
+	public function transform($stats)
     {
-		$responseBody = (String) $response->getBody();
-
-		// TODO Add spezific data transformation
-		$responseContent = json_decode($responseBody, true);
-
-		$this->setSuccess($responseContent['success'] === 1);
-		$this->setStatusCode($response->getStatusCode());
-		return $responseContent;
+		return $stats;
 	}
 
 }

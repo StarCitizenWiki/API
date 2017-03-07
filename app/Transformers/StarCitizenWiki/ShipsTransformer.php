@@ -8,19 +8,17 @@
 namespace App\Transformers\StarCitizenWiki;
 
 use App\Transformers\BaseAPITransformer;
-use GuzzleHttp\Psr7\Response;
 
 class ShipsTransformer extends BaseAPITransformer
 {
-    public function transform(Response $response)
+    public function transform($ship)
     {
-        $responseBody = (String) $response->getBody();
-
-        // TODO Add spezific data transformation
-        $responseContent = json_decode($responseBody, true);
-
-        $this->setSuccess(!empty($responseContent['query']));
-        $this->setStatusCode($response->getStatusCode());
-        return $responseContent;
+        $ship['displaytitle'] = str_replace(' ', '_', $ship['displaytitle']);
+        return [
+            $ship['displaytitle'] => [
+                'api_url' => '//'.API_DOMAIN.'/api/v1/ships/'.$ship['displaytitle'],
+                'wiki_url' => $ship['fullurl']
+            ]
+        ];
     }
 }

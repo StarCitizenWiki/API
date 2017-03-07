@@ -18,6 +18,6 @@ class ShipsAPIController extends Controller
 
     public function getShipList()
     {
-        return $this->_api->getShipList();
+        return response()->json($this->_api->getShipList()->asArray(),200,[],JSON_PRETTY_PRINT);
     }
 }

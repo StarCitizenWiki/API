@@ -19,7 +19,7 @@ class BaseStarCitizenAPI
 
     function __construct()
     {
-        $this->_connection = new Client([
+        $this->_guzzleClient = new Client([
             'base_uri' => $this::API_URL,
             'timeout' => 3.0,
             'headers' => ['X-Rsi-Token' => null]

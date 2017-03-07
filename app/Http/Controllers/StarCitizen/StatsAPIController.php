@@ -35,10 +35,10 @@ class StatsAPIController extends Controller
         }
     }
 
-    public function getAll() : String
+    public function getAll()
     {
 	    try {
-		    return $this->_api->getCrowdfundStats()->asJSON();
+            return response()->json($this->_api->getCrowdfundStats()->asArray(), 200, [], JSON_PRETTY_PRINT);
 	    } catch (InvalidDataException $e) {
 		    return $e->getMessage();
 	    }
