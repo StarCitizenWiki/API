@@ -27,3 +27,7 @@ define('THROTTLE_GUEST_REQUESTS', 10);
 /** Domains */
 define('TOOLS_DOMAIN', 'tools.star-citizen.wiki');
 define('API_DOMAIN', 'api.star-citizen.wiki');
+
+/** Transform Types */
+define('TRANSFORM_COLLECTION', 1);
+define('TRANSFORM_ITEM', 2);

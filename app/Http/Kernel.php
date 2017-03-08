@@ -36,7 +36,7 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
             'token_usage',
-            'add_api_headers'
+            //'add_api_headers'
         ],
     ];
 

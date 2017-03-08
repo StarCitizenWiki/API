@@ -5,6 +5,7 @@ namespace App\Http\Controllers\StarCitizenWiki;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository;
 use Illuminate\Http\Request;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class ShipsAPIController extends Controller
 {

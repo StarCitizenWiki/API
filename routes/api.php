@@ -29,7 +29,6 @@ Route::group(['domain' => $api_domain], function () {
                     Route::get('funds', ['uses' => 'StatsAPIController@getFunds']);
                     Route::get('fleet', ['uses' => 'StatsAPIController@getFleet']);
                     Route::get('fans', ['uses' => 'StatsAPIController@getFans']);
-                    Route::get('json', ['uses' => 'StatsAPIController@getStatsAsJSON']);
                     Route::get('all', ['uses' => 'StatsAPIController@getAll']);
                     Route::group(['prefix' => 'funds'], function () {
                         Route::get('lasthours', ['uses' => 'StatsAPIController@getLastHoursFunds']);

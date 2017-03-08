@@ -13,6 +13,7 @@ use App\Exceptions\MethodNotImplementedException;
 use App\Transformers\BaseAPITransformerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use League\Fractal\TransformerAbstract;
 use Spatie\Fractal\Fractal;
 
 trait BaseAPI
@@ -25,6 +26,13 @@ trait BaseAPI
     protected $_responseBody;
 	/** @var  BaseAPITransformerInterface */
 	protected $_transformer;
+	/** Transformation Type */
+	protected $_transformationType = TRANSFORM_ITEM;
+
+	private $_allowedTransformations = [
+	    TRANSFORM_COLLECTION,
+        TRANSFORM_ITEM
+    ];
 
 	function __construct()
 	{
@@ -47,7 +55,11 @@ trait BaseAPI
 
 	public function getResponse() : Fractal
 	{
-		$transformedResponse = fractal($this->_responseBody, new $this->_transformer());
+	    if ($this->_transformationType === TRANSFORM_COLLECTION) {
+            $transformedResponse = fractal($this->_responseBody, new $this->_transformer());
+        } else {
+	        $transformedResponse = fractal()->item($this->_responseBody, new $this->_transformer());
+        }
 		$this->_checkIfResponseIsValid();
 
 		return $transformedResponse;
@@ -63,7 +75,23 @@ trait BaseAPI
 		return $this->getResponse()->toArray();
 	}
 
-    private function _checkIfResponseIsValid()
+	public function transformAsItem() : void
+    {
+        $this->_transformationType = TRANSFORM_ITEM;
+    }
+
+    public function transformAsCollection() : void
+    {
+      $this->_transformationType = TRANSFORM_COLLECTION;
+    }
+
+    public function transformWith(BaseAPITransformerInterface $transformer)
+    {
+        $this->_transformer = $transformer;
+        return $this;
+    }
+
+    private function _checkIfResponseIsValid() : bool
     {
         if ($this->_checkIfResponseIsNotNull() &&
             $this->_checkIfResponseIsNotEmpty() &&
@@ -95,7 +123,8 @@ trait BaseAPI
         throw new MethodNotImplementedException();
     }
 
-    function _validateJSON($string) {
+    private function _validateJSON($string) : bool
+    {
         if (is_string($string)) {
             @json_decode($string);
             return (json_last_error() === JSON_ERROR_NONE);

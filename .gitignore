@@ -12,5 +12,4 @@ composer.phar
 /public/js/*.map
 /Vagrantfile
 /composer.lock
-.gitignore
 /ci/

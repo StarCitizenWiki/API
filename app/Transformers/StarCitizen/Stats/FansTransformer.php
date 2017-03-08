@@ -6,17 +6,14 @@
  * Time: 21:29
  */
 
-namespace App\Transformers\StarCitizen;
+namespace App\Transformers\StarCitizen\Stats;
 
 use App\Transformers\BaseAPITransformer;
-use GuzzleHttp\Psr7\Response;
 
-class StatsTransformer extends BaseAPITransformer
+class FansTransformer extends BaseAPITransformer
 {
-
 	public function transform($stats)
     {
-		return $stats;
+		return ['fans' => $stats['data']['fans']];
 	}
-
 }
