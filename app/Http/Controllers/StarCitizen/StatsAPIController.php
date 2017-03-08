@@ -16,21 +16,28 @@ class StatsAPIController extends Controller
         $this->_api = $api;
     }
 
-    public function getStatsAsJSON() : String
+    public function getFunds()
     {
         try {
-            return $this->_api->getCrowdfundStats()->asJSON();
+            return response()->json($this->_api->getFunds()->getResponse(), 200, [], JSON_PRETTY_PRINT);
         } catch (InvalidDataException $e) {
             return $e->getMessage();
         }
     }
 
-    public function getFunds()
+    public function getFleet()
     {
         try {
-            $stats = $this->_api->getCrowdfundStats()->asArray();
-             /** @TODO */
-            return response()->json($stats['data'][1]['funds'], 200, [], JSON_PRETTY_PRINT);
+            return response()->json($this->_api->getFleet()->getResponse(), 200, [], JSON_PRETTY_PRINT);
+        } catch (InvalidDataException $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function getFans()
+    {
+        try {
+            return response()->json($this->_api->getFans()->getResponse(), 200, [], JSON_PRETTY_PRINT);
         } catch (InvalidDataException $e) {
             return $e->getMessage();
         }
@@ -39,7 +46,7 @@ class StatsAPIController extends Controller
     public function getAll()
     {
 	    try {
-            return response()->json($this->_api->getCrowdfundStats()->asArray(), 200, [], JSON_PRETTY_PRINT);
+            return response()->json($this->_api->getAll()->getResponse(), 200, [], JSON_PRETTY_PRINT);
 	    } catch (InvalidDataException $e) {
 		    return $e->getMessage();
 	    }

@@ -13,14 +13,13 @@ use App\Transformers\StarCitizenWiki\ShipsTransformer;
 
 class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
 {
-
     /**
      * @param String $shipName
      * @return ShipsRepository
      */
     public function getShip(String $shipName) : ShipsRepository
     {
-        $this->_transformer = new ShipsTransformer();
+        $this->_transformer = resolve('StarCitizenWiki\Transformer\ShipsTransformer');
         $this->request('GET', '?action=browsebysubject&format=json&subject='.$shipName, []);
         return $this;
     }
@@ -30,7 +29,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function getShipList() : ShipsRepository
     {
-        $this->_transformer = new ShipsListTransformer();
+        $this->_transformer = resolve('StarCitizenWiki\Transformer\ShipsListTransformer');
         $offset = 0;
         $data = [];
         do {

@@ -5,7 +5,7 @@
  * Time: 12:28
  */
 
-namespace App\Transformers\StarCitizenWiki;
+namespace App\Transformers\StarCitizenWiki\Ships;
 
 use App\Transformers\BaseAPITransformer;
 
