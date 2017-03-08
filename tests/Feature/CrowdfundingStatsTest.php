@@ -16,6 +16,9 @@ class CrowdfundingStatsTest extends TestCase
         $this->_statsAPI = $this->app->make('StarCitizen\API\StatsRepository');
     }
 
+    /**
+     * Tests the retrieval of all stats
+     */
     public function testCrowdfundingStats()
     {
         $content = $this->_statsAPI->getAll()->getResponse();
@@ -23,11 +26,17 @@ class CrowdfundingStatsTest extends TestCase
         $this->assertContains('OK', $content->toJson());
     }
 
+    /**
+     * tests the api view
+     */
     public function testView()
     {
-        $this->getJson('/api/v1/stats/funds')->assertStatus(200);
+        $this->getJson('/api/v1/stats/all')->assertStatus(200);
     }
 
+    /**
+     * Tests the MissingTransformerException
+     */
     public function testEmptyResponseException()
     {
         $this->expectException(MissingTransformerException::class);

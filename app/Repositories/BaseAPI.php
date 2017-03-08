@@ -40,6 +40,13 @@ trait BaseAPI
 		$this->_guzzleClient = new Client(['base_uri' => $this::API_URL, 'timeout' => 3.0]);
 	}
 
+    /**
+     * @param String $requestMethod
+     * @param String $uri
+     * @param array|null $data
+     * @return Response
+     * @throws InvalidDataException
+     */
 	public function request(String $requestMethod, String $uri, array $data = null) : Response
 	{
 		$this->_response = $this->_guzzleClient->request($requestMethod, $uri, $data);
@@ -54,6 +61,10 @@ trait BaseAPI
 		return $this->_response;
 	}
 
+    /**
+     * @return Fractal
+     * @throws MissingTransformerException
+     */
 	public function getResponse() : Fractal
 	{
 	    if (is_null($this->_transformer)) {
@@ -70,32 +81,52 @@ trait BaseAPI
 		return $transformedResponse;
 	}
 
+    /**
+     * @return String
+     */
 	public function asJSON() : String
 	{
 		return $this->getResponse()->toJson();
 	}
 
+    /**
+     * @return array
+     */
 	public function asArray() : array
 	{
 		return $this->getResponse()->toArray();
 	}
 
+    /**
+     * Sets the transformation type to Item
+     */
 	public function transformAsItem() : void
     {
         $this->_transformationType = TRANSFORM_ITEM;
     }
 
+    /**
+     * sets the transformation type to collection
+     */
     public function transformAsCollection() : void
     {
       $this->_transformationType = TRANSFORM_COLLECTION;
     }
 
+    /**
+     * @param BaseAPITransformerInterface $transformer
+     * @return $this
+     */
     public function transformWith(BaseAPITransformerInterface $transformer)
     {
         $this->_transformer = $transformer;
         return $this;
     }
 
+    /**
+     * @return bool
+     * @throws InvalidDataException
+     */
     private function _checkIfResponseIsValid() : bool
     {
         if ($this->_checkIfResponseIsNotNull() &&
@@ -108,26 +139,43 @@ trait BaseAPI
         }
     }
 
+    /**
+     * @return bool
+     */
     private function _checkIfResponseIsNotNull() : bool
     {
         return $this->_response !== null;
     }
 
+    /**
+     * @return bool
+     */
     private function _checkIfResponseIsNotEmpty() : bool
     {
         return !empty($this->_response);
     }
 
+    /**
+     * @return bool
+     */
     private function _checkIfResponseStatusIsOK() : bool
     {
         return $this->_response->getStatusCode() === 200;
     }
 
+    /**
+     * @return bool
+     * @throws MethodNotImplementedException
+     */
     private function _checkIfResponseDataIsValid() : bool
     {
         throw new MethodNotImplementedException();
     }
 
+    /**
+     * @param $string
+     * @return bool
+     */
     private function _validateJSON($string) : bool
     {
         if (is_string($string)) {
