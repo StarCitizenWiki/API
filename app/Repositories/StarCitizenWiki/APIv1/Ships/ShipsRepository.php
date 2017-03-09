@@ -51,7 +51,9 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function searchShips(String $shipName)
     {
-        // TODO: Implement searchShips() method.
+        /* @TODO Suche implementieren */
+        $this->_transformer = resolve('StarCitizenWiki\Transformer\ShipsSearchTransformer');
+        $this->request('GET', 'api.php?action=opensearch&format=json&redirects=resolve&suggest=1&search='.$shipName, []);
         return $this;
     }
 }

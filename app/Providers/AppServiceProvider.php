@@ -52,5 +52,6 @@ class AppServiceProvider extends ServiceProvider
          */
         $this->app->bind('StarCitizenWiki\Transformer\ShipsListTransformer', \App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer::class);
         $this->app->bind('StarCitizenWiki\Transformer\ShipsTransformer', \App\Transformers\StarCitizenWiki\Ships\ShipsTransformer::class);
+        $this->app->bind('StarCitizenWiki\Transformer\ShipsSearchTransformer', \App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer::class);
     }
 }
