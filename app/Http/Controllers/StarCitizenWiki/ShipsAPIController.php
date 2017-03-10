@@ -30,7 +30,7 @@ class ShipsAPIController extends Controller
 
     public function searchShips(Request $request)
     {
-        $shipName = $request->input('name');
+        $shipName = $request->input('query');
         $this->_api->transformAsItem();
         return response()->json($this->_api->searchShips($shipName)->asArray(), 200, [], JSON_PRETTY_PRINT);
     }

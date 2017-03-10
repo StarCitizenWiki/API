@@ -51,9 +51,14 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function searchShips(String $shipName)
     {
-        /* @TODO Suche implementieren */
+        /**
+         * TODO: Suche Gibt teils Mist zurück
+         * Beispiel: Suche nach Aurora gibt zusätzlich Orion und Hull A zurück!?
+         */
+        $this->transformAsCollection();
         $this->_transformer = resolve('StarCitizenWiki\Transformer\ShipsSearchTransformer');
-        $this->request('GET', 'api.php?action=opensearch&format=json&redirects=resolve&suggest=1&search='.$shipName, []);
+        $this->request('GET', '/api.php?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName, []);
+        $this->_responseBody = $this->_responseBody['query']['search'];
         return $this;
     }
 }
