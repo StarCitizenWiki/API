@@ -150,9 +150,8 @@ class FundImageController extends Controller
 
     private function _getFundsFromAPI()
     {
-        $funds = $this->_api->lastHours()->getCrowdfundStats()->asArray();
-        // @Todo anpassen wenn Transformator steht
-        $this->_funds['current'] = substr($funds['data']['data']['funds'], 0, -2);
+        $funds = $this->_api->getFunds()->asArray();
+        $this->_funds['current'] = substr($funds['data']['funds'], 0, -2);
     }
 
     private function _formatFunds($source = 'current') : void
