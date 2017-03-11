@@ -29,5 +29,6 @@ define('TOOLS_DOMAIN', 'tools.star-citizen.wiki');
 define('API_DOMAIN', 'api.star-citizen.wiki');
 
 /** Transform Types */
-define('TRANSFORM_COLLECTION', 1);
-define('TRANSFORM_ITEM', 2);
+define('TRANSFORM_COLLECTION', 'collection');
+define('TRANSFORM_ITEM', 'item');
+define('TRANSFORM_NULL', 'NullResource');

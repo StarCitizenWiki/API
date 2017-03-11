@@ -24,14 +24,12 @@ class ShipsAPIController extends Controller
 
     public function getShipList()
     {
-        $this->_api->transformAsCollection();
         return response()->json($this->_api->getShipList()->asArray(), 200, [], JSON_PRETTY_PRINT);
     }
 
     public function searchShips(Request $request)
     {
         $shipName = $request->input('query');
-        $this->_api->transformAsItem();
         return response()->json($this->_api->searchShips($shipName)->asArray(), 200, [], JSON_PRETTY_PRINT);
     }
 }

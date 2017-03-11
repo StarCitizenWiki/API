@@ -7,10 +7,11 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Transformers\BaseAPITransformer;
-use League\Fractal\Resource\NullResource;
+use App\Exceptions\InvalidDataException;
+use App\Transformers\BaseAPITransformerInterface;
+use League\Fractal\TransformerAbstract;
 
-class ShipsSearchTransformer extends BaseAPITransformer
+class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
     public function transform($search)
     {
@@ -25,5 +26,7 @@ class ShipsSearchTransformer extends BaseAPITransformer
                 ]
             ];
         }
+
+        throw new InvalidDataException('result size should be 3, is '.count($result));
     }
 }

@@ -15,6 +15,7 @@ use App\Transformers\BaseAPITransformerInterface;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Support\Facades\App;
 use Spatie\Fractal\Fractal;
 
 trait BaseAPI
@@ -34,7 +35,8 @@ trait BaseAPI
 
 	private $_allowedTransformations = [
 	    TRANSFORM_COLLECTION,
-        TRANSFORM_ITEM
+        TRANSFORM_ITEM,
+        TRANSFORM_NULL
     ];
 
 	public function __construct()
@@ -52,7 +54,8 @@ trait BaseAPI
 	public function request(String $requestMethod, String $uri, array $data = null) : Response
 	{
 		$this->_response = $this->_guzzleClient->request($requestMethod, $uri, $data);
-        $this->_validateAndSaveResponse();
+        $this->_checkIfResponseIsValid();
+        $this->_validateAndSaveResponseBody();
 		return $this->_response;
 	}
 
@@ -62,23 +65,23 @@ trait BaseAPI
      */
 	public function getResponse() : Fractal
 	{
-        $this->_createFractalInstanceIfNotExist();
+        $this->_createFractalInstance();
 
 	    if (is_null($this->_transformer)) {
 	        throw new MissingTransformerException();
         }
-        /** TODO: viel zu hacky */
+
         if (is_null($this->_responseBody) || empty($this->_responseBody)) {
-            $transformedResponse = $this->_fractal->data('NullResource', null, new $this->_transformer());
-        } else {
-            if ($this->_transformationType === TRANSFORM_COLLECTION) {
-                $transformedResponse = $this->_fractal->collection($this->_responseBody, new $this->_transformer());
-            } else {
-                $transformedResponse = $this->_fractal->item($this->_responseBody, new $this->_transformer());
-            }
+            $this->_transformationType = TRANSFORM_NULL;
         }
-        $this->_addMeta();
-        $this->_checkIfResponseIsValid();
+
+        $transformedResponse = $this->_fractal->data(
+            $this->_transformationType,
+            $this->_responseBody,
+            new $this->_transformer()
+        );
+
+        $this->_addMetadataToTransformation();
 
 		return $transformedResponse;
 	}
@@ -102,24 +105,26 @@ trait BaseAPI
     /**
      * Sets the transformation type to Item
      */
-	public function transformAsItem() : void
+	public function item()
     {
         $this->_transformationType = TRANSFORM_ITEM;
+        return $this;
     }
 
     /**
      * sets the transformation type to collection
      */
-    public function transformAsCollection() : void
+    public function collection()
     {
       $this->_transformationType = TRANSFORM_COLLECTION;
+      return $this;
     }
 
     /**
      * @param BaseAPITransformerInterface $transformer
      * @return $this
      */
-    public function transformWith(BaseAPITransformerInterface $transformer)
+    public function withTransformer(BaseAPITransformerInterface $transformer)
     {
         $this->_transformer = $transformer;
         return $this;
@@ -187,22 +192,41 @@ trait BaseAPI
         return false;
     }
 
-    private function _addMeta() : void
+    /**
+     * Adds Metadata to transformation
+     */
+    private function _addMetadataToTransformation() : void
     {
         $this->_fractal->addMeta([
-            'request_status' => $this->_response->getStatusCode(),
-            'requested_at' => Carbon::now()
+            'request_status_code' => $this->_response->getStatusCode(),
+            'processed_at' => Carbon::now(),
         ]);
+
+        if (App::isLocal()) {
+            $this->_fractal->addMeta([
+                'dev' => [
+                    'response_protocol' => $this->_response->getProtocolVersion(),
+                    'response_headers' => $this->_response->getHeaders()
+                ]
+            ]);
+        }
     }
 
-    private function _createFractalInstanceIfNotExist() : void
+    /**
+     * Creates a fractal instance if null
+     */
+    private function _createFractalInstance() : void
     {
         if (is_null($this->_fractal)) {
             $this->_fractal = Fractal::create();
         }
     }
 
-    private function _validateAndSaveResponse() : void
+    /**
+     * checks if the response body is a valid json response
+     * @throws InvalidDataException
+     */
+    private function _validateAndSaveResponseBody() : void
     {
         $responseBody = (String) $this->_response->getBody();
         if ($this->_validateJSON($responseBody)) {

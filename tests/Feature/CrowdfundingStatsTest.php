@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Exceptions\MissingTransformerException;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
 class CrowdfundingStatsTest extends TestCase
 {
+    use WithoutMiddleware;
+
     /** @var  \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository */
     private $_statsAPI;
 

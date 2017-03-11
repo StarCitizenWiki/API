@@ -8,9 +8,10 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Transformers\BaseAPITransformer;
+use App\Transformers\BaseAPITransformerInterface;
+use League\Fractal\TransformerAbstract;
 
-class FundsTransformer extends BaseAPITransformer
+class FundsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
 	public function transform($stats)
     {

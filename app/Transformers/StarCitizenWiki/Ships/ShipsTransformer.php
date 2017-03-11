@@ -7,9 +7,10 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Transformers\BaseAPITransformer;
+use App\Transformers\BaseAPITransformerInterface;
+use League\Fractal\TransformerAbstract;
 
-class ShipsTransformer extends BaseAPITransformer
+class ShipsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
     public function transform($ship)
     {

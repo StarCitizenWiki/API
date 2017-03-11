@@ -35,25 +35,25 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 
     public function getFunds() : StatsRepository
     {
-        $this->transformWith(resolve('StarCitizen\Transformer\FundsTransformer'));
+        $this->withTransformer(resolve('StarCitizen\Transformer\FundsTransformer'));
         return $this->getCrowdfundStats();
     }
 
     public function getFans() : StatsRepository
     {
-        $this->transformWith(resolve('StarCitizen\Transformer\FansTransformer'));
+        $this->withTransformer(resolve('StarCitizen\Transformer\FansTransformer'));
         return $this->getCrowdfundStats();
     }
 
     public function getFleet() : StatsRepository
     {
-        $this->transformWith(resolve('StarCitizen\Transformer\FleetTransformer'));
+        $this->withTransformer(resolve('StarCitizen\Transformer\FleetTransformer'));
         return $this->getCrowdfundStats();
     }
 
     public function getAll() : StatsRepository
     {
-        $this->transformWith(resolve('StarCitizen\Transformer\StatsTransformer'));
+        $this->withTransformer(resolve('StarCitizen\Transformer\StatsTransformer'));
         return $this->getCrowdfundStats();
     }
 

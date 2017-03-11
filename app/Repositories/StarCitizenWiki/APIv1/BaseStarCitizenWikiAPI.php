@@ -24,6 +24,9 @@ class BaseStarCitizenWikiAPI
      */
     private function _checkIfResponseDataIsValid() : bool
     {
-        return true;
+        if (empty($this->_response->getHeader('MediaWiki-API-Error'))) {
+            return true;
+        }
+        return false;
     }
 }
