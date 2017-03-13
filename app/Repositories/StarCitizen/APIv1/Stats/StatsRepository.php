@@ -8,6 +8,10 @@
 namespace App\Repositories\StarCitizen\APIv1\Stats;
 
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI as BaseStarCitizenAPI;
+use App\Transformers\StarCitizen\Stats\FansTransformer;
+use App\Transformers\StarCitizen\Stats\FleetTransformer;
+use App\Transformers\StarCitizen\Stats\FundsTransformer;
+use App\Transformers\StarCitizen\Stats\StatsTransformer;
 
 class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 {
@@ -35,25 +39,25 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 
     public function getFunds() : StatsRepository
     {
-        $this->withTransformer(resolve('StarCitizen\Transformer\FundsTransformer'));
+        $this->withTransformer(FundsTransformer::class);
         return $this->getCrowdfundStats();
     }
 
     public function getFans() : StatsRepository
     {
-        $this->withTransformer(resolve('StarCitizen\Transformer\FansTransformer'));
+        $this->withTransformer(FansTransformer::class);
         return $this->getCrowdfundStats();
     }
 
     public function getFleet() : StatsRepository
     {
-        $this->withTransformer(resolve('StarCitizen\Transformer\FleetTransformer'));
+        $this->withTransformer(FleetTransformer::class);
         return $this->getCrowdfundStats();
     }
 
     public function getAll() : StatsRepository
     {
-        $this->withTransformer(resolve('StarCitizen\Transformer\StatsTransformer'));
+        $this->withTransformer(StatsTransformer::class);
         return $this->getCrowdfundStats();
     }
 

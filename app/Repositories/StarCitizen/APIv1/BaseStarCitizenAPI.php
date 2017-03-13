@@ -10,6 +10,7 @@ namespace App\Repositories\StarCitizen\APIv1;
 use App\Exceptions\InvalidDataException;
 use App\Repositories\BaseAPI;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\App;
 
 class BaseStarCitizenAPI
 {
@@ -59,8 +60,11 @@ class BaseStarCitizenAPI
             $this->_RSIToken = $token;
         }
 
-        $this->_createFractalInstance();
-        $this->_fractal->addMeta(['RSI-Token' => $token]);
+        if (App::isLocal()) {
+            $this->_createFractalInstance();
+            $this->_fractal->addMeta(['RSI-Token' => $token]);
+        }
+
         $this->__construct();
     }
 
