@@ -17,7 +17,7 @@ class UpdateTokenTimestamp
      */
     public function handle($request, Closure $next)
     {
-        $key = $request->get('key', null);
+        $key = $request->get(AUTH_KEY_FIELD_NAME, null);
 
         if (!is_null($key)) {
             $user = DB::table('users')->where('api_token', $key)->first();

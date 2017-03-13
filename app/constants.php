@@ -16,6 +16,7 @@ define('FUNDIMAGE_CACHE_TIME', 600);
 define('AUTH_HOME', '/');
 define('AUTH_ACCOUNT', '/account');
 define('AUTH_LOGIN', '/login');
+define('AUTH_KEY_FIELD_NAME', 'key');
 
 define('AUTH_ADMIN_IDS', [1]);
 
@@ -32,3 +33,7 @@ define('API_DOMAIN', 'api.star-citizen.wiki');
 define('TRANSFORM_COLLECTION', 'collection');
 define('TRANSFORM_ITEM', 'item');
 define('TRANSFORM_NULL', 'NullResource');
+
+/** Piwik */
+define('PIWIK_URL', 'https://piwik.octofox.de/');
+define('PIWIK_SITE_ID', 15);
