@@ -39,16 +39,17 @@ Route::group(['domain' => $api_domain], function () {
                 });
 
                 Route::group(['prefix' => 'starmap'], function () {
-                    Route::post('search', function(){});
-                    Route::get('systems', function(){});
+                    Route::post('search', ['uses' => 'StarmapAPIController@searchStarmap']);
+                    Route::get('systems', ['uses' => 'StarmapAPIController@getSystemList']);
 
                     Route::group(['prefix' => 'systems'], function () {
-                        Route::get('{name}', function(){});
-                        Route::get('{name}/asteroidbelts', function(){});
-                        Route::get('{name}/spacestations', function(){});
-                        Route::get('{name}/jumppoints', function(){});
-                        Route::get('{name}/planets', function(){});
-                        Route::get('{name}/moons', function(){});
+                        Route::get('{name}', ['uses' => 'StarmapAPIController@getSystem']);
+                        Route::get('{name}/asteroidbelts', ['uses' => 'StarmapAPIController@getAsteroidbelts']);
+                        Route::get('{name}/spacestations', ['uses' => 'StarmapAPIController@getSpacestations']);
+                        Route::get('{name}/jumppoints', ['uses' => 'StarmapAPIController@getJumppoints']);
+                        Route::get('{name}/planets', ['uses' => 'StarmapAPIController@getPlanets']);
+                        Route::get('{name}/moons', ['uses' => 'StarmapAPIController@getMoons']);
+                        Route::get('{name}/{objectname}', ['uses' => 'StarmapAPIController@getObject']);
                     });
 
                 });

@@ -8,6 +8,7 @@
 
 namespace App\Repositories;
 
+use App\Exceptions\InterfaceNotImplementedException;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MethodNotImplementedException;
 use App\Exceptions\MissingTransformerException;
@@ -67,7 +68,7 @@ trait BaseAPI
 	{
         $this->_createFractalInstance();
 
-	    if (is_null($this->_transformer)) {
+	    if (is_null($this->_transformer) || !$this->_transformer instanceof BaseAPITransformerInterface) {
 	        throw new MissingTransformerException();
         }
 
@@ -78,7 +79,7 @@ trait BaseAPI
         $transformedResponse = $this->_fractal->data(
             $this->_transformationType,
             $this->_responseBody,
-            new $this->_transformer()
+            $this->_transformer
         );
 
         $this->_addMetadataToTransformation();
@@ -121,11 +122,17 @@ trait BaseAPI
     }
 
     /**
-     * @param BaseAPITransformerInterface $transformer
+     * @param String $transformer
      * @return $this
      */
-    public function withTransformer(BaseAPITransformerInterface $transformer)
+    public function withTransformer(String $transformer)
     {
+        $transformer = new $transformer();
+
+        if (!$transformer instanceof BaseAPITransformerInterface) {
+            throw new InterfaceNotImplementedException('Transformer does not implement BaseAPITransformerInterface');
+        }
+
         $this->_transformer = $transformer;
         return $this;
     }

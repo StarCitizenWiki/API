@@ -38,20 +38,5 @@ class AppServiceProvider extends ServiceProvider
          * Star Citizen Wiki API Interfaces
          */
         $this->app->bind('StarCitizenWiki\API\ShipsRepository', \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::class);
-
-        /**
-         * Star Citizen Transformers
-         */
-        $this->app->bind('StarCitizen\Transformer\StatsTransformer', \App\Transformers\StarCitizen\Stats\StatsTransformer::class);
-        $this->app->bind('StarCitizen\Transformer\FundsTransformer', \App\Transformers\StarCitizen\Stats\FundsTransformer::class);
-        $this->app->bind('StarCitizen\Transformer\FansTransformer', \App\Transformers\StarCitizen\Stats\FansTransformer::class);
-        $this->app->bind('StarCitizen\Transformer\FleetTransformer', \App\Transformers\StarCitizen\Stats\FleetTransformer::class);
-
-        /**
-         * Star Citizen Wiki Transformers
-         */
-        $this->app->bind('StarCitizenWiki\Transformer\ShipsListTransformer', \App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer::class);
-        $this->app->bind('StarCitizenWiki\Transformer\ShipsTransformer', \App\Transformers\StarCitizenWiki\Ships\ShipsTransformer::class);
-        $this->app->bind('StarCitizenWiki\Transformer\ShipsSearchTransformer', \App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer::class);
     }
 }

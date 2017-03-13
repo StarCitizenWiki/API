@@ -8,6 +8,9 @@
 namespace App\Repositories\StarCitizenWiki\APIv1\Ships;
 
 use App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI;
+use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
+use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
+use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
 
 class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
 {
@@ -17,7 +20,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function getShip(String $shipName) : ShipsRepository
     {
-        $this->_transformer = resolve('StarCitizenWiki\Transformer\ShipsTransformer');
+        $this->_transformer = resolve(ShipsTransformer::class);
         $this->request('GET', '?action=browsebysubject&format=json&subject='.$shipName, []);
         return $this;
     }
@@ -28,7 +31,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     public function getShipList() : ShipsRepository
     {
         $this->collection();
-        $this->_transformer = resolve('StarCitizenWiki\Transformer\ShipsListTransformer');
+        $this->_transformer = resolve(ShipsListTransformer::class);
         $offset = 0;
         $data = [];
         do {
@@ -54,7 +57,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
          * TODO: Suche Gibt teils Mist zurück
          * Beispiel: Suche nach Aurora gibt zusätzlich Orion und Hull A zurück!?
          */
-        $this->_transformer = resolve('StarCitizenWiki\Transformer\ShipsSearchTransformer');
+        $this->_transformer = resolve(ShipsSearchTransformer::class);
         $this->collection()->request('GET', '/api.php?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName, []);
         $this->_responseBody = $this->_responseBody['query']['search'];
         return $this;
