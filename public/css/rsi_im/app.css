@@ -1,0 +1,24 @@
+html{
+    background-image: url("/media/images/rsi_im/noisebg.gif");
+    height: 100%;
+}
+
+body {
+    background-image: url("/media/images/rsi_im/gridbg.png");
+    background-color: transparent;
+    min-height: 100%;
+}
+
+.form-container {
+    margin-bottom: 10rem;
+}
+
+.form-control {
+    border-color: #fefefe;
+}
+
+.btn-secondary:focus,
+.btn-secondary.focus {
+    box-shadow: none;
+}
+/*# sourceMappingURL=app.css.map */

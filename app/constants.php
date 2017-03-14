@@ -28,6 +28,7 @@ define('THROTTLE_GUEST_REQUESTS', 10);
 /** Domains */
 define('TOOLS_DOMAIN', 'tools.star-citizen.wiki');
 define('API_DOMAIN', 'api.star-citizen.wiki');
+define('SHORT_URL_DOMAIN', 'rsi.im');
 
 /** Transform Types */
 define('TRANSFORM_COLLECTION', 'collection');
@@ -37,3 +38,6 @@ define('TRANSFORM_NULL', 'NullResource');
 /** Piwik */
 define('PIWIK_URL', 'https://piwik.octofox.de/');
 define('PIWIK_SITE_ID', 15);
+
+/** Short URL */
+define('SHORT_URL_LENGTH', 6);

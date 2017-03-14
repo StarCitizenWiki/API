@@ -13,13 +13,15 @@
 if (App::isLocal() || App::runningUnitTests()) {
     $api_domain = env('APP_URL');
     $tools_domain = env('APP_URL');
+    $short_url_domain = env('APP_URL');
 } else {
     $api_domain = API_DOMAIN;
     $tools_domain = TOOLS_DOMAIN;
+    $short_url_domain = SHORT_URL_DOMAIN;
 }
 
 Route::group(['domain' => $api_domain], function () {
-    Route::get('/', ['uses' => 'APIPageController@getIndex']);
+    //Route::get('/', ['uses' => 'APIPageController@getIndex']);
 
     Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'namespace' => 'auth'], function () {
         Route::get('users', ['uses' => 'AdminController@users']);
@@ -46,7 +48,7 @@ Route::group(['domain' => $api_domain], function () {
 });
 
 Route::group(['domain' => $tools_domain], function () {
-    Route::get('/', ['uses' => 'APIPageController@getIndex']);
+    //Route::get('/', ['uses' => 'APIPageController@getIndex']);
 
     Route::group(['namespace' => 'Tools'], function () {
         Route::group(['prefix' => 'tools'], function () {
@@ -67,5 +69,15 @@ Route::group(['domain' => $tools_domain], function () {
             });
         });
     });
+});
+
+Route::group(['domain' => $short_url_domain, 'namespace' => 'ShortURL'], function () {
+
+    Route::get('/', ['uses' => 'ShortUrlController@getIndex'])->name('short_url_index');
+    Route::group(['middleware' => 'throttle'], function () {
+        Route::post('/shorten', ['uses' => 'ShortUrlController@shortenURL'])->name('shorten');
+        Route::get('{name}', ['uses' => 'ShortUrlController@resolveURL']);
+    });
+
 });
 

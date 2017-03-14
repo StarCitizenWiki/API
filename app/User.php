@@ -52,4 +52,9 @@ class User extends Authenticatable
         return $this->blacklisted == 1;
     }
 
+    public function shortUrls()
+    {
+        return $this->hasMany('App\ShortUrl');
+    }
+
 }

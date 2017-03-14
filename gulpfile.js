@@ -24,3 +24,9 @@ elixir(function(mix) {
 elixir(function(mix) {
     mix.version('js/tools/imageresizer.js');
 });
+
+elixir(function(mix) {
+    mix.styles([
+        'rsi_im.css'
+    ], 'public/css/rsi_im/app.css');
+});
