@@ -131,6 +131,7 @@ class ShortURLController extends Controller
     {
         $url = parse_url($url)['host'];
         $url = str_replace('www.', '', $url);
+
         if (ShortUrlWhitelist::where('url', '=', $url)->count() !== 1) {
             throw new URLNotWhitelistedException('Url '.$url.' not whitelisted');
         }
