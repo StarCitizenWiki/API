@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models\ShortUrl;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,6 +19,6 @@ class ShortUrl extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\Models\User');
     }
 }

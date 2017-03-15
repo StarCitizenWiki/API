@@ -27,9 +27,9 @@
                     <div class="w-100">
                         <img src="{{ URL::asset('/media/images/rsi_im/logo.png') }}" class="img-responsive mb-5">
                         @include('snippets.errors')
-                        @if (session('hash-name'))
+                        @if (session('hash_name'))
                             <div class="alert alert-success text-center mb-5">
-                                https://{{SHORT_URL_DOMAIN}}/{{ session('hash-name') }}
+                                https://{{SHORT_URL_DOMAIN}}/{{ session('hash_name') }}
                             </div>
                         @endif
                         <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('shorten') }}">
@@ -45,8 +45,8 @@
                             </div>
                             <div class="collapse mt-3" id="customize">
                                 <div class="input-group">
-                                    <span class="input-group-addon" id="hash-name-label">Custom Name:</span>
-                                    <input type="text" class="form-control" id="hash-name" name="hash-name" aria-describedby="hash-name-label" placeholder="Alphanumeric and -_">
+                                    <span class="input-group-addon" id="hash_name-label">Custom Name:</span>
+                                    <input type="text" class="form-control" id="hash_name" name="hash_name" aria-describedby="hash_name-label" placeholder="Alphanumeric and -_">
                                 </div>
                             </div>
                         </form>
