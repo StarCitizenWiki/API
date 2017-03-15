@@ -29,6 +29,7 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{{ url('admin/users') }}">User</a>
                         <a class="dropdown-item" href="{{ url('admin/routes') }}">Routes</a>
+                        <a class="dropdown-item" href="{{ url('admin/urls') }}">URLs</a>
                     </div>
                 </li>
             @endif
@@ -37,8 +38,13 @@
                     <a class="nav-link" href="{{ url('/login') }}"><i class="fa fa-sign-in"></i> Login</a>
                 </li>
             @else
-                <li class="nav-item mr-2">
-                    <a class="nav-link" href="{{ url('/account') }}">Account</a>
+                <li class="nav-item dropdown mr-2">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Account</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ url('/account') }}">Dashboard</a>
+                        <a class="dropdown-item" href="{{ url('/account/urls') }}">Short URLs</a>
+                    </div>
+
                 </li>
                 <li class="nav-item mr-2">
                     <a class="nav-link" href="{{ url('/logout') }}"

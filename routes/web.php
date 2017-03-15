@@ -25,10 +25,16 @@ Route::group(['domain' => $api_domain], function () {
 
     Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'namespace' => 'auth'], function () {
         Route::get('users', ['uses' => 'AdminController@users']);
-        Route::delete('users/{ID}/delete', ['uses' => 'AdminController@deleteUser']);
+        Route::delete('users/{ID}', ['uses' => 'AdminController@deleteUser']);
         Route::get('users/{ID}/edit', ['uses' => 'AdminController@editUser']);
         Route::patch('users/{ID}', ['uses' => 'AdminController@patchUser']);
+
         Route::get('routes', ['uses' => 'AdminController@routes']);
+
+        Route::get('urls', ['uses' => 'AdminController@shortURLs']);
+        Route::delete('urls/{ID}', ['uses' => 'AdminController@deleteURL']);
+        Route::get('urls/{ID}/edit', ['uses' => 'AdminController@editURL']);
+        Route::patch('urls/{ID}', ['uses' => 'AdminController@patchURL']);
     });
 
     // Authentication Routes...
@@ -45,6 +51,8 @@ Route::group(['domain' => $api_domain], function () {
     Route::delete('account/delete', ['uses' => 'Auth\AccountController@delete', 'middleware' => 'auth'])->name('delete_account');
     Route::get('account/edit', ['uses' => 'Auth\AccountController@showEditForm', 'middleware' => 'auth'])->name('edit_account');
     Route::patch('account/edit', ['uses' => 'Auth\AccountController@patchAccount', 'middleware' => 'auth']);
+    Route::get('account/urls', ['uses' => 'Auth\AccountController@showURLs', 'middleware' => 'auth']);
+    Route::delete('account/urls/{ID}', ['uses' => 'Auth\AccountController@deleteURL', 'middleware' => 'auth']);
 });
 
 Route::group(['domain' => $tools_domain], function () {
@@ -71,11 +79,11 @@ Route::group(['domain' => $tools_domain], function () {
     });
 });
 
-Route::group(['domain' => $short_url_domain, 'namespace' => 'ShortURL'], function () {
+Route::group(['domain' => $short_url_domain, 'namespace' => 'ShortUrl'], function () {
 
     Route::get('/', ['uses' => 'ShortUrlController@getIndex'])->name('short_url_index');
     Route::group(['middleware' => 'throttle'], function () {
-        Route::post('/shorten', ['uses' => 'ShortUrlController@shortenURL'])->name('shorten');
+        Route::post('/shorten', ['uses' => 'ShortUrlController@create'])->name('shorten');
         Route::get('{name}', ['uses' => 'ShortUrlController@resolveURL']);
     });
 

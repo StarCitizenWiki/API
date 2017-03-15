@@ -2,32 +2,54 @@
 
 namespace App\Http\Controllers\Auth;
 
-
+use App\Exceptions\HashNameAlreadyAssignedException;
+use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Http\Controllers\ShortURL\ShortURLController;
+use App\Http\Controllers\UserController;
+use App\Models\ShortUrl\ShortUrl;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    public function shortURLs()
+    {
+        return view('admin.shorturl.index')->with('urls', ShortUrl::all());
+    }
+
+    public function editUrl(int $id)
+    {
+        $url = ShortUrl::find($id);
+        return view('admin.shorturl.edit')->with('url', $url)->with('users', User::all());
+    }
+
+    public function deleteURL(int $id)
+    {
+        $urlController = resolve(ShortURLController::class);
+        $urlController->delete($id);
+        return redirect('/admin/urls');
+    }
+
+    public function patchURL(Request $request, int $id)
+    {
+        $urlController = resolve(ShortURLController::class);
+
+        try {
+            $urlController->update($request, $id);
+        } catch (URLNotWhitelistedException | HashNameAlreadyAssignedException $e) {
+            return back()->withErrors($e->getMessage());
+        }
+
+        return redirect('/admin/urls');
+    }
+
     public function users()
     {
         return view('admin.users.index')->with('users', User::all());
     }
 
     public function editUser(int $id)
-    {
-        $user = User::find($id);
-        return view('admin.users.edit')->with('user', $user);
-    }
-
-    public function deleteUser(int $id)
-    {
-        $user = User::find($id);
-        $user->delete();
-        return redirect('/admin/users');
-    }
-
-    public function patchUser(Request $request, int $id)
     {
         $user = User::find($id);
         $this->validate($request, [
@@ -68,6 +90,21 @@ class AdminController extends Controller
         }
 
         $user->save();
+
+        return view('admin.users.edit')->with('user', $user);
+    }
+
+    public function deleteUser(int $id)
+    {
+        $user = User::find($id);
+        $user->delete();
+        return redirect('/admin/users');
+    }
+
+    public function patchUser(Request $request, int $id)
+    {
+        $userController = resolve(UserController::class);
+        $userController->update($request, $id);
 
         return redirect('/admin/users');
     }
