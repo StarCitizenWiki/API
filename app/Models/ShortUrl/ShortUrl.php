@@ -5,6 +5,7 @@ namespace App\Models\ShortURL;
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ShortURL extends Model
 {
@@ -73,7 +74,7 @@ class ShortURL extends Model
 
     private static function _checkURLinWhitelist(String $url)
     {
-        $url = parse_url($url)['host'];
+        $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
 
         if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {

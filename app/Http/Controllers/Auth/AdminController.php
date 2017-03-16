@@ -6,7 +6,6 @@ use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ShortURL\ShortURLController;
-use App\Http\Controllers\UserController;
 use App\Models\ShortURL\ShortURL;
 use App\Models\User;
 use Illuminate\Http\Request;

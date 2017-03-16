@@ -18,7 +18,8 @@ class ShortUrlWhitelistsTableSeeder extends Seeder
             'url' => 'forums.robertsspaceindustries.com'
         ]);
         DB::table('short_url_whitelists')->insert([
-            'url' => 'stargov.de'
+            'url' => 'stargov.de',
+            'internal' => true
         ]);
         DB::table('short_url_whitelists')->insert([
             'url' => 'star-citizen.wiki'

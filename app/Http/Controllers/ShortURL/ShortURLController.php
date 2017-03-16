@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ShortURL;
 
+use App\Events\URLShortened;
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
@@ -15,7 +16,7 @@ class ShortURLController extends Controller
 {
     public function show()
     {
-        return view('shorturl.index')->with('whitelistedURLs', ShortURLWhitelist::all()->sortBy('url'));
+        return view('shorturl.index')->with('whitelistedURLs', ShortURLWhitelist::all()->sortBy('url')->where('internal', false));
     }
 
     public function resolve(String $hashName)
@@ -71,7 +72,7 @@ class ShortURLController extends Controller
             return redirect()->route('short_url_index')->withErrors($e->getMessage());
         }
 
-        //event(new UserRegistered($user, $password));
+        event(new URLShortened($url));
 
         return redirect()->route('short_url_index')->with('hash_name', $url->hash_name);
     }
