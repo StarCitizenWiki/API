@@ -8,26 +8,21 @@
 namespace App\Repositories\StarCitizen\APIv1\Stats;
 
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI as BaseStarCitizenAPI;
-use App\Transformers\StarCitizen\StatsTransformer;
+use App\Transformers\StarCitizen\Stats\FansTransformer;
+use App\Transformers\StarCitizen\Stats\FleetTransformer;
+use App\Transformers\StarCitizen\Stats\FundsTransformer;
+use App\Transformers\StarCitizen\Stats\StatsTransformer;
 
 class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 {
-
     private $_getFans = true;
     private $_getFleet = true;
     private $_getFunds = true;
     private $_chartType = 'hour';
 
-	function __construct(StatsTransformer $transformer)
-	{
-		$this->_transformer = $transformer;
-		parent::__construct();
-	}
-
     /**
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      * @return StatsRepository
-     *
      */
     public function getCrowdfundStats() : StatsRepository
     {
@@ -39,8 +34,31 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
                 'funds' => $this->_getFunds
             ]
         ]);
-
         return $this;
+    }
+
+    public function getFunds() : StatsRepository
+    {
+        $this->withTransformer(FundsTransformer::class);
+        return $this->getCrowdfundStats();
+    }
+
+    public function getFans() : StatsRepository
+    {
+        $this->withTransformer(FansTransformer::class);
+        return $this->getCrowdfundStats();
+    }
+
+    public function getFleet() : StatsRepository
+    {
+        $this->withTransformer(FleetTransformer::class);
+        return $this->getCrowdfundStats();
+    }
+
+    public function getAll() : StatsRepository
+    {
+        $this->withTransformer(StatsTransformer::class);
+        return $this->getCrowdfundStats();
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +29,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('StarCitizen\StatsRepository', StatsRepository::class);
+        /**
+         * Star Citizen API Interfaces
+         */
+        $this->app->bind('StarCitizen\API\StatsRepository', \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::class);
+
+        /**
+         * Star Citizen Wiki API Interfaces
+         */
+        $this->app->bind('StarCitizenWiki\API\ShipsRepository', \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::class);
     }
 }

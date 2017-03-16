@@ -16,8 +16,19 @@ class ShipsAPIController extends Controller
         $this->_api = $api;
     }
 
+    public function getShip(String $name)
+    {
+        return response()->json($this->_api->getShip($name)->asArray(), 200, [], JSON_PRETTY_PRINT);
+    }
+
     public function getShipList()
     {
-        return response()->json($this->_api->getShipList()->asArray(),200,[],JSON_PRETTY_PRINT);
+        return response()->json($this->_api->getShipList()->asArray(), 200, [], JSON_PRETTY_PRINT);
+    }
+
+    public function searchShips(Request $request)
+    {
+        $shipName = $request->input('query');
+        return response()->json($this->_api->searchShips($shipName)->asArray(), 200, [], JSON_PRETTY_PRINT);
     }
 }

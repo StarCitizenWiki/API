@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Events\UserRegistered;
-use App\User;
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -69,7 +69,7 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return User
      */
-    protected function create(array $data)
+    public function create(array $data)
     {
         $api_token = str_random(60);
         $password = str_random(32);

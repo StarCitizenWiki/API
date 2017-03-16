@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -50,6 +50,11 @@ class User extends Authenticatable
     public function isBlacklisted() : bool
     {
         return $this->blacklisted == 1;
+    }
+
+    public function shortURLs()
+    {
+        return $this->hasMany('App\Models\ShortURL\ShortURL');
     }
 
 }

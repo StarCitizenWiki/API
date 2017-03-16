@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -21,6 +21,7 @@ class UserRegistered
      * Create a new event instance.
      *
      * @param User $user
+     * @param $password
      */
     public function __construct(User $user, $password)
     {

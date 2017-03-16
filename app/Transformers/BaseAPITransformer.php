@@ -2,31 +2,17 @@
 
 namespace App\Transformers;
 
-use GuzzleHttp\Psr7\Response;
 use \League\Fractal\TransformerAbstract;
+use App\Exceptions\MethodNotImplementedException;
 
 abstract class BaseAPITransformer extends TransformerAbstract implements BaseAPITransformerInterface {
-
-	protected $success = true;
-
-	/**
-	 * @return boolean
-	 */
-	public function isSuccess(): bool
-	{
-		return $this->success === true;
-	}
-
-	/**
-	 * @param boolean $success
-	 */
-	public function setSuccess(bool $success) : void
-	{
-		$this->success = $success;
-	}
-
+    /**
+     * @param $data
+     * @throws MethodNotImplementedException
+     * @return void
+     */
 	public function transform($data)
     {
-        throw new \Exception('transform function not implemented!');
+        throw new MethodNotImplementedException('transform function not implemented!');
     }
 }

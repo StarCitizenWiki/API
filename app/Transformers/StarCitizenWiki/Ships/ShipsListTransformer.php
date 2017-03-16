@@ -5,11 +5,12 @@
  * Time: 12:28
  */
 
-namespace App\Transformers\StarCitizenWiki;
+namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Transformers\BaseAPITransformer;
+use App\Transformers\BaseAPITransformerInterface;
+use League\Fractal\TransformerAbstract;
 
-class ShipsTransformer extends BaseAPITransformer
+class ShipsListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
     public function transform($ship)
     {

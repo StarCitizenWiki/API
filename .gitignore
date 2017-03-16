@@ -8,9 +8,6 @@ Homestead.yaml
 .env
 .env.example
 composer.phar
-/public/css/*.map
-/public/js/*.map
 /Vagrantfile
 /composer.lock
-.gitignore
 /ci/

@@ -11,10 +11,10 @@ namespace App\Transformers;
 interface BaseAPITransformerInterface
 {
 
-    public function setSuccess(bool $success) : void;
-
-    public function isSuccess(): bool;
-
+    /**
+     * @param $data
+     * @return mixed
+     */
     public function transform($data);
 
 }

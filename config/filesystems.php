@@ -70,6 +70,16 @@ return [
             'visibility' => 'public',
         ],
 
+        'api' => [
+            'driver' => 'local',
+            'root' => storage_path('app/api'),
+        ],
+
+        'starmap' => [
+            'driver' => 'local',
+            'root' => storage_path('app/api/starmap'),
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => 'your-key',
