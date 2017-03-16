@@ -7,20 +7,20 @@ use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ShortURL\ShortURLController;
 use App\Http\Controllers\UserController;
-use App\Models\ShortUrl\ShortUrl;
+use App\Models\ShortURL\ShortURL;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function shortURLs()
+    public function urls()
     {
-        return view('admin.shorturl.index')->with('urls', ShortUrl::all());
+        return view('admin.shorturl.index')->with('urls', ShortURL::all());
     }
 
-    public function editUrl(int $id)
+    public function editURL(int $id)
     {
-        $url = ShortUrl::find($id);
+        $url = ShortURL::find($id);
         return view('admin.shorturl.edit')->with('url', $url)->with('users', User::all());
     }
 
@@ -50,6 +50,19 @@ class AdminController extends Controller
     }
 
     public function editUser(int $id)
+    {
+        $user = User::find($id);
+        return view('admin.users.edit')->with('user', $user);
+    }
+
+    public function deleteUser(int $id)
+    {
+        $user = User::find($id);
+        $user->delete();
+        return redirect('/admin/users');
+    }
+
+    public function patchUser(Request $request, int $id)
     {
         $user = User::find($id);
         $this->validate($request, [
@@ -90,21 +103,6 @@ class AdminController extends Controller
         }
 
         $user->save();
-
-        return view('admin.users.edit')->with('user', $user);
-    }
-
-    public function deleteUser(int $id)
-    {
-        $user = User::find($id);
-        $user->delete();
-        return redirect('/admin/users');
-    }
-
-    public function patchUser(Request $request, int $id)
-    {
-        $userController = resolve(UserController::class);
-        $userController->update($request, $id);
 
         return redirect('/admin/users');
     }

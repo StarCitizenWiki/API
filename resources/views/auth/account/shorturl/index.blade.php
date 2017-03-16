@@ -35,6 +35,9 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group" aria-label="">
+                                        <a href="urls/{{ $url->id }}/edit" class="btn btn-warning">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
                                         <a href="#" class="btn btn-danger"
                                            onclick="event.preventDefault();
                                                    document.getElementById('delete-form{{ $url->id }}').submit();">

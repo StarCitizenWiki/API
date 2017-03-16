@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class APIPageController extends Controller
 {
-    public function getIndex()
+    public function index()
     {
         $bootstrapModules = [
             'enableCSS' =>  true,

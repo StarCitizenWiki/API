@@ -5,20 +5,10 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" type="image/x-icon" href="{{ URL::asset('/media/images/rsi_im/favicon.ico') }}">
-
-        <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
-
         <title>RSI.im - Star Citizen Wiki Short URL Service</title>
         <link rel="stylesheet" href="{{ URL::asset('/css/app.css') }}">
         <link rel="stylesheet" href="{{ URL::asset('/css/rsi_im/app.css') }}">
-
-        <!-- Scripts -->
-        <script>
-            window.Laravel = {!! json_encode([
-                'csrfToken' => csrf_token(),
-            ]) !!};
-        </script>
     </head>
     <body>
         <main class="container" id="form">
@@ -28,7 +18,7 @@
                         <img src="{{ URL::asset('/media/images/rsi_im/logo.png') }}" class="img-responsive mb-5">
                         @include('snippets.errors')
                         @if (session('hash_name'))
-                            <div class="alert alert-success text-center mb-5">
+                            <div class="alert alert-success text-center">
                                 https://{{SHORT_URL_DOMAIN}}/{{ session('hash_name') }}
                             </div>
                         @endif
@@ -52,10 +42,43 @@
                         </form>
                     </div>
                 </div>
+                <div class="col-12 d-flex fixed-bottom">
+                    <ul class="nav justify-content-end w-100">
+                        <li class="nav-item">
+                            <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">Whitelist</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-info" href="https://{{ API_DOMAIN }}">API</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-info" href="https://star-citizen.wiki/Star_Citizen_Wiki:Impressum">Legal</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal fade" id="whitelist-modal" tabindex="-1" role="dialog" aria-labelledby="whitelist-modal-label" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="whitelist-modal-label">URL Whitelist</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                @foreach($whitelistedURLs as $whitelistedURL)
+                                    <li>{{ $whitelistedURL->url }}</li>
+                                @endforeach
+                            </ul>
+                            <hr>
+                            <a href="mailto:api@star-citizen.wiki?subject=RSI.IM URL Whitelist Request&body=Whitelist Request for the following Domain(s):">Add URL to Whitelist</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.js" integrity="sha256-jVfFb7AbGi7S/SLNl8SB4/MYaf549eEs+NlIWMoARHg=" crossorigin="anonymous"></script>
+        <script>window.Tether = function () {};</script>
         <script src="{{ URL::asset('/js/app.js') }}"></script>
     </body>
 </html>

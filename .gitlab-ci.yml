@@ -1,15 +1,17 @@
 image: php:7.1
 
-cache:  
+cache:
   paths:
   - vendor/
 
-before_script:  
+before_script:
 - bash ci/docker_install.sh > /dev/null
 - curl -sS https://getcomposer.org/installer | php
 - php composer.phar install
 - php composer.phar update
+- php artisan migrate
+- php artisan db:seed
 
-phpunit:  
+phpunit:
   script:
   - vendor/bin/phpunit --coverage-text --colors=never --configuration phpunit.xml

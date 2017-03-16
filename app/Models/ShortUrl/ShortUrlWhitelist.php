@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Models\ShortUrl;
+namespace App\Models\ShortURL;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ShortUrlWhitelist extends Model
+class ShortURLWhitelist extends Model
 {
+    protected $table = 'short_url_whitelists';
+
     /**
      * The attributes that are mass assignable.
      *
