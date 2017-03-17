@@ -12,10 +12,12 @@
 */
 if (App::isLocal() || App::runningUnitTests()) {
     $api_domain = env('APP_URL');
-    $tools_domain = env('APP_URL');
+    $tools_domain = env('TOOLS_URL', env('APP_URL'));
+    $short_url_domain = env('SHORTURL_URL', env('APP_URL'));
 } else {
     $api_domain = API_DOMAIN;
     $tools_domain = TOOLS_DOMAIN;
+    $short_url_domain = SHORT_URL_DOMAIN;
 }
 
 Route::group(['domain' => $api_domain], function () {

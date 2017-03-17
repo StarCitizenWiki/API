@@ -32,7 +32,7 @@
                         <input type="password" class="form-control" id="password" name="password" aria-labelledby="password" tabindex="3" data-minlength="8">
                     </div>
                     <div class="form-group">
-                        <label for="password2" aria-label="Passwort">Passwort:</label>
+                        <label for="password_confirmation" aria-label="Passwort">Passwort:</label>
                         <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" aria-labelledby="password" tabindex="4" data-minlength="8">
                     </div>
                     <button type="submit" class="btn btn-warning my-3">Edit</button>

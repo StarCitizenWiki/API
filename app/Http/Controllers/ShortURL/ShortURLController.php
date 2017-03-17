@@ -8,17 +8,28 @@ use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
+use App\Models\User;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ShortURLController extends Controller
 {
+    /**
+     * @return View
+     */
     public function show()
     {
         return view('shorturl.index')->with('whitelistedURLs', ShortURLWhitelist::all()->sortBy('url')->where('internal', false));
     }
 
+    /**
+     * resolves a hash to a url
+     * @param String $hashName
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function resolve(String $hashName)
     {
         try {
@@ -34,6 +45,11 @@ class ShortURLController extends Controller
         return redirect($url->url, 301);
     }
 
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return bool
+     */
     public function update(Request $request, int $id)
     {
         $this->validate($request, [
@@ -42,14 +58,20 @@ class ShortURLController extends Controller
             'user_id' => 'required|integer|exists:users,id'
         ]);
 
-        return ShortURL::updateShortURL([
+        $url = ShortURL::updateShortURL([
             'id' => $id,
             'url' => $request->get('url'),
             'hash_name' => $request->get('hash_name'),
             'user_id' => $request->get('user_id'),
         ]);
+
+        return $url;
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function create(Request $request)
     {
         $this->validate($request, [
@@ -77,9 +99,21 @@ class ShortURLController extends Controller
         return redirect()->route('short_url_index')->with('hash_name', $url->hash_name);
     }
 
+    /**
+     * Deletes a url and logs it
+     * @param int $id
+     */
     public function delete(int $id)
     {
-        ShortURL::find($id)->delete();
+        $url = ShortURL::find($id);
+
+        Log::info('URL Deleted', [
+            'id' => $url->id,
+            'owner' => $url->user()->first()->email,
+            'deleted_by' => Auth::user()->email
+        ]);
+
+        $url->delete();
     }
 
 

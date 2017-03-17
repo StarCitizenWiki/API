@@ -5,6 +5,8 @@ namespace App\Models\ShortURL;
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ShortURL extends Model
@@ -22,11 +24,19 @@ class ShortURL extends Model
         'user_id'
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo('App\Models\User');
     }
 
+    /**
+     * Creates a shortened url
+     * @param array $data
+     * @return ShortURL
+     */
     public static function createShortURL(array $data) : ShortURL
     {
         ShortURL::_checkURLinWhitelist($data['url']);
@@ -36,6 +46,12 @@ class ShortURL extends Model
             $data['hash_name'] = ShortURL::_generateShortURLHash();
         }
 
+        Log::info('URL Shortened', [
+            'url' => $data['url'],
+            'hash_name' => $data['hash_name'],
+            'user_id' => $data['user_id']
+        ]);
+
         return ShortURL::create([
             'url' => $data['url'],
             'hash_name' => $data['hash_name'],
@@ -43,6 +59,11 @@ class ShortURL extends Model
         ]);
     }
 
+    /**
+     * updates an existing url
+     * @param array $data
+     * @return bool
+     */
     public static function updateShortURL(array $data) : bool
     {
         ShortURL::_checkURLinWhitelist($data['url']);
@@ -52,6 +73,16 @@ class ShortURL extends Model
             ShortURL::_checkHashNameInDB($data['hash_name']);
         }
 
+        Log::info('URL Updated', [
+            'id' => $url->id,
+            'owner' => $url->user()->first()->email,
+            'updated_by' => Auth::user()->email,
+            'old_url' => $url->url,
+            'old_hash' => $url->hash_name,
+            'new_url' => $data['url'],
+            'new_hash' => $data['hash_name']
+        ]);
+
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
         $url->user_id = $data['user_id'];
@@ -59,12 +90,23 @@ class ShortURL extends Model
         return $url->save();
     }
 
+    /**
+     * resolves a url based on its hash
+     * @param String $hashName
+     * @throws ModelNotFoundException
+     * @return mixed
+     */
     public static function resolve(String $hashName)
     {
         $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
         return $url;
     }
 
+    /**
+     * Checks if a given hash exists in the database
+     * @param String $hashName
+     * @throws HashNameAlreadyAssignedException
+     */
     private static function _checkHashNameInDB(String $hashName)
     {
         if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
@@ -72,6 +114,11 @@ class ShortURL extends Model
         }
     }
 
+    /**
+     * checks if a given url host is whitelisted
+     * @param String $url
+     * @throws URLNotWhitelistedException
+     */
     private static function _checkURLinWhitelist(String $url)
     {
         $url = parse_url($url, PHP_URL_HOST);
@@ -82,10 +129,14 @@ class ShortURL extends Model
         }
     }
 
+    /**
+     * Creates a short url hash
+     * @return String
+     */
     private static function _generateShortURLHash() : String
     {
         do {
-            $hashName = Str::random(6);
+            $hashName = Str::random(SHORT_URL_LENGTH);
         } while(ShortURL::where('hash_name', '=', $hashName)->count() > 0);
         return $hashName;
     }

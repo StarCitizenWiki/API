@@ -6,6 +6,7 @@ use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
@@ -109,6 +110,11 @@ class FundImageController extends Controller
         } catch (\Exception $e) {
             // @TODO Logging und Mailversand
         }
+
+        Log::info('Fund Image Requested', [
+            'type' => $this->_image['type'],
+            'requester' => $this->_request->getHost()
+        ]);
 
         return $this->_loadImageFromDisk();
     }

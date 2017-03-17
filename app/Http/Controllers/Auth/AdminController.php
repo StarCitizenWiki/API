@@ -8,21 +8,32 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\ShortURL\ShortURLController;
 use App\Models\ShortURL\ShortURL;
 use App\Models\User;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    /**
+     * @return View
+     */
     public function urls()
     {
         return view('admin.shorturl.index')->with('urls', ShortURL::all());
     }
 
+    /**
+     * @return View
+     */
     public function editURL(int $id)
     {
         $url = ShortURL::find($id);
         return view('admin.shorturl.edit')->with('url', $url)->with('users', User::all());
     }
 
+    /**
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function deleteURL(int $id)
     {
         $urlController = resolve(ShortURLController::class);
@@ -30,6 +41,11 @@ class AdminController extends Controller
         return redirect('/admin/urls');
     }
 
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function patchURL(Request $request, int $id)
     {
         $urlController = resolve(ShortURLController::class);
@@ -43,17 +59,27 @@ class AdminController extends Controller
         return redirect('/admin/urls');
     }
 
+    /**
+     * @return View
+     */
     public function users()
     {
         return view('admin.users.index')->with('users', User::all());
     }
 
+    /**
+     * @return View
+     */
     public function editUser(int $id)
     {
         $user = User::find($id);
         return view('admin.users.edit')->with('user', $user);
     }
 
+    /**
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function deleteUser(int $id)
     {
         $user = User::find($id);
@@ -61,6 +87,11 @@ class AdminController extends Controller
         return redirect('/admin/users');
     }
 
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function patchUser(Request $request, int $id)
     {
         $user = User::find($id);
@@ -106,6 +137,9 @@ class AdminController extends Controller
         return redirect('/admin/users');
     }
 
+    /**
+     * @return View
+     */
     public function routes()
     {
         return view('admin.routes.index');

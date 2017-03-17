@@ -9,7 +9,7 @@
 @endif
 
 @section('content')
-    @include('layouts.heading');
+    @include('layouts.heading')
     <div class="container">
         <div class="row">
             <div class="col-sm-12 col-md-6 offset-md-3 mt-5">
@@ -42,7 +42,7 @@
 
                 <hr>
 
-                <div class="mt-4">
+                <div class="mt-4 mb-4">
                     <h4>Danger-Zone:</h4>
                     <a href="{{ route('edit_account') }}" class="btn btn-warning d-inline-block mr-2">Edit Account</a>
                     @unless($user->isBlacklisted())

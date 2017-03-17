@@ -11,9 +11,9 @@
 |
 */
 if (App::isLocal() || App::runningUnitTests()) {
-    $api_domain = env('APP_URL');
-    $tools_domain = env('APP_URL');
-    $short_url_domain = env('APP_URL');
+    $api_domain = env('APP_API_URL');
+    $tools_domain = env('APP_TOOLS_URL');
+    $short_url_domain = env('APP_SHORTURL_URL');
 } else {
     $api_domain = API_DOMAIN;
     $tools_domain = TOOLS_DOMAIN;
@@ -21,7 +21,7 @@ if (App::isLocal() || App::runningUnitTests()) {
 }
 
 Route::group(['domain' => $api_domain], function () {
-    //Route::get('/', ['uses' => 'APIPageController@getIndex']);
+    Route::get('/', ['uses' => 'APIPageController@index']);
 
     Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'namespace' => 'auth'], function () {
         Route::get('users', ['uses' => 'AdminController@users']);
@@ -61,7 +61,7 @@ Route::group(['domain' => $api_domain], function () {
 });
 
 Route::group(['domain' => $tools_domain], function () {
-    //Route::get('/', ['uses' => 'APIPageController@getIndex']);
+    Route::get('/', ['uses' => 'APIPageController@index']);
 
     Route::group(['namespace' => 'Tools'], function () {
         Route::group(['prefix' => 'tools'], function () {

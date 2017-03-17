@@ -5,7 +5,7 @@
 
 **Hash Name:** `{{ $url->hash_name }}`
 
-**Owner:** `{{ \App\Models\User::find($url->user_id)->email }}`
+**Owner:** `{{ $url->user()->first()->email }}`
 
 <br>
 {{ config('app.name') }}

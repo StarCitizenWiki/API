@@ -4,51 +4,90 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
 {
+    /**
+     * @return View
+     */
     public function show()
     {
         return view('auth.account.index')->with('user', Auth::user());
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function delete()
     {
-        Auth::user()->delete();
+        $user = Auth::user();
+        Log::info('User deleted Account', [
+            'id' => $user->id,
+            'email' => $user->email,
+            'blacklisted' => $user->isBlacklisted()
+        ]);
+        $user->delete();
         Auth::logout();
         return redirect(AUTH_HOME);
     }
 
+    /**
+     * @return View
+     */
     public function editAccount()
     {
         return view('auth.account.edit')->with('user', Auth::user());
     }
 
+    /**
+     * @return View
+     */
     public function showURLs()
     {
         $user = Auth::user();
         return view('auth.account.shorturl.index')->with('urls', $user->shortURLs()->get());
     }
 
+    /**
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function deleteURL(int $id)
     {
         Auth::user()->shortURLs()->find($id)->delete();
         return back();
     }
 
+    /**
+     * @return View
+     */
     public function editURL(int $id)
     {
         $url = ShortURL::find($id);
         return view('auth.account.shorturl.edit')->with('url', $url);
     }
 
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function patchURL(Request $request, int $id)
     {
         if ($request->get('user_id') != Auth::id() ||
             Auth::user()->shortURLs()->find($id)->count() === 0)
         {
+            Log::notice('User tried to forge ShortURL edit request', [
+                'user_id' => Auth::id(),
+                'provided_id' => $request->get('user_id'),
+                'url_id' => $id,
+                'url' => $request->get('url'),
+                'hash_name' => $request->get('hash_name')
+            ]);
             return abort(401);
         }
 
@@ -68,6 +107,10 @@ class AccountController extends Controller
         return redirect('/account/urls');
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function patchAccount(Request $request)
     {
         $user = Auth::user();

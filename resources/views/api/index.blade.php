@@ -39,7 +39,7 @@
                             </li>
                             <li>
                                 <i class="fa fa-rocket"></i>
-                                <span class="ml-2"><a href="">Star Citizen Wiki API<a/></span>
+                                <span class="ml-2"><a href="">Star Citizen Wiki API</a></span>
                             </li>
                             <li>
                                 <i class="fa fa-image"></i>

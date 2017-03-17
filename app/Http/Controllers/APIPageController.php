@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class APIPageController extends Controller
 {
+    /**
+     * @return View
+     */
     public function index()
     {
-        $bootstrapModules = [
-            'enableCSS' =>  true,
-            'enableJS' =>  true
-        ];
-        return view('api.index', compact('bootstrapModules'));
+        return view('api.index');
     }
 }

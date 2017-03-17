@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,6 +29,10 @@ class CheckIfAdmin
                 return $next($request);
             }
         }
+
+        Log::notice('Unauthenticated User tried to access Admin area', [
+            'user_id' => Auth::id()
+        ]);
 
         return abort(403, 'No Permission');
     }

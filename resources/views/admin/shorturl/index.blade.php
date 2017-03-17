@@ -36,7 +36,7 @@
                                     {{ $url->hash_name }}
                                 </td>
                                 <td>
-                                    {{ \App\Models\User::find($url->user_id)->email }}
+                                    {{ $url->user()->first()->email }}
                                 </td>
                                 <td>
                                     {{ Carbon\Carbon::parse($url->created_at)->format('d.m.Y') }}
