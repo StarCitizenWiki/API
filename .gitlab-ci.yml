@@ -7,7 +7,7 @@ cache:
 before_script:
 - bash ci/docker_install.sh > /dev/null
 - curl -sS https://getcomposer.org/installer | php
-- .env.testing .env
+- mv .env.testing .env
 - php composer.phar install
 - php composer.phar update
 - touch database/users.sqlite
