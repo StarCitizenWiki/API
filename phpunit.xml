@@ -19,12 +19,9 @@
         </whitelist>
     </filter>
     <php>
-        <env name="APP_ENV" value="local"/>
+        <env name="APP_ENV" value="testing"/>
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
-        <env name="APP_KEY" value="base64:mCs92kEASGvu4i8YcCWqPhRgjOG8CVMRWgzxw1ECc4M="/>
-        <env name="APP_DEBUG" value="true"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
     </php>
 </phpunit>

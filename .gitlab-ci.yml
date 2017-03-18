@@ -7,11 +7,12 @@ cache:
 before_script:
 - bash ci/docker_install.sh > /dev/null
 - curl -sS https://getcomposer.org/installer | php
+- .env.testing .env
 - php composer.phar install
 - php composer.phar update
 - touch database/users.sqlite
-- php artisan migrate --force
-- php artisan db:seed --force
+- php artisan migrate
+- php artisan db:seed
 
 phpunit:
   script:
