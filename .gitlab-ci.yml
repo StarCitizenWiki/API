@@ -10,8 +10,8 @@ before_script:
 - php composer.phar install
 - php composer.phar update
 - touch database/users.sqlite
-- php artisan migrate --env=testing
-- php artisan db:seed --env=testing
+- php artisan migrate
+- php artisan db:seed
 
 phpunit:
   script:
