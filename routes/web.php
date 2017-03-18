@@ -10,17 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-if (App::isLocal() || App::runningUnitTests()) {
-    $api_domain = env('APP_API_URL');
-    $tools_domain = env('APP_TOOLS_URL');
-    $short_url_domain = env('APP_SHORTURL_URL');
-} else {
-    $api_domain = API_DOMAIN;
-    $tools_domain = TOOLS_DOMAIN;
-    $short_url_domain = SHORT_URL_DOMAIN;
-}
-
-Route::group(['domain' => $api_domain], function () {
+Route::group(['domain' => config('app.api_url')], function () {
     Route::get('/', ['uses' => 'APIPageController@index']);
 
     Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'namespace' => 'auth'], function () {
@@ -60,7 +50,7 @@ Route::group(['domain' => $api_domain], function () {
     });
 });
 
-Route::group(['domain' => $tools_domain], function () {
+Route::group(['domain' => config('app.tools_url')], function () {
     Route::get('/', ['uses' => 'APIPageController@index']);
 
     Route::group(['namespace' => 'Tools'], function () {
@@ -84,7 +74,7 @@ Route::group(['domain' => $tools_domain], function () {
     });
 });
 
-Route::group(['domain' => $short_url_domain, 'namespace' => 'ShortUrl'], function () {
+Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortUrl'], function () {
 
     Route::get('/', ['uses' => 'ShortUrlController@show'])->name('short_url_index');
     Route::group(['middleware' => 'throttle'], function () {

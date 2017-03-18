@@ -12,6 +12,7 @@ before_script:
 - touch database/users.sqlite
 - php artisan migrate
 - php artisan db:seed
+- php artisan config:clear
 
 phpunit:
   script:

@@ -16,6 +16,9 @@ class CrowdfundingStatsTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+        config(['app.api_url' => 'localhost']);
+        config(['app.tools_url' => 'null']);
+        config(['app.shorturl_url' => 'null']);
         $this->_statsAPI = $this->app->make('StarCitizen\API\StatsRepository');
     }
 
@@ -27,14 +30,6 @@ class CrowdfundingStatsTest extends TestCase
         $content = $this->_statsAPI->getAll()->getResponse();
         $this->assertNotEmpty($content);
         $this->assertContains('OK', $content->toJson());
-    }
-
-    /**
-     * tests the api view
-     */
-    public function testView()
-    {
-        $this->getJson('/api/v1/stats/all')->assertStatus(200);
     }
 
     /**

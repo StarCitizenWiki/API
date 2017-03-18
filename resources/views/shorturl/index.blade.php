@@ -19,7 +19,7 @@
                         @include('snippets.errors')
                         @if (session('hash_name'))
                             <div class="alert alert-success text-center">
-                                https://{{SHORT_URL_DOMAIN}}/{{ session('hash_name') }}
+                                https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
                             </div>
                         @endif
                         <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('shorten') }}">
@@ -48,7 +48,7 @@
                             <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">Whitelist</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-info" href="https://{{ API_DOMAIN }}">API</a>
+                            <a class="nav-link text-info" href="https://{{ config('app.api_url') }}">API</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-info" href="https://star-citizen.wiki/Star_Citizen_Wiki:Impressum">Legal</a>

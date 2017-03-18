@@ -10,17 +10,7 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-if (App::isLocal() || App::runningUnitTests()) {
-    $api_domain = env('APP_URL');
-    $tools_domain = env('TOOLS_URL', env('APP_URL'));
-    $short_url_domain = env('SHORTURL_URL', env('APP_URL'));
-} else {
-    $api_domain = API_DOMAIN;
-    $tools_domain = TOOLS_DOMAIN;
-    $short_url_domain = SHORT_URL_DOMAIN;
-}
-
-Route::group(['domain' => $api_domain], function () {
+Route::group(['domain' =>  config('app.api_url')], function () {
     Route::group(['middleware' => ['api', 'throttle:60,1']], function () {
 
         Route::group(['prefix' => 'v1'], function () {
