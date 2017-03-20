@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\User;
 use Closure;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 class UpdateTokenTimestamp
@@ -20,11 +21,12 @@ class UpdateTokenTimestamp
         $key = $request->get(AUTH_KEY_FIELD_NAME, null);
 
         if (!is_null($key)) {
-            $user = DB::table('users')->where('api_token', $key)->first();
-            if (!is_null($user)) {
-                $user = User::find($user->id);
+            try {
+                $user = User::where('api_token', $key)->firstOrFail();
                 $user->api_token_last_used = date('Y-m-d H:i:s');
                 $user->save();
+            } catch (ModelNotFoundException $e) {
+                // @Todo Log
             }
         }
 
