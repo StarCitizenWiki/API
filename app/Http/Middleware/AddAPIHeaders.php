@@ -26,7 +26,7 @@ class AddAPIHeaders
 		$response = $next($request);
 
 		$response->header("Host", "star-citizen.wiki");
-		if ($response != null && $response->getStatusCode() === 200)
+		if ($response->getStatusCode() === 200)
 		{
 			$response->header("Content-Type", "application/json");
 		}
