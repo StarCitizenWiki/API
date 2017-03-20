@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\URLShortened;
+use App\Exceptions\HashNameAlreadyAssignedException;
+use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ShortURL\ShortURLController;
 use App\Models\ShortURL\ShortURL;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -50,6 +54,25 @@ class AccountController extends Controller
     {
         $user = Auth::user();
         return view('auth.account.shorturl.index')->with('urls', $user->shortURLs()->get());
+    }
+
+    public function showAddURLForm()
+    {
+        $user = Auth::user();
+        return view('auth.account.shorturl.add')->with('user', $user);
+    }
+
+    public function addURL(Request $request)
+    {
+        $urlController = resolve(ShortURLController::class);
+
+        try {
+            $urlController->create($request);
+        } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException $e) {
+            return redirect()->route('account_urls_add_form')->withErrors($e->getMessage());
+        }
+
+        return redirect()->route('account_urls_list');
     }
 
     /**

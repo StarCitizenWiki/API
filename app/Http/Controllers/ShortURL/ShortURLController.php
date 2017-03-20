@@ -30,10 +30,10 @@ class ShortURLController extends Controller
      * @param String $hashName
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function resolve(String $hashName)
+    public function resolveWeb(Request $request, String $hashName)
     {
         try {
-            $url = ShortURL::resolve($hashName);
+            $url = $this->resolve($request);
         } catch (ModelNotFoundException $e) {
             return redirect()->route('short_url_index')->withErrors('No URL found');
         }
@@ -43,6 +43,17 @@ class ShortURLController extends Controller
         }
 
         return redirect($url->url, 301);
+    }
+
+    /**
+     * resolves a hash to a url
+     * @return ShortURL
+     */
+    public function resolve(Request $request)
+    {
+        $url = ShortURL::resolve($request->get('hash_name'));
+
+        return $url;
     }
 
     /**
@@ -70,31 +81,44 @@ class ShortURLController extends Controller
 
     /**
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return ShortURL
      */
     public function create(Request $request)
     {
+        $user_id = AUTH_ADMIN_IDS[0];
+
         $this->validate($request, [
             'url' => 'required|active_url|max:255|unique:short_urls',
             'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
         ]);
 
-        $user_id = Auth::id();
-        if (is_null($user_id)) {
-            $user_id = AUTH_ADMIN_IDS[0];
+        $key = $request->get(AUTH_KEY_FIELD_NAME, null);
+
+        if (!is_null($key)) {
+            $user = User::where('api_token', $key)->first();
+            if (!is_null($user)) {
+                $user_id = $user->id;
+            }
         }
 
+        $url = ShortURL::createShortURL([
+            'url' => $request->get('url'),
+            'hash_name' => $request->get('hash_name'),
+            'user_id' => $user_id
+        ]);
+
+        event(new URLShortened($url));
+
+        return $url;
+    }
+
+    public function createWeb(Request $request)
+    {
         try {
-            $url = ShortURL::createShortURL([
-                'url' => $request->get('url'),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => $user_id
-            ]);
+            $url = $this->create($request);
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException $e) {
             return redirect()->route('short_url_index')->withErrors($e->getMessage());
         }
-
-        event(new URLShortened($url));
 
         return redirect()->route('short_url_index')->with('hash_name', $url->hash_name);
     }

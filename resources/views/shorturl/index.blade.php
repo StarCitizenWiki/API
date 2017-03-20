@@ -22,7 +22,7 @@
                                 https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
                             </div>
                         @endif
-                        <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('shorten') }}">
+                        <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('shortenWeb') }}">
                             {{ csrf_field() }}
                             <div class="input-group input-group-lg mb-2">
                                 <input type="url" name="url" id="url" class="form-control" placeholder="Long URL" required>

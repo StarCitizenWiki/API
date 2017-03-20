@@ -43,7 +43,9 @@ Route::group(['domain' => config('app.api_url')], function () {
         Route::get('account/edit', ['uses' => 'Auth\AccountController@editAccount'])->name('edit_account');
         Route::patch('account/edit', ['uses' => 'Auth\AccountController@patchAccount']);
 
-        Route::get('account/urls', ['uses' => 'Auth\AccountController@showURLs']);
+        Route::get('account/urls', ['uses' => 'Auth\AccountController@showURLs'])->name('account_urls_list');
+        Route::post('account/urls', ['uses' => 'Auth\AccountController@addURL']);
+        Route::get('account/urls/add', ['uses' => 'Auth\AccountController@showAddURLForm'])->name('account_urls_add_form');
         Route::delete('account/urls/{ID}', ['uses' => 'Auth\AccountController@deleteURL']);
         Route::get('account/urls/{ID}/edit', ['uses' => 'Auth\AccountController@editURL']);
         Route::patch('account/urls/{ID}', ['uses' => 'Auth\AccountController@patchURL']);
@@ -78,8 +80,8 @@ Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortUrl']
 
     Route::get('/', ['uses' => 'ShortUrlController@show'])->name('short_url_index');
     Route::group(['middleware' => 'throttle'], function () {
-        Route::post('/shorten', ['uses' => 'ShortUrlController@create'])->name('shorten');
-        Route::get('{name}', ['uses' => 'ShortUrlController@resolve']);
+        Route::post('/shorten', ['uses' => 'ShortUrlController@createWeb'])->name('shortenWeb');
+        Route::get('{name}', ['uses' => 'ShortUrlController@resolveWeb']);
     });
 
 });

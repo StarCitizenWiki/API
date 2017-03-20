@@ -43,6 +43,7 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="{{ url('/account') }}">Dashboard</a>
                         <a class="dropdown-item" href="{{ url('/account/urls') }}">Short URLs</a>
+                        <a class="dropdown-item" href="{{ url('/account/urls/add') }}">Add Short URL</a>
                     </div>
 
                 </li>

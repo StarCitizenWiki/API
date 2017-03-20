@@ -107,7 +107,7 @@ class ShortURL extends Model
      * @param String $hashName
      * @throws HashNameAlreadyAssignedException
      */
-    private static function _checkHashNameInDB(String $hashName)
+    private static function _checkHashNameInDB($hashName)
     {
         if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
             throw new HashNameAlreadyAssignedException('Name already assigned');
