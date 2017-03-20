@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Events\UserRegistered;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -81,6 +82,11 @@ class RegisterController extends Controller
             'password' => bcrypt($password),
             'requests_per_minute' => 60,
             'last_login' => date('Y-m-d H:i:s'),
+        ]);
+
+        Log::info('URL Account created', [
+            'id' => $user->id,
+            'email' => $user->email
         ]);
 
         event(new UserRegistered($user, $password));

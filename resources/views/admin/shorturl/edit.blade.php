@@ -20,10 +20,10 @@
                         <input type="text" class="form-control" id="hash_name" name="hash_name" required aria-required="true" aria-labelledby="hash_name" tabindex="2" data-minlength="3" value="{{ $url->hash_name }}">
                     </div>
                     <div class="form-group">
-                        <label for="user_id">Example select</label>
+                        <label for="user_id">Owner:</label>
                         <select class="form-control" id="user_id" name="user_id">
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}" <?php if ($url->user_id === $user->id) { echo 'selected';} ?>>{{ $user->email }}</option>
+                                <option value="{{ $user->id }}" @if($url->user_id == $user->id) {{ 'selected' }}@endif>[{{ $user->id }}] {{ $user->email }}</option>
                             @endforeach
                         </select>
                     </div>

@@ -3,10 +3,10 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\UserBlacklistedException;
+use App\Models\User;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\DB;
 
 class ThrottleAPI extends ThrottleRequests
 {
@@ -30,7 +30,7 @@ class ThrottleAPI extends ThrottleRequests
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        $user = DB::table('users')->where('api_token', $request->get('key', null))->first();
+        $user = User::where('api_token', $request->get('key', null))->first();
 
         // Whitelist hat kein Throttling
         if (!is_null($user) && $user->whitelisted) {

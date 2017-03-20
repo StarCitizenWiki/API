@@ -24,7 +24,9 @@ class FundImageController extends Controller
 		FundImageController::FUNDING_AND_BARS
 	];
 
+    /** @var Request */
 	private $_request;
+	/** @var StatsRepository  */
     private $_api;
     private $_funds = [
         'current' => null,
@@ -108,7 +110,11 @@ class FundImageController extends Controller
             $this->_flushImageToString();
             $this->_saveImageToDisk();
         } catch (\Exception $e) {
-            // @TODO Logging und Mailversand
+            Log::warning('Fund Image generation failed', [
+                'type' => $this->_image['type'],
+                'requester' => $this->_request->getHost(),
+                'message' => $e
+            ]);
         }
 
         Log::info('Fund Image Requested', [
@@ -158,7 +164,7 @@ class FundImageController extends Controller
 
     private function _getFundsFromAPI() : void
     {
-        $funds = $this->_api->lastHours()->getCrowdfundStats()->asArray();
+        $funds = $this->_api->getFunds()->asArray();
         $this->_funds['current'] = substr($funds['data']['funds'], 0, -2);
     }
 

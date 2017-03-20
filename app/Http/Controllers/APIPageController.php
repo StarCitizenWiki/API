@@ -10,7 +10,7 @@ class APIPageController extends Controller
     /**
      * @return View
      */
-    public function index()
+    public function showAPIView()
     {
         return view('api.index');
     }

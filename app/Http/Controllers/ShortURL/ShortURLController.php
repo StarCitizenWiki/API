@@ -20,17 +20,17 @@ class ShortURLController extends Controller
     /**
      * @return View
      */
-    public function show()
+    public function showShortURLView()
     {
         return view('shorturl.index')->with('whitelistedURLs', ShortURLWhitelist::all()->sortBy('url')->where('internal', false));
     }
 
     /**
-     * resolves a hash to a url
-     * @param String $hashName
+     * resolves a hash to a url and redirects
+     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function resolveWeb(Request $request, String $hashName)
+    public function resolveAndRedirect(Request $request)
     {
         try {
             $url = $this->resolve($request);
@@ -47,6 +47,7 @@ class ShortURLController extends Controller
 
     /**
      * resolves a hash to a url
+     * @param Request $request
      * @return ShortURL
      */
     public function resolve(Request $request)
@@ -112,7 +113,12 @@ class ShortURLController extends Controller
         return $url;
     }
 
-    public function createWeb(Request $request)
+    /**
+     * creates a short url and redirects
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function createAndRedirect(Request $request)
     {
         try {
             $url = $this->create($request);
@@ -139,6 +145,4 @@ class ShortURLController extends Controller
 
         $url->delete();
     }
-
-
 }

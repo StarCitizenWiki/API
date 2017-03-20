@@ -11,6 +11,7 @@ use App\Exceptions\InvalidDataException;
 use App\Repositories\BaseAPI;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 
 class BaseStarCitizenAPI
 {
@@ -49,23 +50,29 @@ class BaseStarCitizenAPI
      */
     private function _getRSIToken() : void
     {
-        $response = $this->_guzzleClient->request('POST', 'stats/getCrowdfundStats');
-        $token = $response->getHeader('Set-Cookie');
+        try {
+            $response = $this->_guzzleClient->request('POST', 'stats/getCrowdfundStats');
+            $token = $response->getHeader('Set-Cookie');
 
-        if (empty($token)) {
-            $this->_RSIToken = 'StarCitizenWiki_DE';
-        } else {
-            $token = explode(';', $token[0])[0];
-            $token = str_replace('Rsi-Token=', '', $token);
-            $this->_RSIToken = $token;
+            if (empty($token)) {
+                $this->_RSIToken = 'StarCitizenWiki_DE';
+            } else {
+                $token = explode(';', $token[0])[0];
+                $token = str_replace('Rsi-Token=', '', $token);
+                $this->_RSIToken = $token;
+            }
+
+            if (App::isLocal()) {
+                $this->_createFractalInstance();
+                $this->_fractal->addMeta(['RSI-Token' => $token]);
+            }
+
+            $this->__construct();
+        } catch (\Exception $e) {
+            Log::warning('Guzzle Request failed', [
+                'message' => $e->getMessage()
+            ]);
         }
-
-        if (App::isLocal()) {
-            $this->_createFractalInstance();
-            $this->_fractal->addMeta(['RSI-Token' => $token]);
-        }
-
-        $this->__construct();
     }
 
 }

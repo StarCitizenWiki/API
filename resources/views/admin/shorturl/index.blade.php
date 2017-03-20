@@ -49,7 +49,7 @@
                                         <a href="#" class="btn btn-danger"
                                            onclick="event.preventDefault();
                                                    document.getElementById('delete-form{{ $url->id }}').submit();">
-                                            <form id="delete-form{{ $url->id }}" action="urls/{{ $url->id }}/delete" method="POST" style="display: none;">
+                                            <form id="delete-form{{ $url->id }}" action="urls/{{ $url->id }}" method="POST" style="display: none;">
                                                 <input name="_method" type="hidden" value="DELETE">
                                                 {{ csrf_field() }}
                                             </form>

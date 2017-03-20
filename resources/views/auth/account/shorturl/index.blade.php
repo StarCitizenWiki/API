@@ -8,12 +8,24 @@
 
 @section('content')
     @include('layouts.heading')
+    @if (session('hash_name'))
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-10 col-md-3 mx-auto">
+                    <div class="alert alert-success text-center">
+                        https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="container-fluid">
         <div class="row">
             <div class="col-10 mx-auto mt-5">
                 <table class="table table-striped" id="urlTable" cellspacing="0" width="100%">
                     <thead>
                     <tr>
+                        <th><span>Short</span></th>
                         <th><span>URL</span></th>
                         <th><span>Hash</span></th>
                         <th><span>Erstellt</span></th>
@@ -24,6 +36,9 @@
                     @if(count($urls) > 0)
                         @foreach($urls as $url)
                             <tr>
+                                <td>
+                                    https://{{config('app.shorturl_url')}}/{{ $url->hash_name }}
+                                </td>
                                 <td>
                                     {{ $url->url }}
                                 </td>

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class ImageResizeController extends Controller
 {
-    public function index() {
+    public function showImageResizeView() {
         $imageResizeSettings = [
             'default' => [
                 'outputWidth' => 1920,
@@ -18,11 +18,6 @@ class ImageResizeController extends Controller
             ]
         ];
 
-        $bootstrapModules = [
-            'enableCSS' =>  true,
-            'enableJS' => false,
-        ];
-
-        return view('tools.imageresizer', compact('imageResizeSettings'), compact('bootstrapModules'));
+        return view('tools.imageresizer', compact('imageResizeSettings'));
     }
 }

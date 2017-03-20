@@ -6,6 +6,7 @@ use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UpdateTokenTimestamp
 {
@@ -26,7 +27,9 @@ class UpdateTokenTimestamp
                 $user->api_token_last_used = date('Y-m-d H:i:s');
                 $user->save();
             } catch (ModelNotFoundException $e) {
-                // @Todo Log
+                Log::info('Provided Api Key has no associated user', [
+                    'api_token' => $key
+                ]);
             }
         }
 

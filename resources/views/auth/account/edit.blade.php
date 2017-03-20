@@ -7,15 +7,7 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-12 col-md-6 offset-md-3 mt-5">
-                @if (count($errors) > 0)
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                @include('snippets.errors')
                 <form role="form" method="POST" action="{{ route('edit_account') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="PATCH">

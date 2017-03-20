@@ -6,6 +6,7 @@ use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -67,21 +68,23 @@ class ShortURL extends Model
     public static function updateShortURL(array $data) : bool
     {
         ShortURL::_checkURLinWhitelist($data['url']);
-        $url = ShortURL::find($data['id']);
+        $url = ShortURL::findOrFail($data['id']);
 
         if ($url->hash_name !== $data['hash_name']) {
             ShortURL::_checkHashNameInDB($data['hash_name']);
         }
 
-        Log::info('URL Updated', [
-            'id' => $url->id,
-            'owner' => $url->user()->first()->email,
-            'updated_by' => Auth::user()->email,
-            'old_url' => $url->url,
-            'old_hash' => $url->hash_name,
-            'new_url' => $data['url'],
-            'new_hash' => $data['hash_name']
-        ]);
+        $changes = array();
+        $changes[] = ['updated_by' => Auth::id()];
+
+        foreach ($data as $key => $value) {
+            if ($url->$key != $value) {#
+                $changes[] = [$key.'_old' => $url->$key, $key.'_new' => $value];
+                $url->$key = $value;
+            }
+        }
+
+        Log::info('URL updated', $changes);
 
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
@@ -99,6 +102,13 @@ class ShortURL extends Model
     public static function resolve(String $hashName)
     {
         $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
+
+        Log::info('URL resolved', [
+            'id' => $url->id,
+            'hash_name' => $url->hash_name,
+            'url' => $url->url
+        ]);
+
         return $url;
     }
 
@@ -138,6 +148,7 @@ class ShortURL extends Model
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);
         } while(ShortURL::where('hash_name', '=', $hashName)->count() > 0);
+
         return $hashName;
     }
 }

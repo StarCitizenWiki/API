@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Star Citizen Wiki Kopfbildtool')
+@section('title', 'Star Citizen Wiki Tools - Image Resizer')
 
 @section('content')
     <div class="container mt-2">
         <div class="row">
             <div class="col-md-6 offset-md-3">
-                <h4>Star Citizen Wiki Kopfbild Generator</h4>
+                <h4>Star Citizen Wiki Image Resizer</h4>
                 <form>
                     <div class="form-group mt-2">
                         <div class="text-center">
