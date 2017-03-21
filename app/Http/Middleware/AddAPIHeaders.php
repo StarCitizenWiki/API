@@ -24,12 +24,8 @@ class AddAPIHeaders
 	 */
 	public function handle($request, Closure $next) {
 		$response = $next($request);
-
-		$response->header("Host", "star-citizen.wiki");
-		if ($response->getStatusCode() === 200)
-		{
-			$response->header("Content-Type", "application/json");
-		}
+		//$response->header("Host", $request->getHost());
+        $response->header("Content-Type", "application/json");
 		$response->header("Cache-Control", "no-cache,no-store, must-revalidate");
 		$response->header("Pragma", "no-cache");
 		if (is_array($response->getOriginalContent())) {
@@ -40,7 +36,7 @@ class AddAPIHeaders
 		$response->header("Content-Length", $contentLength);
 		$response->header("Vary", "Accept-Encoding");
 		$response->header("Connection", "keep-alive");
-		$response->header("X-SCW-API-Version", "1.0");
+		$response->header("X-SCW-API-Version", API_VERSION);
 
 		return $response;
 	}

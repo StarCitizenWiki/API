@@ -3,6 +3,7 @@
 /**
  * Global Constants
  */
+define('API_VERSION', "1.0");
 
 /** FundImageController */
 define('FUNDIMAGE_FUNDING_ONLY',  'funding_only');
