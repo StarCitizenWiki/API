@@ -139,14 +139,14 @@ class AccountController extends Controller
         if ($request->get('user_id') != Auth::id() ||
             Auth::user()->shortURLs()->find($id)->count() === 0)
         {
-            Log::notice('User tried to forge ShortURL edit request', [
+            Log::warning('User tried to forge ShortURL edit request', [
                 'user_id' => Auth::id(),
                 'provided_id' => $request->get('user_id'),
                 'url_id' => $id,
                 'url' => $request->get('url'),
                 'hash_name' => $request->get('hash_name')
             ]);
-            return abort(401);
+            return abort(401, 'No permission');
         }
 
         $validator = $this->getValidationFactory()->make(

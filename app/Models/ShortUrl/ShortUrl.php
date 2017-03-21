@@ -6,6 +6,7 @@ use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -66,6 +67,7 @@ class ShortURL extends Model
      * updates an existing url
      * @param array $data
      * @return bool
+     * @throws ModelNotFoundException
      */
     public static function updateShortURL(array $data) : bool
     {
@@ -99,7 +101,7 @@ class ShortURL extends Model
      * resolves a url based on its hash
      * @param String $hashName
      * @return mixed
-     * @throws UserBlacklistedException
+     * @throws UserBlacklistedException | ModelNotFoundException
      */
     public static function resolve(String $hashName)
     {

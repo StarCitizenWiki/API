@@ -21,7 +21,7 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
             $shipName = $result[2];
             return [
                 $shipName => [
-                    'api_url' => '//'.API_DOMAIN.'/api/v1/ships/'.$shipName,
+                    'api_url' => '//'.config('app.api_url').'/api/v1/ships/'.$shipName,
                     'wiki_url' => '//star-citizen.wiki/'.$search['title']
                 ]
             ];

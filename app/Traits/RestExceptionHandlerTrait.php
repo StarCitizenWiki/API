@@ -13,6 +13,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 trait RestExceptionHandlerTrait
 {
@@ -30,7 +31,7 @@ trait RestExceptionHandlerTrait
 
         $response = [
             'errors' => [
-                $exception->getMessage()
+                'Something went wrong'
             ],
             'meta' => [
                 'status' => 400,
@@ -40,14 +41,17 @@ trait RestExceptionHandlerTrait
 
         if (config('app.debug')) {
             $response['meta'] += [
+                'message' => $exception->getMessage(),
                 'exception' => get_class($exception),
                 'trace' => $exception->getTrace()
             ];
         }
 
         switch(true) {
+            case $exception instanceof NotFoundHttpException:
             case $exception instanceof ModelNotFoundException:
                 $response['meta']['status'] = 404;
+                $response['errors'] = ['Resource not found'];
                 break;
 
             case $exception instanceof ValidationException:
@@ -56,6 +60,7 @@ trait RestExceptionHandlerTrait
 
             case $exception instanceof AuthenticationException:
                 $response['meta']['status'] = 401;
+                $response['errors'] = ['No permission'];
                 break;
 
             default:

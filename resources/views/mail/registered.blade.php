@@ -5,7 +5,7 @@
 
 **Password:** `{{ $user->password }}`
 
-@component('mail::button', ['url' => 'https://api.star-citizen.wiki'])
+@component('mail::button', ['url' => config('app.api_url')])
 Dokumentation
 @endcomponent
 

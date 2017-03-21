@@ -17,7 +17,7 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
         $ship['displaytitle'] = str_replace(' ', '_', $ship['displaytitle']);
         return [
             $ship['displaytitle'] => [
-                'api_url' => '//'.API_DOMAIN.'/api/v1/ships/'.$ship['displaytitle'],
+                'api_url' => '//'.config('app.api_domain').'/api/v1/ships/'.$ship['displaytitle'],
                 'wiki_url' => $ship['fullurl']
             ]
         ];

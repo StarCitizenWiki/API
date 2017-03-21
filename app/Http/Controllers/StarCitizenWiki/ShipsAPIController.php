@@ -28,6 +28,9 @@ class ShipsAPIController extends Controller
 
     public function searchShips(Request $request)
     {
+        $this->validate($request, [
+            'query' => 'present|alpha_dash'
+        ]);
         $shipName = $request->input('query');
         return response()->json($this->_api->searchShips($shipName)->asArray(), 200, [], JSON_PRETTY_PRINT);
     }
