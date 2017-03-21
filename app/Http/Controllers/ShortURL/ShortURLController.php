@@ -5,18 +5,28 @@ namespace App\Http\Controllers\ShortURL;
 use App\Events\URLShortened;
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
+use App\Exceptions\UserBlacklistedException;
 use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
+use App\Transformers\Tools\ShortURLTransformer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Spatie\Fractal\Fractal;
 
 class ShortURLController extends Controller
 {
+    private $_fractalManager;
+
+    function __construct()
+    {
+        $this->_fractalManager = Fractal::create();
+    }
+
     /**
      * @return View
      */
@@ -36,25 +46,30 @@ class ShortURLController extends Controller
             $url = $this->resolve($request);
         } catch (ModelNotFoundException $e) {
             return redirect()->route('short_url_index')->withErrors('No URL found');
-        }
-
-        if ($url->user()->first()->isBlacklisted()) {
+        } catch (UserBlacklistedException $e) {
             return redirect()->route('short_url_index')->withErrors('User is blacklisted');
         }
 
-        return redirect($url->url, 301);
+        return redirect($url['original_url'], 301);
     }
 
     /**
      * resolves a hash to a url
      * @param Request $request
-     * @return ShortURL
+     * @return array
+     * @throws UserBlacklistedException
      */
     public function resolve(Request $request)
     {
         $url = ShortURL::resolve($request->get('hash_name'));
 
-        return $url;
+        if ($url->user()->first()->isBlacklisted()) {
+            throw new UserBlacklistedException();
+        }
+
+        $url = $this->_fractalManager->item($url, new ShortURLTransformer());
+
+        return $url->toArray();
     }
 
     /**
@@ -82,7 +97,7 @@ class ShortURLController extends Controller
 
     /**
      * @param Request $request
-     * @return ShortURL
+     * @return array
      */
     public function create(Request $request)
     {
@@ -110,7 +125,9 @@ class ShortURLController extends Controller
 
         event(new URLShortened($url));
 
-        return $url;
+        $url = $this->_fractalManager->item($url, new ShortURLTransformer());
+
+        return $url->toArray();
     }
 
     /**
@@ -126,7 +143,7 @@ class ShortURLController extends Controller
             return redirect()->route('short_url_index')->withErrors($e->getMessage());
         }
 
-        return redirect()->route('short_url_index')->with('hash_name', $url->hash_name);
+        return redirect()->route('short_url_index')->with('hash_name', $url['hash_name']);
     }
 
     /**
