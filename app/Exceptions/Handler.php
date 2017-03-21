@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -46,7 +47,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if (strpos($request->getUri(), 'api') > -1) {
+        if ($request->wantsJson()) {
             return $this->renderExceptionAsJson($request, $exception);
         }
         return parent::render($request, $exception);
@@ -73,19 +74,23 @@ class Handler extends ExceptionHandler
      *
      * @param $request
      * @param Exception $exception
-     * @return SymfonyResponse
+     * @return \Illuminate\Http\Response
      */
     protected function renderExceptionAsJson($request, Exception $exception)
     {
         $exception = $this->prepareException($exception);
 
         $response = [
-            'message' => $exception->getMessage(),
-            'error' => $exception->getMessage()
+            'errors' => [
+                $exception->getMessage()
+            ],
+            'meta' => [
+                'processed_at' => Carbon::now()
+            ]
         ];
 
         if (config('app.debug')) {
-            $response['debug'] = [
+            $response['meta'] += [
                 'exception' => get_class($exception),
                 'trace' => $exception->getTrace()
             ];
@@ -95,7 +100,7 @@ class Handler extends ExceptionHandler
 
         switch ($exception) {
             case $exception instanceof ValidationException:
-                $response['error'] = $exception->validator->errors()->getMessages();
+                $response['errors'] = $exception->validator->errors()->getMessages();
                 break;
             case $exception instanceof AuthenticationException:
                 $status = 401;

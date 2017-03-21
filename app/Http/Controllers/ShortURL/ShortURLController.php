@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ShortURL;
 
 use App\Events\URLShortened;
 use App\Exceptions\HashNameAlreadyAssignedException;
+use App\Exceptions\InvalidDataException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
 use App\Http\Controllers\Controller;
@@ -11,6 +12,7 @@ use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
 use App\Transformers\Tools\ShortURLTransformer;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -40,34 +42,41 @@ class ShortURLController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function resolveAndRedirect(Request $request)
+    public function resolveAndRedirect(Request $request, String $hashName)
     {
         try {
-            $url = $this->resolve($request);
+            $url = ShortURL::resolve($hashName);
         } catch (ModelNotFoundException $e) {
             return redirect()->route('short_url_index')->withErrors('No URL found');
         } catch (UserBlacklistedException $e) {
             return redirect()->route('short_url_index')->withErrors('User is blacklisted');
         }
 
-        return redirect($url['original_url'], 301);
+        return redirect($url->url, 301);
     }
 
     /**
      * resolves a hash to a url
      * @param Request $request
      * @return array
-     * @throws UserBlacklistedException
+     * @throws InvalidDataException
      */
     public function resolve(Request $request)
     {
-        $url = ShortURL::resolve($request->get('hash_name'));
-
-        if ($url->user()->first()->isBlacklisted()) {
-            throw new UserBlacklistedException();
+        if (is_null($request->get('hash_name'))) {
+            throw new InvalidDataException('hash_name is missing');
         }
 
-        $url = $this->_fractalManager->item($url, new ShortURLTransformer());
+        try {
+            $url = ShortURL::resolve($request->get('hash_name'));
+            $url = $this->_fractalManager->item($url, new ShortURLTransformer());
+        } catch (ModelNotFoundException $e) {
+            $url = $this->_fractalManager->data('NullResource', [], new ShortURLTransformer());
+        }
+
+        $url->addMeta([
+            'processed_at' => Carbon::now()
+        ]);
 
         return $url->toArray();
     }
@@ -127,6 +136,10 @@ class ShortURLController extends Controller
 
         $url = $this->_fractalManager->item($url, new ShortURLTransformer());
 
+        $url->addMeta([
+            'processed_at' => Carbon::now()
+        ]);
+
         return $url->toArray();
     }
 
@@ -143,7 +156,7 @@ class ShortURLController extends Controller
             return redirect()->route('short_url_index')->withErrors($e->getMessage());
         }
 
-        return redirect()->route('short_url_index')->with('hash_name', $url['hash_name']);
+        return redirect()->route('short_url_index')->with('hash_name', $url['data'][0]['hash_name']);
     }
 
     /**

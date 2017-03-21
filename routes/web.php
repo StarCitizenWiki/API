@@ -81,7 +81,7 @@ Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortUrl']
     Route::get('/', ['uses' => 'ShortUrlController@showShortURLView'])->name('short_url_index');
     Route::group(['middleware' => 'throttle'], function () {
         Route::post('shorten', ['uses' => 'ShortUrlController@createAndRedirect'])->name('short_url_create_redirect');
-        Route::get('{name}', ['uses' => 'ShortUrlController@resolveAndRedirect'])->name('short_url_resolve_redirect');
+        Route::get('{hash_name}', ['uses' => 'ShortUrlController@resolveAndRedirect'])->name('short_url_resolve_redirect');
     });
 
 });

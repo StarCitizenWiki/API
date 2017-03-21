@@ -4,6 +4,7 @@ namespace App\Models\ShortURL;
 
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
+use App\Exceptions\UserBlacklistedException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
@@ -96,8 +97,8 @@ class ShortURL extends Model
     /**
      * resolves a url based on its hash
      * @param String $hashName
-     * @throws ModelNotFoundException
      * @return mixed
+     * @throws UserBlacklistedException
      */
     public static function resolve(String $hashName)
     {
@@ -108,6 +109,10 @@ class ShortURL extends Model
             'hash_name' => $url->hash_name,
             'url' => $url->url
         ]);
+
+        if ($url->user()->first()->isBlacklisted()) {
+            throw new UserBlacklistedException();
+        }
 
         return $url;
     }
