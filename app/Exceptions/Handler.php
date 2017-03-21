@@ -46,7 +46,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if ($request->wantsJson()) {
+        if (strpos($request->getUri(), 'api') > -1) {
             return $this->renderExceptionAsJson($request, $exception);
         }
         return parent::render($request, $exception);
@@ -67,6 +67,7 @@ class Handler extends ExceptionHandler
 
         return redirect()->guest('login');
     }
+
     /**
      * Render an exception into a JSON response
      *
@@ -76,34 +77,31 @@ class Handler extends ExceptionHandler
      */
     protected function renderExceptionAsJson($request, Exception $exception)
     {
-        // Currently converts AuthorizationException to 403 HttpException
-        // and ModelNotFoundException to 404 NotFoundHttpException
         $exception = $this->prepareException($exception);
-        // Default response
+
         $response = [
-            'error' => 'Sorry, something went wrong.'
+            'message' => $exception->getMessage(),
+            'error' => $exception->getMessage()
         ];
 
-        // Add debug info if app is in debug mode
         if (config('app.debug')) {
-            // Add the exception class name, message and stack trace to response
-            $response['exception'] = get_class($exception); // Reflection might be better here
-            $response['message'] = $exception->getMessage();
-            $response['trace'] = $exception->getTrace();
+            $response['debug'] = [
+                'exception' => get_class($exception),
+                'trace' => $exception->getTrace()
+            ];
         }
 
         $status = 400;
-        // Build correct status codes and status texts
+
         switch ($exception) {
             case $exception instanceof ValidationException:
-                return $this->convertValidationExceptionToResponse($exception, $request);
+                $response['error'] = $exception->validator->errors()->getMessages();
+                break;
             case $exception instanceof AuthenticationException:
                 $status = 401;
-                $response['error'] = Response::$statusTexts[$status];
                 break;
             case $this->isHttpException($exception):
                 $status = $exception->getStatusCode();
-                $response['error'] = Response::$statusTexts[$status];
                 break;
             default:
                 break;
