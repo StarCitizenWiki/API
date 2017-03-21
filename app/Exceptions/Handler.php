@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use App\Traits\RestExceptionHandlerTrait;
+use App\Traits\RestTrait;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
@@ -11,6 +13,9 @@ use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
+    use RestTrait;
+    use RestExceptionHandlerTrait;
+
     /**
      * A list of the exception types that should not be reported.
      *
@@ -47,10 +52,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if ($request->wantsJson()) {
-            return $this->renderExceptionAsJson($request, $exception);
+        if($this->isApiCall($request) || $request->expectsJson()) {
+            return $this->getJsonResponseForException($request, $exception);
+        } else {
+            return parent::render($request, $exception);
         }
-        return parent::render($request, $exception);
     }
 
     /**
@@ -67,51 +73,5 @@ class Handler extends ExceptionHandler
         }
 
         return redirect()->guest('login');
-    }
-
-    /**
-     * Render an exception into a JSON response
-     *
-     * @param $request
-     * @param Exception $exception
-     * @return \Illuminate\Http\Response
-     */
-    protected function renderExceptionAsJson($request, Exception $exception)
-    {
-        $exception = $this->prepareException($exception);
-
-        $response = [
-            'errors' => [
-                $exception->getMessage()
-            ],
-            'meta' => [
-                'processed_at' => Carbon::now()
-            ]
-        ];
-
-        if (config('app.debug')) {
-            $response['meta'] += [
-                'exception' => get_class($exception),
-                'trace' => $exception->getTrace()
-            ];
-        }
-
-        $status = 400;
-
-        switch ($exception) {
-            case $exception instanceof ValidationException:
-                $response['errors'] = $exception->validator->errors()->getMessages();
-                break;
-            case $exception instanceof AuthenticationException:
-                $status = 401;
-                break;
-            case $this->isHttpException($exception):
-                $status = $exception->getStatusCode();
-                break;
-            default:
-                break;
-        }
-
-        return response()->json($response, $status);
     }
 }
