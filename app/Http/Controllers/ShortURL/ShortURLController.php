@@ -88,15 +88,26 @@ class ShortURLController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        $this->validate($request, [
-            'url' => 'required|active_url|max:255',
-            'hash_name' => 'required|alpha_dash|max:32',
-            'user_id' => 'required|integer|exists:users,id'
-        ]);
+        $validator = $this->getValidationFactory()->make(
+            [
+                'url' => ShortUrl::sanitizeURL($request->get('url')),
+                'hash_name' => $request->get('hash_name'),
+                'user_id' => $request->get('user_id')
+            ],
+            [
+                'url' => 'required|active_url|max:255',
+                'hash_name' => 'required|alpha_dash|max:32',
+                'user_id' => 'required|integer|exists:users,id'
+            ]
+        );
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
 
         $url = ShortURL::updateShortURL([
             'id' => $id,
-            'url' => $request->get('url'),
+            'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
             'user_id' => $request->get('user_id'),
         ]);
@@ -112,10 +123,20 @@ class ShortURLController extends Controller
     {
         $user_id = AUTH_ADMIN_IDS[0];
 
-        $this->validate($request, [
-            'url' => 'required|active_url|max:255|unique:short_urls',
-            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
-        ]);
+        $validator = $this->getValidationFactory()->make(
+            [
+                'url' => ShortUrl::sanitizeURL($request->get('url')),
+                'hash_name' => $request->get('hash_name')
+            ],
+            [
+                'url' => 'required|active_url|max:255|unique:short_urls',
+                'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
+            ]
+        );
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
 
         $key = $request->get(AUTH_KEY_FIELD_NAME, null);
 
@@ -127,7 +148,7 @@ class ShortURLController extends Controller
         }
 
         $url = ShortURL::createShortURL([
-            'url' => $request->get('url'),
+            'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
             'user_id' => $user_id
         ]);

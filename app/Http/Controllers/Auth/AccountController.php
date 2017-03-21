@@ -65,14 +65,24 @@ class AccountController extends Controller
 
     public function addURL(Request $request)
     {
-        $this->validate($request, [
-            'url' => 'required|active_url|max:255|unique:short_urls',
-            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
-        ]);
+        $validator = $this->getValidationFactory()->make(
+            [
+                'url' => ShortURL::sanitizeURL($request->get('url')),
+                'hash_name' => $request->get('hash_name')
+            ],
+            [
+                'url' => 'required|active_url|max:255|unique:short_urls',
+                'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
+            ]
+        );
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
 
         try {
             $url = ShortURL::createShortURL([
-                'url' => $request->get('url'),
+                'url' => ShortURL::sanitizeURL($request->get('url')),
                 'hash_name' => $request->get('hash_name'),
                 'user_id' => Auth::id()
             ]);
@@ -139,16 +149,27 @@ class AccountController extends Controller
             return abort(401);
         }
 
-        $this->validate($request, [
-            'url' => 'required|active_url|max:255',
-            'hash_name' => 'required|alpha_dash|max:32',
-            'user_id' => 'required|integer|exists:users,id'
-        ]);
+        $validator = $this->getValidationFactory()->make(
+            [
+                'url' => ShortUrl::sanitizeURL($request->get('url')),
+                'hash_name' => $request->get('hash_name'),
+                'user_id' => $request->get('user_id')
+            ],
+            [
+                'url' => 'required|active_url|max:255',
+                'hash_name' => 'required|alpha_dash|max:32',
+                'user_id' => 'required|integer|exists:users,id'
+            ]
+        );
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
 
         try {
             ShortURL::updateShortURL([
                 'id' => $id,
-                'url' => $request->get('url'),
+                'url' => ShortURL::sanitizeURL($request->get('url')),
                 'hash_name' => $request->get('hash_name'),
                 'user_id' => Auth::id(),
             ]);

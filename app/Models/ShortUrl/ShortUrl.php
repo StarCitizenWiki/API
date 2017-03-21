@@ -6,7 +6,6 @@ use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -48,17 +47,19 @@ class ShortURL extends Model
             $data['hash_name'] = ShortURL::_generateShortURLHash();
         }
 
+        $url = ShortURL::create([
+            'url' => $data['url'],
+            'hash_name' => $data['hash_name'],
+            'user_id' => $data['user_id']
+        ]);
+
         Log::info('URL Shortened', [
             'url' => $data['url'],
             'hash_name' => $data['hash_name'],
             'user_id' => $data['user_id']
         ]);
 
-        return ShortURL::create([
-            'url' => $data['url'],
-            'hash_name' => $data['hash_name'],
-            'user_id' => $data['user_id']
-        ]);
+        return $url;
     }
 
     /**
@@ -114,6 +115,15 @@ class ShortURL extends Model
             throw new UserBlacklistedException();
         }
 
+        return $url;
+    }
+
+    public static function sanitizeURL($url) : String
+    {
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+        if (!isset(parse_url($url)['path'])) {
+            $url .= '/';
+        }
         return $url;
     }
 
