@@ -16,39 +16,53 @@ class StatsAPIController extends Controller
         $this->_api = $api;
     }
 
+	private function getJsonPrettyPrintResponse($func)
+	{
+		try {
+			return response()->json($this->_api->$func()->getResponse()->toArray(), 200, [], JSON_PRETTY_PRINT);
+		} catch (InvalidDataException $e) {
+			return $e->getMessage();
+		}
+	}
+
     public function getFunds()
     {
-        try {
-            return response()->json($this->_api->getFunds()->getResponse()->toArray(), 200, [], JSON_PRETTY_PRINT);
-        } catch (InvalidDataException $e) {
-            return $e->getMessage();
-        }
+	    return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
 
     public function getFleet()
     {
-        try {
-            return response()->json($this->_api->getFleet()->getResponse()->toArray(), 200, [], JSON_PRETTY_PRINT);
-        } catch (InvalidDataException $e) {
-            return $e->getMessage();
-        }
+	    return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
 
     public function getFans()
     {
-        try {
-            return response()->json($this->_api->getFans()->getResponse()->toArray(), 200, [], JSON_PRETTY_PRINT);
-        } catch (InvalidDataException $e) {
-            return $e->getMessage();
-        }
+	    return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
 
     public function getAll()
     {
-	    try {
-            return response()->json($this->_api->getAll()->getResponse()->toArray(), 200, [], JSON_PRETTY_PRINT);
-	    } catch (InvalidDataException $e) {
-		    return $e->getMessage();
-	    }
+	    return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
+
+	public function getLastHoursFunds()
+	{
+		return $this->getJsonPrettyPrintResponse("lastHours");
+	}
+
+	public function getLastDaysFunds()
+	{
+		return $this->getJsonPrettyPrintResponse("lastDays");
+	}
+
+	public function getLastWeeksFunds()
+	{
+		return $this->getJsonPrettyPrintResponse("lastWeeks");
+	}
+
+	public function getLastMonthsFunds()
+	{
+		return $this->getJsonPrettyPrintResponse("lastMonths");
+
+	}
 }

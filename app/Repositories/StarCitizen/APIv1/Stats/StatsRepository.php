@@ -26,31 +26,50 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getCrowdfundStats() : StatsRepository
     {
-        $this->request('POST', 'stats/getCrowdfundStats', [
-            'json' => [
-                'chart' => $this->_chartType,
-                'fans' => $this->_getFans,
-                'fleet' => $this->_getFleet,
-                'funds' => $this->_getFunds
-            ]
-        ]);
+        $this->request('POST', 'stats/getCrowdfundStats', $this->getRequestBody());
         return $this;
     }
 
+	private function getRequestBody() : array
+	{
+		$requestBody = array();
+		$requestContent = array('chart' => $this->_chartType);
+		if ($this->_getFans)
+		{
+			$requestContent = array_merge($requestContent, array('fans' => $this->_getFans));
+		}
+		if ($this->_getFleet)
+		{
+			$requestContent = array_merge($requestContent, array('fleet' => $this->_getFleet));
+		}
+		if ($this->_getFunds)
+		{
+			$requestContent = array_merge($requestContent, array('funds' => $this->_getFunds));
+		}
+		$requestBody['json'] = $requestContent;
+		return $requestBody;
+	}
+
     public function getFunds() : StatsRepository
     {
+	    $this->_getFans = false;
+	    $this->_getFleet = false;
         $this->withTransformer(FundsTransformer::class);
         return $this->getCrowdfundStats();
     }
 
     public function getFans() : StatsRepository
     {
+	    $this->_getFleet = false;
+	    $this->_getFunds = false;
         $this->withTransformer(FansTransformer::class);
         return $this->getCrowdfundStats();
     }
 
     public function getFleet() : StatsRepository
     {
+	    $this->_getFans = false;
+	    $this->_getFunds = false;
         $this->withTransformer(FleetTransformer::class);
         return $this->getCrowdfundStats();
     }
@@ -68,7 +87,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     public function lastHours() : StatsRepository
     {
         $this->_chartType = 'hour';
-        return $this;
+	    return $this->getAll();
     }
 
     /**
@@ -78,7 +97,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     public function lastDays() : StatsRepository
     {
         $this->_chartType = 'day';
-        return $this;
+	    return $this->getAll();
     }
 
     /**
@@ -88,7 +107,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     public function lastWeeks() : StatsRepository
     {
         $this->_chartType = 'week';
-        return $this;
+	    return $this->getAll();
     }
 
     /**
@@ -98,7 +117,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     public function lastMonths() : StatsRepository
     {
         $this->_chartType = 'month';
-        return $this;
+	    return $this->getAll();
     }
 
 }
