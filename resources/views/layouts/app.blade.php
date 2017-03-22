@@ -30,6 +30,8 @@
                         <a class="dropdown-item" href="{{ url('admin/users') }}">User</a>
                         <a class="dropdown-item" href="{{ url('admin/routes') }}">Routes</a>
                         <a class="dropdown-item" href="{{ url('admin/urls') }}">URLs</a>
+                        <a class="dropdown-item" href="{{ url('admin/urls/whitelist') }}">URLs Whitelist</a>
+                        <a class="dropdown-item" href="{{ url('admin/urls/whitelist/add') }}">Add Whitelist</a>
                     </div>
                 </li>
             @endif

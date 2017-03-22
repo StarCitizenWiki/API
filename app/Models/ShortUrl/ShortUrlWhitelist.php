@@ -3,6 +3,7 @@
 namespace App\Models\ShortURL;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class ShortURLWhitelist extends Model
 {
@@ -14,6 +15,27 @@ class ShortURLWhitelist extends Model
      * @var array
      */
     protected $fillable = [
-        'url'
+        'url',
+        'internal'
     ];
+
+    /**
+     * Creates a shortened url
+     * @param array $data
+     * @return ShortURLWhitelist
+     */
+    public static function createWhitelistURL(array $data) : ShortURLWhitelist
+    {
+        $url = ShortURLWhitelist::create([
+            'url' => $data['url'],
+            'internal' => $data['internal']
+        ]);
+
+        Log::info('Whitelist URL added', [
+            'url' => $data['url'],
+            'internal' => $data['internal']
+        ]);
+
+        return $url;
+    }
 }

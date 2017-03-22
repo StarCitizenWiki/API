@@ -22,6 +22,10 @@ Route::group(['domain' => config('app.api_url')], function () {
         Route::get('routes', ['uses' => 'AdminController@routes'])->name('admin_routes_list');
 
         Route::get('urls', ['uses' => 'AdminController@showURLsListView'])->name('admin_urls_list');
+        Route::get('urls/whitelist', ['uses' => 'AdminController@showURLWhitelistView'])->name('admin_urls_whitelist_list');
+        Route::get('urls/whitelist/add', ['uses' => 'AdminController@showAddURLWhitelistView'])->name('admin_urls_whitelist_add_form');
+        Route::delete('urls/whitelist/{id}', ['uses' => 'AdminController@deleteWhitelistURL']);
+        Route::post('urls/whitelist', ['uses' => 'AdminController@addWhitelistURL']);
         Route::delete('urls/{ID}', ['uses' => 'AdminController@deleteURL']);
         Route::get('urls/{ID}/edit', ['uses' => 'AdminController@showEditURLView'])->name('admin_urls_edit_form');
         Route::patch('urls/{ID}', ['uses' => 'AdminController@updateURL']);

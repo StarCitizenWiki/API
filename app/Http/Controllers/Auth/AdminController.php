@@ -6,6 +6,7 @@ use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
+use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -21,6 +22,19 @@ class AdminController extends Controller
     public function showURLsListView()
     {
         return view('admin.shorturl.index')->with('urls', ShortURL::all());
+    }
+
+    /**
+     * @return View
+     */
+    public function showURLWhitelistView()
+    {
+        return view('admin.shorturl.whitelistindex')->with('urls', ShortURLWhitelist::all());
+    }
+
+    public function showAddURLWhitelistView()
+    {
+        return view('admin.shorturl.whitelistadd');
     }
 
     /**
@@ -61,6 +75,59 @@ class AdminController extends Controller
         }
 
         return redirect()->route('admin_urls_list');
+    }
+
+    /**
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function deleteWhitelistURL(int $id)
+    {
+        try {
+            $url = ShortURLWhitelist::findOrFail($id);
+            Log::info('Whitelist URL deleted', [
+                'deleted_by' => Auth::id(),
+                'url_id' => $url->id,
+                'url' => $url->url
+            ]);
+            $url->delete();
+        } catch (ModelNotFoundException $e) {
+            Log::warning('['.__METHOD__.'] Whitelist URL not found', [
+                'id' => $id
+            ]);
+        }
+
+        return redirect()->route('admin_urls_whitelist_list');
+    }
+
+
+    public function addWhitelistURL(Request $request)
+    {
+        $validator = $this->getValidationFactory()->make(
+            [
+                'url' => ShortURL::sanitizeURL($request->get('url')),
+                'internal' => $request->get('internal')
+            ],
+            [
+                'url' => 'required|active_url|max:255|unique:short_url_whitelists',
+                'internal' => 'required'
+            ]
+        );
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
+
+        try {
+            $url = ShortURLWhitelist::createWhitelistURL([
+                'url' => parse_url($request->get('url'))['host'],
+                'internal' => !$request->get('internal')[0]
+            ]);
+        } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException $e) {
+            return redirect()->route('admin_urls_whitelist_add_form')->withErrors($e->getMessage());
+        }
+
+        return redirect()->route('admin_urls_whitelist_list');
     }
 
     /**
