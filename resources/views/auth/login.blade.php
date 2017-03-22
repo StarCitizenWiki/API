@@ -6,7 +6,7 @@
     @include('layouts.heading')
     <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-6 col-md-2 offset-sm-3 offset-md-5 mt-3">
+            <div class="col-sm-6 col-md-3 mx-auto mt-3">
                 @include('snippets.errors')
                 <form role="form" method="POST" action="{{ route('login') }}">
                     {{ csrf_field() }}
@@ -16,7 +16,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="password" aria-label="API Key">API Key:</label>
+                        <label for="password" aria-label="API Key">Password:</label>
                         <input type="password" class="form-control" id="password" name="password" required aria-required="true" aria-labelledby="password" tabindex="2" data-minlength="3" value="{{ old('password') }}">
                     </div>
 
