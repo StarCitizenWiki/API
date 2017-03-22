@@ -70,16 +70,27 @@ class AdminController extends Controller
      */
     public function updateURL(Request $request, int $id)
     {
-        $this->validate($request, [
-            'url' => 'required|active_url|max:255',
-            'hash_name' => 'required|alpha_dash|max:32',
-            'user_id' => 'required|integer|exists:users,id'
-        ]);
+        $validator = $this->getValidationFactory()->make(
+            [
+                'url' => ShortUrl::sanitizeURL($request->get('url')),
+                'hash_name' => $request->get('hash_name'),
+                'user_id' => $request->get('user_id')
+            ],
+            [
+                'url' => 'required|url|max:255',
+                'hash_name' => 'required|alpha_dash|max:32',
+                'user_id' => 'required|integer|exists:users,id'
+            ]
+        );
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
 
         try {
             ShortURL::updateShortURL([
                 'id' => $id,
-                'url' => $request->get('url'),
+                'url' => ShortUrl::sanitizeURL($request->get('url')),
                 'hash_name' => $request->get('hash_name'),
                 'user_id' => $request->get('user_id'),
             ]);
