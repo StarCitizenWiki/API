@@ -11,7 +11,7 @@
 |
 */
 Route::group(['domain' => config('app.api_url')], function () {
-    Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');;
+    Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');
 
     Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'namespace' => 'auth'], function () {
         Route::get('users', ['uses' => 'AdminController@showUsersListView'])->name('admin_users_list');
@@ -81,6 +81,8 @@ Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortUrl']
     Route::get('/', ['uses' => 'ShortUrlController@showShortURLView'])->name('short_url_index');
     Route::group(['middleware' => 'throttle'], function () {
         Route::post('shorten', ['uses' => 'ShortUrlController@createAndRedirect'])->name('short_url_create_redirect');
+        Route::get('resolve', ['uses' => 'ShortUrlController@showResolveView'])->name('short_url_resolve');
+        Route::post('resolve', ['uses' => 'ShortUrlController@resolveAndReturn'])->name('short_url_resolve_return');
         Route::get('{hash_name}', ['uses' => 'ShortUrlController@resolveAndRedirect'])->name('short_url_resolve_redirect');
     });
 

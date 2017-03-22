@@ -37,6 +37,11 @@ class ShortURLController extends Controller
         return view('shorturl.index')->with('whitelistedURLs', ShortURLWhitelist::all()->sortBy('url')->where('internal', false));
     }
 
+    public function showResolveView()
+    {
+        return view('shorturl.resolve');
+    }
+
     /**
      * resolves a hash to a url and redirects
      * @param Request $request
@@ -55,6 +60,35 @@ class ShortURLController extends Controller
         return redirect($url->url, 301);
     }
 
+    public function resolveAndReturn(Request $request)
+    {
+        $this->validate($request, [
+            'url' => 'required|url',
+        ]);
+
+        $url = $request->get('url');
+        $url = parse_url($url);
+
+        if (!isset($url['host']) ||
+            ($url['host'] != config('app.shorturl_url')) ||
+            !isset($url['path']))
+        {
+            return redirect()->route('short_url_resolve')->withErrors('Invalid Short URL');
+        }
+
+        $path = str_replace('/', '', $url['path']);
+
+        try {
+            $url = ShortURL::resolve($path);
+        } catch (ModelNotFoundException $e) {
+            return redirect()->route('short_url_resolve')->withErrors('No URL found');
+        } catch (UserBlacklistedException $e) {
+            return redirect()->route('short_url_index')->withErrors('User is blacklisted, can\'t resolve URL');
+        }
+
+        return redirect()->route('short_url_resolve')->with('url', $url->url);
+    }
+
     /**
      * resolves a hash to a url
      * @param Request $request
@@ -63,9 +97,9 @@ class ShortURLController extends Controller
      */
     public function resolve(Request $request)
     {
-        if (is_null($request->get('hash_name'))) {
-            throw new InvalidDataException('hash_name is missing');
-        }
+        $this->validate($request, [
+            'hash_name' => 'required|alpha_dash',
+        ]);
 
         try {
             $url = ShortURL::resolve($request->get('hash_name'));
