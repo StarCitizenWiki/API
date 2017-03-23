@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-12 col-md-6 mx-auto">
                 @include('snippets.errors')
-                <form role="form" method="POST" action="/account/urls/{{ $url->id }}">
+                <form role="form" method="POST" action="{{ route('account_urls_update', $url->id) }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="PATCH">
                     <input name="user_id" type="hidden" value="{{ Auth::id() }}">

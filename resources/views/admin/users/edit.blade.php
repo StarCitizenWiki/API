@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-10 mx-auto">
                 @include('snippets.errors')
-                <form role="form" method="POST" action="/admin/users/{{ $user->id }}">
+                <form role="form" method="POST" action="{{ route('admin_users_update', $user->id) }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="PATCH">
                     <div class="form-group">
@@ -25,7 +25,7 @@
                     </div>
                     <div class="form-group">
                         <label for="requests_per_minute" aria-label="Requests per Minute">Requests per Minute:</label>
-                        <input type="text" class="form-control" id="requests_per_minute" name="requests_per_minute" required aria-required="true" aria-labelledby="requests_per_minute" tabindex="4" data-minlength="3" value="{{ $user->requests_per_minute }}">
+                        <input type="number" class="form-control" id="requests_per_minute" name="requests_per_minute" required aria-required="true" aria-labelledby="requests_per_minute" tabindex="4" data-minlength="3" value="{{ $user->requests_per_minute }}">
                     </div>
                     <div class="form-group">
                         <label for="password" aria-label="Passwort">Passwort:</label>

@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-12 col-md-6 mx-auto">
                 @include('snippets.errors')
-                <form role="form" method="POST" action="/admin/urls/whitelist">
+                <form role="form" method="POST" action="{{ route('admin_urls_whitelist_add') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="POST">
                     <div class="form-group">

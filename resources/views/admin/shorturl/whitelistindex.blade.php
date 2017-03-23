@@ -42,7 +42,7 @@
                                         <a href="#" class="btn btn-danger"
                                            onclick="event.preventDefault();
                                                    document.getElementById('delete-form{{ $url->id }}').submit();">
-                                            <form id="delete-form{{ $url->id }}" action="whitelist/{{ $url->id }}" method="POST" style="display: none;">
+                                            <form id="delete-form{{ $url->id }}" action="{{ route('admin_urls_whitelist_delete', $url->id) }}" method="POST" style="display: none;">
                                                 <input name="_method" type="hidden" value="DELETE">
                                                 {{ csrf_field() }}
                                             </form>

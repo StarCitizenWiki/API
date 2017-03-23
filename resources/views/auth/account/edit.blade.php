@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-sm-12 col-md-6 offset-md-3 mt-5">
                 @include('snippets.errors')
-                <form role="form" method="POST" action="{{ route('edit_account') }}">
+                <form role="form" method="POST" action="{{ route('account_update') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="PATCH">
                     <div class="form-group">

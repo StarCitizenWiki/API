@@ -54,7 +54,7 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect(AUTH_HOME);
+        return redirect()->route('api_index');
     }
 
 
@@ -69,7 +69,7 @@ class LoginController extends Controller
     {
         if ($user->isBlacklisted()) {
             Auth::logout();
-            return redirect()->route('login')->withErrors('Account is blacklisted');
+            return redirect()->route('auth_login_form')->withErrors('Account is blacklisted');
         }
     }
 

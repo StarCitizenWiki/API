@@ -81,7 +81,7 @@ class ShortURLController extends Controller
         try {
             $url = ShortURL::resolve($path);
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('short_url_resolve')->withErrors('No URL found');
+            return redirect()->route('short_url_resolve_form')->withErrors('No URL found');
         } catch (UserBlacklistedException $e) {
             return redirect()->route('short_url_index')->withErrors('User is blacklisted, can\'t resolve URL');
         }
@@ -122,22 +122,19 @@ class ShortURLController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        $validator = $this->getValidationFactory()->make(
-            [
-                'url' => ShortUrl::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => $request->get('user_id')
-            ],
-            [
-                'url' => 'required|active_url|max:255',
-                'hash_name' => 'required|alpha_dash|max:32',
-                'user_id' => 'required|integer|exists:users,id'
-            ]
-        );
+        $data = [
+            'url' => ShortUrl::sanitizeURL($request->get('url')),
+            'hash_name' => $request->get('hash_name'),
+            'user_id' => $request->get('user_id')
+        ];
 
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
-        }
+        $rules = [
+            'url' => 'required|active_url|max:255',
+            'hash_name' => 'required|alpha_dash|max:32',
+            'user_id' => 'required|integer|exists:users,id'
+        ];
+
+        $this->_validateArray($data, $rules, $request);
 
         $url = ShortURL::updateShortURL([
             'id' => $id,
@@ -157,20 +154,17 @@ class ShortURLController extends Controller
     {
         $user_id = AUTH_ADMIN_IDS[0];
 
-        $validator = $this->getValidationFactory()->make(
-            [
-                'url' => ShortUrl::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name')
-            ],
-            [
-                'url' => 'required|active_url|max:255|unique:short_urls',
-                'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
-            ]
-        );
+        $data = [
+            'url' => ShortUrl::sanitizeURL($request->get('url')),
+            'hash_name' => $request->get('hash_name')
+        ];
 
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
-        }
+        $rules = [
+            'url' => 'required|active_url|max:255|unique:short_urls',
+            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
+        ];
+
+        $this->_validateArray($data, $rules, $request);
 
         $key = $request->get(AUTH_KEY_FIELD_NAME, null);
 
@@ -229,5 +223,27 @@ class ShortURLController extends Controller
         ]);
 
         $url->delete();
+    }
+
+    /**
+     * Validates an array with given rules
+     * @param array $data
+     * @param array $rules
+     * @param Request $request
+     * @throws ValidationException
+     */
+    private function _validateArray(array $data, array $rules, Request $request)
+    {
+        Log::debug('['.__CLASS__.'] Validated data', [
+            'data' => $data,
+            'rules' => $rules
+        ]);
+
+        $validator = $this->getValidationFactory()->make($data, $rules);
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
+
     }
 }

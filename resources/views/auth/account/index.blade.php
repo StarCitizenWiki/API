@@ -44,9 +44,9 @@
 
                 <div class="mt-4 mb-4">
                     <h4>Danger-Zone:</h4>
-                    <a href="{{ route('edit_account') }}" class="btn btn-warning d-inline-block mr-2">Edit Account</a>
+                    <a href="{{ route('account_update') }}" class="btn btn-warning d-inline-block mr-2">Edit Account</a>
                     @unless($user->isBlacklisted())
-                    <form role="form" method="POST" action="{{ route('delete_account') }}" class="d-inline-block">
+                    <form role="form" method="POST" action="{{ route('account_delete') }}" class="d-inline-block">
                         {{ csrf_field() }}
                         <input name="_method" type="hidden" value="DELETE">
                         <button class="btn btn-danger" type="submit">Delete Account</button>

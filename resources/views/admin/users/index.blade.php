@@ -66,7 +66,8 @@
                                 </td>
                                 <td>
                                     <i class="fa fa-key" data-placement="top" data-toggle="popover" title="Key" data-content="{{ $user->api_token }}" tabindex="0"></i>
-                                </td>                                <td>
+                                </td>
+                                <td>
                                     <i class="fa fa-book" data-placement="top" data-toggle="popover" title="Notizen" data-content="{{ $user->notes }}" data-trigger="focus" tabindex="1"></i>
                                 </td>
                                 <td>
@@ -80,19 +81,29 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group" aria-label="">
-                                        <a href="users/{{ $user->id }}/edit" class="btn btn-warning">
+                                        <a href="{{ route('admin_users_edit_form', $user->id) }}" class="btn btn-warning">
                                             <i class="fa fa-pencil"></i>
                                         </a>
+                                        @if(!$user->trashed())
                                         <a href="#" class="btn btn-danger"
                                             onclick="event.preventDefault();
                                             document.getElementById('delete-form{{ $user->id }}').submit();">
-                                            <form id="delete-form{{ $user->id }}" action="users/{{ $user->id }}" method="POST" style="display: none;">
+                                            <form id="delete-form{{ $user->id }}" action="{{ route('admin_users_delete', $user->id) }}" method="POST" style="display: none;">
                                                 <input name="_method" type="hidden" value="DELETE">
                                                 {{ csrf_field() }}
                                             </form>
                                             <i class="fa fa-trash-o"></i>
                                         </a>
-
+                                        @else
+                                            <a href="#" class="btn btn-success"
+                                               onclick="event.preventDefault();
+                                                       document.getElementById('restore-form{{ $user->id }}').submit();">
+                                                <form id="restore-form{{ $user->id }}" action="{{ route('admin_users_restore', $user->id) }}" method="POST" style="display: none;">
+                                                    {{ csrf_field() }}
+                                                </form>
+                                                <i class="fa fa-repeat"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

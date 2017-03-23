@@ -27,11 +27,11 @@
                 <li class="nav-item dropdown mr-2">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Admin</a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{{ url('admin/users') }}">User</a>
-                        <a class="dropdown-item" href="{{ url('admin/routes') }}">Routes</a>
-                        <a class="dropdown-item" href="{{ url('admin/urls') }}">URLs</a>
-                        <a class="dropdown-item" href="{{ url('admin/urls/whitelist') }}">URLs Whitelist</a>
-                        <a class="dropdown-item" href="{{ url('admin/urls/whitelist/add') }}">Add Whitelist</a>
+                        <a class="dropdown-item" href="{{ route('admin_users_list') }}">User</a>
+                        <a class="dropdown-item" href="{{ route('admin_routes_list') }}">Routes</a>
+                        <a class="dropdown-item" href="{{ route('admin_urls_list') }}">URLs</a>
+                        <a class="dropdown-item" href="{{ route('admin_urls_whitelist_list') }}">URLs Whitelist</a>
+                        <a class="dropdown-item" href="{{ route('admin_urls_whitelist_add_form') }}">Add Whitelist</a>
                     </div>
                 </li>
             @endif
@@ -43,17 +43,17 @@
                 <li class="nav-item dropdown mr-2">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Account</a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{{ url('/account') }}">Dashboard</a>
-                        <a class="dropdown-item" href="{{ url('/account/urls') }}">Short URLs</a>
-                        <a class="dropdown-item" href="{{ url('/account/urls/add') }}">Add Short URL</a>
+                        <a class="dropdown-item" href="{{ route('account') }}">Dashboard</a>
+                        <a class="dropdown-item" href="{{ route('account_urls_list') }}">Short URLs</a>
+                        <a class="dropdown-item" href="{{ route('account_urls_add_form') }}">Add Short URL</a>
                     </div>
 
                 </li>
                 <li class="nav-item mr-2">
-                    <a class="nav-link" href="{{ url('/logout') }}"
+                    <a class="nav-link" href="{{ route('auth_logout') }}"
                        onclick="event.preventDefault();
                                 document.getElementById('logout-form').submit();">
-                       <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">
+                       <form id="logout-form" action="{{ route('auth_logout') }}" method="POST" style="display: none;">
                            {{ csrf_field() }}
                        </form>
                        <i class="fa fa-sign-out"></i> Logout

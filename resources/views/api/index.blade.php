@@ -11,7 +11,7 @@
                     @include('snippets.errors')
                 </div>
                 @if (Auth::guest())
-                    <form role="form" method="POST" action="{{ route('register') }}">
+                    <form role="form" method="POST" action="{{ route('auth_register') }}">
                         {{ csrf_field() }}
                         <div class="input-group input-group-lg offset-sm-4 col-sm-4">
                             <input id="email" type="email" class="center-block form-control input-lg" name="email" value="{{ old('email') }}" required title="Beantrage deinen API-Key" placeholder="E-Mail-Adresse">

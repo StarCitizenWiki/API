@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-12 col-md-6 mx-auto">
                 @include('snippets.errors')
-                <form role="form" method="POST" action="/account/urls">
+                <form role="form" method="POST" action="{{ route('account_urls_add') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="POST">
                     <input name="{{ AUTH_KEY_FIELD_NAME }}" type="hidden" value="{{ Auth::user()->api_token }}">

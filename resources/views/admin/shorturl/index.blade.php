@@ -43,13 +43,13 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group" aria-label="">
-                                        <a href="urls/{{ $url->id }}/edit" class="btn btn-warning">
+                                        <a href="{{ route('admin_urls_edit_form', $url->id) }}" class="btn btn-warning">
                                             <i class="fa fa-pencil"></i>
                                         </a>
                                         <a href="#" class="btn btn-danger"
                                            onclick="event.preventDefault();
                                                    document.getElementById('delete-form{{ $url->id }}').submit();">
-                                            <form id="delete-form{{ $url->id }}" action="urls/{{ $url->id }}" method="POST" style="display: none;">
+                                            <form id="delete-form{{ $url->id }}" action="{{ route('admin_urls_delete', $url->id) }}" method="POST" style="display: none;">
                                                 <input name="_method" type="hidden" value="DELETE">
                                                 {{ csrf_field() }}
                                             </form>

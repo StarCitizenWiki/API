@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-sm-6 col-md-3 mx-auto mt-3">
                 @include('snippets.errors')
-                <form role="form" method="POST" action="{{ route('login') }}">
+                <form role="form" method="POST" action="{{ route('auth_login') }}">
                     {{ csrf_field() }}
                     <div class="form-group">
                         <label for="email" aria-label="E-Mail">E-Mail:</label>

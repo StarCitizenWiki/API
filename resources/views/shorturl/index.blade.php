@@ -35,7 +35,7 @@
         <div class="col-12 d-flex fixed-bottom">
             <ul class="nav justify-content-end w-100">
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="/resolve">Resolve</a>
+                    <a class="nav-link text-info" href="{{ route('short_url_resolve_form') }}">Resolve</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">Whitelist</a>
