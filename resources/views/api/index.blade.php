@@ -7,6 +7,9 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 mt-3">
+                <div class="col-12 col-md-4 mx-auto">
+                    @include('snippets.errors')
+                </div>
                 @if (Auth::guest())
                     <form role="form" method="POST" action="{{ route('register') }}">
                         {{ csrf_field() }}
