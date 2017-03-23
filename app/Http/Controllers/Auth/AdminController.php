@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
@@ -32,6 +33,9 @@ class AdminController extends Controller
         return view('admin.shorturl.whitelistindex')->with('urls', ShortURLWhitelist::all());
     }
 
+    /**
+     * @return View
+     */
     public function showAddURLWhitelistView()
     {
         return view('admin.shorturl.whitelistadd');
@@ -49,8 +53,8 @@ class AdminController extends Controller
             Log::warning('['.__METHOD__.'] URL not found', [
                 'id' => $id
             ]);
-            return redirect()->route('admin_urls_list');
         }
+        return redirect()->route('admin_urls_list');
     }
 
     /**
@@ -73,7 +77,6 @@ class AdminController extends Controller
                 'id' => $id
             ]);
         }
-
         return redirect()->route('admin_urls_list');
     }
 
@@ -96,30 +99,26 @@ class AdminController extends Controller
                 'id' => $id
             ]);
         }
-
         return redirect()->route('admin_urls_whitelist_list');
     }
 
 
     public function addWhitelistURL(Request $request)
     {
-        $validator = $this->getValidationFactory()->make(
-            [
-                'url' => ShortURL::sanitizeURL($request->get('url')),
-                'internal' => $request->get('internal')
-            ],
-            [
-                'url' => 'required|active_url|max:255|unique:short_url_whitelists',
-                'internal' => 'required'
-            ]
-        );
+        $data = [
+            'url' => ShortURL::sanitizeURL($request->get('url')),
+            'internal' => $request->get('internal')
+        ];
 
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
-        }
+        $rules = [
+            'url' => 'required|active_url|max:255|unique:short_url_whitelists',
+            'internal' => 'required'
+        ];
+
+        $this->_validateArray($data, $rules, $request);
 
         try {
-            $url = ShortURLWhitelist::createWhitelistURL([
+            ShortURLWhitelist::createWhitelistURL([
                 'url' => parse_url($request->get('url'))['host'],
                 'internal' => !$request->get('internal')[0]
             ]);
@@ -137,22 +136,19 @@ class AdminController extends Controller
      */
     public function updateURL(Request $request, int $id)
     {
-        $validator = $this->getValidationFactory()->make(
-            [
-                'url' => ShortUrl::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => $request->get('user_id')
-            ],
-            [
-                'url' => 'required|url|max:255',
-                'hash_name' => 'required|alpha_dash|max:32',
-                'user_id' => 'required|integer|exists:users,id'
-            ]
-        );
+        $data = [
+            'url' => ShortUrl::sanitizeURL($request->get('url')),
+            'hash_name' => $request->get('hash_name'),
+            'user_id' => $request->get('user_id')
+        ];
 
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
-        }
+        $rules = [
+            'url' => 'required|url|max:255',
+            'hash_name' => 'required|alpha_dash|max:32',
+            'user_id' => 'required|integer|exists:users,id'
+        ];
+
+        $this->_validateArray($data, $rules, $request);
 
         try {
             ShortURL::updateShortURL([
@@ -173,7 +169,7 @@ class AdminController extends Controller
      */
     public function showUsersListView()
     {
-        return view('admin.users.index')->with('users', User::all());
+        return view('admin.users.index')->with('users', User::withTrashed()->get());
     }
 
     /**
@@ -182,14 +178,14 @@ class AdminController extends Controller
     public function showEditUserView(int $id)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::withTrashed()->findOrFail($id);
             return view('admin.users.edit')->with('user', $user);
         } catch (ModelNotFoundException $e) {
             Log::warning('['.__METHOD__.'] User not found', [
                 'id' => $id
             ]);
-            return redirect()->route('admin_users_list');
         }
+        return redirect()->route('admin_users_list');
     }
 
     /**
@@ -202,6 +198,24 @@ class AdminController extends Controller
             $user = User::findOrFail($id);
             Log::info('Account with ID '.$id.' deleted by Admin '.Auth::id());
             $user->delete();
+        } catch (ModelNotFoundException $e) {
+            Log::warning('['.__METHOD__.'] User not found', [
+                'id' => $id
+            ]);
+        }
+        return redirect()->route('admin_users_list');
+    }
+
+    /**
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function restoreUser(int $id)
+    {
+        try {
+            $user = User::withTrashed()->findOrFail($id);
+            Log::info('Account with ID '.$id.' restored by Admin '.Auth::id());
+            $user->restore();
         } catch (ModelNotFoundException $e) {
             Log::warning('['.__METHOD__.'] User not found', [
                 'id' => $id
@@ -271,5 +285,27 @@ class AdminController extends Controller
     public function showRoutesView()
     {
         return view('admin.routes.index');
+    }
+
+    /**
+     * Validates an array with given rules
+     * @param array $data
+     * @param array $rules
+     * @param Request $request
+     * @throws ValidationException
+     */
+    private function _validateArray(array $data, array $rules, Request $request)
+    {
+        Log::debug('['.__CLASS__.'] Validated data', [
+            'data' => $data,
+            'rules' => $rules
+        ]);
+
+        $validator = $this->getValidationFactory()->make($data, $rules);
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
+
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -41,7 +42,7 @@ class User extends Authenticatable
         $changes = array();
         $changes[] = ['updated_by' => Auth::id()];
 
-        $user = User::findOrFail($data['id']);
+        $user = User::withTrashed()->findOrFail($data['id']);
 
         foreach ($data as $key => $value) {
             if ($user->$key != $value) {#
