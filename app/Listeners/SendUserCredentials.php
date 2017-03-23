@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Mail\UserRegistered as UserRegisteredMail;
 use App\Events\UserRegistered;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,6 +30,6 @@ class SendUserCredentials implements ShouldQueue
     public function handle(UserRegistered $event)
     {
         $user = $event->user;
-        Mail::to($user->email)->send(new \App\Mail\UserRegistered($user));
+        Mail::to($user->email)->send(new UserRegisteredMail($user));
     }
 }

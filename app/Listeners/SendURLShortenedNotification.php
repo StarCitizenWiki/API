@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Mail\URLShortened as URLShortenedMail;
 use App\Events\URLShortened;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,6 +29,6 @@ class SendURLShortenedNotification implements ShouldQueue
     public function handle(URLShortened $event)
     {
         $url = $event->url;
-        Mail::to('api@star-citizen.wiki')->send(new \App\Mail\URLShortened($url));
+        Mail::to('api@star-citizen.wiki')->send(new URLShortenedMail($url));
     }
 }
