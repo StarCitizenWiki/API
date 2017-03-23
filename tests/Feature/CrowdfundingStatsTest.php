@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingTransformerException;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
@@ -27,9 +28,9 @@ class CrowdfundingStatsTest extends TestCase
      */
     public function testCrowdfundingStats()
     {
-        $content = $this->_statsAPI->getAll()->getResponse();
+        $content = $this->_statsAPI->getAll()->asJSON();
         $this->assertNotEmpty($content);
-        $this->assertContains('OK', $content->toJson());
+        $this->assertContains('OK', $content);
     }
 
     /**
@@ -37,7 +38,7 @@ class CrowdfundingStatsTest extends TestCase
      */
     public function testEmptyResponseException()
     {
-        $this->expectException(MissingTransformerException::class);
+        $this->expectException(InvalidDataException::class);
         $this->_statsAPI->asJSON();
     }
 }

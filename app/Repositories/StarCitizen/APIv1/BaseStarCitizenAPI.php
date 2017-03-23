@@ -64,7 +64,7 @@ class BaseStarCitizenAPI
 
             if (App::isLocal()) {
                 $this->_createFractalInstance();
-                $this->_fractal->addMeta(['RSI-Token' => $token]);
+                $this->_fractalManager->addMeta(['RSI-Token' => $token]);
             }
 
             $this->__construct();

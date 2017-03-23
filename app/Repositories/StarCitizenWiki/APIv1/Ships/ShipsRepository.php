@@ -43,7 +43,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             }
         } while (array_key_exists('query-continue-offset', $response));
 
-        $this->_responseBody = $data;
+        $this->_dataToTransform = $data;
         return $this;
     }
 
@@ -59,7 +59,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
          */
         $this->_transformer = resolve(ShipsSearchTransformer::class);
         $this->collection()->request('GET', '/api.php?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName, []);
-        $this->_responseBody = $this->_responseBody['query']['search'];
+        $this->_dataToTransform = $this->_responseBody['query']['search'];
         return $this;
     }
 }

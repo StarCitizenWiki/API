@@ -32,21 +32,26 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 
 	private function getRequestBody() : array
 	{
-		$requestBody = array();
-		$requestContent = array('chart' => $this->_chartType);
-		if ($this->_getFans)
-		{
-			$requestContent = array_merge($requestContent, array('fans' => $this->_getFans));
+		$requestContent = [
+		    'chart' => $this->_chartType
+        ];
+
+		if ($this->_getFans) {
+			$requestContent = array_merge($requestContent, ['fans' => $this->_getFans]);
 		}
-		if ($this->_getFleet)
-		{
-			$requestContent = array_merge($requestContent, array('fleet' => $this->_getFleet));
+
+		if ($this->_getFleet) {
+			$requestContent = array_merge($requestContent, ['fleet' => $this->_getFleet]);
 		}
-		if ($this->_getFunds)
-		{
-			$requestContent = array_merge($requestContent, array('funds' => $this->_getFunds));
+
+		if ($this->_getFunds) {
+			$requestContent = array_merge($requestContent, ['funds' => $this->_getFunds]);
 		}
-		$requestBody['json'] = $requestContent;
+
+		$requestBody = [
+		    'json' => $requestContent
+        ];
+
 		return $requestBody;
 	}
 

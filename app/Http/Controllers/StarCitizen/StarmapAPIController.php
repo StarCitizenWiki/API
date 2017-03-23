@@ -25,7 +25,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
         try {
-            return response()->json($this->_api->getSystem($name)->getResponse()->toArray(), 200, [], JSON_PRETTY_PRINT);
+            return response()->json($this->_api->getSystem($name)->transform()->toArray(), 200, [], JSON_PRETTY_PRINT);
         } catch (InvalidDataException $e) {
             return $e->getMessage();
         }
