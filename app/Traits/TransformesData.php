@@ -49,6 +49,15 @@ trait TransformesData
     }
 
     /**
+     * Sets the transformation type to NullResource
+     */
+    public function null()
+    {
+        $this->_transformationType = TRANSFORM_NULL;
+        return $this;
+    }
+
+    /**
      * @param String $transformer
      * @return $this
      */
@@ -59,11 +68,20 @@ trait TransformesData
         return $this;
     }
 
-    public function transform()
+    /**
+     * Transformes the given data
+     * @param null $data
+     * @return $this
+     */
+    public function transform($data = null)
     {
+        if (!is_null($data)) {
+            $this->_dataToTransform = $data;
+        }
+
         $this->_createFractalInstance();
         $this->_checkIfDataIsValid();
-        $this->_setTransformationType();
+        $this->_checkNullTransformation();
         $this->_checkIfReadyToTransform();
 
         $this->_transformedResource = $this->_fractalManager->data(
@@ -82,7 +100,9 @@ trait TransformesData
      */
     public function asJSON() : String
     {
-        $this->transform();
+        if (is_null($this->_transformedResource)) {
+            $this->transform();
+        }
         return $this->_transformedResource->toJson();
     }
 
@@ -91,7 +111,9 @@ trait TransformesData
      */
     public function asArray() : array
     {
-        $this->transform();
+        if (is_null($this->_transformedResource)) {
+            $this->transform();
+        }
         return $this->_transformedResource->toArray();
     }
 
@@ -105,25 +127,28 @@ trait TransformesData
         }
     }
 
+    /**
+     * @param $transformer
+     * @throws MissingTransformerException
+     */
     protected function _checkIfTransformerIsValid($transformer)
     {
         if (is_null($this->_transformer)) {
             throw new MissingTransformerException();
         }
-        new $transformer;
     }
 
     protected function _checkIfReadyToTransform()
     {
-        if (is_null($this->_transformer)) {
-            throw new MissingTransformerException();
-        }
     }
 
     protected function _addMetadataToTransformation()
     {
     }
 
+    /**
+     * @throws InvalidDataException
+     */
     protected function _checkIfDataIsValid()
     {
         if (is_null($this->_dataToTransform)) {
@@ -131,7 +156,13 @@ trait TransformesData
         }
     }
 
-    protected function _setTransformationType()
+    /**
+     * Sets the transformation type to NullResource if data is empty
+     */
+    protected function _checkNullTransformation()
     {
+        if (is_null($this->_dataToTransform) || empty($this->_dataToTransform)) {
+            $this->_transformationType = TRANSFORM_NULL;
+        }
     }
 }

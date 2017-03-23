@@ -148,19 +148,15 @@ trait BaseAPI
         }
     }
 
+    /**
+     * @param $transformer
+     */
     protected function _checkIfTransformerIsValid($transformer)
     {
         $transformer = new $transformer();
 
         if (!$transformer instanceof BaseAPITransformerInterface) {
             throw new InterfaceNotImplementedException('Transformer does not implement BaseAPITransformerInterface');
-        }
-    }
-
-    protected function _setTransformationType()
-    {
-        if (is_null($this->_dataToTransform) || empty($this->_dataToTransform)) {
-            $this->_transformationType = TRANSFORM_NULL;
         }
     }
 }

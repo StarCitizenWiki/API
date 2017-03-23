@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
+use App\Traits\TransformesData;
 use App\Transformers\Tools\ShortURLTransformer;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -18,15 +19,16 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Spatie\Fractal\Fractal;
 
 class ShortURLController extends Controller
 {
-    private $_fractalManager;
+    use TransformesData;
 
-    function __construct()
+    public function __construct()
     {
-        $this->_fractalManager = Fractal::create();
+        $this->_transformer = new ShortURLTransformer();
     }
 
     /**
@@ -103,16 +105,12 @@ class ShortURLController extends Controller
 
         try {
             $url = ShortURL::resolve($request->get('hash_name'));
-            $url = $this->_fractalManager->item($url, new ShortURLTransformer());
+            $this->item();
         } catch (ModelNotFoundException $e) {
-            $url = $this->_fractalManager->data('NullResource', [], new ShortURLTransformer());
+            $url = [];
         }
 
-        $url->addMeta([
-            'processed_at' => Carbon::now()
-        ]);
-
-        return $url->toArray();
+        return $this->transform($url)->asArray();
     }
 
     /**
@@ -183,13 +181,7 @@ class ShortURLController extends Controller
 
         event(new URLShortened($url));
 
-        $url = $this->_fractalManager->item($url, new ShortURLTransformer());
-
-        $url->addMeta([
-            'processed_at' => Carbon::now()
-        ]);
-
-        return $url->toArray();
+        return $this->transform($url)->asArray();
     }
 
     /**
@@ -223,6 +215,16 @@ class ShortURLController extends Controller
         ]);
 
         $url->delete();
+    }
+
+    /**
+     * Adds processed_at meta field
+     */
+    protected function _addMetadataToTransformation()
+    {
+        $this->_transformedResource->addMeta([
+            'processed_at' => Carbon::now()
+        ]);
     }
 
     /**
