@@ -20,7 +20,7 @@ Route::group(['domain' => config('app.api_url')], function () {
         Route::get('users/{ID}/edit', ['uses' => 'AdminController@showEditUserView'])->name('admin_users_edit_form');
         Route::patch('users/{ID}', ['uses' => 'AdminController@updateUser'])->name('admin_users_update');
 
-        Route::get('routes', ['uses' => 'AdminController@routes'])->name('admin_routes_list');
+        Route::get('routes', ['uses' => 'AdminController@showRoutesView'])->name('admin_routes_list');
 
         Route::get('urls', ['uses' => 'AdminController@showURLsListView'])->name('admin_urls_list');
         Route::get('urls/whitelist', ['uses' => 'AdminController@showURLWhitelistView'])->name('admin_urls_whitelist_list');
