@@ -8,13 +8,19 @@
 
 namespace App\Transformers;
 
+/**
+ * Interface BaseAPITransformerInterface
+ *
+ * @package App\Transformers
+ */
 interface BaseAPITransformerInterface
 {
-
     /**
-     * @param $data
+     * Transformes the given data
+     *
+     * @param mixed $data Data to transform
+     *
      * @return mixed
      */
     public function transform($data);
-
 }

@@ -13,6 +13,7 @@ interface StoreInterface
     /**
      * https://robertsspaceindustries.com/api/store/getShips
      * {"sort":"store","search":"","itemType":"ships","storefront":"pledge","type":"","classification":[],"mass":"","manufacturer_id":[],"length":"","maxcrew":"","msrp":"","page":2}
+     *
      * @return string json
      */
     public function getShips();
@@ -20,12 +21,14 @@ interface StoreInterface
     /**
      * https://robertsspaceindustries.com/api/store/getProducts
      * {"categories":[],"sort":"store","search":"","itemType":"products","storefront":"pledge","type":"merchandise","page":2}
+     *
      * @return string json
      */
     public function getProducts();
 
     /**
      * https://robertsspaceindustries.com/api/store/getSKUs
+     *
      * @return string json
      */
     public function getSKUs();
@@ -43,6 +46,7 @@ interface StoreInterface
     /**
      * https://robertsspaceindustries.com/api/store/getShipUpgradeSKU
      * {from_ship_id: "22", to_ship_id: "16", storefront: "pledge"}
+     *
      * @return string json
      */
     public function getShipUpgradeSKU();

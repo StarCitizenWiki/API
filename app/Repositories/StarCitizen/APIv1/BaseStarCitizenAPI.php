@@ -13,6 +13,11 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Class BaseStarCitizenAPI
+ *
+ * @package App\Repositories\StarCitizen\APIv1
+ */
 class BaseStarCitizenAPI
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
@@ -21,13 +26,18 @@ class BaseStarCitizenAPI
 
     use BaseAPI;
 
+    /**
+     * BaseStarCitizenAPI constructor.
+     */
     function __construct()
     {
-        $this->_guzzleClient = new Client([
-            'base_uri' => $this::API_URL,
-            'timeout' => 3.0,
-            'headers' => ['X-Rsi-Token' => $this->_RSIToken]
-        ]);
+        $this->_guzzleClient = new Client(
+            [
+                'base_uri' => $this::API_URL,
+                'timeout' => 3.0,
+                'headers' => ['X-Rsi-Token' => $this->_RSIToken]
+            ]
+        );
         if (is_null($this->_RSIToken)) {
             $this->_getRSIToken();
         }
@@ -35,11 +45,12 @@ class BaseStarCitizenAPI
 
     /**
      * JSON aus API enthält (bis jetzt) immer ein success field
+     *
      * @return bool
      */
     private function _checkIfResponseDataIsValid() : bool
     {
-        if (strpos((String) $this->_response->getBody(), 'success') !== false) {
+        if (strpos((String) $this->response->getBody(), 'success') !== false) {
             return true;
         }
         return false;
@@ -47,11 +58,16 @@ class BaseStarCitizenAPI
 
     /**
      * Requests a RSI-Token, uses Crowdfunding Stats Endpoint
+     *
+     * @return void
      */
     private function _getRSIToken() : void
     {
         try {
-            $response = $this->_guzzleClient->request('POST', 'stats/getCrowdfundStats');
+            $response = $this->_guzzleClient->request(
+                'POST',
+                'stats/getCrowdfundStats'
+            );
             $token = $response->getHeader('Set-Cookie');
 
             if (empty($token)) {
@@ -63,15 +79,16 @@ class BaseStarCitizenAPI
             }
 
             if (App::isLocal()) {
-                $this->_createFractalInstance();
-                $this->_fractalManager->addMeta(['RSI-Token' => $token]);
+                $this->createFractalInstance();
+                $this->fractalManager->addMeta(['RSI-Token' => $token]);
             }
 
             $this->__construct();
         } catch (\Exception $e) {
-            Log::warning('Guzzle Request failed', [
-                'message' => $e->getMessage()
-            ]);
+            Log::warning(
+                'Guzzle Request failed',
+                ['message' => $e->getMessage()]
+            );
         }
     }
 

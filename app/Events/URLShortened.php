@@ -11,6 +11,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
+/**
+ * Class URLShortened
+ *
+ * @package App\Events
+ */
 class URLShortened
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -20,7 +25,7 @@ class URLShortened
     /**
      * Create a new event instance.
      *
-     * @param ShortURL $url
+     * @param ShortURL $url The generated ShortURL
      */
     public function __construct(ShortURL $url)
     {

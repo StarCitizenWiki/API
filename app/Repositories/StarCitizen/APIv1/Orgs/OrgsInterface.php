@@ -7,11 +7,16 @@
 
 namespace App\Repositories\StarCitizen\APIv1\Orgs;
 
-
+/**
+ * Interface OrgsInterface
+ *
+ * @package App\Repositories\StarCitizen\APIv1\Orgs
+ */
 interface OrgsInterface
 {
     /**
      * https://robertsspaceindustries.com/api/orgs/getOrgs
+     *
      * @return \GuzzleHttp\Psr7\Response
      */
     public function getOrgs();

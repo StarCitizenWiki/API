@@ -8,6 +8,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+/**
+ * Class URLShortened
+ *
+ * @package App\Mail
+ */
 class URLShortened extends Mailable
 {
     use Queueable, SerializesModels;
@@ -17,7 +22,7 @@ class URLShortened extends Mailable
     /**
      * Create a new message instance.
      *
-     * @param ShortURL $url
+     * @param ShortURL $url URL Object
      */
     public function __construct(ShortURL $url)
     {

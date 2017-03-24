@@ -21,8 +21,9 @@ trait RestExceptionHandlerTrait
     /**
      * Creates a new JSON response based on exception type.
      *
-     * @param Request $request
-     * @param Exception $exception
+     * @param Request   $request   Request
+     * @param Exception $exception Exception to handle
+     *
      * @return \Illuminate\Http\Response
      */
     protected function getJsonResponseForException(Request $request, Exception $exception)
@@ -48,23 +49,23 @@ trait RestExceptionHandlerTrait
         }
 
         switch(true) {
-            case $exception instanceof NotFoundHttpException:
-            case $exception instanceof ModelNotFoundException:
-                $response['meta']['status'] = 404;
-                $response['errors'] = ['Resource not found'];
-                break;
+        case $exception instanceof NotFoundHttpException:
+        case $exception instanceof ModelNotFoundException:
+            $response['meta']['status'] = 404;
+            $response['errors'] = ['Resource not found'];
+            break;
 
-            case $exception instanceof ValidationException:
-                $response['errors'] = $exception->validator->errors()->getMessages();
-                break;
+        case $exception instanceof ValidationException:
+            $response['errors'] = $exception->validator->errors()->getMessages();
+            break;
 
-            case $exception instanceof AuthenticationException:
-                $response['meta']['status'] = 401;
-                $response['errors'] = ['No permission'];
-                break;
+        case $exception instanceof AuthenticationException:
+            $response['meta']['status'] = 401;
+            $response['errors'] = ['No permission'];
+            break;
 
-            default:
-                break;
+        default:
+            break;
         }
 
         return $this->jsonResponse($response);
@@ -73,7 +74,8 @@ trait RestExceptionHandlerTrait
     /**
      * Returns json response.
      *
-     * @param array|null $payload
+     * @param array|null $payload Payload
+     *
      * @return \Illuminate\Http\Response
      */
     protected function jsonResponse(array $payload)

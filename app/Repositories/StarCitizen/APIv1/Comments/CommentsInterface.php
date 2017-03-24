@@ -7,14 +7,19 @@
 
 namespace App\Repositories\StarCitizen\APIv1\Comments;
 
-
+/**
+ * Interface CommentsInterface
+ *
+ * @package App\Repositories\StarCitizen\APIv1\Comments
+ */
 interface CommentsInterface
 {
-
     /**
      * https://robertsspaceindustries.com/api/comments/listing
      * {id: 15677, reference_id: null}
+     *
      * @param int $postID
+     *
      * @return \GuzzleHttp\Psr7\Response
      */
     public function getComments(Integer $postID);

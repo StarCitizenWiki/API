@@ -10,10 +10,23 @@ namespace App\Transformers\StarCitizen\Starmap;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
+/**
+ * Class SystemTransformer
+ *
+ * @package App\Transformers\StarCitizen\Starmap
+ */
 class SystemTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
-	public function transform($system)
+
+    /**
+     * TODO
+     *
+     * @param mixed $system System Data
+     *
+     * @return mixed
+     */
+    public function transform($system)
     {
-		return $system;
-	}
+        return $system;
+    }
 }

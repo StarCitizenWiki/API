@@ -10,8 +10,20 @@ namespace App\Transformers\StarCitizenWiki\Ships;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
+/**
+ * Class ShipsListTransformer
+ *
+ * @package App\Transformers\StarCitizenWiki\Ships
+ */
 class ShipsListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
+    /**
+     * Transformes the whole ship list
+     *
+     * @param mixed $ship Data
+     *
+     * @return array
+     */
     public function transform($ship)
     {
         $ship['displaytitle'] = str_replace(' ', '_', $ship['displaytitle']);

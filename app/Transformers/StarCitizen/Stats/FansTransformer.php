@@ -11,10 +11,22 @@ namespace App\Transformers\StarCitizen\Stats;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
+/**
+ * Class FansTransformer
+ *
+ * @package App\Transformers\StarCitizen\Stats
+ */
 class FansTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
-	public function transform($stats)
+    /**
+     * Transformes Stats to only return the fans
+     *
+     * @param mixed $stats Data
+     *
+     * @return array
+     */
+    public function transform($stats)
     {
-		return ['fans' => $stats['data']['fans']];
-	}
+        return ['fans' => $stats['data']['fans']];
+    }
 }

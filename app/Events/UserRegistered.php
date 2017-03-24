@@ -11,6 +11,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
+/**
+ * Class UserRegistered
+ *
+ * @package App\Events
+ */
 class UserRegistered
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -20,10 +25,10 @@ class UserRegistered
     /**
      * Create a new event instance.
      *
-     * @param User $user
-     * @param $password
+     * @param User   $user     The newly registered User
+     * @param String $password The users randomly generated plaintext Password
      */
-    public function __construct(User $user, $password)
+    public function __construct(User $user, String $password)
     {
         $user->password = $password;
         $this->user = $user;

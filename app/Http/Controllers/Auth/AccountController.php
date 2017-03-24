@@ -10,59 +10,90 @@ use App\Models\ShortURL\ShortURL;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Class AccountController
+ *
+ * @package App\Http\Controllers\Auth
+ */
 class AccountController extends Controller
 {
     /**
+     * Returns the Account Dashboard View
+     *
      * @return View
      */
-    public function showAccountView()
+    public function showAccountView() : View
     {
         return view('auth.account.index')->with('user', Auth::user());
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * Function to delete the associated User Account
+     *
+     * @return RedirectResponse
      */
-    public function delete()
+    public function delete() : RedirectResponse
     {
         $user = Auth::user();
-        Log::info('Account deleted', [
-            'id' => $user->id,
-            'email' => $user->email
-        ]);
+        Log::info(
+            'Account deleted',
+            [
+                'id' => $user->id,
+                'email' => $user->email
+            ]
+        );
         $user->delete();
         Auth::logout();
         return redirect(AUTH_HOME);
     }
 
     /**
+     * Returns the Account Edit View
+     *
      * @return View
      */
-    public function showEditAccountView()
+    public function showEditAccountView() : View
     {
         return view('auth.account.edit')->with('user', Auth::user());
     }
 
     /**
+     * Returns the View which lists all associated ShortURLs
+     *
      * @return View
      */
-    public function showURLsView()
+    public function showURLsView() : View
     {
         $user = Auth::user();
-        return view('auth.account.shorturl.index')->with('urls', $user->shortURLs()->get());
+        return view('auth.account.shorturl.index')
+                    ->with('urls', $user->shortURLs()->get());
     }
 
-    public function showAddURLView()
+    /**
+     * Returns the add short url view
+     *
+     * @return View
+     */
+    public function showAddURLView() : View
     {
         $user = Auth::user();
         return view('auth.account.shorturl.add')->with('user', $user);
     }
 
+    /**
+     * Validates the url add Request and creates a new ShortURL
+     *
+     * @param Request $request The Request
+     *
+     * @return Redirect | RedirectResponse
+     */
     public function addURL(Request $request)
     {
         $data = [
@@ -75,79 +106,103 @@ class AccountController extends Controller
             'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
         ];
 
-        $this->_validateArray($data, $rules, $request);
+        validate_array($data, $rules, $request);
 
         try {
-            $url = ShortURL::createShortURL([
-                'url' => ShortURL::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => Auth::id()
-            ]);
+            $url = ShortURL::createShortURL(
+                [
+                    'url' => ShortURL::sanitizeURL($request->get('url')),
+                    'hash_name' => $request->get('hash_name'),
+                    'user_id' => Auth::id()
+                ]
+            );
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException $e) {
-            return redirect()->route('account_urls_add_form')->withErrors($e->getMessage());
+            return redirect()->route('account_urls_add_form')
+                             ->withErrors($e->getMessage());
         }
 
         event(new URLShortened($url));
 
-        return redirect()->route('account_urls_list')->with('hash_name', $url->hash_name);
+        return redirect()->route('account_urls_list')
+                         ->with('hash_name', $url->hash_name);
     }
 
     /**
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
+     * Deletes a Users ShortURL
+     *
+     * @param int $id ShortURL id
+     *
+     * @return RedirectResponse
      */
-    public function deleteURL(int $id)
+    public function deleteURL(int $id) : RedirectResponse
     {
         try {
             $url = Auth::user()->shortURLs()->findOrFail($id);
-            Log::info('URL deleted', [
-                'user_id' => Auth::id(),
-                'url_id' => $url->id,
-                'url' => $url->url,
-                'hash_name' => $url->hash_name
-            ]);
+            Log::info(
+                'URL deleted',
+                [
+                    'user_id' => Auth::id(),
+                    'url_id' => $url->id,
+                    'url' => $url->url,
+                    'hash_name' => $url->hash_name
+                ]
+            );
             $url->delete();
         } catch (ModelNotFoundException $e) {
-            Log::info('User tried to delete unowned ShortURL', [
-                'user_id' => Auth::id(),
-                'email' => Auth::user()->email,
-                'url_id' => $id
-            ]);
+            Log::info(
+                'User tried to delete unowned ShortURL',
+                [
+                    'user_id' => Auth::id(),
+                    'email' => Auth::user()->email,
+                    'url_id' => $id
+                ]
+            );
         }
         return back();
     }
 
     /**
+     * Returns the Edit ShortURL View
+     *
+     * @param int $id The ShortURL ID to edit
+     *
      * @return View
      */
-    public function showEditURLView(int $id)
+    public function showEditURLView(int $id) : View
     {
         $url = ShortURL::find($id);
         return view('auth.account.shorturl.edit')->with('url', $url);
     }
 
     /**
-     * @param Request $request
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * Updates a ShortURL by its ID
+     *
+     * @param Request $request The Update Request
+     * @param int     $id      The ShortURL ID
+     *
+     * @return RedirectResponse
      */
-    public function updateURL(Request $request, int $id)
+    public function updateURL(Request $request, int $id) : RedirectResponse
     {
-        if ($request->get('user_id') != Auth::id() ||
-            Auth::user()->shortURLs()->find($id)->count() === 0)
-        {
-            Log::warning('User tried to forge ShortURL edit request', [
-                'user_id' => Auth::id(),
-                'provided_id' => $request->get('user_id'),
-                'url_id' => $id,
-                'url' => $request->get('url'),
-                'hash_name' => $request->get('hash_name')
-            ]);
+        if (
+            $request->get('user_id') != Auth::id() ||
+            Auth::user()->shortURLs()->find($id)->count() === 0
+        ) {
+            Log::warning(
+                'User tried to forge ShortURL edit request',
+                [
+                    'user_id' => Auth::id(),
+                    'provided_id' => $request->get('user_id'),
+                    'url_id' => $id,
+                    'url' => $request->get('url'),
+                    'hash_name' => $request->get('hash_name')
+                ]
+            );
             return abort(401, 'No permission');
         }
 
         $data = [
-            'url' => ShortUrl::sanitizeURL($request->get('url')),
+            'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
             'user_id' => $request->get('user_id')
         ];
@@ -158,15 +213,17 @@ class AccountController extends Controller
             'user_id' => 'required|integer|exists:users,id'
         ];
 
-        $this->_validateArray($data, $rules, $request);
+        validate_array($data, $rules, $request);
 
         try {
-            ShortURL::updateShortURL([
-                'id' => $id,
-                'url' => ShortURL::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => Auth::id(),
-            ]);
+            ShortURL::updateShortURL(
+                [
+                    'id' => $id,
+                    'url' => ShortURL::sanitizeURL($request->get('url')),
+                    'hash_name' => $request->get('hash_name'),
+                    'user_id' => Auth::id(),
+                ]
+            );
         } catch (URLNotWhitelistedException | HashNameAlreadyAssignedException $e) {
             return back()->withErrors($e->getMessage());
         }
@@ -175,33 +232,45 @@ class AccountController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * Updates the current users account
+     *
+     * @param Request $request The Update Request
+     *
+     * @return RedirectResponse
      */
-    public function updateAccount(Request $request)
+    public function updateAccount(Request $request) : RedirectResponse
     {
         $user = Auth::user();
         $data = [];
 
-        $this->validate($request, [
-            'name' => 'present',
-            'email' => 'required|min:3|email',
-            'password' => 'present|min:8|confirmed'
-        ]);
+        $this->validate(
+            $request,
+            [
+                'name' => 'present',
+                'email' => 'required|min:3|email',
+                'password' => 'present|min:8|confirmed'
+            ]
+        );
 
         $data['id'] = $user->id;
         $data['name'] = $request->get('name');
         $data['email'] = $request->get('email');
-        if (!is_null($request->get('password')) && !empty($request->get('password'))) {
+        if (
+            !is_null($request->get('password')) &&
+            !empty($request->get('password'))
+        ) {
             $data['password'] = $request->get('password');
         }
 
         try {
             User::updateUser($data);
         } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] Account not found', [
-                'id' => $data['id']
-            ]);
+            Log::warning(
+                '['.__METHOD__.'] Account not found',
+                [
+                    'id' => $data['id']
+                ]
+            );
             return back()->withErrors('Error updating Account');
         }
 
@@ -210,27 +279,5 @@ class AccountController extends Controller
             return redirect()->route('auth_login_form');
         }
         return redirect()->route('account');
-    }
-
-    /**
-     * Validates an array with given rules
-     * @param array $data
-     * @param array $rules
-     * @param Request $request
-     * @throws ValidationException
-     */
-    private function _validateArray(array $data, array $rules, Request $request)
-    {
-        Log::debug('['.__CLASS__.'] Validated data', [
-            'data' => $data,
-            'rules' => $rules
-        ]);
-
-        $validator = $this->getValidationFactory()->make($data, $rules);
-
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
-        }
-
     }
 }

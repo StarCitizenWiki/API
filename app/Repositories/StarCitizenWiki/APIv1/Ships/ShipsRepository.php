@@ -12,30 +12,47 @@ use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
 
+/**
+ * Class ShipsRepository
+ * @package App\Repositories\StarCitizenWiki\APIv1\Ships
+ */
 class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
 {
     /**
-     * @param String $shipName
+     * Returns Ship data
+     *
+     * @param String $shipName ShipName
+     *
      * @return ShipsRepository
      */
     public function getShip(String $shipName) : ShipsRepository
     {
-        $this->_transformer = resolve(ShipsTransformer::class);
-        $this->request('GET', '?action=browsebysubject&format=json&subject='.$shipName, []);
+        $this->transformer = resolve(ShipsTransformer::class);
+        $this->request(
+            'GET',
+            '?action=browsebysubject&format=json&subject='.$shipName,
+            []
+        );
         return $this;
     }
 
     /**
+     * Gets a ShipList
+     *
      * @return ShipsRepository
      */
     public function getShipList() : ShipsRepository
     {
         $this->collection();
-        $this->_transformer = resolve(ShipsListTransformer::class);
+        $this->transformer = resolve(ShipsListTransformer::class);
         $offset = 0;
         $data = [];
         do {
-            $response = (String) $this->request('GET', '?action=askargs&format=json&conditions=Kategorie%3ARaumschiff%7CHersteller%3A%3A%2B&parameters=offset%3D'.$offset, [])->getBody();
+            $response = (String) $this->request(
+                'GET',
+                '?action=askargs&format=json&conditions=Kategorie%3ARaumschiff%7CHersteller%3A%3A%2B&parameters=offset%3D'.$offset,
+                []
+            )->getBody();
             $response = json_decode($response, true);
             $data = array_merge($data, $response['query']['results']);
             if (array_key_exists('query-continue-offset', $response)) {
@@ -43,12 +60,15 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             }
         } while (array_key_exists('query-continue-offset', $response));
 
-        $this->_dataToTransform = $data;
+        $this->dataToTransform = $data;
         return $this;
     }
 
     /**
-     * @param String $shipName
+     * Seraches for a Ship
+     *
+     * @param String $shipName ShipName
+     *
      * @return ShipsRepository
      */
     public function searchShips(String $shipName)
@@ -57,9 +77,13 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
          * TODO: Suche Gibt teils Mist zurück
          * Beispiel: Suche nach Aurora gibt zusätzlich Orion und Hull A zurück!?
          */
-        $this->_transformer = resolve(ShipsSearchTransformer::class);
-        $this->collection()->request('GET', '/api.php?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName, []);
-        $this->_dataToTransform = $this->_responseBody['query']['search'];
+        $this->transformer = resolve(ShipsSearchTransformer::class);
+        $this->collection()->request(
+            'GET',
+            '/api.php?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName,
+            []
+        );
+        $this->dataToTransform = $this->_responseBody['query']['search'];
         return $this;
     }
 }

@@ -10,12 +10,19 @@ namespace App\Repositories\StarCitizen\APIv1\Starmap;
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
 
+/**
+ * Class StarmapRepository
+ *
+ * @package App\Repositories\StarCitizen\APIv1\Starmap
+ */
 class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
 {
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}
+     *
      * @param String $systemName
+     *
      * @return StarmapRepository
      */
     public function getSystem(String $systemName)
@@ -26,9 +33,11 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/celestial-objects/{SYSTEM_NAME}.[TYPE}.{NAME}
+     *
      * @param String $systemName
      * @param String $type
      * @param String $objectName
+     *
      * @return StarmapRepository
      */
     public function getCelestialObject(String $systemName, String $type, String $objectName)
@@ -40,7 +49,9 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     /**
      * https://robertsspaceindustries.com/api/starmap/find
      * POST Parameter: query
+     *
      * @param String $searchString
+     *
      * @return StarmapRepository
      */
     public function search(String $searchString)

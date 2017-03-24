@@ -33,8 +33,6 @@ class RegisterController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -54,20 +52,23 @@ class RegisterController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param array $data Data to validate
+     *
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
-            'email' => 'required|email|max:255|unique:users',
-        ]);
+        return Validator::make(
+            $data,
+            ['email' => 'required|email|max:255|unique:users']
+        );
     }
 
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param array $data UserData
+     *
      * @return User
      */
     public function create(array $data)
@@ -75,19 +76,24 @@ class RegisterController extends Controller
         $api_token = str_random(60);
         $password = str_random(32);
 
-        $user = User::create([
-            'name' => null,
-            'email' => $data['email'],
-            'api_token' => $api_token,
-            'password' => bcrypt($password),
-            'requests_per_minute' => 60,
-            'last_login' => date('Y-m-d H:i:s'),
-        ]);
+        $user = User::create(
+            [
+                'name' => null,
+                'email' => $data['email'],
+                'api_token' => $api_token,
+                'password' => bcrypt($password),
+                'requests_per_minute' => 60,
+                'last_login' => date('Y-m-d H:i:s'),
+            ]
+        );
 
-        Log::info('URL Account created', [
-            'id' => $user->id,
-            'email' => $user->email
-        ]);
+        Log::info(
+            'Account created',
+            [
+                'id' => $user->id,
+                'email' => $user->email
+            ]
+        );
 
         event(new UserRegistered($user, $password));
 

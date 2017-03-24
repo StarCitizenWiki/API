@@ -10,8 +10,20 @@ namespace App\Transformers\StarCitizenWiki\Ships;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
+/**
+ * Class ShipsTransformer
+ *
+ * @package App\Transformers\StarCitizenWiki\Ships
+ */
 class ShipsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
+    /**
+     * Transformes a given Ship
+     *
+     * @param mixed $ship Ship to transform
+     *
+     * @return mixed
+     */
     public function transform($ship)
     {
         return $ship;

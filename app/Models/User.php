@@ -9,6 +9,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Class User
+ *
+ * @package App\Models
+ */
 class User extends Authenticatable
 {
     use Notifiable, SoftDeletes;
@@ -37,15 +42,22 @@ class User extends Authenticatable
         'password'
     ];
 
+    /**
+     * Updates a User Model
+     *
+     * @param array $data UserData
+     *
+     * @return bool
+     */
     public static function updateUser(array $data) : bool
     {
-        $changes = array();
+        $changes = [];
         $changes[] = ['updated_by' => Auth::id()];
 
         $user = User::withTrashed()->findOrFail($data['id']);
 
         foreach ($data as $key => $value) {
-            if ($user->$key != $value) {#
+            if ($user->$key != $value) {
                 if ($key !== 'password') {
                     $changes[] = [$key.'_old' => $user->$key, $key.'_new' => $value];
                     $user->$key = $value;
@@ -63,6 +75,7 @@ class User extends Authenticatable
 
     /**
      * Checks if the current userid is in the defined AdminID Array
+     *
      * @return bool
      */
     public function isAdmin() : bool
@@ -71,7 +84,8 @@ class User extends Authenticatable
     }
 
     /**
-     * checks if the whitelisted flag is set to true
+     * Checks if the whitelisted flag is set to true
+     *
      * @return bool
      */
     public function isWhitelisted() : bool
@@ -80,7 +94,8 @@ class User extends Authenticatable
     }
 
     /**
-     * checks if the blacklisted flag is set to true
+     * Checks if the blacklisted flag is set to true
+     *
      * @return bool
      */
     public function isBlacklisted() : bool
@@ -89,7 +104,8 @@ class User extends Authenticatable
     }
 
     /**
-     * sets the shorturl relation
+     * Sets the shorturl relation
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function shortURLs()

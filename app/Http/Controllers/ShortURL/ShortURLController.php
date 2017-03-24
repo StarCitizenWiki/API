@@ -16,66 +16,102 @@ use App\Transformers\Tools\ShortURLTransformer;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Spatie\Fractal\Fractal;
 
+/**
+ * Class ShortURLController
+ *
+ * @package App\Http\Controllers\ShortURL
+ */
 class ShortURLController extends Controller
 {
     use TransformesData;
 
+    /**
+     * ShortURLController constructor.
+     */
     public function __construct()
     {
-        $this->_transformer = new ShortURLTransformer();
+        $this->transformer = new ShortURLTransformer();
     }
 
     /**
+     * Returns the ShortURL Index View
+     *
      * @return View
      */
-    public function showShortURLView()
+    public function showShortURLView() : View
     {
-        return view('shorturl.index')->with('whitelistedURLs', ShortURLWhitelist::all()->sortBy('url')->where('internal', false));
+        return view('shorturl.index')
+                    ->with(
+                        'whitelistedURLs',
+                        ShortURLWhitelist::all()
+                            ->sortBy('url')
+                            ->where('internal', false)
+                    );
     }
 
-    public function showResolveView()
+    /**
+     * Returns the ShortURL resolve Web View
+     *
+     * @return View
+     */
+    public function showResolveView() : View
     {
         return view('shorturl.resolve');
     }
 
     /**
-     * resolves a hash to a url and redirects
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * Resolves a hash to a url and redirects
+     *
+     * @param String $hashName Hash to resolve
+     *
+     * @return RedirectResponse
      */
-    public function resolveAndRedirect(Request $request, String $hashName)
+    public function resolveAndRedirect(String $hashName)
     {
         try {
             $url = ShortURL::resolve($hashName);
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('short_url_index')->withErrors('No URL found');
+            return redirect()->route('short_url_index')
+                             ->withErrors('No URL found');
         } catch (UserBlacklistedException $e) {
-            return redirect()->route('short_url_index')->withErrors('User is blacklisted');
+            return redirect()->route('short_url_index')
+                             ->withErrors('User is blacklisted');
         }
 
-        return redirect($url->url, 301);
+        return redirect($url->url, HTTP_REDIRECT_PERM);
     }
 
-    public function resolveAndReturn(Request $request)
+    /**
+     * Resolves a ShortURL Hash and displays the underlying Long URL
+     *
+     * @param Request $request Resolve Request
+     *
+     * @return RedirectResponse
+     */
+    public function resolveAndDisplay(Request $request)
     {
-        $this->validate($request, [
-            'url' => 'required|url',
-        ]);
+        $this->validate(
+            $request,
+            ['url' => 'required|url',]
+        );
 
         $url = $request->get('url');
         $url = parse_url($url);
 
-        if (!isset($url['host']) ||
+        if (
+            !isset($url['host']) ||
             ($url['host'] != config('app.shorturl_url')) ||
-            !isset($url['path']))
-        {
-            return redirect()->route('short_url_resolve')->withErrors('Invalid Short URL');
+            !isset($url['path'])
+        ) {
+            return redirect()->route('short_url_resolve')
+                             ->withErrors('Invalid Short URL');
         }
 
         $path = str_replace('/', '', $url['path']);
@@ -83,25 +119,31 @@ class ShortURLController extends Controller
         try {
             $url = ShortURL::resolve($path);
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('short_url_resolve_form')->withErrors('No URL found');
+            return redirect()->route('short_url_resolve_form')
+                             ->withErrors('No URL found');
         } catch (UserBlacklistedException $e) {
-            return redirect()->route('short_url_index')->withErrors('User is blacklisted, can\'t resolve URL');
+            return redirect()->route('short_url_index')
+                             ->withErrors('User is blacklisted, can\'t resolve URL');
         }
 
         return redirect()->route('short_url_resolve')->with('url', $url->url);
     }
 
     /**
-     * resolves a hash to a url
-     * @param Request $request
+     * Resolves a hash to a url and transforms it
+     *
+     * @param Request $request Resolve Request
+     *
      * @return array
+     *
      * @throws InvalidDataException
      */
     public function resolve(Request $request)
     {
-        $this->validate($request, [
-            'hash_name' => 'required|alpha_dash',
-        ]);
+        $this->validate(
+            $request,
+            ['hash_name' => 'required|alpha_dash',]
+        );
 
         try {
             $url = ShortURL::resolve($request->get('hash_name'));
@@ -114,14 +156,17 @@ class ShortURLController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param int $id
+     * Updates a ShortURL by ID
+     *
+     * @param Request $request Update Request and Data
+     * @param int     $id      ShortURL ID
+     *
      * @return bool
      */
     public function update(Request $request, int $id)
     {
         $data = [
-            'url' => ShortUrl::sanitizeURL($request->get('url')),
+            'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
             'user_id' => $request->get('user_id')
         ];
@@ -132,20 +177,25 @@ class ShortURLController extends Controller
             'user_id' => 'required|integer|exists:users,id'
         ];
 
-        $this->_validateArray($data, $rules, $request);
+        validate_array($data, $rules, $request);
 
-        $url = ShortURL::updateShortURL([
-            'id' => $id,
-            'url' => ShortURL::sanitizeURL($request->get('url')),
-            'hash_name' => $request->get('hash_name'),
-            'user_id' => $request->get('user_id'),
-        ]);
+        $url = ShortURL::updateShortURL(
+            [
+                'id' => $id,
+                'url' => ShortURL::sanitizeURL($request->get('url')),
+                'hash_name' => $request->get('hash_name'),
+                'user_id' => $request->get('user_id'),
+            ]
+        );
 
         return $url;
     }
 
     /**
-     * @param Request $request
+     * Creates a ShortURL
+     *
+     * @param Request $request Create Request
+     *
      * @return array
      */
     public function create(Request $request)
@@ -153,7 +203,7 @@ class ShortURLController extends Controller
         $user_id = AUTH_ADMIN_IDS[0];
 
         $data = [
-            'url' => ShortUrl::sanitizeURL($request->get('url')),
+            'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name')
         ];
 
@@ -162,7 +212,7 @@ class ShortURLController extends Controller
             'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
         ];
 
-        $this->_validateArray($data, $rules, $request);
+        validate_array($data, $rules, $request);
 
         $key = $request->get(AUTH_KEY_FIELD_NAME, null);
 
@@ -173,11 +223,13 @@ class ShortURLController extends Controller
             }
         }
 
-        $url = ShortURL::createShortURL([
-            'url' => ShortURL::sanitizeURL($request->get('url')),
-            'hash_name' => $request->get('hash_name'),
-            'user_id' => $user_id
-        ]);
+        $url = ShortURL::createShortURL(
+            [
+                'url' => ShortURL::sanitizeURL($request->get('url')),
+                'hash_name' => $request->get('hash_name'),
+                'user_id' => $user_id
+            ]
+        );
 
         event(new URLShortened($url));
 
@@ -185,67 +237,45 @@ class ShortURLController extends Controller
     }
 
     /**
-     * creates a short url and redirects
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Creates a ShortURL and redirects to the Index with the URL Hash
+     *
+     * @param Request $request Create Request
+     *
+     * @return RedirectResponse
      */
     public function createAndRedirect(Request $request)
     {
         try {
             $url = $this->create($request);
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException $e) {
-            return redirect()->route('short_url_index')->withErrors($e->getMessage());
+            return redirect()->route('short_url_index')
+                             ->withErrors($e->getMessage());
         }
 
-        return redirect()->route('short_url_index')->with('hash_name', $url['data'][0]['hash_name']);
+        return redirect()->route('short_url_index')
+                         ->with('hash_name', $url['data'][0]['hash_name']);
     }
 
     /**
-     * Deletes a url and logs it
-     * @param int $id
+     * Deletes a ShortURL by ID
+     *
+     * @param int $id ShortURL ID
+     *
+     * @return void
      */
-    public function delete(int $id)
+    public function delete(int $id) : void
     {
         $url = ShortURL::find($id);
 
-        Log::info('URL Deleted', [
-            'id' => $url->id,
-            'owner' => $url->user()->first()->email,
-            'deleted_by' => Auth::user()->email
-        ]);
+        Log::info(
+            'URL Deleted',
+            [
+                'id' => $url->id,
+                'owner' => $url->user()->first()->email,
+                'deleted_by' => Auth::user()->email
+            ]
+        );
 
         $url->delete();
-    }
-
-    /**
-     * Adds processed_at meta field
-     */
-    protected function _addMetadataToTransformation()
-    {
-        $this->_transformedResource->addMeta([
-            'processed_at' => Carbon::now()
-        ]);
-    }
-
-    /**
-     * Validates an array with given rules
-     * @param array $data
-     * @param array $rules
-     * @param Request $request
-     * @throws ValidationException
-     */
-    private function _validateArray(array $data, array $rules, Request $request)
-    {
-        Log::debug('['.__CLASS__.'] Validated data', [
-            'data' => $data,
-            'rules' => $rules
-        ]);
-
-        $validator = $this->getValidationFactory()->make($data, $rules);
-
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
-        }
-
     }
 }

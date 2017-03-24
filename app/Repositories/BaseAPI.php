@@ -25,73 +25,107 @@ trait BaseAPI
 {
     use TransformesData;
 
-    /** @var Client */
-	private $_guzzleClient;
-	/** @var  Response */
-	protected $_response;
-
-	public function __construct()
-	{
-		$this->_guzzleClient = new Client(['base_uri' => $this::API_URL, 'timeout' => 3.0]);
-	}
+    /**
+     * Guzzle Client
+     *
+     * @var Client
+     */
+    private $_guzzleClient;
 
     /**
-     * @param String $requestMethod
-     * @param String $uri
-     * @param array|null $data
+     * Guzzle Responst
+     *
+     * @var  Response
+     */
+    protected $response;
+
+    /**
+     * BaseAPI constructor.
+     */
+    public function __construct()
+    {
+        $this->_guzzleClient = new Client(
+            [
+                'base_uri' => $this::API_URL,
+                'timeout' => 3.0
+            ]
+        );
+    }
+
+    /**
+     * Wrapper for Guzzle Request Function
+     *
+     * @param String     $requestMethod Request Method
+     * @param String     $uri           Request URL
+     * @param array|null $data          Data
+     *
      * @return Response
+     *
      * @throws InvalidDataException
      */
-	public function request(String $requestMethod, String $uri, array $data = null) : Response
-	{
-		$this->_response = $this->_guzzleClient->request($requestMethod, $uri, $data);
+    public function request(String $requestMethod, String $uri, array $data = null) : Response
+    {
+        $this->response = $this->_guzzleClient->request($requestMethod, $uri, $data);
         $this->_checkIfResponseIsValid();
         $this->_validateAndSaveResponseBody();
-		return $this->_response;
-	}
+        return $this->response;
+    }
 
     /**
+     * Checks if the response is valid
+     *
      * @return bool
+     *
      * @throws InvalidDataException
      */
     private function _checkIfResponseIsValid() : bool
     {
-        if ($this->_checkIfResponseIsNotNull() &&
+        if (
+            $this->_checkIfResponseIsNotNull() &&
             $this->_checkIfResponseIsNotEmpty() &&
             $this->_checkIfResponseStatusIsOK() &&
-            $this->_checkIfResponseDataIsValid()) {
+            $this->_checkIfResponseDataIsValid()
+        ) {
             return true;
-        } else {
-            throw new InvalidDataException('Response Data is not valid');
         }
+        throw new InvalidDataException('Response Data is not valid');
     }
 
     /**
+     * Checks if the Response is not null
+     *
      * @return bool
      */
     private function _checkIfResponseIsNotNull() : bool
     {
-        return $this->_response !== null;
+        return $this->response !== null;
     }
 
     /**
+     * Checks if the Response is not empty
+     *
      * @return bool
      */
     private function _checkIfResponseIsNotEmpty() : bool
     {
-        return !empty($this->_response);
+        return !empty($this->response);
     }
 
     /**
+     * Checks if the Response Status is 200 (OK)
+     *
      * @return bool
      */
     private function _checkIfResponseStatusIsOK() : bool
     {
-        return $this->_response->getStatusCode() === 200;
+        return $this->response->getStatusCode() === 200;
     }
 
     /**
+     * Checks if the Response Data is valid, must be overridden
+     *
      * @return bool
+     *
      * @throws MethodNotImplementedException
      */
     private function _checkIfResponseDataIsValid() : bool
@@ -100,10 +134,13 @@ trait BaseAPI
     }
 
     /**
-     * @param $string
+     * Validates a String to JSON
+     *
+     * @param String $string String to validate
+     *
      * @return bool
      */
-    private function _validateJSON($string) : bool
+    private function _validateJSON(String $string) : bool
     {
         if (is_string($string)) {
             @json_decode($string);
@@ -114,49 +151,62 @@ trait BaseAPI
 
     /**
      * Adds Metadata to transformation
+     *
+     * @return void
      */
-    protected function _addMetadataToTransformation() : void
+    protected function addMetadataToTransformation() : void
     {
-        $this->_transformedResource->addMeta([
-            'request_status_code' => $this->_response->getStatusCode(),
-            'processed_at' => Carbon::now()
-        ]);
+        $this->_transformedResource->addMeta(
+            [
+                'request_status_code' => $this->response->getStatusCode(),
+                'processed_at' => Carbon::now()
+            ]
+        );
 
         if (App::isLocal()) {
-            $this->_transformedResource->addMeta([
-                'dev' => [
-                    'response_protocol' => $this->_response->getProtocolVersion(),
-                    'response_headers' => $this->_response->getHeaders()
+            $this->_transformedResource->addMeta(
+                [
+                    'dev' => [
+                        'response_protocol' => $this->response->getProtocolVersion(),
+                        'response_headers' => $this->response->getHeaders()
+                    ]
                 ]
-            ]);
+            );
         }
     }
 
     /**
-     * checks if the response body is a valid json response
+     * Checks if the response body is a valid json response
+     *
      * @throws InvalidDataException
+     *
+     * @return void
      */
     private function _validateAndSaveResponseBody() : void
     {
-        $responseBody = (String) $this->_response->getBody();
+        $responseBody = (String) $this->response->getBody();
         if ($this->_validateJSON($responseBody)) {
-            $this->_dataToTransform = json_decode($responseBody, true);
+            $this->dataToTransform = json_decode($responseBody, true);
         } else if (is_array($responseBody)) {
-            $this->_dataToTransform = $responseBody;
+            $this->dataToTransform = $responseBody;
         } else {
             throw new InvalidDataException('Response Body is invalid');
         }
     }
 
     /**
-     * @param $transformer
+     * Checks if the set transformer implements the BaseAPITransformerInterface
+     *
+     * @throws InterfaceNotImplementedException
+     *
+     * @return void
      */
-    protected function _checkIfTransformerIsValid($transformer)
+    protected function checkIfTransformerIsValid() : void
     {
-        $transformer = new $transformer();
-
-        if (!$transformer instanceof BaseAPITransformerInterface) {
-            throw new InterfaceNotImplementedException('Transformer does not implement BaseAPITransformerInterface');
+        if (!$this->transformer instanceof BaseAPITransformerInterface) {
+            throw new InterfaceNotImplementedException(
+                'Transformer does not implement BaseAPITransformerInterface'
+            );
         }
     }
 }

@@ -11,6 +11,11 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Class Handler
+ *
+ * @package App\Exceptions
+ */
 class Handler extends ExceptionHandler
 {
     use RestTrait;
@@ -35,10 +40,11 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Exception  $exception
+     * @param \Exception $exception The thrown Exception
+     *
      * @return void
      */
-    public function report(Exception $exception)
+    public function report(Exception $exception) : void
     {
         parent::report($exception);
     }
@@ -46,13 +52,14 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
+     * @param \Illuminate\Http\Request $request   The HTTP Request
+     * @param \Exception               $exception The Exception to render
+     *
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception)
     {
-        if($this->isApiCall($request) || $request->expectsJson()) {
+        if ($this->isApiCall($request) || $request->expectsJson()) {
             return $this->getJsonResponseForException($request, $exception);
         } else {
             return parent::render($request, $exception);
@@ -62,8 +69,9 @@ class Handler extends ExceptionHandler
     /**
      * Convert an authentication exception into an unauthenticated response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
+     * @param \Illuminate\Http\Request                 $request   The HTTP Request
+     * @param \Illuminate\Auth\AuthenticationException $exception The Auth Exception
+
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception)

@@ -8,6 +8,11 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+/**
+ * Class UserRegistered
+ *
+ * @package App\Mail
+ */
 class UserRegistered extends Mailable
 {
     use Queueable, SerializesModels;
@@ -17,7 +22,7 @@ class UserRegistered extends Mailable
     /**
      * Create a new message instance.
      *
-     * @param User $user
+     * @param User $user User Object
      */
     public function __construct(User $user)
     {

@@ -11,6 +11,11 @@ namespace App\Repositories\StarCitizenWiki\APIv1;
 use App\Exceptions\InvalidDataException;
 use App\Repositories\BaseAPI;
 
+/**
+ * Class BaseStarCitizenWikiAPI
+ *
+ * @package App\Repositories\StarCitizenWiki\APIv1
+ */
 class BaseStarCitizenWikiAPI
 {
     const URL = 'https://star-citizen.wiki/';
@@ -20,11 +25,12 @@ class BaseStarCitizenWikiAPI
 
     /**
      * JSON aus API enthält (bis jetzt) immer ein success field
+     *
      * @return bool
      */
     private function _checkIfResponseDataIsValid() : bool
     {
-        if (empty($this->_response->getHeader('MediaWiki-API-Error'))) {
+        if (empty($this->response->getHeader('MediaWiki-API-Error'))) {
             return true;
         }
         return false;

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class LoginController extends Controller
 {
@@ -31,8 +33,6 @@ class LoginController extends Controller
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -43,7 +43,8 @@ class LoginController extends Controller
     /**
      * Log the user out of the application.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request Login Request
+     *
      * @return \Illuminate\Http\Response
      */
     public function logout(Request $request)
@@ -59,17 +60,19 @@ class LoginController extends Controller
 
 
     /**
-     * The user has been authenticated.
+     * Checks if a User is blacklisted if so returns an error
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  mixed  $user
-     * @return mixed
+     * @param \Illuminate\Http\Request $request Login Request
+     * @param mixed                    $user    Authenticated User
+     *
+     * @return RedirectResponse
      */
-    protected function authenticated(Request $request, $user)
+    protected function authenticated(Request $request, $user) : RedirectResponse
     {
         if ($user->isBlacklisted()) {
             Auth::logout();
-            return redirect()->route('auth_login_form')->withErrors('Account is blacklisted');
+            return redirect()->route('auth_login_form')
+                             ->withErrors('Account is blacklisted');
         }
     }
 

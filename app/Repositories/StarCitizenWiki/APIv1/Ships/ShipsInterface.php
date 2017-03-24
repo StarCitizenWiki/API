@@ -8,21 +8,34 @@
 
 namespace App\Repositories\StarCitizenWiki\APIv1\Ships;
 
+/**
+ * Interface ShipsInterface
+ *
+ * @package App\Repositories\StarCitizenWiki\APIv1\Ships
+ */
 interface ShipsInterface
 {
     /**
-     * @param String $shipName
+     * Returns Ship data
+     *
+     * @param String $shipName ShipName
+     *
      * @return ShipsRepository
      */
     public function getShip(String $shipName);
 
     /**
+     * Gets a ShipList
+     *
      * @return ShipsRepository
      */
     public function getShipList();
 
     /**
-     * @param String $shipName
+     * Seraches for a Ship
+     *
+     * @param String $shipName ShipName
+     *
      * @return ShipsRepository
      */
     public function searchShips(String $shipName);

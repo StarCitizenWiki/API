@@ -13,6 +13,11 @@ use App\Transformers\StarCitizen\Stats\FleetTransformer;
 use App\Transformers\StarCitizen\Stats\FundsTransformer;
 use App\Transformers\StarCitizen\Stats\StatsTransformer;
 
+/**
+ * Class StatsRepository
+ *
+ * @package App\Repositories\StarCitizen\APIv1\Stats
+ */
 class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 {
     private $_getFans = true;
@@ -21,64 +26,100 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     private $_chartType = 'hour';
 
     /**
+     * Reads the Crowdfunding Stats from RSI
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
+     *
      * @return StatsRepository
      */
     public function getCrowdfundStats() : StatsRepository
     {
-        $this->request('POST', 'stats/getCrowdfundStats', $this->getRequestBody());
+        $this->request('POST', 'stats/getCrowdfundStats', $this->_getRequestBody());
         return $this;
     }
 
-	private function getRequestBody() : array
-	{
-		$requestContent = [
-		    'chart' => $this->_chartType
+    /**
+     * Prepares the request body
+     *
+     * @return array
+     */
+    private function _getRequestBody() : array
+    {
+        $requestContent = [
+            'chart' => $this->_chartType
         ];
 
-		if ($this->_getFans) {
-			$requestContent = array_merge($requestContent, ['fans' => $this->_getFans]);
-		}
+        if ($this->_getFans) {
+            $requestContent = array_merge(
+                $requestContent,
+                ['fans' => $this->_getFans]
+            );
+        }
 
-		if ($this->_getFleet) {
-			$requestContent = array_merge($requestContent, ['fleet' => $this->_getFleet]);
-		}
+        if ($this->_getFleet) {
+            $requestContent = array_merge(
+                $requestContent,
+                ['fleet' => $this->_getFleet]
+            );
+        }
 
-		if ($this->_getFunds) {
-			$requestContent = array_merge($requestContent, ['funds' => $this->_getFunds]);
-		}
+        if ($this->_getFunds) {
+            $requestContent = array_merge(
+                $requestContent,
+                ['funds' => $this->_getFunds]
+            );
+        }
 
-		$requestBody = [
-		    'json' => $requestContent
+        $requestBody = [
+            'json' => $requestContent
         ];
 
-		return $requestBody;
-	}
+        return $requestBody;
+    }
 
+    /**
+     * Requests only funds
+     *
+     * @return StatsRepository
+     */
     public function getFunds() : StatsRepository
     {
-	    $this->_getFans = false;
-	    $this->_getFleet = false;
+        $this->_getFans = false;
+        $this->_getFleet = false;
         $this->withTransformer(FundsTransformer::class);
         return $this->getCrowdfundStats();
     }
 
+    /**
+     * Requests only fans
+     *
+     * @return StatsRepository
+     */
     public function getFans() : StatsRepository
     {
-	    $this->_getFleet = false;
-	    $this->_getFunds = false;
+        $this->_getFleet = false;
+        $this->_getFunds = false;
         $this->withTransformer(FansTransformer::class);
         return $this->getCrowdfundStats();
     }
 
+    /**
+     * Requests only fleet
+     *
+     * @return StatsRepository
+     */
     public function getFleet() : StatsRepository
     {
-	    $this->_getFans = false;
-	    $this->_getFunds = false;
+        $this->_getFans = false;
+        $this->_getFunds = false;
         $this->withTransformer(FleetTransformer::class);
         return $this->getCrowdfundStats();
     }
 
+    /**
+     * Requests all stats
+     *
+     * @return StatsRepository
+     */
     public function getAll() : StatsRepository
     {
         $this->withTransformer(StatsTransformer::class);
@@ -87,42 +128,46 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 
     /**
      * Sets the Chart Type to 'hour'
+     *
      * @return StatsRepository
      */
     public function lastHours() : StatsRepository
     {
         $this->_chartType = 'hour';
-	    return $this->getAll();
+        return $this->getAll();
     }
 
     /**
      * Sets the Chart Type to 'day'
+     *
      * @return StatsRepository
      */
     public function lastDays() : StatsRepository
     {
         $this->_chartType = 'day';
-	    return $this->getAll();
+        return $this->getAll();
     }
 
     /**
      * Sets the Chart Type to 'week'
+     *
      * @return StatsRepository
      */
     public function lastWeeks() : StatsRepository
     {
         $this->_chartType = 'week';
-	    return $this->getAll();
+        return $this->getAll();
     }
 
     /**
      * Sets the Chart Type to 'month'
+     *
      * @return StatsRepository
      */
     public function lastMonths() : StatsRepository
     {
         $this->_chartType = 'month';
-	    return $this->getAll();
+        return $this->getAll();
     }
 
 }

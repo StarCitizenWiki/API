@@ -7,11 +7,17 @@
 
 namespace App\Repositories\StarCitizen\APIv1\Starmap;
 
+/**
+ * Interface StarmapInterface
+ *
+ * @package App\Repositories\StarCitizen\APIv1\Starmap
+ */
 interface StarmapInterface
 {
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}
      * @param String $systemName
+     *
      * @return StarmapRepository
      */
     public function getSystem(String $systemName);
@@ -21,6 +27,7 @@ interface StarmapInterface
      * @param String $systemName
      * @param String $type
      * @param String $objectName
+     *
      * @return StarmapRepository
      */
     public function getCelestialObject(String $systemName, String $type, String $objectName);
@@ -29,6 +36,7 @@ interface StarmapInterface
      * https://robertsspaceindustries.com/api/starmap/find
      * POST Parameter: query
      * @param String $searchString
+     *
      * @return StarmapRepository
      */
     public function search(String $searchString);

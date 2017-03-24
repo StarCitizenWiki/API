@@ -11,21 +11,47 @@ use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\Starmap\StarmapRepository;
 
+/**
+ * Class StarmapAPIController
+ *
+ * @package App\Http\Controllers\StarCitizen
+ */
 class StarmapAPIController extends Controller
 {
-    /** @var StarmapRepository */
+    /**
+     * StarmapRepository
+     *
+     * @var StarmapRepository
+     */
     private $_api;
 
+    /**
+     * StarmapAPIController constructor.
+     *
+     * @param StarmapRepository $api StarmapRepository
+     */
     public function __construct(StarmapRepository $api)
     {
         $this->_api = $api;
     }
 
+    /**
+     * Requests the given System Name
+     *
+     * @param String $name SystemName
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
     public function getSystem(String $name)
     {
         $name = strtoupper($name);
         try {
-            return response()->json($this->_api->getSystem($name)->asArray(), 200, [], JSON_PRETTY_PRINT);
+            return response()->json(
+                $this->_api->getSystem($name)->asArray(),
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
         } catch (InvalidDataException $e) {
             return $e->getMessage();
         }

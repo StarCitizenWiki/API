@@ -8,23 +8,19 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 
+/**
+ * Class SendUserCredentials
+ * Sends out User Credentials
+ *
+ * @package App\Listeners
+ */
 class SendUserCredentials implements ShouldQueue
 {
-
-    /**
-     * Create the event listener.
-     *
-     * @internal param Mailer $mailer
-     */
-    public function __construct()
-    {
-
-    }
-
     /**
      * Handle the event.
      *
-     * @param  UserRegistered  $event
+     * @param UserRegistered $event Event
+     *
      * @return void
      */
     public function handle(UserRegistered $event)

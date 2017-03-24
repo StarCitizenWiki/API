@@ -11,8 +11,20 @@ namespace App\Transformers\Tools;
 use App\Models\ShortURL\ShortURL;
 use League\Fractal\TransformerAbstract;
 
+/**
+ * Class ShortURLTransformer
+ *
+ * @package App\Transformers\Tools
+ */
 class ShortURLTransformer extends TransformerAbstract
 {
+    /**
+     * Transformes a given ShortURL
+     *
+     * @param ShortURL $url URL to transform
+     *
+     * @return array
+     */
     public function transform(ShortURL $url)
     {
         return [

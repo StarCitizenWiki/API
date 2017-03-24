@@ -8,22 +8,19 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 
+/**
+ * Class SendURLShortenedNotification
+ * Sends an Admin Email containing the shortened URL
+ *
+ * @package App\Listeners
+ */
 class SendURLShortenedNotification implements ShouldQueue
 {
     /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
      * Handle the event.
      *
-     * @param  URLShortened  $event
+     * @param URLShortened $event Event
+     *
      * @return void
      */
     public function handle(URLShortened $event)

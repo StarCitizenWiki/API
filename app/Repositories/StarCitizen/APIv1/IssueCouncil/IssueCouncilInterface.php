@@ -7,12 +7,17 @@
 
 namespace App\Repositories\StarCitizen\APIv1\IssueCouncil;
 
-
+/**
+ * Interface IssueCouncilInterface
+ *
+ * @package App\Repositories\StarCitizen\APIv1\IssueCouncil
+ */
 interface IssueCouncilInterface
 {
     /**
      * @TODO API unklar
      * https://robertsspaceindustries.com/community/issue-council/api/issue/list
+     *
      * @return \GuzzleHttp\Psr7\Response
      */
     public function getIssues();
@@ -20,6 +25,7 @@ interface IssueCouncilInterface
     /**
      * @TODO API unklar
      * https://robertsspaceindustries.com/community/issue-council/api/module/list
+     *
      * @return string json
      */
     public function listModules();
@@ -27,6 +33,7 @@ interface IssueCouncilInterface
     /**
      * @TODO API unklar
      * https://robertsspaceindustries.com/community/issue-council/api/reporter/get
+     *
      * @return string json
      */
     public function getReporter();
@@ -34,6 +41,7 @@ interface IssueCouncilInterface
     /**
      * @TODO API unklar
      * https://robertsspaceindustries.com/community/issue-council/api/module/get
+     *
      * @return string json
      */
     public function getModule();
