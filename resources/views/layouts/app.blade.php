@@ -37,7 +37,7 @@
             @endif
             @if (Auth::guest())
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url('/login') }}"><i class="fa fa-sign-in"></i> Login</a>
+                    <a class="nav-link" href="{{ route('auth_login') }}"><i class="fa fa-sign-in"></i> Login</a>
                 </li>
             @else
                 <li class="nav-item dropdown mr-2">

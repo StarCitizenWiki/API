@@ -13,7 +13,7 @@
                 @if (Auth::guest())
                     <form role="form" method="POST" action="{{ route('auth_register') }}">
                         {{ csrf_field() }}
-                        <div class="input-group input-group-lg offset-sm-4 col-sm-4">
+                        <div class="input-group input-group-lg mx-auto col-10 col-lg-6 col-xl-4">
                             <input id="email" type="email" class="center-block form-control input-lg" name="email" value="{{ old('email') }}" required title="Beantrage deinen API-Key" placeholder="E-Mail-Adresse">
                             <span class="input-group-btn">
                                 <button class="btn btn-lg btn-primary" type="submit">API-Key beantragen</button>

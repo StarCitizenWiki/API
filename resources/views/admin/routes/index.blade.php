@@ -4,9 +4,9 @@
 
 @section('content')
     @include('layouts.heading')
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-12 mt-5">
+            <div class="col-10 mx-auto mt-5">
                 @include('snippets.routelist')
             </div>
         </div>
