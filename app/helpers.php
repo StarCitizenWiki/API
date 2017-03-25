@@ -21,7 +21,8 @@ function validate_array(array $data, array $rules, \Illuminate\Http\Request $req
         ]
     );
 
-    $validator = $this->getValidationFactory()->make($data, $rules);
+    $validator = resolve(\Illuminate\Contracts\Validation\Factory::class)
+                        ->make($data, $rules);
 
     if ($validator->fails()) {
         $this->throwValidationException($request, $validator);
