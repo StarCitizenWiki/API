@@ -10,7 +10,7 @@ before_script:
 - mv .env.testing .env
 - php composer.phar install
 - php composer.phar update
-- touch database/users.sqlite
+- touch database/api.sqlite
 - php artisan migrate
 - php artisan db:seed
 
