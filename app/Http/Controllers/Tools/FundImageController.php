@@ -215,11 +215,11 @@ class FundImageController extends Controller
     private function _checkIfImageCanBeLoadedFromCache() : bool
     {
         $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)
-                                      ->lastModified($this->_image['name']);
+            ->lastModified($this->_image['name']);
         $cacheDuration = time() - FUNDIMAGE_CACHE_TIME;
         if (
             Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->_image['name']) &&
-             $imageCreationTime > $cacheDuration
+            $imageCreationTime > $cacheDuration
         ) {
             return true;
         }
@@ -249,11 +249,11 @@ class FundImageController extends Controller
         }
 
         $this->_funds[$source.'Formatted'] = number_format(
-            $this->_funds[$source],
-            0,
-            ',',
-            '.'
-        ).' $';
+                $this->_funds[$source],
+                0,
+                ',',
+                '.'
+            ).' $';
     }
 
     /**
@@ -264,17 +264,17 @@ class FundImageController extends Controller
     private function _determineImageWidth() : void
     {
         switch ($this->_image['type']) {
-        case FundImageController::FUNDING_ONLY:
-            $this->_image['width'] = 230;
-            break;
+            case FundImageController::FUNDING_ONLY:
+                $this->_image['width'] = 230;
+                break;
 
-        case FundImageController::FUNDING_AND_TEXT:
-            $this->_image['width'] = 280;
-            break;
+            case FundImageController::FUNDING_AND_TEXT:
+                $this->_image['width'] = 280;
+                break;
 
-        case FundImageController::FUNDING_AND_BARS:
-            $this->_image['width'] = 305;
-            break;
+            case FundImageController::FUNDING_AND_BARS:
+                $this->_image['width'] = 305;
+                break;
         }
     }
 
@@ -286,17 +286,17 @@ class FundImageController extends Controller
     private function _determineImageHeight() : void
     {
         switch ($this->_image['type']) {
-        case FundImageController::FUNDING_ONLY:
-            $this->_image['height'] = 35;
-            break;
+            case FundImageController::FUNDING_ONLY:
+                $this->_image['height'] = 35;
+                break;
 
-        case FundImageController::FUNDING_AND_TEXT:
-            $this->_image['height'] = 75;
-            break;
+            case FundImageController::FUNDING_AND_TEXT:
+                $this->_image['height'] = 75;
+                break;
 
-        case FundImageController::FUNDING_AND_BARS:
-            $this->_image['height'] = 41;
-            break;
+            case FundImageController::FUNDING_AND_BARS:
+                $this->_image['height'] = 41;
+                break;
         }
     }
 
@@ -336,55 +336,55 @@ class FundImageController extends Controller
     {
         $fontColor = $this->_setFontColor();
         switch ($this->_image['type']) {
-        case FundImageController::FUNDING_AND_TEXT:
-            imagettftext(
-                $this->_image['pointer'],
-                25,
-                0,
-                0,
-                30,
-                $fontColor,
-                $this->_font['path'],
-                $this->_image['text']
-            );
-            imagettftext(
-                $this->_image['pointer'],
-                25,
-                0,
-                2,
-                70,
-                $fontColor,
-                $this->_font['path'],
-                $this->_funds['currentFormatted']
-            );
-            break;
+            case FundImageController::FUNDING_AND_TEXT:
+                imagettftext(
+                    $this->_image['pointer'],
+                    25,
+                    0,
+                    0,
+                    30,
+                    $fontColor,
+                    $this->_font['path'],
+                    $this->_image['text']
+                );
+                imagettftext(
+                    $this->_image['pointer'],
+                    25,
+                    0,
+                    2,
+                    70,
+                    $fontColor,
+                    $this->_font['path'],
+                    $this->_funds['currentFormatted']
+                );
+                break;
 
-        case FundImageController::FUNDING_AND_BARS:
-            $this->_initBarImage();
-            $fontColor = $this->_setFontColor();
-            imagestring(
-                $this->_image['pointer'],
-                2,
-                0,
-                0,
-                $this->_image['text'],
-                $fontColor
-            );
-            $this->_addBarsToBarImage();
-            break;
+            case FundImageController::FUNDING_AND_BARS:
+                $this->_initBarImage();
+                $fontColor = $this->_setFontColor();
+                imagestring(
+                    $this->_image['pointer'],
+                    2,
+                    0,
+                    0,
+                    $this->_image['text'],
+                    $fontColor
+                );
+                $this->_addBarsToBarImage();
+                break;
 
-        case FundImageController::FUNDING_ONLY:
-            imagettftext(
-                $this->_image['pointer'],
-                20,
-                0,
-                2,
-                30,
-                $fontColor,
-                $this->_font['path'],
-                $this->_funds['currentFormatted']
-            );
-            break;
+            case FundImageController::FUNDING_ONLY:
+                imagettftext(
+                    $this->_image['pointer'],
+                    20,
+                    0,
+                    2,
+                    30,
+                    $fontColor,
+                    $this->_font['path'],
+                    $this->_funds['currentFormatted']
+                );
+                break;
         }
     }
 
@@ -399,8 +399,8 @@ class FundImageController extends Controller
         $this->_roundFundsToNextMillion();
         $this->_calculatePercentageToNextMillion();
         $this->_image['text'] = 'Crowdfunding: '.$this->_funds['currentFormatted'].
-                                ' von '.$this->_funds['nextMillionFormatted'].
-                                ' ('.$this->_funds['percentageToNextMillion'].'%)';
+            ' von '.$this->_funds['nextMillionFormatted'].
+            ' ('.$this->_funds['percentageToNextMillion'].'%)';
     }
 
     /**
@@ -466,7 +466,7 @@ class FundImageController extends Controller
     private function _saveImageToDisk() : void
     {
         Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)
-                 ->put($this->_image['name'], $this->_image['data']);
+            ->put($this->_image['name'], $this->_image['data']);
     }
 
     /**
@@ -508,6 +508,6 @@ class FundImageController extends Controller
         }
         $this->_funds['substractor'] = $this->_funds['nextMillion'] - 1000000;
         $this->_funds['percentageToNextMillion'] = round((($this->_funds['current'] - $this->_funds['substractor']) /
-                                                   ($this->_funds['nextMillion'] - $this->_funds['substractor'])) * 100);
+                ($this->_funds['nextMillion'] - $this->_funds['substractor'])) * 100);
     }
 }
