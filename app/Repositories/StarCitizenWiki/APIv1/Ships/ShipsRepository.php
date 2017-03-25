@@ -46,6 +46,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     {
         $this->collection();
         $this->transformer = resolve(ShipsListTransformer::class);
+
         $offset = 0;
         $data = [];
         do {

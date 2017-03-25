@@ -8,6 +8,7 @@
 namespace App\Transformers\StarCitizenWiki\Ships;
 
 use App\Exceptions\InvalidDataException;
+use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
@@ -18,6 +19,10 @@ use League\Fractal\TransformerAbstract;
  */
 class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
+    use FiltersDataTrait;
+
+    protected $validFields = ['wiki_url', 'api_url'];
+
     /**
      * Transformes a ship search query
      *
@@ -34,12 +39,14 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
         if (count($result) === 3) {
             $shipName = $result[2];
 
-            return [
+            $data = [
                 $shipName => [
                     'api_url' => '//'.config('app.api_url').'/api/v1/ships/'.$shipName,
                     'wiki_url' => '//star-citizen.wiki/'.$search['title'],
                 ],
             ];
+
+            return $this->filterData($data);
         }
 
         throw new InvalidDataException(

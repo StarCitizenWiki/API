@@ -21,18 +21,18 @@ use Spatie\Fractal\Fractal;
 trait TransformesDataTrait
 {
     /**
+     * Transformer
+     *
+     * @var TransformerAbstract
+     */
+    public $transformer;
+
+    /**
      * Fractal Manager Instance
      *
      * @var Fractal
      */
     protected $fractalManager;
-
-    /**
-     * Transformer
-     *
-     * @var TransformerAbstract
-     */
-    protected $transformer;
 
     /**
      * Data to transform
@@ -215,7 +215,9 @@ trait TransformesDataTrait
     protected function addMetadataToTransformation() : void
     {
         $this->transformedResource->addMeta(
-            ['processed_at' => Carbon::now()]
+            [
+                'processed_at' => Carbon::now(),
+            ]
         );
     }
 

@@ -8,6 +8,7 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
+use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
@@ -18,6 +19,8 @@ use League\Fractal\TransformerAbstract;
  */
 class StatsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
+    use FiltersDataTrait;
+
     /**
      * Returns all stats
      *

@@ -7,6 +7,7 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
+use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
@@ -17,6 +18,8 @@ use League\Fractal\TransformerAbstract;
  */
 class ShipsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
+    use FiltersDataTrait;
+
     /**
      * Transformes a given Ship
      *

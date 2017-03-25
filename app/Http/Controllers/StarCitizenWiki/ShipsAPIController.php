@@ -33,14 +33,18 @@ class ShipsAPIController extends Controller
     /**
      * Returns a Ship by its name
      *
-     * @param String $name ShipName
+     * @param Request $request
+     * @param String  $name    ShipName
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getShip(String $name)
+    public function getShip(Request $request, String $name)
     {
+        $data = $this->repository->getShip($name);
+        $this->repository->transformer->addFilters($request);
+
         return response()->json(
-            $this->repository->getShip($name)->asArray(),
+            $this->repository->asArray(),
             200,
             [],
             JSON_PRETTY_PRINT
@@ -50,12 +54,17 @@ class ShipsAPIController extends Controller
     /**
      * Returns all ships as a list
      *
+     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getShipList()
+    public function getShipList(Request $request)
     {
+        $this->repository->getShipList();
+        $this->repository->transformer->addFilters($request);
+
         return response()->json(
-            $this->repository->getShipList()->asArray(),
+            $this->repository->asArray(),
             200,
             [],
             JSON_PRETTY_PRINT

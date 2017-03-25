@@ -7,6 +7,7 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
+use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
@@ -17,6 +18,10 @@ use League\Fractal\TransformerAbstract;
  */
 class ShipsListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
+    use FiltersDataTrait;
+
+    protected $validFields = ['wiki_url', 'api_url'];
+
     /**
      * Transformes the whole ship list
      *
@@ -28,11 +33,13 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
     {
         $ship['displaytitle'] = str_replace(' ', '_', $ship['displaytitle']);
 
-        return [
+        $transformed = [
             $ship['displaytitle'] => [
                 'api_url' => '//'.config('app.api_domain').'/api/v1/ships/'.$ship['displaytitle'],
                 'wiki_url' => $ship['fullurl'],
             ],
         ];
+
+        return $this->filterData($transformed);
     }
 }

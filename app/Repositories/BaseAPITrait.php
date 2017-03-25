@@ -10,16 +10,14 @@ namespace App\Repositories;
 
 use App\Exceptions\InterfaceNotImplementedException;
 use App\Exceptions\InvalidDataException;
-use App\Exceptions\InvalidTransformerException;
 use App\Exceptions\MethodNotImplementedException;
-use App\Exceptions\MissingTransformerException;
+use App\Traits\FiltersDataTrait;
 use App\Traits\TransformesDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\App;
-use Spatie\Fractal\Fractal;
 
 /**
  * Class BaseAPITrait
@@ -163,12 +161,17 @@ trait BaseAPITrait
      */
     protected function addMetadataToTransformation() : void
     {
-        $this->transformedResource->addMeta(
-            [
-                'request_status_code' => $this->response->getStatusCode(),
-                'processed_at' => Carbon::now(),
-            ]
-        );
+        $metaData = [
+            'filterable_fields' => [],
+            'request_status_code' => $this->response->getStatusCode(),
+            'processed_at' => Carbon::now(),
+        ];
+
+        if (in_array(FiltersDataTrait::class, class_uses($this->transformer))) {
+            $metaData['filterable_fields'] = $this->transformer->getAvailableFields();
+        }
+
+        $this->transformedResource->addMeta($metaData);
 
         if (App::isLocal()) {
             $this->transformedResource->addMeta(
