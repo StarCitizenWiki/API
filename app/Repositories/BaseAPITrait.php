@@ -21,6 +21,11 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\App;
 use Spatie\Fractal\Fractal;
 
+/**
+ * Class BaseAPITrait
+ *
+ * @package App\Repositories
+ */
 trait BaseAPITrait
 {
     use TransformesDataTrait;
@@ -33,7 +38,7 @@ trait BaseAPITrait
     private $guzzleClient;
 
     /**
-     * Guzzle Responst
+     * Guzzle Response
      *
      * @var  Response
      */

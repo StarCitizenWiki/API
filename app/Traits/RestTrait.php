@@ -9,6 +9,11 @@ namespace App\Traits;
 
 use Illuminate\Http\Request;
 
+/**
+ * Class RestTrait
+ *
+ * @package App\Traits
+ */
 trait RestTrait
 {
     /**

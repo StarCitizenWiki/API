@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Class RestExceptionHandlerTrait
+ *
+ * @package App\Traits
+ */
 trait RestExceptionHandlerTrait
 {
 

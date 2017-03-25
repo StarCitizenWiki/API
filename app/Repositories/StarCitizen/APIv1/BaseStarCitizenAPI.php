@@ -22,7 +22,7 @@ class BaseStarCitizenAPI
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
 
-    private $RSIToken = null;
+    private $rsiToken = null;
 
     use BaseAPITrait;
 
@@ -35,10 +35,10 @@ class BaseStarCitizenAPI
             [
                 'base_uri' => $this::API_URL,
                 'timeout' => 3.0,
-                'headers' => ['X-Rsi-Token' => $this->RSIToken],
+                'headers' => ['X-Rsi-Token' => $this->rsiToken],
             ]
         );
-        if (is_null($this->RSIToken)) {
+        if (is_null($this->rsiToken)) {
             $this->getRSIToken();
         }
     }
@@ -72,11 +72,11 @@ class BaseStarCitizenAPI
             $token = $response->getHeader('Set-Cookie');
 
             if (empty($token)) {
-                $this->RSIToken = 'StarCitizenWiki_DE';
+                $this->rsiToken = 'StarCitizenWiki_DE';
             } else {
                 $token = explode(';', $token[0])[0];
                 $token = str_replace('Rsi-Token=', '', $token);
-                $this->RSIToken = $token;
+                $this->rsiToken = $token;
             }
 
             if (App::isLocal()) {

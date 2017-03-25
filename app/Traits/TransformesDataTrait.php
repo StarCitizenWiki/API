@@ -13,6 +13,11 @@ use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 use Spatie\Fractal\Fractal;
 
+/**
+ * Class TransformesDataTrait
+ *
+ * @package App\Traits
+ */
 trait TransformesDataTrait
 {
     /**
