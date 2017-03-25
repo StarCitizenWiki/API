@@ -12,7 +12,7 @@
                             {{ session('url') }}
                         </div>
                     @endif
-                    <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_resolve_return') }}">
+                    <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_resolve_display') }}">
                         {{ csrf_field() }}
                         <div class="input-group input-group-lg mb-2">
                             <input type="url" name="url" id="url" class="form-control" placeholder="Short URL" required>

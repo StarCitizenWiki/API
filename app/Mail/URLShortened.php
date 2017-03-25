@@ -37,6 +37,7 @@ class URLShortened extends Mailable
     public function build()
     {
         $this->subject('Star Citizen Wiki API - URL Shortened');
+
         return $this->markdown('mail.urlshortened');
     }
 }

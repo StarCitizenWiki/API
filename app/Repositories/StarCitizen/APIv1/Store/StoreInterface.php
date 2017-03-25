@@ -7,7 +7,11 @@
 
 namespace App\Repositories\StarCitizen\APIv1\Store;
 
-
+/**
+ * Interface StoreInterface
+ *
+ * @package App\Repositories\StarCitizen\APIv1\Store
+ */
 interface StoreInterface
 {
     /**
@@ -38,7 +42,7 @@ interface StoreInterface
      * ship_id : 100
      * storefront : "pledge"
      * @param Integer $shipID
-     * @param String $storeFront
+     * @param String  $storeFront
      * @return string json
      */
     public function getShipSuggestedSKU(Integer $shipID, String $storeFront);

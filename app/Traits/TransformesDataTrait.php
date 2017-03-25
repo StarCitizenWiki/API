@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 use Spatie\Fractal\Fractal;
 
-trait TransformesData
+trait TransformesDataTrait
 {
     /**
      * Fractal Manager Instance
@@ -44,7 +44,7 @@ trait TransformesData
     protected $allowedTransformations = [
         TRANSFORM_COLLECTION,
         TRANSFORM_ITEM,
-        TRANSFORM_NULL
+        TRANSFORM_NULL,
     ];
 
     /**
@@ -57,7 +57,7 @@ trait TransformesData
      *
      * @var Fractal
      */
-    private $_transformedResource;
+    private $transformedResource;
 
     /**
      * Sets the transformaion type to Item
@@ -67,6 +67,7 @@ trait TransformesData
     public function item()
     {
         $this->transformationType = TRANSFORM_ITEM;
+
         return $this;
     }
 
@@ -78,6 +79,7 @@ trait TransformesData
     public function collection()
     {
         $this->transformationType = TRANSFORM_COLLECTION;
+
         return $this;
     }
 
@@ -89,6 +91,7 @@ trait TransformesData
     public function null()
     {
         $this->transformationType = TRANSFORM_NULL;
+
         return $this;
     }
 
@@ -102,6 +105,7 @@ trait TransformesData
     public function withTransformer(String $transformer)
     {
         $this->transformer = resolve($transformer);
+
         return $this;
     }
 
@@ -124,7 +128,7 @@ trait TransformesData
         $this->checkNullTransformation();
         $this->checkIfReadyToTransform();
 
-        $this->_transformedResource = $this->fractalManager->data(
+        $this->transformedResource = $this->fractalManager->data(
             $this->transformationType,
             $this->dataToTransform,
             $this->transformer
@@ -142,10 +146,11 @@ trait TransformesData
      */
     public function asJSON() : String
     {
-        if (is_null($this->_transformedResource)) {
+        if (is_null($this->transformedResource)) {
             $this->transform();
         }
-        return $this->_transformedResource->toJson();
+
+        return $this->transformedResource->toJson();
     }
 
     /**
@@ -155,10 +160,11 @@ trait TransformesData
      */
     public function asArray() : array
     {
-        if (is_null($this->_transformedResource)) {
+        if (is_null($this->transformedResource)) {
             $this->transform();
         }
-        return $this->_transformedResource->toArray();
+
+        return $this->transformedResource->toArray();
     }
 
     /**
@@ -203,7 +209,7 @@ trait TransformesData
      */
     protected function addMetadataToTransformation() : void
     {
-        $this->_transformedResource->addMeta(
+        $this->transformedResource->addMeta(
             ['processed_at' => Carbon::now()]
         );
     }

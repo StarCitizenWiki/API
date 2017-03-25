@@ -28,7 +28,7 @@ class ShortURL extends Model
     protected $fillable = [
         'url',
         'hash_name',
-        'user_id'
+        'user_id',
     ];
 
     /**
@@ -50,18 +50,18 @@ class ShortURL extends Model
      */
     public static function createShortURL(array $data) : ShortURL
     {
-        ShortURL::_checkURLinWhitelist($data['url']);
-        ShortURL::_checkHashNameInDB($data['hash_name']);
+        ShortURL::checkURLinWhitelist($data['url']);
+        ShortURL::checkHashNameInDB($data['hash_name']);
 
         if (is_null($data['hash_name']) || empty($data['hash_name'])) {
-            $data['hash_name'] = ShortURL::_generateShortURLHash();
+            $data['hash_name'] = ShortURL::generateShortURLHash();
         }
 
         $url = ShortURL::create(
             [
                 'url' => $data['url'],
                 'hash_name' => $data['hash_name'],
-                'user_id' => $data['user_id']
+                'user_id' => $data['user_id'],
             ]
         );
 
@@ -70,7 +70,7 @@ class ShortURL extends Model
             [
                 'url' => $data['url'],
                 'hash_name' => $data['hash_name'],
-                'user_id' => $data['user_id']
+                'user_id' => $data['user_id'],
             ]
         );
 
@@ -88,11 +88,11 @@ class ShortURL extends Model
      */
     public static function updateShortURL(array $data) : bool
     {
-        ShortURL::_checkURLinWhitelist($data['url']);
+        ShortURL::checkURLinWhitelist($data['url']);
         $url = ShortURL::findOrFail($data['id']);
 
         if ($url->hash_name !== $data['hash_name']) {
-            ShortURL::_checkHashNameInDB($data['hash_name']);
+            ShortURL::checkHashNameInDB($data['hash_name']);
         }
 
         $changes = [];
@@ -132,7 +132,7 @@ class ShortURL extends Model
             [
                 'id' => $url->id,
                 'hash_name' => $url->hash_name,
-                'url' => $url->url
+                'url' => $url->url,
             ]
         );
 
@@ -157,6 +157,7 @@ class ShortURL extends Model
         if (!isset(parse_url($url)['path'])) {
             $url .= '/';
         }
+
         return $url;
     }
 
@@ -169,7 +170,7 @@ class ShortURL extends Model
      *
      * @return void
      */
-    private static function _checkHashNameInDB($hashName) : void
+    private static function checkHashNameInDB($hashName) : void
     {
         if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
             throw new HashNameAlreadyAssignedException('Name already assigned');
@@ -185,7 +186,7 @@ class ShortURL extends Model
      *
      * @return void
      */
-    private static function _checkURLinWhitelist(String $url) : void
+    private static function checkURLinWhitelist(String $url) : void
     {
         $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
@@ -200,7 +201,7 @@ class ShortURL extends Model
      *
      * @return String
      */
-    private static function _generateShortURLHash() : String
+    private static function generateShortURLHash() : String
     {
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);

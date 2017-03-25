@@ -33,6 +33,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             '?action=browsebysubject&format=json&subject='.$shipName,
             []
         );
+
         return $this;
     }
 
@@ -61,6 +62,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         } while (array_key_exists('query-continue-offset', $response));
 
         $this->dataToTransform = $data;
+
         return $this;
     }
 
@@ -83,7 +85,8 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             '/api.php?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName,
             []
         );
-        $this->dataToTransform = $this->_responseBody['query']['search'];
+        $this->dataToTransform = $this->responseBody['query']['search'];
+
         return $this;
     }
 }

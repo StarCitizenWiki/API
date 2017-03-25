@@ -67,6 +67,7 @@ class AdminController extends Controller
     {
         try {
             $url = ShortURL::findOrFail($id);
+
             return view('admin.shorturl.edit')
                         ->with('url', $url)
                         ->with('users', User::all());
@@ -74,10 +75,11 @@ class AdminController extends Controller
             Log::warning(
                 '['.__METHOD__.'] URL not found',
                 [
-                    'id' => $id
+                    'id' => $id,
                 ]
             );
         }
+
         return redirect()->route('admin_urls_list');
     }
 
@@ -98,7 +100,7 @@ class AdminController extends Controller
                     'deleted_by' => Auth::id(),
                     'url_id' => $url->id,
                     'url' => $url->url,
-                    'hash_name' => $url->hash_name
+                    'hash_name' => $url->hash_name,
                 ]
             );
             $url->delete();
@@ -108,6 +110,7 @@ class AdminController extends Controller
                 ['id' => $id]
             );
         }
+
         return redirect()->route('admin_urls_list');
     }
 
@@ -127,7 +130,7 @@ class AdminController extends Controller
                 [
                     'deleted_by' => Auth::id(),
                     'url_id' => $url->id,
-                    'url' => $url->url
+                    'url' => $url->url,
                 ]
             );
             $url->delete();
@@ -137,6 +140,7 @@ class AdminController extends Controller
                 ['id' => $id]
             );
         }
+
         return redirect()->route('admin_urls_whitelist_list');
     }
 
@@ -151,12 +155,12 @@ class AdminController extends Controller
     {
         $data = [
             'url' => ShortURL::sanitizeURL($request->get('url')),
-            'internal' => $request->get('internal')
+            'internal' => $request->get('internal'),
         ];
 
         $rules = [
             'url' => 'required|active_url|max:255|unique:short_url_whitelists',
-            'internal' => 'required'
+            'internal' => 'required',
         ];
 
         validate_array($data, $rules, $request);
@@ -165,7 +169,7 @@ class AdminController extends Controller
             ShortURLWhitelist::createWhitelistURL(
                 [
                     'url' => parse_url($request->get('url'))['host'],
-                    'internal' => !$request->get('internal')[0]
+                    'internal' => !$request->get('internal')[0],
                 ]
             );
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException $e) {
@@ -189,13 +193,13 @@ class AdminController extends Controller
         $data = [
             'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
-            'user_id' => $request->get('user_id')
+            'user_id' => $request->get('user_id'),
         ];
 
         $rules = [
             'url' => 'required|url|max:255',
             'hash_name' => 'required|alpha_dash|max:32',
-            'user_id' => 'required|integer|exists:users,id'
+            'user_id' => 'required|integer|exists:users,id',
         ];
 
         validate_array($data, $rules, $request);
@@ -237,6 +241,7 @@ class AdminController extends Controller
     {
         try {
             $user = User::withTrashed()->findOrFail($id);
+
             return view('admin.users.edit')->with('user', $user);
         } catch (ModelNotFoundException $e) {
             Log::warning(
@@ -244,6 +249,7 @@ class AdminController extends Controller
                 ['id' => $id]
             );
         }
+
         return redirect()->route('admin_users_list');
     }
 
@@ -266,6 +272,7 @@ class AdminController extends Controller
                 ['id' => $id]
             );
         }
+
         return redirect()->route('admin_users_list');
     }
 
@@ -288,6 +295,7 @@ class AdminController extends Controller
                 ['id' => $id]
             );
         }
+
         return redirect()->route('admin_users_list');
     }
 
@@ -310,7 +318,7 @@ class AdminController extends Controller
                 'email' => 'required|min:3|email',
                 'list' => 'nullable|alpha',
                 'notes' => 'nullable',
-                'password' => 'present'
+                'password' => 'present',
             ]
         );
 
@@ -322,8 +330,7 @@ class AdminController extends Controller
         $data['email'] = $request->get('email');
         $data['notes'] = $request->get('notes');
 
-        if (
-            !is_null($request->get('password')) &&
+        if (!is_null($request->get('password')) &&
             !empty($request->get('password'))
         ) {
             $data['password'] = $request->get('password');

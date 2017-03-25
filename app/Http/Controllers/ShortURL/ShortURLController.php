@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
-use App\Traits\TransformesData;
+use App\Traits\TransformesDataTrait;
 use App\Transformers\Tools\ShortURLTransformer;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -30,7 +30,7 @@ use Spatie\Fractal\Fractal;
  */
 class ShortURLController extends Controller
 {
-    use TransformesData;
+    use TransformesDataTrait;
 
     /**
      * ShortURLController constructor.
@@ -99,18 +99,17 @@ class ShortURLController extends Controller
     {
         $this->validate(
             $request,
-            ['url' => 'required|url',]
+            ['url' => 'required|url', ]
         );
 
         $url = $request->get('url');
         $url = parse_url($url);
 
-        if (
-            !isset($url['host']) ||
+        if (!isset($url['host']) ||
             ($url['host'] != config('app.shorturl_url')) ||
             !isset($url['path'])
         ) {
-            return redirect()->route('short_url_resolve')
+            return redirect()->route('short_url_resolve_display')
                              ->withErrors('Invalid Short URL');
         }
 
@@ -126,7 +125,7 @@ class ShortURLController extends Controller
                              ->withErrors('User is blacklisted, can\'t resolve URL');
         }
 
-        return redirect()->route('short_url_resolve')->with('url', $url->url);
+        return redirect()->route('short_url_resolve_display')->with('url', $url->url);
     }
 
     /**
@@ -142,7 +141,7 @@ class ShortURLController extends Controller
     {
         $this->validate(
             $request,
-            ['hash_name' => 'required|alpha_dash',]
+            ['hash_name' => 'required|alpha_dash', ]
         );
 
         try {
@@ -168,13 +167,13 @@ class ShortURLController extends Controller
         $data = [
             'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
-            'user_id' => $request->get('user_id')
+            'user_id' => $request->get('user_id'),
         ];
 
         $rules = [
             'url' => 'required|active_url|max:255',
             'hash_name' => 'required|alpha_dash|max:32',
-            'user_id' => 'required|integer|exists:users,id'
+            'user_id' => 'required|integer|exists:users,id',
         ];
 
         validate_array($data, $rules, $request);
@@ -204,12 +203,12 @@ class ShortURLController extends Controller
 
         $data = [
             'url' => ShortURL::sanitizeURL($request->get('url')),
-            'hash_name' => $request->get('hash_name')
+            'hash_name' => $request->get('hash_name'),
         ];
 
         $rules = [
             'url' => 'required|active_url|max:255|unique:short_urls',
-            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
+            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls',
         ];
 
         validate_array($data, $rules, $request);
@@ -227,7 +226,7 @@ class ShortURLController extends Controller
             [
                 'url' => ShortURL::sanitizeURL($request->get('url')),
                 'hash_name' => $request->get('hash_name'),
-                'user_id' => $user_id
+                'user_id' => $user_id,
             ]
         );
 
@@ -272,7 +271,7 @@ class ShortURLController extends Controller
             [
                 'id' => $url->id,
                 'owner' => $url->user()->first()->email,
-                'deleted_by' => Auth::user()->email
+                'deleted_by' => Auth::user()->email,
             ]
         );
 

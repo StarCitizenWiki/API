@@ -26,8 +26,8 @@ class ImageResizeController extends Controller
                 'outputHeight' => 250,
                 'displayWidth' => 960,
                 'displayHeight' => 125,
-                'selectionRectangleColor' => '#ff0000'
-            ]
+                'selectionRectangleColor' => '#ff0000',
+            ],
         ];
 
         return view('tools.imageresizer', compact('imageResizeSettings'));

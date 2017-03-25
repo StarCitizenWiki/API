@@ -23,16 +23,16 @@ class StarmapAPIController extends Controller
      *
      * @var StarmapRepository
      */
-    private $_api;
+    private $repository;
 
     /**
      * StarmapAPIController constructor.
      *
-     * @param StarmapRepository $api StarmapRepository
+     * @param StarmapRepository $repository StarmapRepository
      */
-    public function __construct(StarmapRepository $api)
+    public function __construct(StarmapRepository $repository)
     {
-        $this->_api = $api;
+        $this->repository = $repository;
     }
 
     /**
@@ -47,7 +47,7 @@ class StarmapAPIController extends Controller
         $name = strtoupper($name);
         try {
             return response()->json(
-                $this->_api->getSystem($name)->asArray(),
+                $this->repository->getSystem($name)->asArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT

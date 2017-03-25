@@ -32,40 +32,40 @@ trait RestExceptionHandlerTrait
 
         $response = [
             'errors' => [
-                'Something went wrong'
+                'Something went wrong',
             ],
             'meta' => [
                 'status' => 400,
-                'processed_at' => Carbon::now()
-            ]
+                'processed_at' => Carbon::now(),
+            ],
         ];
 
         if (config('app.debug')) {
             $response['meta'] += [
                 'message' => $exception->getMessage(),
                 'exception' => get_class($exception),
-                'trace' => $exception->getTrace()
+                'trace' => $exception->getTrace(),
             ];
         }
 
-        switch(true) {
-        case $exception instanceof NotFoundHttpException:
-        case $exception instanceof ModelNotFoundException:
-            $response['meta']['status'] = 404;
-            $response['errors'] = ['Resource not found'];
-            break;
+        switch (true) {
+            case $exception instanceof NotFoundHttpException:
+            case $exception instanceof ModelNotFoundException:
+                $response['meta']['status'] = 404;
+                $response['errors'] = ['Resource not found'];
+                break;
 
-        case $exception instanceof ValidationException:
-            $response['errors'] = $exception->validator->errors()->getMessages();
-            break;
+            case $exception instanceof ValidationException:
+                $response['errors'] = $exception->validator->errors()->getMessages();
+                break;
 
-        case $exception instanceof AuthenticationException:
-            $response['meta']['status'] = 401;
-            $response['errors'] = ['No permission'];
-            break;
+            case $exception instanceof AuthenticationException:
+                $response['meta']['status'] = 401;
+                $response['errors'] = ['No permission'];
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
         return $this->jsonResponse($response);

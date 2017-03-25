@@ -18,37 +18,16 @@ class StatsAPIController extends Controller
      *
      * @var StatsRepository
      */
-    private $_api;
+    private $repository;
 
     /**
      * StatsAPIController constructor.
      *
-     * @param StatsRepository $api StatsRepository
+     * @param StatsRepository $repository StatsRepository
      */
-    public function __construct(StatsRepository $api)
+    public function __construct(StatsRepository $repository)
     {
-        $this->_api = $api;
-    }
-
-    /**
-     * Wrapper for all get Calls
-     *
-     * @param \Closure $func Function to call
-     *
-     * @return \Illuminate\Http\JsonResponse|string
-     */
-    private function _getJsonPrettyPrintResponse($func)
-    {
-        try {
-            return response()->json(
-                $this->_api->$func()->asArray(),
-                200,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        } catch (InvalidDataException $e) {
-            return $e->getMessage();
-        }
+        $this->repository = $repository;
     }
 
     /**
@@ -58,7 +37,7 @@ class StatsAPIController extends Controller
      */
     public function getFunds()
     {
-        return $this->_getJsonPrettyPrintResponse(__FUNCTION__);
+        return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
 
     /**
@@ -68,7 +47,7 @@ class StatsAPIController extends Controller
      */
     public function getFleet()
     {
-        return $this->_getJsonPrettyPrintResponse(__FUNCTION__);
+        return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
 
     /**
@@ -78,7 +57,7 @@ class StatsAPIController extends Controller
      */
     public function getFans()
     {
-        return $this->_getJsonPrettyPrintResponse(__FUNCTION__);
+        return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
 
     /**
@@ -88,7 +67,7 @@ class StatsAPIController extends Controller
      */
     public function getAll()
     {
-        return $this->_getJsonPrettyPrintResponse(__FUNCTION__);
+        return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
 
     /**
@@ -98,7 +77,7 @@ class StatsAPIController extends Controller
      */
     public function getLastHoursFunds()
     {
-        return $this->_getJsonPrettyPrintResponse("lastHours");
+        return $this->getJsonPrettyPrintResponse("lastHours");
     }
 
     /**
@@ -108,7 +87,7 @@ class StatsAPIController extends Controller
      */
     public function getLastDaysFunds()
     {
-        return $this->_getJsonPrettyPrintResponse("lastDays");
+        return $this->getJsonPrettyPrintResponse("lastDays");
     }
 
     /**
@@ -118,7 +97,7 @@ class StatsAPIController extends Controller
      */
     public function getLastWeeksFunds()
     {
-        return $this->_getJsonPrettyPrintResponse("lastWeeks");
+        return $this->getJsonPrettyPrintResponse("lastWeeks");
     }
 
     /**
@@ -128,7 +107,27 @@ class StatsAPIController extends Controller
      */
     public function getLastMonthsFunds()
     {
-        return $this->_getJsonPrettyPrintResponse("lastMonths");
+        return $this->getJsonPrettyPrintResponse("lastMonths");
+    }
 
+    /**
+     * Wrapper for all get Calls
+     *
+     * @param \Closure | String $func Function to call
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    private function getJsonPrettyPrintResponse($func)
+    {
+        try {
+            return response()->json(
+                $this->repository->$func()->asArray(),
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        } catch (InvalidDataException $e) {
+            return $e->getMessage();
+        }
     }
 }

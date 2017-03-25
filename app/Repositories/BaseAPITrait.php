@@ -13,7 +13,7 @@ use App\Exceptions\InvalidDataException;
 use App\Exceptions\InvalidTransformerException;
 use App\Exceptions\MethodNotImplementedException;
 use App\Exceptions\MissingTransformerException;
-use App\Traits\TransformesData;
+use App\Traits\TransformesDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -21,16 +21,16 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\App;
 use Spatie\Fractal\Fractal;
 
-trait BaseAPI
+trait BaseAPITrait
 {
-    use TransformesData;
+    use TransformesDataTrait;
 
     /**
      * Guzzle Client
      *
      * @var Client
      */
-    private $_guzzleClient;
+    private $guzzleClient;
 
     /**
      * Guzzle Responst
@@ -44,10 +44,10 @@ trait BaseAPI
      */
     public function __construct()
     {
-        $this->_guzzleClient = new Client(
+        $this->guzzleClient = new Client(
             [
                 'base_uri' => $this::API_URL,
-                'timeout' => 3.0
+                'timeout' => 3.0,
             ]
         );
     }
@@ -65,9 +65,10 @@ trait BaseAPI
      */
     public function request(String $requestMethod, String $uri, array $data = null) : Response
     {
-        $this->response = $this->_guzzleClient->request($requestMethod, $uri, $data);
-        $this->_checkIfResponseIsValid();
-        $this->_validateAndSaveResponseBody();
+        $this->response = $this->guzzleClient->request($requestMethod, $uri, $data);
+        $this->checkIfResponseIsValid();
+        $this->validateAndSaveResponseBody();
+
         return $this->response;
     }
 
@@ -78,13 +79,12 @@ trait BaseAPI
      *
      * @throws InvalidDataException
      */
-    private function _checkIfResponseIsValid() : bool
+    private function checkIfResponseIsValid() : bool
     {
-        if (
-            $this->_checkIfResponseIsNotNull() &&
-            $this->_checkIfResponseIsNotEmpty() &&
-            $this->_checkIfResponseStatusIsOK() &&
-            $this->_checkIfResponseDataIsValid()
+        if ($this->checkIfResponseIsNotNull() &&
+            $this->checkIfResponseIsNotEmpty() &&
+            $this->checkIfResponseStatusIsOK() &&
+            $this->checkIfResponseDataIsValid()
         ) {
             return true;
         }
@@ -96,7 +96,7 @@ trait BaseAPI
      *
      * @return bool
      */
-    private function _checkIfResponseIsNotNull() : bool
+    private function checkIfResponseIsNotNull() : bool
     {
         return $this->response !== null;
     }
@@ -106,7 +106,7 @@ trait BaseAPI
      *
      * @return bool
      */
-    private function _checkIfResponseIsNotEmpty() : bool
+    private function checkIfResponseIsNotEmpty() : bool
     {
         return !empty($this->response);
     }
@@ -116,7 +116,7 @@ trait BaseAPI
      *
      * @return bool
      */
-    private function _checkIfResponseStatusIsOK() : bool
+    private function checkIfResponseStatusIsOK() : bool
     {
         return $this->response->getStatusCode() === 200;
     }
@@ -128,7 +128,7 @@ trait BaseAPI
      *
      * @throws MethodNotImplementedException
      */
-    private function _checkIfResponseDataIsValid() : bool
+    private function checkIfResponseDataIsValid() : bool
     {
         throw new MethodNotImplementedException();
     }
@@ -140,12 +140,14 @@ trait BaseAPI
      *
      * @return bool
      */
-    private function _validateJSON(String $string) : bool
+    private function validateJSON(String $string) : bool
     {
         if (is_string($string)) {
             @json_decode($string);
+
             return (json_last_error() === JSON_ERROR_NONE);
         }
+
         return false;
     }
 
@@ -156,20 +158,20 @@ trait BaseAPI
      */
     protected function addMetadataToTransformation() : void
     {
-        $this->_transformedResource->addMeta(
+        $this->transformedResource->addMeta(
             [
                 'request_status_code' => $this->response->getStatusCode(),
-                'processed_at' => Carbon::now()
+                'processed_at' => Carbon::now(),
             ]
         );
 
         if (App::isLocal()) {
-            $this->_transformedResource->addMeta(
+            $this->transformedResource->addMeta(
                 [
                     'dev' => [
                         'response_protocol' => $this->response->getProtocolVersion(),
-                        'response_headers' => $this->response->getHeaders()
-                    ]
+                        'response_headers' => $this->response->getHeaders(),
+                    ],
                 ]
             );
         }
@@ -182,12 +184,12 @@ trait BaseAPI
      *
      * @return void
      */
-    private function _validateAndSaveResponseBody() : void
+    private function validateAndSaveResponseBody() : void
     {
         $responseBody = (String) $this->response->getBody();
-        if ($this->_validateJSON($responseBody)) {
+        if ($this->validateJSON($responseBody)) {
             $this->dataToTransform = json_decode($responseBody, true);
-        } else if (is_array($responseBody)) {
+        } elseif (is_array($responseBody)) {
             $this->dataToTransform = $responseBody;
         } else {
             throw new InvalidDataException('Response Body is invalid');

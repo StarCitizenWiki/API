@@ -21,8 +21,9 @@ class FundImageController extends Controller
     const COLORS = [
         'blue' => [0, 231, 255],
         'darkblue' => [69, 117, 129],
-        'black' => [51, 51, 51]
+        'black' => [51, 51, 51],
     ];
+
     const FUNDING_ONLY = FUNDIMAGE_FUNDING_ONLY;
     const FUNDING_AND_TEXT = FUNDIMAGE_FUNDING_AND_TEXT;
     const FUNDING_AND_BARS = FUNDIMAGE_FUNDING_AND_BARS;
@@ -30,7 +31,7 @@ class FundImageController extends Controller
     const SUPPORTED_FUNDS = [
         FundImageController::FUNDING_ONLY,
         FundImageController::FUNDING_AND_TEXT,
-        FundImageController::FUNDING_AND_BARS
+        FundImageController::FUNDING_AND_BARS,
     ];
 
     /**
@@ -38,16 +39,16 @@ class FundImageController extends Controller
      *
      * @var Request
      */
-    private $_request;
+    private $request;
 
     /**
      * StatsRepository
      *
      * @var StatsRepository
      */
-    private $_api;
+    private $repository;
 
-    private $_funds = [
+    private $funds = [
         'current' => null,
         'currentFormatted' => null,
         'nextMillion' => null,
@@ -56,35 +57,36 @@ class FundImageController extends Controller
         'substractor' => null,
     ];
 
-    private $_image = [
+    private $image = [
         'pointer' => null,
         'width' => null,
         'height' => null,
         'data' => null,
         'type' => null,
         'text' => 'Crowdfunding:',
-        'name' => null
+        'name' => null,
     ];
 
-    private $_font = [
+    private $font = [
         'path' => null,
         'color' => null,
     ];
 
     /**
      * FundImageController constructor.
-     * @param Request         $request HTTP Request
-     * @param StatsRepository $api     StatsApi
+     *
+     * @param Request         $request    HTTP Request
+     * @param StatsRepository $repository StatsApi
      */
-    public function __construct(Request $request, StatsRepository $api)
+    public function __construct(Request $request, StatsRepository $repository)
     {
-        $this->_checkIfImageCanBeCreated();
-        $this->_request = $request;
-        $this->_api = $api;
-        $this->_font['path'] = resource_path(
+        $this->checkIfImageCanBeCreated();
+        $this->request = $request;
+        $this->repository = $repository;
+        $this->font['path'] = resource_path(
             'assets/fonts/orbitron-light-webfont.ttf'
         );
-        $this->_font['color'] = FundImageController::COLORS['black'];
+        $this->font['color'] = FundImageController::COLORS['black'];
     }
 
     /**
@@ -94,7 +96,8 @@ class FundImageController extends Controller
      */
     public function getImageWithText()
     {
-        $this->_image['type'] = FundImageController::FUNDING_AND_TEXT;
+        $this->image['type'] = FundImageController::FUNDING_AND_TEXT;
+
         return $this->getImage();
     }
 
@@ -105,7 +108,8 @@ class FundImageController extends Controller
      */
     public function getImageWithBars()
     {
-        $this->_image['type'] = FundImageController::FUNDING_AND_BARS;
+        $this->image['type'] = FundImageController::FUNDING_AND_BARS;
+
         return $this->getImage();
     }
 
@@ -117,33 +121,33 @@ class FundImageController extends Controller
     public function getImage()
     {
         try {
-            $this->_setImageType();
+            $this->setImageType();
         } catch (\InvalidArgumentException $e) {
             abort(400);
         }
 
-        $this->_assembleFileName();
+        $this->assembleFileName();
 
-        if ($this->_checkIfImageCanBeLoadedFromCache()) {
-            return $this->_loadImageFromDisk();
+        if ($this->checkIfImageCanBeLoadedFromCache()) {
+            return $this->loadImageFromDisk();
         }
 
         try {
-            $this->_getFundsFromAPI();
-            $this->_formatFunds();
-            $this->_determineImageWidth();
-            $this->_determineImageHeight();
-            $this->_initImage();
-            $this->_addDataToImage();
-            $this->_flushImageToString();
-            $this->_saveImageToDisk();
+            $this->getFundsFromAPI();
+            $this->formatFunds();
+            $this->determineImageWidth();
+            $this->determineImageHeight();
+            $this->initImage();
+            $this->addDataToImage();
+            $this->flushImageToString();
+            $this->saveImageToDisk();
         } catch (\Exception $e) {
             Log::warning(
                 'Fund Image generation failed',
                 [
-                    'type' => $this->_image['type'],
-                    'requester' => $this->_request->getHost(),
-                    'message' => $e
+                    'type' => $this->image['type'],
+                    'requester' => $this->request->getHost(),
+                    'message' => $e,
                 ]
             );
         }
@@ -151,12 +155,12 @@ class FundImageController extends Controller
         Log::info(
             'Fund Image Requested',
             [
-                'type' => $this->_image['type'],
-                'requester' => $this->_request->getHost()
+                'type' => $this->image['type'],
+                'requester' => $this->request->getHost(),
             ]
         );
 
-        return $this->_loadImageFromDisk();
+        return $this->loadImageFromDisk();
     }
 
     /**
@@ -166,7 +170,7 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _checkIfImageCanBeCreated() : void
+    private function checkIfImageCanBeCreated() : void
     {
         if (!in_array('gd', get_loaded_extensions())) {
             throw new MissingExtensionException('GD Library is missing!');
@@ -178,11 +182,11 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _setImageType() : void
+    private function setImageType() : void
     {
         $action = Route::getCurrentRoute()->getAction()['type'];
         if (in_array($action, FundImageController::SUPPORTED_FUNDS)) {
-            $this->_image['type'] = Route::getCurrentRoute()->getAction()['type'];
+            $this->image['type'] = Route::getCurrentRoute()->getAction()['type'];
         } else {
             throw new \InvalidArgumentException(
                 'FundImage function only accepts Supported Image Types('
@@ -197,14 +201,14 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _assembleFileName() : void
+    private function assembleFileName() : void
     {
-        if ($this->_font['color'] === FundImageController::COLORS['black']) {
+        if ($this->font['color'] === FundImageController::COLORS['black']) {
             $color = '_black';
         } else {
             $color = '_blue';
         }
-        $this->_image['name'] = $this->_image['type'].$color.'.png';
+        $this->image['name'] = $this->image['type'].$color.'.png';
     }
 
     /**
@@ -212,17 +216,17 @@ class FundImageController extends Controller
      *
      * @return bool
      */
-    private function _checkIfImageCanBeLoadedFromCache() : bool
+    private function checkIfImageCanBeLoadedFromCache() : bool
     {
         $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)
-            ->lastModified($this->_image['name']);
+            ->lastModified($this->image['name']);
         $cacheDuration = time() - FUNDIMAGE_CACHE_TIME;
-        if (
-            Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->_image['name']) &&
+        if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->image['name']) &&
             $imageCreationTime > $cacheDuration
         ) {
             return true;
         }
+
         return false;
     }
 
@@ -231,10 +235,10 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _getFundsFromAPI() : void
+    private function getFundsFromAPI() : void
     {
-        $funds = $this->_api->getFunds()->asArray();
-        $this->_funds['current'] = substr($funds['data']['funds'], 0, -2);
+        $funds = $this->repository->getFunds()->asArray();
+        $this->funds['current'] = substr($funds['data']['funds'], 0, -2);
     }
 
     /**
@@ -242,18 +246,18 @@ class FundImageController extends Controller
      *
      * @param string $source Array Key to use the funds from
      */
-    private function _formatFunds($source = 'current') : void
+    private function formatFunds($source = 'current') : void
     {
         if ($source !== 'current') {
             $source = 'nextMillion';
         }
 
-        $this->_funds[$source.'Formatted'] = number_format(
-                $this->_funds[$source],
-                0,
-                ',',
-                '.'
-            ).' $';
+        $this->funds[$source.'Formatted'] = number_format(
+            $this->funds[$source],
+            0,
+            ',',
+            '.'
+        ).' $';
     }
 
     /**
@@ -261,19 +265,19 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _determineImageWidth() : void
+    private function determineImageWidth() : void
     {
-        switch ($this->_image['type']) {
+        switch ($this->image['type']) {
             case FundImageController::FUNDING_ONLY:
-                $this->_image['width'] = 230;
+                $this->image['width'] = 230;
                 break;
 
             case FundImageController::FUNDING_AND_TEXT:
-                $this->_image['width'] = 280;
+                $this->image['width'] = 280;
                 break;
 
             case FundImageController::FUNDING_AND_BARS:
-                $this->_image['width'] = 305;
+                $this->image['width'] = 305;
                 break;
         }
     }
@@ -283,19 +287,19 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _determineImageHeight() : void
+    private function determineImageHeight() : void
     {
-        switch ($this->_image['type']) {
+        switch ($this->image['type']) {
             case FundImageController::FUNDING_ONLY:
-                $this->_image['height'] = 35;
+                $this->image['height'] = 35;
                 break;
 
             case FundImageController::FUNDING_AND_TEXT:
-                $this->_image['height'] = 75;
+                $this->image['height'] = 75;
                 break;
 
             case FundImageController::FUNDING_AND_BARS:
-                $this->_image['height'] = 41;
+                $this->image['height'] = 41;
                 break;
         }
     }
@@ -303,16 +307,16 @@ class FundImageController extends Controller
     /**
      * Initializes the image
      */
-    private function _initImage() : void
+    private function initImage() : void
     {
-        $this->_image['pointer'] = imagecreatetruecolor(
-            $this->_image['width'],
-            $this->_image['height']
+        $this->image['pointer'] = imagecreatetruecolor(
+            $this->image['width'],
+            $this->image['height']
         );
-        imagesavealpha($this->_image['pointer'], true);
+        imagesavealpha($this->image['pointer'], true);
 
         $transparentColor = imagecolorallocatealpha(
-            $this->_image['pointer'],
+            $this->image['pointer'],
             0,
             0,
             0,
@@ -320,7 +324,7 @@ class FundImageController extends Controller
         );
 
         imagefill(
-            $this->_image['pointer'],
+            $this->image['pointer'],
             0,
             0,
             $transparentColor
@@ -332,57 +336,57 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _addDataToImage() : void
+    private function addDataToImage() : void
     {
-        $fontColor = $this->_setFontColor();
-        switch ($this->_image['type']) {
+        $fontColor = $this->setFontColor();
+        switch ($this->image['type']) {
             case FundImageController::FUNDING_AND_TEXT:
                 imagettftext(
-                    $this->_image['pointer'],
+                    $this->image['pointer'],
                     25,
                     0,
                     0,
                     30,
                     $fontColor,
-                    $this->_font['path'],
-                    $this->_image['text']
+                    $this->font['path'],
+                    $this->image['text']
                 );
                 imagettftext(
-                    $this->_image['pointer'],
+                    $this->image['pointer'],
                     25,
                     0,
                     2,
                     70,
                     $fontColor,
-                    $this->_font['path'],
-                    $this->_funds['currentFormatted']
+                    $this->font['path'],
+                    $this->funds['currentFormatted']
                 );
                 break;
 
             case FundImageController::FUNDING_AND_BARS:
-                $this->_initBarImage();
-                $fontColor = $this->_setFontColor();
+                $this->initBarImage();
+                $fontColor = $this->setFontColor();
                 imagestring(
-                    $this->_image['pointer'],
+                    $this->image['pointer'],
                     2,
                     0,
                     0,
-                    $this->_image['text'],
+                    $this->image['text'],
                     $fontColor
                 );
-                $this->_addBarsToBarImage();
+                $this->addBarsToBarImage();
                 break;
 
             case FundImageController::FUNDING_ONLY:
                 imagettftext(
-                    $this->_image['pointer'],
+                    $this->image['pointer'],
                     20,
                     0,
                     2,
                     30,
                     $fontColor,
-                    $this->_font['path'],
-                    $this->_funds['currentFormatted']
+                    $this->font['path'],
+                    $this->funds['currentFormatted']
                 );
                 break;
         }
@@ -393,14 +397,12 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _initBarImage() : void
+    private function initBarImage() : void
     {
-        $this->_font['color'] = FundImageController::COLORS['blue'];
-        $this->_roundFundsToNextMillion();
-        $this->_calculatePercentageToNextMillion();
-        $this->_image['text'] = 'Crowdfunding: '.$this->_funds['currentFormatted'].
-            ' von '.$this->_funds['nextMillionFormatted'].
-            ' ('.$this->_funds['percentageToNextMillion'].'%)';
+        $this->font['color'] = FundImageController::COLORS['blue'];
+        $this->roundFundsToNextMillion();
+        $this->calculatePercentageToNextMillion();
+        $this->image['text'] = 'Crowdfunding: '.$this->funds['currentFormatted'].' von '.$this->funds['nextMillionFormatted'].' ('.$this->funds['percentageToNextMillion'].'%)';
     }
 
     /**
@@ -408,26 +410,25 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _addBarsToBarImage() : void
+    private function addBarsToBarImage() : void
     {
-        $this->_font['color'] = FundImageController::COLORS['darkblue'];
-        $darkBlue = $this->_setFontColor();
+        $this->font['color'] = FundImageController::COLORS['darkblue'];
+        $darkBlue = $this->setFontColor();
 
-        $this->_font['color'] = FundImageController::COLORS['blue'];
-        $blue = $this->_setFontColor();
+        $this->font['color'] = FundImageController::COLORS['blue'];
+        $blue = $this->setFontColor();
 
         for ($i = 0; $i <= 300; $i = $i + 5) {
-            if ((($this->_funds['nextMillion'] - $this->_funds['substractor']) / 1000000) * 100 >= $i) {
-                imageline($this->_image['pointer'], $i, 15, $i, 40, $blue);
-                imageline($this->_image['pointer'], $i + 1, 15, $i + 1, 40, $blue);
-                imageline($this->_image['pointer'], $i + 2, 15, $i + 2, 40, $blue);
+            if ((($this->funds['nextMillion'] - $this->funds['substractor']) / 1000000) * 100 >= $i) {
+                imageline($this->image['pointer'], $i, 15, $i, 40, $blue);
+                imageline($this->image['pointer'], $i + 1, 15, $i + 1, 40, $blue);
+                imageline($this->image['pointer'], $i + 2, 15, $i + 2, 40, $blue);
             } else {
-                imageline($this->_image['pointer'], $i, 15, $i, 40, $darkBlue);
-                imageline($this->_image['pointer'], $i + 1, 15, $i + 1, 40, $darkBlue);
-                imageline($this->_image['pointer'], $i + 2, 15, $i + 2, 40, $darkBlue);
+                imageline($this->image['pointer'], $i, 15, $i, 40, $darkBlue);
+                imageline($this->image['pointer'], $i + 1, 15, $i + 1, 40, $darkBlue);
+                imageline($this->image['pointer'], $i + 2, 15, $i + 2, 40, $darkBlue);
             }
         }
-
     }
 
     /**
@@ -435,13 +436,13 @@ class FundImageController extends Controller
      *
      * @return int
      */
-    private function _setFontColor()
+    private function setFontColor()
     {
         return imagecolorallocate(
-            $this->_image['pointer'],
-            $this->_font['color'][0],
-            $this->_font['color'][1],
-            $this->_font['color'][2]
+            $this->image['pointer'],
+            $this->font['color'][0],
+            $this->font['color'][1],
+            $this->font['color'][2]
         );
     }
 
@@ -450,11 +451,11 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _flushImageToString() : void
+    private function flushImageToString() : void
     {
         ob_start();
-        imagepng($this->_image['pointer']);
-        $this->_image['data'] = ob_get_contents();
+        imagepng($this->image['pointer']);
+        $this->image['data'] = ob_get_contents();
         ob_end_clean();
     }
 
@@ -463,10 +464,10 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _saveImageToDisk() : void
+    private function saveImageToDisk() : void
     {
         Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)
-            ->put($this->_image['name'], $this->_image['data']);
+            ->put($this->image['name'], $this->image['data']);
     }
 
     /**
@@ -474,10 +475,10 @@ class FundImageController extends Controller
      *
      * @return mixed
      */
-    private function _loadImageFromDisk()
+    private function loadImageFromDisk()
     {
         return response()->file(
-            storage_path(FUNDIMAGE_RELATIVE_SAVE_PATH.$this->_image['name'])
+            storage_path(FUNDIMAGE_RELATIVE_SAVE_PATH.$this->image['name'])
         );
     }
 
@@ -486,11 +487,11 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _roundFundsToNextMillion() : void
+    private function roundFundsToNextMillion() : void
     {
-        $currentFunds = $this->_funds['current'] / 1000000;
-        $this->_funds['nextMillion'] = ceil($currentFunds) * 1000000;
-        $this->_formatFunds('nextMillion');
+        $currentFunds = $this->funds['current'] / 1000000;
+        $this->funds['nextMillion'] = ceil($currentFunds) * 1000000;
+        $this->formatFunds('nextMillion');
     }
 
     /**
@@ -500,14 +501,14 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function _calculatePercentageToNextMillion() : void
+    private function calculatePercentageToNextMillion() : void
     {
-        if ($this->_funds['nextMillion'] === null ||
-            $this->_funds['current'] === null) {
+        if ($this->funds['nextMillion'] === null ||
+            $this->funds['current'] === null) {
             throw new InvalidDataException('Did you call _roundFundsToNextMillion()?');
         }
-        $this->_funds['substractor'] = $this->_funds['nextMillion'] - 1000000;
-        $this->_funds['percentageToNextMillion'] = round((($this->_funds['current'] - $this->_funds['substractor']) /
-                ($this->_funds['nextMillion'] - $this->_funds['substractor'])) * 100);
+        $this->funds['substractor'] = $this->funds['nextMillion'] - 1000000;
+        $this->funds['percentageToNextMillion'] = round((($this->funds['current'] - $this->funds['substractor']) /
+        ($this->funds['nextMillion'] - $this->funds['substractor'])) * 100);
     }
 }

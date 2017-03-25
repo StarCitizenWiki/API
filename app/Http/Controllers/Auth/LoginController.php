@@ -71,9 +71,9 @@ class LoginController extends Controller
     {
         if ($user->isBlacklisted()) {
             Auth::logout();
+
             return redirect()->route('auth_login_form')
                              ->withErrors('Account is blacklisted');
         }
     }
-
 }

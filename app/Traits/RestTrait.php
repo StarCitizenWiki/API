@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 
 trait RestTrait
 {
-
     /**
      * Determines if request is an api call.
      *
@@ -25,5 +24,4 @@ trait RestTrait
     {
         return strpos($request->getUri(), '/api/v') !== false;
     }
-
 }

@@ -21,7 +21,7 @@ class ShortURLWhitelist extends Model
      */
     protected $fillable = [
         'url',
-        'internal'
+        'internal',
     ];
 
     /**
@@ -36,7 +36,7 @@ class ShortURLWhitelist extends Model
         $url = ShortURLWhitelist::create(
             [
                 'url' => $data['url'],
-                'internal' => $data['internal']
+                'internal' => $data['internal'],
             ]
         );
 
@@ -44,7 +44,7 @@ class ShortURLWhitelist extends Model
             'Whitelist URL added',
             [
                 'url' => $data['url'],
-                'internal' => $data['internal']
+                'internal' => $data['internal'],
             ]
         );
 

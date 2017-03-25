@@ -46,11 +46,12 @@ class AccountController extends Controller
             'Account deleted',
             [
                 'id' => $user->id,
-                'email' => $user->email
+                'email' => $user->email,
             ]
         );
         $user->delete();
         Auth::logout();
+
         return redirect(AUTH_HOME);
     }
 
@@ -72,6 +73,7 @@ class AccountController extends Controller
     public function showURLsView() : View
     {
         $user = Auth::user();
+
         return view('auth.account.shorturl.index')
                     ->with('urls', $user->shortURLs()->get());
     }
@@ -84,6 +86,7 @@ class AccountController extends Controller
     public function showAddURLView() : View
     {
         $user = Auth::user();
+
         return view('auth.account.shorturl.add')->with('user', $user);
     }
 
@@ -98,12 +101,12 @@ class AccountController extends Controller
     {
         $data = [
             'url' => ShortURL::sanitizeURL($request->get('url')),
-            'hash_name' => $request->get('hash_name')
+            'hash_name' => $request->get('hash_name'),
         ];
 
         $rules = [
             'url' => 'required|active_url|max:255|unique:short_urls',
-            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls'
+            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls',
         ];
 
         validate_array($data, $rules, $request);
@@ -113,7 +116,7 @@ class AccountController extends Controller
                 [
                     'url' => ShortURL::sanitizeURL($request->get('url')),
                     'hash_name' => $request->get('hash_name'),
-                    'user_id' => Auth::id()
+                    'user_id' => Auth::id(),
                 ]
             );
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException $e) {
@@ -144,7 +147,7 @@ class AccountController extends Controller
                     'user_id' => Auth::id(),
                     'url_id' => $url->id,
                     'url' => $url->url,
-                    'hash_name' => $url->hash_name
+                    'hash_name' => $url->hash_name,
                 ]
             );
             $url->delete();
@@ -154,10 +157,11 @@ class AccountController extends Controller
                 [
                     'user_id' => Auth::id(),
                     'email' => Auth::user()->email,
-                    'url_id' => $id
+                    'url_id' => $id,
                 ]
             );
         }
+
         return back();
     }
 
@@ -171,6 +175,7 @@ class AccountController extends Controller
     public function showEditURLView(int $id) : View
     {
         $url = ShortURL::find($id);
+
         return view('auth.account.shorturl.edit')->with('url', $url);
     }
 
@@ -184,8 +189,7 @@ class AccountController extends Controller
      */
     public function updateURL(Request $request, int $id) : RedirectResponse
     {
-        if (
-            $request->get('user_id') != Auth::id() ||
+        if ($request->get('user_id') != Auth::id() ||
             Auth::user()->shortURLs()->find($id)->count() === 0
         ) {
             Log::warning(
@@ -195,22 +199,23 @@ class AccountController extends Controller
                     'provided_id' => $request->get('user_id'),
                     'url_id' => $id,
                     'url' => $request->get('url'),
-                    'hash_name' => $request->get('hash_name')
+                    'hash_name' => $request->get('hash_name'),
                 ]
             );
+
             return abort(401, 'No permission');
         }
 
         $data = [
             'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
-            'user_id' => $request->get('user_id')
+            'user_id' => $request->get('user_id'),
         ];
 
         $rules = [
             'url' => 'required|active_url|max:255',
             'hash_name' => 'required|alpha_dash|max:32',
-            'user_id' => 'required|integer|exists:users,id'
+            'user_id' => 'required|integer|exists:users,id',
         ];
 
         validate_array($data, $rules, $request);
@@ -248,15 +253,14 @@ class AccountController extends Controller
             [
                 'name' => 'present',
                 'email' => 'required|min:3|email',
-                'password' => 'present|min:8|confirmed'
+                'password' => 'present|min:8|confirmed',
             ]
         );
 
         $data['id'] = $user->id;
         $data['name'] = $request->get('name');
         $data['email'] = $request->get('email');
-        if (
-            !is_null($request->get('password')) &&
+        if (!is_null($request->get('password')) &&
             !empty($request->get('password'))
         ) {
             $data['password'] = $request->get('password');
@@ -268,16 +272,19 @@ class AccountController extends Controller
             Log::warning(
                 '['.__METHOD__.'] Account not found',
                 [
-                    'id' => $data['id']
+                    'id' => $data['id'],
                 ]
             );
+
             return back()->withErrors('Error updating Account');
         }
 
         if (array_key_exists('password', $data)) {
             Auth::logout();
+
             return redirect()->route('auth_login_form');
         }
+
         return redirect()->route('account');
     }
 }

@@ -8,7 +8,7 @@
 namespace App\Repositories\StarCitizen\APIv1;
 
 use App\Exceptions\InvalidDataException;
-use App\Repositories\BaseAPI;
+use App\Repositories\BaseAPITrait;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
@@ -22,24 +22,24 @@ class BaseStarCitizenAPI
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
 
-    private $_RSIToken = null;
+    private $RSIToken = null;
 
-    use BaseAPI;
+    use BaseAPITrait;
 
     /**
      * BaseStarCitizenAPI constructor.
      */
-    function __construct()
+    public function __construct()
     {
-        $this->_guzzleClient = new Client(
+        $this->guzzleClient = new Client(
             [
                 'base_uri' => $this::API_URL,
                 'timeout' => 3.0,
-                'headers' => ['X-Rsi-Token' => $this->_RSIToken]
+                'headers' => ['X-Rsi-Token' => $this->RSIToken],
             ]
         );
-        if (is_null($this->_RSIToken)) {
-            $this->_getRSIToken();
+        if (is_null($this->RSIToken)) {
+            $this->getRSIToken();
         }
     }
 
@@ -48,11 +48,12 @@ class BaseStarCitizenAPI
      *
      * @return bool
      */
-    private function _checkIfResponseDataIsValid() : bool
+    private function checkIfResponseDataIsValid() : bool
     {
         if (strpos((String) $this->response->getBody(), 'success') !== false) {
             return true;
         }
+
         return false;
     }
 
@@ -61,21 +62,21 @@ class BaseStarCitizenAPI
      *
      * @return void
      */
-    private function _getRSIToken() : void
+    private function getRSIToken() : void
     {
         try {
-            $response = $this->_guzzleClient->request(
+            $response = $this->guzzleClient->request(
                 'POST',
                 'stats/getCrowdfundStats'
             );
             $token = $response->getHeader('Set-Cookie');
 
             if (empty($token)) {
-                $this->_RSIToken = 'StarCitizenWiki_DE';
+                $this->RSIToken = 'StarCitizenWiki_DE';
             } else {
                 $token = explode(';', $token[0])[0];
                 $token = str_replace('Rsi-Token=', '', $token);
-                $this->_RSIToken = $token;
+                $this->RSIToken = $token;
             }
 
             if (App::isLocal()) {
@@ -91,5 +92,4 @@ class BaseStarCitizenAPI
             );
         }
     }
-
 }

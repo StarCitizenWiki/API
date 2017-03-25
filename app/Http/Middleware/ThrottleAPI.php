@@ -47,13 +47,13 @@ class ThrottleAPI extends ThrottleRequests
         }
 
         try {
-            $rpm = $this->_determineRequestsPerMinute($user);
+            $rpm = $this->determineRequestsPerMinute($user);
         } catch (UserBlacklistedException $e) {
             Log::info(
                 'Request from blacklisted User',
                 [
                     'user_id' => $user->id,
-                    'request_url' => $request->getUri()
+                    'request_url' => $request->getUri(),
                 ]
             );
             abort(403, 'API Key blacklisted');
@@ -71,7 +71,7 @@ class ThrottleAPI extends ThrottleRequests
      *
      * @throws UserBlacklistedException
      */
-    private function _determineRequestsPerMinute($user)
+    private function determineRequestsPerMinute($user)
     {
         if (is_null($user)) {
             return THROTTLE_GUEST_REQUESTS;

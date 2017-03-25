@@ -28,6 +28,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     public function getSystem(String $systemName)
     {
         $this->withTransformer(SystemTransformer::class)->request('POST', 'starmap/star-systems/'.$systemName, []);
+
         return $this;
     }
 

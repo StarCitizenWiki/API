@@ -30,7 +30,7 @@ class User extends Authenticatable
         'requests_per_minute',
         'last_login',
         'notes',
-        'api_token_last_used'
+        'api_token_last_used',
     ];
 
     /**
@@ -39,7 +39,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password'
+        'password',
     ];
 
     /**
@@ -112,5 +112,4 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\ShortURL\ShortURL');
     }
-
 }

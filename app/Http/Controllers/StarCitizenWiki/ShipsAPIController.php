@@ -18,16 +18,16 @@ class ShipsAPIController extends Controller
      *
      * @var ShipsRepository
      */
-    private $_api;
+    private $repository;
 
     /**
      * ShipsAPIController constructor.
      *
-     * @param ShipsRepository $api ShipsRepository
+     * @param ShipsRepository $repository ShipsRepository
      */
-    public function __construct(ShipsRepository $api)
+    public function __construct(ShipsRepository $repository)
     {
-        $this->_api = $api;
+        $this->repository = $repository;
     }
 
     /**
@@ -40,7 +40,7 @@ class ShipsAPIController extends Controller
     public function getShip(String $name)
     {
         return response()->json(
-            $this->_api->getShip($name)->asArray(),
+            $this->repository->getShip($name)->asArray(),
             200,
             [],
             JSON_PRETTY_PRINT
@@ -55,7 +55,7 @@ class ShipsAPIController extends Controller
     public function getShipList()
     {
         return response()->json(
-            $this->_api->getShipList()->asArray(),
+            $this->repository->getShipList()->asArray(),
             200,
             [],
             JSON_PRETTY_PRINT
@@ -78,7 +78,7 @@ class ShipsAPIController extends Controller
         $shipName = $request->input('query');
 
         return response()->json(
-            $this->_api->searchShips($shipName)->asArray(),
+            $this->repository->searchShips($shipName)->asArray(),
             200,
             [],
             JSON_PRETTY_PRINT

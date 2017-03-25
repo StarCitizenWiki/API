@@ -17,7 +17,7 @@ function validate_array(array $data, array $rules, \Illuminate\Http\Request $req
         '['.__CLASS__.'] Validated data',
         [
             'data' => $data,
-            'rules' => $rules
+            'rules' => $rules,
         ]
     );
 
@@ -25,6 +25,6 @@ function validate_array(array $data, array $rules, \Illuminate\Http\Request $req
                         ->make($data, $rules);
 
     if ($validator->fails()) {
-        $this->throwValidationException($request, $validator);
+        throw new \Illuminate\Validation\ValidationException($validator);
     }
 }
