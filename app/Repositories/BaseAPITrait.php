@@ -163,9 +163,12 @@ trait BaseAPITrait
     {
         $metaData = [
             'filterable_fields' => [],
-            'request_status_code' => $this->response->getStatusCode(),
             'processed_at' => Carbon::now(),
         ];
+
+        if (!is_null($this->response)) {
+            $metaData['request_status_code'] = $this->response->getStatusCode();
+        }
 
         if (in_array(FiltersDataTrait::class, class_uses($this->transformer))) {
             $metaData['filterable_fields'] = $this->transformer->getAvailableFields();
@@ -173,7 +176,7 @@ trait BaseAPITrait
 
         $this->transformedResource->addMeta($metaData);
 
-        if (App::isLocal()) {
+        if (App::isLocal() && !is_null($this->response)) {
             $this->transformedResource->addMeta(
                 [
                     'dev' => [
