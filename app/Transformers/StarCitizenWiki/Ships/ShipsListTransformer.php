@@ -35,7 +35,7 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
 
         $transformed = [
             $ship['displaytitle'] => [
-                'api_url' => '//'.config('app.api_domain').'/api/v1/ships/'.$ship['displaytitle'],
+                'api_url' => '//'.config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
                 'wiki_url' => $ship['fullurl'],
             ],
         ];
