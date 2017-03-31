@@ -97,10 +97,9 @@ class ShortURLController extends Controller
      */
     public function resolveAndDisplay(Request $request)
     {
-        $this->validate(
-            $request,
-            ['url' => 'required|url', ]
-        );
+        $this->validate($request, [
+            'url' => 'required|url',
+        ]);
 
         $url = $request->get('url');
         $url = parse_url($url);
@@ -139,10 +138,9 @@ class ShortURLController extends Controller
      */
     public function resolve(Request $request)
     {
-        $this->validate(
-            $request,
-            ['hash_name' => 'required|alpha_dash']
-        );
+        $this->validate($request, [
+            'hash_name' => 'required|alpha_dash',
+        ]);
 
         try {
             $url = ShortURL::resolve($request->get('hash_name'));
@@ -178,14 +176,12 @@ class ShortURLController extends Controller
 
         validate_array($data, $rules, $request);
 
-        $url = ShortURL::updateShortURL(
-            [
-                'id' => $id,
-                'url' => ShortURL::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => $request->get('user_id'),
-            ]
-        );
+        $url = ShortURL::updateShortURL([
+            'id' => $id,
+            'url' => ShortURL::sanitizeURL($request->get('url')),
+            'hash_name' => $request->get('hash_name'),
+            'user_id' => $request->get('user_id'),
+        ]);
 
         return $url;
     }
@@ -222,13 +218,11 @@ class ShortURLController extends Controller
             }
         }
 
-        $url = ShortURL::createShortURL(
-            [
-                'url' => ShortURL::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => $user_id,
-            ]
-        );
+        $url = ShortURL::createShortURL([
+            'url' => ShortURL::sanitizeURL($request->get('url')),
+            'hash_name' => $request->get('hash_name'),
+            'user_id' => $user_id,
+        ]);
 
         event(new URLShortened($url));
 
@@ -266,14 +260,11 @@ class ShortURLController extends Controller
     {
         $url = ShortURL::find($id);
 
-        Log::info(
-            'URL Deleted',
-            [
-                'id' => $url->id,
-                'owner' => $url->user()->first()->email,
-                'deleted_by' => Auth::user()->email,
-            ]
-        );
+        Log::info('URL Deleted', [
+            'id' => $url->id,
+            'owner' => $url->user()->first()->email,
+            'deleted_by' => Auth::user()->email,
+        ]);
 
         $url->delete();
     }

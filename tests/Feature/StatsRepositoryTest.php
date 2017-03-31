@@ -4,16 +4,20 @@ namespace Tests\Feature;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingTransformerException;
+use App\Http\Controllers\StarCitizen\StatsAPIController;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
-class CrowdfundingStatsTest extends TestCase
+class StatsRepositoryTest extends TestCase
 {
 
     /** @var  \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository */
     private $repository;
 
+    /**
+     * Resolve Repository
+     */
     public function setUp()
     {
         parent::setUp();
@@ -22,8 +26,10 @@ class CrowdfundingStatsTest extends TestCase
 
     /**
      * Tests the retrieval of all stats from the repository
+     *
+     * @covers StatsRepository::getAll()
      */
-    public function testCrowdfundingStats()
+    public function testAllRepository()
     {
         $content = $this->repository->getAll()->asJSON();
         $this->assertNotEmpty($content);
@@ -31,43 +37,33 @@ class CrowdfundingStatsTest extends TestCase
     }
 
     /**
-     * Tests Stats from API
+     * @covers StatsRepository::getFans()
      */
-    public function testCrowdfundingApiView()
+    public function testFansRepository()
     {
-        $response = $this->get('api/v1/stats/all');
-        $response->assertStatus(200);
-        $response->assertSee('data');
+        $content = $this->repository->getFans()->asJSON();
+        $this->assertNotEmpty($content);
+        $this->assertContains('fans', $content);
     }
 
     /**
-     * Tests fans API
+     * @covers StatsRepository::getFleet()
      */
-    public function testFansApiView()
+    public function testFleetRepository()
     {
-        $response = $this->get('api/v1/stats/fans');
-        $response->assertStatus(200);
-        $response->assertSee('fans');
+        $content = $this->repository->getFleet()->asJSON();
+        $this->assertNotEmpty($content);
+        $this->assertContains('fleet', $content);
     }
 
     /**
-     * Tests Funds API
+     * @covers StatsRepository::getFunds()
      */
-    public function testFundsApiView()
+    public function testFundsRepository()
     {
-        $response = $this->get('api/v1/stats/funds');
-        $response->assertStatus(200);
-        $response->assertSee('funds');
-    }
-
-    /**
-     * Tests fleet api
-     */
-    public function testFleetApiView()
-    {
-        $response = $this->get('api/v1/stats/fleet');
-        $response->assertStatus(200);
-        $response->assertSee('fleet');
+        $content = $this->repository->getFunds()->asJSON();
+        $this->assertNotEmpty($content);
+        $this->assertContains('funds', $content);
     }
 
     /**

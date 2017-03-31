@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
  * Class ShipsTest
  * @package Tests\Feature
  */
-class ShipsTest extends TestCase
+class ShipsRepositoryTest extends TestCase
 {
     /**
      * @var ShipsRepository
@@ -26,25 +26,9 @@ class ShipsTest extends TestCase
     }
 
     /**
-     * Get Ship from API
-     */
-    public function testApiShipView()
-    {
-        $response = $this->get('api/v1/ships/300i');
-        $response->assertSee('300i');
-    }
-
-    /**
-     * Test Search
-     */
-    public function testSearch()
-    {
-        $response = $this->post('api/v1/search', ['300i']);
-        $response->assertSee('300i');
-    }
-
-    /**
      * Get Ship from Repository
+     *
+     * @covers ShipsRepository::getShip()
      */
     public function testShipRetrieval()
     {
@@ -53,7 +37,27 @@ class ShipsTest extends TestCase
     }
 
     /**
+     * @covers ShipsRepository::getShipList()
+     */
+    public function testShipList()
+    {
+        $this->repository->getShipList();
+        $this->assertContains('300i', $this->repository->asJSON());
+    }
+
+    /**
+     * @covers ShipsRepository::searchShips()
+     */
+    public function testShipSearch()
+    {
+        $this->repository->searchShips('300i');
+        $this->assertContains('300i', $this->repository->asJSON());
+    }
+
+    /**
      * Test if Filter is working
+     *
+     * @covers ShipsRepository::getShipList()
      */
     public function testFilter()
     {

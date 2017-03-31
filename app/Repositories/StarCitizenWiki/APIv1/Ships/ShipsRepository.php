@@ -86,7 +86,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             '/api.php?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName,
             []
         );
-        $this->dataToTransform = $this->responseBody['query']['search'];
+        $this->dataToTransform = $this->dataToTransform['query']['search'];
 
         return $this;
     }

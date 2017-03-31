@@ -90,5 +90,4 @@ Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortURL']
         Route::post('resolve', ['uses' => 'ShortURLController@resolveAndDisplay'])->name('short_url_resolve_display');
         Route::get('{hash_name}', ['uses' => 'ShortURLController@resolveAndRedirect'])->name('short_url_resolve_redirect');
     });
-
 });
