@@ -80,10 +80,9 @@ class ShipsAPIController extends Controller
      */
     public function searchShips(Request $request)
     {
-        $this->validate(
-            $request,
-            ['query' => 'present|alpha_dash']
-        );
+        $this->validate($request, [
+            'query' => 'present|alpha_dash',
+        ]);
         $shipName = $request->input('query');
 
         return response()->json(

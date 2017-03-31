@@ -42,8 +42,7 @@ class AdminController extends Controller
      */
     public function showURLWhitelistView() : View
     {
-        return view('admin.shorturl.whitelistindex')
-                    ->with('urls', ShortURLWhitelist::all());
+        return view('admin.shorturl.whitelistindex')->with('urls', ShortURLWhitelist::all());
     }
 
     /**
@@ -72,12 +71,9 @@ class AdminController extends Controller
                         ->with('url', $url)
                         ->with('users', User::all());
         } catch (ModelNotFoundException $e) {
-            Log::warning(
-                '['.__METHOD__.'] URL not found',
-                [
-                    'id' => $id,
-                ]
-            );
+            Log::warning('['.__METHOD__.'] URL not found', [
+                'id' => $id,
+            ]);
         }
 
         return redirect()->route('admin_urls_list');
@@ -94,21 +90,17 @@ class AdminController extends Controller
     {
         try {
             $url = ShortURL::findOrFail($id);
-            Log::info(
-                'URL deleted',
-                [
-                    'deleted_by' => Auth::id(),
-                    'url_id' => $url->id,
-                    'url' => $url->url,
-                    'hash_name' => $url->hash_name,
-                ]
-            );
+            Log::info('URL deleted', [
+                'deleted_by' => Auth::id(),
+                'url_id' => $url->id,
+                'url' => $url->url,
+                'hash_name' => $url->hash_name,
+            ]);
             $url->delete();
         } catch (ModelNotFoundException $e) {
-            Log::warning(
-                '['.__METHOD__.'] URL not found',
-                ['id' => $id]
-            );
+            Log::warning('['.__METHOD__.'] URL not found', [
+                'id' => $id,
+            ]);
         }
 
         return redirect()->route('admin_urls_list');
@@ -125,20 +117,16 @@ class AdminController extends Controller
     {
         try {
             $url = ShortURLWhitelist::findOrFail($id);
-            Log::info(
-                'Whitelist URL deleted',
-                [
-                    'deleted_by' => Auth::id(),
-                    'url_id' => $url->id,
-                    'url' => $url->url,
-                ]
-            );
+            Log::info('Whitelist URL deleted', [
+                'deleted_by' => Auth::id(),
+                'url_id' => $url->id,
+                'url' => $url->url,
+            ]);
             $url->delete();
         } catch (ModelNotFoundException $e) {
-            Log::warning(
-                '['.__METHOD__.'] Whitelist URL not found',
-                ['id' => $id]
-            );
+            Log::warning('['.__METHOD__.'] Whitelist URL not found', [
+                'id' => $id,
+            ]);
         }
 
         return redirect()->route('admin_urls_whitelist_list');
@@ -166,12 +154,10 @@ class AdminController extends Controller
         validate_array($data, $rules, $request);
 
         try {
-            ShortURLWhitelist::createWhitelistURL(
-                [
-                    'url' => parse_url($request->get('url'))['host'],
-                    'internal' => !$request->get('internal')[0],
-                ]
-            );
+            ShortURLWhitelist::createWhitelistURL([
+                'url' => parse_url($request->get('url'))['host'],
+                'internal' => !$request->get('internal')[0],
+            ]);
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException $e) {
             return redirect()->route('admin_urls_whitelist_add_form')
                              ->withErrors($e->getMessage());
@@ -205,14 +191,12 @@ class AdminController extends Controller
         validate_array($data, $rules, $request);
 
         try {
-            ShortURL::updateShortURL(
-                [
-                    'id' => $id,
-                    'url' => ShortURL::sanitizeURL($request->get('url')),
-                    'hash_name' => $request->get('hash_name'),
-                    'user_id' => $request->get('user_id'),
-                ]
-            );
+            ShortURL::updateShortURL([
+                'id' => $id,
+                'url' => ShortURL::sanitizeURL($request->get('url')),
+                'hash_name' => $request->get('hash_name'),
+                'user_id' => $request->get('user_id'),
+            ]);
         } catch (URLNotWhitelistedException | HashNameAlreadyAssignedException $e) {
             return back()->withErrors($e->getMessage());
         }
@@ -244,10 +228,9 @@ class AdminController extends Controller
 
             return view('admin.users.edit')->with('user', $user);
         } catch (ModelNotFoundException $e) {
-            Log::warning(
-                '['.__METHOD__.'] User not found',
-                ['id' => $id]
-            );
+            Log::warning('['.__METHOD__.'] User not found', [
+                'id' => $id,
+            ]);
         }
 
         return redirect()->route('admin_users_list');
@@ -267,10 +250,9 @@ class AdminController extends Controller
             Log::info('Account with ID '.$id.' deleted by Admin '.Auth::id());
             $user->delete();
         } catch (ModelNotFoundException $e) {
-            Log::warning(
-                '['.__METHOD__.'] User not found',
-                ['id' => $id]
-            );
+            Log::warning('['.__METHOD__.'] User not found', [
+                'id' => $id,
+            ]);
         }
 
         return redirect()->route('admin_users_list');
@@ -290,10 +272,9 @@ class AdminController extends Controller
             Log::info('Account with ID '.$id.' restored by Admin '.Auth::id());
             $user->restore();
         } catch (ModelNotFoundException $e) {
-            Log::warning(
-                '['.__METHOD__.'] User not found',
-                ['id' => $id]
-            );
+            Log::warning('['.__METHOD__.'] User not found', [
+                'id' => $id,
+            ]);
         }
 
         return redirect()->route('admin_users_list');
@@ -309,18 +290,15 @@ class AdminController extends Controller
      */
     public function updateUser(Request $request, int $id) : RedirectResponse
     {
-        $this->validate(
-            $request,
-            [
-                'name' => 'present',
-                'requests_per_minute' => 'required|integer',
-                'api_token' => 'required|max:60|min:60|alpha_num',
-                'email' => 'required|min:3|email',
-                'list' => 'nullable|alpha',
-                'notes' => 'nullable',
-                'password' => 'present',
-            ]
-        );
+        $this->validate($request, [
+            'name' => 'present',
+            'requests_per_minute' => 'required|integer',
+            'api_token' => 'required|max:60|min:60|alpha_num',
+            'email' => 'required|min:3|email',
+            'list' => 'nullable|alpha',
+            'notes' => 'nullable',
+            'password' => 'present',
+        ]);
 
         $data = [];
         $data['id'] = $id;
@@ -354,10 +332,9 @@ class AdminController extends Controller
         try {
             User::updateUser($data);
         } catch (ModelNotFoundException $e) {
-            Log::warning(
-                '['.__METHOD__.'] User not found',
-                ['id' => $id]
-            );
+            Log::warning('['.__METHOD__.'] User not found', [
+                'id' => $id,
+            ]);
         }
 
         return redirect()->route('admin_users_list');

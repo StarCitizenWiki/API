@@ -31,13 +31,12 @@ class BaseStarCitizenAPI
      */
     public function __construct()
     {
-        $this->guzzleClient = new Client(
-            [
-                'base_uri' => $this::API_URL,
-                'timeout' => 3.0,
-                'headers' => ['X-Rsi-Token' => $this->rsiToken],
-            ]
-        );
+        $this->guzzleClient = new Client([
+            'base_uri' => $this::API_URL,
+            'timeout' => 3.0,
+            'headers' => ['X-Rsi-Token' => $this->rsiToken],
+        ]);
+
         if (is_null($this->rsiToken)) {
             $this->getRSIToken();
         }
@@ -50,11 +49,7 @@ class BaseStarCitizenAPI
      */
     private function checkIfResponseDataIsValid() : bool
     {
-        if (strpos((String) $this->response->getBody(), 'success') !== false) {
-            return true;
-        }
-
-        return false;
+        return str_contains((String) $this->response->getBody(), 'success');
     }
 
     /**
@@ -86,10 +81,9 @@ class BaseStarCitizenAPI
 
             $this->__construct();
         } catch (\Exception $e) {
-            Log::warning(
-                'Guzzle Request failed',
-                ['message' => $e->getMessage()]
-            );
+            Log::warning('Guzzle Request failed', [
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 }

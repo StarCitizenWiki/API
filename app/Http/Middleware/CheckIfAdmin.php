@@ -37,10 +37,9 @@ class CheckIfAdmin
             }
         }
 
-        Log::notice(
-            'Unauthenticated User tried to access Admin area',
-            ['user_id' => Auth::id()]
-        );
+        Log::notice('Unauthenticated User tried to access Admin area', [
+            'user_id' => Auth::id(),
+        ]);
 
         return abort(403, 'No Permission');
     }

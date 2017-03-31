@@ -47,12 +47,10 @@ trait BaseAPITrait
      */
     public function __construct()
     {
-        $this->guzzleClient = new Client(
-            [
-                'base_uri' => $this::API_URL,
-                'timeout' => 3.0,
-            ]
-        );
+        $this->guzzleClient = new Client([
+            'base_uri' => $this::API_URL,
+            'timeout' => 3.0,
+        ]);
     }
 
     /**
@@ -177,14 +175,12 @@ trait BaseAPITrait
         $this->transformedResource->addMeta($metaData);
 
         if (App::isLocal() && !is_null($this->response)) {
-            $this->transformedResource->addMeta(
-                [
-                    'dev' => [
-                        'response_protocol' => $this->response->getProtocolVersion(),
-                        'response_headers' => $this->response->getHeaders(),
-                    ],
-                ]
-            );
+            $this->transformedResource->addMeta([
+                'dev' => [
+                    'response_protocol' => $this->response->getProtocolVersion(),
+                    'response_headers' => $this->response->getHeaders(),
+                ],
+            ]);
         }
     }
 

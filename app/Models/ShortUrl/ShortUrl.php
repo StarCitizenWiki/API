@@ -57,22 +57,17 @@ class ShortURL extends Model
             $data['hash_name'] = ShortURL::generateShortURLHash();
         }
 
-        $url = ShortURL::create(
-            [
-                'url' => $data['url'],
-                'hash_name' => $data['hash_name'],
-                'user_id' => $data['user_id'],
-            ]
-        );
+        $url = ShortURL::create([
+            'url' => $data['url'],
+            'hash_name' => $data['hash_name'],
+            'user_id' => $data['user_id'],
+        ]);
 
-        Log::info(
-            'URL Shortened',
-            [
-                'url' => $data['url'],
-                'hash_name' => $data['hash_name'],
-                'user_id' => $data['user_id'],
-            ]
-        );
+        Log::info('URL Shortened', [
+            'url' => $data['url'],
+            'hash_name' => $data['hash_name'],
+            'user_id' => $data['user_id'],
+        ]);
 
         return $url;
     }
@@ -127,14 +122,11 @@ class ShortURL extends Model
     {
         $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
 
-        Log::info(
-            'URL resolved',
-            [
-                'id' => $url->id,
-                'hash_name' => $url->hash_name,
-                'url' => $url->url,
-            ]
-        );
+        Log::debug('URL resolved', [
+            'id' => $url->id,
+            'hash_name' => $url->hash_name,
+            'url' => $url->url,
+        ]);
 
         if ($url->user()->first()->isBlacklisted()) {
             throw new UserBlacklistedException();

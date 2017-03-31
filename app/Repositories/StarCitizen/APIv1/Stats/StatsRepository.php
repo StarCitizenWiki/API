@@ -152,24 +152,21 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
         ];
 
         if ($this->getFans) {
-            $requestContent = array_merge(
-                $requestContent,
-                ['fans' => $this->getFans]
-            );
+            $requestContent = array_merge($requestContent, [
+                'fans' => $this->getFans,
+            ]);
         }
 
         if ($this->getFleet) {
-            $requestContent = array_merge(
-                $requestContent,
-                ['fleet' => $this->getFleet]
-            );
+            $requestContent = array_merge($requestContent, [
+                'fleet' => $this->getFleet,
+            ]);
         }
 
         if ($this->getFunds) {
-            $requestContent = array_merge(
-                $requestContent,
-                ['funds' => $this->getFunds]
-            );
+            $requestContent = array_merge($requestContent, [
+                'funds' => $this->getFunds,
+            ]);
         }
 
         $requestBody = [

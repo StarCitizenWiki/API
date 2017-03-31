@@ -34,10 +34,9 @@ class UpdateTokenTimestamp
                 $user->api_token_last_used = date('Y-m-d H:i:s');
                 $user->save();
             } catch (ModelNotFoundException $e) {
-                Log::info(
-                    'Provided Api Key has no associated user',
-                    ['api_token' => $key]
-                );
+                Log::info('Provided Api Key has no associated user', [
+                    'api_token' => $key,
+                ]);
             }
         }
 

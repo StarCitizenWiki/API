@@ -61,24 +61,19 @@ class RegisterController extends Controller
         $api_token = str_random(60);
         $password = str_random(32);
 
-        $user = User::create(
-            [
-                'name' => null,
-                'email' => $data['email'],
-                'api_token' => $api_token,
-                'password' => bcrypt($password),
-                'requests_per_minute' => 60,
-                'last_login' => date('Y-m-d H:i:s'),
-            ]
-        );
+        $user = User::create([
+            'name' => null,
+            'email' => $data['email'],
+            'api_token' => $api_token,
+            'password' => bcrypt($password),
+            'requests_per_minute' => 60,
+            'last_login' => date('Y-m-d H:i:s'),
+        ]);
 
-        Log::info(
-            'Account created',
-            [
-                'id' => $user->id,
-                'email' => $user->email,
-            ]
-        );
+        Log::info('Account created', [
+            'id' => $user->id,
+            'email' => $user->email,
+        ]);
 
         event(new UserRegistered($user, $password));
 
@@ -94,9 +89,8 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make(
-            $data,
-            ['email' => 'required|email|max:255|unique:users']
-        );
+        return Validator::make($data, [
+            'email' => 'required|email|max:255|unique:users',
+        ]);
     }
 }

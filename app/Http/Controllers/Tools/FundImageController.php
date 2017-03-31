@@ -142,23 +142,17 @@ class FundImageController extends Controller
             $this->flushImageToString();
             $this->saveImageToDisk();
         } catch (\Exception $e) {
-            Log::warning(
-                'Fund Image generation failed',
-                [
-                    'type' => $this->image['type'],
-                    'requester' => $this->request->getHost(),
-                    'message' => $e,
-                ]
-            );
-        }
-
-        Log::info(
-            'Fund Image Requested',
-            [
+            Log::warning('Fund Image generation failed', [
                 'type' => $this->image['type'],
                 'requester' => $this->request->getHost(),
-            ]
-        );
+                'message' => $e,
+            ]);
+        }
+
+        Log::debug('Fund Image Requested', [
+            'type' => $this->image['type'],
+            'requester' => $this->request->getHost(),
+        ]);
 
         return $this->loadImageFromDisk();
     }

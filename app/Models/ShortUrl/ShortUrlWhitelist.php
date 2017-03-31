@@ -33,20 +33,15 @@ class ShortURLWhitelist extends Model
      */
     public static function createWhitelistURL(array $data) : ShortURLWhitelist
     {
-        $url = ShortURLWhitelist::create(
-            [
-                'url' => $data['url'],
-                'internal' => $data['internal'],
-            ]
-        );
+        $url = ShortURLWhitelist::create([
+            'url' => $data['url'],
+            'internal' => $data['internal'],
+        ]);
 
-        Log::info(
-            'Whitelist URL added',
-            [
-                'url' => $data['url'],
-                'internal' => $data['internal'],
-            ]
-        );
+        Log::info('Whitelist URL added', [
+            'url' => $data['url'],
+            'internal' => $data['internal'],
+        ]);
 
         return $url;
     }
