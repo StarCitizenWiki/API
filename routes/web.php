@@ -83,12 +83,12 @@ Route::group(['domain' => config('app.tools_url')], function () {
 
 Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortUrl'], function () {
 
-    Route::get('/', ['uses' => 'ShortUrlController@showShortURLView'])->name('short_url_index');
+    Route::get('/', ['uses' => 'ShortURLController@showShortURLView'])->name('short_url_index');
     Route::group(['middleware' => 'throttle'], function () {
-        Route::post('shorten', ['uses' => 'ShortUrlController@createAndRedirect'])->name('short_url_create_redirect');
-        Route::get('resolve', ['uses' => 'ShortUrlController@showResolveView'])->name('short_url_resolve_form');
-        Route::post('resolve', ['uses' => 'ShortUrlController@resolveAndDisplay'])->name('short_url_resolve_display');
-        Route::get('{hash_name}', ['uses' => 'ShortUrlController@resolveAndRedirect'])->name('short_url_resolve_redirect');
+        Route::post('shorten', ['uses' => 'ShortURLController@createAndRedirect'])->name('short_url_create_redirect');
+        Route::get('resolve', ['uses' => 'ShortURLController@showResolveView'])->name('short_url_resolve_form');
+        Route::post('resolve', ['uses' => 'ShortURLController@resolveAndDisplay'])->name('short_url_resolve_display');
+        Route::get('{hash_name}', ['uses' => 'ShortURLController@resolveAndRedirect'])->name('short_url_resolve_redirect');
     });
 
 });

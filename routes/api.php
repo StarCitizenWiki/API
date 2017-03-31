@@ -84,7 +84,7 @@ Route::group(['domain' =>  config('app.api_url')], function () {
 
 Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortUrl'], function () {
     Route::group(['prefix' => 'v1'], function () {
-        Route::post('shorten', ['uses' => 'ShortUrlController@create'])->name('shorten');
-        Route::post('resolve', ['uses' => 'ShortUrlController@resolve']);
+        Route::post('shorten', ['uses' => 'ShortURLController@create'])->name('shorten');
+        Route::post('resolve', ['uses' => 'ShortURLController@resolve']);
     });
 });
