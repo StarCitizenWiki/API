@@ -67,7 +67,7 @@ class LoginController extends Controller
      *
      * @return RedirectResponse
      */
-    protected function authenticated(Request $request, $user) : RedirectResponse
+    protected function authenticated(Request $request, $user)
     {
         if ($user->isBlacklisted()) {
             Auth::logout();

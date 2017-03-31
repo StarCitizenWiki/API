@@ -42,12 +42,12 @@ class AccountController extends Controller
     public function delete() : RedirectResponse
     {
         $user = Auth::user();
+        Auth::logout();
+        $user->delete();
         Log::info('Account deleted', [
             'id' => $user->id,
             'email' => $user->email,
         ]);
-        $user->delete();
-        Auth::logout();
 
         return redirect(AUTH_HOME);
     }
@@ -127,14 +127,18 @@ class AccountController extends Controller
     /**
      * Deletes a Users ShortURL
      *
-     * @param int $id ShortURL id
+     * @param Request $request
      *
      * @return RedirectResponse
      */
-    public function deleteURL(int $id) : RedirectResponse
+    public function deleteURL(Request $request) : RedirectResponse
     {
+        $this->validate($request, [
+            'id' => 'required|exists:short_urls|int',
+        ]);
+
         try {
-            $url = Auth::user()->shortURLs()->findOrFail($id);
+            $url = Auth::user()->shortURLs()->findOrFail($request->id);
             Log::info('URL deleted', [
                 'user_id' => Auth::id(),
                 'url_id' => $url->id,
@@ -146,7 +150,7 @@ class AccountController extends Controller
             Log::info('User tried to delete unowned ShortURL', [
                 'user_id' => Auth::id(),
                 'email' => Auth::user()->email,
-                'url_id' => $id,
+                'url_id' => $request->id,
             ]);
         }
 
@@ -158,11 +162,21 @@ class AccountController extends Controller
      *
      * @param int $id The ShortURL ID to edit
      *
-     * @return View
+     * @return View | RedirectResponse
      */
-    public function showEditURLView(int $id) : View
+    public function showEditURLView(int $id)
     {
-        $url = ShortURL::find($id);
+        try {
+            $url = Auth::user()->shortURLs()->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            Log::info('User tried to edit unowned ShortURL', [
+                'user_id' => Auth::id(),
+                'email' => Auth::user()->email,
+                'url_id' => $id,
+            ]);
+
+            return \redirect()->route('account_urls_list');
+        }
 
         return view('auth.account.shorturl.edit')->with('url', $url);
     }
@@ -171,19 +185,16 @@ class AccountController extends Controller
      * Updates a ShortURL by its ID
      *
      * @param Request $request The Update Request
-     * @param int     $id      The ShortURL ID
      *
      * @return RedirectResponse
      */
-    public function updateURL(Request $request, int $id) : RedirectResponse
+    public function updateURL(Request $request) : RedirectResponse
     {
-        if ($request->get('user_id') != Auth::id() ||
-            Auth::user()->shortURLs()->find($id)->count() === 0
-        ) {
+        if (Auth::user()->shortURLs()->find($request->id)->count() === 0) {
             Log::warning('User tried to forge ShortURL edit request', [
                 'user_id' => Auth::id(),
                 'provided_id' => $request->get('user_id'),
-                'url_id' => $id,
+                'url_id' => $request->id,
                 'url' => $request->get('url'),
                 'hash_name' => $request->get('hash_name'),
             ]);
@@ -194,20 +205,18 @@ class AccountController extends Controller
         $data = [
             'url' => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
-            'user_id' => $request->get('user_id'),
         ];
 
         $rules = [
             'url' => 'required|active_url|max:255',
             'hash_name' => 'required|alpha_dash|max:32',
-            'user_id' => 'required|integer|exists:users,id',
         ];
 
         validate_array($data, $rules, $request);
 
         try {
             ShortURL::updateShortURL([
-                'id' => $id,
+                'id' => $request->id,
                 'url' => ShortURL::sanitizeURL($request->get('url')),
                 'hash_name' => $request->get('hash_name'),
                 'user_id' => Auth::id(),

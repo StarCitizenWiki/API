@@ -14,22 +14,26 @@ Route::group(['domain' => config('app.api_url')], function () {
     Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');
 
     Route::group(['prefix' => 'admin', 'middleware' => 'admin', 'namespace' => 'auth'], function () {
-        Route::get('users', ['uses' => 'AdminController@showUsersListView'])->name('admin_users_list');
-        Route::delete('users/{ID}', ['uses' => 'AdminController@deleteUser'])->name('admin_users_delete');
-        Route::post('users/{ID}/restore', ['uses' => 'AdminController@restoreUser'])->name('admin_users_restore');
-        Route::get('users/{ID}/edit', ['uses' => 'AdminController@showEditUserView'])->name('admin_users_edit_form');
-        Route::patch('users/{ID}', ['uses' => 'AdminController@updateUser'])->name('admin_users_update');
+        Route::group(['prefix' => 'users'], function () {
+            Route::get('/', ['uses' => 'AdminController@showUsersListView'])->name('admin_users_list');
+            Route::delete('/', ['uses' => 'AdminController@deleteUser'])->name('admin_users_delete');
+            Route::patch('/', ['uses' => 'AdminController@updateUser'])->name('admin_users_update');
+            Route::post('restore', ['uses' => 'AdminController@restoreUser'])->name('admin_users_restore');
+            Route::get('{ID}', ['uses' => 'AdminController@showEditUserView'])->name('admin_users_edit_form');
+        });
 
         Route::get('routes', ['uses' => 'AdminController@showRoutesView'])->name('admin_routes_list');
 
-        Route::get('urls', ['uses' => 'AdminController@showURLsListView'])->name('admin_urls_list');
-        Route::get('urls/whitelist', ['uses' => 'AdminController@showURLWhitelistView'])->name('admin_urls_whitelist_list');
-        Route::get('urls/whitelist/add', ['uses' => 'AdminController@showAddURLWhitelistView'])->name('admin_urls_whitelist_add_form');
-        Route::delete('urls/whitelist/{id}', ['uses' => 'AdminController@deleteWhitelistURL'])->name('admin_urls_whitelist_delete');
-        Route::post('urls/whitelist', ['uses' => 'AdminController@addWhitelistURL'])->name('admin_urls_whitelist_add');
-        Route::delete('urls/{ID}', ['uses' => 'AdminController@deleteURL'])->name('admin_urls_delete');
-        Route::get('urls/{ID}/edit', ['uses' => 'AdminController@showEditURLView'])->name('admin_urls_edit_form');
-        Route::patch('urls/{ID}', ['uses' => 'AdminController@updateURL'])->name('admin_urls_update');
+        Route::group(['prefix' => 'urls'], function () {
+            Route::get('/', ['uses' => 'AdminController@showURLsListView'])->name('admin_urls_list');
+            Route::delete('/', ['uses' => 'AdminController@deleteURL'])->name('admin_urls_delete');
+            Route::patch('/', ['uses' => 'AdminController@updateURL'])->name('admin_urls_update');
+            Route::get('whitelist', ['uses' => 'AdminController@showURLWhitelistView'])->name('admin_urls_whitelist_list');
+            Route::get('whitelist/add', ['uses' => 'AdminController@showAddURLWhitelistView'])->name('admin_urls_whitelist_add_form');
+            Route::delete('whitelist', ['uses' => 'AdminController@deleteWhitelistURL'])->name('admin_urls_whitelist_delete');
+            Route::post('whitelist', ['uses' => 'AdminController@addWhitelistURL'])->name('admin_urls_whitelist_add');
+            Route::get('{ID}', ['uses' => 'AdminController@showEditURLView'])->name('admin_urls_edit_form');
+        });
     });
 
     // Authentication Routes...
@@ -41,19 +45,21 @@ Route::group(['domain' => config('app.api_url')], function () {
     Route::get('register', ['uses' => 'Auth\RegisterController@showRegistrationForm'])->name('auth_register_form');
     Route::post('register', ['uses' => 'Auth\RegisterController@register'])->name('auth_register');
 
-    Route::group(['middleware' => 'auth'], function () {
+    Route::group(['middleware' => 'auth', 'prefix' => 'account'], function () {
         // Account Routes...
-        Route::get('account', ['uses' => 'Auth\AccountController@showAccountView'])->name('account');
-        Route::delete('account', ['uses' => 'Auth\AccountController@delete'])->name('account_delete');
-        Route::get('account/edit', ['uses' => 'Auth\AccountController@showEditAccountView'])->name('account_edit_form');
-        Route::patch('account', ['uses' => 'Auth\AccountController@updateAccount'])->name('account_update');
+        Route::get('/', ['uses' => 'Auth\AccountController@showAccountView'])->name('account');
+        Route::delete('/', ['uses' => 'Auth\AccountController@delete'])->name('account_delete');
+        Route::patch('/', ['uses' => 'Auth\AccountController@updateAccount'])->name('account_update');
+        Route::get('edit', ['uses' => 'Auth\AccountController@showEditAccountView'])->name('account_edit_form');
 
-        Route::get('account/urls', ['uses' => 'Auth\AccountController@showURLsView'])->name('account_urls_list');
-        Route::post('account/urls', ['uses' => 'Auth\AccountController@addURL'])->name('account_urls_add');
-        Route::get('account/urls/add', ['uses' => 'Auth\AccountController@showAddURLView'])->name('account_urls_add_form');
-        Route::delete('account/urls/{ID}', ['uses' => 'Auth\AccountController@deleteURL'])->name('account_urls_delete');
-        Route::get('account/urls/{ID}/edit', ['uses' => 'Auth\AccountController@showEditURLView'])->name('account_urls_edit_form');
-        Route::patch('account/urls/{ID}', ['uses' => 'Auth\AccountController@updateURL'])->name('account_urls_update');
+        Route::group(['prefix' => 'urls'], function () {
+            Route::get('/', ['uses' => 'Auth\AccountController@showURLsView'])->name('account_urls_list');
+            Route::post('/', ['uses' => 'Auth\AccountController@addURL'])->name('account_urls_add');
+            Route::delete('/', ['uses' => 'Auth\AccountController@deleteURL'])->name('account_urls_delete');
+            Route::patch('/', ['uses' => 'Auth\AccountController@updateURL'])->name('account_urls_update');
+            Route::get('add', ['uses' => 'Auth\AccountController@showAddURLView'])->name('account_urls_add_form');
+            Route::get('{ID}', ['uses' => 'Auth\AccountController@showEditURLView'])->name('account_urls_edit_form');
+        });
     });
 });
 
