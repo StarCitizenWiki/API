@@ -81,7 +81,7 @@ Route::group(['domain' => config('app.tools_url')], function () {
     });
 });
 
-Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortUrl'], function () {
+Route::group(['domain' => config('app.shorturl_url'), 'namespace' => 'ShortURL'], function () {
 
     Route::get('/', ['uses' => 'ShortURLController@showShortURLView'])->name('short_url_index');
     Route::group(['middleware' => 'throttle'], function () {
