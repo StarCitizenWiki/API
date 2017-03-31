@@ -141,7 +141,7 @@ class ShortURLController extends Controller
     {
         $this->validate(
             $request,
-            ['hash_name' => 'required|alpha_dash', ]
+            ['hash_name' => 'required|alpha_dash']
         );
 
         try {

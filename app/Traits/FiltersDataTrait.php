@@ -39,6 +39,15 @@ trait FiltersDataTrait
     }
 
     /**
+     * @param array $data
+     */
+    public function addFilterArray(array $data) : void
+    {
+        $this->requestedFields = $data;
+        $this->validateRequestedFields();
+    }
+
+    /**
      * Filters data from a one dimensional array
      *
      * @param array $data
