@@ -18,7 +18,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class ShortURLControllerTest extends TestCase
 {
     /**
-     * @covers ShortURLController::showResolveView()
+     * @covers \App\Http\Controllers\ShortURL\ShortURLController::showResolveView()
      */
     public function testShortURLResolveView()
     {
@@ -27,7 +27,7 @@ class ShortURLControllerTest extends TestCase
     }
 
     /**
-     * @covers ShortURLController::resolveAndDisplay()
+     * @covers \App\Http\Controllers\ShortURL\ShortURLController::resolveAndDisplay()
      */
     public function testShortURLResolveRedirect()
     {
@@ -38,7 +38,7 @@ class ShortURLControllerTest extends TestCase
     /**
      * Tests json resolve
      *
-     * @covers ShortURLController::resolve()
+     * @covers \App\Http\Controllers\ShortURL\ShortURLController::resolve()
      */
     public function testAPIResolve()
     {
@@ -50,7 +50,7 @@ class ShortURLControllerTest extends TestCase
     /**
      * Test Repository Creation
      *
-     * @covers ShortURLController::create()
+     * @covers \App\Http\Controllers\ShortURL\ShortURLController::create()
      */
     public function testShortURLCreationAPI()
     {
@@ -66,7 +66,7 @@ class ShortURLControllerTest extends TestCase
     /**
      * Test Repository Creation
      *
-     * @covers ShortURLController::createAndRedirect()
+     * @covers \App\Http\Controllers\ShortURL\ShortURLController::createAndRedirect()
      */
     public function testShortURLCreationView()
     {

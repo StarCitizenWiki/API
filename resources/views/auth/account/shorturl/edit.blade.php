@@ -8,10 +8,10 @@
         <div class="row">
             <div class="col-12 col-md-6 mx-auto">
                 @include('snippets.errors')
-                <form role="form" method="POST" action="{{ route('account_urls_update', $url->id) }}">
+                <form role="form" method="POST" action="{{ route('account_urls_update') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="PATCH">
-                    <input name="user_id" type="hidden" value="{{ Auth::id() }}">
+                    <input name="id" type="hidden" value="{{ $url->id }}">
                     <div class="form-group">
                         <label for="url" aria-label="Name">URL:</label>
                         <input type="url" class="form-control" id="url" name="url" aria-labelledby="url" tabindex="1" value="{{ $url->url }}" autofocus>

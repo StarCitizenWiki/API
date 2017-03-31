@@ -8,9 +8,10 @@
         <div class="row">
             <div class="col-10 mx-auto">
                 @include('snippets.errors')
-                <form role="form" method="POST" action="{{ route('admin_users_update', $user->id) }}">
+                <form role="form" method="POST" action="{{ route('admin_users_update') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="PATCH">
+                    <input name="id" type="hidden" value="{{ $user->id }}">
                     <div class="form-group">
                         <label for="name" aria-label="Name">Name:</label>
                         <input type="text" class="form-control" id="name" name="name" aria-labelledby="name" tabindex="1" value="{{ $user->name }}" autofocus>

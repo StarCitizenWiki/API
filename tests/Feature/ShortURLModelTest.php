@@ -27,7 +27,7 @@ class ShortURLModelTest extends TestCase
     /**
      * Test not WhitelistedException
      *
-     * @covers ShortURL::createShortURL()
+     * @covers \App\Models\ShortURL\ShortURL::createShortURL()
      */
     public function testNotWhitelistedException()
     {
@@ -38,7 +38,7 @@ class ShortURLModelTest extends TestCase
     /**
      * Test NotFound Exception
      *
-     * @covers ShortURL::resolve()
+     * @covers \App\Models\ShortURL\ShortURL::resolve()
      */
     public function testHashNotExistsException()
     {
@@ -49,7 +49,7 @@ class ShortURLModelTest extends TestCase
     /**
      * Test Repository Creation
      *
-     * @covers ShortURL::createShortURL()
+     * @covers \App\Models\ShortURL\ShortURL::createShortURL()
      */
     public function testShortURLCreation()
     {
@@ -63,7 +63,7 @@ class ShortURLModelTest extends TestCase
     }
 
     /**
-     * @covers ShortURL::sanitizeURL()
+     * @covers \App\Models\ShortURL\ShortURL::sanitizeURL()
      */
     public function testURLSanitization()
     {

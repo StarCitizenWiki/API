@@ -88,8 +88,9 @@
                                         <a href="#" class="btn btn-danger"
                                             onclick="event.preventDefault();
                                             document.getElementById('delete-form{{ $user->id }}').submit();">
-                                            <form id="delete-form{{ $user->id }}" action="{{ route('admin_users_delete', $user->id) }}" method="POST" style="display: none;">
+                                            <form id="delete-form{{ $user->id }}" action="{{ route('admin_users_delete') }}" method="POST" style="display: none;">
                                                 <input name="_method" type="hidden" value="DELETE">
+                                                <input name="id" type="hidden" value="{{ $user->id }}">
                                                 {{ csrf_field() }}
                                             </form>
                                             <i class="fa fa-trash-o"></i>
@@ -98,8 +99,9 @@
                                             <a href="#" class="btn btn-success"
                                                onclick="event.preventDefault();
                                                        document.getElementById('restore-form{{ $user->id }}').submit();">
-                                                <form id="restore-form{{ $user->id }}" action="{{ route('admin_users_restore', $user->id) }}" method="POST" style="display: none;">
+                                                <form id="restore-form{{ $user->id }}" action="{{ route('admin_users_restore') }}" method="POST" style="display: none;">
                                                     {{ csrf_field() }}
+                                                    <input type="hidden" name="id" value="{{ $user->id }}">
                                                 </form>
                                                 <i class="fa fa-repeat"></i>
                                             </a>

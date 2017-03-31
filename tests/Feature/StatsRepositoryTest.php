@@ -27,7 +27,7 @@ class StatsRepositoryTest extends TestCase
     /**
      * Tests the retrieval of all stats from the repository
      *
-     * @covers StatsRepository::getAll()
+     * @covers \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::getAll()
      */
     public function testAllRepository()
     {
@@ -37,7 +37,7 @@ class StatsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers StatsRepository::getFans()
+     * @covers \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::getFans()
      */
     public function testFansRepository()
     {
@@ -47,7 +47,7 @@ class StatsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers StatsRepository::getFleet()
+     * @covers \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::getFleet()
      */
     public function testFleetRepository()
     {
@@ -57,7 +57,7 @@ class StatsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers StatsRepository::getFunds()
+     * @covers \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::getFunds()
      */
     public function testFundsRepository()
     {

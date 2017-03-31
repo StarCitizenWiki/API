@@ -18,7 +18,7 @@ class ShipsAPIControllerTest extends TestCase
     /**
      * Get Ship from API
      *
-     * @covers ShipsAPIController::getShip()
+     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::getShip()
      */
     public function testApiShipView()
     {
@@ -30,7 +30,7 @@ class ShipsAPIControllerTest extends TestCase
     /**
      * Test Search
      *
-     * @covers ShipsAPIController::searchShips()
+     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::searchShips()
      */
     public function testSearch()
     {
@@ -40,7 +40,7 @@ class ShipsAPIControllerTest extends TestCase
     }
 
     /**
-     * @covers ShipsAPIController::getShipList()
+     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::getShipList()
      */
     public function testShipsList()
     {

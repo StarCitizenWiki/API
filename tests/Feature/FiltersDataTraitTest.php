@@ -28,6 +28,8 @@ class FiltersDataTraitTest extends TestCase
 
     /**
      * Test if InvalidDataException is thrown if unknown field is filtered
+     *
+     * @covers \App\Traits\FiltersDataTrait::filterData()
      */
     public function testFilterException()
     {

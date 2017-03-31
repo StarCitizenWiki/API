@@ -28,7 +28,7 @@ class ShipsRepositoryTest extends TestCase
     /**
      * Get Ship from Repository
      *
-     * @covers ShipsRepository::getShip()
+     * @covers \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::getShip()
      */
     public function testShipRetrieval()
     {
@@ -37,7 +37,7 @@ class ShipsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ShipsRepository::getShipList()
+     * @covers \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::getShipList()
      */
     public function testShipList()
     {
@@ -46,7 +46,7 @@ class ShipsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers ShipsRepository::searchShips()
+     * @covers \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::searchShips()
      */
     public function testShipSearch()
     {
@@ -57,7 +57,7 @@ class ShipsRepositoryTest extends TestCase
     /**
      * Test if Filter is working
      *
-     * @covers ShipsRepository::getShipList()
+     * @covers \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::getShipList()
      */
     public function testFilter()
     {

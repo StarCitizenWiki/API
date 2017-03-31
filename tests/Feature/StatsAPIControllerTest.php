@@ -14,7 +14,7 @@ class StatsAPIControllerTest extends TestCase
     /**
      * Tests Stats from API
      *
-     * @covers StatsAPIController::getAll()
+     * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getAll()
      */
     public function testAllApiView()
     {
@@ -26,7 +26,7 @@ class StatsAPIControllerTest extends TestCase
     /**
      * Tests fans API
      *
-     * @covers StatsAPIController::getFans()
+     * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFans()
      */
     public function testFansApiView()
     {
@@ -38,7 +38,7 @@ class StatsAPIControllerTest extends TestCase
     /**
      * Tests Funds API
      *
-     * @covers StatsAPIController::getFunds()
+     * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFunds()
      */
     public function testFundsApiView()
     {
@@ -50,7 +50,7 @@ class StatsAPIControllerTest extends TestCase
     /**
      * Tests fleet api
      *
-     * @covers StatsAPIController::getFleet()
+     * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFleet()
      */
     public function testFleetApiView()
     {
