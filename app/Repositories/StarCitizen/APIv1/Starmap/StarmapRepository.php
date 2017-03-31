@@ -7,7 +7,9 @@
 
 namespace App\Repositories\StarCitizen\APIv1\Starmap;
 
+use App\Models\Starsystem;
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI;
+use App\Transformers\StarCitizen\Starmap\SystemListTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
 
 /**
@@ -59,5 +61,15 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     {
         // TODO: Implement search() method.
         return $this;
+    }
+
+    /**
+     * @return StarmapRepository
+     */
+    public function getSystemList()
+    {
+        $this->dataToTransform = Starsystem::all()->toArray();
+
+        return $this->collection()->withTransformer(SystemListTransformer::class);
     }
 }

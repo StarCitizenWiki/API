@@ -10,6 +10,7 @@ namespace App\Http\Controllers\StarCitizen;
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\Starmap\StarmapRepository;
+use Illuminate\Http\Request;
 
 /**
  * Class StarmapAPIController
@@ -48,6 +49,29 @@ class StarmapAPIController extends Controller
         try {
             return response()->json(
                 $this->repository->getSystem($name)->asArray(),
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        } catch (InvalidDataException $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Returns a list with all known Systems
+     *
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getSystemList(Request $request)
+    {
+        $this->repository->getSystemList();
+        $this->repository->transformer->addFilters($request);
+        try {
+            return response()->json(
+                $this->repository->asArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT

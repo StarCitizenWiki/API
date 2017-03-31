@@ -5,8 +5,9 @@
  * Time: 12:28
  */
 
-namespace App\Transformers\StarCitizenWiki\Ships;
+namespace App\Transformers\StarCitizen\Starmap;
 
+use App\Models\Starsystem;
 use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
@@ -16,7 +17,7 @@ use League\Fractal\TransformerAbstract;
  *
  * @package App\Transformers\StarCitizenWiki\Ships
  */
-class ShipsListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class SystemListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
     use FiltersDataTrait;
 
@@ -25,18 +26,18 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
     /**
      * Transformes the whole ship list
      *
-     * @param mixed $ship Data
+     * @param Starsystem $system
      *
      * @return array
+     * @internal param mixed $ship Data
+     *
      */
-    public function transform($ship)
+    public function transform($system)
     {
-        $ship['displaytitle'] = str_replace(' ', '_', $ship['displaytitle']);
-
         $transformed = [
-            $ship['displaytitle'] => [
-                'api_url' => '//'.config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
-                'wiki_url' => $ship['fullurl'],
+            $system['code'] => [
+                'api_url' => '//'.config('app.api_url').'/api/v1/starmap/systems/'.$system['code'],
+                'wiki_url' => '//star-citizen.wiki/'.ucfirst(strtolower($system['code'])),
             ],
         ];
 

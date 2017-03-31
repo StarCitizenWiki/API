@@ -29,6 +29,26 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
      */
     public function transform($ship)
     {
-        return $ship;
+        $title = $ship['query']['subject'];
+        $transformed = [];
+
+        foreach ($ship['query']['data'] as $data) {
+            if ($data['property'][0] !== '_') {
+                $transformed += [
+                    $data['property'] => $data['dataitem'][0]['item'],
+                ];
+            }
+
+            if ($data['property'] === '_DTITLE') {
+                $title = $data['dataitem'][0]['item'];
+            }
+        }
+
+        $transformed = [
+            $title => $transformed,
+            'original' => $ship,
+        ];
+
+        return $this->filterData($transformed);
     }
 }

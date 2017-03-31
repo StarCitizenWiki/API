@@ -23,6 +23,11 @@ interface StarmapInterface
     public function getSystem(String $systemName);
 
     /**
+     * @return StarmapRepository
+     */
+    public function getSystemList();
+
+    /**
      * https://robertsspaceindustries.com/api/starmap/celestial-objects/{SYSTEM_NAME}.[TYPE}.{NAME}
      * @param String $systemName
      * @param String $type
