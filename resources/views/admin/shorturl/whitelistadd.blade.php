@@ -1,6 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Star Citizen Wiki API - Add Whitelist URL')
-@section('lead', 'Add Whitelist URL')
+@section('title', 'Add Whitelist URL')
 
 @section('content')
     @include('layouts.heading')

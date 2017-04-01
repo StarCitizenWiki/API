@@ -8,7 +8,7 @@
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>@yield('title')</title>
+        <title>Star Citizen Wiki API - @yield('title')</title>
         @if ($bootstrapModules['enableCSS'])
             <link rel="stylesheet" href="{{ URL::asset('/css/app.css') }}">
         @endif
@@ -32,6 +32,8 @@
                         <a class="dropdown-item" href="{{ route('admin_urls_list') }}">URLs</a>
                         <a class="dropdown-item" href="{{ route('admin_urls_whitelist_list') }}">URLs Whitelist</a>
                         <a class="dropdown-item" href="{{ route('admin_urls_whitelist_add_form') }}">Add Whitelist</a>
+                        <a class="dropdown-item" href="{{ route('admin_starmap_systems_list') }}">Starmap Systems</a>
+                        <a class="dropdown-item" href="{{ route('admin_starmap_systems_add_form') }}">Add Starmap System</a>
                     </div>
                 </li>
             @endif

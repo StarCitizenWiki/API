@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Star Citizen Wiki Tools - Image Resizer')
+@section('title', 'Image Resizer')
 
 @section('content')
     <div class="container mt-2">

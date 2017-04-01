@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Star Citizen Wiki API - Account')
+@section('title', 'Account')
 @if($user->isBlacklisted())
     @section('lead')
         <span class="text-danger">Account gesperrt</span>

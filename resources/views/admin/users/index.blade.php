@@ -1,6 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Star Citizen Wiki API - Users')
-@section('lead', 'Users')
+@section('title', 'Users')
 
 @section('header')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.13/css/dataTables.bootstrap4.min.css" integrity="sha256-8q/3ffDrRz4p4BiTZBtd2pgHADVDicr2W2Xvd43ABkI=" crossorigin="anonymous" />

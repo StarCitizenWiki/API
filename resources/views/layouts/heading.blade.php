@@ -5,7 +5,7 @@
                 <img src="https://star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/157px-Star_Citizen_Wiki_Logo.png" class="center-block mb-2">
             </a>
             <h1>Star Citizen Wiki API</h1>
-            <p class="lead">@yield('lead')</p>
+            <p class="lead">@yield('title')</p>
         </div>
     </div>
 </div>

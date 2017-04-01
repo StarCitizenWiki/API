@@ -1,6 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Star Citizen Wiki API - Edit Account')
-@section('lead', 'Edit Account')
+@section('title', 'Edit Account')
 
 @section('content')
     @include('layouts.heading');
