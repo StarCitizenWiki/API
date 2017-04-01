@@ -80,6 +80,16 @@ return [
             'root' => storage_path('app/api/starmap'),
         ],
 
+        'scdb' => [
+            'driver' => 'local',
+            'root' => storage_path('app/scdb'),
+        ],
+
+        'scdb_ships' => [
+            'driver' => 'local',
+            'root' => storage_path('app/scdb/ships'),
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => 'your-key',

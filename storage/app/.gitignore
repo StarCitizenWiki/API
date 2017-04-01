@@ -1,4 +1,6 @@
 *
 !public/
 !tools/
+!api/
+!scdb
 !.gitignore

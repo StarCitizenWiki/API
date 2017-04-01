@@ -11,6 +11,9 @@ use App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI;
 use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ShipsRepository
@@ -33,6 +36,23 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             '?action=browsebysubject&format=json&subject='.$shipName,
             []
         );
+
+        if (isset($this->dataToTransform['query']['subject'])) {
+            $client = new Client([
+                'base_uri' => 'http://starcitizendb.com/static/ships/specs/',
+                'timeout' => 2.0,
+            ]);
+
+            $subject = explode('/', $this->dataToTransform['query']['subject']);
+            if (count($subject) === 3) {
+                $fileName = $subject[1].'_'.$shipName.'.json';
+
+                if (Storage::disk('scdb_ships')->exists($fileName)) {
+                    $content = Storage::disk('scdb_ships')->get($fileName);
+                    $this->dataToTransform['scdb'] = json_decode($content, true);
+                }
+            }
+        }
 
         return $this;
     }
