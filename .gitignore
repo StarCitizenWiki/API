@@ -10,3 +10,5 @@ Homestead.yaml
 composer.phar
 /Vagrantfile
 /composer.lock
+.gitignore
+ships/
