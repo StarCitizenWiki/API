@@ -6,7 +6,7 @@
  * Time: 09:50
  */
 
-namespace App\Transformers\Tools;
+namespace App\Transformers\ShortURL;
 
 use App\Models\ShortURL\ShortURL;
 use League\Fractal\TransformerAbstract;

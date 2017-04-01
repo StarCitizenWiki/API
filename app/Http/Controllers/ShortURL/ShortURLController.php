@@ -12,16 +12,11 @@ use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
 use App\Traits\TransformesDataTrait;
-use App\Transformers\Tools\ShortURLTransformer;
-use Carbon\Carbon;
+use App\Transformers\ShortURL\ShortURLTransformer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
-use Spatie\Fractal\Fractal;
 
 /**
  * Class ShortURLController
@@ -153,40 +148,6 @@ class ShortURLController extends Controller
     }
 
     /**
-     * Updates a ShortURL by ID
-     *
-     * @param Request $request Update Request and Data
-     * @param int     $id      ShortURL ID
-     *
-     * @return bool
-     */
-    public function update(Request $request, int $id)
-    {
-        $data = [
-            'url' => ShortURL::sanitizeURL($request->get('url')),
-            'hash_name' => $request->get('hash_name'),
-            'user_id' => $request->get('user_id'),
-        ];
-
-        $rules = [
-            'url' => 'required|active_url|max:255',
-            'hash_name' => 'required|alpha_dash|max:32',
-            'user_id' => 'required|integer|exists:users,id',
-        ];
-
-        validate_array($data, $rules, $request);
-
-        $url = ShortURL::updateShortURL([
-            'id' => $id,
-            'url' => ShortURL::sanitizeURL($request->get('url')),
-            'hash_name' => $request->get('hash_name'),
-            'user_id' => $request->get('user_id'),
-        ]);
-
-        return $url;
-    }
-
-    /**
      * Creates a ShortURL
      *
      * @param Request $request Create Request
@@ -247,25 +208,5 @@ class ShortURLController extends Controller
 
         return redirect()->route('short_url_index')
                          ->with('hash_name', $url['data'][0]['hash_name']);
-    }
-
-    /**
-     * Deletes a ShortURL by ID
-     *
-     * @param int $id ShortURL ID
-     *
-     * @return void
-     */
-    public function delete(int $id) : void
-    {
-        $url = ShortURL::find($id);
-
-        Log::info('URL Deleted', [
-            'id' => $url->id,
-            'owner' => $url->user()->first()->email,
-            'deleted_by' => Auth::user()->email,
-        ]);
-
-        $url->delete();
     }
 }
