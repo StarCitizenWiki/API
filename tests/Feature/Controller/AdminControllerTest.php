@@ -8,6 +8,13 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
+/**
+ * Class AdminControllerTest
+ * @package Tests\Feature\Controller
+ *
+ * Delete to enable Test - Läuft bis jetzt online nicht durch, lokal aber schon
+ * @requires extension local_only
+ */
 class AdminControllerTest extends TestCase
 {
     use DatabaseTransactions, WithoutMiddleware;
