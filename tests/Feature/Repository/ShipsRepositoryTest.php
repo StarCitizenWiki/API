@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Repository;
 
+use App\Exceptions\InvalidDataException;
 use App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
@@ -10,7 +11,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * Class ShipsTest
- * @package Tests\Feature
+ * @package Tests\Feature\Repository
+ * @covers \App\Repositories\BaseAPITrait
+ * @covers \App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI
  */
 class ShipsRepositoryTest extends TestCase
 {
@@ -64,5 +67,18 @@ class ShipsRepositoryTest extends TestCase
          $this->repository->getShipList();
          $this->repository->transformer->addFilterArray(['api_url']);
          $this->assertNotContains('"wiki_url":', $this->repository->asJSON());
+    }
+
+    /**
+     * Test if InvalidDataException is thrown if unknown field is filtered
+     *
+     * @covers \App\Traits\FiltersDataTrait::filterData()
+     */
+    public function testFilterException()
+    {
+        $this->repository->getShipList();
+        $this->expectException(InvalidDataException::class);
+        $this->repository->transformer->addFilterArray(['notexists']);
+        $this->repository->asJSON();
     }
 }

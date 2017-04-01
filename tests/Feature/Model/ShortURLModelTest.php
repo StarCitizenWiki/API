@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Model;
 
 use App\Exceptions\URLNotWhitelistedException;
 use App\Models\ShortURL\ShortURL;

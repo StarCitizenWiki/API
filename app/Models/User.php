@@ -52,18 +52,25 @@ class User extends Authenticatable
     public static function updateUser(array $data) : bool
     {
         $changes = [];
-        $changes[] = ['updated_by' => Auth::id()];
+        $changes[] = [
+            'updated_by' => Auth::id(),
+        ];
 
         $user = User::withTrashed()->findOrFail($data['id']);
 
         foreach ($data as $key => $value) {
             if ($user->$key != $value) {
                 if ($key !== 'password') {
-                    $changes[] = [$key.'_old' => $user->$key, $key.'_new' => $value];
+                    $changes[] = [
+                        $key.'_old' => $user->$key,
+                        $key.'_new' => $value,
+                    ];
                     $user->$key = $value;
                 } else {
                     $user->password = bcrypt($data['password']);
-                    $changes[] = ['password_changed' => true];
+                    $changes[] = [
+                        'password_changed' => true,
+                    ];
                 }
             }
         }

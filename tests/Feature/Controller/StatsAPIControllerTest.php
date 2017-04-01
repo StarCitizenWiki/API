@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Controller;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingTransformerException;
@@ -9,12 +9,20 @@ use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
+/**
+ * Class StatsAPIControllerTest
+ * @package Tests\Feature\Controller
+ */
 class StatsAPIControllerTest extends TestCase
 {
     /**
      * Tests Stats from API
      *
      * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getAll()
+     * @covers \App\Http\Middleware\ThrottleAPI
+     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Middleware\PiwikTracking
+     * @covers \App\Http\Middleware\UpdateTokenTimestamp
      */
     public function testAllApiView()
     {
@@ -27,6 +35,10 @@ class StatsAPIControllerTest extends TestCase
      * Tests fans API
      *
      * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFans()
+     * @covers \App\Http\Middleware\ThrottleAPI
+     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Middleware\PiwikTracking
+     * @covers \App\Http\Middleware\UpdateTokenTimestamp
      */
     public function testFansApiView()
     {
@@ -39,6 +51,10 @@ class StatsAPIControllerTest extends TestCase
      * Tests Funds API
      *
      * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFunds()
+     * @covers \App\Http\Middleware\ThrottleAPI
+     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Middleware\PiwikTracking
+     * @covers \App\Http\Middleware\UpdateTokenTimestamp
      */
     public function testFundsApiView()
     {
@@ -51,6 +67,10 @@ class StatsAPIControllerTest extends TestCase
      * Tests fleet api
      *
      * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFleet()
+     * @covers \App\Http\Middleware\ThrottleAPI
+     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Middleware\PiwikTracking
+     * @covers \App\Http\Middleware\UpdateTokenTimestamp
      */
     public function testFleetApiView()
     {

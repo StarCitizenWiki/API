@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Repository;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingTransformerException;
@@ -9,6 +9,12 @@ use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
+/**
+ * Class StatsRepositoryTest
+ * @package Tests\Feature\Repository
+ * @covers \App\Repositories\BaseAPITrait
+ * @covers \App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI
+ */
 class StatsRepositoryTest extends TestCase
 {
 

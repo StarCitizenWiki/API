@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Controller;
 
 use App\Http\Controllers\StarCitizenWiki\ShipsAPIController;
 use App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository;
@@ -19,6 +19,10 @@ class ShipsAPIControllerTest extends TestCase
      * Get Ship from API
      *
      * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::getShip()
+     * @covers \App\Http\Middleware\ThrottleAPI
+     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Middleware\PiwikTracking
+     * @covers \App\Http\Middleware\UpdateTokenTimestamp
      */
     public function testApiShipView()
     {
@@ -31,6 +35,10 @@ class ShipsAPIControllerTest extends TestCase
      * Test Search
      *
      * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::searchShips()
+     * @covers \App\Http\Middleware\ThrottleAPI
+     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Middleware\PiwikTracking
+     * @covers \App\Http\Middleware\UpdateTokenTimestamp
      */
     public function testSearch()
     {
@@ -41,6 +49,10 @@ class ShipsAPIControllerTest extends TestCase
 
     /**
      * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::getShipList()
+     * @covers \App\Http\Middleware\ThrottleAPI
+     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Middleware\PiwikTracking
+     * @covers \App\Http\Middleware\UpdateTokenTimestamp
      */
     public function testShipsList()
     {

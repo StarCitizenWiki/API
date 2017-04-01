@@ -1,11 +1,12 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Controller;
 
 use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\ShortURL\ShortURLController;
 use App\Models\ShortURL\ShortURL;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -31,7 +32,9 @@ class ShortURLControllerTest extends TestCase
      */
     public function testShortURLResolveRedirect()
     {
-        $response = $this->post('resolve', ['url' => config('app.shorturl_url').'/'.str_random(6)]);
+        $response = $this->post('resolve', [
+            'url' => 'https://localhost/'.str_random(6),
+        ]);
         $response->assertStatus(302);
     }
 

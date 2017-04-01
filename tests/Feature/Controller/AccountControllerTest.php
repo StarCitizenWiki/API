@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Controller;
 
+use App\Models\ShortURL\ShortURL;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use Tests\TestCase;
@@ -23,11 +24,21 @@ class AccountControllerTest extends TestCase
 
     /**
      * @covers \App\Http\Controllers\Auth\AccountController::showAccountView()
+     * @covers \App\Http\Middleware\RedirectIfAuthenticated
      */
     public function testAccountView()
     {
         $response = $this->actingAs($this->user)->get('account');
         $response->assertStatus(200);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Auth\AccountController::delete()
+     */
+    public function testDeleteAccount()
+    {
+        $response = $this->actingAs($this->user)->delete('account', []);
+        $response->assertStatus(302);
     }
 
     /**
@@ -103,11 +114,43 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\AccountController::delete()
+     * @covers \App\Http\Controllers\Auth\AccountController::updateURL()
+     * @covers \App\Models\ShortURL\ShortURL::createShortURL()
+     * @covers \App\Http\Middleware\VerifyCsrfToken
      */
-    public function testeDeleteAccount()
+    public function testUpdateURL()
     {
-        $response = $this->actingAs($this->user)->delete('account', []);
+        $hash_name = str_random(5);
+        $url = ShortURL::createShortURL([
+            'user_id' => $this->user->id,
+            'url' => 'https://star-citizen.wiki/'.str_random(4),
+            'hash_name' => $hash_name,
+        ]);
+
+        $this->assertEquals($hash_name, $url->hash_name);
+
+        $response = $this->actingAs($this->user)->patch('account/urls', [
+            'id' => $url->id,
+            'url' => 'https://star-citizen.wiki/'.str_random(4),
+            'hash_name' => str_random(5),
+        ]);
+
+        $response->assertStatus(302);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Auth\AccountController::updateAccount()
+     * @covers \App\Http\Middleware\VerifyCsrfToken
+     */
+    public function testUpdateAccount()
+    {
+        $response = $this->actingAs($this->user)->patch('account', [
+            'name' => 'UpdatedName',
+            'email' => 'a'.str_random(5).'@star-citizen.wiki',
+            'password' => null,
+            'password_confirmed' => null,
+        ]);
+
         $response->assertStatus(302);
     }
 }

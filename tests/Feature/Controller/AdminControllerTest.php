@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Controller;
 
 use App\Models\User;
 use Tests\TestCase;
@@ -22,6 +22,7 @@ class AdminControllerTest extends TestCase
 
     /**
      * @covers \App\Http\Controllers\Auth\AdminController::showEditUserView()
+     * @covers \App\Http\Middleware\CheckIfAdmin
      */
     public function testEditUserView()
     {
