@@ -23,6 +23,7 @@ class ShipsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\AddAPIHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsTransformer
      */
     public function testApiShipView()
     {
@@ -39,6 +40,7 @@ class ShipsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\AddAPIHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer
      */
     public function testSearch()
     {
@@ -53,6 +55,7 @@ class ShipsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\AddAPIHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer
      */
     public function testShipsList()
     {

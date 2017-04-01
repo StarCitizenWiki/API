@@ -42,6 +42,7 @@ class ShortURLControllerTest extends TestCase
      * Tests json resolve
      *
      * @covers \App\Http\Controllers\ShortURL\ShortURLController::resolve()
+     * @covers \App\Transformers\ShortURL\ShortURLTransformer
      */
     public function testAPIResolve()
     {
@@ -54,6 +55,7 @@ class ShortURLControllerTest extends TestCase
      * Test Repository Creation
      *
      * @covers \App\Http\Controllers\ShortURL\ShortURLController::create()
+     * @covers \App\Transformers\ShortURL\ShortURLTransformer
      */
     public function testShortURLCreationAPI()
     {

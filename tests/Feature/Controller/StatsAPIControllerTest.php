@@ -23,6 +23,7 @@ class StatsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\AddAPIHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Transformers\StarCitizen\Stats\StatsTransformer
      */
     public function testAllApiView()
     {
@@ -39,6 +40,7 @@ class StatsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\AddAPIHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Transformers\StarCitizen\Stats\FansTransformer
      */
     public function testFansApiView()
     {
@@ -55,6 +57,7 @@ class StatsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\AddAPIHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Transformers\StarCitizen\Stats\FundsTransformer
      */
     public function testFundsApiView()
     {
@@ -71,6 +74,7 @@ class StatsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\AddAPIHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Transformers\StarCitizen\Stats\FleetTransformer
      */
     public function testFleetApiView()
     {
