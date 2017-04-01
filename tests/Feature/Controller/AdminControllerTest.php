@@ -230,4 +230,65 @@ class AdminControllerTest extends TestCase
         ]);
         $response->assertStatus(302);
     }
+
+    /**
+     * @covers \App\Http\Controllers\Auth\AdminController::showStarmapSystemsView()
+     */
+    public function testStarmapSystemsView()
+    {
+        $response = $this->actingAs($this->user)->get('admin/starmap/systems');
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Auth\AdminController::showAddStarmapSystemsView()
+     */
+    public function testAddStarmapSystemsView()
+    {
+        $response = $this->actingAs($this->user)->get('admin/starmap/systems/add');
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Auth\AdminController::showEditStarmapSystemsView()
+     */
+    public function testEditStarmapSystemsView()
+    {
+        $response = $this->actingAs($this->user)->get('admin/starmap/systems/SOL');
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Auth\AdminController::deleteStarmapSystem()
+     */
+    public function testDeleteStarmapSystem()
+    {
+        $response = $this->actingAs($this->user)->delete('admin/starmap/systems', [
+            'id' => 1,
+        ]);
+        $response->assertStatus(302);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Auth\AdminController::addStarmapSystem()
+     */
+    public function testAddStarmapSystem()
+    {
+        $response = $this->actingAs($this->user)->post('admin/starmap/systems', [
+            'code' => 'NEWSYSTEM',
+        ]);
+        $response->assertStatus(302);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Auth\AdminController::updateStarmapSystem()
+     */
+    public function testUpdateStarmapSystem()
+    {
+        $response = $this->actingAs($this->user)->patch('admin/starmap/systems', [
+            'id' => 1,
+            'code' => 'NEWSYSTEM',
+        ]);
+        $response->assertStatus(302);
+    }
 }
