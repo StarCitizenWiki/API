@@ -34,6 +34,17 @@ Route::group(['domain' => config('app.api_url')], function () {
             Route::post('whitelist', ['uses' => 'AdminController@addWhitelistURL'])->name('admin_urls_whitelist_add');
             Route::get('{ID}', ['uses' => 'AdminController@showEditURLView'])->name('admin_urls_edit_form');
         });
+
+        Route::group(['prefix' => 'starmap'], function () {
+            Route::group(['prefix' => 'systems'], function () {
+                Route::get('/', ['uses' => 'AdminController@showStarmapSystemsView'])->name('admin_starmap_systems_list');
+                Route::patch('/', ['uses' => 'AdminController@updateStarmapSystem'])->name('admin_starmap_systems_update');
+                Route::delete('/', ['uses' => 'AdminController@deleteStarmapSystem'])->name('admin_starmap_systems_delete');
+                Route::post('/', ['uses' => 'AdminController@addStarmapSystem'])->name('admin_starmap_systems_add');
+                Route::get('add', ['uses' => 'AdminController@showAddStarmapSystemsView'])->name('admin_starmap_systems_add_form');
+                Route::get('{code}', ['uses' => 'AdminController@showEditStarmapSystemsView'])->name('admin_starmap_systems_edit_form');
+            });
+        });
     });
 
     // Authentication Routes...

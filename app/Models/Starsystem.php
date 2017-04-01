@@ -11,5 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Starsystem extends Model
 {
-    //
+    protected $fillable = [
+        'code',
+    ];
 }
