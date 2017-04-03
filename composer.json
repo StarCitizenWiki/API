@@ -19,7 +19,9 @@
         "symfony/css-selector": "3.1.*",
         "symfony/dom-crawler": "3.1.*",
         "squizlabs/php_codesniffer": "2.*",
-        "escapestudios/symfony2-coding-standard": "~2.0"
+        "escapestudios/symfony2-coding-standard": "~2.0",
+        "barryvdh/laravel-ide-helper": "^2.3",
+        "doctrine/dbal": "^2.5"
     },
     "autoload": {
         "classmap": [

@@ -15,6 +15,20 @@ use Illuminate\Support\Str;
  * Class ShortURL
  *
  * @package App\Models\ShortURL
+ * @property-read \App\Models\User $user
+ * @mixin \Eloquent
+ * @property int $id
+ * @property string $url
+ * @property string $hash_name
+ * @property int $user_id
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereHashName($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUrl($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUserId($value)
  */
 class ShortURL extends Model
 {

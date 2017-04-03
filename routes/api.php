@@ -41,7 +41,6 @@ Route::group(['domain' =>  config('app.api_url')], function () {
                     Route::get('{name}/moons', ['uses' => 'StarmapAPIController@getMoons']);
                     Route::get('{name}/{objectname}', ['uses' => 'StarmapAPIController@getObject']);
                 });
-
             });
 
             Route::group(['prefix' => 'community'], function () {
@@ -61,7 +60,6 @@ Route::group(['domain' =>  config('app.api_url')], function () {
             Route::group(['prefix' => 'leaderboards'], function () {
 
             });
-
         });
 
         Route::group(['namespace' => 'StarCitizenWiki'], function () {
