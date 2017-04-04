@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Controller;
 
+use App\Models\ShortURL\ShortURL;
 use App\Models\User;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
@@ -89,10 +90,16 @@ class AdminControllerTest extends TestCase
 
     /**
      * @covers \App\Http\Controllers\Auth\AdminController::showEditURLView()
+     * @covers \App\Models\ShortURL\ShortURL::create()
      */
     public function testEditURLView()
     {
-        $response = $this->actingAs($this->user)->get('admin/urls/1');
+        $url = ShortURL::create([
+            'url' => 'https://star-citizen.wiki/'.str_random(6),
+            'hash_name' => str_random(5),
+            'user_id' => 1,
+        ]);
+        $response = $this->actingAs($this->user)->get('admin/urls/'.$url->id);
         $response->assertStatus(200);
     }
 
