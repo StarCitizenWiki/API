@@ -349,7 +349,7 @@ class FundImageController extends Controller
             $this->image['width'],
             $this->image['height']
         );
-        \imagesavealpha($this->image['pointer'], true);
+        imagesavealpha($this->image['pointer'], true);
 
         $transparentColor = imagecolorallocatealpha(
             $this->image['pointer'],
@@ -359,7 +359,7 @@ class FundImageController extends Controller
             127
         );
 
-        \imagefill(
+        imagefill(
             $this->image['pointer'],
             0,
             0,
@@ -377,7 +377,7 @@ class FundImageController extends Controller
         $fontColor = $this->allocateColorFromFontArray();
         switch ($this->image['type']) {
             case FundImageController::FUNDING_AND_TEXT:
-                \imagettftext(
+                imagettftext(
                     $this->image['pointer'],
                     25,
                     0,
@@ -387,7 +387,7 @@ class FundImageController extends Controller
                     $this->font['path'],
                     $this->image['text']
                 );
-                \imagettftext(
+                imagettftext(
                     $this->image['pointer'],
                     25,
                     0,
@@ -402,7 +402,7 @@ class FundImageController extends Controller
             case FundImageController::FUNDING_AND_BARS:
                 $this->initBarImage();
                 $fontColor = $this->allocateColorFromFontArray();
-                \imagestring(
+                imagestring(
                     $this->image['pointer'],
                     2,
                     0,
@@ -414,7 +414,7 @@ class FundImageController extends Controller
                 break;
 
             case FundImageController::FUNDING_ONLY:
-                \imagettftext(
+                imagettftext(
                     $this->image['pointer'],
                     20,
                     0,
@@ -490,7 +490,7 @@ class FundImageController extends Controller
     private function flushImageToString() : void
     {
         ob_start();
-        \imagepng($this->image['pointer']);
+        imagepng($this->image['pointer']);
         $this->image['data'] = ob_get_contents();
         ob_end_clean();
     }
