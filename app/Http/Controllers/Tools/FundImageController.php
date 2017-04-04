@@ -199,8 +199,8 @@ class FundImageController extends Controller
     private function setFontColorFromRequest()
     {
         $requestColor = $this->request->get('color');
-        Log::debug(__METHOD__.' requested Color: '.$requestColor);
         if (!is_null($requestColor) && !empty($requestColor)) {
+            Log::debug(__METHOD__.' requested Color: '.$requestColor);
             $colorArray = $this->convertHexToRGBColor($requestColor);
             Log::debug('Generated Color Array', $colorArray);
             if (!empty($colorArray)) {
