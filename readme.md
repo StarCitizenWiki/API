@@ -4,3 +4,5 @@
 # Star Citizen Wiki Scripts
 
 [![build status](https://git.octofox.de/StarCitizenWiki/Scripts/badges/master/build.svg)](https://git.octofox.de/StarCitizenWiki/Scripts/commits/master)
+
+[![coverage report](https://git.octofox.de/StarCitizenWiki/Scripts/badges/master/coverage.svg)](https://git.octofox.de/StarCitizenWiki/Scripts/commits/master)
