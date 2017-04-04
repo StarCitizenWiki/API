@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tools;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -115,17 +116,18 @@ class FundImageController extends Controller
 
     /**
      * Generates the Image with the defined Values
-     *
      * @return mixed
+     * @throws \Exception
      */
     public function getImage()
     {
         try {
             $this->setImageType();
         } catch (\InvalidArgumentException $e) {
-            abort(400);
+            abort(400, $e->getMessage());
         }
 
+        $this->setFontColorFromRequest();
         $this->assembleFileName();
 
         if ($this->checkIfImageCanBeLoadedFromCache()) {
@@ -147,6 +149,7 @@ class FundImageController extends Controller
                 'requester' => $this->request->getHost(),
                 'message' => $e,
             ]);
+            throw new \Exception('Image generatiorn failed');
         }
 
         Log::debug('Fund Image Requested', [
@@ -183,11 +186,55 @@ class FundImageController extends Controller
             $this->image['type'] = Route::getCurrentRoute()->getAction()['type'];
         } else {
             throw new \InvalidArgumentException(
-                'FundImage function only accepts Supported Image Types('
-                .implode(', ', FundImageController::SUPPORTED_FUNDS).'). Input was: '
-                .Route::getCurrentRoute()->getAction()['type']
+                'FundImage function only accepts Supported Image Types('.
+                implode(', ', FundImageController::SUPPORTED_FUNDS).'). Input was: '.
+                Route::getCurrentRoute()->getAction()['type']
             );
         }
+    }
+
+    /**
+     * Checks if the request contains a color field and tries to parse it
+     */
+    private function setFontColorFromRequest()
+    {
+        $requestColor = $this->request->get('color');
+        Log::debug(__METHOD__.' requested Color: '.$requestColor);
+        if (!is_null($requestColor) && !empty($requestColor)) {
+            $colorArray = $this->convertHexToRGBColor($requestColor);
+            Log::debug('Generated Color Array', $colorArray);
+            if (!empty($colorArray)) {
+                $this->font['color'] = $colorArray;
+            }
+        }
+    }
+
+    /**
+     * Convert a hexa decimal color code to its RGB equivalent
+     * http://php.net/manual/de/function.hexdec.php#99478
+     *
+     * @param string $hexStr (hexadecimal color value)
+     *
+     * @return array or string (depending on second parameter. Returns False if invalid hex color value)
+     */
+    private function convertHexToRGBColor($hexStr) : array
+    {
+        $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
+        $rgbArray = [];
+        if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
+            $colorVal = hexdec($hexStr);
+            $rgbArray[] = 0xFF & ($colorVal >> 0x10);
+            $rgbArray[] = 0xFF & ($colorVal >> 0x8);
+            $rgbArray[] = 0xFF & $colorVal;
+        } elseif (strlen($hexStr) == 3) { //if shorthand notation, need some string manipulations
+            $rgbArray[] = hexdec(str_repeat(substr($hexStr, 0, 1), 2));
+            $rgbArray[] = hexdec(str_repeat(substr($hexStr, 1, 1), 2));
+            $rgbArray[] = hexdec(str_repeat(substr($hexStr, 2, 1), 2));
+        } else {
+            return [];
+        }
+
+        return $rgbArray;
     }
 
     /**
@@ -197,12 +244,8 @@ class FundImageController extends Controller
      */
     private function assembleFileName() : void
     {
-        if ($this->font['color'] === FundImageController::COLORS['black']) {
-            $color = '_black';
-        } else {
-            $color = '_blue';
-        }
-        $this->image['name'] = $this->image['type'].$color.'.png';
+        $color = implode('', $this->font['color']);
+        $this->image['name'] = $this->image['type'].'_'.$color.'.png';
     }
 
     /**
@@ -212,13 +255,12 @@ class FundImageController extends Controller
      */
     private function checkIfImageCanBeLoadedFromCache() : bool
     {
-        $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)
-            ->lastModified($this->image['name']);
-        $cacheDuration = time() - FUNDIMAGE_CACHE_TIME;
-        if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->image['name']) &&
-            $imageCreationTime > $cacheDuration
-        ) {
-            return true;
+        if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->image['name'])) {
+            $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->lastModified($this->image['name']);
+            $cacheDuration = time() - FUNDIMAGE_CACHE_TIME;
+            if ($imageCreationTime > $cacheDuration) {
+                return true;
+            }
         }
 
         return false;
@@ -332,7 +374,7 @@ class FundImageController extends Controller
      */
     private function addDataToImage() : void
     {
-        $fontColor = $this->setFontColor();
+        $fontColor = $this->allocateColorFromFontArray();
         switch ($this->image['type']) {
             case FundImageController::FUNDING_AND_TEXT:
                 imagettftext(
@@ -359,7 +401,7 @@ class FundImageController extends Controller
 
             case FundImageController::FUNDING_AND_BARS:
                 $this->initBarImage();
-                $fontColor = $this->setFontColor();
+                $fontColor = $this->allocateColorFromFontArray();
                 imagestring(
                     $this->image['pointer'],
                     2,
@@ -407,10 +449,10 @@ class FundImageController extends Controller
     private function addBarsToBarImage() : void
     {
         $this->font['color'] = FundImageController::COLORS['darkblue'];
-        $darkBlue = $this->setFontColor();
+        $darkBlue = $this->allocateColorFromFontArray();
 
         $this->font['color'] = FundImageController::COLORS['blue'];
-        $blue = $this->setFontColor();
+        $blue = $this->allocateColorFromFontArray();
 
         for ($i = 0; $i <= 300; $i = $i + 5) {
             if ((($this->funds['nextMillion'] - $this->funds['substractor']) / 1000000) * 100 >= $i) {
@@ -430,7 +472,7 @@ class FundImageController extends Controller
      *
      * @return int
      */
-    private function setFontColor()
+    private function allocateColorFromFontArray()
     {
         return imagecolorallocate(
             $this->image['pointer'],
