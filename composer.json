@@ -5,7 +5,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=5.6.4",
+        "php": ">=7.1",
         "laravel/framework": "5.4.*",
         "guzzlehttp/guzzle": "^6.2",
         "spatie/laravel-fractal": "^3.4",
