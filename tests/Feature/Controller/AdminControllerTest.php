@@ -90,7 +90,6 @@ class AdminControllerTest extends TestCase
 
     /**
      * @covers \App\Http\Controllers\Auth\AdminController::showEditURLView()
-     * @covers \App\Models\ShortURL\ShortURL::create()
      */
     public function testEditURLView()
     {
