@@ -5,3 +5,6 @@
 // Bootstrap
 $enable-flex: true;
 @import "node_modules/bootstrap/scss/bootstrap.scss";
+
+@import "datatables_bs4.scss";
+@import "datatables.scss";

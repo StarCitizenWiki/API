@@ -8,6 +8,8 @@ use App\Models\ShortURL\ShortURL;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Rap2hpoutre\LaravelLogViewer\LaravelLogViewer;
@@ -41,11 +43,21 @@ class AdminController extends Controller
     }
 
     /**
-     * @return View
+     * @param Request $request
+     *
+     * @return View|RedirectResponse
      */
-    public function showLogsView() : View
+    public function showLogsView(Request $request)
     {
         Log::debug('Admin Logs View requested');
+
+        if ($request->input('l')) {
+            LaravelLogViewer::setFile(base64_decode($request->input('l')));
+        }
+
+        if ($request->input('dl')) {
+            return response()->download(LaravelLogViewer::pathToLogFile(base64_decode($request->input('dl'))));
+        }
 
         return view('admin.logs')
                     ->with('logs', LaravelLogViewer::all())

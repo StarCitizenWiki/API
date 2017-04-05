@@ -2,7 +2,6 @@
 @section('title', 'Logs')
 
 @section('header')
-    <link rel="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap4.min.css">
     <style>
         .display-5 {
             font-size: 2.5rem;
@@ -28,10 +27,6 @@
             z-index: 2;
             background-color: #f5f5f5;
             border-color: #777;
-        }
-
-        .dataTables_wrapper {
-            padding-right: 40px;
         }
     </style>
 @endsection
@@ -88,12 +83,6 @@
             <div>
                 @if($current_file)
                     <a href="?dl={{ base64_encode($current_file) }}"><span class="fa fa-download"></span> Download file</a>
-                    -
-                    <a id="delete-log" href="?del={{ base64_encode($current_file) }}"><span class="fa fa-trash"></span> Delete file</a>
-                    @if(count($files) > 1)
-                        -
-                        <a id="delete-all-log" href="?delall=true"><span class="fa fa-trash"></span> Delete all files</a>
-                    @endif
                 @endif
             </div>
         </div>
