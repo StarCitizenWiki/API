@@ -65,7 +65,7 @@ Route::group(['domain' => config('app.api_url')], function () {
             Route::get('edit', ['uses' => 'AccountController@showEditAccountView'])->name('account_edit_form');
 
             Route::group(['prefix' => 'urls'], function () {
-                Route::get('/', ['uses' => 'ShortURLController@showURLsView'])->name('account_urls_list');
+                Route::get('/', ['uses' => 'ShortURLController@showURLsListView'])->name('account_urls_list');
                 Route::post('/', ['uses' => 'ShortURLController@addURL'])->name('account_urls_add');
                 Route::delete('/', ['uses' => 'ShortURLController@deleteURL'])->name('account_urls_delete');
                 Route::patch('/', ['uses' => 'ShortURLController@updateURL'])->name('account_urls_update');
