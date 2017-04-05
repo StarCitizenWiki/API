@@ -24,6 +24,10 @@ class StatsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\StatsTransformer
+     * @covers \App\Traits\RestTrait
+     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\RestExceptionHandlerTrait
+     * @covers \App\Traits\FiltersDataTrait
      */
     public function testAllApiView()
     {
@@ -41,6 +45,10 @@ class StatsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FansTransformer
+     * @covers \App\Traits\RestTrait
+     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\RestExceptionHandlerTrait
+     * @covers \App\Traits\FiltersDataTrait
      */
     public function testFansApiView()
     {
@@ -58,6 +66,10 @@ class StatsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FundsTransformer
+     * @covers \App\Traits\RestTrait
+     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\RestExceptionHandlerTrait
+     * @covers \App\Traits\FiltersDataTrait
      */
     public function testFundsApiView()
     {
@@ -75,6 +87,10 @@ class StatsAPIControllerTest extends TestCase
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FleetTransformer
+     * @covers \App\Traits\RestTrait
+     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\RestExceptionHandlerTrait
+     * @covers \App\Traits\FiltersDataTrait
      */
     public function testFleetApiView()
     {

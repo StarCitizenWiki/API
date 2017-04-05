@@ -73,7 +73,13 @@ class ShortURLControllerTest extends TestCase
      */
     public function testDeleteURL()
     {
-        $url = $this->user->shortURLs()->first();
+        $url = ShortURL::createShortURL([
+            'user_id' => $this->user->id,
+            'url' => 'https://star-citizen.wiki/'.str_random(4),
+            'hash_name' => str_random(5),
+            'expires' => null,
+        ]);
+
         $response = $this->actingAs($this->user)->delete('account/urls', [
             'id' => $url->id,
         ]);

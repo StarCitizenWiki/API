@@ -60,7 +60,7 @@ class ShortURLController extends Controller
         try {
             $url = Auth::user()->shortURLs()->findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            Log::info('User tried to edit unowned ShortURL', [
+            Log::info('['.__METHOD__.'] User tried to edit unowned ShortURL', [
                 'user_id' => Auth::id(),
                 'email' => Auth::user()->email,
                 'url_id' => $id,

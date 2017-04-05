@@ -92,15 +92,7 @@ class AccountController extends Controller
             $data['password'] = $request->get('password');
         }
 
-        try {
-            User::updateUser($data);
-        } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] Account not found', [
-                'id' => $data['id'],
-            ]);
-
-            return back()->withErrors('Error updating Account')->withInput(Input::all());
-        }
+        User::updateUser($data);
 
         if (array_key_exists('password', $data)) {
             Auth::logout();

@@ -78,19 +78,13 @@ class StarmapController extends Controller
             'id' => 'required|exists:starsystems|int',
         ]);
 
-        try {
-            $system = Starsystem::findOrFail($request->id);
-            Log::info('Starmap System deleted', [
-                'deleted_by' => Auth::id(),
-                'system_id' => $system->id,
-                'code' => $system->code,
-            ]);
-            $system->delete();
-        } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] System not found', [
-                'id' => $request->id,
-            ]);
-        }
+        $system = Starsystem::findOrFail($request->id);
+        Log::info('Starmap System deleted', [
+            'deleted_by' => Auth::id(),
+            'system_id' => $system->id,
+            'code' => $system->code,
+        ]);
+        $system->delete();
 
         return redirect()->route('admin_starmap_systems_list');
     }
