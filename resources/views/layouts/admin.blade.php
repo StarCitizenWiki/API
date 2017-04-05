@@ -25,10 +25,16 @@
         <div class="container-fluid" style="min-height: 100vh;">
             <div class="row" style="min-height: 100vh;">
                 <div class="col-12 col-md-2 bg-inverse pb-4" style="min-height: 100vh;">
-                    <img src="https://star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/157px-Star_Citizen_Wiki_Logo.png" class="d-block mx-auto my-4 img-fluid">
+                    <img src="https://star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/157px-Star_Citizen_Wiki_Logo.png" class="d-block mx-auto my-4 img-fluid" style="max-width: 100px;">
                     <ul class="nav flex-column">
                         <li class="nav-item ">
-                            <a class="nav-link text-muted disabled" href="#">App</a>
+                            <span class="nav-link text-muted">App</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="{{ route('auth_logout') }}"><i class="fa fa-sign-out mr-1"></i> Logout</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="{{ route('admin_logs') }}"><i class="fa fa-book mr-1"></i> Logs</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white active" href="//{{ config('app.api_url') }}"><i class="fa fa-cogs mr-1"></i> API</a>
@@ -42,7 +48,7 @@
                     </ul>
                     <ul class="nav flex-column mt-4">
                         <li class="nav-item ">
-                            <a class="nav-link text-muted disabled" href="#">Admin</a>
+                            <span class="nav-link text-muted">Admin</span>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white active" href="{{ route('admin_dashboard') }}"><i class="fa fa-dashboard mr-1"></i> Dashboard</a>
@@ -56,7 +62,7 @@
                     </ul>
                     <ul class="nav flex-column mt-4">
                         <li class="nav-item ">
-                            <a class="nav-link text-muted disabled" href="#">URLs</a>
+                            <span class="nav-link text-muted">URLs</span>
                         </li>
                         <li class="nav-item ">
                             <a class="nav-link text-white" href="{{ route('admin_urls_list') }}"><i class="fa fa-link mr-1"></i> ShortURLs</a>
@@ -70,7 +76,7 @@
                     </ul>
                     <ul class="nav flex-column mt-4">
                         <li class="nav-item ">
-                            <a class="nav-link text-muted disabled" href="#">Starmap</a>
+                            <span class="nav-link text-muted">Starmap</span>
                         </li>
                         <li class="nav-item ">
                             <a class="nav-link text-white" href="{{ route('admin_starmap_systems_list') }}"><i class="fa fa-circle-o-notch mr-1"></i> Systems</a>

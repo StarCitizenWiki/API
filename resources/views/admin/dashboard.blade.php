@@ -9,6 +9,24 @@
     .date {
         white-space: nowrap;
     }
+
+    .stack {
+        font-size: 0.85em;
+    }
+
+    .date {
+        min-width: 75px;
+    }
+
+    .text {
+        word-break: break-all;
+    }
+
+    a.llv-active {
+        z-index: 2;
+        background-color: #f5f5f5;
+        border-color: #777;
+    }
 </style>
 @endsection
 

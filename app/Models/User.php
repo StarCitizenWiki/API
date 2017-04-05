@@ -169,7 +169,7 @@ class User extends Authenticatable
     public function shortURLs()
     {
         Log::debug('Requested Users ShortURLs', [
-            'id' => $this->id,
+            'id' => Auth::id(),
         ]);
 
         return $this->hasMany('App\Models\ShortURL\ShortURL');

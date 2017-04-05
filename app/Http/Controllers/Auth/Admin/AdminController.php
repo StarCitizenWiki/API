@@ -26,7 +26,7 @@ class AdminController extends Controller
      */
     public function showDashboardView() : View
     {
-        Log::debug('Admin Show Dashboard View requested');
+        Log::debug('Admin Dashboard View requested');
 
         return view('admin.dashboard')
             ->with('users', User::all())
@@ -41,13 +41,26 @@ class AdminController extends Controller
     }
 
     /**
+     * @return View
+     */
+    public function showLogsView() : View
+    {
+        Log::debug('Admin Logs View requested');
+
+        return view('admin.logs')
+                    ->with('logs', LaravelLogViewer::all())
+                    ->with('files', LaravelLogViewer::getFiles(true))
+                    ->with('current_file', LaravelLogViewer::getFileName());
+    }
+
+    /**
      * Returns the View to list all routes
      *
      * @return View
      */
     public function showRoutesView() : View
     {
-        Log::debug('Admin Show Routes View requested');
+        Log::debug('Admin Routes View requested');
 
         return view('admin.routes.index');
     }

@@ -15,6 +15,7 @@ Route::group(['domain' => config('app.api_url')], function () {
 
     Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Auth\Admin'], function () {
         Route::get('/', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');
+        Route::get('logs', ['uses' => 'AdminController@showLogsView'])->name('admin_logs');
 
         Route::group(['prefix' => 'users'], function () {
             Route::get('/', ['uses' => 'UserController@showUsersListView'])->name('admin_users_list');
