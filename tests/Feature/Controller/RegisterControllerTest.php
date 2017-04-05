@@ -9,6 +9,10 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
+/**
+ * Class RegisterControllerTest
+ * @package Tests\Feature\Controller
+ */
 class RegisterControllerTest extends TestCase
 {
     use DatabaseTransactions;
