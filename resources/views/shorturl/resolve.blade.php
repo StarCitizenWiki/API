@@ -6,7 +6,7 @@
             <div class="col-10 col-md-6 align-self-center d-flex form-container">
                 <div class="w-100">
                     <img src="{{ URL::asset('/media/images/rsi_im/logo.png') }}" class="img-responsive mb-5">
-                    @include('snippets.errors')
+                    @include('components.errors')
                     @if (session('url'))
                         <div class="alert alert-success text-center">
                             {{ session('url') }}

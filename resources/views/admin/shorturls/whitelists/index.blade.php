@@ -33,19 +33,12 @@
                         {{ Carbon\Carbon::parse($url->created_at)->format('d.m.Y') }}
                     </td>
                     <td>
-                        <div class="btn-group btn-group-sm" role="group" aria-label="">
-                            <a href="#" class="btn btn-danger"
-                               onclick="event.preventDefault();
-                                       document.getElementById('delete-form{{ $url->id }}').submit();">
-                                <form id="delete-form{{ $url->id }}" action="{{ route('admin_urls_whitelist_delete') }}" method="POST" style="display: none;">
-                                    <input name="_method" type="hidden" value="DELETE">
-                                    <input name="id" type="hidden" value="{{ $url->id }}">
-                                    {{ csrf_field() }}
-                                </form>
-                                <i class="fa fa-trash-o"></i>
-                            </a>
-
-                        </div>
+                        @component('components.edit_delete_block')
+                            @slot('delete_url')
+                                {{ route('admin_urls_whitelist_delete') }}
+                            @endslot
+                            {{ $url->id }}
+                        @endcomponent
                     </td>
                 </tr>
             @endforeach
@@ -55,9 +48,5 @@
 @endsection
 
 @section('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#urlTable').DataTable();
-        } );
-    </script>
+    @include('components.init_dataTables')
 @endsection

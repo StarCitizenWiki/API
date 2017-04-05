@@ -33,43 +33,57 @@
 @section('content')
     <section class="row text-center placeholders mat-5 mx-auto">
         <div class="col-sm-6 col-lg-3 mb-1">
-            <div class="card" title="{{ $users_today }} Today">
-                <div class="card-block p-0 clearfix">
-                    <i class="fa fa-users bg-inverse py-4 text-white mr-1 float-left display-5 col-5"></i>
-                    <div class="h5 mb-0 pt-3 text-center">{{ count($users) }}</div>
-                    <div class="text-muted text-uppercase font-weight-bold font-xs text-center">Users</div>
-                </div>
-            </div>
+            @component('admin.components.card')
+                @slot('title')
+                    {{ $users_today }} Today
+                @endslot
+                @slot('icon')
+                    users
+                @endslot
+                @slot('content')
+                    {{ count($users) }}
+                @endslot
+                Users
+            @endcomponent
         </div>
 
         <div class="col-sm-6 col-lg-3 mb-1">
-            <div class="card">
-                <div class="card-block p-0 clearfix">
-                    <i class="fa fa-sign-in bg-inverse py-4 text-white mr-1 float-left display-5 col-5"></i>
-                    <div class="h5 mb-0 pt-4 text-center">{{ $logins }}</div>
-                    <div class="text-muted text-uppercase font-weight-bold font-xs text-center">User Logins</div>
-                </div>
-            </div>
+            @component('admin.components.card')
+                @slot('icon')
+                    sign-in
+                @endslot
+                @slot('content')
+                        {{ $logins }}
+                @endslot
+                    User Logins
+            @endcomponent
         </div>
 
         <div class="col-sm-6 col-lg-3 mb-1">
-            <div class="card">
-                <div class="card-block p-0 clearfix">
-                    <i class="fa fa-code bg-inverse py-4 text-white mr-1 float-left display-5 col-5"></i>
-                    <div class="h5 mb-0 pt-4 text-center">{{ $api_requests }}</div>
-                    <div class="text-muted text-uppercase font-weight-bold font-xs text-center">API Requests Today</div>
-                </div>
-            </div>
+            @component('admin.components.card')
+                @slot('icon')
+                    code
+                @endslot
+                @slot('content')
+                    {{ $api_requests }}
+                @endslot
+                API Requests Today
+            @endcomponent
         </div>
 
         <div class="col-sm-6 col-lg-3 mb-1">
-            <div class="card" title="{{ $urls_today }} Today">
-                <div class="card-block p-0 clearfix">
-                    <i class="fa fa-link bg-inverse py-4 text-white mr-1 float-left display-5 col-5"></i>
-                    <div class="h5 mb-0 pt-4 text-center">{{ count($urls) }}</div>
-                    <div class="text-muted text-uppercase font-weight-bold font-xs text-center">Short URLs</div>
-                </div>
-            </div>
+            @component('admin.components.card')
+                @slot('title')
+                    {{ $urls_today }} Today
+                @endslot
+                @slot('icon')
+                    link
+                @endslot
+                @slot('content')
+                    {{ count($urls) }}
+                @endslot
+                Short URLs
+            @endcomponent
         </div>
 
     </section>
@@ -78,23 +92,23 @@
         <div class="col-12 table-container">
             <h1 class="text-muted mt-4 mb-4">Latest Logs:</h1>
             <h4 class="mt-4 mb-4"><i class="fa fa-warning text-danger mr-1"></i> Errors:</h4>
-            @component('admin.snippets.loglist', ['logs' => $logs])
+            @component('admin.components.loglist', ['logs' => $logs])
                 error
             @endcomponent
 
             <h4 class="mt-5 mb-4"><i class="fa fa-exclamation text-warning mr-1"></i> Warnings:</h4>
-            @component('admin.snippets.loglist', ['logs' => $logs])
+            @component('admin.components.loglist', ['logs' => $logs])
                 warning
             @endcomponent
 
             <h4 class="mt-5 mb-4"><i class="fa fa-info text-info mr-1"></i> Info:</h4>
-            @component('admin.snippets.loglist', ['logs' => $logs])
+            @component('admin.components.loglist', ['logs' => $logs])
                 info
             @endcomponent
 
             @if (config('app.debug'))
                 <h4 class="mt-5 mb-4"><i class="fa fa-bug text-success mr-1"></i> Debug:</h4>
-                @component('admin.snippets.loglist', ['logs' => $logs])
+                @component('admin.components.loglist', ['logs' => $logs])
                     debug
                 @endcomponent
             @endif

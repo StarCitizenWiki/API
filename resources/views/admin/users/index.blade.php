@@ -79,7 +79,7 @@
                             <a href="{{ route('admin_users_edit_form', $user->id) }}" class="btn btn-warning">
                                 <i class="fa fa-pencil"></i>
                             </a>
-                            @if(!$user->trashed())
+                            @unless($user->trashed())
                             <a href="#" class="btn btn-danger"
                                 onclick="event.preventDefault();
                                 document.getElementById('delete-form{{ $user->id }}').submit();">
@@ -100,7 +100,7 @@
                                     </form>
                                     <i class="fa fa-repeat"></i>
                                 </a>
-                            @endif
+                            @endunless
                         </div>
                     </td>
                 </tr>
@@ -118,9 +118,7 @@
     <script>
         $(function () {
             $('[data-toggle="popover"]').popover()
-        })
-        $(document).ready(function() {
-            $('#userTable').DataTable();
-        } );
+        });
     </script>
+    @include('components.init_dataTables')
 @endsection

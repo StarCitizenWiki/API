@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-12 mt-3">
                 <div class="col-12 col-md-4 mx-auto">
-                    @include('snippets.errors')
+                    @include('components.errors')
                 </div>
                 @if (Auth::guest())
                     <form role="form" method="POST" action="{{ route('auth_register') }}">

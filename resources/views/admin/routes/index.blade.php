@@ -2,5 +2,5 @@
 @section('title', 'Routes')
 
 @section('content')
-    @include('snippets.routelist')
+    @include('components.routelist')
 @endsection

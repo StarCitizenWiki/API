@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="col-12 col-md-4 mx-auto">
-        @include('snippets.errors')
+        @include('components.errors')
         <form role="form" method="POST" action="{{ route('admin_starmap_systems_add') }}">
             {{ csrf_field() }}
             <div class="form-group">

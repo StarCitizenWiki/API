@@ -1,12 +1,5 @@
 @extends('layouts.app')
 @section('title', 'Account')
-@if($user->isBlacklisted())
-    @section('lead')
-        <span class="text-danger">Account gesperrt</span>
-    @endsection
-@else
-    @section('lead', 'Account')
-@endif
 
 @section('content')
     @include('layouts.heading')

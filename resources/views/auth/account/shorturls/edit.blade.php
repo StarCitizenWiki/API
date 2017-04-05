@@ -6,7 +6,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12 col-md-6 mx-auto">
-                @include('snippets.errors')
+                @include('components.errors')
                 <form role="form" method="POST" action="{{ route('account_urls_update') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="PATCH">

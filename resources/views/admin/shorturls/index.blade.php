@@ -38,31 +38,18 @@
                     {{ Carbon\Carbon::parse($url->created_at)->format('d.m.Y') }}
                 </td>
                 <td>
-                    @unless(is_null($url->expires))
-                        @if(Carbon\Carbon::parse($url->expires)->lte(\Carbon\Carbon::now()))
-                        Abgelaufen
-                        @else
-                        {{ Carbon\Carbon::parse($url->expires)->format('d.m.Y H:i') }}
-                        @endif
-                    @else
-                    Nie
-                    @endunless
+                    @component('components.shorturls.expiresfield', ['expires' => $url->expires])@endcomponent
                 </td>
                 <td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="">
-                        <a href="{{ route('admin_urls_edit_form', $url->id) }}" class="btn btn-warning">
-                            <i class="fa fa-pencil"></i>
-                        </a>
-                        <a href="#" class="btn btn-danger" onclick="event.preventDefault(); document.getElementById('delete-form{{ $url->id }}').submit();">
-                            <form id="delete-form{{ $url->id }}" action="{{ route('admin_urls_delete') }}" method="POST" style="display: none;">
-                                <input name="_method" type="hidden" value="DELETE">
-                                <input name="id" type="hidden" value="{{ $url->id }}">
-                                {{ csrf_field() }}
-                            </form>
-                            <i class="fa fa-trash-o"></i>
-                        </a>
-
-                    </div>
+                    @component('components.edit_delete_block')
+                        @slot('edit_url')
+                            {{ route('admin_urls_edit_form', $url->id) }}
+                        @endslot
+                        @slot('delete_url')
+                                {{ route('admin_urls_delete') }}
+                        @endslot
+                        {{ $url->id }}
+                    @endcomponent
                 </td>
             </tr>
             @endforeach
@@ -76,9 +63,5 @@
 @endsection
 
 @section('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#urlTable').DataTable();
-        } );
-    </script>
+    @include('components.init_dataTables')
 @endsection

@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="col-12 col-md-4 mx-auto">
-        @include('snippets.errors')
+        @include('components.errors')
         <form role="form" method="POST" action="{{ route('admin_users_update') }}">
             {{ csrf_field() }}
             <input name="_method" type="hidden" value="PATCH">
