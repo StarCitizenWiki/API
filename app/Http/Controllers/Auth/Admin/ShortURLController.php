@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Auth\Admin;
 
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
+use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +30,8 @@ class ShortURLController extends Controller
      */
     public function showURLsListView() : View
     {
+        Log::debug('ShortURL List View requested');
+
         return view('admin.shorturls.index')->with('urls', ShortURL::all());
     }
 
@@ -40,6 +42,8 @@ class ShortURLController extends Controller
      */
     public function showURLWhitelistView() : View
     {
+        Log::debug('ShortURL Whitelist List View requested');
+
         return view('admin.shorturls.whitelists.index')->with('urls', ShortURLWhitelist::all());
     }
 
@@ -50,6 +54,8 @@ class ShortURLController extends Controller
      */
     public function showAddURLWhitelistView() : View
     {
+        Log::debug('Add ShortURL Whitelist View requested');
+
         return view('admin.shorturls.whitelists.add');
     }
 
@@ -64,6 +70,8 @@ class ShortURLController extends Controller
     {
         try {
             $url = ShortURL::findOrFail($id);
+
+            Log::debug('Edit ShortURL List View requested for URL', $url);
 
             return view('admin.shorturls.edit')
                         ->with('url', $url)

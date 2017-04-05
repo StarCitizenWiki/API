@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Auth\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\APIRequests;
 use App\Models\ShortURL\ShortURL;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Rap2hpoutre\LaravelLogViewer\LaravelLogViewer;
 
 /**
@@ -23,15 +26,18 @@ class AdminController extends Controller
      */
     public function showDashboardView() : View
     {
+        Log::debug('Admin Show Dashboard View requested');
+
         return view('admin.dashboard')
             ->with('users', User::all())
+            ->with('users_today', count(User::whereDate('created_at', '=', Carbon::today()->toDateString())->get()))
             ->with('urls', ShortURL::all())
-            ->with('api_requests', count(User::whereDate('api_token_last_used', '=', Carbon::today()->toDateString())))
-            ->with('logins', count(User::whereDate('last_login', '=', Carbon::today()->toDateString())))
+            ->with('urls_today', count(ShortURL::whereDate('created_at', '=', Carbon::today()->toDateString())->get()))
+            ->with('api_requests', count(APIRequests::whereDate('created_at', '=', Carbon::today()->toDateString())->get()))
+            ->with('logins', count(User::whereDate('last_login', '=', Carbon::today()->toDateString())->get()))
             ->with('logs', LaravelLogViewer::all())
             ->with('files', LaravelLogViewer::getFiles(true))
-            ->with('current_file', LaravelLogViewer::getFileName())
-            ;
+            ->with('current_file', LaravelLogViewer::getFileName());
     }
 
     /**
@@ -41,6 +47,8 @@ class AdminController extends Controller
      */
     public function showRoutesView() : View
     {
+        Log::debug('Admin Show Routes View requested');
+
         return view('admin.routes.index');
     }
 }

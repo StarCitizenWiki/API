@@ -113,7 +113,7 @@ class ShortURL extends Model
             }
         }
 
-        Log::info('URL updated', $changes);
+        Log::info('ShortURL created', $changes);
 
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
@@ -169,6 +169,8 @@ class ShortURL extends Model
             $url .= '/';
         }
 
+        Log::debug('Sanitized URL', ['url' => $url]);
+
         return $url;
     }
 
@@ -183,6 +185,7 @@ class ShortURL extends Model
      */
     private static function checkHashNameInDB($hashName) : void
     {
+        Log::debug('Checked if hash is in DB', ['hash' => $hashName]);
         if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
             throw new HashNameAlreadyAssignedException('Name already assigned');
         }
@@ -202,6 +205,8 @@ class ShortURL extends Model
         $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
 
+        Log::debug('Checked if URL is whitelisted', ['url' => $url]);
+
         if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {
             throw new URLNotWhitelistedException('Url '.$url.' is not whitelisted');
         }
@@ -217,6 +222,8 @@ class ShortURL extends Model
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);
         } while (ShortURL::where('hash_name', '=', $hashName)->count() > 0);
+
+        Log::debug('Generated Hash', ['hash' => $hashName]);
 
         return $hashName;
     }

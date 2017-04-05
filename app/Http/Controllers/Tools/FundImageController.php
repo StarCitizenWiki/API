@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Tools;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
+use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class FundImageController
@@ -149,11 +148,12 @@ class FundImageController extends Controller
                 'requester' => $this->request->getHost(),
                 'message' => $e,
             ]);
-            throw new \Exception('Image generatiorn failed');
+            throw new \Exception('Image generation failed');
         }
 
         Log::debug('Fund Image Requested', [
             'type' => $this->image['type'],
+            'name' => $this->image['name'],
             'requester' => $this->request->getHost(),
         ]);
 

@@ -6,12 +6,12 @@ use App\Events\URLShortened;
 use App\Exceptions\ExpiredException;
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
+use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +32,7 @@ class ShortURLController extends Controller
     public function showURLsListView() : View
     {
         $user = Auth::user();
+        Log::debug('User requested Show URL List View', ['user_id' => $user->id]);
 
         return view('auth.account.shorturls.index')->with('urls', $user->shortURLs()->get());
     }
@@ -44,6 +45,7 @@ class ShortURLController extends Controller
     public function showAddURLView() : View
     {
         $user = Auth::user();
+        Log::debug('User requested Add Url View', ['user_id' => $user->id]);
 
         return view('auth.account.shorturls.add')->with('user', $user);
     }
@@ -68,6 +70,8 @@ class ShortURLController extends Controller
 
             return redirect()->route('account_urls_list');
         }
+
+        Log::debug('User requested Edit ShortURL View', $url);
 
         return view('auth.account.shorturls.edit')->with('url', $url);
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\StarCitizenWiki;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class ShipsAPIController
@@ -40,6 +41,8 @@ class ShipsAPIController extends Controller
      */
     public function getShip(Request $request, String $name)
     {
+        Log::debug('Ship requested', ['name' => $name]);
+
         $data = $this->repository->getShip($name);
         $this->repository->transformer->addFilters($request);
 
@@ -60,6 +63,8 @@ class ShipsAPIController extends Controller
      */
     public function getShipList(Request $request)
     {
+        Log::debug('ShipList requested');
+
         $this->repository->getShipList();
         $this->repository->transformer->addFilters($request);
 
@@ -80,6 +85,8 @@ class ShipsAPIController extends Controller
      */
     public function searchShips(Request $request)
     {
+        Log::debug('Trying to search for Ship', ['query' => $request->get('query')]);
+
         $this->validate($request, [
             'query' => 'present|alpha_dash',
         ]);

@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class ShortURLController
@@ -45,6 +46,8 @@ class ShortURLController extends Controller
      */
     public function showShortURLView() : View
     {
+        Log::debug('ShortURL Index requested');
+
         return view('shorturl.index')
                     ->with(
                         'whitelistedURLs',
@@ -61,6 +64,8 @@ class ShortURLController extends Controller
      */
     public function showResolveView() : View
     {
+        Log::debug('ShortURL Resolve View requested');
+
         return view('shorturl.resolve');
     }
 
@@ -73,6 +78,7 @@ class ShortURLController extends Controller
      */
     public function resolveAndRedirect(String $hash)
     {
+        Log::debug('Trying to resolve URL hash', ['hash' => $hash]);
         $url = $this->resolveExceptionRedirectTo('short_url_index', $hash);
 
         if ($url instanceof RedirectResponse) {
@@ -91,6 +97,8 @@ class ShortURLController extends Controller
      */
     public function resolveAndDisplay(Request $request)
     {
+        Log::debug('Trying to unshorten URL', ['url' => $request->get('url')]);
+
         $this->validate($request, [
             'url' => 'required|url',
         ]);

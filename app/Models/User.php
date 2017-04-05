@@ -120,7 +120,10 @@ class User extends Authenticatable
      */
     public function isAdmin() : bool
     {
-        return in_array($this->id, AUTH_ADMIN_IDS);
+        $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
+        Log::debug('Checked if User is Admin', ['id' => $this->id, 'admin' => $isAdmin]);
+
+        return $isAdmin;
     }
 
     /**
@@ -130,7 +133,10 @@ class User extends Authenticatable
      */
     public function isWhitelisted() : bool
     {
-        return $this->whitelisted == 1;
+        $whitelisted = $this->whitelisted == 1;
+        Log::debug('Checked if User is whitelisted', ['id' => $this->id, 'whitelisted' => $whitelisted]);
+
+        return $whitelisted;
     }
 
     /**
@@ -140,7 +146,10 @@ class User extends Authenticatable
      */
     public function isBlacklisted() : bool
     {
-        return $this->blacklisted == 1;
+        $blacklisted = $this->blacklisted == 1;
+        Log::debug('Checked if User is blacklisted', ['id' => $this->id, 'whitelisted' => $blacklisted]);
+
+        return $blacklisted;
     }
 
     /**
@@ -150,6 +159,8 @@ class User extends Authenticatable
      */
     public function shortURLs()
     {
+        Log::debug('Requested Users ShortURLs', ['id' => $this->id]);
+
         return $this->hasMany('App\Models\ShortURL\ShortURL');
     }
 }

@@ -40,6 +40,8 @@ class UserController extends Controller
         try {
             $user = User::withTrashed()->findOrFail($id);
 
+            Log::debug('Edit User View for User requested', ['user_id' => $id]);
+
             return view('admin.users.edit')->with('user', $user);
         } catch (ModelNotFoundException $e) {
             Log::warning('['.__METHOD__.'] User not found', [

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class APIPageController
@@ -19,6 +19,8 @@ class APIPageController extends Controller
      */
     public function showAPIView() : View
     {
+        Log::debug('API Index requested');
+
         return view('api.index');
     }
 }

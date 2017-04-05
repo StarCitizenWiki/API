@@ -13,6 +13,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Class DownloadStarmapData
+ * @package App\Jobs
+ */
 class DownloadStarmapData implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;

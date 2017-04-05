@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 /**
@@ -29,6 +29,8 @@ class ImageResizeController extends Controller
                 'selectionRectangleColor' => '#ff0000',
             ],
         ];
+
+        Log::debug('Image Resizer requested');
 
         return view('tools.imageresizer', compact('imageResizeSettings'));
     }

@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Starsystem;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -22,6 +21,8 @@ class StarmapController extends Controller
      */
     public function showStarmapSystemsView() : View
     {
+        Log::debug('Starmap Systems View requested');
+
         return view('admin.starmap.systems.index')->with('systems', Starsystem::orderBy('code')->get());
     }
 
@@ -32,6 +33,8 @@ class StarmapController extends Controller
      */
     public function showEditStarmapSystemsView(String $code) : View
     {
+        Log::debug('Edit Starmap System View requested');
+
         return view('admin.starmap.systems.edit')->with('system', Starsystem::where('code', $code)->first());
     }
 
@@ -40,6 +43,8 @@ class StarmapController extends Controller
      */
     public function showAddStarmapSystemsView() : View
     {
+        Log::debug('Add Starmap System View requested');
+
         return view('admin.starmap.systems.add');
     }
 

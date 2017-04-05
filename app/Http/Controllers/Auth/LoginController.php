@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -49,6 +49,8 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        Log::debug('User logged out', ['user_id' => Auth::id()]);
+
         $this->guard()->logout();
 
         $request->session()->flush();
@@ -70,6 +72,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if ($user->isBlacklisted()) {
+            Log::info('Blacklisted User tried to login', ['user_id' => $user->id]);
             Auth::logout();
 
             return redirect()->route('auth_login_form')

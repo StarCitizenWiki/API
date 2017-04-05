@@ -2,23 +2,13 @@
 
 namespace App\Http\Controllers\Auth\Account;
 
-use App\Events\URLShortened;
-use App\Exceptions\ExpiredException;
-use App\Exceptions\HashNameAlreadyAssignedException;
-use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
-use App\Models\ShortURL\ShortURL;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\ValidationException;
 
 /**
  * Class AccountController
@@ -34,6 +24,8 @@ class AccountController extends Controller
      */
     public function showAccountView() : View
     {
+        Log::debug('User requested Account View', ['user_id' => Auth::id()]);
+
         return view('auth.account.index')->with('user', Auth::user());
     }
 
@@ -44,6 +36,8 @@ class AccountController extends Controller
      */
     public function showEditAccountView() : View
     {
+        Log::debug('User requested Edit Account View', ['user_id' => Auth::id()]);
+
         return view('auth.account.edit')->with('user', Auth::user());
     }
 
