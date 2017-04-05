@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="overflow-y: scroll; min-height: 100%;">
+<html style="overflow-y: scroll; min-height: 100%; width: 100vw; overflow-x: hidden">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -80,7 +80,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-12 col-md-10 mt-5">
+                <div class="col-12 col-md-10" style="background: #fafafa; padding-right: 30px">
                     <h1 class="my-4 text-center">@yield('title')</h1>
                     @yield('content')
                 </div>

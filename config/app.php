@@ -186,6 +186,8 @@ return [
          * Fractal service
          */
         Spatie\Fractal\FractalServiceProvider::class,
+
+        Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
     ],
 
     /*
