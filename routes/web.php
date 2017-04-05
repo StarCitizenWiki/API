@@ -14,6 +14,8 @@ Route::group(['domain' => config('app.api_url')], function () {
     Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');
 
     Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Auth\Admin'], function () {
+        Route::get('/', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');
+
         Route::group(['prefix' => 'users'], function () {
             Route::get('/', ['uses' => 'UserController@showUsersListView'])->name('admin_users_list');
             Route::delete('/', ['uses' => 'UserController@deleteUser'])->name('admin_users_delete');
