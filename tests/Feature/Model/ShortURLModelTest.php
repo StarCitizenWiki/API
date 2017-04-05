@@ -57,6 +57,7 @@ class ShortURLModelTest extends TestCase
             'url' => $this->url,
             'hash_name' => $this->hashName,
             'user_id' => 1,
+            'expires' => null,
         ]);
 
         $this->assertEquals($this->hashName, $url->hash_name);

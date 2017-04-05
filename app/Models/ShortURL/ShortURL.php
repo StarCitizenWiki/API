@@ -2,9 +2,11 @@
 
 namespace App\Models\ShortURL;
 
+use App\Exceptions\ExpiredException;
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
@@ -71,17 +73,14 @@ class ShortURL extends Model
             $data['hash_name'] = ShortURL::generateShortURLHash();
         }
 
-        $url = ShortURL::create([
-            'url' => $data['url'],
-            'hash_name' => $data['hash_name'],
-            'user_id' => $data['user_id'],
-        ]);
+        $url = new ShortURL();
+        $url->url = $data['url'];
+        $url->hash_name = $data['hash_name'];
+        $url->user_id = $data['user_id'];
+        $url->expires = $data['expires'];
+        $url->save();
 
-        Log::info('URL Shortened', [
-            'url' => $data['url'],
-            'hash_name' => $data['hash_name'],
-            'user_id' => $data['user_id'],
-        ]);
+        Log::info('URL Shortened', $data);
 
         return $url;
     }
@@ -119,6 +118,7 @@ class ShortURL extends Model
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
         $url->user_id = $data['user_id'];
+        $url->expires = $data['expires'];
 
         return $url->save();
     }
@@ -129,8 +129,8 @@ class ShortURL extends Model
      * @param String $hashName Name to resolve
      *
      * @return mixed
-     *
-     * @throws UserBlacklistedException | ModelNotFoundException
+     * @throws ExpiredException
+     * @throws UserBlacklistedException
      */
     public static function resolve(String $hashName)
     {
@@ -140,10 +140,15 @@ class ShortURL extends Model
             'id' => $url->id,
             'hash_name' => $url->hash_name,
             'url' => $url->url,
+            'expires' => $url->expires,
         ]);
 
+        if (!is_null($url->expires) && Carbon::parse($url->expires)->lte(Carbon::now())) {
+            throw new ExpiredException('Url has Expired');
+        }
+
         if ($url->user()->first()->isBlacklisted()) {
-            throw new UserBlacklistedException();
+            throw new UserBlacklistedException('User is blacklisted, can\'t resolve URL');
         }
 
         return $url;
@@ -157,7 +162,7 @@ class ShortURL extends Model
      *
      * @return String
      */
-    public static function sanitizeURL(String $url) : String
+    public static function sanitizeURL($url) : String
     {
         $url = filter_var($url, FILTER_SANITIZE_URL);
         if (!isset(parse_url($url)['path'])) {

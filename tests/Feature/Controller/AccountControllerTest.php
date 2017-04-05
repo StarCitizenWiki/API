@@ -5,6 +5,7 @@ namespace Tests\Feature\Controller;
 use App\Models\ShortURL\ShortURL;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithoutEvents;
+use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -12,7 +13,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class AccountControllerTest extends TestCase
 {
-    use DatabaseTransactions, WithoutMiddleware;
+    use DatabaseTransactions;
 
     private $user;
 
@@ -125,6 +126,7 @@ class AccountControllerTest extends TestCase
             'user_id' => $this->user->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
             'hash_name' => $hash_name,
+            'expires' => null,
         ]);
 
         $this->assertEquals($hash_name, $url->hash_name);
