@@ -1,7 +1,7 @@
 <?php
 /**
  * A helper file for Laravel 5, to provide autocomplete information to your IDE
- * Generated for Laravel 5.4.17 on 2017-04-03.
+ * Generated for Laravel 5.4.17 on 2017-04-05.
  *
  * @author Barry vd. Heuvel <barryvdh@gmail.com>
  * @see https://github.com/barryvdh/laravel-ide-helper
@@ -5802,7 +5802,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function size($queue = null)
         {
-            return \Illuminate\Queue\SyncQueue::size($queue);
+            return \Illuminate\Queue\DatabaseQueue::size($queue);
         }
         
         /**
@@ -5812,12 +5812,11 @@ namespace Illuminate\Support\Facades {
          * @param mixed $data
          * @param string $queue
          * @return mixed 
-         * @throws \Exception|\Throwable
          * @static 
          */
         public static function push($job, $data = '', $queue = null)
         {
-            return \Illuminate\Queue\SyncQueue::push($job, $data, $queue);
+            return \Illuminate\Queue\DatabaseQueue::push($job, $data, $queue);
         }
         
         /**
@@ -5831,7 +5830,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function pushRaw($payload, $queue = null, $options = array())
         {
-            return \Illuminate\Queue\SyncQueue::pushRaw($payload, $queue, $options);
+            return \Illuminate\Queue\DatabaseQueue::pushRaw($payload, $queue, $options);
         }
         
         /**
@@ -5841,12 +5840,40 @@ namespace Illuminate\Support\Facades {
          * @param string $job
          * @param mixed $data
          * @param string $queue
-         * @return mixed 
+         * @return void 
          * @static 
          */
         public static function later($delay, $job, $data = '', $queue = null)
         {
-            return \Illuminate\Queue\SyncQueue::later($delay, $job, $data, $queue);
+            \Illuminate\Queue\DatabaseQueue::later($delay, $job, $data, $queue);
+        }
+        
+        /**
+         * Push an array of jobs onto the queue.
+         *
+         * @param array $jobs
+         * @param mixed $data
+         * @param string $queue
+         * @return mixed 
+         * @static 
+         */
+        public static function bulk($jobs, $data = '', $queue = null)
+        {
+            return \Illuminate\Queue\DatabaseQueue::bulk($jobs, $data, $queue);
+        }
+        
+        /**
+         * Release a reserved job back onto the queue.
+         *
+         * @param string $queue
+         * @param \Illuminate\Queue\Jobs\DatabaseJobRecord $job
+         * @param int $delay
+         * @return mixed 
+         * @static 
+         */
+        public static function release($queue, $job, $delay)
+        {
+            return \Illuminate\Queue\DatabaseQueue::release($queue, $job, $delay);
         }
         
         /**
@@ -5858,7 +5885,31 @@ namespace Illuminate\Support\Facades {
          */
         public static function pop($queue = null)
         {
-            return \Illuminate\Queue\SyncQueue::pop($queue);
+            return \Illuminate\Queue\DatabaseQueue::pop($queue);
+        }
+        
+        /**
+         * Delete a reserved job from the queue.
+         *
+         * @param string $queue
+         * @param string $id
+         * @return void 
+         * @static 
+         */
+        public static function deleteReserved($queue, $id)
+        {
+            \Illuminate\Queue\DatabaseQueue::deleteReserved($queue, $id);
+        }
+        
+        /**
+         * Get the underlying database instance.
+         *
+         * @return \Illuminate\Database\Connection 
+         * @static 
+         */
+        public static function getDatabase()
+        {
+            return \Illuminate\Queue\DatabaseQueue::getDatabase();
         }
         
         /**
@@ -5873,7 +5924,7 @@ namespace Illuminate\Support\Facades {
         public static function pushOn($queue, $job, $data = '')
         {
             //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\SyncQueue::pushOn($queue, $job, $data);
+            return \Illuminate\Queue\DatabaseQueue::pushOn($queue, $job, $data);
         }
         
         /**
@@ -5889,22 +5940,7 @@ namespace Illuminate\Support\Facades {
         public static function laterOn($queue, $delay, $job, $data = '')
         {
             //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\SyncQueue::laterOn($queue, $delay, $job, $data);
-        }
-        
-        /**
-         * Push an array of jobs onto the queue.
-         *
-         * @param array $jobs
-         * @param mixed $data
-         * @param string $queue
-         * @return mixed 
-         * @static 
-         */
-        public static function bulk($jobs, $data = '', $queue = null)
-        {
-            //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\SyncQueue::bulk($jobs, $data, $queue);
+            return \Illuminate\Queue\DatabaseQueue::laterOn($queue, $delay, $job, $data);
         }
         
         /**
@@ -5916,7 +5952,7 @@ namespace Illuminate\Support\Facades {
         public static function getConnectionName()
         {
             //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\SyncQueue::getConnectionName();
+            return \Illuminate\Queue\DatabaseQueue::getConnectionName();
         }
         
         /**
@@ -5929,7 +5965,7 @@ namespace Illuminate\Support\Facades {
         public static function setConnectionName($name)
         {
             //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\SyncQueue::setConnectionName($name);
+            return \Illuminate\Queue\DatabaseQueue::setConnectionName($name);
         }
         
         /**
@@ -5942,7 +5978,7 @@ namespace Illuminate\Support\Facades {
         public static function setContainer($container)
         {
             //Method inherited from \Illuminate\Queue\Queue            
-            \Illuminate\Queue\SyncQueue::setContainer($container);
+            \Illuminate\Queue\DatabaseQueue::setContainer($container);
         }
         
     }         

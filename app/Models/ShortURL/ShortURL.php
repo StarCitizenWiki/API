@@ -31,6 +31,8 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUrl($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUserId($value)
+ * @property string $expires
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereExpires($value)
  */
 class ShortURL extends Model
 {
