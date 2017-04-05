@@ -81,7 +81,11 @@ class ShortURLControllerTest extends TestCase
      */
     public function testDeleteURL()
     {
-        $url = ShortURL::all()->first();
+        $url = ShortURL::create([
+            'url' => 'https://star-citizen.wiki/'.str_random(6),
+            'hash_name' => str_random(5),
+            'user_id' => 1,
+        ]);
         $response = $this->actingAs($this->user)->delete('admin/urls', [
             'id' => $url->id,
         ]);
@@ -140,7 +144,11 @@ class ShortURLControllerTest extends TestCase
      */
     public function testUpdateURL()
     {
-        $url = ShortURL::all()->first();
+        $url = ShortURL::create([
+            'url' => 'https://star-citizen.wiki/'.str_random(6),
+            'hash_name' => str_random(5),
+            'user_id' => 1,
+        ]);
         $response = $this->actingAs($this->user)->patch('admin/urls', [
             'id' => $url->id,
             'url' => 'https://url.com',
