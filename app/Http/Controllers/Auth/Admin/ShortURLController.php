@@ -30,7 +30,7 @@ class ShortURLController extends Controller
      */
     public function showURLsListView() : View
     {
-        return view('admin.shorturl.index')->with('urls', ShortURL::all());
+        return view('admin.shorturls.index')->with('urls', ShortURL::all());
     }
 
     /**
@@ -40,7 +40,7 @@ class ShortURLController extends Controller
      */
     public function showURLWhitelistView() : View
     {
-        return view('admin.shorturl.whitelistindex')->with('urls', ShortURLWhitelist::all());
+        return view('admin.shorturls.whitelists.index')->with('urls', ShortURLWhitelist::all());
     }
 
     /**
@@ -50,7 +50,7 @@ class ShortURLController extends Controller
      */
     public function showAddURLWhitelistView() : View
     {
-        return view('admin.shorturl.whitelistadd');
+        return view('admin.shorturls.whitelists.add');
     }
 
     /**
@@ -65,7 +65,7 @@ class ShortURLController extends Controller
         try {
             $url = ShortURL::findOrFail($id);
 
-            return view('admin.shorturl.edit')
+            return view('admin.shorturls.edit')
                         ->with('url', $url)
                         ->with('users', User::all());
         } catch (ModelNotFoundException $e) {

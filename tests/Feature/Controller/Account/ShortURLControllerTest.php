@@ -1,17 +1,19 @@
 <?php
 
-namespace Tests\Feature\Controller;
+namespace Tests\Feature\Controller\Account;
 
-use App\Models\ShortURL\ShortURL;
 use App\Models\User;
-use Illuminate\Foundation\Testing\WithoutEvents;
-use Illuminate\Support\Facades\Session;
+use App\Models\ShortURL\ShortURL;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class AccountControllerTest extends TestCase
+/**
+ * Class ShortURLTest
+ * @package Tests\Feature\Controller\Account
+ */
+class ShortURLControllerTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -24,35 +26,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\AccountController::showAccountView()
-     * @covers \App\Http\Middleware\RedirectIfAuthenticated
-     */
-    public function testAccountView()
-    {
-        $response = $this->actingAs($this->user)->get('account');
-        $response->assertStatus(200);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Auth\AccountController::delete()
-     */
-    public function testDeleteAccount()
-    {
-        $response = $this->actingAs($this->user)->delete('account', []);
-        $response->assertStatus(302);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Auth\AccountController::showEditAccountView()
-     */
-    public function testAccountEditFormView()
-    {
-        $response = $this->actingAs($this->user)->get('account/edit');
-        $response->assertStatus(200);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Auth\AccountController::showURLsView()
+     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::showURLsListView()
      */
     public function testURLView()
     {
@@ -61,7 +35,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\AccountController::showAddURLView()
+     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::showAddURLView()
      */
     public function testURLAddView()
     {
@@ -70,7 +44,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\AccountController::addURL()
+     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::addURL()
      */
     public function testAddURL()
     {
@@ -83,7 +57,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\AccountController::addURL()
+     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::addURL()
      */
     public function testAddURLException()
     {
@@ -95,7 +69,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\AccountController::deleteURL()
+     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::deleteURL()
      */
     public function testDeleteURL()
     {
@@ -106,7 +80,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\AccountController::showEditURLView()
+     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::showEditURLView()
      */
     public function testEditURLViewNotExist()
     {
@@ -115,7 +89,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\AccountController::updateURL()
+     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::updateURL()
      * @covers \App\Models\ShortURL\ShortURL::createShortURL()
      * @covers \App\Http\Middleware\VerifyCsrfToken
      */
@@ -135,22 +109,6 @@ class AccountControllerTest extends TestCase
             'id' => $url->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
             'hash_name' => str_random(5),
-        ]);
-
-        $response->assertStatus(302);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Auth\AccountController::updateAccount()
-     * @covers \App\Http\Middleware\VerifyCsrfToken
-     */
-    public function testUpdateAccount()
-    {
-        $response = $this->actingAs($this->user)->patch('account', [
-            'name' => 'UpdatedName',
-            'email' => 'a'.str_random(5).'@star-citizen.wiki',
-            'password' => null,
-            'password_confirmed' => null,
         ]);
 
         $response->assertStatus(302);

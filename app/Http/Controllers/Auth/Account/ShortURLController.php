@@ -29,11 +29,11 @@ class ShortURLController extends Controller
      *
      * @return View
      */
-    public function showURLsView() : View
+    public function showURLsListView() : View
     {
         $user = Auth::user();
 
-        return view('auth.account.shorturl.index')->with('urls', $user->shortURLs()->get());
+        return view('auth.account.shorturls.index')->with('urls', $user->shortURLs()->get());
     }
 
     /**
@@ -45,7 +45,31 @@ class ShortURLController extends Controller
     {
         $user = Auth::user();
 
-        return view('auth.account.shorturl.add')->with('user', $user);
+        return view('auth.account.shorturls.add')->with('user', $user);
+    }
+
+    /**
+     * Returns the Edit ShortURL View
+     *
+     * @param int $id The ShortURL ID to edit
+     *
+     * @return View | RedirectResponse
+     */
+    public function showEditURLView(int $id)
+    {
+        try {
+            $url = Auth::user()->shortURLs()->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            Log::info('User tried to edit unowned ShortURL', [
+                'user_id' => Auth::id(),
+                'email' => Auth::user()->email,
+                'url_id' => $id,
+            ]);
+
+            return redirect()->route('account_urls_list');
+        }
+
+        return view('auth.account.shorturls.edit')->with('url', $url);
     }
 
     /**
@@ -96,8 +120,7 @@ class ShortURLController extends Controller
 
         event(new URLShortened($url));
 
-        return redirect()->route('account_urls_list')
-            ->with('hash_name', $url->hash_name);
+        return redirect()->route('account_urls_list')->with('hash_name', $url->hash_name);
     }
 
     /**
@@ -131,30 +154,6 @@ class ShortURLController extends Controller
         }
 
         return back();
-    }
-
-    /**
-     * Returns the Edit ShortURL View
-     *
-     * @param int $id The ShortURL ID to edit
-     *
-     * @return View | RedirectResponse
-     */
-    public function showEditURLView(int $id)
-    {
-        try {
-            $url = Auth::user()->shortURLs()->findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            Log::info('User tried to edit unowned ShortURL', [
-                'user_id' => Auth::id(),
-                'email' => Auth::user()->email,
-                'url_id' => $id,
-            ]);
-
-            return redirect()->route('account_urls_list');
-        }
-
-        return view('auth.account.shorturl.edit')->with('url', $url);
     }
 
     /**

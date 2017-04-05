@@ -22,7 +22,7 @@ class StarmapController extends Controller
      */
     public function showStarmapSystemsView() : View
     {
-        return view('admin.starmap.systems')->with('systems', Starsystem::orderBy('code')->get());
+        return view('admin.starmap.systems.index')->with('systems', Starsystem::orderBy('code')->get());
     }
 
     /**
@@ -32,7 +32,7 @@ class StarmapController extends Controller
      */
     public function showEditStarmapSystemsView(String $code) : View
     {
-        return view('admin.starmap.editsystem')->with('system', Starsystem::where('code', $code)->first());
+        return view('admin.starmap.systems.edit')->with('system', Starsystem::where('code', $code)->first());
     }
 
     /**
@@ -40,7 +40,7 @@ class StarmapController extends Controller
      */
     public function showAddStarmapSystemsView() : View
     {
-        return view('admin.starmap.addsystem');
+        return view('admin.starmap.systems.add');
     }
 
     /**

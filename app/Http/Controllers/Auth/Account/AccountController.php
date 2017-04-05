@@ -38,6 +38,16 @@ class AccountController extends Controller
     }
 
     /**
+     * Returns the Account Edit View
+     *
+     * @return View
+     */
+    public function showEditAccountView() : View
+    {
+        return view('auth.account.edit')->with('user', Auth::user());
+    }
+
+    /**
      * Function to delete the associated User Account
      *
      * @return RedirectResponse
@@ -53,16 +63,6 @@ class AccountController extends Controller
         ]);
 
         return redirect(AUTH_HOME);
-    }
-
-    /**
-     * Returns the Account Edit View
-     *
-     * @return View
-     */
-    public function showEditAccountView() : View
-    {
-        return view('auth.account.edit')->with('user', Auth::user());
     }
 
     /**
