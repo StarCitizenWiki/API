@@ -18,6 +18,7 @@ class CreateShortUrlsTable extends Migration
             $table->string('url')->unique();
             $table->string('hash_name')->unique();
             $table->integer('user_id');
+            $table->dateTime('expires')->nullable();
             $table->timestamps();
         });
     }

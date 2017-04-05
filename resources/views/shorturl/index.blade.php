@@ -15,7 +15,7 @@
                 <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_create_redirect') }}">
                     {{ csrf_field() }}
                     <div class="input-group input-group-lg mb-2">
-                        <input type="url" name="url" id="url" class="form-control" placeholder="Long URL" required>
+                        <input type="url" name="url" id="url" class="form-control" placeholder="Long URL" required value="{{ old('url') }}">
                         <span class="input-group-btn">
                             <button class="btn btn-info" type="submit">Shorten</button>
                         </span>
@@ -23,10 +23,14 @@
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" href="#customize" aria-expanded="false" aria-controls="customize"><i class="fa fa-cog"></i></button>
                         </span>
                     </div>
-                    <div class="collapse mt-3" id="customize">
-                        <div class="input-group">
+                    <div class="collapse" id="customize">
+                        <div class="input-group mt-3">
                             <span class="input-group-addon" id="hash_name-label">Custom Name:</span>
-                            <input type="text" class="form-control" id="hash_name" name="hash_name" aria-describedby="hash_name-label" placeholder="Alphanumeric and -_">
+                            <input type="text" class="form-control" id="hash_name" name="hash_name" aria-describedby="hash_name-label" placeholder="Alphanumeric and -_" value="{{ old('hash_name') }}">
+                        </div>
+                        <div class="input-group mt-3">
+                            <span class="input-group-addon" id="expires-label">Expires:</span>
+                            <input type="datetime-local" class="form-control" id="expires" name="expires" aria-describedby="expires-label" style="flex-direction: inherit;" value="{{ old('expires') }}">
                         </div>
                     </div>
                 </form>

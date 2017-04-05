@@ -15,7 +15,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
  */
 class AdminControllerTest extends TestCase
 {
-    use DatabaseTransactions, WithoutMiddleware;
+    use DatabaseTransactions;
 
     private $user;
 

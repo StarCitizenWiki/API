@@ -28,49 +28,59 @@
                         <th><span>URL</span></th>
                         <th><span>Hash</span></th>
                         <th><span>Erstellt</span></th>
+                        <th><span>Ablauf</span></th>
                         <th>&nbsp;</th>
                     </tr>
                     </thead>
                     <tbody>
                     @if(count($urls) > 0)
                         @foreach($urls as $url)
-                            <tr>
-                                <td>
-                                    https://{{config('app.shorturl_url')}}/{{ $url->hash_name }}
-                                </td>
-                                <td>
-                                    {{ $url->url }}
-                                </td>
-                                <td>
-                                    {{ $url->hash_name }}
-                                </td>
-                                <td>
-                                    {{ Carbon\Carbon::parse($url->created_at)->format('d.m.Y') }}
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm" role="group" aria-label="">
-                                        <a href="{{ route('account_urls_edit_form', $url->id) }}" class="btn btn-warning">
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-danger"
-                                           onclick="event.preventDefault();
-                                                   document.getElementById('delete-form{{ $url->id }}').submit();">
-                                            <form id="delete-form{{ $url->id }}" action="{{ route('account_urls_delete') }}" method="POST" style="display: none;">
-                                                <input name="_method" type="hidden" value="DELETE">
-                                                <input name="id" type="hidden" value="{{ $url->id }}">
-                                                {{ csrf_field() }}
-                                            </form>
-                                            <i class="fa fa-trash-o"></i>
-                                        </a>
+                        <tr>
+                            <td>
+                                https://{{config('app.shorturl_url')}}/{{ $url->hash_name }}
+                            </td>
+                            <td>
+                                {{ $url->url }}
+                            </td>
+                            <td>
+                                {{ $url->hash_name }}
+                            </td>
+                            <td>
+                                {{ Carbon\Carbon::parse($url->created_at)->format('d.m.Y') }}
+                            </td>
+                            <td>
+                                @unless(is_null($url->expires))
+                                    @if(Carbon\Carbon::parse($url->expires)->lte(\Carbon\Carbon::now()))
+                                    Abgelaufen
+                                    @else
+                                    {{ Carbon\Carbon::parse($url->expires)->format('d.m.Y H:i') }}
+                                    @endif
+                                @else
+                                Nie
+                                @endunless
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="">
+                                    <a href="{{ route('account_urls_edit_form', $url->id) }}" class="btn btn-warning">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-danger" onclick="event.preventDefault(); document.getElementById('delete-form{{ $url->id }}').submit();">
+                                        <form id="delete-form{{ $url->id }}" action="{{ route('account_urls_delete') }}" method="POST" style="display: none;">
+                                            <input name="_method" type="hidden" value="DELETE">
+                                            <input name="id" type="hidden" value="{{ $url->id }}">
+                                            {{ csrf_field() }}
+                                        </form>
+                                        <i class="fa fa-trash-o"></i>
+                                    </a>
 
-                                    </div>
-                                </td>
-                            </tr>
+                                </div>
+                            </td>
+                        </tr>
                         @endforeach
                     @else
-                        <tr>
-                            <td colspan="7">Keine Short URLs vorhanden</td>
-                        </tr>
+                    <tr>
+                        <td colspan="7">Keine Short URLs vorhanden</td>
+                    </tr>
                     @endif
                     </tbody>
                 </table>
