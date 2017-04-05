@@ -62,15 +62,10 @@ class UserController extends Controller
         $this->validate($request, [
             'id' => 'required|exists:users|int',
         ]);
-        try {
-            $user = User::findOrFail($request->id);
-            Log::info('Account with ID '.$request->id.' deleted by Admin '.Auth::id());
-            $user->delete();
-        } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] User not found', [
-                'id' => $request->id,
-            ]);
-        }
+
+        $user = User::findOrFail($request->id);
+        Log::info('Account with ID '.$request->id.' deleted by Admin '.Auth::id());
+        $user->delete();
 
         return redirect()->route('admin_users_list');
     }
@@ -87,15 +82,10 @@ class UserController extends Controller
         $this->validate($request, [
             'id' => 'required|exists:users|int',
         ]);
-        try {
-            $user = User::withTrashed()->findOrFail($request->id);
-            Log::info('Account with ID '.$request->id.' restored by Admin '.Auth::id());
-            $user->restore();
-        } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] User not found', [
-                'id' => $request->id,
-            ]);
-        }
+
+        $user = User::withTrashed()->findOrFail($request->id);
+        Log::info('Account with ID '.$request->id.' restored by Admin '.Auth::id());
+        $user->restore();
 
         return redirect()->route('admin_users_list');
     }
@@ -149,13 +139,7 @@ class UserController extends Controller
             }
         }
 
-        try {
-            User::updateUser($data);
-        } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] User not found', [
-                'id' => $request->id,
-            ]);
-        }
+        User::updateUser($data);
 
         return redirect()->route('admin_users_list');
     }

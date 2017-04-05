@@ -90,20 +90,14 @@ class ShortURLController extends Controller
             'id' => 'required|exists:short_urls|int',
         ]);
 
-        try {
-            $url = ShortURL::findOrFail($request->id);
-            Log::info('URL deleted', [
-                'deleted_by' => Auth::id(),
-                'url_id' => $url->id,
-                'url' => $url->url,
-                'hash_name' => $url->hash_name,
-            ]);
-            $url->delete();
-        } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] URL not found', [
-                'id' => $request->id,
-            ]);
-        }
+        $url = ShortURL::findOrFail($request->id);
+        Log::info('URL deleted', [
+            'deleted_by' => Auth::id(),
+            'url_id' => $url->id,
+            'url' => $url->url,
+            'hash_name' => $url->hash_name,
+        ]);
+        $url->delete();
 
         return redirect()->route('admin_urls_list');
     }
@@ -121,19 +115,13 @@ class ShortURLController extends Controller
             'id' => 'required|exists:short_url_whitelists|int',
         ]);
 
-        try {
-            $url = ShortURLWhitelist::findOrFail($request->id);
-            Log::info('Whitelist URL deleted', [
-                'deleted_by' => Auth::id(),
-                'url_id' => $url->id,
-                'url' => $url->url,
-            ]);
-            $url->delete();
-        } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] Whitelist URL not found', [
-                'id' => $request->id,
-            ]);
-        }
+        $url = ShortURLWhitelist::findOrFail($request->id);
+        Log::info('Whitelist URL deleted', [
+            'deleted_by' => Auth::id(),
+            'url_id' => $url->id,
+            'url' => $url->url,
+        ]);
+        $url->delete();
 
         return redirect()->route('admin_urls_whitelist_list');
     }

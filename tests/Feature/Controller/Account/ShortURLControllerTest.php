@@ -73,8 +73,9 @@ class ShortURLControllerTest extends TestCase
      */
     public function testDeleteURL()
     {
+        $url = $this->user->shortURLs()->first();
         $response = $this->actingAs($this->user)->delete('account/urls', [
-            'id' => 1,
+            'id' => $url->id,
         ]);
         $response->assertStatus(302);
     }

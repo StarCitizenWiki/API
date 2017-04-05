@@ -55,20 +55,14 @@ class StarmapController extends Controller
             'code' => 'required|regex:/[A-Z\']/',
         ]);
 
-        try {
-            $system = Starsystem::findOrFail($request->id);
-            Log::info('Starmap System updated', [
-                'updated_by' => Auth::id(),
-                'code_old' => $system->code,
-                'code_new' => $request->code,
-            ]);
-            $system->code = $request->code;
-            $system->save();
-        } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] System not found', [
-                'id' => $request->id,
-            ]);
-        }
+        $system = Starsystem::findOrFail($request->id);
+        Log::info('Starmap System updated', [
+            'updated_by' => Auth::id(),
+            'code_old' => $system->code,
+            'code_new' => $request->code,
+        ]);
+        $system->code = $request->code;
+        $system->save();
 
         return redirect()->route('admin_starmap_systems_list');
     }

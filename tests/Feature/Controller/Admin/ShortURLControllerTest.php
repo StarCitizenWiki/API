@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Controller\Admin;
 
+use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
 use App\Models\ShortURL\ShortURL;
 use Tests\TestCase;
@@ -80,8 +81,9 @@ class ShortURLControllerTest extends TestCase
      */
     public function testDeleteURL()
     {
+        $url = ShortURL::all()->first();
         $response = $this->actingAs($this->user)->delete('admin/urls', [
-            'id' => 1,
+            'id' => $url->id,
         ]);
         $response->assertStatus(302);
     }
@@ -102,8 +104,9 @@ class ShortURLControllerTest extends TestCase
      */
     public function testDeleteWhitelistURL()
     {
+        $url = ShortURLWhitelist::all()->first();
         $response = $this->actingAs($this->user)->delete('admin/urls/whitelist', [
-            'id' => 1,
+            'id' => $url->id,
         ]);
         $response->assertStatus(302);
     }
@@ -137,8 +140,9 @@ class ShortURLControllerTest extends TestCase
      */
     public function testUpdateURL()
     {
+        $url = ShortURL::all()->first();
         $response = $this->actingAs($this->user)->patch('admin/urls', [
-            'id' => 1,
+            'id' => $url->id,
             'url' => 'https://url.com',
             'hash_name' => str_random(5),
             'user_id' => 1,
