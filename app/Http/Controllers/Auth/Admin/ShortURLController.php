@@ -71,7 +71,7 @@ class ShortURLController extends Controller
         try {
             $url = ShortURL::findOrFail($id);
 
-            Log::debug('Edit ShortURL List View requested for URL', $url);
+            Log::debug('Edit ShortURL List View requested for URL', $url->toArray());
 
             return view('admin.shorturls.edit')
                         ->with('url', $url)
