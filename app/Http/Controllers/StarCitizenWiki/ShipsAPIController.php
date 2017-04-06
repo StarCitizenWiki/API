@@ -41,9 +41,12 @@ class ShipsAPIController extends Controller
      */
     public function getShip(Request $request, String $name)
     {
-        Log::debug('Ship requested', ['name' => $name]);
+        Log::debug('Ship requested', [
+            'method' => __METHOD__,
+            'name' => $name,
+        ]);
 
-        $data = $this->repository->getShip($name);
+        $this->repository->getShip($name);
         $this->repository->transformer->addFilters($request);
 
         return response()->json(
@@ -63,7 +66,9 @@ class ShipsAPIController extends Controller
      */
     public function getShipList(Request $request)
     {
-        Log::debug('ShipList requested');
+        Log::debug('ShipList requested', [
+            'method' => __METHOD__,
+        ]);
 
         $this->repository->getShipList();
         $this->repository->transformer->addFilters($request);
@@ -85,7 +90,10 @@ class ShipsAPIController extends Controller
      */
     public function searchShips(Request $request)
     {
-        Log::debug('Trying to search for Ship', ['query' => $request->get('query')]);
+        Log::debug('Ship search requested', [
+            'method' => __METHOD__,
+            'query' => $request->get('query'),
+        ]);
 
         $this->validate($request, [
             'query' => 'present|alpha_dash',

@@ -38,7 +38,9 @@ class StatsAPIController extends Controller
      */
     public function getFunds()
     {
-        Log::debug('Funds Stats requested');
+        Log::debug('Funds Stats requested', [
+            'method' => __METHOD__,
+        ]);
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -50,7 +52,9 @@ class StatsAPIController extends Controller
      */
     public function getFleet()
     {
-        Log::debug('Fleet Stats requested');
+        Log::debug('Fleet Stats requested', [
+            'method' => __METHOD__,
+        ]);
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -62,7 +66,9 @@ class StatsAPIController extends Controller
      */
     public function getFans()
     {
-        Log::debug('Fans Stats requested');
+        Log::debug('Fans Stats requested', [
+            'method' => __METHOD__,
+        ]);
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -74,7 +80,9 @@ class StatsAPIController extends Controller
      */
     public function getAll()
     {
-        Log::debug('All Stats requested');
+        Log::debug('All Stats requested', [
+            'method' => __METHOD__,
+        ]);
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }

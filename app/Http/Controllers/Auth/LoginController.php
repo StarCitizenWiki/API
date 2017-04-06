@@ -49,7 +49,10 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        Log::debug('User logged out', ['user_id' => Auth::id()]);
+        Log::debug('User logged out', [
+            'method' => __METHOD__,
+            'user_id' => Auth::id(),
+        ]);
 
         $this->guard()->logout();
 
@@ -72,7 +75,9 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if ($user->isBlacklisted()) {
-            Log::info('Blacklisted User tried to login', ['user_id' => $user->id]);
+            Log::info('Blacklisted User tried to login', [
+                'user_id' => $user->id,
+            ]);
             Auth::logout();
 
             return redirect()->route('auth_login_form')

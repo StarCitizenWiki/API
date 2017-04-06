@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class BaseAPITrait
@@ -47,6 +48,9 @@ trait BaseAPITrait
      */
     public function __construct()
     {
+        Log::debug('Setting Guzzle Client', [
+            'method' => __METHOD__,
+        ]);
         $this->guzzleClient = new Client([
             'base_uri' => $this::API_URL,
             'timeout' => 3.0,
@@ -66,6 +70,12 @@ trait BaseAPITrait
      */
     public function request(String $requestMethod, String $uri, array $data = null) : Response
     {
+        Log::debug('Starting Guzzle Request', [
+            'method' => __METHOD__,
+            'uri' => $uri,
+            'request_method' => $requestMethod,
+            'data' => $data,
+        ]);
         $this->response = $this->guzzleClient->request($requestMethod, $uri, $data);
         $this->checkIfResponseIsValid();
         $this->validateAndSaveResponseBody();
@@ -82,13 +92,23 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsValid() : bool
     {
+        Log::debug('Checking if Response is valid', [
+            'method' => __METHOD__,
+        ]);
         if ($this->checkIfResponseIsNotNull() &&
             $this->checkIfResponseIsNotEmpty() &&
             $this->checkIfResponseStatusIsOK() &&
             $this->checkIfResponseDataIsValid()
         ) {
+            Log::debug('Response is valid', [
+                'method' => __METHOD__,
+            ]);
+
             return true;
         }
+        Log::debug('Response is not valid', [
+            'method' => __METHOD__,
+        ]);
         throw new InvalidDataException('Response Data is not valid');
     }
 
@@ -173,6 +193,11 @@ trait BaseAPITrait
         }
 
         $this->transformedResource->addMeta($metaData);
+
+        Log::debug('Adding Metadata to Transformation', [
+            'method' => __METHOD__,
+            'data' => $metaData,
+        ]);
 
         if (App::isLocal() && !is_null($this->response)) {
             $this->transformedResource->addMeta([

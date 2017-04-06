@@ -19,7 +19,9 @@ class APIPageController extends Controller
      */
     public function showAPIView() : View
     {
-        Log::debug('API Index requested');
+        Log::debug('API Index requested', [
+            'method' => __METHOD__,
+        ]);
 
         return view('api.index');
     }

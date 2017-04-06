@@ -16,6 +16,7 @@ class CreateApiRequestsTable extends Migration
         Schema::create('api_requests', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
+            $table->string('request_uri', 255);
             $table->timestamps();
         });
     }

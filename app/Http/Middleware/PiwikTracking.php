@@ -43,7 +43,10 @@ class PiwikTracking
             $piwikClient->setUserId($request->get(AUTH_KEY_FIELD_NAME, false));
             $piwikClient->doTrackPageView($request->getRequestUri());
 
-            Log::debug('Passed URL to Piwik', ['url' => $request->fullUrl()]);
+            Log::debug('Passed URL to Piwik', [
+                'method' => __METHOD__,
+                'url' => $request->fullUrl(),
+            ]);
         }
 
         return $next($request);

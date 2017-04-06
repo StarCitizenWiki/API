@@ -36,6 +36,9 @@ class ShortURLController extends Controller
      */
     public function __construct()
     {
+        Log::debug('Setting Transformer', [
+            'method' => __METHOD__,
+        ]);
         $this->transformer = new ShortURLTransformer();
     }
 
@@ -46,7 +49,9 @@ class ShortURLController extends Controller
      */
     public function showShortURLView() : View
     {
-        Log::debug('ShortURL Index requested');
+        Log::debug('ShortURL Index requested', [
+            'method' => __METHOD__,
+        ]);
 
         return view('shorturl.index')
                     ->with(
@@ -64,7 +69,9 @@ class ShortURLController extends Controller
      */
     public function showResolveView() : View
     {
-        Log::debug('ShortURL Resolve View requested');
+        Log::debug('ShortURL Resolve View requested', [
+            'method' => __METHOD__,
+        ]);
 
         return view('shorturl.resolve');
     }
@@ -78,7 +85,10 @@ class ShortURLController extends Controller
      */
     public function resolveAndRedirect(String $hash)
     {
-        Log::debug('Trying to resolve URL hash', ['hash' => $hash]);
+        Log::debug('Trying to resolve URL hash', [
+            'method' => __METHOD__,
+            'hash' => $hash,
+        ]);
         $url = $this->resolveExceptionRedirectTo('short_url_index', $hash);
 
         if ($url instanceof RedirectResponse) {
@@ -97,7 +107,10 @@ class ShortURLController extends Controller
      */
     public function resolveAndDisplay(Request $request)
     {
-        Log::debug('Trying to unshorten URL', ['url' => $request->get('url')]);
+        Log::debug('Trying to unshorten URL', [
+            'method' => __METHOD__,
+            'url' => $request->get('url'),
+        ]);
 
         $this->validate($request, [
             'url' => 'required|url',
@@ -110,6 +123,10 @@ class ShortURLController extends Controller
             ($url['host'] != config('app.shorturl_url')) ||
             !isset($url['path'])
         ) {
+            Log::info('URL is invalid', [
+                'url' => $request->get('url'),
+            ]);
+
             return redirect()->route('short_url_resolve_display')
                              ->withErrors('Invalid Short URL')
                              ->withInput(Input::all());
@@ -141,12 +158,21 @@ class ShortURLController extends Controller
             'hash_name' => 'required|alpha_dash',
         ]);
 
+        Log::debug('Resolving Hash', [
+            'method' => __METHOD__,
+            'hash' => $request->get('hash_name'),
+        ]);
+
         try {
             $url = ShortURL::resolve($request->get('hash_name'));
-            $this->item();
         } catch (ModelNotFoundException | ExpiredException $e) {
             $url = [];
         }
+
+        Log::debug('Hash Resolved', [
+            'method' => __METHOD__,
+            'url' => (array) $url,
+        ]);
 
         return $this->transform($url)->asArray();
     }
@@ -170,6 +196,11 @@ class ShortURLController extends Controller
             'expires' => $request->get('expires'),
         ];
 
+        Log::debug('Creating ShortURL', [
+            'method' => __METHOD__,
+            'data' => $data,
+        ]);
+
         $rules = [
             'url' => 'required|active_url|max:255|unique:short_urls',
             'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls',
@@ -180,6 +211,10 @@ class ShortURLController extends Controller
 
         $expires = $request->get('expires');
         if (!is_null($request->get('expires'))) {
+            Log::debug('ShortURL has Expires Field set', [
+                'method' => __METHOD__,
+                'expires' => $expires,
+            ]);
             $expires = Carbon::parse($request->get('expires'));
             if ($expires->lte(Carbon::now())) {
                 throw new ExpiredException('Expires date can\'t be in the past');
@@ -216,6 +251,9 @@ class ShortURLController extends Controller
      */
     public function createAndRedirect(Request $request)
     {
+        Log::debug('Creating ShortURL', [
+            'method' => __METHOD__,
+        ]);
         try {
             $url = $this->create($request);
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException | ExpiredException $e) {

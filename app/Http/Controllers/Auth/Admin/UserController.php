@@ -25,6 +25,10 @@ class UserController extends Controller
      */
     public function showUsersListView()
     {
+        Log::debug('Users List View requested', [
+            'method' => __METHOD__,
+        ]);
+
         return view('admin.users.index')->with('users', User::withTrashed()->get());
     }
 
@@ -40,11 +44,15 @@ class UserController extends Controller
         try {
             $user = User::withTrashed()->findOrFail($id);
 
-            Log::debug('Edit User View for User requested', ['user_id' => $id]);
+            Log::debug('Edit User View for User requested', [
+                'method' => __METHOD__,
+                'user_id' => $id,
+            ]);
 
             return view('admin.users.edit')->with('user', $user);
         } catch (ModelNotFoundException $e) {
-            Log::warning('['.__METHOD__.'] User not found', [
+            Log::warning('User not found', [
+                'method' => __METHOD__,
                 'id' => $id,
             ]);
         }
@@ -66,7 +74,10 @@ class UserController extends Controller
         ]);
 
         $user = User::findOrFail($request->id);
-        Log::info('Account with ID '.$request->id.' deleted by Admin '.Auth::id());
+        Log::info('Account deleted', [
+            'account_id' => $request->get('id'),
+            'deleted_by' => Auth::id(),
+        ]);
         $user->delete();
 
         return redirect()->route('admin_users_list');
@@ -86,7 +97,10 @@ class UserController extends Controller
         ]);
 
         $user = User::withTrashed()->findOrFail($request->id);
-        Log::info('Account with ID '.$request->id.' restored by Admin '.Auth::id());
+        Log::info('Account restored', [
+            'account_id' => $request->get('id'),
+            'restored_by' => Auth::id(),
+        ]);
         $user->restore();
 
         return redirect()->route('admin_users_list');

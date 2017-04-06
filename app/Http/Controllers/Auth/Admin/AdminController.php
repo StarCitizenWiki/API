@@ -28,7 +28,9 @@ class AdminController extends Controller
      */
     public function showDashboardView() : View
     {
-        Log::debug('Admin Dashboard View requested');
+        Log::debug('Admin Dashboard View requested', [
+            'method' => __METHOD__,
+        ]);
 
         return view('admin.dashboard')
             ->with('users', User::all())
@@ -49,7 +51,9 @@ class AdminController extends Controller
      */
     public function showLogsView(Request $request)
     {
-        Log::debug('Admin Logs View requested');
+        Log::debug('Admin Logs View requested', [
+            'method' => __METHOD__,
+        ]);
 
         if ($request->input('l')) {
             LaravelLogViewer::setFile(base64_decode($request->input('l')));
@@ -72,7 +76,9 @@ class AdminController extends Controller
      */
     public function showRoutesView() : View
     {
-        Log::debug('Admin Routes View requested');
+        Log::debug('Admin Routes View requested', [
+            'method' => __METHOD__,
+        ]);
 
         return view('admin.routes.index');
     }

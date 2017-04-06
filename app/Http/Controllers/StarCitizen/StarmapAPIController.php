@@ -48,7 +48,10 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System requested', ['name' => $name]);
+        Log::debug('Starmap System requested', [
+            'method' => __METHOD__,
+            'name' => $name,
+        ]);
 
         try {
             return response()->json(
@@ -71,7 +74,9 @@ class StarmapAPIController extends Controller
      */
     public function getSystemList(Request $request)
     {
-        Log::debug('Starmap System List requested');
+        Log::debug('Starmap System List requested', [
+            'method' => __METHOD__,
+        ]);
 
         $this->repository->getSystemList();
         $this->repository->transformer->addFilters($request);

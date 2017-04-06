@@ -24,7 +24,10 @@ class AccountController extends Controller
      */
     public function showAccountView() : View
     {
-        Log::debug('User requested Account View', ['user_id' => Auth::id()]);
+        Log::debug('User requested Account View', [
+            'method' => __METHOD__,
+            'user_id' => Auth::id(),
+        ]);
 
         return view('auth.account.index')->with('user', Auth::user());
     }
@@ -36,7 +39,10 @@ class AccountController extends Controller
      */
     public function showEditAccountView() : View
     {
-        Log::debug('User requested Edit Account View', ['user_id' => Auth::id()]);
+        Log::debug('User requested Edit Account View', [
+            'method' => __METHOD__,
+            'user_id' => Auth::id(),
+        ]);
 
         return view('auth.account.edit')->with('user', Auth::user());
     }

@@ -21,7 +21,9 @@ class StarmapController extends Controller
      */
     public function showStarmapSystemsView() : View
     {
-        Log::debug('Starmap Systems View requested');
+        Log::debug('Starmap Systems View requested', [
+            'method' => __METHOD__,
+        ]);
 
         return view('admin.starmap.systems.index')->with('systems', Starsystem::orderBy('code')->get());
     }
@@ -33,7 +35,9 @@ class StarmapController extends Controller
      */
     public function showEditStarmapSystemsView(String $code) : View
     {
-        Log::debug('Edit Starmap System View requested');
+        Log::debug('Edit Starmap System View requested', [
+            'method' => __METHOD__,
+        ]);
 
         return view('admin.starmap.systems.edit')->with('system', Starsystem::where('code', $code)->first());
     }
@@ -43,7 +47,9 @@ class StarmapController extends Controller
      */
     public function showAddStarmapSystemsView() : View
     {
-        Log::debug('Add Starmap System View requested');
+        Log::debug('Add Starmap System View requested', [
+            'method' => __METHOD__,
+        ]);
 
         return view('admin.starmap.systems.add');
     }

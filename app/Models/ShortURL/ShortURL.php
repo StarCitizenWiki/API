@@ -68,6 +68,9 @@ class ShortURL extends Model
      */
     public static function createShortURL(array $data) : ShortURL
     {
+        Log::debug('Creating ShortURL', [
+            'method' => __METHOD__,
+        ]);
         ShortURL::checkURLinWhitelist($data['url']);
         ShortURL::checkHashNameInDB($data['hash_name']);
 
@@ -82,7 +85,9 @@ class ShortURL extends Model
         $url->expires = $data['expires'];
         $url->save();
 
-        Log::info('URL Shortened', $data);
+        Log::info('URL Shortened', [
+            'data' => $data,
+        ]);
 
         return $url;
     }
@@ -98,6 +103,10 @@ class ShortURL extends Model
      */
     public static function updateShortURL(array $data) : bool
     {
+        Log::debug('Updating ShortURL', [
+            'method' => __METHOD__,
+            'update_data' => $data,
+        ]);
         ShortURL::checkURLinWhitelist($data['url']);
         $url = ShortURL::findOrFail($data['id']);
 
@@ -115,7 +124,9 @@ class ShortURL extends Model
             }
         }
 
-        Log::info('ShortURL created', $changes);
+        Log::info('ShortURL updated', [
+            'changes' => $changes,
+        ]);
 
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
@@ -139,6 +150,7 @@ class ShortURL extends Model
         $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
 
         Log::debug('URL resolved', [
+            'method' => __METHOD__,
             'id' => $url->id,
             'hash_name' => $url->hash_name,
             'url' => $url->url,
@@ -166,12 +178,19 @@ class ShortURL extends Model
      */
     public static function sanitizeURL($url) : String
     {
+        Log::debug('Sanitizing URL', [
+            'method' => __METHOD__,
+            'url' => $url,
+        ]);
         $url = filter_var($url, FILTER_SANITIZE_URL);
         if (!isset(parse_url($url)['path'])) {
             $url .= '/';
         }
 
-        Log::debug('Sanitized URL', ['url' => $url]);
+        Log::debug('Sanitized URL', [
+            'method' => __METHOD__,
+            'url' => $url,
+        ]);
 
         return $url;
     }
@@ -187,10 +206,19 @@ class ShortURL extends Model
      */
     private static function checkHashNameInDB($hashName) : void
     {
-        Log::debug('Checked if hash is in DB', ['hash' => $hashName]);
+        Log::debug('Checking if hash is in DB', [
+            'method' => __METHOD__,
+            'hash' => $hashName,
+        ]);
         if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
+            Log::debug('Hash is in DB', [
+                'method' => __METHOD__,
+            ]);
             throw new HashNameAlreadyAssignedException('Name already assigned');
         }
+        Log::debug('Hash is not in DB', [
+            'method' => __METHOD__,
+        ]);
     }
 
     /**
@@ -207,11 +235,20 @@ class ShortURL extends Model
         $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
 
-        Log::debug('Checked if URL is whitelisted', ['url' => $url]);
+        Log::debug('Checking if URL is whitelisted', [
+            'method' => __METHOD__,
+            'url' => $url,
+        ]);
 
         if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {
+            Log::debug('URL is not whitelisted', [
+                'method' => __METHOD__,
+            ]);
             throw new URLNotWhitelistedException('Url '.$url.' is not whitelisted');
         }
+        Log::debug('URL is whitelisted', [
+            'method' => __METHOD__,
+        ]);
     }
 
     /**
@@ -221,11 +258,17 @@ class ShortURL extends Model
      */
     private static function generateShortURLHash() : String
     {
+        Log::debug('Generating Hash', [
+            'method' => __METHOD__,
+        ]);
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);
         } while (ShortURL::where('hash_name', '=', $hashName)->count() > 0);
 
-        Log::debug('Generated Hash', ['hash' => $hashName]);
+        Log::debug('Generated Hash', [
+            'method' => __METHOD__,
+            'hash' => $hashName,
+        ]);
 
         return $hashName;
     }

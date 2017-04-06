@@ -108,7 +108,9 @@ class User extends Authenticatable
             }
         }
 
-        Log::info('User Account updated', $changes);
+        Log::info('User Account updated', [
+            'changes' => $changes,
+        ]);
 
         return $user->save();
     }
@@ -122,6 +124,7 @@ class User extends Authenticatable
     {
         $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
         Log::debug('Checked if User is Admin', [
+            'method' => __METHOD__,
             'id' => $this->id,
             'admin' => $isAdmin,
         ]);
@@ -138,6 +141,7 @@ class User extends Authenticatable
     {
         $whitelisted = $this->whitelisted == 1;
         Log::debug('Checked if User is whitelisted', [
+            'method' => __METHOD__,
             'id' => $this->id,
             'whitelisted' => $whitelisted,
         ]);
@@ -154,6 +158,7 @@ class User extends Authenticatable
     {
         $blacklisted = $this->blacklisted == 1;
         Log::debug('Checked if User is blacklisted', [
+            'method' => __METHOD__,
             'id' => $this->id,
             'blacklisted' => $blacklisted,
         ]);
@@ -169,6 +174,7 @@ class User extends Authenticatable
     public function shortURLs()
     {
         Log::debug('Requested Users ShortURLs', [
+            'method' => __METHOD__,
             'id' => Auth::id(),
         ]);
 

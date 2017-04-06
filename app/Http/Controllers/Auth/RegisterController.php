@@ -46,7 +46,9 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        Log::debug('Registration Form requested');
+        Log::debug('Registration Form requested', [
+            'method' => __METHOD__,
+        ]);
 
         return redirect(AUTH_HOME);
     }

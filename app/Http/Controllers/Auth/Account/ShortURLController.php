@@ -32,7 +32,10 @@ class ShortURLController extends Controller
     public function showURLsListView() : View
     {
         $user = Auth::user();
-        Log::debug('User requested Show URL List View', ['user_id' => $user->id]);
+        Log::debug('User requested Show URL List View', [
+            'method' => __METHOD__,
+            'user_id' => $user->id,
+        ]);
 
         return view('auth.account.shorturls.index')->with('urls', $user->shortURLs()->get());
     }
@@ -45,7 +48,10 @@ class ShortURLController extends Controller
     public function showAddURLView() : View
     {
         $user = Auth::user();
-        Log::debug('User requested Add Url View', ['user_id' => $user->id]);
+        Log::debug('User requested Add Url View', [
+            'method' => __METHOD__,
+            'user_id' => $user->id,
+        ]);
 
         return view('auth.account.shorturls.add')->with('user', $user);
     }
@@ -62,7 +68,7 @@ class ShortURLController extends Controller
         try {
             $url = Auth::user()->shortURLs()->findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            Log::info('['.__METHOD__.'] User tried to edit unowned ShortURL', [
+            Log::info('User tried to edit unowned ShortURL', [
                 'user_id' => Auth::id(),
                 'email' => Auth::user()->email,
                 'url_id' => $id,
@@ -71,7 +77,10 @@ class ShortURLController extends Controller
             return redirect()->route('account_urls_list');
         }
 
-        Log::debug('User requested Edit ShortURL View', $url);
+        Log::debug('User requested Edit ShortURL View', [
+            'method' => __METHOD__,
+            'url' => (array) $url,
+        ]);
 
         return view('auth.account.shorturls.edit')->with('url', $url);
     }

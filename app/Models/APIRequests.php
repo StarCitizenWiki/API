@@ -23,5 +23,6 @@ class APIRequests extends Model
 
     protected $fillable = [
         'user_id',
+        'request_uri',
     ];
 }
