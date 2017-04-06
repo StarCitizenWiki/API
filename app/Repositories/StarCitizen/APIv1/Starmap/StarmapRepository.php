@@ -11,6 +11,7 @@ use App\Models\Starsystem;
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI;
 use App\Transformers\StarCitizen\Starmap\SystemListTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class StarmapRepository
@@ -29,7 +30,16 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getSystem(String $systemName)
     {
-        $this->withTransformer(SystemTransformer::class)->request('POST', 'starmap/star-systems/'.$systemName, []);
+        Log::debug('Requesting System', [
+            'method' => __METHOD__,
+            'system' => $systemName,
+        ]);
+
+        $this->withTransformer(SystemTransformer::class)->request(
+            'POST',
+            'starmap/star-systems/'.$systemName,
+            []
+        );
 
         return $this;
     }
@@ -68,6 +78,9 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getSystemList()
     {
+        Log::debug('Requesting System List', [
+            'method' => __METHOD__,
+        ]);
         $this->dataToTransform = Starsystem::all()->toArray();
 
         return $this->collection()->withTransformer(SystemListTransformer::class);

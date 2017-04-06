@@ -119,7 +119,12 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsNotNull() : bool
     {
-        return $this->response !== null;
+        Log::debug('Checking if Response is not null', [
+            'method' => __METHOD__,
+            'null' => is_null($this->response)
+        ]);
+
+        return !is_null($this->response);
     }
 
     /**
@@ -129,6 +134,11 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsNotEmpty() : bool
     {
+        Log::debug('Checking if Response is not empty', [
+            'method' => __METHOD__,
+            'empty' => empty($this->response),
+        ]);
+
         return !empty($this->response);
     }
 
@@ -139,6 +149,11 @@ trait BaseAPITrait
      */
     private function checkIfResponseStatusIsOK() : bool
     {
+        Log::debug('Checking if Response Status is 200', [
+            'method' => __METHOD__,
+            'status' => $this->response->getStatusCode(),
+        ]);
+
         return $this->response->getStatusCode() === 200;
     }
 
@@ -163,6 +178,9 @@ trait BaseAPITrait
      */
     private function validateJSON(String $string) : bool
     {
+        Log::debug('Checking if Parameter is valid JSON', [
+            'method' => __METHOD__,
+        ]);
         if (is_string($string)) {
             @json_decode($string);
 
@@ -218,12 +236,24 @@ trait BaseAPITrait
      */
     private function validateAndSaveResponseBody() : void
     {
+        Log::debug('Saving Response Body', [
+            'method' => __METHOD__,
+        ]);
         $responseBody = (String) $this->response->getBody();
         if ($this->validateJSON($responseBody)) {
+            Log::debug('Response Body is json', [
+                'method' => __METHOD__,
+            ]);
             $this->dataToTransform = json_decode($responseBody, true);
         } elseif (is_array($responseBody)) {
+            Log::debug('Response Body is array', [
+                'method' => __METHOD__,
+            ]);
             $this->dataToTransform = $responseBody;
         } else {
+            Log::warning('Response Body is neither json nor array', [
+                'method' => __METHOD__,
+            ]);
             throw new InvalidDataException('Response Body is invalid');
         }
     }
@@ -237,7 +267,14 @@ trait BaseAPITrait
      */
     protected function checkIfTransformerIsValid() : void
     {
+        Log::debug('Checking if Transformer is valid', [
+            'method' => __METHOD__,
+        ]);
         if (!$this->transformer instanceof BaseAPITransformerInterface) {
+            Log::debug('Transformer is not valid', [
+                'method' => __METHOD__,
+                'transformer' => get_class($this->transformer),
+            ]);
             throw new InterfaceNotImplementedException(
                 'Transformer does not implement BaseAPITransformerInterface'
             );

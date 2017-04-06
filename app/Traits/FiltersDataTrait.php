@@ -79,6 +79,10 @@ trait FiltersDataTrait
             }
             if (in_array($key, $this->validFields)) {
                 if (!in_array($key, $this->filters)) {
+                    Log::debug('Removing Key', [
+                        'method' => __METHOD__,
+                        'key' => $key,
+                    ]);
                     unset($data[$key]);
                 }
             }
@@ -92,6 +96,9 @@ trait FiltersDataTrait
      */
     public function getAvailableFields() : array
     {
+        Log::debug('Returning Available Fields', [
+            'method' => __METHOD__,
+        ]);
         if (isset($this->validFields)) {
             return $this->validFields;
         }

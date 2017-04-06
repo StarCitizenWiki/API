@@ -13,6 +13,7 @@ use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -30,6 +31,10 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function getShip(String $shipName) : ShipsRepository
     {
+        Log::debug('Getting Ship by name', [
+            'method' => __METHOD__,
+            'ship' => $shipName,
+        ]);
         $this->transformer = resolve(ShipsTransformer::class);
         $this->request(
             'GET',
@@ -38,16 +43,18 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         );
 
         if (isset($this->dataToTransform['query']['subject'])) {
-            $client = new Client([
-                'base_uri' => 'http://starcitizendb.com/static/ships/specs/',
-                'timeout' => 2.0,
-            ]);
-
             $subject = explode('/', $this->dataToTransform['query']['subject']);
             if (count($subject) === 3) {
                 $fileName = $subject[1].'_'.$shipName.'.json';
 
+                Log::debug('Checking if StarCitizenDB Data exists for ship', [
+                    'method' => __METHOD__,
+                    'filename' => $fileName,
+                ]);
                 if (Storage::disk('scdb_ships')->exists($fileName)) {
+                    Log::debug('File exists adding content to transformation', [
+                        'method' => __METHOD__,
+                    ]);
                     $content = Storage::disk('scdb_ships')->get($fileName);
                     $this->dataToTransform['scdb'] = json_decode($content, true);
                 }
@@ -64,6 +71,9 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function getShipList() : ShipsRepository
     {
+        Log::debug('Getting ShipList', [
+            'method' => __METHOD__,
+        ]);
         $this->collection();
         $this->transformer = resolve(ShipsListTransformer::class);
 
@@ -79,9 +89,16 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             $data = array_merge($data, $response['query']['results']);
             if (array_key_exists('query-continue-offset', $response)) {
                 $offset = $response['query-continue-offset'];
+                Log::debug('Getting Data for next offset', [
+                    'method' => __METHOD__,
+                    'offset' => $offset,
+                ]);
             }
         } while (array_key_exists('query-continue-offset', $response));
 
+        Log::debug('Finished getting Data from Wiki', [
+            'method' => __METHOD__,
+        ]);
         $this->dataToTransform = $data;
 
         return $this;
@@ -96,6 +113,10 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function searchShips(String $shipName)
     {
+        Log::debug('Searching for Ship', [
+            'method' => __METHOD__,
+            'name' => $shipName,
+        ]);
         /**
          * TODO: Suche Gibt teils Mist zurück
          * Beispiel: Suche nach Aurora gibt zusätzlich Orion und Hull A zurück!?
@@ -107,6 +128,9 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             []
         );
         $this->dataToTransform = $this->dataToTransform['query']['search'];
+        Log::debug('Finished getting Data from Wiki', [
+            'method' => __METHOD__,
+        ]);
 
         return $this;
     }
