@@ -200,7 +200,7 @@ class FundImageController extends Controller
     private function setImageType() : void
     {
         Log::debug('Setting Image Type', [
-            'method' => __METHOD__
+            'method' => __METHOD__,
         ]);
         $action = Route::getCurrentRoute()->getAction()['type'];
         if (in_array($action, FundImageController::SUPPORTED_FUNDS)) {
