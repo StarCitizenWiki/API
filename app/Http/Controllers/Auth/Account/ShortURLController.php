@@ -34,7 +34,7 @@ class ShortURLController extends Controller
         $user = Auth::user();
         Log::debug('User requested Show URL List View', [
             'method' => __METHOD__,
-            'user_id' => $user->id,
+            'user_id' => Auth::id(),
         ]);
 
         return view('auth.account.shorturls.index')->with('urls', $user->shortURLs()->get());

@@ -103,7 +103,7 @@
             @endforeach
         @else
             <tr>
-                <td colspan="7">Keine Benutzer vorhanden</td>
+                <td colspan="11">Keine Benutzer vorhanden</td>
             </tr>
         @endif
         </tbody>

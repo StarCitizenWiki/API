@@ -23,6 +23,8 @@ Route::group(['domain' => config('app.api_url')], function () {
             Route::patch('/', ['uses' => 'UserController@updateUser'])->name('admin_users_update');
             Route::post('restore', ['uses' => 'UserController@restoreUser'])->name('admin_users_restore');
             Route::get('{ID}', ['uses' => 'UserController@showEditUserView'])->name('admin_users_edit_form');
+            Route::get('{ID}/urls', ['uses' => 'ShortURLController@showURLsListForUserView'])->name('admin_users_urls_list');
+            Route::get('{ID}/requests', ['uses' => 'UserController@showRequestsView'])->name('admin_users_requests_list');
         });
 
         Route::get('routes', ['uses' => 'AdminController@showRoutesView'])->name('admin_routes_list');

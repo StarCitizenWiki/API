@@ -38,6 +38,23 @@ class ShortURLController extends Controller
     }
 
     /**
+     * Returns the ShortURL List View
+     *
+     * @param int $id UserID
+     *
+     * @return View
+     */
+    public function showURLsListForUserView(int $id) : View
+    {
+        Log::debug('ShortURL List For User View requested', [
+            'method' => __METHOD__,
+            'user_id' => $id,
+        ]);
+
+        return view('admin.shorturls.index')->with('urls', User::find($id)->shortURLs()->getResults());
+    }
+
+    /**
      * Returns the ShortUrl Whitelist View
      *
      * @return View

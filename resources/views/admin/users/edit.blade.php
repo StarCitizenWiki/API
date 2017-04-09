@@ -31,6 +31,23 @@
 @endsection
 
 @section('content')
+    <div class="col-12 col-md-4 mx-auto">
+        @if ($user->isBlacklisted())
+            @component('components.alert')
+                @slot('type')
+                    danger text-center
+                @endslot
+                User is Blacklisted
+            @endcomponent
+        @elseif($user->isWhitelisted())
+            @component('components.alert')
+                @slot('type')
+                    success text-center
+                @endslot
+                User is Whitelisted
+            @endcomponent
+        @endif
+    </div>
     <div class="col-12 col-md-8 mx-auto d-flex">
         <div class="col-12 col-md-6">
             @include('components.errors')
@@ -87,22 +104,7 @@
             </form>
         </div>
         <div class="col-12 col-md-6">
-            @if ($user->isBlacklisted())
-                @component('components.alert')
-                    @slot('type')
-                        danger text-center
-                    @endslot
-                    User is Blacklisted
-                @endcomponent
-            @elseif($user->isWhitelisted())
-                @component('components.alert')
-                    @slot('type')
-                        info text-center
-                    @endslot
-                    User is Whitelisted
-                @endcomponent
-            @endif
-
+            <label>Stats:</label>
             @component('admin.components.card')
                 @slot('content')
                     {{ \Carbon\Carbon::parse($user->last_login)->format('d.m.Y H:i') }}
@@ -120,7 +122,7 @@
                 @slot('icon')
                     random
                 @endslot
-                API Requests
+                <a href="{{ route('admin_users_requests_list', $user->id) }}" class="text-muted">API Requests</a>
             @endcomponent
 
             @component('admin.components.card')
@@ -130,7 +132,7 @@
                 @slot('icon')
                     link
                 @endslot
-                ShortURLs
+                <a href="{{ route('admin_users_urls_list', $user->id) }}" class="text-muted">ShortURLs</a>
             @endcomponent
         </div>
     </div>

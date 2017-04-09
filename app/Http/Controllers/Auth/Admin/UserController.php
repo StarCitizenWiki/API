@@ -61,6 +61,22 @@ class UserController extends Controller
     }
 
     /**
+     * Returns the View with all Users listed
+     *
+     * @param int $id
+     *
+     * @return View
+     */
+    public function showRequestsView(int $id)
+    {
+        Log::debug('Users Requests View requested', [
+            'method' => __METHOD__,
+        ]);
+
+        return view('admin.users.requests')->with('requests', User::find($id)->apiRequests()->getResults());
+    }
+
+    /**
      * Deletes a User by ID
      *
      * @param Request $request
