@@ -43,7 +43,7 @@ class DownloadStarmapData implements ShouldQueue
             'timeout' => 10.0,
         ]);
 
-        foreach (Starsystem::all() as $system) {
+        foreach (Starsystem::where('exclude', '=', false)->get() as $system) {
             $fileName = $system->code.'.json';
             $resource = fopen(config('filesystems.disks.starmap.root').'/'.$fileName, 'w');
             $stream = stream_for($resource);

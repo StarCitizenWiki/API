@@ -16,6 +16,7 @@ class CreateStarsystemsTable extends Migration
         Schema::create('starsystems', function (Blueprint $table) {
             $table->increments('id');
             $table->char('code', 20);
+            $table->boolean('exclude')->default(false);
             $table->timestamps();
         });
     }

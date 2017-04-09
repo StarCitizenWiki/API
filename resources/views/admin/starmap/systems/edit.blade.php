@@ -12,6 +12,11 @@
                 <label for="code" aria-label="Code">Code:</label>
                 <input type="text" class="form-control" id="code" name="code" aria-labelledby="code" tabindex="1" value="{{ $system->code }}" autofocus>
             </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" id="exclude" name="exclude[]" aria-labelledby="exclude" tabindex="2" @if($system->exclude){{ 'checked' }}@endif> Vom Download ausschließen
+                </label>
+            </div>
 
             <button type="submit" class="btn btn-warning my-3">Edit</button>
             <button onclick="event.preventDefault();
@@ -22,6 +27,7 @@
             <input name="_method" type="hidden" value="DELETE">
             <input name="id" type="hidden" value="{{ $system->id }}">
         </form>
+        {{ dump($system) }}
     </div>
 @endsection
 
