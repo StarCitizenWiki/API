@@ -103,7 +103,7 @@ class ShortURLController extends Controller
         ];
 
         $rules = [
-            'url' => 'required|active_url|max:255|unique:short_urls',
+            'url' => 'required|url|max:255|unique:short_urls',
             'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls',
             'expires' => 'nullable|date',
         ];
@@ -197,7 +197,7 @@ class ShortURLController extends Controller
         ];
 
         $rules = [
-            'url' => 'required|active_url|max:255',
+            'url' => 'required|url|max:255',
             'hash_name' => 'required|alpha_dash|max:32',
             'expires' => 'nullable|date',
         ];
