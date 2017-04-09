@@ -180,4 +180,12 @@ class User extends Authenticatable
 
         return $this->hasMany('App\Models\ShortURL\ShortURL');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function apiRequests()
+    {
+        return $this->hasMany('App\Models\APIRequests');
+    }
 }

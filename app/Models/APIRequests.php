@@ -25,4 +25,12 @@ class APIRequests extends Model
         'user_id',
         'request_uri',
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo('\App\Models\User');
+    }
 }
