@@ -14,7 +14,7 @@
             </div>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" id="exclude" name="exclude[]" aria-labelledby="exclude" tabindex="2" @if($system->exclude){{ 'checked' }}@endif> Vom Download ausschließen
+                    <input type="checkbox" id="exclude" name="exclude" aria-labelledby="exclude" tabindex="2" @if($system->isExcluded()){{ 'checked' }}@endif> Vom Download ausschließen
                 </label>
             </div>
 

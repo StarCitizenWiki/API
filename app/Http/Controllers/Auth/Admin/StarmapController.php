@@ -70,7 +70,7 @@ class StarmapController extends Controller
         $this->validate($request, [
             'id' => 'required|exists:starsystems|int',
             'code' => 'required|regex:/[A-Z\']/',
-            'exclude' => 'required',
+            'exclude' => 'nullable',
         ]);
 
         $system = Starsystem::findOrFail($request->id);
@@ -79,10 +79,10 @@ class StarmapController extends Controller
             'code_old' => $system->code,
             'code_new' => $request->code,
             'exclude_old' => $system->exclude,
-            'exclude_new' => $request->exclude[0] === "on",
+            'exclude_new' => $request->exclude === "1",
         ]);
         $system->code = $request->code;
-        $system->exclude = $request->exclude[0] === "on";
+        $system->exclude = $request->exclude === "1";
         $system->save();
 
         return redirect()->route('admin_starmap_systems_list');
@@ -120,17 +120,18 @@ class StarmapController extends Controller
     {
         $this->validate($request, [
             'code' => 'required|regex:/[A-Z\']/',
-            'exclude' => 'required',
+            'exclude' => 'nullable',
         ]);
 
-        Starsystem::create([
-            'code' => $request->code,
-            'exclude' => $request->exclude[0] === "on",
-        ]);
+        $system = new Starsystem();
+        $system->code = $request->code;
+        $system->exclude = $request->exclude === "1";
+        $system->save();
+
         Log::info('Starmap System added', [
             'added_by' => Auth::id(),
             'system_code' => $request->code,
-            'exclude' => $request->exclude[0] === "on",
+            'exclude' => $request->exclude === "1",
         ]);
 
         return redirect()->route('admin_starmap_systems_list');

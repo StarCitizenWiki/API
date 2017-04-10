@@ -12,7 +12,7 @@
             </div>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" id="exclude" name="exclude[]" aria-labelledby="exclude" tabindex="2" value="1"> Vom Download ausschließen
+                    <input type="checkbox" id="exclude" name="exclude" aria-labelledby="exclude" tabindex="2" value="1"> Vom Download ausschließen
                 </label>
             </div>
 
@@ -20,4 +20,3 @@
         </form>
     </div>
 @endsection
-
