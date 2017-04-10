@@ -37,7 +37,10 @@ class ShortURLController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return view('auth.account.shorturls.index')->with('urls', $user->shortURLs()->get());
+        return view('auth.account.shorturls.index')->with(
+            'urls',
+            $user->shortURLs()->get()
+        );
     }
 
     /**
@@ -53,7 +56,10 @@ class ShortURLController extends Controller
             'user_id' => $user->id,
         ]);
 
-        return view('auth.account.shorturls.add')->with('user', $user);
+        return view('auth.account.shorturls.add')->with(
+            'user',
+            $user
+        );
     }
 
     /**
@@ -82,7 +88,10 @@ class ShortURLController extends Controller
             'url' => (array) $url,
         ]);
 
-        return view('auth.account.shorturls.edit')->with('url', $url);
+        return view('auth.account.shorturls.edit')->with(
+            'url',
+            $url
+        );
     }
 
     /**
@@ -133,7 +142,10 @@ class ShortURLController extends Controller
 
         event(new URLShortened($url));
 
-        return redirect()->route('account_urls_list')->with('hash_name', $url->hash_name);
+        return redirect()->route('account_urls_list')->with(
+            'hash_name',
+            $url->hash_name
+        );
     }
 
     /**

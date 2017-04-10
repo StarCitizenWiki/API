@@ -29,7 +29,10 @@ class UserController extends Controller
             'method' => __METHOD__,
         ]);
 
-        return view('admin.users.index')->with('users', User::withTrashed()->get());
+        return view('admin.users.index')->with(
+            'users',
+            User::withTrashed()->get()
+        );
     }
 
     /**
@@ -73,7 +76,10 @@ class UserController extends Controller
             'method' => __METHOD__,
         ]);
 
-        return view('admin.users.requests')->with('requests', User::find($id)->apiRequests()->getResults());
+        return view('admin.users.requests')->with(
+            'requests',
+            User::find($id)->apiRequests()->getResults()
+        );
     }
 
     /**

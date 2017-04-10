@@ -29,7 +29,10 @@ class AccountController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return view('auth.account.index')->with('user', Auth::user());
+        return view('auth.account.index')->with(
+            'user',
+            Auth::user()
+        );
     }
 
     /**
@@ -44,7 +47,10 @@ class AccountController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return view('auth.account.edit')->with('user', Auth::user());
+        return view('auth.account.edit')->with(
+            'user',
+            Auth::user()
+        );
     }
 
     /**

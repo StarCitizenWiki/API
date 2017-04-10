@@ -34,7 +34,10 @@ class ShortURLController extends Controller
             'method' => __METHOD__,
         ]);
 
-        return view('admin.shorturls.index')->with('urls', ShortURL::all());
+        return view('admin.shorturls.index')->with(
+            'urls',
+            ShortURL::all()
+        );
     }
 
     /**
@@ -51,7 +54,10 @@ class ShortURLController extends Controller
             'user_id' => $id,
         ]);
 
-        return view('admin.shorturls.index')->with('urls', User::find($id)->shortURLs()->getResults());
+        return view('admin.shorturls.index')->with(
+            'urls',
+            User::find($id)->shortURLs()->getResults()
+        );
     }
 
     /**
@@ -65,7 +71,10 @@ class ShortURLController extends Controller
             'method' => __METHOD__,
         ]);
 
-        return view('admin.shorturls.whitelists.index')->with('urls', ShortURLWhitelist::all());
+        return view('admin.shorturls.whitelists.index')->with(
+            'urls',
+            ShortURLWhitelist::all()
+        );
     }
 
     /**
