@@ -27,7 +27,6 @@
             <input name="_method" type="hidden" value="DELETE">
             <input name="id" type="hidden" value="{{ $system->id }}">
         </form>
-        {{ dump($system) }}
     </div>
 @endsection
 
