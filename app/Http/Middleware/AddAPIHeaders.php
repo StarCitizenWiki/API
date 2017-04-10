@@ -34,12 +34,12 @@ class AddAPIHeaders
         $response->header("Content-Type", "application/json");
         $response->header("Cache-Control", "no-cache,no-store, must-revalidate");
         $response->header("Pragma", "no-cache");
-        if (is_array($response->getOriginalContent())) {
+        if (is_array($response->content())) {
             $contentLength = strlen(
-                json_encode($response->getOriginalContent(), JSON_PRETTY_PRINT)
+                json_encode($response->content(), JSON_PRETTY_PRINT)
             );
         } else {
-            $contentLength = strlen($response->getOriginalContent());
+            $contentLength = strlen($response->content());
         }
         $response->header("Content-Length", $contentLength);
         $response->header("Vary", "Accept-Encoding");
