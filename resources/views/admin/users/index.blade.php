@@ -116,6 +116,5 @@
             $('[data-toggle="popover"]').popover()
         });
     </script>
-    <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap4.min.js"></script>
     @include('components.init_dataTables')
 @endsection
