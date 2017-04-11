@@ -44,7 +44,7 @@ class DownloadStarmapData implements ShouldQueue
         ]);
 
         foreach (Starsystem::where('exclude', '=', false)->get() as $system) {
-            $fileName = $system->code.'.json';
+            $fileName = Starsystem::makeFilenameFromCode($system->code);
             $resource = fopen(config('filesystems.disks.starmap.root').'/'.$fileName, 'w');
             $stream = stream_for($resource);
             $client->request(
@@ -52,7 +52,7 @@ class DownloadStarmapData implements ShouldQueue
                 StarmapRepository::API_URL.'starmap/star-systems/'.$system->code,
                 ['save_to' => $stream]
             );
-            Log::info('Downloading '.$fileName);
+            Log::info('Downloading '.$system->code);
         }
         Log::info('Starmap Download Job Finished');
     }
