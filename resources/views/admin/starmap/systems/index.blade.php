@@ -50,7 +50,11 @@
                         download
                     @endslot
                     @slot('content')
-                        {{ \Carbon\Carbon::createFromTimestamp(\Illuminate\Support\Facades\Storage::disk('starmap')->lastModified(\App\Models\Starsystem::makeFilenameFromCode('SOL')))->format('d.m.Y') }}
+                        @if(\Illuminate\Support\Facades\Storage::disk('starmap')->exists(\App\Models\Starsystem::makeFilenameFromCode('SOL')))
+                            {{ \Carbon\Carbon::createFromTimestamp(\Illuminate\Support\Facades\Storage::disk('starmap')->lastModified(\App\Models\Starsystem::makeFilenameFromCode('SOL')))->format('d.m.Y H:i:s') }}
+                        @else
+                            -
+                        @endif
                     @endslot
                     Last Download
                 @endcomponent
