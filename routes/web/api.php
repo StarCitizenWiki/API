@@ -36,7 +36,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Au
             Route::post('/', ['uses' => 'StarmapController@addStarmapSystem'])->name('admin_starmap_systems_add');
             Route::get('add', ['uses' => 'StarmapController@showAddStarmapSystemsView'])->name('admin_starmap_systems_add_form');
             Route::get('{code}', ['uses' => 'StarmapController@showEditStarmapSystemsView'])->name('admin_starmap_systems_edit_form');
+            Route::post('/download', ['uses' => 'StarmapController@downloadStarmap'])->name('admin_starmap_systems_download');
         });
+    });
+
+    Route::group(['prefix' => 'ships'], function () {
+        Route::get('/', ['uses' => 'ShipsController@showShipsView'])->name('admin_ships_list');
+        Route::post('/download', ['uses' => 'ShipsController@downloadShips'])->name('admin_ships_download');
     });
 });
 

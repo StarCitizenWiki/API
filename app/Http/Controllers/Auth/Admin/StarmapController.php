@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\DownloadStarmapData;
 use App\Models\Starsystem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -135,5 +136,18 @@ class StarmapController extends Controller
         ]);
 
         return redirect()->route('admin_starmap_systems_list');
+    }
+
+    /**
+     * @return RedirectResponse
+     */
+    public function downloadStarmap() : RedirectResponse
+    {
+        $this->dispatch(new DownloadStarmapData());
+
+        return redirect()->back()->with(
+            'success',
+            ['Starmap Download Queued']
+        );
     }
 }

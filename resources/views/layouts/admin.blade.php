@@ -22,6 +22,7 @@
         @yield('header')
     </head>
     <body style="min-height: 100vh;">
+        @include('admin.components.messages')
         <div class="container-fluid" style="min-height: 100vh;">
             <div class="row" style="min-height: 100vh;">
                 <div class="col-12 col-md-2 bg-inverse pb-4" style="min-height: 100vh;">
@@ -83,6 +84,32 @@
                         </li>
                         <li class="nav-item ">
                             <a class="nav-link text-white" href="{{ route('admin_starmap_systems_add_form') }}"><i class="fa fa-plus-circle mr-1"></i> Add System</a>
+                        </li>
+                        <li class="nav-item ">
+                            <a href="#" class="nav-link text-white" onclick="event.preventDefault(); document.getElementById('download-starmap').submit();">
+                                <form id="download-starmap" action="{{ route('admin_starmap_systems_download') }}" method="POST" style="display: none;">
+                                    <input name="_method" type="hidden" value="POST">
+                                    {{ csrf_field() }}
+                                </form>
+                                <i class="fa fa-repeat mr-1"></i> Download Starmap
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="nav flex-column mt-4">
+                        <li class="nav-item ">
+                            <span class="nav-link text-muted">Ships</span>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link text-white" href="{{ route('admin_ships_list') }}"><i class="fa fa-rocket mr-1"></i> Ships</a>
+                        </li>
+                        <li class="nav-item ">
+                            <a href="#" class="nav-link text-white" onclick="event.preventDefault(); document.getElementById('download-ships').submit();">
+                                <form id="download-ships" action="{{ route('admin_ships_download') }}" method="POST" style="display: none;">
+                                    <input name="_method" type="hidden" value="POST">
+                                    {{ csrf_field() }}
+                                </form>
+                                <i class="fa fa-repeat mr-1"></i> Download Ships
+                            </a>
                         </li>
                     </ul>
                 </div>
