@@ -257,13 +257,14 @@ class ShortURLController extends Controller
         try {
             $url = $this->create($request);
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException | ExpiredException $e) {
-            return redirect()->route('short_url_index')
-                             ->withErrors($e->getMessage())
-                             ->withInput(Input::all());
+            return redirect('/')->withErrors($e->getMessage())
+                                    ->withInput(Input::all());
         }
 
-        return redirect()->route('short_url_index')
-                         ->with('hash_name', $url['data'][0]['hash_name']);
+        return redirect('/')->with(
+            'hash_name',
+            $url['data'][0]['hash_name']
+        );
     }
 
     /**
