@@ -26,7 +26,7 @@
         <div class="container-fluid" style="min-height: 100vh;">
             <div class="row" style="min-height: 100vh;">
                 <div class="col-12 col-md-2 bg-inverse pb-4" style="min-height: 100vh;">
-                    <img src="https://star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/157px-Star_Citizen_Wiki_Logo.png" class="d-block mx-auto my-4 img-fluid" style="max-width: 100px;">
+                    <img src="{{ asset('media/images/Star_Citizen_Wiki_Logo.png') }}" class="d-block mx-auto my-4 img-fluid" style="max-width: 100px;">
                     <ul class="nav flex-column">
                         <li class="nav-item ">
                             <span class="nav-link text-muted">App</span>
