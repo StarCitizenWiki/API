@@ -28,5 +28,17 @@
             <input name="id" type="hidden" value="{{ $system->id }}">
         </form>
     </div>
+    @unless(empty($content))
+        <div class="col-12">
+            <div class="card mt-5">
+                <div class="card-header bg-inverse text-white">
+                    <a class="text-white d-block" data-toggle="collapse" href="#content">Data</a>
+                </div>
+                <div class="card-block collapse" id="content">
+                    <pre class="card-text">{{ json_encode(json_decode($content), JSON_PRETTY_PRINT) }}</pre>
+                </div>
+            </div>
+        </div>
+    @endunless
 @endsection
 

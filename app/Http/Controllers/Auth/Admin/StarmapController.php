@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 /**
@@ -43,10 +44,13 @@ class StarmapController extends Controller
             'method' => __METHOD__,
         ]);
 
-        return view('admin.starmap.systems.edit')->with(
-            'system',
-            Starsystem::where('code', '=', $code)->first()
-        );
+        $content = '';
+        if (Storage::disk('starmap')->exists(Starsystem::makeFilenameFromCode($code))) {
+            $content = Storage::disk('starmap')->get(Starsystem::makeFilenameFromCode($code));
+        }
+
+        return view('admin.starmap.systems.edit')->with('system', Starsystem::where('code', '=', $code)->first())
+                                                       ->with('content', $content);
     }
 
     /**

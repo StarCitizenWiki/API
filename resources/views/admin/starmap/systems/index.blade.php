@@ -31,7 +31,7 @@
 @endsection
 
 @section('content')
-    <div class="mt-5 col-12 col-md-8 mx-auto">
+    <div class="mt-5 col-12 col-md-8 mx-auto mb-5">
         <div class="row mb-5">
             <div class="col-12 col-md-4">
                 @component('admin.components.card')
