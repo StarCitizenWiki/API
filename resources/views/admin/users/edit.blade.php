@@ -134,6 +134,16 @@
                 @endslot
                 <a href="{{ route('admin_users_urls_list', $user->id) }}" class="text-muted">ShortURLs</a>
             @endcomponent
+            @unless(empty($user->notes))
+            <div class="card">
+                <div class="card-header bg-inverse text-white">
+                    Notizen
+                </div>
+                <div class="card-block">
+                    <p class="card-text">{{ $user->notes }}</p>
+                </div>
+            </div>
+            @endunless
         </div>
     </div>
 @endsection
