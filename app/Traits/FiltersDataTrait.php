@@ -79,10 +79,6 @@ trait FiltersDataTrait
             }
             if (in_array($key, $this->validFields)) {
                 if (!in_array($key, $this->filters)) {
-                    Log::debug('Removing Key', [
-                        'method' => __METHOD__,
-                        'key' => $key,
-                    ]);
                     unset($data[$key]);
                 }
             }
