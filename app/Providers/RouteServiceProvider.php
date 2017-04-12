@@ -78,9 +78,15 @@ class RouteServiceProvider extends ServiceProvider
             'namespace' => $this->namespace,
             'prefix' => 'api',
         ], function ($router) {
-            foreach (File::allFiles(base_path('routes/api/v1')) as $route) {
-                Route::group(['domain' => $this->getDomainForRoute($route), 'prefix' => 'v1'], function ($router) use ($route) {
-                    require $route;
+            $apiVersions = glob(base_path('routes/api/*'), GLOB_ONLYDIR);
+            foreach ($apiVersions as $version) {
+                $versionRoutePrefix = str_replace([base_path('routes/api'), '/'], '', $version);
+                Route::group(['prefix' => $versionRoutePrefix], function ($router) use ($version) {
+                    foreach (File::allFiles($version) as $route) {
+                        Route::group(['domain' => $this->getDomainForRoute($route)], function ($router) use ($route) {
+                            require $route;
+                        });
+                    }
                 });
             }
         });
@@ -102,11 +108,12 @@ class RouteServiceProvider extends ServiceProvider
                 '.php',
                 '\\',
                 '/',
-                'v1',
             ],
             '',
             $route
         );
+
+        $key = preg_replace('/v[0-9]/', '', $key);
 
         return config('app.'.$key.'_url');
     }
