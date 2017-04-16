@@ -31,6 +31,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function getShip(String $shipName) : ShipsRepository
     {
+        $shipName = urldecode($shipName);
         Log::debug('Getting Ship by name', [
             'method' => __METHOD__,
             'ship' => $shipName,
@@ -45,17 +46,18 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         if (isset($this->dataToTransform['query']['subject'])) {
             $subject = explode('/', $this->dataToTransform['query']['subject']);
             if (count($subject) === 3) {
+                $shipName = str_replace(['-', ' '], '_', $shipName);
                 $fileName = $subject[1].'_'.$shipName.'.json';
 
                 Log::debug('Checking if StarCitizenDB Data exists for ship', [
                     'method' => __METHOD__,
                     'filename' => $fileName,
                 ]);
-                if (Storage::disk('scdb_ships')->exists($fileName)) {
+                if (Storage::disk('scdb_ships_splitted')->exists($fileName)) {
                     Log::debug('File exists adding content to transformation', [
                         'method' => __METHOD__,
                     ]);
-                    $content = Storage::disk('scdb_ships')->get($fileName);
+                    $content = Storage::disk('scdb_ships_splitted')->get($fileName);
                     $this->dataToTransform['scdb'] = json_decode($content, true);
                 }
             }
