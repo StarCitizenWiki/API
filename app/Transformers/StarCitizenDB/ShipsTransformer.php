@@ -150,7 +150,7 @@ class ShipsTransformer extends TransformerAbstract
             }
         });
 
-        $collectedData['stats']['total_hit_points'] = $this->totalHitPoints;
+        $collectedData['stats']['total_hit_points'] = (String) $this->totalHitPoints;
 
         return $collectedData;
     }
