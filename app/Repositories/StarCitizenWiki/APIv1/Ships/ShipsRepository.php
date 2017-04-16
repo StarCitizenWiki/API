@@ -11,11 +11,9 @@ use App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI;
 use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+use App\Transformers\StarCitizenWiki\SMWTransformer;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
 /**
  * Class ShipsRepository
  * @package App\Repositories\StarCitizenWiki\APIv1\Ships
@@ -36,15 +34,24 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             'method' => __METHOD__,
             'ship' => $shipName,
         ]);
-        $this->transformer = resolve(ShipsTransformer::class);
+        $this->transformer = resolve(SMWTransformer::class);
         $this->request(
             'GET',
-            '?action=browsebysubject&format=json&subject='.$shipName,
+            '?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
             []
         );
 
-        if (isset($this->dataToTransform['query']['subject'])) {
-            $subject = explode('/', $this->dataToTransform['query']['subject']);
+        $smwData = $this->asArray()['data'];
+        $smwData[$shipName] = ['subject' => $smwData['subject']] + $smwData[str_replace('_', ' ', $shipName)];
+
+        $this->dataToTransform = [
+            'wiki' => $smwData[$shipName],
+        ];
+        $this->transformedResource = null;
+        $this->transformer = resolve(ShipsTransformer::class);
+
+        if (isset($this->dataToTransform['wiki']['subject'])) {
+            $subject = explode('/', $this->dataToTransform['wiki']['subject']);
             if (count($subject) === 3) {
                 $shipName = str_replace(['-', ' '], '_', $shipName);
                 $fileName = $subject[1].'_'.$shipName.'.json';

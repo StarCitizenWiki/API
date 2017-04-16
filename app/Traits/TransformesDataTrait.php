@@ -63,7 +63,7 @@ trait TransformesDataTrait
      *
      * @var Fractal
      */
-    private $transformedResource;
+    protected $transformedResource;
 
     /**
      * Sets the transformaion type to Item
