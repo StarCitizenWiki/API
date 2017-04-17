@@ -40,8 +40,8 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             '?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
             []
         );
-
         $smwData = $this->asArray()['data'];
+
         $smwData[$shipName] = ['subject' => $smwData['subject']] + $smwData[str_replace('_', ' ', $shipName)];
 
         $this->dataToTransform = [

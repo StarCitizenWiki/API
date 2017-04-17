@@ -22,6 +22,23 @@ class SplitShipFiles implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private const WIKI_SHIP_NAMES = [
+        'ARGO_MPUV' => 'ARGO_MPUV_Cargo',
+        'ORIG_M50' => 'ORIG_M50_Interceptor',
+        'RSI_Bengal' => 'RSI_Bengal_Carrier',
+        'AEGS__Redeemer' => 'AEGS_Redeemer',
+    ];
+
+    private const WIKI_MANUFACTURER_IDS = [
+        'AEGIS' => 'AEGS',
+        'ANVIL' => 'ANVL',
+        'ORIGIN' => 'ORIG',
+        'KRUGER' => 'KRGR',
+        'KRIG' => 'KRGR',
+        'DRAKE' => 'DRAK',
+        'C.O.' => 'CNOU',
+    ];
+
     /**
      * @var array
      */
@@ -119,8 +136,7 @@ class SplitShipFiles implements ShouldQueue
     private function checkIfModificationIsValid(array $modification) : bool
     {
         return isset($modification['@patchFile']) &&
-               isset($modification['mod']) &&
-               isset($modification['ifcs']);
+               isset($modification['mod']);
     }
 
     /**
@@ -161,11 +177,17 @@ class SplitShipFiles implements ShouldQueue
      */
     private function prepareModificationArray() : void
     {
+        // Content des MOD arrays eine Ebene höherstufen, damit nur ein ShipsTransformer benötigt wird
         $mod = $this->content['mod'];
         unset($this->content['mod']);
         $this->content = array_merge($this->content, $mod);
         $this->content['@name'] = $this->getShipNameForModification();
         $this->content['@manufacturer'] = $this->content['@manufacturer'] ?? '';
+
+        // Transformer benötigt ifcs array
+        if (!isset($this->content['ifcs'])) {
+            $this->content['ifcs'] = [];
+        }
     }
 
     /**
@@ -181,6 +203,8 @@ class SplitShipFiles implements ShouldQueue
     }
 
     /**
+     * Entfernen leerer Keys
+     *
      * @param $array
      *
      * @return array
@@ -204,11 +228,11 @@ class SplitShipFiles implements ShouldQueue
      */
     private function saveDataToDisk(array $content) : void
     {
-        $content['name'] = $this->prepareFilename($content['name']);
+        $this->prepareFilename($content);
 
         Log::info('Saving '.$content['name']);
         Storage::disk('scdb_ships_splitted')->put(
-            $content['name'].'.json',
+            $content['filename'],
             json_encode($content, JSON_PRETTY_PRINT)
         );
     }
@@ -216,16 +240,23 @@ class SplitShipFiles implements ShouldQueue
     /**
      * Adjusts the Filename to Match the Wiki Site Name
      *
-     * @param String $name
-     *
-     * @return String
+     * @param array $data
      */
-    private function prepareFilename(String $name) : String
+    private function prepareFilename(array &$data) : void
     {
-        $names = [
-            'ORIG_m50' => 'ORIG_M50_Interceptor',
-        ];
+        $manufacturerID = strtoupper(
+            explode('_', $data['name'])[0]
+        );
 
-        return $names[$name] ?? $name;
+        $manufacturerID = self::WIKI_MANUFACTURER_IDS[$manufacturerID] ?? $manufacturerID;
+
+        $nameSplitted = explode('_', $data['name']);
+        $nameSplitted[0] = $manufacturerID;
+
+        $data['name'] = implode('_', $nameSplitted);
+
+        $data['name'] = self::WIKI_SHIP_NAMES[$data['name']] ?? $data['name'];
+
+        $data['filename'] = $data['name'].'.json';
     }
 }

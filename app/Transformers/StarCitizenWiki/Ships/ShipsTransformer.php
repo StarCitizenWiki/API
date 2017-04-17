@@ -32,15 +32,30 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
      */
     public function transform($ship)
     {
-        //dump($ship);
+    //    dump($ship);
+
+        $hardpoints = [];
+
+        foreach ($ship['wiki'] as $key => $item) {
+            if (starts_with($key, 'Hardpoint')) {
+                $name = snake_case(str_replace('Hardpoint_', '', $key));
+                $hardpoints += [
+                    $name => [
+                        'count' => $item[0]['Anzahl'] ?? '',
+                        'size' => $item[1]['Größe'] ?? '',
+                    ],
+                ];
+            }
+        }
+
         $transformed = [
-            $ship['wiki']['smw']['page_title'][0] => [
-                'name' => [
-                    'name' => $ship['wiki']['smw']['page_title'][0],
+            $ship['wiki']['smw']['page_title'][0] ?? $ship['wiki']['subject'] => [
+                'ship' => [
+                    'name' => $ship['wiki']['smw']['page_title'][0] ?? $ship['wiki']['subject'],
                     'wiki_url' => BaseStarCitizenWikiAPI::URL.str_replace('#0#', '', $ship['wiki']['subject']),
                 ],
                 'manufacturer' => [
-                    'name' => $ship['scdb']['manufacturer'] ?? last(explode('/', $ship['wiki']['Hersteller'][0])) ?? '',
+                    'name' => str_replace('#0#', '', last(explode('/', $ship['wiki']['Hersteller'][0]))) ?? $ship['scdb']['manufacturer'] ??'',
                     'id' => explode('/', $ship['wiki']['subject'])[1],
                     'wiki_url' => BaseStarCitizenWikiAPI::URL.str_replace('#0#', '', $ship['wiki']['Hersteller'][0]),
                 ],
@@ -89,7 +104,7 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
                         'size' => $ship['wiki']['Schild'][1]['Größe'] ?? '',
                     ],
                     'hardpoint' => [
-
+                        $hardpoints,
                     ],
                 ],
             ],

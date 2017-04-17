@@ -31,6 +31,7 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
     public function transform($data)
     {
         $title = str_replace(' ', '_', $data['query']['subject']);
+        $title = str_replace('#0#', '', $title);
         $transformed = [];
 
         foreach ($data['query']['data'] as $shipData) {
@@ -56,7 +57,7 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
             }
         }
 
-        foreach ($data['query']['sobj'] as $shipData) {
+        foreach ($data['query']['sobj'] ?? [] as $shipData) {
             $objectData = [];
             $subjectTitle = last(explode('##', $shipData['subject']));
             foreach ($shipData['data'] as $item) {

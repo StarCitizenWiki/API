@@ -18,8 +18,21 @@ class ShipsTransformer extends TransformerAbstract
      */
     public function transform(array $data) : array
     {
+        $name = $data['@name'];
+
+        if (isset($data['Elems']) && // Elems ist nur bei Modificationen gesetzt
+            $data['Elems'][0]['@name'] === 'displayname') {
+            $name = str_replace(' ', '_', $data['Elems'][0]['@value']);
+        } else {
+            if (isset($data['@local']) && !empty($data['@local'])) {
+                $name = str_replace(' ', '_', $data['@local']);
+            } elseif (isset($data['@displayname']) && !empty($data['@displayname'])) {
+                $name = str_replace(' ', '_', $data['@displayname']);
+            }
+        }
+
         $collectedData = [
-            'name' => $data['@name'],
+            'name' => $name,
             'manufacturer' => $data['@manufacturer'] ?? '',
             'description' => $data['@description'] ?? '',
             'stats' => [
