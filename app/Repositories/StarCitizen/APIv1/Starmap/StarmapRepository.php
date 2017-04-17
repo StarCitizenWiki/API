@@ -9,6 +9,7 @@ namespace App\Repositories\StarCitizen\APIv1\Starmap;
 
 use App\Models\Starsystem;
 use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI;
+use App\Transformers\StarCitizen\Starmap\AsteroidbeltsTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemListTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
 use Illuminate\Support\Facades\Log;
@@ -43,6 +44,21 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
 
         return $this;
     }
+
+	public function getAsteroidbelts(String $systemName)
+	{
+		Log::debug('Requesting Astreoidbelts', [
+			'method' => __METHOD__,
+			'system' => $systemName,
+		]);
+
+		$this->withTransformer(AsteroidbeltsTransformer::class)->request(
+			'POST',
+			'starmap/star-systems/'.$systemName,
+			[]
+		);
+		return $this;
+	}
 
     /**
      * https://robertsspaceindustries.com/api/starmap/celestial-objects/{SYSTEM_NAME}.[TYPE}.{NAME}
