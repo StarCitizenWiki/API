@@ -22,7 +22,6 @@ class ShipsTransformer extends TransformerAbstract
         $name = $data['processedName'];
 
         $manufacturerID = explode('_', $name)[0];
-        $manufacturerID = SplitShipFiles::WIKI_MANUFACTURER_IDS[$manufacturerID] ?? $manufacturerID;
 
         $collectedData = [
             'name' => $name,

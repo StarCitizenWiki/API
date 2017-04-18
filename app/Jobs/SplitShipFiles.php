@@ -26,8 +26,6 @@ class SplitShipFiles implements ShouldQueue
         'RSI_Bengal' => 'RSI_Bengal_Carrier',
     ];
 
-    public const WIKI_MANUFACTURER_IDS = [];
-
     /**
      * @var array
      */
@@ -114,7 +112,7 @@ class SplitShipFiles implements ShouldQueue
      */
     private function getDataForBaseVersion() : void
     {
-        $this->getShipnameForBaseVersion();
+        $this->getShipNameForBaseVersion();
         Log::info('Processing '.$this->content['processedName']);
 
         $baseVersion = $this->content;
@@ -127,29 +125,18 @@ class SplitShipFiles implements ShouldQueue
         $this->baseVersion = $collectedData;
     }
 
-    private function getShipnameForBaseVersion() : void
+    private function getShipNameForBaseVersion() : void
     {
         $name = $this->content['@name'];
-        $manufacturerID = explode('_', $this->content['@name'])[0];
 
         if (isset($this->content['@displayname']) &&
             !empty($this->content['@displayname'])) {
-            $displayName = $this->content['@displayname'];
-            $displayName = str_replace(' ', '_', $displayName);
-            $displayName = explode('_', $displayName);
-            $displayName = array_filter($displayName);
-            $displayName[0] = $manufacturerID;
-            $displayName = implode('_', $displayName);
+            $displayName = $this->assembleFilename($this->content['@displayname']);
         }
 
         if (isset($this->content['@local']) &&
             !empty($this->content['@local'])) {
-            $localName = $this->content['@local'];
-            $localName = str_replace(' ', '_', $localName);
-            $localName = explode('_', $localName);
-            $localName = array_filter($localName);
-            $localName[0] = $manufacturerID;
-            $localName = implode('_', $localName);
+            $localName = $this->assembleFilename($this->content['@local']);
         }
 
         if (isset($displayName) &&
@@ -171,6 +158,23 @@ class SplitShipFiles implements ShouldQueue
             }
         }
         $this->content['processedName'] = $name;
+    }
+
+    /**
+     * @param String $name
+     *
+     * @return String
+     */
+    private function assembleFilename(String $name) : String
+    {
+        $manufacturerID = explode('_', $this->content['@name'])[0];
+
+        $name = str_replace(' ', '_', $name);
+        $name = explode('_', $name);
+        $name = array_filter($name);
+        $name[0] = $manufacturerID;
+
+        return implode('_', $name);
     }
 
     /**
@@ -201,7 +205,7 @@ class SplitShipFiles implements ShouldQueue
      */
     private function getDataForModifications() : void
     {
-        $this->getShipnameForModification();
+        $this->getShipNameForModification();
         Log::info('Processing Modification '.$this->content['processedName']);
 
         $collectedData = $this->fractalManager->item($this->content)->toArray()['data'];
@@ -213,7 +217,7 @@ class SplitShipFiles implements ShouldQueue
         $this->saveDataToDisk($collectedData);
     }
 
-    private function getShipnameForModification() : void
+    private function getShipNameForModification() : void
     {
         $patchFileName = $this->content['@patchFile'];
         $name = str_replace(
@@ -303,8 +307,6 @@ class SplitShipFiles implements ShouldQueue
         $manufacturerID = strtoupper(
             explode('_', $data['name'])[0]
         );
-
-        $manufacturerID = self::WIKI_MANUFACTURER_IDS[$manufacturerID] ?? $manufacturerID;
 
         $nameSplitted = explode('_', $data['name']);
         $nameSplitted[0] = $manufacturerID;
