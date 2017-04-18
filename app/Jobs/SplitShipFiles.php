@@ -23,21 +23,10 @@ class SplitShipFiles implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private const WIKI_SHIP_NAMES = [
-        'ARGO_MPUV' => 'ARGO_MPUV_Cargo',
-        'ORIG_M50' => 'ORIG_M50_Interceptor',
         'RSI_Bengal' => 'RSI_Bengal_Carrier',
-        'AEGS__Redeemer' => 'AEGS_Redeemer',
     ];
 
-    private const WIKI_MANUFACTURER_IDS = [
-        'AEGIS' => 'AEGS',
-        'ANVIL' => 'ANVL',
-        'ORIGIN' => 'ORIG',
-        'KRUGER' => 'KRGR',
-        'KRIG' => 'KRGR',
-        'DRAKE' => 'DRAK',
-        'C.O.' => 'CNOU',
-    ];
+    public const WIKI_MANUFACTURER_IDS = [];
 
     /**
      * @var array
@@ -71,7 +60,7 @@ class SplitShipFiles implements ShouldQueue
     public function handle() : void
     {
         Log::info('Starting Split Ship Files Job');
-        foreach (File::allFiles(config('filesystems.disks.scdb_ships.root')) as $ship) {
+        foreach (File::allFiles(config('filesystems.disks.scdb_ships_base.root')) as $ship) {
             $this->setContent((String) $ship);
 
             try {
@@ -83,14 +72,16 @@ class SplitShipFiles implements ShouldQueue
                         if ($this->checkIfModificationIsValid($modification)) {
                             $this->content = $modification;
                             $this->prepareModificationArray();
+                            Log::debug('Mod: '.$this->content['@name']);
                             $this->getDataForModifications();
+
                         }
                     }
                 }
             } catch (InvalidDataException $e) {
-                Log::warning('Ship has no Name field', [
+                Log::warning($e->getMessage(), [
                     'method' => __METHOD__,
-                    'file' => $ship,
+                    'file' => (String) $ship,
                 ]);
             }
         }
@@ -119,32 +110,12 @@ class SplitShipFiles implements ShouldQueue
     }
 
     /**
-     * Checks if a Modifications key is present in the content array
-     *
-     * @return bool
-     */
-    private function checkIfShipHasModifications() : bool
-    {
-        return isset($this->content['Modifications']) ?? false;
-    }
-
-    /**
-     * @param array $modification
-     *
-     * @return bool
-     */
-    private function checkIfModificationIsValid(array $modification) : bool
-    {
-        return isset($modification['@patchFile']) &&
-               isset($modification['mod']);
-    }
-
-    /**
      * Transformes the data and sets a base version
      */
     private function getDataForBaseVersion() : void
     {
-        Log::info('Processing '.$this->content['@name']);
+        $this->getShipnameForBaseVersion();
+        Log::info('Processing '.$this->content['processedName']);
 
         $baseVersion = $this->content;
         unset($baseVersion['Modifications']);
@@ -156,12 +127,82 @@ class SplitShipFiles implements ShouldQueue
         $this->baseVersion = $collectedData;
     }
 
+    private function getShipnameForBaseVersion() : void
+    {
+        $name = $this->content['@name'];
+        $manufacturerID = explode('_', $this->content['@name'])[0];
+
+        if (isset($this->content['@displayname']) &&
+            !empty($this->content['@displayname'])) {
+            $displayName = $this->content['@displayname'];
+            $displayName = str_replace(' ', '_', $displayName);
+            $displayName = explode('_', $displayName);
+            $displayName = array_filter($displayName);
+            $displayName[0] = $manufacturerID;
+            $displayName = implode('_', $displayName);
+        }
+
+        if (isset($this->content['@local']) &&
+            !empty($this->content['@local'])) {
+            $localName = $this->content['@local'];
+            $localName = str_replace(' ', '_', $localName);
+            $localName = explode('_', $localName);
+            $localName = array_filter($localName);
+            $localName[0] = $manufacturerID;
+            $localName = implode('_', $localName);
+        }
+
+        if (isset($displayName) &&
+            isset($localName)) {
+            if ($displayName !== $localName) {
+                $name = $localName;
+            }
+        }
+
+        if (isset($displayName)) {
+            if ($name !== $displayName) {
+                $name = $displayName;
+            }
+        }
+
+        if (isset($localName)) {
+            if ($name !== $localName) {
+                $name = $localName;
+            }
+        }
+        $this->content['processedName'] = $name;
+    }
+
+    /**
+     * Checks if a Modifications key is present in the content array
+     *
+     * @return bool
+     */
+    private function checkIfShipHasModifications() : bool
+    {
+        return isset($this->content['Modifications']);
+    }
+
+    /**
+     * @param array $modification
+     *
+     * @return bool
+     */
+    private function checkIfModificationIsValid(array $modification) : bool
+    {
+        return isset($modification['@patchFile']) &&
+               isset($modification['mod']) &&
+               isset($modification['@name']) &&
+               !empty($modification['@name']);
+    }
+
     /**
      * Transformes the Modification Data and merges it with the base version
      */
     private function getDataForModifications() : void
     {
-        Log::info('Processing Modification '.$this->getShipNameForModification());
+        $this->getShipnameForModification();
+        Log::info('Processing Modification '.$this->content['processedName']);
 
         $collectedData = $this->fractalManager->item($this->content)->toArray()['data'];
 
@@ -170,6 +211,35 @@ class SplitShipFiles implements ShouldQueue
         $collectedData = array_merge($this->baseVersion, $collectedData);
 
         $this->saveDataToDisk($collectedData);
+    }
+
+    private function getShipnameForModification() : void
+    {
+        $patchFileName = $this->content['@patchFile'];
+        $name = str_replace(
+            'Modifications/',
+            '',
+            $patchFileName
+        );
+
+        if (last(explode('_', $name)) !== $this->content['@name']) {
+            $name .= '_'.$this->content['@name'];
+        }
+
+        if (isset($this->content['@local']) &&
+            !empty($this->content['@local'])) {
+            $manufacturerID = explode('_', $name)[0];
+            $localName = explode(' ', $this->content['@local']);
+            $localName = array_filter($localName);
+            $localName[0] = $manufacturerID;
+            $localName = implode('_', $localName);
+
+            if ($name !== $localName) {
+                $name = $localName;
+            }
+        }
+
+        $this->content['processedName'] = $name;
     }
 
     /**
@@ -181,25 +251,11 @@ class SplitShipFiles implements ShouldQueue
         $mod = $this->content['mod'];
         unset($this->content['mod']);
         $this->content = array_merge($this->content, $mod);
-        $this->content['@name'] = $this->getShipNameForModification();
-        $this->content['@manufacturer'] = $this->content['@manufacturer'] ?? '';
 
         // Transformer benötigt ifcs array
         if (!isset($this->content['ifcs'])) {
             $this->content['ifcs'] = [];
         }
-    }
-
-    /**
-     * @return String
-     * @throws InvalidDataException
-     */
-    private function getShipNameForModification() : String
-    {
-        if (isset($this->content['@patchFile'])) {
-            return str_replace('Modifications/', '', $this->content['@patchFile']);
-        }
-        throw new InvalidDataException('Data Seems to be for Baseversion '.$this->content['@name']);
     }
 
     /**
@@ -254,9 +310,7 @@ class SplitShipFiles implements ShouldQueue
         $nameSplitted[0] = $manufacturerID;
 
         $data['name'] = implode('_', $nameSplitted);
-
         $data['name'] = self::WIKI_SHIP_NAMES[$data['name']] ?? $data['name'];
-
-        $data['filename'] = $data['name'].'.json';
+        $data['filename'] = strtolower($data['name'].'.json');
     }
 }

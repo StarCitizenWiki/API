@@ -54,7 +54,7 @@ class DownloadStarCitizenDBShips implements ShouldQueue
             $fileName = explode('/', $url);
             $fileName = end($fileName);
             if (!in_array($fileName, $this->skip)) {
-                $resource = fopen(config('filesystems.disks.scdb_ships.root').'/'.$fileName, 'w');
+                $resource = fopen(config('filesystems.disks.scdb_ships_base.root').'/'.$fileName, 'w');
                 $stream = stream_for($resource);
                 $client->request(
                     'GET',

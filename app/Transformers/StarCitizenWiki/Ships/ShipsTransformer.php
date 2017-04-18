@@ -32,11 +32,11 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
      */
     public function transform($ship)
     {
-    //    dump($ship);
-
         $hardpoints = [];
+        $wiki = $ship['wiki'];
+        $scdb = $ship['scdb'];
 
-        foreach ($ship['wiki'] as $key => $item) {
+        foreach ($wiki['data'] as $key => $item) {
             if (starts_with($key, 'Hardpoint')) {
                 $name = snake_case(str_replace('Hardpoint_', '', $key));
                 $hardpoints += [
@@ -49,59 +49,59 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
         }
 
         $transformed = [
-            $ship['wiki']['smw']['page_title'][0] ?? $ship['wiki']['subject'] => [
+            last(explode('/', $wiki['subject'])) ?? $wiki['subject'] => [
                 'ship' => [
-                    'name' => $ship['wiki']['smw']['page_title'][0] ?? $ship['wiki']['subject'],
-                    'wiki_url' => BaseStarCitizenWikiAPI::URL.str_replace('#0#', '', $ship['wiki']['subject']),
+                    'name' => last(explode('/', $wiki['subject'])) ?? $wiki['subject'],
+                    'wiki_url' => BaseStarCitizenWikiAPI::URL.$wiki['subject'],
                 ],
                 'manufacturer' => [
-                    'name' => str_replace('#0#', '', last(explode('/', $ship['wiki']['Hersteller'][0]))) ?? $ship['scdb']['manufacturer'] ??'',
-                    'id' => explode('/', $ship['wiki']['subject'])[1],
-                    'wiki_url' => BaseStarCitizenWikiAPI::URL.str_replace('#0#', '', $ship['wiki']['Hersteller'][0]),
+                    'name' => last(explode('/', $wiki['data']['Hersteller'][0])) ?? $scdb['manufacturer'] ?? '',
+                    'id' => explode('/', $wiki['subject'])[1],
+                    'wiki_url' => BaseStarCitizenWikiAPI::URL.$wiki['data']['Hersteller'][0],
                 ],
                 'description' => [
-                    'wiki' => $ship['wiki']['Beschreibung'][0] ?? '',
-                    'game_data' => $ship['scdb']['description'] ?? '',
+                    'wiki' => $wiki['data']['Beschreibung'][0] ?? '',
+                    'game_data' => $scdb['description'] ?? '',
                 ],
-                'focus' => $ship['wiki']['Fokus'] ?? '',
-                'status' => $ship['scdb']['stats']['status'] ?? snake_case($ship['wiki']['Status'][0]) ?? '',
-                'price' => $ship['wiki']['Schiffspreis'][0] ?? '',
+                'focus' => $wiki['data']['Fokus'] ?? '',
+                'status' => $scdb['stats']['status'] ?? snake_case($wiki['data']['Status'][0]) ?? '',
+                'price' => $wiki['data']['Schiffspreis'][0] ?? '',
                 'dimensions' => [
-                    'length' => $ship['wiki']['Länge'][0] ?? '',
-                    'beam' => $ship['wiki']['Breite'][0] ?? '',
-                    'height' => $ship['wiki']['Höhe'][0] ?? '',
-                    'size' => $ship['scdb']['stats']['size'] ?? '',
+                    'length' => $wiki['data']['Länge'][0] ?? '',
+                    'beam' => $wiki['data']['Breite'][0] ?? '',
+                    'height' => $wiki['data']['Höhe'][0] ?? '',
+                    'size' => $scdb['stats']['size'] ?? '',
                 ],
-                'mass' => $ship['scdb']['mass'] ?? '',
+                'mass' => $scdb['mass'] ?? '',
                 'crew' => [
-                    'max' => $ship['wiki']['Besatzung'][0] ?? '',
+                    'max' => $wiki['data']['Besatzung'][0] ?? '',
                 ],
                 'freight_capacity' => [
-                    'scu' => $ship['wiki']['SCU'][0] ?? '',
+                    'scu' => $wiki['data']['SCU'][0] ?? '',
                 ],
                 'hit_points' => [
-                    'total' => $ship['scdb']['stats']['total_hit_points'] ?? '',
+                    'total' => $scdb['stats']['total_hit_points'] ?? '',
                 ],
                 'components' => [
                     'thruster' => [
                         'main' => [
-                            'count' => $ship['wiki']['Triebwerk'][0]['Anzahl'] ?? '',
-                            'size' => $ship['wiki']['Triebwerk'][1]['Größe'] ?? '',
-                            'velocity' => $ship['scdb']['velocity'] ?? '',
+                            'count' => $wiki['data']['Triebwerk'][0]['Anzahl'] ?? '',
+                            'size' => $wiki['data']['Triebwerk'][1]['Größe'] ?? '',
+                            'velocity' => $scdb['velocity'] ?? '',
                         ],
                         'maneuvering' => [
-                            'count' => $ship['wiki']['Steuerdüse'][0]['Anzahl'] ?? '',
-                            'size' => $ship['wiki']['Steuerdüse'][1]['Größe'] ?? '',
-                            'rotation' => $ship['scdb']['rotation'] ?? '',
+                            'count' => $wiki['data']['Steuerdüse'][0]['Anzahl'] ?? '',
+                            'size' => $wiki['data']['Steuerdüse'][1]['Größe'] ?? '',
+                            'rotation' => $scdb['rotation'] ?? '',
                         ],
                     ],
                     'engine' => [
-                        'count' => $ship['wiki']['Generator'][0]['Anzahl'] ?? '',
-                        'size' => $ship['wiki']['Generator'][1]['Größe'] ?? '',
+                        'count' => $wiki['data']['Generator'][0]['Anzahl'] ?? '',
+                        'size' => $wiki['data']['Generator'][1]['Größe'] ?? '',
                     ],
                     'shield' => [
-                        'count' => $ship['wiki']['Schild'][0]['Anzahl'] ?? '',
-                        'size' => $ship['wiki']['Schild'][1]['Größe'] ?? '',
+                        'count' => $wiki['data']['Schild'][0]['Anzahl'] ?? '',
+                        'size' => $wiki['data']['Schild'][1]['Größe'] ?? '',
                     ],
                     'hardpoint' => [
                         $hardpoints,
@@ -109,8 +109,6 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
                 ],
             ],
         ];
-
-
 
         return $this->filterData($transformed);
     }

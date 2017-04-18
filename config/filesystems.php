@@ -90,6 +90,11 @@ return [
             'root' => storage_path('app/scdb/ships'),
         ],
 
+        'scdb_ships_base' => [
+            'driver' => 'local',
+            'root' => storage_path('app/scdb/ships/base'),
+        ],
+
         'scdb_ships_splitted' => [
             'driver' => 'local',
             'root' => storage_path('app/scdb/ships/splitted'),

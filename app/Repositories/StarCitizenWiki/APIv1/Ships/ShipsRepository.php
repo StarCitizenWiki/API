@@ -34,41 +34,11 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             'method' => __METHOD__,
             'ship' => $shipName,
         ]);
-        $this->transformer = resolve(SMWTransformer::class);
-        $this->request(
-            'GET',
-            '?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
-            []
-        );
-        $smwData = $this->asArray()['data'];
 
-        $smwData[$shipName] = ['subject' => $smwData['subject']] + $smwData[str_replace('_', ' ', $shipName)];
-
-        $this->dataToTransform = [
-            'wiki' => $smwData[$shipName],
-        ];
-        $this->transformedResource = null;
+        $this->getShipDataFromWiki($shipName);
+        $this->resetTransform();
         $this->transformer = resolve(ShipsTransformer::class);
-
-        if (isset($this->dataToTransform['wiki']['subject'])) {
-            $subject = explode('/', $this->dataToTransform['wiki']['subject']);
-            if (count($subject) === 3) {
-                $shipName = str_replace(['-', ' '], '_', $shipName);
-                $fileName = $subject[1].'_'.$shipName.'.json';
-
-                Log::debug('Checking if StarCitizenDB Data exists for ship', [
-                    'method' => __METHOD__,
-                    'filename' => $fileName,
-                ]);
-                if (Storage::disk('scdb_ships_splitted')->exists($fileName)) {
-                    Log::debug('File exists adding content to transformation', [
-                        'method' => __METHOD__,
-                    ]);
-                    $content = Storage::disk('scdb_ships_splitted')->get($fileName);
-                    $this->dataToTransform['scdb'] = json_decode($content, true);
-                }
-            }
-        }
+        $this->getShipDataFromSCDB();
 
         return $this;
     }
@@ -142,5 +112,63 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         ]);
 
         return $this;
+    }
+
+    /**
+     * Loads SMW Data by ship name
+     *
+     * @param String $shipName
+     */
+    private function getShipDataFromWiki(String $shipName) : void
+    {
+        $this->transformer = resolve(SMWTransformer::class);
+        $this->request(
+            'GET',
+            '?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
+            []
+        );
+        $smwData = $this->asArray()['data'];
+
+        $this->dataToTransform = [
+            'wiki' => [
+                'subject' => $smwData['subject'],
+                'data' => $smwData[str_replace('_', ' ', $shipName)],
+            ],
+        ];
+    }
+
+    /**
+     * Loads SCDB Data from file
+     */
+    private function getShipDataFromSCDB() : void
+    {
+        if (isset($this->dataToTransform['wiki']['subject'])) {
+            $subject = explode('/', $this->dataToTransform['wiki']['subject']);
+            if (count($subject) === 3) {
+                $shipName = last($subject);
+                $fileName = strtolower($subject[1].'_'.$shipName.'.json');
+
+                Log::debug('Checking if StarCitizenDB Data exists for ship', [
+                    'method' => __METHOD__,
+                    'filename' => $fileName,
+                ]);
+                if (Storage::disk('scdb_ships_splitted')->exists($fileName)) {
+                    Log::debug('File exists adding content to transformation', [
+                        'method' => __METHOD__,
+                    ]);
+                    $content = Storage::disk('scdb_ships_splitted')->get($fileName);
+                    $this->dataToTransform['scdb'] = json_decode($content, true);
+                }
+            }
+        }
+    }
+
+    /**
+     * Resets the transformer and transformedResource to null
+     */
+    private function resetTransform() : void
+    {
+        $this->transformer = null;
+        $this->transformedResource = null;
     }
 }

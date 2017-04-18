@@ -30,8 +30,11 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
      */
     public function transform($data)
     {
+        array_walk_recursive($data, function (&$value, $key) {
+            $value = preg_replace('/#[0-9]{1,3}#/', '', $value);
+        });
+
         $title = str_replace(' ', '_', $data['query']['subject']);
-        $title = str_replace('#0#', '', $title);
         $transformed = [];
 
         foreach ($data['query']['data'] as $shipData) {
@@ -59,7 +62,7 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
 
         foreach ($data['query']['sobj'] ?? [] as $shipData) {
             $objectData = [];
-            $subjectTitle = last(explode('##', $shipData['subject']));
+            $subjectTitle = last(explode('#', $shipData['subject']));
             foreach ($shipData['data'] as $item) {
                 if (!starts_with($item['property'], '_')) {
                     $objectData[] = [

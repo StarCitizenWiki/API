@@ -1,6 +1,7 @@
 <?php
 namespace App\Transformers\StarCitizenDB;
 
+use App\Jobs\SplitShipFiles;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -18,22 +19,17 @@ class ShipsTransformer extends TransformerAbstract
      */
     public function transform(array $data) : array
     {
-        $name = $data['@name'];
+        $name = $data['processedName'];
 
-        if (isset($data['Elems']) && // Elems ist nur bei Modificationen gesetzt
-            $data['Elems'][0]['@name'] === 'displayname') {
-            $name = str_replace(' ', '_', $data['Elems'][0]['@value']);
-        } else {
-            if (isset($data['@local']) && !empty($data['@local'])) {
-                $name = str_replace(' ', '_', $data['@local']);
-            } elseif (isset($data['@displayname']) && !empty($data['@displayname'])) {
-                $name = str_replace(' ', '_', $data['@displayname']);
-            }
-        }
+        $manufacturerID = explode('_', $name)[0];
+        $manufacturerID = SplitShipFiles::WIKI_MANUFACTURER_IDS[$manufacturerID] ?? $manufacturerID;
 
         $collectedData = [
             'name' => $name,
-            'manufacturer' => $data['@manufacturer'] ?? '',
+            'manufacturer' => [
+                'name' => $data['@manufacturer'] ?? '',
+                'id' => $manufacturerID,
+            ],
             'description' => $data['@description'] ?? '',
             'stats' => [
                 'size' => $data['@size'] ?? '',
