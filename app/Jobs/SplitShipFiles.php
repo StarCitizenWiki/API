@@ -213,7 +213,7 @@ class SplitShipFiles implements ShouldQueue
 
         $collectedData = $this->filterModificationArray($collectedData);
 
-        $collectedData = array_merge($this->baseVersion, $collectedData);
+        $collectedData = array_replace_recursive($this->baseVersion, $collectedData);
 
         $this->saveDataToDisk($collectedData);
     }
@@ -255,7 +255,7 @@ class SplitShipFiles implements ShouldQueue
         // Content des MOD arrays eine Ebene höherstufen, damit nur ein ShipsTransformer benötigt wird
         $mod = $this->content['mod'];
         unset($this->content['mod']);
-        $this->content = array_merge($this->content, $mod);
+        $this->content = array_replace_recursive($this->content, $mod);
 
         // Transformer benötigt ifcs array
         if (!isset($this->content['ifcs'])) {
