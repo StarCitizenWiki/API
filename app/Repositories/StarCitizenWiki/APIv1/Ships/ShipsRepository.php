@@ -12,8 +12,10 @@ use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
 use App\Transformers\StarCitizenWiki\SMWTransformer;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+
 /**
  * Class ShipsRepository
  * @package App\Repositories\StarCitizenWiki\APIv1\Ships
@@ -23,11 +25,12 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     /**
      * Returns Ship data
      *
-     * @param String $shipName ShipName
+     * @param Request $request
+     * @param String  $shipName ShipName
      *
      * @return ShipsRepository
      */
-    public function getShip(String $shipName) : ShipsRepository
+    public function getShip(Request $request, String $shipName) : ShipsRepository
     {
         $shipName = urldecode($shipName);
         Log::debug('Getting Ship by name', [
@@ -38,6 +41,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         $this->getShipDataFromWiki($shipName);
         $this->resetTransform();
         $this->transformer = resolve(ShipsTransformer::class);
+        $this->transformer->addFilters($request);
         $this->getShipDataFromSCDB();
 
         return $this;

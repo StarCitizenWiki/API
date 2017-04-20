@@ -8,6 +8,8 @@
 
 namespace App\Repositories\StarCitizenWiki\APIv1\Ships;
 
+use Illuminate\Http\Request;
+
 /**
  * Interface ShipsInterface
  *
@@ -18,11 +20,12 @@ interface ShipsInterface
     /**
      * Returns Ship data
      *
-     * @param String $shipName ShipName
+     * @param Request $request
+     * @param String  $shipName ShipName
      *
      * @return ShipsRepository
      */
-    public function getShip(String $shipName);
+    public function getShip(Request $request, String $shipName);
 
     /**
      * Gets a ShipList

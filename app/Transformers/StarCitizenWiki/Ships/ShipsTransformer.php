@@ -7,11 +7,9 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI;
 use App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI;
 use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
-use GuzzleHttp\Client;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -22,6 +20,11 @@ use League\Fractal\TransformerAbstract;
 class ShipsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
     use FiltersDataTrait;
+
+    protected $validFields = [
+        'wiki_url',
+        'status',
+    ];
 
     /**
      * Transformes a given Ship

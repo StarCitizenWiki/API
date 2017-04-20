@@ -46,8 +46,7 @@ class ShipsAPIController extends Controller
             'name' => $name,
         ]);
 
-        $this->repository->getShip($name);
-        $this->repository->transformer->addFilters($request);
+        $this->repository->getShip($request, $name);
 
         return response()->json(
             $this->repository->asArray(),
