@@ -34,7 +34,7 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
     {
         $hardpoints = [];
         $wiki = $ship['wiki'];
-        $scdb = $ship['scdb'];
+        $scdb = $ship['scdb'] ?? [];
 
         foreach ($wiki['data'] as $key => $item) {
             if (starts_with($key, 'Hardpoint')) {
