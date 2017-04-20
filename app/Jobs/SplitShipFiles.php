@@ -24,6 +24,7 @@ class SplitShipFiles implements ShouldQueue
 
     private const WIKI_SHIP_NAMES = [
         'RSI_Bengal' => 'RSI_Bengal_Carrier',
+        'ORIG_85X_Limited' => 'ORIG_85X_Runabout',
     ];
 
     /**
