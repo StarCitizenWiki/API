@@ -24,17 +24,8 @@
     <body>
         <ul class="nav nav-pills mt-2 mr-2 justify-content-end ">
             @if(App::isLocal() || (!is_null(Auth::user()) && Auth::user()->isAdmin()))
-                <li class="nav-item dropdown mr-2">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Admin</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{{ route('admin_users_list') }}">User</a>
-                        <a class="dropdown-item" href="{{ route('admin_routes_list') }}">Routes</a>
-                        <a class="dropdown-item" href="{{ route('admin_urls_list') }}">URLs</a>
-                        <a class="dropdown-item" href="{{ route('admin_urls_whitelist_list') }}">URLs Whitelist</a>
-                        <a class="dropdown-item" href="{{ route('admin_urls_whitelist_add_form') }}">Add Whitelist</a>
-                        <a class="dropdown-item" href="{{ route('admin_starmap_systems_list') }}">Starmap Systems</a>
-                        <a class="dropdown-item" href="{{ route('admin_starmap_systems_add_form') }}">Add Starmap System</a>
-                    </div>
+                <li class="nav-item mr-2">
+                    <a class="nav-link" href="{{ route('admin_dashboard') }}">Admin</a>
                 </li>
             @endif
             @if (Auth::guest())

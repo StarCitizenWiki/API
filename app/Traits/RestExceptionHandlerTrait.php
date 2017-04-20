@@ -7,6 +7,7 @@
 
 namespace App\Traits;
 
+use App\Exceptions\InvalidDataException;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
@@ -69,6 +70,11 @@ trait RestExceptionHandlerTrait
                 $response['errors'] = ['No permission'];
                 break;
 
+            case $exception instanceof InvalidDataException:
+                $response['meta']['status'] = 500;
+                $response['errors'] = ['Backend returned bad data'];
+                break;
+
             default:
                 break;
         }
@@ -87,7 +93,12 @@ trait RestExceptionHandlerTrait
     {
         $payload = $payload ?: [];
 
-        return response()->json($payload, $payload['meta']['status']);
+        return response()->json(
+            $payload,
+            $payload['meta']['status'],
+            [],
+            JSON_PRETTY_PRINT
+        );
     }
 
 }

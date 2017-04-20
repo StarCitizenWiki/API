@@ -62,6 +62,7 @@ class ShortURLControllerTest extends TestCase
         $response = $this->post('api/v1/shorten', [
             'url' => 'https://star-citizen.wiki/'.str_random(5),
             'hash_name' => str_random(6),
+            'expires' => null,
         ]);
 
         $response->assertSee('original_url');
@@ -78,6 +79,7 @@ class ShortURLControllerTest extends TestCase
         $response = $this->post('shorten', [
             'url' => 'https://star-citizen.wiki/'.str_random(5),
             'hash_name' => str_random(6),
+            'expires' => null,
         ]);
 
         $response->assertStatus(302);

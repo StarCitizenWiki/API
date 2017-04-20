@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Composer\DependencyResolver\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use PiwikTracker;
 
 /**
@@ -41,6 +42,11 @@ class PiwikTracking
             $piwikClient->setGenerationTime(microtime(true) - LARAVEL_START);
             $piwikClient->setUserId($request->get(AUTH_KEY_FIELD_NAME, false));
             $piwikClient->doTrackPageView($request->getRequestUri());
+
+            Log::debug('Passed URL to Piwik', [
+                'method' => __METHOD__,
+                'url' => $request->fullUrl(),
+            ]);
         }
 
         return $next($request);

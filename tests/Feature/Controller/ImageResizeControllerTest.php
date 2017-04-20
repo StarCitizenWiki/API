@@ -7,6 +7,10 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
+/**
+ * Class ImageResizeControllerTest
+ * @package Tests\Feature\Controller
+ */
 class ImageResizeControllerTest extends TestCase
 {
     /**

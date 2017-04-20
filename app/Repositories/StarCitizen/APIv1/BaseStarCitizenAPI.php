@@ -49,7 +49,25 @@ class BaseStarCitizenAPI
      */
     private function checkIfResponseDataIsValid() : bool
     {
-        return str_contains((String) $this->response->getBody(), 'success');
+        Log::debug('Checking if Response Data is valid', [
+            'method' => __METHOD__,
+        ]);
+
+        $valid = str_contains((String) $this->response->getBody(), 'success');
+
+        if (!$valid) {
+            Log::debug('Response data is not valid', [
+                'method' => __METHOD__,
+            ]);
+
+            return false;
+        }
+
+        Log::debug('Response data is valid', [
+            'method' => __METHOD__,
+        ]);
+
+        return true;
     }
 
     /**
@@ -59,6 +77,9 @@ class BaseStarCitizenAPI
      */
     private function getRSIToken() : void
     {
+        Log::debug('Trying to get RSI Token', [
+            'method' => __METHOD__,
+        ]);
         try {
             $response = $this->guzzleClient->request(
                 'POST',
@@ -67,10 +88,17 @@ class BaseStarCitizenAPI
             $token = $response->getHeader('Set-Cookie');
 
             if (empty($token)) {
+                Log::info('Getting RSI Token failed', [
+                    'method' => __METHOD__,
+                ]);
                 $this->rsiToken = 'StarCitizenWiki_DE';
             } else {
                 $token = explode(';', $token[0])[0];
                 $token = str_replace('Rsi-Token=', '', $token);
+                Log::debug('Getting RSI Token succeeded', [
+                    'method' => __METHOD__,
+                    'token' => $token,
+                ]);
                 $this->rsiToken = $token;
             }
 
@@ -82,6 +110,7 @@ class BaseStarCitizenAPI
             $this->__construct();
         } catch (\Exception $e) {
             Log::warning('Guzzle Request failed', [
+                'method' => __METHOD__,
                 'message' => $e->getMessage(),
             ]);
         }

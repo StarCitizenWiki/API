@@ -52,9 +52,9 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
-    'api_url' => env('APP_API_URL'),
-    'tools_url' => env('APP_TOOLS_URL'),
-    'shorturl_url' => env('APP_SHORTURL_URL'),
+    'api_url' => env('APP_API_URL', 'http://localhost'),
+    'tools_url' => env('APP_TOOLS_URL', 'http://localhost'),
+    'shorturl_url' => env('APP_SHORTURL_URL', 'http://localhost'),
 
     /*
     |--------------------------------------------------------------------------
@@ -123,7 +123,9 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
+    'log' => env('APP_LOG', 'daily'),
+
+    'log_max_files' => 60,
 
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
 
@@ -186,6 +188,8 @@ return [
          * Fractal service
          */
         Spatie\Fractal\FractalServiceProvider::class,
+
+        Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
     ],
 
     /*

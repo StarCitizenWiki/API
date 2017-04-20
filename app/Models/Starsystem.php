@@ -23,4 +23,12 @@ class Starsystem extends Model
     protected $fillable = [
         'code',
     ];
+
+    /**
+     * @return bool
+     */
+    public function isExcluded() : bool
+    {
+        return (bool) $this->exclude;
+    }
 }

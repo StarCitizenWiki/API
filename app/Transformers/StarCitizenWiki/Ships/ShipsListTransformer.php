@@ -20,7 +20,10 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
 {
     use FiltersDataTrait;
 
-    protected $validFields = ['wiki_url', 'api_url'];
+    protected $validFields = [
+        'wiki_url',
+        'api_url',
+    ];
 
     /**
      * Transformes the whole ship list

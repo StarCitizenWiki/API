@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -55,7 +56,11 @@ class RouteServiceProvider extends ServiceProvider
             'middleware' => 'web',
             'namespace' => $this->namespace,
         ], function ($router) {
-            require base_path('routes/web.php');
+            foreach (File::allFiles(base_path('routes/web')) as $route) {
+                Route::group(['domain' => $this->getDomainForRoute($route)], function ($router) use ($route) {
+                    require $route;
+                });
+            }
         });
     }
 
@@ -73,7 +78,36 @@ class RouteServiceProvider extends ServiceProvider
             'namespace' => $this->namespace,
             'prefix' => 'api',
         ], function ($router) {
-            require base_path('routes/api.php');
+            foreach (File::allFiles(base_path('routes/api/v1')) as $route) {
+                Route::group(['domain' => $this->getDomainForRoute($route), 'prefix' => 'v1'], function ($router) use ($route) {
+                    require $route;
+                });
+            }
         });
+    }
+
+    /**
+     * Returns the Config for app.<filename>_url
+     *
+     * @param String $route
+     *
+     * @return String
+     */
+    private function getDomainForRoute(String $route) : String
+    {
+        $key = str_replace(
+            [
+                base_path('routes/api'),
+                base_path('routes/web'),
+                '.php',
+                '\\',
+                '/',
+                'v1',
+            ],
+            '',
+            $route
+        );
+
+        return config('app.'.$key.'_url');
     }
 }

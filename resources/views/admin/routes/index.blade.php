@@ -1,13 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('title', 'Routes')
 
 @section('content')
-    @include('layouts.heading')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-10 mx-auto mt-5">
-                @include('snippets.routelist')
-            </div>
-        </div>
-    </div>
+    @include('components.routelist')
 @endsection

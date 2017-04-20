@@ -27,5 +27,5 @@ pecl install xdebug
 docker-php-ext-enable xdebug
 
 # Install phpunit, the tool that we will use for testing
-curl --location --output /usr/local/bin/phpunit https://phar.phpunit.de/phpunit.phar
+curl --location --output /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-6.0.phar
 chmod +x /usr/local/bin/phpunit

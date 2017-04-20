@@ -32,14 +32,14 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
-            \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class
+            \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         ],
 
         'api' => [
             'throttle:60,1',
             'bindings',
             'token_usage',
-            'add_api_headers'
+            'add_api_headers',
         ],
     ];
 
@@ -60,6 +60,6 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\CheckIfAdmin::class,
         'token_usage' => \App\Http\Middleware\UpdateTokenTimestamp::class,
 	    'add_api_headers' => \App\Http\Middleware\AddAPIHeaders::class,
-        'piwik_tracking' => \App\Http\Middleware\PiwikTracking::class
+        'piwik_tracking' => \App\Http\Middleware\PiwikTracking::class,
     ];
 }

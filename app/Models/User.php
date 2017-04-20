@@ -108,7 +108,9 @@ class User extends Authenticatable
             }
         }
 
-        Log::info('User Account updated', $changes);
+        Log::info('User Account updated', [
+            'changes' => $changes,
+        ]);
 
         return $user->save();
     }
@@ -120,7 +122,14 @@ class User extends Authenticatable
      */
     public function isAdmin() : bool
     {
-        return in_array($this->id, AUTH_ADMIN_IDS);
+        $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
+        Log::debug('Checked if User is Admin', [
+            'method' => __METHOD__,
+            'id' => $this->id,
+            'admin' => $isAdmin,
+        ]);
+
+        return $isAdmin;
     }
 
     /**
@@ -130,7 +139,14 @@ class User extends Authenticatable
      */
     public function isWhitelisted() : bool
     {
-        return $this->whitelisted == 1;
+        $whitelisted = $this->whitelisted == 1;
+        Log::debug('Checked if User is whitelisted', [
+            'method' => __METHOD__,
+            'id' => $this->id,
+            'whitelisted' => $whitelisted,
+        ]);
+
+        return $whitelisted;
     }
 
     /**
@@ -140,7 +156,14 @@ class User extends Authenticatable
      */
     public function isBlacklisted() : bool
     {
-        return $this->blacklisted == 1;
+        $blacklisted = $this->blacklisted == 1;
+        Log::debug('Checked if User is blacklisted', [
+            'method' => __METHOD__,
+            'id' => $this->id,
+            'blacklisted' => $blacklisted,
+        ]);
+
+        return $blacklisted;
     }
 
     /**
@@ -150,6 +173,19 @@ class User extends Authenticatable
      */
     public function shortURLs()
     {
+        Log::debug('Requested Users ShortURLs', [
+            'method' => __METHOD__,
+            'id' => Auth::id(),
+        ]);
+
         return $this->hasMany('App\Models\ShortURL\ShortURL');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function apiRequests()
+    {
+        return $this->hasMany('App\Models\APIRequests');
     }
 }

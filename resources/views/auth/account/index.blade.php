@@ -1,12 +1,5 @@
 @extends('layouts.app')
 @section('title', 'Account')
-@if($user->isBlacklisted())
-    @section('lead')
-        <span class="text-danger">Account gesperrt</span>
-    @endsection
-@else
-    @section('lead', 'Account')
-@endif
 
 @section('content')
     @include('layouts.heading')
@@ -44,7 +37,7 @@
 
                 <div class="mt-4 mb-4">
                     <h4>Danger-Zone:</h4>
-                    <a href="{{ route('account_update') }}" class="btn btn-warning d-inline-block mr-2">Edit Account</a>
+                    <a href="{{ route('account_edit_form') }}" class="btn btn-warning d-inline-block mr-2">Edit Account</a>
                     @unless($user->isBlacklisted())
                     <form role="form" method="POST" action="{{ route('account_delete') }}" class="d-inline-block">
                         {{ csrf_field() }}

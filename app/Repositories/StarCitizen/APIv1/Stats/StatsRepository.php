@@ -12,6 +12,7 @@ use App\Transformers\StarCitizen\Stats\FansTransformer;
 use App\Transformers\StarCitizen\Stats\FleetTransformer;
 use App\Transformers\StarCitizen\Stats\FundsTransformer;
 use App\Transformers\StarCitizen\Stats\StatsTransformer;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class StatsRepository
@@ -33,7 +34,18 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getCrowdfundStats() : StatsRepository
     {
-        $this->request('POST', 'stats/getCrowdfundStats', $this->getRequestBody());
+        $requestBody = $this->getRequestBody();
+
+        Log::debug('Requesting CrowdfundStats', [
+            'method' => __METHOD__,
+            'request_body' => $requestBody,
+        ]);
+
+        $this->request(
+            'POST',
+            'stats/getCrowdfundStats',
+            $requestBody
+        );
 
         return $this;
     }
@@ -45,6 +57,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getFunds() : StatsRepository
     {
+        Log::debug('Getting Fund Stats', [
+            'method' => __METHOD__,
+        ]);
         $this->getFans = false;
         $this->getFleet = false;
         $this->withTransformer(FundsTransformer::class);
@@ -59,6 +74,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getFans() : StatsRepository
     {
+        Log::debug('Getting Fans Stats', [
+            'method' => __METHOD__,
+        ]);
         $this->getFleet = false;
         $this->getFunds = false;
         $this->withTransformer(FansTransformer::class);
@@ -73,6 +91,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getFleet() : StatsRepository
     {
+        Log::debug('Getting Fleet Stats', [
+            'method' => __METHOD__,
+        ]);
         $this->getFans = false;
         $this->getFunds = false;
         $this->withTransformer(FleetTransformer::class);
@@ -87,6 +108,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getAll() : StatsRepository
     {
+        Log::debug('Getting All Stats', [
+            'method' => __METHOD__,
+        ]);
         $this->withTransformer(StatsTransformer::class);
 
         return $this->getCrowdfundStats();
@@ -99,6 +123,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function lastHours() : StatsRepository
     {
+        Log::debug('Getting Stats for last Hours', [
+            'method' => __METHOD__,
+        ]);
         $this->chartType = 'hour';
 
         return $this->getAll();
@@ -111,6 +138,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function lastDays() : StatsRepository
     {
+        Log::debug('Getting Stats for last Days', [
+            'method' => __METHOD__,
+        ]);
         $this->chartType = 'day';
 
         return $this->getAll();
@@ -123,6 +153,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function lastWeeks() : StatsRepository
     {
+        Log::debug('Getting Stats for last Weeks', [
+            'method' => __METHOD__,
+        ]);
         $this->chartType = 'week';
 
         return $this->getAll();
@@ -135,6 +168,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function lastMonths() : StatsRepository
     {
+        Log::debug('Getting Stats for last Months', [
+            'method' => __METHOD__,
+        ]);
         $this->chartType = 'month';
 
         return $this->getAll();
@@ -147,6 +183,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     private function getRequestBody() : array
     {
+        Log::debug('Starting Request Body Assembly', [
+            'method' => __METHOD__,
+        ]);
         $requestContent = [
             'chart' => $this->chartType,
         ];
@@ -172,6 +211,10 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
         $requestBody = [
             'json' => $requestContent,
         ];
+
+        Log::debug('Finished assembling Request Body', [
+            'method' => __METHOD__,
+        ]);
 
         return $requestBody;
     }

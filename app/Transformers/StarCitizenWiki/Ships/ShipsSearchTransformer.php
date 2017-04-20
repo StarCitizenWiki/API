@@ -22,7 +22,10 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
 {
     use FiltersDataTrait;
 
-    protected $validFields = ['wiki_url', 'api_url'];
+    protected $validFields = [
+        'wiki_url',
+        'api_url',
+    ];
 
     /**
      * Transformes a ship search query

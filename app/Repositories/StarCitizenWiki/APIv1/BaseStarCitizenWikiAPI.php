@@ -10,6 +10,7 @@ namespace App\Repositories\StarCitizenWiki\APIv1;
 
 use App\Exceptions\InvalidDataException;
 use App\Repositories\BaseAPITrait;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class BaseStarCitizenWikiAPI
@@ -30,10 +31,22 @@ class BaseStarCitizenWikiAPI
      */
     private function checkIfResponseDataIsValid() : bool
     {
-        if (empty($this->response->getHeader('MediaWiki-API-Error'))) {
-            return true;
+        Log::debug('Checking if Response Data is valid', [
+            'method' => __METHOD__,
+        ]);
+        if (!empty($this->response->getHeader('MediaWiki-API-Error'))) {
+            Log::warning('Response Data is not valid', [
+                'method' => __METHOD__,
+                'response' => (String) $this->response->getBody(),
+            ]);
+
+            return false;
         }
 
-        return false;
+        Log::debug('Response Data is valid', [
+            'method' => __METHOD__,
+        ]);
+
+        return true;
     }
 }

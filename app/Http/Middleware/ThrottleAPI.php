@@ -39,15 +39,33 @@ class ThrottleAPI extends ThrottleRequests
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        $user = User::where('api_token', $request->get('key', null))->first();
+        Log::debug('Getting User From Request', [
+            'method' => __METHOD__,
+        ]);
 
-        // Whitelist hat kein Throttling
-        if (!is_null($user) && $user->whitelisted) {
-            return $next($request);
+        $user = User::where('api_token', $request->get(AUTH_KEY_FIELD_NAME, null))->first();
+
+        if (!is_null($user)) {
+            if ($user->whitelisted) {
+                Log::debug('User is Whitelisted, no Throttling', [
+                    'method' => __METHOD__,
+                ]);
+
+                return $next($request);
+            }
+        } else {
+            Log::debug('No User for key found', [
+                'method' => __METHOD__,
+                'api_key' => $request->get(AUTH_KEY_FIELD_NAME),
+            ]);
         }
 
         try {
             $rpm = $this->determineRequestsPerMinute($user);
+            Log::debug('Got RPM for Request', [
+                'method' => __METHOD__,
+                'rpm' => $rpm,
+            ]);
         } catch (UserBlacklistedException $e) {
             Log::info('Request from blacklisted User', [
                 'user_id' => $user->id,

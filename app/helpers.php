@@ -14,7 +14,8 @@ if (!function_exists('validate_array')) {
      */
     function validate_array(array $data, array $rules, \Illuminate\Http\Request $request)
     {
-        \Illuminate\Support\Facades\Log::debug('['.__CLASS__.'] Validated data', [
+        \Illuminate\Support\Facades\Log::debug('Validated data', [
+            'method' => __METHOD__,
             'data' => $data,
             'rules' => $rules,
         ]);
