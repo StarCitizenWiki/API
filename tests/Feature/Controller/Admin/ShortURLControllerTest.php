@@ -2,13 +2,11 @@
 
 namespace Tests\Feature\Controller\Admin;
 
+use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
-use App\Models\ShortURL\ShortURL;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 /**
  * Class ShortURLControllerTest

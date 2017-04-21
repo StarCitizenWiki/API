@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Tools;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
+use App\Repositories\StarCitizen\APIv1\StatsRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;

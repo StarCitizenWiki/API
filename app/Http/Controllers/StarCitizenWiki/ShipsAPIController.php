@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\StarCitizenWiki;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository;
+use App\Repositories\StarCitizenWiki\APIv1\ShipsRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 

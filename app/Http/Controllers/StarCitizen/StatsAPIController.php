@@ -4,7 +4,7 @@ namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
+use App\Repositories\StarCitizen\APIv1\StatsRepository;
 use Illuminate\Support\Facades\Log;
 
 /**

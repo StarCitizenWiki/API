@@ -5,11 +5,13 @@ namespace Tests\Feature\Model;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Models\ShortURL\ShortURL;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
+/**
+ * Class ShortURLModelTest
+ * @package Tests\Feature\Model
+ */
 class ShortURLModelTest extends TestCase
 {
     use DatabaseTransactions;

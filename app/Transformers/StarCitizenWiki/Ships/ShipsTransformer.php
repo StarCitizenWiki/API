@@ -7,7 +7,7 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI;
+use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI;
 use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;

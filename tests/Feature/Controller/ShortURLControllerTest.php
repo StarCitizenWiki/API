@@ -2,15 +2,7 @@
 
 namespace Tests\Feature\Controller;
 
-use App\Exceptions\URLNotWhitelistedException;
-use App\Http\Controllers\ShortURL\ShortURLController;
-use App\Models\ShortURL\ShortURL;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * Class ShortURLTest
