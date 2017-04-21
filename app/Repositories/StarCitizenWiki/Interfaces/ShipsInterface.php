@@ -1,12 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 01.02.2017
- * Time: 22:59
- */
-
-namespace App\Repositories\StarCitizenWiki\APIv1\Ships;
+namespace App\Repositories\StarCitizenWiki\Interfaces;
 
 use Illuminate\Http\Request;
 
@@ -23,14 +16,14 @@ interface ShipsInterface
      * @param Request $request
      * @param String  $shipName ShipName
      *
-     * @return ShipsRepository
+     * @return ShipsInterface
      */
     public function getShip(Request $request, String $shipName);
 
     /**
      * Gets a ShipList
      *
-     * @return ShipsRepository
+     * @return ShipsInterface
      */
     public function getShipList();
 
@@ -39,7 +32,7 @@ interface ShipsInterface
      *
      * @param String $shipName ShipName
      *
-     * @return ShipsRepository
+     * @return ShipsInterface
      */
     public function searchShips(String $shipName);
 }

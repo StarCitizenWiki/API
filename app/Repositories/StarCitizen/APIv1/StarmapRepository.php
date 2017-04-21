@@ -5,10 +5,11 @@
  * Time: 20:04
  */
 
-namespace App\Repositories\StarCitizen\APIv1\Starmap;
+namespace App\Repositories\StarCitizen\APIv1;
 
 use App\Models\Starsystem;
-use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI;
+use App\Repositories\StarCitizen\BaseStarCitizenAPI;
+use App\Repositories\StarCitizen\Interfaces\StarmapInterface;
 use App\Transformers\StarCitizen\Starmap\SystemListTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
 use Illuminate\Support\Facades\Log;

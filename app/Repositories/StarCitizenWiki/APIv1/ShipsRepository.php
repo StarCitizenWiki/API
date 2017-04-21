@@ -5,9 +5,10 @@
  * Time: 18:16
  */
 
-namespace App\Repositories\StarCitizenWiki\APIv1\Ships;
+namespace App\Repositories\StarCitizenWiki\APIv1;
 
-use App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI;
+use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI;
+use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
 use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;

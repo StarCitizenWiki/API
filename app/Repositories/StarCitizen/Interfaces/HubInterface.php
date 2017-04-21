@@ -5,7 +5,7 @@
  * Time: 12:47
  */
 
-namespace App\Repositories\StarCitizen\APIv1\Hub;
+namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface HubInterface

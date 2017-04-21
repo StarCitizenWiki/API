@@ -5,7 +5,7 @@
  * Time: 13:04
  */
 
-namespace App\Repositories\StarCitizen\APIv1\Orgs;
+namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface OrgsInterface

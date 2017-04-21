@@ -5,7 +5,7 @@
  * Time: 13:31
  */
 
-namespace App\Repositories\StarCitizen\APIv1\Comments;
+namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface CommentsInterface

@@ -6,9 +6,8 @@
  * Time: 22:58
  */
 
-namespace App\Repositories\StarCitizenWiki\APIv1;
+namespace App\Repositories\StarCitizenWiki;
 
-use App\Exceptions\InvalidDataException;
 use App\Repositories\BaseAPITrait;
 use Illuminate\Support\Facades\Log;
 
@@ -25,7 +24,7 @@ class BaseStarCitizenWikiAPI
     use BaseAPITrait;
 
     /**
-     * JSON aus API enthält (bis jetzt) immer ein success field
+     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
      *
      * @return bool
      */
@@ -34,7 +33,7 @@ class BaseStarCitizenWikiAPI
         Log::debug('Checking if Response Data is valid', [
             'method' => __METHOD__,
         ]);
-        if (!empty($this->response->getHeader('MediaWiki-API-Error'))) {
+        if (!empty($this->response->getHeader('MediaWiki-Interfaces-Error'))) {
             Log::warning('Response Data is not valid', [
                 'method' => __METHOD__,
                 'response' => (String) $this->response->getBody(),

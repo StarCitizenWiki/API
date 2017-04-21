@@ -5,9 +5,10 @@
  * Time: 13:35
  */
 
-namespace App\Repositories\StarCitizen\APIv1\Stats;
+namespace App\Repositories\StarCitizen\APIv1;
 
-use App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI as BaseStarCitizenAPI;
+use App\Repositories\StarCitizen\BaseStarCitizenAPI;
+use App\Repositories\StarCitizen\Interfaces\StatsInterface;
 use App\Transformers\StarCitizen\Stats\FansTransformer;
 use App\Transformers\StarCitizen\Stats\FleetTransformer;
 use App\Transformers\StarCitizen\Stats\FundsTransformer;

@@ -5,9 +5,8 @@
  * Time: 17:12
  */
 
-namespace App\Repositories\StarCitizen\APIv1;
+namespace App\Repositories\StarCitizen;
 
-use App\Exceptions\InvalidDataException;
 use App\Repositories\BaseAPITrait;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
@@ -43,7 +42,7 @@ class BaseStarCitizenAPI
     }
 
     /**
-     * JSON aus API enthält (bis jetzt) immer ein success field
+     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
      *
      * @return bool
      */

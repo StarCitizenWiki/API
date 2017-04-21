@@ -5,7 +5,7 @@
  * Time: 12:47
  */
 
-namespace App\Repositories\StarCitizen\APIv1\Stats;
+namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface StatsInterface
@@ -17,8 +17,6 @@ interface StatsInterface
     /**
      * Returns the Crowdfund Stats
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
-     *
-     * @return StatsRepository
      */
-    public function getCrowdfundStats() : StatsRepository;
+    public function getCrowdfundStats();
 }

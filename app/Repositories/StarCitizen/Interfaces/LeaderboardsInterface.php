@@ -5,7 +5,7 @@
  * Time: 12:50
  */
 
-namespace App\Repositories\StarCitizen\APIv1\Leaderboards;
+namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface LeaderboardsInterface
