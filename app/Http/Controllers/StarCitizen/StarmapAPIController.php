@@ -91,4 +91,32 @@ class StarmapAPIController extends Controller
             return $e->getMessage();
         }
     }
+
+	/**
+	 * Requests the given System Name Astreoid belts
+	 *
+	 * @param String $name SystemName
+	 *
+	 * @return \Illuminate\Http\JsonResponse|string
+	 */
+	public function getAsteroidbelts(String $name)
+	{
+		$name = strtoupper($name);
+
+		Log::debug('Starmap System Astreoidbelts requested', [
+			'method' => __METHOD__,
+			'name' => $name,
+		]);
+
+		try {
+			return response()->json(
+				$this->repository->getAsteroidbelts($name)->asArray(),
+				200,
+				[],
+				JSON_PRETTY_PRINT
+			);
+		} catch (InvalidDataException $e) {
+			return $e->getMessage();
+		}
+	}
 }
