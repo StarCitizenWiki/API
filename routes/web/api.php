@@ -1,5 +1,6 @@
 <?php
 Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');
+Route::get('/faq', ['uses' => 'APIPageController@showFAQView'])->name('api_faq');
 
 Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Auth\Admin'], function () {
     Route::get('/', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');

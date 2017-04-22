@@ -5,6 +5,7 @@ namespace App\Http\Controllers\StarCitizen;
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -21,14 +22,18 @@ class StatsAPIController extends Controller
      */
     private $repository;
 
+    private $request;
+
     /**
      * StatsAPIController constructor.
      *
+     * @param Request         $request
      * @param StatsRepository $repository StatsRepository
      */
-    public function __construct(StatsRepository $repository)
+    public function __construct(Request $request, StatsRepository $repository)
     {
         $this->repository = $repository;
+        $this->request = $request;
     }
 
     /**
@@ -76,9 +81,11 @@ class StatsAPIController extends Controller
     /**
      * Returns all
      *
+     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse|string
      */
-    public function getAll()
+    public function getAll(Request $request)
     {
         Log::debug('All Stats requested', [
             'method' => __METHOD__,
@@ -137,8 +144,11 @@ class StatsAPIController extends Controller
     private function getJsonPrettyPrintResponse($func)
     {
         try {
+            $this->repository->$func();
+            $this->repository->transformer->addFilters($this->request);
+
             return response()->json(
-                $this->repository->$func()->asArray(),
+                $this->repository->asArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
