@@ -36,7 +36,7 @@ class StatsRepositoryTest extends TestCase
     {
         $content = $this->repository->getAll()->asJSON();
         $this->assertNotEmpty($content);
-        $this->assertContains('OK', $content);
+        $this->assertContains('fans', $content);
     }
 
     /**

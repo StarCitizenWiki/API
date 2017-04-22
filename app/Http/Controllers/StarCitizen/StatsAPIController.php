@@ -145,7 +145,9 @@ class StatsAPIController extends Controller
     {
         try {
             $this->repository->$func();
-            $this->repository->transformer->addFilters($this->request);
+            if (method_exists($this->repository->transformer, 'addFilters')) {
+                $this->repository->transformer->addFilters($this->request);
+            }
 
             return response()->json(
                 $this->repository->asArray(),
