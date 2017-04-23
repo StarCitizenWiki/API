@@ -1,0 +1,20 @@
+<?php
+return [
+    'header' => 'Documentation',
+    'notice' => 'This API is in heavy Development. We currently can\'t guarantee for data and uptime persistence.',
+    'email' => 'E-Mail Address',
+    'request_api_key' => 'Request API Key',
+    'api_key' => 'API Key',
+    'documentation' => 'Documentation',
+    'faq' => 'FAQ',
+    'rsi_api' => 'RSI API',
+    'wiki_api' => 'Star Citizen Wiki API',
+    'url_api' => 'ShortURL API',
+    'media_api' => 'Medien API',
+    'the_project' => 'The Project',
+    'about' => 'This API is an interface into the German Star Citizen Wiki and other various data sources.<br>If you are interested in developing and/or webdesign we are always looking for committed member.',
+    'write' => 'Write',
+    'about_2' => 'us, or check out our',
+    'teamspeak_server' => 'Teamspeak-Server',
+    'follow_us' => 'Follow us',
+];

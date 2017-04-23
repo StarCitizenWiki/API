@@ -1,5 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Dokumentation')
+@section('title')
+    @lang('api/index.header')
+@endsection
 
 @section('content')
     @include('layouts.heading')
@@ -8,7 +10,7 @@
             <div class="col-12 mt-3">
                 <div class="col-12 col-md-4 mx-auto">
                     <div class="alert alert-danger">
-                        Diese API ist in aktiver Entwicklung. Eine Persistenz der Daten/Uptime kann derzeit nicht garantiert werden.
+                        @lang('api/index.notice')
                     </div>
                     @include('components.errors')
                 </div>
@@ -16,15 +18,15 @@
                     <form role="form" method="POST" action="{{ route('auth_register') }}">
                         {{ csrf_field() }}
                         <div class="input-group input-group-lg mx-auto col-10 col-lg-6 col-xl-4">
-                            <input id="email" type="email" class="center-block form-control input-lg" name="email" value="{{ old('email') }}" required title="Beantrage deinen API-Key" placeholder="E-Mail-Adresse">
+                            <input id="email" type="email" class="center-block form-control input-lg" name="email" value="{{ old('email') }}" required placeholder="@lang('api/index.email')">
                             <span class="input-group-btn">
-                                <button class="btn btn-lg btn-primary" type="submit">API-Key beantragen</button>
+                                <button class="btn btn-lg btn-primary" type="submit">@lang('api/index.request_api_key')</button>
                             </span>
                         </div>
                     </form>
                 @else
                     <p class="text-center">
-                        <b>API Key:</b>&nbsp;<code>{{ Auth::user()->api_token }}</code>
+                        <b>@lang('api/index.api_key'):</b>&nbsp;<code>{{ Auth::user()->api_token }}</code>
                     </p>
                 @endif
             </div>
@@ -35,14 +37,14 @@
         <div class="row">
             <div class="col-md-4 mt-5">
                 <div class="panel panel-default">
-                    <div class="panel-heading"><h4><i class="fa fa-book"></i> Dokumentation</h4></div>
+                    <div class="panel-heading"><h4><i class="fa fa-book"></i> @lang('api/index.documentation')</h4></div>
                     <div class="panel-body mt-3 mr-5">
                         <ul class="list-unstyled">
                             <li>
                                 <i class="fa fa-question-circle"></i>
                                 <span class="ml-2">
                                     <a href="{{ route('api_faq') }}" class="text-gray-dark">
-                                        FAQ
+                                        @lang('api/index.faq')
                                     </a>
                                 </span>
                             </li>
@@ -50,7 +52,7 @@
                                 <i class="fa fa-cloud"></i>
                                 <span class="ml-2">
                                     <a href="" class="text-gray-dark">
-                                        RSI API
+                                        @lang('api/index.rsi_api')
                                     </a>
                                 </span>
                             </li>
@@ -58,7 +60,7 @@
                                 <i class="fa fa-rocket"></i>
                                 <span class="ml-2">
                                     <a href="" class="text-gray-dark">
-                                        Star Citizen Wiki API
+                                        @lang('api/index.wiki_api')
                                     </a>
                                 </span>
                             </li>
@@ -66,7 +68,7 @@
                                 <i class="fa fa-link"></i>
                                 <span class="ml-2">
                                     <a href="" class="text-gray-dark">
-                                        ShortURL API
+                                        @lang('api/index.url_api')
                                     </a>
                                 </span>
                             </li>
@@ -74,7 +76,7 @@
                                 <i class="fa fa-image"></i>
                                 <span class="ml-2">
                                     <a href="" class="text-gray-dark">
-                                        Medien API
+                                        @lang('api/index.media_api')
                                     </a>
                                 </span>
                             </li>
@@ -84,18 +86,17 @@
             </div>
             <div class="col-md-4 mt-5">
                 <div class="panel panel-default">
-                    <div class="panel-heading"><h4><i class="fa fa-pencil"></i> Das Projekt</h4></div>
+                    <div class="panel-heading"><h4><i class="fa fa-pencil"></i> @lang('api/index.the_project')</h4></div>
                     <div class="panel-body mt-3 mr-5">
-                        Die Star Citizen Wiki API dient als Schnittstelle zwischen dem Wiki und diversen anderen Datenquellen.<br>
-                        Du hast Interesse an Programmierung und Webdesign? Wir suchen immer engagierte Leute für unser Projekt.
-                        <a href="mailto:info@star-citizen.wiki" class="text-gray-dark font-italic">Schreib</a> uns, oder besuch uns auf unserem
-                        <a href="ts3server://ts.star-citizen.wiki" class="text-gray-dark font-italic">Teamspeak-Server</a>!
+                        @lang('api/index.about')
+                        <a href="mailto:info@star-citizen.wiki" class="text-gray-dark font-italic">@lang('api/index.write')</a> @lang('api/index.about_2')
+                        <a href="ts3server://ts.star-citizen.wiki" class="text-gray-dark font-italic">@lang('api/index.teamspeak_server')</a>!
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mt-5">
                 <div class="panel panel-default">
-                    <div class="panel-heading"><h4><i class="fa fa-star"></i> Folge uns</h4></div>
+                    <div class="panel-heading"><h4><i class="fa fa-star"></i> @lang('api/index.follow_us')</h4></div>
                     <div class="panel-body mt-3 mr-5">
                         <ul class="list-unstyled">
                             <li>

@@ -1,11 +1,11 @@
 <table class="table">
     <thead>
         <tr>
-            <th><span>Methods</span></th>
-            <th><span>Path</span></th>
-            <th><span>Name</span></th>
-            <th><span>Action</span></th>
-            <th><span>Middleware</span></th>
+            <th><span>@lang('components/routelist.methods')</span></th>
+            <th><span>@lang('components/routelist.path')</span></th>
+            <th><span>@lang('components/routelist.name')</span></th>
+            <th><span>@lang('components/routelist.action')</span></th>
+            <th><span>@lang('components/routelist.middleware')</span></th>
         </tr>
     </thead>
     <tbody>

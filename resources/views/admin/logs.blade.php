@@ -34,7 +34,7 @@
 @section('content')
     <div class="row">
         <div class="col-12 col-md-3">
-            <h4>Available Logs:</h4>
+            <h4>@lang('admin/logs.header')</h4>
             <div class="list-group mt-3 mb-5">
                 @foreach($files as $file)
                     <a href="?l={{ base64_encode($file) }}" class="list-group-item @if ($current_file == $file) llv-active @endif">
@@ -49,16 +49,16 @@
         <div class="col-12 mx-4 pr-4 mb-4 table-container">
             @if ($logs === null)
                 <div>
-                    Log file >50M, please download it.
+                    @lang('admin/logs.log_too_big')
                 </div>
             @else
                 <table id="table-log" class="table table-striped my-4 pr-3">
                     <thead>
                     <tr>
-                        <th>Level</th>
-                        <th>Context</th>
-                        <th>Date</th>
-                        <th>Content</th>
+                        <th>@lang('admin/logs.level')</th>
+                        <th>@lang('admin/logs.context')</th>
+                        <th>@lang('admin/logs.date')</th>
+                        <th>@lang('admin/logs.content')</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -82,7 +82,7 @@
             @endif
             <div>
                 @if($current_file)
-                    <a href="?dl={{ base64_encode($current_file) }}"><span class="fa fa-download"></span> Download file</a>
+                    <a href="?dl={{ base64_encode($current_file) }}"><span class="fa fa-download"></span> @lang('admin/logs.download_file')</a>
                 @endif
             </div>
         </div>

@@ -1,5 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Reset Password')
+@section('title')
+    @lang('auth/passwords/email.header')
+@endsection
 
 @section('content')
     @include('layouts.heading')
@@ -16,7 +18,7 @@
                     {{ csrf_field() }}
 
                     <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                        <label for="email" class="control-label">E-Mail Address</label>
+                        <label for="email" class="control-label">@lang('auth/passwords/email.email'):</label>
                         <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
 
                         @if ($errors->has('email'))
@@ -28,12 +30,11 @@
 
                     <div class="form-group">
                         <button type="submit" class="btn">
-                            Send Password Reset Link
+                            @lang('auth/passwords/email.send_mail')
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-</div>
 @endsection

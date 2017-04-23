@@ -86,7 +86,7 @@ class AccountController extends Controller
         $this->validate($request, [
             'name' => 'present',
             'email' => 'required|min:3|email',
-            'password' => 'present|min:8|confirmed',
+            'password' => 'nullable|min:8|confirmed',
         ]);
 
         $data['id'] = $user->id;
