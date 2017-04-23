@@ -50,7 +50,7 @@ class UserModelTest extends TestCase
      */
     public function testIsWhitelisted()
     {
-        $user = User::find(2);
+        $user = User::find(3);
         $this->assertTrue($user->isWhitelisted());
     }
 
@@ -59,7 +59,7 @@ class UserModelTest extends TestCase
      */
     public function testIsNotWhitelisted()
     {
-        $user = User::find(3);
+        $user = User::find(4);
         $this->assertFalse($user->isWhitelisted());
     }
 
@@ -68,7 +68,7 @@ class UserModelTest extends TestCase
      */
     public function testIsBlacklisted()
     {
-        $user = User::find(3);
+        $user = User::find(4);
         $this->assertTrue($user->isBlacklisted());
     }
 

@@ -33,7 +33,7 @@ class UsersTableSeeder extends Seeder
             'last_login' => date('Y-m-d H:i:s'),
         ]);
 
-        if (App::environment() === 'production') {
+        if (App::environment() !== 'production') {
             DB::table('users')->insert([
                 'name'                => 'Whitelisted',
                 'email'               => 'whitelisted@star-citizen.wiki',
