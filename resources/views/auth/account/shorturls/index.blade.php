@@ -1,5 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Short URLs')
+@section('title')
+    @lang('auth/account/shorturls/index.header')
+@endsection
 
 @section('content')
     @include('layouts.heading')
@@ -21,10 +23,10 @@
                     <thead>
                     <tr>
                         <th><span>Short</span></th>
-                        <th><span>URL</span></th>
-                        <th><span>Hash</span></th>
-                        <th><span>Erstellt</span></th>
-                        <th><span>Ablauf</span></th>
+                        <th><span>@lang('auth/account/shorturls/index.url')</span></th>
+                        <th><span>@lang('auth/account/shorturls/index.hash')</span></th>
+                        <th><span>@lang('auth/account/shorturls/index.created_at')</span></th>
+                        <th><span>@lang('auth/account/shorturls/index.expires')</span></th>
                         <th>&nbsp;</th>
                     </tr>
                     </thead>
@@ -62,7 +64,7 @@
                         @endforeach
                     @else
                     <tr>
-                        <td colspan="7">Keine Short URLs vorhanden</td>
+                        <td colspan="7">@lang('auth/account/shorturls/index.no_urls_found')</td>
                     </tr>
                     @endif
                     </tbody>

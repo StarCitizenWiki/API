@@ -27,7 +27,7 @@ class ShipsController extends Controller
 
         return view('admin.ships.index')->with(
             'ships',
-            File::allFiles(config('filesystems.disks.scdb_ships.root'))
+            File::allFiles(config('filesystems.disks.scdb_ships_splitted.root'))
         );
     }
 

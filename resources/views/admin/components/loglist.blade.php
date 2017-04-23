@@ -1,14 +1,14 @@
 @if ($logs === null)
     <div>
-        Log file >50M, please download it.
+        @lang('admin/logs.log_too_big')
     </div>
 @else
     <table id="table-log" class="table table-striped">
         <thead>
         <tr>
-            <th>Context</th>
-            <th>Date</th>
-            <th>Content</th>
+            <th>@lang('admin/logs.context')</th>
+            <th>@lang('admin/logs.date')</th>
+            <th>@lang('admin/logs.content')</th>
         </tr>
         </thead>
         <tbody>

@@ -35,7 +35,7 @@
         <div class="col-sm-6 col-lg-3 mb-1">
             @component('admin.components.card')
                 @slot('title')
-                    {{ $users_today }} Today
+                    {{ $users_today }} @lang('admin/dashboard.today')
                 @endslot
                 @slot('icon')
                     users
@@ -43,7 +43,7 @@
                 @slot('content')
                     {{ count($users) }}
                 @endslot
-                Users
+                    @lang('admin/dashboard.user')
             @endcomponent
         </div>
 
@@ -55,7 +55,7 @@
                 @slot('content')
                         {{ $logins }}
                 @endslot
-                    User Logins
+                    @lang('admin/dashboard.user_logins')
             @endcomponent
         </div>
 
@@ -67,14 +67,14 @@
                 @slot('content')
                     {{ $api_requests }}
                 @endslot
-                API Requests Today
+                    @lang('admin/dashboard.api_requests') @lang('admin/dashboard.today')
             @endcomponent
         </div>
 
         <div class="col-sm-6 col-lg-3 mb-1">
             @component('admin.components.card')
                 @slot('title')
-                    {{ $urls_today }} Today
+                    {{ $urls_today }} @lang('admin/dashboard.today')
                 @endslot
                 @slot('icon')
                     link
@@ -90,24 +90,24 @@
 
     <section class="row mt-4 mx-auto">
         <div class="col-12 table-container">
-            <h1 class="text-muted mt-4 mb-4">Latest Logs:</h1>
-            <h4 class="mt-4 mb-4"><i class="fa fa-warning text-danger mr-1"></i> Errors:</h4>
+            <h1 class="text-muted mt-4 mb-4">@lang('admin/dashboard.latest_logs'):</h1>
+            <h4 class="mt-4 mb-4"><i class="fa fa-warning text-danger mr-1"></i> @lang('admin/dashboard.errors'):</h4>
             @component('admin.components.loglist', ['logs' => $logs])
                 error
             @endcomponent
 
-            <h4 class="mt-5 mb-4"><i class="fa fa-exclamation text-warning mr-1"></i> Warnings:</h4>
+            <h4 class="mt-5 mb-4"><i class="fa fa-exclamation text-warning mr-1"></i> @lang('admin/dashboard.warnings'):</h4>
             @component('admin.components.loglist', ['logs' => $logs])
                 warning
             @endcomponent
 
-            <h4 class="mt-5 mb-4"><i class="fa fa-info text-info mr-1"></i> Info:</h4>
+            <h4 class="mt-5 mb-4"><i class="fa fa-info text-info mr-1"></i> @lang('admin/dashboard.info'):</h4>
             @component('admin.components.loglist', ['logs' => $logs])
                 info
             @endcomponent
 
             @if (config('app.debug'))
-                <h4 class="mt-5 mb-4"><i class="fa fa-bug text-success mr-1"></i> Debug:</h4>
+                <h4 class="mt-5 mb-4"><i class="fa fa-bug text-success mr-1"></i> @lang('admin/dashboard.debug'):</h4>
                 @component('admin.components.loglist', ['logs' => $logs])
                     debug
                 @endcomponent

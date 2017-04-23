@@ -1,16 +1,18 @@
 @extends('layouts.admin')
-@section('title', 'Short URLs')
+@section('title')
+    @lang('admin/shorturls/index.header')
+@endsection
 
 @section('content')
     <table class="table table-striped" id="urlTable" cellspacing="0">
         <thead>
         <tr>
-            <th><span>ID</span></th>
-            <th><span>URL</span></th>
-            <th><span>Hash</span></th>
-            <th><span>Owner</span></th>
-            <th><span>Erstellt</span></th>
-            <th><span>Ablauf</span></th>
+            <th><span>@lang('admin/shorturls/index.id')</span></th>
+            <th><span>@lang('admin/shorturls/index.url')</span></th>
+            <th><span>@lang('admin/shorturls/index.hash')</span></th>
+            <th><span>@lang('admin/shorturls/index.owner')</span></th>
+            <th><span>@lang('admin/shorturls/index.created_at')</span></th>
+            <th><span>@lang('admin/shorturls/index.expires_at')</span></th>
             <th>&nbsp;</th>
         </tr>
         </thead>
@@ -42,7 +44,7 @@
                             {{ route('admin_urls_edit_form', $url->id) }}
                         @endslot
                         @slot('delete_url')
-                                {{ route('admin_urls_delete') }}
+                            {{ route('admin_urls_delete') }}
                         @endslot
                         {{ $url->id }}
                     @endcomponent
@@ -51,7 +53,7 @@
             @endforeach
         @else
         <tr>
-            <td colspan="7">Keine Short URLs vorhanden</td>
+            <td colspan="7">@lang('admin/shorturls/index.no_urls_found')</td>
         </tr>
         @endif
         </tbody>

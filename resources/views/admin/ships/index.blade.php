@@ -1,13 +1,15 @@
 @extends('layouts.admin')
-@section('title', 'Ships')
+@section('title')
+    @lang('admin/ships/ships.header')
+@endsection
 
 @section('content')
     <div class="mt-5 col-12 col-md-8 mx-auto">
         <table class="table mt-5">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Last Download</th>
+                    <th>@lang('admin/ships/ships.name')</th>
+                    <th>@lang('admin/ships/ships.last_download')</th>
                 </tr>
             </thead>
             <tbody>

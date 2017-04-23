@@ -36,69 +36,71 @@
                     </a>
                     <ul class="nav flex-column">
                         <li class="nav-item ">
-                            <span class="nav-link text-muted">App</span>
+                            <span class="nav-link text-muted">
+                                @lang('layouts/admin.app')
+                            </span>
                             <ul class="nax flex-column pl-0" id="app">
                                 @unless(is_null(\Illuminate\Support\Facades\Auth::user()))
                                 <li class="nav-item">
-                                    <a class="nav-link text-white active" href="{{ route('auth_logout') }}"><i class="fa fa-sign-out mr-1"></i> Logout</a>
+                                    <a class="nav-link text-white active" href="{{ route('auth_logout') }}"><i class="fa fa-sign-out mr-1"></i> @lang('layouts/admin.logout')</a>
                                 </li>
-                                @endif
+                                @endunless
                                 <li class="nav-item">
-                                    <a class="nav-link text-white active" href="{{ route('admin_logs') }}"><i class="fa fa-book mr-1"></i> Logs</a>
+                                    <a class="nav-link text-white active" href="{{ route('admin_logs') }}"><i class="fa fa-book mr-1"></i> @lang('layouts/admin.logs')</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-white active" href="//{{ config('app.api_url') }}"><i class="fa fa-cogs mr-1"></i> API</a>
+                                    <a class="nav-link text-white active" href="//{{ config('app.api_url') }}"><i class="fa fa-cogs mr-1"></i> @lang('layouts/admin.api')</a>
                                 </li>
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="//{{ config('app.tools_url') }}"><i class="fa fa-wrench mr-1"></i> Tools</a>
+                                    <a class="nav-link text-white" href="//{{ config('app.tools_url') }}"><i class="fa fa-wrench mr-1"></i> @lang('layouts/admin.tools')</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-white" href="//{{ config('app.shorturl_url') }}"><i class="fa fa-link mr-1"></i> ShortURL</a>
+                                    <a class="nav-link text-white" href="//{{ config('app.shorturl_url') }}"><i class="fa fa-link mr-1"></i> @lang('layouts/admin.short_url')</a>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                     <ul class="nav flex-column mt-4">
                         <li class="nav-item ">
-                            <a class="nav-link text-muted collapsed" data-toggle="collapse" href="#admin" aria-expanded="false" aria-controls="admin">Admin <i class="fa fa-caret-down ml-2"></i> </a>
+                            <a class="nav-link text-muted collapsed" data-toggle="collapse" href="#admin" aria-expanded="false" aria-controls="admin">@lang('layouts/admin.admin') <i class="fa fa-caret-down ml-2"></i> </a>
                             <ul class="nax flex-column collapse pl-0" id="admin">
                                 <li class="nav-item">
-                                    <a class="nav-link text-white active" href="{{ route('admin_dashboard') }}"><i class="fa fa-dashboard mr-1"></i> Dashboard</a>
+                                    <a class="nav-link text-white active" href="{{ route('admin_dashboard') }}"><i class="fa fa-dashboard mr-1"></i> @lang('layouts/admin.dashboard')</a>
                                 </li>
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="{{ route('admin_routes_list') }}"><i class="fa fa-random mr-1"></i> Routes</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_routes_list') }}"><i class="fa fa-random mr-1"></i> @lang('layouts/admin.routes')</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-white" href="{{ route('admin_users_list') }}"><i class="fa fa-users mr-1"></i> User</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_users_list') }}"><i class="fa fa-users mr-1"></i> @lang('layouts/admin.user')</a>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                     <ul class="nav flex-column mt-4">
                         <li class="nav-item ">
-                            <a class="nav-link text-muted collapsed" data-toggle="collapse" href="#urls" aria-expanded="false" aria-controls="urls">URLs <i class="fa fa-caret-down ml-2"></i> </a>
+                            <a class="nav-link text-muted collapsed" data-toggle="collapse" href="#urls" aria-expanded="false" aria-controls="urls">@lang('layouts/admin.urls') <i class="fa fa-caret-down ml-2"></i> </a>
                             <ul class="nax flex-column collapse pl-0" id="urls">
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="{{ route('admin_urls_list') }}"><i class="fa fa-link mr-1"></i> ShortURLs</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_urls_list') }}"><i class="fa fa-link mr-1"></i> @lang('layouts/admin.short_urls')</a>
                                 </li>
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="{{ route('admin_urls_whitelist_list') }}"><i class="fa fa-list mr-1"></i> Whitelist</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_urls_whitelist_list') }}"><i class="fa fa-list mr-1"></i> @lang('layouts/admin.whitelist')</a>
                                 </li>
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="{{ route('admin_urls_whitelist_add_form') }}"><i class="fa fa-plus-circle mr-1"></i> Add Whitelist</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_urls_whitelist_add_form') }}"><i class="fa fa-plus-circle mr-1"></i> @lang('layouts/admin.add_whitelist')</a>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                     <ul class="nav flex-column mt-4">
                         <li class="nav-item ">
-                            <a class="nav-link text-muted collapsed" data-toggle="collapse" href="#starmap" aria-expanded="false" aria-controls="starmap">Starmap <i class="fa fa-caret-down ml-2"></i> </a>
+                            <a class="nav-link text-muted collapsed" data-toggle="collapse" href="#starmap" aria-expanded="false" aria-controls="starmap">@lang('layouts/admin.starmap') <i class="fa fa-caret-down ml-2"></i> </a>
                             <ul class="nax flex-column collapse pl-0" id="starmap">
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="{{ route('admin_starmap_systems_list') }}"><i class="fa fa-circle-o-notch mr-1"></i> Systems</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_starmap_systems_list') }}"><i class="fa fa-circle-o-notch mr-1"></i> @lang('layouts/admin.systems')</a>
                                 </li>
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="{{ route('admin_starmap_systems_add_form') }}"><i class="fa fa-plus-circle mr-1"></i> Add System</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_starmap_systems_add_form') }}"><i class="fa fa-plus-circle mr-1"></i> @lang('layouts/admin.add_system')</a>
                                 </li>
                                 <li class="nav-item ">
                                     <a href="#" class="nav-link text-white" onclick="event.preventDefault(); document.getElementById('download-starmap').submit();">
@@ -106,7 +108,7 @@
                                             <input name="_method" type="hidden" value="POST">
                                             {{ csrf_field() }}
                                         </form>
-                                        <i class="fa fa-repeat mr-1"></i> Download Starmap
+                                        <i class="fa fa-repeat mr-1"></i> @lang('layouts/admin.download_starmap')
                                     </a>
                                 </li>
                             </ul>
@@ -114,10 +116,10 @@
                     </ul>
                     <ul class="nav flex-column mt-4">
                         <li class="nav-item ">
-                            <a class="nav-link text-muted collapsed" data-toggle="collapse" href="#ships" aria-expanded="false" aria-controls="ships">Ships <i class="fa fa-caret-down ml-2"></i> </a>
+                            <a class="nav-link text-muted collapsed" data-toggle="collapse" href="#ships" aria-expanded="false" aria-controls="ships">@lang('layouts/admin.ships') <i class="fa fa-caret-down ml-2"></i> </a>
                             <ul class="nax flex-column collapse pl-0" id="ships">
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="{{ route('admin_ships_list') }}"><i class="fa fa-rocket mr-1"></i> Ships</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_ships_list') }}"><i class="fa fa-rocket mr-1"></i> @lang('layouts/admin.ships')</a>
                                 </li>
                                 <li class="nav-item ">
                                     <a href="#" class="nav-link text-white" onclick="event.preventDefault(); document.getElementById('download-ships').submit();">
@@ -125,7 +127,7 @@
                                             <input name="_method" type="hidden" value="POST">
                                             {{ csrf_field() }}
                                         </form>
-                                        <i class="fa fa-repeat mr-1"></i> Download Ships
+                                        <i class="fa fa-repeat mr-1"></i> @lang('layouts/admin.download_ships')
                                     </a>
                                 </li>
                             </ul>

@@ -1,5 +1,7 @@
 @extends('layouts.app')
-@section('title', 'FAQ')
+@section('title')
+    @lang('api/faq.header')
+@endsection
 
 @section('content')
     @include('layouts.heading')
