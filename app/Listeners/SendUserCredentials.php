@@ -26,6 +26,7 @@ class SendUserCredentials implements ShouldQueue
     public function handle(UserRegistered $event)
     {
         $user = $event->user;
-        Mail::to($user->email)->send(new UserRegisteredMail($user));
+        $password = $event->password;
+        Mail::to($user->email)->send(new UserRegisteredMail($user, $password));
     }
 }
