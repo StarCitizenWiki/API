@@ -1,5 +1,7 @@
 @extends('layouts.admin')
-@section('title', 'Starmap Systems')
+@section('title')
+    @lang('admin/starmap/systems/index.header')
+@endsection
 @section('header')
     <style>
         .display-5 {
@@ -41,7 +43,7 @@
                     @slot('content')
                         {{ count($systems) }}
                     @endslot
-                    Systeme
+                        @lang('admin/starmap/systems/index.systems')
                 @endcomponent
             </div>
             <div class="col-12 col-md-4">
@@ -56,7 +58,7 @@
                             -
                         @endif
                     @endslot
-                    Last Download
+                        @lang('admin/starmap/systems/index.last_download')
                 @endcomponent
             </div>
             <div class="col-12 col-md-4">
@@ -67,7 +69,7 @@
                     @slot('content')
                         {{ count(\App\Models\Starsystem::where('exclude', true)->get()) }}
                     @endslot
-                    Excluded
+                        @lang('admin/starmap/systems/index.excluded')
                 @endcomponent
             </div>
         </div>
@@ -76,10 +78,10 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Code</th>
-                    <th>Status</th>
-                    <th>Last Download</th>
+                    <th>@lang('admin/starmap/systems/index.id')</th>
+                    <th>@lang('admin/starmap/systems/index.code')</th>
+                    <th>@lang('admin/starmap/systems/index.state')</th>
+                    <th>@lang('admin/starmap/systems/index.last_download')</th>
                     <th></th>
                 </tr>
             </thead>
@@ -91,13 +93,21 @@
                     <td>
 
                         @if($system->isExcluded())
-                        <span class="badge badge-default">Excluded</span>
+                        <span class="badge badge-default">
+                            @lang('admin/starmap/systems/index.excluded')
+                        </span>
                         @elseif(\Illuminate\Support\Facades\Session::has('success'))
-                        <span class="badge badge-info">Downloading</span>
+                        <span class="badge badge-info">
+                            @lang('admin/starmap/systems/index.downloading')
+                        </span>
                         @elseif(\Illuminate\Support\Facades\Storage::disk('starmap')->exists(\App\Models\Starsystem::makeFilenameFromCode($system->code)))
-                        <span class="badge badge-success">Downloaded</span>
+                        <span class="badge badge-success">
+                            @lang('admin/starmap/systems/index.downloaded')
+                        </span>
                         @else
-                        <span class="badge badge-warning">Nicht vorhanden</span>
+                        <span class="badge badge-warning">
+                            @lang('admin/starmap/systems/index.not_found')
+                        </span>
                         @endif
                     </td>
                     <td>
