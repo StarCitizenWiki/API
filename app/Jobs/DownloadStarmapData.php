@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Starsystem;
-use App\Repositories\StarCitizen\APIv1\Starmap\StarmapRepository;
+use App\Repositories\StarCitizen\APIv1\StarmapRepository;
 use GuzzleHttp\Client;
 use function GuzzleHttp\Psr7\stream_for;
 use Illuminate\Bus\Queueable;
