@@ -19,7 +19,15 @@
                         <input type="password" class="form-control" id="password" name="password" required aria-required="true" aria-labelledby="password" tabindex="2" data-minlength="3" value="{{ old('password') }}">
                     </div>
 
-                    <button type="submit" class="btn mt-3">Login</button>
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn">
+                            Login
+                        </button>
+
+                        <a class="btn btn-link" href="{{ route('password.request') }}">
+                            Forgot Your Password?
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>

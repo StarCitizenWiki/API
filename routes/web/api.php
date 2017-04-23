@@ -57,6 +57,11 @@ Route::group(['namespace' => 'Auth'], function () {
     Route::get('register', ['uses' => 'RegisterController@showRegistrationForm'])->name('auth_register_form');
     Route::post('register', ['uses' => 'RegisterController@register'])->name('auth_register');
 
+    Route::get('password/reset', 'ForgotPasswordController@showLinkRequestForm')->name('password.request');
+    Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+    Route::get('password/reset/{token}', 'ResetPasswordController@showResetForm')->name('password.reset');
+    Route::post('password/reset', 'ResetPasswordController@reset');
+
     Route::group(['middleware' => ['auth'], 'prefix' => 'account', 'namespace' => 'Account'], function () {
         // Account Routes...
         Route::get('/', ['uses' => 'AccountController@showAccountView'])->name('account');
