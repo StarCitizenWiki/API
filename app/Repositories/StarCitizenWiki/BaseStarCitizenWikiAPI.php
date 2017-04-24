@@ -9,6 +9,7 @@
 namespace App\Repositories\StarCitizenWiki;
 
 use App\Repositories\BaseAPITrait;
+use App\Traits\TransformesDataTrait;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -21,7 +22,9 @@ class BaseStarCitizenWikiAPI
     const URL = 'https://star-citizen.wiki/';
     const API_URL = BaseStarCitizenWikiAPI::URL.'api.php';
 
-    use BaseAPITrait;
+    use BaseAPITrait, TransformesDataTrait {
+        BaseAPITrait::addMetadataToTransformation insteadof TransformesDataTrait;
+    }
 
     /**
      * JSON aus Interfaces enthält (bis jetzt) immer ein success field

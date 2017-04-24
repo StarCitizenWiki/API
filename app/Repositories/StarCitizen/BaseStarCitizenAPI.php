@@ -8,6 +8,7 @@
 namespace App\Repositories\StarCitizen;
 
 use App\Repositories\BaseAPITrait;
+use App\Traits\TransformesDataTrait;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +24,9 @@ class BaseStarCitizenAPI
 
     private $rsiToken = null;
 
-    use BaseAPITrait;
+    use BaseAPITrait, TransformesDataTrait {
+        BaseAPITrait::addMetadataToTransformation insteadof TransformesDataTrait;
+    }
 
     /**
      * BaseStarCitizenAPI constructor.
