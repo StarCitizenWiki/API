@@ -5,14 +5,13 @@
  * Time: 14:27
  */
 
-namespace App\Transformers\StarCitizenDB\Ships;
+namespace App\Transformers;
 
 use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
 /**
- * Class FakeTransformer used to return the scdb splitted files content
+ * Class FakeTransformer returns data as is
  * @package App\Transformers\StarCitizenDB\Ships
  */
 class FakeTransformer extends TransformerAbstract implements BaseAPITransformerInterface
@@ -28,9 +27,6 @@ class FakeTransformer extends TransformerAbstract implements BaseAPITransformerI
      */
     public function transform($data)
     {
-        unset($data['processedName']);
-        unset($data['filename']);
-
         return $data;
     }
 }
