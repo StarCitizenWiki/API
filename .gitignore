@@ -10,3 +10,5 @@ Homestead.yaml
 composer.phar
 /Vagrantfile
 /composer.lock
+/_ide_helper.php
+/.phpstorm.meta.php
