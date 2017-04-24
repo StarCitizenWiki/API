@@ -12,7 +12,6 @@
                 <form role="form" method="POST" action="{{ route('account_urls_add') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="POST">
-                    <input name="{{ AUTH_KEY_FIELD_NAME }}" type="hidden" value="{{ Auth::user()->api_token }}">
                     <div class="form-group">
                         <label for="url" aria-label="Name">@lang('auth/account/shorturls/add.url'):</label>
                         <input type="url" class="form-control" id="url" name="url" aria-labelledby="url" tabindex="1" autofocus value="{{ old('url') }}" required>
