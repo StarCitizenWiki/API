@@ -1,16 +1,16 @@
 <?php
 namespace App\Repositories\StarCitizenDB;
 
+use App\Exceptions\MethodNotImplementedException;
 use App\Repositories\BaseAPITrait;
 use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
 use App\Traits\TransformesDataTrait;
+use App\Transformers\FakeTransformer as ShipsTransformer;
 use App\Transformers\StarCitizenDB\Ships\ShipsListTransformer;
-use App\Transformers\StarCitizenDB\Ships\FakeTransformer as ShipsTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Fractal\Fractal;
 
 /**
  * Class ShipsRepository
@@ -63,6 +63,8 @@ class ShipsRepository implements ShipsInterface
         }
 
         $this->dataToTransform = json_decode($content, true);
+        unset($this->dataToTransform['processedName']);
+        unset($this->dataToTransform['filename']);
         $this->transformer = resolve(ShipsTransformer::class);
         $this->transformer->addFilters($request);
 
@@ -70,14 +72,15 @@ class ShipsRepository implements ShipsInterface
     }
 
     /**
-     * Seraches for a Ship
+     * Not Implemented
      *
      * @param String $shipName ShipName
      *
      * @return ShipsInterface
+     * @throws MethodNotImplementedException
      */
     public function searchShips(String $shipName)
     {
-        // TODO: Implement searchShips() method.
+        throw new MethodNotImplementedException('Can\'t currently search for scdb ships');
     }
 }

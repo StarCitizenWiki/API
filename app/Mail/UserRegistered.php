@@ -13,7 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
  *
  * @package App\Mail
  */
-class UserRegistered extends Mailable
+class UserRegistered extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -23,7 +23,8 @@ class UserRegistered extends Mailable
     /**
      * Create a new message instance.
      *
-     * @param User $user User Object
+     * @param User   $user     User Object
+     * @param String $password User Password
      */
     public function __construct(User $user, String $password)
     {

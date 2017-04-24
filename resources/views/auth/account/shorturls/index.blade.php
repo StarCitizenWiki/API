@@ -5,17 +5,20 @@
 
 @section('content')
     @include('layouts.heading')
-    @if (session('hash_name'))
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-10 col-md-3 mx-auto">
-                    <div class="alert alert-success text-center">
-                        https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
-                    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-10 col-md-3 mx-auto">
+                @include('components.errors')
+                @if (session('hash_name'))
+                <div class="alert alert-success text-center">
+                    https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
                 </div>
+                @endif
             </div>
         </div>
-    @endif
+    </div>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-10 mx-auto my-5">

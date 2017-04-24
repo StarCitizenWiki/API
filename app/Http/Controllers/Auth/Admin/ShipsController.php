@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -30,7 +29,6 @@ class ShipsController extends Controller
             File::allFiles(config('filesystems.disks.scdb_ships_splitted.root'))
         );
     }
-
 
     /**
      * @return RedirectResponse

@@ -52,7 +52,10 @@ class UserController extends Controller
                 'user_id' => $id,
             ]);
 
-            return view('admin.users.edit')->with('user', $user);
+            return view('admin.users.edit')->with(
+                'user',
+                $user
+            );
         } catch (ModelNotFoundException $e) {
             Log::warning('User not found', [
                 'method' => __METHOD__,
@@ -95,12 +98,17 @@ class UserController extends Controller
             'id' => 'required|exists:users|int',
         ]);
 
-        $user = User::findOrFail($request->id);
-        Log::info('Account deleted', [
-            'account_id' => $request->get('id'),
-            'deleted_by' => Auth::id(),
-        ]);
-        $user->delete();
+        try {
+            $user = User::findOrFail($request->id);
+            Log::info('Account deleted', [
+                'account_id' => $request->get('id'),
+                'deleted_by' => Auth::id(),
+            ]);
+            $user->delete();
+        } catch (ModelNotFoundException $e) {
+            return redirect()->route('admin_users_list')
+                             ->withErrors(__('admin/users/edit.not_found'));
+        }
 
         return redirect()->route('admin_users_list');
     }
@@ -118,12 +126,17 @@ class UserController extends Controller
             'id' => 'required|exists:users|int',
         ]);
 
-        $user = User::withTrashed()->findOrFail($request->id);
-        Log::info('Account restored', [
-            'account_id' => $request->get('id'),
-            'restored_by' => Auth::id(),
-        ]);
-        $user->restore();
+        try {
+            $user = User::withTrashed()->findOrFail($request->id);
+            Log::info('Account restored', [
+                'account_id'  => $request->get('id'),
+                'restored_by' => Auth::id(),
+            ]);
+            $user->restore();
+        } catch (ModelNotFoundException $e) {
+            return redirect()->route('admin_users_list')
+                             ->withErrors(__('admin/users/edit.not_found'));
+        }
 
         return redirect()->route('admin_users_list');
     }

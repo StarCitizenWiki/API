@@ -6,10 +6,12 @@ use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 
 /**
  * Class FundImageController
@@ -137,7 +139,7 @@ class FundImageController extends Controller
         ]);
         try {
             $this->setImageType();
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             abort(400, $e->getMessage());
         }
 
@@ -157,13 +159,13 @@ class FundImageController extends Controller
             $this->addDataToImage();
             $this->flushImageToString();
             $this->saveImageToDisk();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Fund Image generation failed', [
                 'type' => $this->image['type'],
                 'requester' => $this->request->getHost(),
                 'message' => $e,
             ]);
-            throw new \Exception('Fund Image generation failed');
+            throw new Exception('Fund Image generation failed');
         }
 
         Log::info('Fund Image Requested', [
@@ -212,7 +214,7 @@ class FundImageController extends Controller
             Log::warning('Requested Image type does not exist', [
                 'message' => $message,
             ]);
-            throw new \InvalidArgumentException($message);
+            throw new InvalidArgumentException($message);
         }
     }
 
@@ -619,6 +621,7 @@ class FundImageController extends Controller
         Log::debug('Requesting Image from disk', [
             'method' => __METHOD__,
         ]);
+
         return response()->file(
             storage_path(FUNDIMAGE_RELATIVE_SAVE_PATH.$this->image['name'])
         );

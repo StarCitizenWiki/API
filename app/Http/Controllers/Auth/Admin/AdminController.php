@@ -10,7 +10,6 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Rap2hpoutre\LaravelLogViewer\LaravelLogViewer;
 
@@ -31,14 +30,15 @@ class AdminController extends Controller
         Log::debug('Admin Dashboard View requested', [
             'method' => __METHOD__,
         ]);
+        $today = Carbon::today()->toDateString();
 
         return view('admin.dashboard')
             ->with('users', User::all())
-            ->with('users_today', count(User::whereDate('created_at', '=', Carbon::today()->toDateString())->get()))
+            ->with('users_today', count(User::whereDate('created_at', '=', $today)->get()))
             ->with('urls', ShortURL::all())
-            ->with('urls_today', count(ShortURL::whereDate('created_at', '=', Carbon::today()->toDateString())->get()))
-            ->with('api_requests', count(APIRequests::whereDate('created_at', '=', Carbon::today()->toDateString())->get()))
-            ->with('logins', count(User::whereDate('last_login', '=', Carbon::today()->toDateString())->get()))
+            ->with('urls_today', count(ShortURL::whereDate('created_at', '=', $today)->get()))
+            ->with('api_requests', count(APIRequests::whereDate('created_at', '=', $today)->get()))
+            ->with('logins', count(User::whereDate('last_login', '=', $today)->get()))
             ->with('logs', LaravelLogViewer::all())
             ->with('files', LaravelLogViewer::getFiles(true))
             ->with('current_file', LaravelLogViewer::getFileName());

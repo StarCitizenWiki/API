@@ -16,4 +16,5 @@ return [
     'stats' => 'Stats',
     'last_login' => 'Last login',
     'api_requests' => 'API Requests',
+    'not_found' => 'User not found',
 ];

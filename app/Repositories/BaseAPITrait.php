@@ -8,11 +8,9 @@
 
 namespace App\Repositories;
 
-use App\Exceptions\InterfaceNotImplementedException;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MethodNotImplementedException;
 use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;

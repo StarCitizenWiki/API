@@ -74,7 +74,7 @@ class StarmapController extends Controller
     {
         $this->validate($request, [
             'id' => 'required|exists:starsystems|int',
-            'code' => 'required|regex:/[A-Z\']/',
+            'code' => 'required|regex:/[A-Z0-9\'-]/',
             'exclude' => 'nullable',
         ]);
 
@@ -124,7 +124,7 @@ class StarmapController extends Controller
     public function addStarmapSystem(Request $request) : RedirectResponse
     {
         $this->validate($request, [
-            'code' => 'required|regex:/[A-Z\']/',
+            'code' => 'required|regex:/[A-Z0-9\'-]/',
             'exclude' => 'nullable',
         ]);
 

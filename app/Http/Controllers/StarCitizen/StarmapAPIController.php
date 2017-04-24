@@ -9,7 +9,7 @@ namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\APIv1\Starmap\StarmapRepository;
+use App\Repositories\StarCitizen\APIv1\StarmapRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -92,31 +92,31 @@ class StarmapAPIController extends Controller
         }
     }
 
-	/**
-	 * Requests the given System Name Astreoid belts
-	 *
-	 * @param String $name SystemName
-	 *
-	 * @return \Illuminate\Http\JsonResponse|string
-	 */
-	public function getAsteroidbelts(String $name)
-	{
-		$name = strtoupper($name);
+    /**
+     * Requests the given System Name Asteroid belts
+     *
+     * @param String $name SystemName
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getAsteroidbelts(String $name)
+    {
+        $name = strtoupper($name);
 
-		Log::debug('Starmap System Astreoidbelts requested', [
-			'method' => __METHOD__,
-			'name' => $name,
-		]);
+        Log::debug('Starmap System Asteroidbelts requested', [
+            'method' => __METHOD__,
+            'name' => $name,
+        ]);
 
-		try {
-			return response()->json(
-				$this->repository->getAsteroidbelts($name)->asArray(),
-				200,
-				[],
-				JSON_PRETTY_PRINT
-			);
-		} catch (InvalidDataException $e) {
-			return $e->getMessage();
-		}
-	}
+        try {
+            return response()->json(
+                $this->repository->getAsteroidbelts($name)->asArray(),
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        } catch (InvalidDataException $e) {
+            return $e->getMessage();
+        }
+    }
 }

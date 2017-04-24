@@ -1,7 +1,6 @@
 <?php
 namespace App\Transformers\StarCitizenDB\Ships;
 
-use App\Jobs\SplitShipFiles;
 use App\Traits\FiltersDataTrait;
 use League\Fractal\TransformerAbstract;
 

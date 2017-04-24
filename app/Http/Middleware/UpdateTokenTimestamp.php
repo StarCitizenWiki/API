@@ -6,7 +6,6 @@ use App\Models\APIRequests;
 use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**

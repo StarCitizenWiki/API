@@ -28,7 +28,7 @@ interface ShipsInterface
     public function getShipList();
 
     /**
-     * Seraches for a Ship
+     * Searches for a Ship
      *
      * @param String $shipName ShipName
      *

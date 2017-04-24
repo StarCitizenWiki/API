@@ -13,7 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
  *
  * @package App\Mail
  */
-class URLShortened extends Mailable
+class URLShortened extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

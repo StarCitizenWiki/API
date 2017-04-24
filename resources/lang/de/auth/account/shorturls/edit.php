@@ -5,4 +5,5 @@ return [
     'name' => 'Name (Optional)',
     'expires' => 'Ablaufdatum (Optional)',
     'edit' => 'Speichern',
+    'no_permission' => 'Keine Berechtigung diese Aktion auszuführen',
 ];

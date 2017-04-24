@@ -5,4 +5,5 @@ return [
     'name' => 'Name (Optional)',
     'expires' => 'Expires (Optional)',
     'edit' => 'Save',
+    'no_permission' => 'No Permission',
 ];

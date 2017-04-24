@@ -46,20 +46,26 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
         return $this;
     }
 
-	public function getAsteroidbelts(String $systemName)
-	{
-		Log::debug('Requesting Astreoidbelts', [
-			'method' => __METHOD__,
-			'system' => $systemName,
-		]);
+    /**
+     * @param String $systemName
+     *
+     * @return $this
+     */
+    public function getAsteroidbelts(String $systemName)
+    {
+        Log::debug('Requesting Astreoidbelts', [
+            'method' => __METHOD__,
+            'system' => $systemName,
+        ]);
 
-		$this->withTransformer(AsteroidbeltsTransformer::class)->request(
-			'POST',
-			'starmap/star-systems/'.$systemName,
-			[]
-		);
-		return $this;
-	}
+        $this->withTransformer(AsteroidbeltsTransformer::class)->request(
+            'POST',
+            'starmap/star-systems/'.$systemName,
+            []
+        );
+
+        return $this;
+    }
 
     /**
      * https://robertsspaceindustries.com/api/starmap/celestial-objects/{SYSTEM_NAME}.[TYPE}.{NAME}

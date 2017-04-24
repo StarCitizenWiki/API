@@ -10,7 +10,6 @@ namespace App\Transformers\StarCitizenDB\Ships;
 use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -22,9 +21,7 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
 {
     use FiltersDataTrait;
 
-    protected $validFields = [
-
-    ];
+    protected $validFields = [];
 
     /**
      * Transformes the whole ship list
@@ -39,8 +36,6 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
         $content = json_decode($content, true);
 
         $name = $this->prepareName($content['name']);
-        $manufacturerID = explode('_', $content['name']);
-        $manufacturerID = strtoupper($manufacturerID[0]);
 
         $transformed = [
             $name => [
