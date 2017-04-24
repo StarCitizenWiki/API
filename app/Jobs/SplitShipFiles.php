@@ -25,6 +25,11 @@ class SplitShipFiles implements ShouldQueue
     private const WIKI_SHIP_NAMES = [
         'RSI_Bengal' => 'RSI_Bengal_Carrier',
         'ORIG_85X_Limited' => 'ORIG_85X_Runabout',
+        'ANVL_Hornet_F7C' => 'ANVL_F7C_Hornet',
+        'ANVL_Hornet_F7C_Wildfire' => 'ANVL_F7C_Hornet_Wildfire',
+        'ANVL_Hornet_F7CM_Super' => 'ANVL_F7C-M_Super_Hornet',
+        'ANVL_Hornet_F7CR_Tracker' => 'ANVL_F7C-R_Hornet_Tracker',
+        'ANVL_Hornet_F7CS_Ghost' => 'ANVL_F7C-S_Hornet_Ghost',
     ];
 
     /**
