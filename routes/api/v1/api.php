@@ -62,3 +62,12 @@ Route::group(['namespace' => 'StarCitizenWiki'], function () {
         Route::get('{name}', function($name){ return $name; });
     });
 });
+
+Route::group(['namespace' => 'StarCitizenDB'], function () {
+    Route::group(['prefix' => 'ships'], function () {
+        Route::group(['prefix' => 'scdb'], function () {
+            Route::post('search', ['uses' => 'ShipsAPIController@searchShips']);
+            Route::get('list', ['uses' => 'ShipsAPIController@getShipList']);
+        });
+    });
+});
