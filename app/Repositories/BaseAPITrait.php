@@ -12,7 +12,6 @@ use App\Exceptions\InterfaceNotImplementedException;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MethodNotImplementedException;
 use App\Traits\FiltersDataTrait;
-use App\Traits\TransformesDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -27,8 +26,6 @@ use Illuminate\Support\Facades\Log;
  */
 trait BaseAPITrait
 {
-    use TransformesDataTrait;
-
     /**
      * Guzzle Client
      *
@@ -121,7 +118,7 @@ trait BaseAPITrait
     {
         Log::debug('Checking if Response is not null', [
             'method' => __METHOD__,
-            'null' => is_null($this->response)
+            'null' => is_null($this->response),
         ]);
 
         return !is_null($this->response);
@@ -255,29 +252,6 @@ trait BaseAPITrait
                 'method' => __METHOD__,
             ]);
             throw new InvalidDataException('Response Body is invalid');
-        }
-    }
-
-    /**
-     * Checks if the set transformer implements the BaseAPITransformerInterface
-     *
-     * @throws InterfaceNotImplementedException
-     *
-     * @return void
-     */
-    protected function checkIfTransformerIsValid() : void
-    {
-        Log::debug('Checking if Transformer is valid', [
-            'method' => __METHOD__,
-        ]);
-        if (!$this->transformer instanceof BaseAPITransformerInterface) {
-            Log::debug('Transformer is not valid', [
-                'method' => __METHOD__,
-                'transformer' => get_class($this->transformer),
-            ]);
-            throw new InterfaceNotImplementedException(
-                'Transformer does not implement BaseAPITransformerInterface'
-            );
         }
     }
 }
