@@ -58,16 +58,16 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
                     'wiki_url' => BaseStarCitizenWikiAPI::URL.$wiki['subject'],
                 ],
                 'manufacturer' => [
-                    'name' => last(explode('/', $wiki['data']['Hersteller'][0])) ?? $scdb['manufacturer'] ?? '',
-                    'id' => explode('/', $wiki['subject'])[1],
-                    'wiki_url' => BaseStarCitizenWikiAPI::URL.$wiki['data']['Hersteller'][0],
+                    'name' => last(explode('/', $wiki['data']['Hersteller'][0] ?? '')) ?? $scdb['manufacturer'] ?? '',
+                    'id' => isset($wiki['subject']) && str_contains($wiki['subject'], '/') ? explode('/', $wiki['subject'])[1] : '',
+                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? BaseStarCitizenWikiAPI::URL.$wiki['data']['Hersteller'][0] : '',
                 ],
                 'description' => [
                     'wiki' => $wiki['data']['Beschreibung'][0] ?? '',
                     'game_data' => $scdb['description'] ?? '',
                 ],
                 'focus' => $wiki['data']['Fokus'] ?? '',
-                'status' => $scdb['stats']['status'] ?? snake_case($wiki['data']['Status'][0]) ?? '',
+                'status' => $scdb['stats']['status'] ?? snake_case($wiki['data']['Status'][0] ?? ''),
                 'price' => $wiki['data']['Schiffspreis'][0] ?? '',
                 'dimensions' => [
                     'length' => $wiki['data']['Länge'][0] ?? '',

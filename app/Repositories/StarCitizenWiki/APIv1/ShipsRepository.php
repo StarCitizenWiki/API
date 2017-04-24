@@ -134,10 +134,13 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         );
         $smwData = $this->asArray()['data'];
 
+        $altIndex = last(explode('/', $smwData['subject']));
+        $altIndex = str_replace('_', ' ', $altIndex);
+
         $this->dataToTransform = [
             'wiki' => [
                 'subject' => $smwData['subject'],
-                'data' => $smwData[str_replace('_', ' ', $shipName)],
+                'data' => $smwData[$smwData['subject']] ?? $smwData[$altIndex],
             ],
         ];
     }
@@ -148,6 +151,8 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     private function getShipDataFromSCDB() : void
     {
         if (isset($this->dataToTransform['wiki']['subject'])) {
+            $content = '';
+
             $subject = explode('/', $this->dataToTransform['wiki']['subject']);
             if (count($subject) === 3) {
                 $shipName = last($subject);
@@ -162,9 +167,9 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
                         'method' => __METHOD__,
                     ]);
                     $content = Storage::disk('scdb_ships_splitted')->get($fileName);
-                    $this->dataToTransform['scdb'] = json_decode($content, true);
                 }
             }
+            $this->dataToTransform['scdb'] = json_decode($content, true);
         }
     }
 
