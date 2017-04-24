@@ -48,6 +48,7 @@ class ShortURLControllerTest extends TestCase
      *
      * @covers \App\Http\Controllers\ShortURL\ShortURLController::create()
      * @covers \App\Transformers\ShortURL\ShortURLTransformer
+     * @covers \App\Events\URLShortened
      */
     public function testShortURLCreationAPI()
     {

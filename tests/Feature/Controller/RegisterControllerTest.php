@@ -28,6 +28,7 @@ class RegisterControllerTest extends TestCase
 
     /**
      * @covers \App\Http\Controllers\Auth\RegisterController::register()
+     * @covers \App\Events\UserRegistered
      */
     public function testRegistration()
     {
