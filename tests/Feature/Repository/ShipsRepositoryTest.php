@@ -71,12 +71,15 @@ class ShipsRepositoryTest extends TestCase
      * Test if InvalidDataException is thrown if unknown field is filtered
      *
      * @covers \App\Traits\FiltersDataTrait::filterData()
+     * @covers \App\Exceptions\InvalidDataException
      */
     public function testFilterException()
     {
         $this->repository->getShipList();
         $this->expectException(InvalidDataException::class);
-        $this->repository->transformer->addFilterArray(['notexists']);
+        $this->repository->transformer->addFilterArray([
+            'notexists',
+        ]);
         $this->repository->asJSON();
     }
 }

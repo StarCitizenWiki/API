@@ -71,6 +71,7 @@ class StatsRepositoryTest extends TestCase
 
     /**
      * Tests the MissingTransformerException
+     * @covers \App\Exceptions\InvalidDataException
      */
     public function testEmptyResponseException()
     {

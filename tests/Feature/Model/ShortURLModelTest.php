@@ -30,17 +30,21 @@ class ShortURLModelTest extends TestCase
      * Test not WhitelistedException
      *
      * @covers \App\Models\ShortURL\ShortURL::createShortURL()
+     * @covers \App\Exceptions\URLNotWhitelistedException
      */
     public function testNotWhitelistedException()
     {
         $this->expectException(URLNotWhitelistedException::class);
-        ShortURL::createShortURL(['url' => 'https://notwhitelisted.com']);
+        ShortURL::createShortURL([
+            'url' => 'https://notwhitelisted.com',
+        ]);
     }
 
     /**
      * Test NotFound Exception
      *
      * @covers \App\Models\ShortURL\ShortURL::resolve()
+     * @covers \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function testHashNotExistsException()
     {
