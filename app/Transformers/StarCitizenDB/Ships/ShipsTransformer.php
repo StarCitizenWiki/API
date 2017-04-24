@@ -1,7 +1,8 @@
 <?php
-namespace App\Transformers\StarCitizenDB;
+namespace App\Transformers\StarCitizenDB\Ships;
 
 use App\Jobs\SplitShipFiles;
+use App\Traits\FiltersDataTrait;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -10,6 +11,8 @@ use League\Fractal\TransformerAbstract;
  */
 class ShipsTransformer extends TransformerAbstract
 {
+    use FiltersDataTrait;
+
     private $totalHitPoints = 0;
 
     /**
@@ -25,6 +28,7 @@ class ShipsTransformer extends TransformerAbstract
 
         $collectedData = [
             'name' => $name,
+            //'processedName' => $name,
             'manufacturer' => [
                 'name' => $data['@manufacturer'] ?? '',
                 'id' => $manufacturerID,

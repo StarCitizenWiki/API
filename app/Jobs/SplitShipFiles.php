@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Exceptions\InvalidDataException;
-use App\Transformers\StarCitizenDB\ShipsTransformer;
+use App\Transformers\StarCitizenDB\Ships\ShipsTransformer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
