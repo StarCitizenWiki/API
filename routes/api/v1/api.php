@@ -48,26 +48,22 @@ Route::group(['namespace' => 'StarCitizen'], function () {
     });
 });
 
-Route::group(['namespace' => 'StarCitizenWiki'], function () {
-
-    Route::group(['prefix' => 'ships'], function () {
+Route::group(['prefix' => 'ships'], function () {
+    Route::group(['namespace' => 'StarCitizenWiki'], function () {
         Route::post('search', ['uses' => 'ShipsAPIController@searchShips']);
         Route::get('list', ['uses' => 'ShipsAPIController@getShipList']);
         Route::get('{name}', ['uses' => 'ShipsAPIController@getShip']);
     });
-
-    Route::group(['prefix' => 'weapons'], function () {
-        Route::post('search', function(){});
-        Route::get('list', function(){});
-        Route::get('{name}', function($name){ return $name; });
-    });
-});
-
-Route::group(['namespace' => 'StarCitizenDB'], function () {
-    Route::group(['prefix' => 'ships'], function () {
+    Route::group(['namespace' => 'StarCitizenDB'], function () {
         Route::group(['prefix' => 'scdb'], function () {
             Route::post('search', ['uses' => 'ShipsAPIController@searchShips']);
             Route::get('list', ['uses' => 'ShipsAPIController@getShipList']);
         });
     });
+});
+
+Route::group(['namespace' => 'StarCitizenWiki', 'prefix' => 'weapons'], function () {
+    Route::post('search', function(){});
+    Route::get('list', function(){});
+    Route::get('{name}', function($name){ return $name; });
 });
