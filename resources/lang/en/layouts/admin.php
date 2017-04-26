@@ -13,6 +13,7 @@ return [
     'user' => 'User',
 
     'urls' =>'URLs',
+    'short_urls' => 'ShortURLs',
     'whitelist' => 'Whitelist',
     'add_whitelist' => 'Add Whitelist',
 
