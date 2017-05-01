@@ -19,86 +19,109 @@ use Illuminate\Support\Facades\Storage;
  */
 class DownloadStarmapData implements ShouldQueue
 {
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	// Requests for Celestrial Subobject
-	const CELESTIAL_SUBOBJECTS_REQUEST = array('PLANET');
-	// Add Type to Starmapdata
-	const CELESTIAL_SUBOBJECTS_TYPE = array('LZ');
+    // Requests for Celestial Subobject
+    const CELESTIAL_SUBOBJECTS_REQUEST = ['PLANET'];
+    // Add Type to Starmapdata
+    const CELESTIAL_SUBOBJECTS_TYPE = ['LZ'];
 
-	/**
-	 * Execute the job.
-	 *
-	 * @return void
-	 */
-	public function handle()
-	{
-		Log::info('Starting Starmap Download Job');
-		$client = new Client(['timeout' => 10.0,]);
+    /**
+     * @var Client
+     */
+    private $guzzleClient;
 
-		foreach(Starsystem::where('exclude', '=', false)->get() as $system)
-		{
-			$fileName = Starsystem::makeFilenameFromCode($system->code);
-			Log::info('Downloading ' . $system->code);
-			$starmapResponse = $client->request('POST', StarmapRepository::API_URL . 'starmap/star-systems/' . $system->code);
-			$starmapContent = json_decode($starmapResponse->getBody()->getContents(), true);
+    /**
+     * @var array
+     */
+    private $starmapContent;
 
-			$this->addCelestrialContent($client, $starmapContent);
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle() : void
+    {
+        Log::info('Starting Starmap Download Job');
+        $this->guzzleClient = new Client(['timeout' => 10.0]);
 
-			Log::info('Writing System to file ' . $system->code);
-			Storage::disk('starmap')->put(
-				$fileName,
-				json_encode($starmapContent, JSON_PRETTY_PRINT)
-			);
-		}
-		Log::info('Starmap Download Job Finished');
-	}
+        foreach (Starsystem::where('exclude', '=', false)->get() as $system) {
+            $fileName = Starsystem::makeFilenameFromCode($system->code);
+            Log::info('Downloading '.$system->code);
+            $this->starmapContent = $this->getJsonArrayFromStarmap('star-systems/'.$system->code);
 
-	/**
-	 * Download Celestrial Objects from CIG and add it to the Starmap
-	 * @param $client GuzzleHttp\Client
-	 * @param $starmapContent Json Starmapdata for one System from CIG
-	 */
-	private function addCelestrialContent($client, &$starmapContent)
-	{
-		if(is_array($starmapContent) && $starmapContent['success'] === 1
-			&& array_key_exists('data', $starmapContent)
-			&& array_key_exists('resultset', $starmapContent['data'])
-			&& array_key_exists(0, $starmapContent['data']['resultset'])
-			&& array_key_exists('celestial_objects', $starmapContent['data']['resultset'][0]))
-		{
-			foreach($starmapContent['data']['resultset'][0]['celestial_objects'] as $celestialObject)
-			{
-				if(in_array($celestialObject['type'], self::CELESTIAL_SUBOBJECTS_REQUEST))
-				{
-					$celestialResponse = $client->request('POST', StarmapRepository::API_URL . 'starmap/celestial-objects/' . $celestialObject['code']);
-					$celestialContent = json_decode($celestialResponse->getBody()->getContents(), true);
-					$this->addCelestrialSubobjectsToStarmap($celestialContent, $starmapContent);
-				}
-			}
-		}
-	}
+            if ($this->checkIfDataCanBeProcessed($this->starmapContent) &&
+                array_key_exists('celestial_objects', $this->starmapContent['data']['resultset'][0])) {
+                $this->addCelestialContent();
+            }
 
-	/**
-	 * Add CELESTIAL_SUBOBJECTS_TYPE to Starmapdata
-	 * @param $celestialContent Json Celstrial Object
-	 * @param $starmapContent Json Starmapdata for one System from CIG
-	 */
-	private function addCelestrialSubobjectsToStarmap($celestialContent, &$starmapContent)
-	{
-		if(is_array($celestialContent) && $celestialContent['success'] === 1
-			&& array_key_exists('data', $celestialContent)
-			&& array_key_exists('resultset', $celestialContent['data'])
-			&& array_key_exists(0, $celestialContent['data']['resultset'])
-			&& array_key_exists('children', $celestialContent['data']['resultset'][0]))
-		{
-			foreach($celestialContent['data']['resultset'][0]['children'] as $celestrialChildren)
-			{
-				if(in_array($celestrialChildren['type'], self::CELESTIAL_SUBOBJECTS_TYPE))
-				{
-					array_push($starmapContent['data']['resultset'][0]['celestial_objects'], $celestrialChildren);
-				}
-			}
-		}
-	}
+            Log::info('Writing System to file '.$system->code);
+            Storage::disk('starmap')->put(
+                $fileName,
+                json_encode($this->starmapContent, JSON_PRETTY_PRINT)
+            );
+        }
+        Log::info('Starmap Download Job Finished');
+    }
+
+    /**
+     * Download Celestrial Objects from CIG and add it to the Starmap
+     */
+    private function addCelestialContent() : void
+    {
+        foreach ($this->starmapContent['data']['resultset'][0]['celestial_objects'] as $celestialObject) {
+            if (in_array($celestialObject['type'], self::CELESTIAL_SUBOBJECTS_REQUEST)) {
+                $celestialContent = $this->getJsonArrayFromStarmap('celestial-objects/'.$celestialObject['code']);
+                $this->addCelestialSubobjectsToStarmap($celestialContent);
+            }
+        }
+    }
+
+    /**
+     * Add CELESTIAL_SUBOBJECTS_TYPE to Starmapdata
+     *
+     * @param $celestialContent array Celstrial Object
+     */
+    private function addCelestialSubobjectsToStarmap($celestialContent) : void
+    {
+        if ($this->checkIfDataCanBeProcessed($celestialContent) &&
+            array_key_exists('children', $celestialContent['data']['resultset'][0])) {
+            foreach ($celestialContent['data']['resultset'][0]['children'] as $celestrialChildren) {
+                if (in_array($celestrialChildren['type'], self::CELESTIAL_SUBOBJECTS_TYPE)) {
+                    array_push($this->starmapContent['data']['resultset'][0]['celestial_objects'], $celestrialChildren);
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets JSON from Starmap and returns it as array
+     *
+     * @param String $uri
+     *
+     * @return array
+     */
+    private function getJsonArrayFromStarmap(String $uri) : array
+    {
+        $response = $this->guzzleClient->request('POST', StarmapRepository::API_URL.'starmap/'.$uri);
+
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    /**
+     * Checks if provided data array can be processed
+     *
+     * @param $data
+     *
+     * @return bool
+     */
+    private function checkIfDataCanBeProcessed($data) : bool
+    {
+        return is_array($data) &&
+                $data['success'] === 1 &&
+                array_key_exists('data', $data) &&
+                array_key_exists('resultset', $data['data']) &&
+                array_key_exists(0, $data['data']['resultset']);
+    }
 }
