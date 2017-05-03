@@ -3,22 +3,19 @@
 namespace Tests\Feature\Repository;
 
 use App\Exceptions\InvalidDataException;
-use App\Exceptions\MissingTransformerException;
-use App\Http\Controllers\StarCitizen\StatsAPIController;
-use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
+use App\Repositories\StarCitizen\APIv1\StatsRepository;
 use Tests\TestCase;
 
 /**
  * Class StatsRepositoryTest
  * @package Tests\Feature\Repository
  * @covers \App\Repositories\BaseAPITrait
- * @covers \App\Repositories\StarCitizen\APIv1\BaseStarCitizenAPI
+ * @covers \App\Repositories\StarCitizen\BaseStarCitizenAPI
  */
 class StatsRepositoryTest extends TestCase
 {
 
-    /** @var  \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository */
+    /** @var  \App\Repositories\StarCitizen\APIv1\StatsRepository */
     private $repository;
 
     /**
@@ -33,17 +30,17 @@ class StatsRepositoryTest extends TestCase
     /**
      * Tests the retrieval of all stats from the repository
      *
-     * @covers \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::getAll()
+     * @covers \App\Repositories\StarCitizen\APIv1\StatsRepository::getAll()
      */
     public function testAllRepository()
     {
         $content = $this->repository->getAll()->asJSON();
         $this->assertNotEmpty($content);
-        $this->assertContains('OK', $content);
+        $this->assertContains('fans', $content);
     }
 
     /**
-     * @covers \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::getFans()
+     * @covers \App\Repositories\StarCitizen\APIv1\StatsRepository::getFans()
      */
     public function testFansRepository()
     {
@@ -53,7 +50,7 @@ class StatsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::getFleet()
+     * @covers \App\Repositories\StarCitizen\APIv1\StatsRepository::getFleet()
      */
     public function testFleetRepository()
     {
@@ -63,7 +60,7 @@ class StatsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::getFunds()
+     * @covers \App\Repositories\StarCitizen\APIv1\StatsRepository::getFunds()
      */
     public function testFundsRepository()
     {
@@ -74,6 +71,7 @@ class StatsRepositoryTest extends TestCase
 
     /**
      * Tests the MissingTransformerException
+     * @covers \App\Exceptions\InvalidDataException
      */
     public function testEmptyResponseException()
     {

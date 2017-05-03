@@ -1,13 +1,15 @@
 @extends('layouts.admin')
-@section('title', 'User Requests')
+@section('title')
+    @lang('admin/users/requests.header')
+@endsection
 
 @section('content')
     <table class="table table-striped" cellspacing="0" width="100%">
         <thead>
         <tr>
-            <th><span>ID</span></th>
-            <th><span>Request Time</span></th>
-            <th><span>Path</span></th>
+            <th><span>@lang('admin/users/requests.id')</span></th>
+            <th><span>@lang('admin/users/requests.request_time')</span></th>
+            <th><span>@lang('admin/users/requests.path')</span></th>
         </tr>
         </thead>
         <tbody>
@@ -27,7 +29,7 @@
             @endforeach
         @else
             <tr>
-                <td colspan="3">Keine Requests vorhanden</td>
+                <td colspan="3">@lang('admin/users/requests.no_requests_found')</td>
             </tr>
         @endif
         </tbody>

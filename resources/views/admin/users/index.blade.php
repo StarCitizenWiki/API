@@ -1,20 +1,22 @@
 @extends('layouts.admin')
-@section('title', 'Users')
+@section('title')
+    @lang('admin/users/index.header')
+@endsection
 
 @section('content')
     <table class="table table-striped" id="userTable" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th><span>ID</span></th>
-                <th><span>Name</span></th>
-                <th><span>Erstellt</span></th>
-                <th><span>Letzter Login</span></th>
-                <th><span>Letzte Abfrage</span></th>
-                <th class="text-center"><span>Status</span></th>
-                <th><span>E-Mail</span></th>
-                <th><span>API Key</span></th>
-                <th><span>Notizen</span></th>
-                <th><span>RPM</span></th>
+                <th><span>@lang('admin/users/index.id')</span></th>
+                <th><span>@lang('admin/users/index.name')</span></th>
+                <th><span>@lang('admin/users/index.created')</span></th>
+                <th><span>@lang('admin/users/index.last_login')</span></th>
+                <th><span>@lang('admin/users/index.last_request')</span></th>
+                <th class="text-center"><span>@lang('admin/users/index.state')</span></th>
+                <th><span>@lang('admin/users/index.email')</span></th>
+                <th><span>@lang('admin/users/index.api_key')</span></th>
+                <th><span>@lang('admin/users/index.notes')</span></th>
+                <th><span>@lang('admin/users/index.requests_per_minute')</span></th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
@@ -43,13 +45,21 @@
                     </td>
                     <td class="text-center">
                         @if($user->deleted_at)
-                            <span class="badge badge-info">Gelöscht</span>
+                            <span class="badge badge-info">
+                                @lang('admin/users/index.deleted')
+                            </span>
                         @elseif($user->isWhitelisted())
-                            <span class="badge badge-success">Unlimitiert</span>
+                            <span class="badge badge-success">
+                                @lang('admin/users/index.whitelisted')
+                            </span>
                         @elseif($user->isBlacklisted())
-                            <span class="badge badge-danger">Gesperrt</span>
+                            <span class="badge badge-danger">
+                                @lang('admin/users/index.blacklisted')
+                            </span>
                         @else
-                            <span class="badge badge-default">Normal</span>
+                            <span class="badge badge-default">
+                                @lang('admin/users/index.normal')
+                            </span>
                         @endif
                     </td>
                     <td>
@@ -103,7 +113,7 @@
             @endforeach
         @else
             <tr>
-                <td colspan="11">Keine Benutzer vorhanden</td>
+                <td colspan="11">@lang('admin/users/index.no_users_found')</td>
             </tr>
         @endif
         </tbody>
@@ -116,6 +126,5 @@
             $('[data-toggle="popover"]').popover()
         });
     </script>
-    <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap4.min.js"></script>
     @include('components.init_dataTables')
 @endsection

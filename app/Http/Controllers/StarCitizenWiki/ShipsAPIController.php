@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\StarCitizenWiki;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository;
+use App\Repositories\StarCitizenWiki\APIv1\ShipsRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -46,8 +46,7 @@ class ShipsAPIController extends Controller
             'name' => $name,
         ]);
 
-        $this->repository->getShip($name);
-        $this->repository->transformer->addFilters($request);
+        $this->repository->getShip($request, $name);
 
         return response()->json(
             $this->repository->asArray(),

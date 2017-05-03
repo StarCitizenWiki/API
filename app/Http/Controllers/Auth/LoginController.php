@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Class LoginController
+ * @package App\Http\Controllers\Auth
+ */
 class LoginController extends Controller
 {
     /*
@@ -39,7 +43,6 @@ class LoginController extends Controller
         $this->middleware('guest', ['except' => 'logout']);
     }
 
-
     /**
      * Log the user out of the application.
      *
@@ -63,7 +66,6 @@ class LoginController extends Controller
         return redirect()->route('api_index');
     }
 
-
     /**
      * Checks if a User is blacklisted if so returns an error
      *
@@ -83,5 +85,7 @@ class LoginController extends Controller
             return redirect()->route('auth_login_form')
                              ->withErrors('Account is blacklisted');
         }
+
+        return null;
     }
 }

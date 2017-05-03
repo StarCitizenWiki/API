@@ -36,5 +36,9 @@ class ShortUrlWhitelistsTableSeeder extends Seeder
         DB::table('short_url_whitelists')->insert([
             'url' => 'youtube.com'
         ]);
+        DB::table('short_url_whitelists')->insert([
+            'url' => 'youtu.be',
+            'internal' => true,
+        ]);
     }
 }

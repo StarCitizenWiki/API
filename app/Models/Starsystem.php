@@ -31,4 +31,14 @@ class Starsystem extends Model
     {
         return (bool) $this->exclude;
     }
+
+    /**
+     * @param String $code
+     *
+     * @return String
+     */
+    public static function makeFilenameFromCode(String $code) : String
+    {
+        return $code.'_System.json';
+    }
 }

@@ -31,7 +31,7 @@ class AddAPIHeaders
     {
         $response = $next($request);
         //$response->header("Host", $request->getHost());
-        $response->header("Content-Type", "application/json");
+        $response->header("Content-Type", "application/json; charset=utf-8");
         $response->header("Cache-Control", "no-cache,no-store, must-revalidate");
         $response->header("Pragma", "no-cache");
         if (is_array($response->content())) {

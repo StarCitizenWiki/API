@@ -2,13 +2,14 @@
 
 namespace Tests\Feature\Model;
 
-use App\Http\Controllers\Auth\RegisterController;
 use App\Models\User;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
+/**
+ * Class UserModelTest
+ * @package Tests\Feature\Model
+ */
 class UserModelTest extends TestCase
 {
     use DatabaseTransactions;
@@ -49,7 +50,7 @@ class UserModelTest extends TestCase
      */
     public function testIsWhitelisted()
     {
-        $user = User::find(2);
+        $user = User::find(3);
         $this->assertTrue($user->isWhitelisted());
     }
 
@@ -58,7 +59,7 @@ class UserModelTest extends TestCase
      */
     public function testIsNotWhitelisted()
     {
-        $user = User::find(3);
+        $user = User::find(4);
         $this->assertFalse($user->isWhitelisted());
     }
 
@@ -67,7 +68,7 @@ class UserModelTest extends TestCase
      */
     public function testIsBlacklisted()
     {
-        $user = User::find(3);
+        $user = User::find(4);
         $this->assertTrue($user->isBlacklisted());
     }
 

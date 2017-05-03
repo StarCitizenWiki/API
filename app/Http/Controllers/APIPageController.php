@@ -25,4 +25,18 @@ class APIPageController extends Controller
 
         return view('api.index');
     }
+
+    /**
+     * Returns the API FAQ View
+     *
+     * @return View
+     */
+    public function showFAQView() : View
+    {
+        Log::debug('API FAQ requested', [
+            'method' => __METHOD__,
+        ]);
+
+        return view('api.faq');
+    }
 }

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\DownloadStarmapData;
 use App\Models\Starsystem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 /**
@@ -42,10 +44,13 @@ class StarmapController extends Controller
             'method' => __METHOD__,
         ]);
 
-        return view('admin.starmap.systems.edit')->with(
-            'system',
-            Starsystem::where('code', '=', $code)->first()
-        );
+        $content = '';
+        if (Storage::disk('starmap')->exists(Starsystem::makeFilenameFromCode($code))) {
+            $content = Storage::disk('starmap')->get(Starsystem::makeFilenameFromCode($code));
+        }
+
+        return view('admin.starmap.systems.edit')->with('system', Starsystem::where('code', '=', $code)->first())
+                                                       ->with('content', $content);
     }
 
     /**
@@ -69,7 +74,7 @@ class StarmapController extends Controller
     {
         $this->validate($request, [
             'id' => 'required|exists:starsystems|int',
-            'code' => 'required|regex:/[A-Z\']/',
+            'code' => 'required|regex:/[A-Z0-9\'-]/',
             'exclude' => 'nullable',
         ]);
 
@@ -119,7 +124,7 @@ class StarmapController extends Controller
     public function addStarmapSystem(Request $request) : RedirectResponse
     {
         $this->validate($request, [
-            'code' => 'required|regex:/[A-Z\']/',
+            'code' => 'required|regex:/[A-Z0-9\'-]/',
             'exclude' => 'nullable',
         ]);
 
@@ -135,5 +140,18 @@ class StarmapController extends Controller
         ]);
 
         return redirect()->route('admin_starmap_systems_list');
+    }
+
+    /**
+     * @return RedirectResponse
+     */
+    public function downloadStarmap() : RedirectResponse
+    {
+        $this->dispatch(new DownloadStarmapData());
+
+        return redirect()->back()->with(
+            'success',
+            ['Starmap Download Queued']
+        );
     }
 }

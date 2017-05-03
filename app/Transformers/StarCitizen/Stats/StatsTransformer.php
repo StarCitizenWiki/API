@@ -21,6 +21,13 @@ class StatsTransformer extends TransformerAbstract implements BaseAPITransformer
 {
     use FiltersDataTrait;
 
+    protected $validFields = [
+        'fans',
+        'funds',
+        'fleet',
+        'chart',
+    ];
+
     /**
      * Returns all stats
      *
@@ -30,6 +37,14 @@ class StatsTransformer extends TransformerAbstract implements BaseAPITransformer
      */
     public function transform($stats)
     {
-        return $stats;
+        $stats = $stats['data'];
+        $data = [
+            'fans' => (string) $stats['fans'],
+            'fleet' => (string) $stats['fleet'],
+            'funds' => (string) $stats['funds'],
+            'chart' => $stats['chart'],
+        ];
+
+        return $this->filterData($data);
     }
 }

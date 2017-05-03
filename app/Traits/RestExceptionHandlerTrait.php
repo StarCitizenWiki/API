@@ -34,6 +34,7 @@ trait RestExceptionHandlerTrait
      */
     protected function getJsonResponseForException(Request $request, Exception $exception)
     {
+        /** @var Exception $exception */
         $exception = $this->prepareException($exception);
 
         $response = [

@@ -40,7 +40,7 @@
     <body>
         <div class="container">
             <div class="content">
-                <div class="title">Be right back.</div>
+                <div class="title">@lang('errors/503.header')</div>
             </div>
         </div>
     </body>

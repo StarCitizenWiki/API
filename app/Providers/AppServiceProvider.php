@@ -36,11 +36,11 @@ class AppServiceProvider extends ServiceProvider
         /**
          * Star Citizen API Interfaces
          */
-        $this->app->bind('StarCitizen\API\StatsRepository', \App\Repositories\StarCitizen\APIv1\Stats\StatsRepository::class);
+        $this->app->bind('StarCitizen\API\StatsRepository', \App\Repositories\StarCitizen\APIv1\StatsRepository::class);
 
         /**
          * Star Citizen Wiki API Interfaces
          */
-        $this->app->bind('StarCitizenWiki\API\ShipsRepository', \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::class);
+        $this->app->bind('StarCitizenWiki\API\ShipsRepository', \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::class);
     }
 }

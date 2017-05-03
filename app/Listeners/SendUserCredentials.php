@@ -2,9 +2,8 @@
 
 namespace App\Listeners;
 
-use App\Mail\UserRegistered as UserRegisteredMail;
 use App\Events\UserRegistered;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Mail\UserRegistered as UserRegisteredMail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 
@@ -26,6 +25,10 @@ class SendUserCredentials implements ShouldQueue
     public function handle(UserRegistered $event)
     {
         $user = $event->user;
-        Mail::to($user->email)->send(new UserRegisteredMail($user));
+        $password = $event->password;
+        Mail::to([
+            $user->email,
+            'info@star-citizen.wiki',
+        ])->send(new UserRegisteredMail($user, $password));
     }
 }

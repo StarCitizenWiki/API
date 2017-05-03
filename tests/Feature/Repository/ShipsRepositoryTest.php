@@ -3,17 +3,15 @@
 namespace Tests\Feature\Repository;
 
 use App\Exceptions\InvalidDataException;
-use App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository;
+use App\Repositories\StarCitizenWiki\APIv1\ShipsRepository;
+use Illuminate\Http\Request;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * Class ShipsTest
  * @package Tests\Feature\Repository
  * @covers \App\Repositories\BaseAPITrait
- * @covers \App\Repositories\StarCitizenWiki\APIv1\BaseStarCitizenWikiAPI
+ * @covers \App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI
  */
 class ShipsRepositoryTest extends TestCase
 {
@@ -31,16 +29,16 @@ class ShipsRepositoryTest extends TestCase
     /**
      * Get Ship from Repository
      *
-     * @covers \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::getShip()
+     * @covers \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::getShip()
      */
     public function testShipRetrieval()
     {
-        $this->repository->getShip('300i');
+        $this->repository->getShip(new Request(), '300i');
         $this->assertContains('300i', $this->repository->asJSON());
     }
 
     /**
-     * @covers \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::getShipList()
+     * @covers \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::getShipList()
      */
     public function testShipList()
     {
@@ -49,7 +47,7 @@ class ShipsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::searchShips()
+     * @covers \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::searchShips()
      */
     public function testShipSearch()
     {
@@ -60,7 +58,7 @@ class ShipsRepositoryTest extends TestCase
     /**
      * Test if Filter is working
      *
-     * @covers \App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository::getShipList()
+     * @covers \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::getShipList()
      */
     public function testFilter()
     {
@@ -73,12 +71,15 @@ class ShipsRepositoryTest extends TestCase
      * Test if InvalidDataException is thrown if unknown field is filtered
      *
      * @covers \App\Traits\FiltersDataTrait::filterData()
+     * @covers \App\Exceptions\InvalidDataException
      */
     public function testFilterException()
     {
         $this->repository->getShipList();
         $this->expectException(InvalidDataException::class);
-        $this->repository->transformer->addFilterArray(['notexists']);
+        $this->repository->transformer->addFilterArray([
+            'notexists',
+        ]);
         $this->repository->asJSON();
     }
 }

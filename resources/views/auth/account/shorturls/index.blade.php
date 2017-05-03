@@ -1,19 +1,24 @@
 @extends('layouts.app')
-@section('title', 'Short URLs')
+@section('title')
+    @lang('auth/account/shorturls/index.header')
+@endsection
 
 @section('content')
     @include('layouts.heading')
-    @if (session('hash_name'))
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-10 col-md-3 mx-auto">
-                    <div class="alert alert-success text-center">
-                        https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
-                    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-10 col-md-3 mx-auto">
+                @include('components.errors')
+                @if (session('hash_name'))
+                <div class="alert alert-success text-center">
+                    https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
                 </div>
+                @endif
             </div>
         </div>
-    @endif
+    </div>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-10 mx-auto my-5">
@@ -21,10 +26,10 @@
                     <thead>
                     <tr>
                         <th><span>Short</span></th>
-                        <th><span>URL</span></th>
-                        <th><span>Hash</span></th>
-                        <th><span>Erstellt</span></th>
-                        <th><span>Ablauf</span></th>
+                        <th><span>@lang('auth/account/shorturls/index.url')</span></th>
+                        <th><span>@lang('auth/account/shorturls/index.hash')</span></th>
+                        <th><span>@lang('auth/account/shorturls/index.created_at')</span></th>
+                        <th><span>@lang('auth/account/shorturls/index.expires')</span></th>
                         <th>&nbsp;</th>
                     </tr>
                     </thead>
@@ -62,7 +67,7 @@
                         @endforeach
                     @else
                     <tr>
-                        <td colspan="7">Keine Short URLs vorhanden</td>
+                        <td colspan="7">@lang('auth/account/shorturls/index.no_urls_found')</td>
                     </tr>
                     @endif
                     </tbody>
@@ -73,6 +78,5 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap4.min.js"></script>
     @include('components.init_dataTables')
 @endsection

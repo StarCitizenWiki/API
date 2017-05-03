@@ -2,12 +2,7 @@
 
 namespace Tests\Feature\Controller;
 
-use App\Http\Controllers\StarCitizenWiki\ShipsAPIController;
-use App\Repositories\StarCitizenWiki\APIv1\Ships\ShipsRepository;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * Class ShipsTest
@@ -16,7 +11,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class ShipsAPIControllerTest extends TestCase
 {
     /**
-     * Get Ship from API
+     * Get Ship from Interfaces
      *
      * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::getShip()
      * @covers \App\Http\Middleware\ThrottleAPI

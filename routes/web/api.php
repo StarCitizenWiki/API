@@ -1,5 +1,6 @@
 <?php
 Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');
+Route::get('/faq', ['uses' => 'APIPageController@showFAQView'])->name('api_faq');
 
 Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Auth\Admin'], function () {
     Route::get('/', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');
@@ -36,7 +37,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Au
             Route::post('/', ['uses' => 'StarmapController@addStarmapSystem'])->name('admin_starmap_systems_add');
             Route::get('add', ['uses' => 'StarmapController@showAddStarmapSystemsView'])->name('admin_starmap_systems_add_form');
             Route::get('{code}', ['uses' => 'StarmapController@showEditStarmapSystemsView'])->name('admin_starmap_systems_edit_form');
+            Route::post('/download', ['uses' => 'StarmapController@downloadStarmap'])->name('admin_starmap_systems_download');
         });
+    });
+
+    Route::group(['prefix' => 'ships'], function () {
+        Route::get('/', ['uses' => 'ShipsController@showShipsView'])->name('admin_ships_list');
+        Route::post('/download', ['uses' => 'ShipsController@downloadShips'])->name('admin_ships_download');
     });
 });
 
@@ -49,6 +56,11 @@ Route::group(['namespace' => 'Auth'], function () {
     // Registration Routes...
     Route::get('register', ['uses' => 'RegisterController@showRegistrationForm'])->name('auth_register_form');
     Route::post('register', ['uses' => 'RegisterController@register'])->name('auth_register');
+
+    Route::get('password/reset', 'ForgotPasswordController@showLinkRequestForm')->name('password.request');
+    Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+    Route::get('password/reset/{token}', 'ResetPasswordController@showResetForm')->name('password.reset');
+    Route::post('password/reset', 'ResetPasswordController@reset');
 
     Route::group(['middleware' => ['auth'], 'prefix' => 'account', 'namespace' => 'Account'], function () {
         // Account Routes...

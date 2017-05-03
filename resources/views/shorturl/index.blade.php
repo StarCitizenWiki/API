@@ -15,9 +15,11 @@
                 <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_create_redirect') }}">
                     {{ csrf_field() }}
                     <div class="input-group input-group-lg mb-2">
-                        <input type="url" name="url" id="url" class="form-control" placeholder="Long URL" required value="{{ old('url') }}">
+                        <input type="url" name="url" id="url" class="form-control" placeholder="@lang('shorturl/index.long_url')" required value="{{ old('url') }}">
                         <span class="input-group-btn">
-                            <button class="btn btn-info" type="submit">Shorten</button>
+                            <button class="btn btn-info" type="submit">
+                                @lang('shorturl/index.shorten')
+                            </button>
                         </span>
                         <span class="input-group-btn">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" href="#customize" aria-expanded="false" aria-controls="customize"><i class="fa fa-cog"></i></button>
@@ -25,11 +27,11 @@
                     </div>
                     <div class="collapse" id="customize">
                         <div class="input-group mt-3">
-                            <span class="input-group-addon" id="hash_name-label">Custom Name:</span>
-                            <input type="text" class="form-control" id="hash_name" name="hash_name" aria-describedby="hash_name-label" placeholder="Alphanumeric and -_" value="{{ old('hash_name') }}">
+                            <span class="input-group-addon" id="hash_name-label">@lang('shorturl/index.custom_name'):</span>
+                            <input type="text" class="form-control" id="hash_name" name="hash_name" aria-describedby="hash_name-label" placeholder="@lang('shorturl/index.custom_name_placeholder')" value="{{ old('hash_name') }}">
                         </div>
                         <div class="input-group mt-3">
-                            <span class="input-group-addon" id="expires-label">Expires:</span>
+                            <span class="input-group-addon" id="expires-label">@lang('shorturl/index.expires'):</span>
                             <input type="datetime-local" class="form-control" id="expires" name="expires" aria-describedby="expires-label" style="flex-direction: inherit;" value="{{ old('expires') }}">
                         </div>
                     </div>
@@ -39,16 +41,16 @@
         <div class="col-12 d-flex fixed-bottom">
             <ul class="nav justify-content-end w-100">
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="{{ route('short_url_resolve_form') }}">Resolve</a>
+                    <a class="nav-link text-info" href="{{ route('short_url_resolve_form') }}">@lang('shorturl/index.resolve')</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">Whitelist</a>
+                    <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">@lang('shorturl/index.whitelist')</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="https://{{ config('app.api_url') }}">API</a>
+                    <a class="nav-link text-info" href="https://{{ config('app.api_url') }}">@lang('shorturl/index.api')</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="https://star-citizen.wiki/Star_Citizen_Wiki:Impressum">Legal</a>
+                    <a class="nav-link text-info" href="https://star-citizen.wiki/Star_Citizen_Wiki:Impressum">@lang('shorturl/index.legal')</a>
                 </li>
             </ul>
         </div>
@@ -69,7 +71,7 @@
                         @endforeach
                     </ul>
                     <hr>
-                    <a href="mailto:api@star-citizen.wiki?subject=RSI.IM URL Whitelist Request&body=Whitelist Request for the following Domain(s):">Add URL to Whitelist</a>
+                    <a href="mailto:api@star-citizen.wiki?subject=RSI.IM URL Whitelist Request&body=Whitelist Request for the following Domain(s):">@lang('shorturl/index.add_whitelist_request')</a>
                 </div>
             </div>
         </div>

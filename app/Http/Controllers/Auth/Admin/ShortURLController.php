@@ -237,7 +237,8 @@ class ShortURLController extends Controller
                 'expires' => $request->get('expires'),
             ]);
         } catch (URLNotWhitelistedException | HashNameAlreadyAssignedException $e) {
-            return back()->withErrors($e->getMessage())->withInput(Input::all());
+            return back()->withErrors($e->getMessage())
+                         ->withInput(Input::all());
         }
 
         return redirect()->route('admin_urls_list');

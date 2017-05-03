@@ -5,11 +5,13 @@ namespace Tests\Feature\Model;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Models\ShortURL\ShortURL;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
+/**
+ * Class ShortURLModelTest
+ * @package Tests\Feature\Model
+ */
 class ShortURLModelTest extends TestCase
 {
     use DatabaseTransactions;
@@ -28,17 +30,21 @@ class ShortURLModelTest extends TestCase
      * Test not WhitelistedException
      *
      * @covers \App\Models\ShortURL\ShortURL::createShortURL()
+     * @covers \App\Exceptions\URLNotWhitelistedException
      */
     public function testNotWhitelistedException()
     {
         $this->expectException(URLNotWhitelistedException::class);
-        ShortURL::createShortURL(['url' => 'https://notwhitelisted.com']);
+        ShortURL::createShortURL([
+            'url' => 'https://notwhitelisted.com',
+        ]);
     }
 
     /**
      * Test NotFound Exception
      *
      * @covers \App\Models\ShortURL\ShortURL::resolve()
+     * @covers \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function testHashNotExistsException()
     {

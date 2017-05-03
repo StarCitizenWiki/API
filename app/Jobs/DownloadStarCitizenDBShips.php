@@ -19,17 +19,13 @@ class DownloadStarCitizenDBShips implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    const STARCITIZENDB_URL = 'http://starcitizendb.com/';
+    private const STAR_CITIZEN_DB_URL = 'http://starcitizendb.com/';
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
+    private const FILES_TO_SKIP = [
+        'RSI_Constellation_SCItemTest.json',
+        'MITE_SimPod.json',
+        'GRIN_PTV.json',
+    ];
 
     /**
      * Execute the job.
@@ -43,21 +39,28 @@ class DownloadStarCitizenDBShips implements ShouldQueue
             'timeout' => 10.0,
         ]);
 
-        $urls = (String) $client->get(DownloadStarCitizenDBShips::STARCITIZENDB_URL.'api/ships/specs')->getBody();
+        $urls = (String) $client->get(self::STAR_CITIZEN_DB_URL.'api/ships/specs')->getBody();
         preg_match_all('/href="([^\'\"]+)/', $urls, $urls);
         $urls = $urls[1];
+
         foreach ($urls as $url) {
             $fileName = explode('/', $url);
             $fileName = end($fileName);
-            $resource = fopen(config('filesystems.disks.scdb_ships.root').'/'.$fileName, 'w');
-            $stream = stream_for($resource);
-            $client->request(
-                'GET',
-                DownloadStarCitizenDBShips::STARCITIZENDB_URL.$url,
-                ['save_to' => $stream]
-            );
-            Log::info('Downloading '.$fileName);
+
+            if (!in_array($fileName, self::FILES_TO_SKIP)) {
+                $resource = fopen(config('filesystems.disks.scdb_ships_base.root').'/'.$fileName, 'w');
+                $stream = stream_for($resource);
+                $client->request(
+                    'GET',
+                    self::STAR_CITIZEN_DB_URL.$url,
+                    ['save_to' => $stream]
+                );
+                Log::info('Downloading '.$fileName);
+            }
         }
         Log::info('Ship Download Job Finished');
+
+        Log::info('Dispatching Split Files Job');
+        dispatch(new SplitShipFiles());
     }
 }

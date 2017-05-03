@@ -3,11 +3,8 @@
 namespace Tests\Feature\Controller;
 
 use App\Http\Controllers\Auth\RegisterController;
-use Illuminate\Foundation\Testing\WithoutEvents;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 /**
  * Class RegisterControllerTest
@@ -31,6 +28,7 @@ class RegisterControllerTest extends TestCase
 
     /**
      * @covers \App\Http\Controllers\Auth\RegisterController::register()
+     * @covers \App\Events\UserRegistered
      */
     public function testRegistration()
     {

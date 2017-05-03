@@ -2,14 +2,9 @@
 
 namespace Tests\Feature\Controller\Account;
 
-use App\Models\ShortURL\ShortURL;
 use App\Models\User;
-use Illuminate\Foundation\Testing\WithoutEvents;
-use Illuminate\Support\Facades\Session;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 /**
  * Class AccountControllerTest

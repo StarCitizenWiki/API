@@ -80,7 +80,8 @@ class ShortURLController extends Controller
                 'url_id' => $id,
             ]);
 
-            return redirect()->route('account_urls_list');
+            return redirect()->route('account_urls_list')
+                             ->withErrors(__('auth/account/shorturls/edit.no_permission'));
         }
 
         Log::debug('User requested Edit ShortURL View', [
@@ -121,12 +122,7 @@ class ShortURLController extends Controller
 
         $expires = $request->get('expires');
         try {
-            if (!is_null($request->get('expires'))) {
-                $expires = Carbon::parse($request->get('expires'));
-                if ($expires->lte(Carbon::now())) {
-                    throw new ExpiredException('Expires date can\'t be in the past');
-                }
-            }
+            $this->checkExpiresDate($expires);
 
             $url = ShortURL::createShortURL([
                 'url' => ShortURL::sanitizeURL($request->get('url')),
@@ -136,8 +132,8 @@ class ShortURLController extends Controller
             ]);
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException | ExpiredException $e) {
             return redirect()->route('account_urls_add_form')
-                ->withErrors($e->getMessage())
-                ->withInput(Input::all());
+                             ->withErrors($e->getMessage())
+                             ->withInput(Input::all());
         }
 
         event(new URLShortened($url));
@@ -176,6 +172,8 @@ class ShortURLController extends Controller
                 'email' => Auth::user()->email,
                 'url_id' => $request->id,
             ]);
+
+            return back()->withErrors(__('auth/account/shorturls/edit.no_permission'));
         }
 
         return back();
@@ -190,8 +188,10 @@ class ShortURLController extends Controller
      */
     public function updateURL(Request $request) : RedirectResponse
     {
-        if (Auth::user()->shortURLs()->find($request->id)->count() === 0) {
-            Log::warning('User tried to forge ShortURL edit request', [
+        try {
+            Auth::user()->shortURLs()->findOrFail($request->id);
+        } catch (ModelNotFoundException $e) {
+            Log::info('User tried to forge ShortURL edit request', [
                 'user_id' => Auth::id(),
                 'provided_id' => $request->get('user_id'),
                 'url_id' => $request->id,
@@ -199,7 +199,7 @@ class ShortURLController extends Controller
                 'hash_name' => $request->get('hash_name'),
             ]);
 
-            return abort(401, 'No permission');
+            return back()->withErrors(__('auth/account/shorturls/edit.no_permission'));
         }
 
         $data = [
@@ -225,9 +225,25 @@ class ShortURLController extends Controller
                 'expires' => $request->get('expires'),
             ]);
         } catch (URLNotWhitelistedException | HashNameAlreadyAssignedException $e) {
-            return back()->withErrors($e->getMessage())->withInput(Input::all());
+            return back()->withErrors($e->getMessage())
+                         ->withInput(Input::all());
         }
 
         return redirect()->route('account_urls_list');
+    }
+
+    /**
+     * @param $date
+     *
+     * @throws ExpiredException
+     */
+    private function checkExpiresDate($date) : void
+    {
+        if (!is_null($date)) {
+            $expires = Carbon::parse($date);
+            if ($expires->lte(Carbon::now())) {
+                throw new ExpiredException('Expires date can\'t be in the past');
+            }
+        }
     }
 }

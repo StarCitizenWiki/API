@@ -2,11 +2,6 @@
 
 namespace Tests\Feature\Controller;
 
-use App\Exceptions\InvalidDataException;
-use App\Exceptions\MissingTransformerException;
-use App\Http\Controllers\StarCitizen\StatsAPIController;
-use App\Repositories\StarCitizen\APIv1\Stats\StatsRepository;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
 /**
@@ -16,7 +11,7 @@ use Tests\TestCase;
 class StatsAPIControllerTest extends TestCase
 {
     /**
-     * Tests Stats from API
+     * Tests Stats from Interfaces
      *
      * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getAll()
      * @covers \App\Http\Middleware\ThrottleAPI
@@ -37,7 +32,7 @@ class StatsAPIControllerTest extends TestCase
     }
 
     /**
-     * Tests fans API
+     * Tests fans Interfaces
      *
      * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFans()
      * @covers \App\Http\Middleware\ThrottleAPI
@@ -58,7 +53,7 @@ class StatsAPIControllerTest extends TestCase
     }
 
     /**
-     * Tests Funds API
+     * Tests Funds Interfaces
      *
      * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFunds()
      * @covers \App\Http\Middleware\ThrottleAPI

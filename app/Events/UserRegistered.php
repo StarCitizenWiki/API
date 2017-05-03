@@ -22,6 +22,7 @@ class UserRegistered implements ShouldQueue
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $user;
+    public $password;
 
     /**
      * Create a new event instance.
@@ -31,7 +32,7 @@ class UserRegistered implements ShouldQueue
      */
     public function __construct(User $user, String $password)
     {
-        $user->password = $password;
+        $this->password = $password;
         $this->user = $user;
     }
 }

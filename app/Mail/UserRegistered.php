@@ -13,20 +13,23 @@ use Illuminate\Contracts\Queue\ShouldQueue;
  *
  * @package App\Mail
  */
-class UserRegistered extends Mailable
+class UserRegistered extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $user;
+    private $password;
 
     /**
      * Create a new message instance.
      *
-     * @param User $user User Object
+     * @param User   $user     User Object
+     * @param String $password User Password
      */
-    public function __construct(User $user)
+    public function __construct(User $user, String $password)
     {
         $this->user = $user;
+        $this->password = $password;
     }
 
     /**
@@ -38,6 +41,6 @@ class UserRegistered extends Mailable
     {
         $this->subject('Star Citizen Wiki API - Account');
 
-        return $this->markdown('mail.registered');
+        return $this->markdown('mail.registered')->with('password', $this->password);
     }
 }

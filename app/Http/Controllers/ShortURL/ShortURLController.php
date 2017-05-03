@@ -53,13 +53,12 @@ class ShortURLController extends Controller
             'method' => __METHOD__,
         ]);
 
-        return view('shorturl.index')
-                    ->with(
-                        'whitelistedURLs',
-                        ShortURLWhitelist::all()
-                            ->sortBy('url')
-                            ->where('internal', false)
-                    );
+        return view('shorturl.index')->with(
+            'whitelistedURLs',
+            ShortURLWhitelist::all()
+                ->sortBy('url')
+                ->where('internal', false)
+        );
     }
 
     /**
@@ -89,7 +88,7 @@ class ShortURLController extends Controller
             'method' => __METHOD__,
             'hash' => $hash,
         ]);
-        $url = $this->resolveExceptionRedirectTo('short_url_index', $hash);
+        $url = $this->getURLRedirectIfException('short_url_index', $hash);
 
         if ($url instanceof RedirectResponse) {
             return $url;
@@ -134,7 +133,7 @@ class ShortURLController extends Controller
 
         $hash = str_replace('/', '', $url['path']);
 
-        $url = $this->resolveExceptionRedirectTo('short_url_resolve_form', $hash);
+        $url = $this->getURLRedirectIfException('short_url_resolve_form', $hash);
 
         if ($url instanceof RedirectResponse) {
             return $url;
@@ -210,16 +209,7 @@ class ShortURLController extends Controller
         validate_array($data, $rules, $request);
 
         $expires = $request->get('expires');
-        if (!is_null($request->get('expires'))) {
-            Log::debug('ShortURL has Expires Field set', [
-                'method' => __METHOD__,
-                'expires' => $expires,
-            ]);
-            $expires = Carbon::parse($request->get('expires'));
-            if ($expires->lte(Carbon::now())) {
-                throw new ExpiredException('Expires date can\'t be in the past');
-            }
-        }
+        $this->checkExpiresDate($expires);
 
         $key = $request->get(AUTH_KEY_FIELD_NAME, null);
 
@@ -257,13 +247,14 @@ class ShortURLController extends Controller
         try {
             $url = $this->create($request);
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException | ExpiredException $e) {
-            return redirect()->route('short_url_index')
-                             ->withErrors($e->getMessage())
-                             ->withInput(Input::all());
+            return redirect('/')->withErrors($e->getMessage())
+                                    ->withInput(Input::all());
         }
 
-        return redirect()->route('short_url_index')
-                         ->with('hash_name', $url['data'][0]['hash_name']);
+        return redirect('/')->with(
+            'hash_name',
+            $url['data'][0]['hash_name']
+        );
     }
 
     /**
@@ -274,7 +265,7 @@ class ShortURLController extends Controller
      *
      * @return ShortURL | RedirectResponse
      */
-    private function resolveExceptionRedirectTo(String $route, String $hash)
+    private function getURLRedirectIfException(String $route, String $hash)
     {
         try {
             $url = ShortURL::resolve($hash);
@@ -289,5 +280,20 @@ class ShortURLController extends Controller
         }
 
         return $url;
+    }
+
+    /**
+     * @param $date
+     *
+     * @throws ExpiredException
+     */
+    private function checkExpiresDate($date) : void
+    {
+        if (!is_null($date)) {
+            $expires = Carbon::parse($date);
+            if ($expires->lte(Carbon::now())) {
+                throw new ExpiredException('Expires date can\'t be in the past');
+            }
+        }
     }
 }
