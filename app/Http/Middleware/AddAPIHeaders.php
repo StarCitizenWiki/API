@@ -10,7 +10,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 
 /**
  * Class AfterApiRequest
@@ -30,7 +30,6 @@ class AddAPIHeaders
     public function handle($request, Closure $next)
     {
         $response = $next($request);
-        //$response->header("Host", $request->getHost());
         $response->header("Content-Type", "application/json; charset=utf-8");
         $response->header("Cache-Control", "no-cache,no-store, must-revalidate");
         $response->header("Pragma", "no-cache");
@@ -46,8 +45,7 @@ class AddAPIHeaders
         $response->header("Connection", "keep-alive");
         $response->header("X-SCW-API-Version", API_VERSION);
 
-        Log::debug('Added API Headers', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Added API Headers', [
             'request_url' => $request->fullUrl(),
         ]);
 

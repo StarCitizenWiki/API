@@ -32,8 +32,7 @@ class ShortURLController extends Controller
     public function showURLsListView() : View
     {
         $user = Auth::user();
-        Log::debug('User requested Show URL List View', [
-            'method' => __METHOD__,
+        $this->logger->debug('User requested Show URL List View', [
             'user_id' => Auth::id(),
         ]);
 
@@ -51,8 +50,7 @@ class ShortURLController extends Controller
     public function showAddURLView() : View
     {
         $user = Auth::user();
-        Log::debug('User requested Add Url View', [
-            'method' => __METHOD__,
+        $this->logger->debug('User requested Add Url View', [
             'user_id' => $user->id,
         ]);
 
@@ -74,7 +72,7 @@ class ShortURLController extends Controller
         try {
             $url = Auth::user()->shortURLs()->findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            Log::info('User tried to edit unowned ShortURL', [
+            $this->logger->info('User tried to edit unowned ShortURL', [
                 'user_id' => Auth::id(),
                 'email' => Auth::user()->email,
                 'url_id' => $id,
@@ -84,8 +82,7 @@ class ShortURLController extends Controller
                              ->withErrors(__('auth/account/shorturls/edit.no_permission'));
         }
 
-        Log::debug('User requested Edit ShortURL View', [
-            'method' => __METHOD__,
+        $this->logger->debug('User requested Edit ShortURL View', [
             'url' => (array) $url,
         ]);
 
@@ -159,7 +156,7 @@ class ShortURLController extends Controller
 
         try {
             $url = Auth::user()->shortURLs()->findOrFail($request->id);
-            Log::info('URL deleted', [
+            $this->logger->info('URL deleted', [
                 'user_id' => Auth::id(),
                 'url_id' => $url->id,
                 'url' => $url->url,
@@ -167,7 +164,7 @@ class ShortURLController extends Controller
             ]);
             $url->delete();
         } catch (ModelNotFoundException $e) {
-            Log::info('User tried to delete unowned ShortURL', [
+            $this->logger->info('User tried to delete unowned ShortURL', [
                 'user_id' => Auth::id(),
                 'email' => Auth::user()->email,
                 'url_id' => $request->id,
@@ -191,7 +188,7 @@ class ShortURLController extends Controller
         try {
             Auth::user()->shortURLs()->findOrFail($request->id);
         } catch (ModelNotFoundException $e) {
-            Log::info('User tried to forge ShortURL edit request', [
+            $this->logger->info('User tried to forge ShortURL edit request', [
                 'user_id' => Auth::id(),
                 'provided_id' => $request->get('user_id'),
                 'url_id' => $request->id,

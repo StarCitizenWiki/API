@@ -25,9 +25,7 @@ class UserController extends Controller
      */
     public function showUsersListView()
     {
-        Log::debug('Users List View requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Users List View requested');
 
         return view('admin.users.index')->with(
             'users',
@@ -47,18 +45,14 @@ class UserController extends Controller
         try {
             $user = User::withTrashed()->findOrFail($id);
 
-            Log::debug('Edit User View for User requested', [
-                'method' => __METHOD__,
-                'user_id' => $id,
-            ]);
+            $this->logger->debug('Edit User View for User requested');
 
             return view('admin.users.edit')->with(
                 'user',
                 $user
             );
         } catch (ModelNotFoundException $e) {
-            Log::warning('User not found', [
-                'method' => __METHOD__,
+            $this->logger->warning('User not found', [
                 'id' => $id,
             ]);
         }
@@ -75,9 +69,7 @@ class UserController extends Controller
      */
     public function showRequestsView(int $id)
     {
-        Log::debug('Users Requests View requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Users Requests View requested');
 
         return view('admin.users.requests')->with(
             'requests',
@@ -100,7 +92,7 @@ class UserController extends Controller
 
         try {
             $user = User::findOrFail($request->id);
-            Log::info('Account deleted', [
+            $this->logger->info('Account deleted', [
                 'account_id' => $request->get('id'),
                 'deleted_by' => Auth::id(),
             ]);
@@ -128,7 +120,7 @@ class UserController extends Controller
 
         try {
             $user = User::withTrashed()->findOrFail($request->id);
-            Log::info('Account restored', [
+            $this->logger->info('Account restored', [
                 'account_id'  => $request->get('id'),
                 'restored_by' => Auth::id(),
             ]);

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -109,7 +110,7 @@ class User extends Authenticatable
             }
         }
 
-        Log::info('User Account updated', [
+        App::make('Log')->info('User Account updated', [
             'changes' => $changes,
         ]);
 
@@ -124,8 +125,7 @@ class User extends Authenticatable
     public function isAdmin() : bool
     {
         $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
-        Log::debug('Checked if User is Admin', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Checked if User is Admin', [
             'id' => $this->id,
             'admin' => $isAdmin,
         ]);
@@ -141,8 +141,7 @@ class User extends Authenticatable
     public function isWhitelisted() : bool
     {
         $whitelisted = $this->whitelisted == 1;
-        Log::debug('Checked if User is whitelisted', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Checked if User is whitelisted', [
             'id' => $this->id,
             'whitelisted' => $whitelisted,
         ]);
@@ -158,8 +157,7 @@ class User extends Authenticatable
     public function isBlacklisted() : bool
     {
         $blacklisted = $this->blacklisted == 1;
-        Log::debug('Checked if User is blacklisted', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Checked if User is blacklisted', [
             'id' => $this->id,
             'blacklisted' => $blacklisted,
         ]);
@@ -174,8 +172,7 @@ class User extends Authenticatable
      */
     public function shortURLs()
     {
-        Log::debug('Requested Users ShortURLs', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Requested Users ShortURLs', [
             'id' => Auth::id(),
         ]);
 

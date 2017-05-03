@@ -40,6 +40,7 @@ class LoginController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('guest', ['except' => 'logout']);
     }
 
@@ -52,8 +53,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        Log::debug('User logged out', [
-            'method' => __METHOD__,
+        $this->logger->debug('User logged out', [
             'user_id' => Auth::id(),
         ]);
 
@@ -77,7 +77,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if ($user->isBlacklisted()) {
-            Log::info('Blacklisted User tried to login', [
+            $this->logger->info('Blacklisted User tried to login', [
                 'user_id' => $user->id,
             ]);
             Auth::logout();

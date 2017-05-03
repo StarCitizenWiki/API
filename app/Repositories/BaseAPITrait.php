@@ -16,6 +16,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class BaseAPITrait
@@ -39,13 +40,17 @@ trait BaseAPITrait
     protected $response;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * BaseAPI constructor.
      */
     public function __construct()
     {
-        Log::debug('Setting Guzzle Client', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger = App::make('Log');
+        $this->logger->debug('Setting Guzzle Client');
         $this->guzzleClient = new Client([
             'base_uri' => $this::API_URL,
             'timeout' => 3.0,
@@ -65,8 +70,7 @@ trait BaseAPITrait
      */
     public function request(String $requestMethod, String $uri, array $data = null) : Response
     {
-        Log::debug('Starting Guzzle Request', [
-            'method' => __METHOD__,
+        $this->logger->debug('Starting Guzzle Request', [
             'uri' => $uri,
             'request_method' => $requestMethod,
             'data' => $data,
@@ -87,23 +91,17 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsValid() : bool
     {
-        Log::debug('Checking if Response is valid', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Checking if Response is valid');
         if ($this->checkIfResponseIsNotNull() &&
             $this->checkIfResponseIsNotEmpty() &&
             $this->checkIfResponseStatusIsOK() &&
             $this->checkIfResponseDataIsValid()
         ) {
-            Log::debug('Response is valid', [
-                'method' => __METHOD__,
-            ]);
+            $this->logger->debug('Response is valid');
 
             return true;
         }
-        Log::debug('Response is not valid', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Response is not valid');
         throw new InvalidDataException('Response Data is not valid');
     }
 
@@ -114,8 +112,7 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsNotNull() : bool
     {
-        Log::debug('Checking if Response is not null', [
-            'method' => __METHOD__,
+        $this->logger->debug('Checking if Response is not null', [
             'null' => is_null($this->response),
         ]);
 
@@ -129,8 +126,7 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsNotEmpty() : bool
     {
-        Log::debug('Checking if Response is not empty', [
-            'method' => __METHOD__,
+        $this->logger->debug('Checking if Response is not empty', [
             'empty' => empty($this->response),
         ]);
 
@@ -144,8 +140,7 @@ trait BaseAPITrait
      */
     private function checkIfResponseStatusIsOK() : bool
     {
-        Log::debug('Checking if Response Status is 200', [
-            'method' => __METHOD__,
+        $this->logger->debug('Checking if Response Status is 200', [
             'status' => $this->response->getStatusCode(),
         ]);
 
@@ -173,9 +168,7 @@ trait BaseAPITrait
      */
     private function validateJSON(String $string) : bool
     {
-        Log::debug('Checking if Parameter is valid JSON', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Checking if Parameter is valid JSON');
         if (is_string($string)) {
             @json_decode($string);
 
@@ -207,8 +200,7 @@ trait BaseAPITrait
 
         $this->transformedResource->addMeta($metaData);
 
-        Log::debug('Adding Metadata to Transformation', [
-            'method' => __METHOD__,
+        $this->logger->debug('Adding Metadata to Transformation', [
             'data' => $metaData,
         ]);
 
@@ -231,24 +223,16 @@ trait BaseAPITrait
      */
     private function validateAndSaveResponseBody() : void
     {
-        Log::debug('Saving Response Body', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Saving Response Body');
         $responseBody = (String) $this->response->getBody();
         if ($this->validateJSON($responseBody)) {
-            Log::debug('Response Body is json', [
-                'method' => __METHOD__,
-            ]);
+            $this->logger->debug('Response Body is json');
             $this->dataToTransform = json_decode($responseBody, true);
         } elseif (is_array($responseBody)) {
-            Log::debug('Response Body is array', [
-                'method' => __METHOD__,
-            ]);
+            $this->logger->debug('Response Body is array');
             $this->dataToTransform = $responseBody;
         } else {
-            Log::warning('Response Body is neither json nor array', [
-                'method' => __METHOD__,
-            ]);
+            $this->logger->warning('Response Body is neither json nor array');
             throw new InvalidDataException('Response Body is invalid');
         }
     }

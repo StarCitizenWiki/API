@@ -29,9 +29,7 @@ class ShipsRepository implements ShipsInterface
      */
     public function getShipList() : ShipsRepository
     {
-        Log::debug('Getting ShipList', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Getting ShipList');
         $this->collection()->withTransformer(ShipsListTransformer::class);
         $this->dataToTransform = File::allFiles(config('filesystems.disks.scdb_ships_splitted.root'));
 
@@ -49,8 +47,7 @@ class ShipsRepository implements ShipsInterface
     public function getShip(Request $request, String $shipName)
     {
         $shipName = urldecode($shipName);
-        Log::debug('Getting Ship by name', [
-            'method' => __METHOD__,
+        $this->logger->debug('Getting Ship by name', [
             'ship' => $shipName,
         ]);
 

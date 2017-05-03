@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 
 /**
  * Class APIPageController
@@ -19,9 +19,7 @@ class APIPageController extends Controller
      */
     public function showAPIView() : View
     {
-        Log::debug('API Index requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('API Index requested');
 
         return view('api.index');
     }
@@ -33,9 +31,7 @@ class APIPageController extends Controller
      */
     public function showFAQView() : View
     {
-        Log::debug('API FAQ requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('API FAQ requested');
 
         return view('api.faq');
     }

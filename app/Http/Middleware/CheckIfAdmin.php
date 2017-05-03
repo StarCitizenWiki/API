@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class CheckIfAdmin
@@ -37,7 +36,7 @@ class CheckIfAdmin
             }
         }
 
-        Log::info('Unauthenticated User tried to access Admin area', [
+        App::make('Log')->info('Unauthenticated User tried to access Admin area', [
             'user_id' => Auth::id(),
         ]);
 

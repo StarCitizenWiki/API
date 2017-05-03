@@ -20,9 +20,7 @@ class ShipsController extends Controller
      */
     public function showShipsView() : View
     {
-        Log::debug('Ships View requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Ships View requested');
 
         return view('admin.ships.index')->with(
             'ships',

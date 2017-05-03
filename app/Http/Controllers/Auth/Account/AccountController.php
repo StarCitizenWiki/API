@@ -8,7 +8,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class AccountController
@@ -24,8 +23,7 @@ class AccountController extends Controller
      */
     public function showAccountView() : View
     {
-        Log::debug('User requested Account View', [
-            'method' => __METHOD__,
+        $this->logger->debug('User requested Account View', [
             'user_id' => Auth::id(),
         ]);
 
@@ -42,8 +40,7 @@ class AccountController extends Controller
      */
     public function showEditAccountView() : View
     {
-        Log::debug('User requested Edit Account View', [
-            'method' => __METHOD__,
+        $this->logger->debug('User requested Edit Account View', [
             'user_id' => Auth::id(),
         ]);
 
@@ -63,7 +60,7 @@ class AccountController extends Controller
         $user = Auth::user();
         Auth::logout();
         $user->delete();
-        Log::info('Account deleted', [
+        $this->logger->info('Account deleted', [
             'id' => $user->id,
             'email' => $user->email,
         ]);

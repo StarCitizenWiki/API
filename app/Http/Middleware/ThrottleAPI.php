@@ -7,7 +7,7 @@ use App\Models\User;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 
 /**
  * Class ThrottleAPI
@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Log;
  */
 class ThrottleAPI extends ThrottleRequests
 {
+    private $logger;
+
     /**
      * ThrottleAPI constructor.
      *
@@ -25,6 +27,7 @@ class ThrottleAPI extends ThrottleRequests
     public function __construct(RateLimiter $limiter)
     {
         parent::__construct($limiter);
+        $this->logger = App::make('Log');
     }
 
     /**
@@ -39,35 +42,29 @@ class ThrottleAPI extends ThrottleRequests
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        Log::debug('Getting User From Request', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Getting User From Request');
 
         $user = User::where('api_token', $request->get(AUTH_KEY_FIELD_NAME, null))->first();
 
         if (!is_null($user)) {
             if ($user->whitelisted) {
-                Log::debug('User is Whitelisted, no Throttling', [
-                    'method' => __METHOD__,
-                ]);
+                $this->logger->debug('User is Whitelisted, no Throttling');
 
                 return $next($request);
             }
         } else {
-            Log::debug('No User for key found', [
-                'method' => __METHOD__,
+            $this->logger->debug('No User for key found', [
                 'api_key' => $request->get(AUTH_KEY_FIELD_NAME),
             ]);
         }
 
         try {
             $rpm = $this->determineRequestsPerMinute($user);
-            Log::debug('Got RPM for Request', [
-                'method' => __METHOD__,
+            $this->logger->debug('Got RPM for Request', [
                 'rpm' => $rpm,
             ]);
         } catch (UserBlacklistedException $e) {
-            Log::info('Request from blacklisted User', [
+            $this->logger->info('Request from blacklisted User', [
                 'user_id' => $user->id,
                 'request_url' => $request->getUri(),
             ]);

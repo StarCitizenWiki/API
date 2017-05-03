@@ -40,6 +40,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('guest');
     }
 
@@ -50,9 +51,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        Log::debug('Registration Form requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Registration Form requested');
 
         return redirect(AUTH_HOME);
     }
@@ -78,7 +77,7 @@ class RegisterController extends Controller
             'last_login' => date('Y-m-d H:i:s'),
         ]);
 
-        Log::info('Account created', [
+        $this->logger->info('Account created', [
             'id' => $user->id,
             'email' => $user->email,
         ]);

@@ -32,6 +32,7 @@ class StatsAPIController extends Controller
      */
     public function __construct(Request $request, StatsRepository $repository)
     {
+        parent::__construct();
         $this->repository = $repository;
         $this->request = $request;
     }
@@ -43,9 +44,7 @@ class StatsAPIController extends Controller
      */
     public function getFunds()
     {
-        Log::debug('Funds Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Funds Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -57,9 +56,7 @@ class StatsAPIController extends Controller
      */
     public function getFleet()
     {
-        Log::debug('Fleet Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Fleet Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -71,9 +68,7 @@ class StatsAPIController extends Controller
      */
     public function getFans()
     {
-        Log::debug('Fans Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Fans Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -87,9 +82,7 @@ class StatsAPIController extends Controller
      */
     public function getAll(Request $request)
     {
-        Log::debug('All Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('All Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }

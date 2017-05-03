@@ -14,14 +14,12 @@ if (!function_exists('validate_array')) {
      */
     function validate_array(array $data, array $rules, \Illuminate\Http\Request $request)
     {
-        \Illuminate\Support\Facades\Log::debug('Validated data', [
-            'method' => __METHOD__,
+        \Illuminate\Support\Facades\App::make('Log')->debug('Validated data', [
             'data' => $data,
             'rules' => $rules,
         ]);
 
-        $validator = resolve(\Illuminate\Contracts\Validation\Factory::class)
-            ->make($data, $rules);
+        $validator = resolve(\Illuminate\Contracts\Validation\Factory::class)->make($data, $rules);
 
         if ($validator->fails()) {
             throw new \Illuminate\Validation\ValidationException($validator);

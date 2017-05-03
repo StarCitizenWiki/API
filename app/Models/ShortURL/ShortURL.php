@@ -9,8 +9,8 @@ use App\Exceptions\UserBlacklistedException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -68,9 +68,7 @@ class ShortURL extends Model
      */
     public static function createShortURL(array $data) : ShortURL
     {
-        Log::debug('Creating ShortURL', [
-            'method' => __METHOD__,
-        ]);
+        App::make('Log')->debug('Creating ShortURL');
         ShortURL::checkURLinWhitelist($data['url']);
         ShortURL::checkHashNameInDB($data['hash_name']);
 
@@ -85,7 +83,7 @@ class ShortURL extends Model
         $url->expires = $data['expires'];
         $url->save();
 
-        Log::info('URL Shortened', [
+        App::make('Log')->info('URL Shortened', [
             'data' => $data,
         ]);
 
@@ -103,8 +101,7 @@ class ShortURL extends Model
      */
     public static function updateShortURL(array $data) : bool
     {
-        Log::debug('Updating ShortURL', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Updating ShortURL', [
             'update_data' => $data,
         ]);
         ShortURL::checkURLinWhitelist($data['url']);
@@ -124,7 +121,7 @@ class ShortURL extends Model
             }
         }
 
-        Log::info('ShortURL updated', [
+        App::make('Log')->info('ShortURL updated', [
             'changes' => $changes,
         ]);
 
@@ -149,8 +146,7 @@ class ShortURL extends Model
     {
         $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
 
-        Log::debug('URL resolved', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('URL resolved', [
             'id' => $url->id,
             'hash_name' => $url->hash_name,
             'url' => $url->url,
@@ -178,8 +174,7 @@ class ShortURL extends Model
      */
     public static function sanitizeURL($url) : String
     {
-        Log::debug('Sanitizing URL', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Sanitizing URL', [
             'url' => $url,
         ]);
         $url = filter_var($url, FILTER_SANITIZE_URL);
@@ -187,8 +182,7 @@ class ShortURL extends Model
             $url .= '/';
         }
 
-        Log::debug('Sanitized URL', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Sanitized URL', [
             'url' => $url,
         ]);
 
@@ -206,19 +200,14 @@ class ShortURL extends Model
      */
     private static function checkHashNameInDB($hashName) : void
     {
-        Log::debug('Checking if hash is in DB', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Checking if hash is in DB', [
             'hash' => $hashName,
         ]);
         if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
-            Log::debug('Hash is in DB', [
-                'method' => __METHOD__,
-            ]);
+            App::make('Log')->debug('Hash is in DB');
             throw new HashNameAlreadyAssignedException('Name already assigned');
         }
-        Log::debug('Hash is not in DB', [
-            'method' => __METHOD__,
-        ]);
+        App::make('Log')->debug('Hash is not in DB');
     }
 
     /**
@@ -235,20 +224,15 @@ class ShortURL extends Model
         $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
 
-        Log::debug('Checking if URL is whitelisted', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Checking if URL is whitelisted', [
             'url' => $url,
         ]);
 
         if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {
-            Log::debug('URL is not whitelisted', [
-                'method' => __METHOD__,
-            ]);
+            App::make('Log')->debug('URL is not whitelisted');
             throw new URLNotWhitelistedException('Url '.$url.' is not whitelisted');
         }
-        Log::debug('URL is whitelisted', [
-            'method' => __METHOD__,
-        ]);
+        App::make('Log')->debug('URL is whitelisted');
     }
 
     /**
@@ -258,15 +242,12 @@ class ShortURL extends Model
      */
     private static function generateShortURLHash() : String
     {
-        Log::debug('Generating Hash', [
-            'method' => __METHOD__,
-        ]);
+        App::make('Log')->debug('Generating Hash');
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);
         } while (ShortURL::where('hash_name', '=', $hashName)->count() > 0);
 
-        Log::debug('Generated Hash', [
-            'method' => __METHOD__,
+        App::make('Log')->debug('Generated Hash', [
             'hash' => $hashName,
         ]);
 

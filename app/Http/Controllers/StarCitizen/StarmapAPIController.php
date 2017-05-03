@@ -34,6 +34,7 @@ class StarmapAPIController extends Controller
      */
     public function __construct(StarmapRepository $repository)
     {
+        parent::__construct();
         $this->repository = $repository;
     }
 
@@ -48,8 +49,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System requested', [
-            'method' => __METHOD__,
+        $this->logger->debug('Starmap System requested', [
             'name' => $name,
         ]);
 
@@ -74,9 +74,7 @@ class StarmapAPIController extends Controller
      */
     public function getSystemList(Request $request)
     {
-        Log::debug('Starmap System List requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('Starmap System List requested');
 
         $this->repository->getSystemList();
         $this->repository->transformer->addFilters($request);
@@ -103,8 +101,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System Asteroidbelts requested', [
-            'method' => __METHOD__,
+        $this->logger->debug('Starmap System Asteroidbelts requested', [
             'name' => $name,
         ]);
 

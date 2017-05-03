@@ -28,6 +28,7 @@ class ShipsAPIController extends Controller
      */
     public function __construct(ShipsRepository $repository)
     {
+        parent::__construct();
         $this->repository = $repository;
     }
 
@@ -41,8 +42,7 @@ class ShipsAPIController extends Controller
      */
     public function getShip(Request $request, String $name)
     {
-        Log::debug('Ship requested', [
-            'method' => __METHOD__,
+        $this->logger->debug('Ship requested', [
             'name' => $name,
         ]);
 
@@ -65,9 +65,7 @@ class ShipsAPIController extends Controller
      */
     public function getShipList(Request $request)
     {
-        Log::debug('ShipList requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->logger->debug('ShipList requested');
 
         $this->repository->getShipList();
         $this->repository->transformer->addFilters($request);
@@ -89,8 +87,7 @@ class ShipsAPIController extends Controller
      */
     public function searchShips(Request $request)
     {
-        Log::debug('Ship search requested', [
-            'method' => __METHOD__,
+        $this->logger->debug('Ship search requested', [
             'query' => $request->get('query'),
         ]);
 
