@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 /**

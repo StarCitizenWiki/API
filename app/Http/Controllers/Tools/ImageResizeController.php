@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 /**

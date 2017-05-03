@@ -11,7 +11,6 @@ use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StarmapRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class StarmapAPIController

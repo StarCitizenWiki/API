@@ -5,7 +5,6 @@ namespace App\Http\Controllers\StarCitizenDB;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizenDB\ShipsRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class ShipsAPIController

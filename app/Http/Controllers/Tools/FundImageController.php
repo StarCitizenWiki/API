@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
