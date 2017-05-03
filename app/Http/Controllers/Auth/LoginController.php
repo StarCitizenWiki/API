@@ -53,7 +53,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        $this->logger->debug('User logged out', [
+        $this->logger::debug('User logged out', [
             'user_id' => Auth::id(),
         ]);
 
@@ -77,7 +77,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if ($user->isBlacklisted()) {
-            $this->logger->info('Blacklisted User tried to login', [
+            $this->logger::notice('Blacklisted User tried to login', [
                 'user_id' => $user->id,
             ]);
             Auth::logout();

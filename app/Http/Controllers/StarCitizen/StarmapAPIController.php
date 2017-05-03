@@ -49,7 +49,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        $this->logger->debug('Starmap System requested', [
+        $this->logger::debug('Starmap System requested', [
             'name' => $name,
         ]);
 
@@ -74,7 +74,7 @@ class StarmapAPIController extends Controller
      */
     public function getSystemList(Request $request)
     {
-        $this->logger->debug('Starmap System List requested');
+        $this->logger::debug('Starmap System List requested');
 
         $this->repository->getSystemList();
         $this->repository->transformer->addFilters($request);
@@ -101,7 +101,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        $this->logger->debug('Starmap System Asteroidbelts requested', [
+        $this->logger::debug('Starmap System Asteroidbelts requested', [
             'name' => $name,
         ]);
 

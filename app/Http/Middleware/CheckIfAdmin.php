@@ -36,7 +36,7 @@ class CheckIfAdmin
             }
         }
 
-        App::make('Log')->info('Unauthenticated User tried to access Admin area', [
+        App::make('Log')::info('Unauthenticated User tried to access Admin area', [
             'user_id' => Auth::id(),
         ]);
 

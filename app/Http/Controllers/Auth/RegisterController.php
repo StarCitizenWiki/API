@@ -51,7 +51,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        $this->logger->debug('Registration Form requested');
+        $this->logger::debug('Registration Form requested');
 
         return redirect(AUTH_HOME);
     }
@@ -77,7 +77,7 @@ class RegisterController extends Controller
             'last_login' => date('Y-m-d H:i:s'),
         ]);
 
-        $this->logger->info('Account created', [
+        $this->logger::notice('Account created', [
             'id' => $user->id,
             'email' => $user->email,
         ]);

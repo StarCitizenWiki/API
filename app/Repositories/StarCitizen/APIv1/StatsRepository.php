@@ -37,7 +37,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     {
         $requestBody = $this->getRequestBody();
 
-        $this->logger->debug('Requesting CrowdfundStats', [
+        $this->logger::debug('Requesting CrowdfundStats', [
             'request_body' => $requestBody,
         ]);
 
@@ -57,7 +57,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getFunds() : StatsRepository
     {
-        $this->logger->debug('Getting Fund Stats');
+        $this->logger::debug('Getting Fund Stats');
         $this->getFans = false;
         $this->getFleet = false;
         $this->withTransformer(FundsTransformer::class);
@@ -72,7 +72,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getFans() : StatsRepository
     {
-        $this->logger->debug('Getting Fans Stats');
+        $this->logger::debug('Getting Fans Stats');
         $this->getFleet = false;
         $this->getFunds = false;
         $this->withTransformer(FansTransformer::class);
@@ -87,7 +87,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getFleet() : StatsRepository
     {
-        $this->logger->debug('Getting Fleet Stats');
+        $this->logger::debug('Getting Fleet Stats');
         $this->getFans = false;
         $this->getFunds = false;
         $this->withTransformer(FleetTransformer::class);
@@ -102,7 +102,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function getAll() : StatsRepository
     {
-        $this->logger->debug('Getting All Stats');
+        $this->logger::debug('Getting All Stats');
         $this->withTransformer(StatsTransformer::class);
 
         return $this->getCrowdfundStats();
@@ -115,7 +115,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function lastHours() : StatsRepository
     {
-        $this->logger->debug('Getting Stats for last Hours');
+        $this->logger::debug('Getting Stats for last Hours');
         $this->chartType = 'hour';
 
         return $this->getAll();
@@ -128,7 +128,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function lastDays() : StatsRepository
     {
-        $this->logger->debug('Getting Stats for last Days');
+        $this->logger::debug('Getting Stats for last Days');
         $this->chartType = 'day';
 
         return $this->getAll();
@@ -141,7 +141,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function lastWeeks() : StatsRepository
     {
-        $this->logger->debug('Getting Stats for last Weeks');
+        $this->logger::debug('Getting Stats for last Weeks');
         $this->chartType = 'week';
 
         return $this->getAll();
@@ -154,7 +154,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     public function lastMonths() : StatsRepository
     {
-        $this->logger->debug('Getting Stats for last Months');
+        $this->logger::debug('Getting Stats for last Months');
         $this->chartType = 'month';
 
         return $this->getAll();
@@ -167,7 +167,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      */
     private function getRequestBody() : array
     {
-        $this->logger->debug('Starting Request Body Assembly');
+        $this->logger::debug('Starting Request Body Assembly');
         $requestContent = [
             'chart' => $this->chartType,
         ];
@@ -194,7 +194,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
             'json' => $requestContent,
         ];
 
-        $this->logger->debug('Finished assembling Request Body');
+        $this->logger::debug('Finished assembling Request Body');
 
         return $requestBody;
     }

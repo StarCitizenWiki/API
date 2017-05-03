@@ -68,7 +68,7 @@ class ShortURL extends Model
      */
     public static function createShortURL(array $data) : ShortURL
     {
-        App::make('Log')->debug('Creating ShortURL');
+        App::make('Log')::debug('Creating ShortURL');
         ShortURL::checkURLinWhitelist($data['url']);
         ShortURL::checkHashNameInDB($data['hash_name']);
 
@@ -83,7 +83,7 @@ class ShortURL extends Model
         $url->expires = $data['expires'];
         $url->save();
 
-        App::make('Log')->info('URL Shortened', [
+        App::make('Log')::info('URL Shortened', [
             'data' => $data,
         ]);
 
@@ -101,7 +101,7 @@ class ShortURL extends Model
      */
     public static function updateShortURL(array $data) : bool
     {
-        App::make('Log')->debug('Updating ShortURL', [
+        App::make('Log')::debug('Updating ShortURL', [
             'update_data' => $data,
         ]);
         ShortURL::checkURLinWhitelist($data['url']);
@@ -121,7 +121,7 @@ class ShortURL extends Model
             }
         }
 
-        App::make('Log')->info('ShortURL updated', [
+        App::make('Log')::info('ShortURL updated', [
             'changes' => $changes,
         ]);
 
@@ -146,7 +146,7 @@ class ShortURL extends Model
     {
         $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
 
-        App::make('Log')->debug('URL resolved', [
+        App::make('Log')::debug('URL resolved', [
             'id' => $url->id,
             'hash_name' => $url->hash_name,
             'url' => $url->url,
@@ -174,7 +174,7 @@ class ShortURL extends Model
      */
     public static function sanitizeURL($url) : String
     {
-        App::make('Log')->debug('Sanitizing URL', [
+        App::make('Log')::debug('Sanitizing URL', [
             'url' => $url,
         ]);
         $url = filter_var($url, FILTER_SANITIZE_URL);
@@ -182,7 +182,7 @@ class ShortURL extends Model
             $url .= '/';
         }
 
-        App::make('Log')->debug('Sanitized URL', [
+        App::make('Log')::debug('Sanitized URL', [
             'url' => $url,
         ]);
 
@@ -200,14 +200,14 @@ class ShortURL extends Model
      */
     private static function checkHashNameInDB($hashName) : void
     {
-        App::make('Log')->debug('Checking if hash is in DB', [
+        App::make('Log')::debug('Checking if hash is in DB', [
             'hash' => $hashName,
         ]);
         if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
-            App::make('Log')->debug('Hash is in DB');
+            App::make('Log')::debug('Hash is in DB');
             throw new HashNameAlreadyAssignedException('Name already assigned');
         }
-        App::make('Log')->debug('Hash is not in DB');
+        App::make('Log')::debug('Hash is not in DB');
     }
 
     /**
@@ -224,15 +224,15 @@ class ShortURL extends Model
         $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
 
-        App::make('Log')->debug('Checking if URL is whitelisted', [
+        App::make('Log')::debug('Checking if URL is whitelisted', [
             'url' => $url,
         ]);
 
         if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {
-            App::make('Log')->debug('URL is not whitelisted');
+            App::make('Log')::debug('URL is not whitelisted');
             throw new URLNotWhitelistedException('Url '.$url.' is not whitelisted');
         }
-        App::make('Log')->debug('URL is whitelisted');
+        App::make('Log')::debug('URL is whitelisted');
     }
 
     /**
@@ -242,12 +242,12 @@ class ShortURL extends Model
      */
     private static function generateShortURLHash() : String
     {
-        App::make('Log')->debug('Generating Hash');
+        App::make('Log')::debug('Generating Hash');
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);
         } while (ShortURL::where('hash_name', '=', $hashName)->count() > 0);
 
-        App::make('Log')->debug('Generated Hash', [
+        App::make('Log')::debug('Generated Hash', [
             'hash' => $hashName,
         ]);
 

@@ -23,7 +23,7 @@ class AccountController extends Controller
      */
     public function showAccountView() : View
     {
-        $this->logger->debug('User requested Account View', [
+        $this->logger::debug('User requested Account View', [
             'user_id' => Auth::id(),
         ]);
 
@@ -40,9 +40,11 @@ class AccountController extends Controller
      */
     public function showEditAccountView() : View
     {
-        $this->logger->debug('User requested Edit Account View', [
+        $this->logger::debug('User requested Edit Account View', [
             'user_id' => Auth::id(),
         ]);
+
+        $this->logger::error('text');
 
         return view('auth.account.edit')->with(
             'user',
@@ -60,7 +62,7 @@ class AccountController extends Controller
         $user = Auth::user();
         Auth::logout();
         $user->delete();
-        $this->logger->info('Account deleted', [
+        $this->logger::notice('Account deleted', [
             'id' => $user->id,
             'email' => $user->email,
         ]);

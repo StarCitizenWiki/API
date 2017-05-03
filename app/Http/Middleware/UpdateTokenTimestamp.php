@@ -33,7 +33,7 @@ class UpdateTokenTimestamp
                 $user = User::where('api_token', $key)->firstOrFail();
                 $user->api_token_last_used = date('Y-m-d H:i:s');
                 $user->save();
-                App::make('Log')->debug('Updated Token Last Used', [
+                App::make('Log')::debug('Updated Token Last Used', [
                     'user_id' => $user->id,
                 ]);
                 APIRequests::create([
@@ -41,7 +41,7 @@ class UpdateTokenTimestamp
                     'request_uri' => $request->path(),
                 ]);
             } catch (ModelNotFoundException $e) {
-                App::make('Log')->info('Provided Api Key has no associated user', [
+                App::make('Log')::info('Provided Api Key has no associated user', [
                     'api_token' => $key,
                 ]);
             }

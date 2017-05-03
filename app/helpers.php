@@ -14,7 +14,7 @@ if (!function_exists('validate_array')) {
      */
     function validate_array(array $data, array $rules, \Illuminate\Http\Request $request)
     {
-        \Illuminate\Support\Facades\App::make('Log')->debug('Validated data', [
+        \Illuminate\Support\Facades\App::make('Log')::debug('Validated data', [
             'data' => $data,
             'rules' => $rules,
         ]);

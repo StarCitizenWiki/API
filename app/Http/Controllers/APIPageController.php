@@ -19,7 +19,7 @@ class APIPageController extends Controller
      */
     public function showAPIView() : View
     {
-        $this->logger->debug('API Index requested');
+        $this->logger::debug('API Index requested');
 
         return view('api.index');
     }
@@ -31,7 +31,7 @@ class APIPageController extends Controller
      */
     public function showFAQView() : View
     {
-        $this->logger->debug('API FAQ requested');
+        $this->logger::debug('API FAQ requested');
 
         return view('api.faq');
     }

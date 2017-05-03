@@ -45,7 +45,7 @@ class AddAPIHeaders
         $response->header("Connection", "keep-alive");
         $response->header("X-SCW-API-Version", API_VERSION);
 
-        App::make('Log')->debug('Added API Headers', [
+        App::make('Log')::debug('Added API Headers', [
             'request_url' => $request->fullUrl(),
         ]);
 

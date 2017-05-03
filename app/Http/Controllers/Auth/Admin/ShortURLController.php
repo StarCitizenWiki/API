@@ -30,7 +30,7 @@ class ShortURLController extends Controller
      */
     public function showURLsListView() : View
     {
-        $this->logger->debug('ShortURL List View requested');
+        $this->logger::debug('ShortURL List View requested');
 
         return view('admin.shorturls.index')->with(
             'urls',
@@ -47,7 +47,7 @@ class ShortURLController extends Controller
      */
     public function showURLsListForUserView(int $id) : View
     {
-        $this->logger->debug('ShortURL List For User View requested', [
+        $this->logger::debug('ShortURL List For User View requested', [
             'user_id' => $id,
         ]);
 
@@ -64,7 +64,7 @@ class ShortURLController extends Controller
      */
     public function showURLWhitelistView() : View
     {
-        $this->logger->debug('ShortURL Whitelist List View requested');
+        $this->logger::debug('ShortURL Whitelist List View requested');
 
         return view('admin.shorturls.whitelists.index')->with(
             'urls',
@@ -79,7 +79,7 @@ class ShortURLController extends Controller
      */
     public function showAddURLWhitelistView() : View
     {
-        $this->logger->debug('Add ShortURL Whitelist View requested');
+        $this->logger::debug('Add ShortURL Whitelist View requested');
 
         return view('admin.shorturls.whitelists.add');
     }
@@ -96,7 +96,7 @@ class ShortURLController extends Controller
         try {
             $url = ShortURL::findOrFail($id);
 
-            $this->logger->debug('Edit ShortURL List View requested for URL', [
+            $this->logger::debug('Edit ShortURL List View requested for URL', [
                 'url' => $url->toArray(),
             ]);
 
@@ -104,7 +104,7 @@ class ShortURLController extends Controller
                         ->with('url', $url)
                         ->with('users', User::all());
         } catch (ModelNotFoundException $e) {
-            $this->logger->warning('URL not found', [
+            $this->logger::warning('URL not found', [
                 'id' => $id,
             ]);
         }
@@ -126,7 +126,7 @@ class ShortURLController extends Controller
         ]);
 
         $url = ShortURL::findOrFail($request->id);
-        $this->logger->info('URL deleted', [
+        $this->logger::notice('URL deleted', [
             'deleted_by' => Auth::id(),
             'url_id' => $url->id,
             'url' => $url->url,
@@ -151,7 +151,7 @@ class ShortURLController extends Controller
         ]);
 
         $url = ShortURLWhitelist::findOrFail($request->id);
-        $this->logger->info('Whitelist URL deleted', [
+        $this->logger::notice('Whitelist URL deleted', [
             'deleted_by' => Auth::id(),
             'url_id' => $url->id,
             'url' => $url->url,

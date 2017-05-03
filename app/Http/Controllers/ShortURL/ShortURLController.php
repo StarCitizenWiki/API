@@ -37,7 +37,7 @@ class ShortURLController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->logger->debug('Setting Transformer');
+        $this->logger::debug('Setting Transformer');
         $this->transformer = new ShortURLTransformer();
     }
 
@@ -48,7 +48,7 @@ class ShortURLController extends Controller
      */
     public function showShortURLView() : View
     {
-        $this->logger->debug('ShortURL Index requested');
+        $this->logger::debug('ShortURL Index requested');
 
         return view('shorturl.index')->with(
             'whitelistedURLs',
@@ -65,7 +65,7 @@ class ShortURLController extends Controller
      */
     public function showResolveView() : View
     {
-        $this->logger->debug('ShortURL Resolve View requested');
+        $this->logger::debug('ShortURL Resolve View requested');
 
         return view('shorturl.resolve');
     }
@@ -79,7 +79,7 @@ class ShortURLController extends Controller
      */
     public function resolveAndRedirect(String $hash)
     {
-        $this->logger->debug('Trying to resolve URL hash', [
+        $this->logger::debug('Trying to resolve URL hash', [
             'hash' => $hash,
         ]);
         $url = $this->getURLRedirectIfException('short_url_index', $hash);
@@ -100,7 +100,7 @@ class ShortURLController extends Controller
      */
     public function resolveAndDisplay(Request $request)
     {
-        $this->logger->debug('Trying to unshorten URL', [
+        $this->logger::debug('Trying to unshorten URL', [
             'url' => $request->get('url'),
         ]);
 
@@ -115,7 +115,7 @@ class ShortURLController extends Controller
             ($url['host'] != config('app.shorturl_url')) ||
             !isset($url['path'])
         ) {
-            $this->logger->info('URL is invalid', [
+            $this->logger::notice('URL is invalid', [
                 'url' => $request->get('url'),
             ]);
 
@@ -150,7 +150,7 @@ class ShortURLController extends Controller
             'hash_name' => 'required|alpha_dash',
         ]);
 
-        $this->logger->debug('Resolving Hash', [
+        $this->logger::debug('Resolving Hash', [
             'hash' => $request->get('hash_name'),
         ]);
 
@@ -160,7 +160,7 @@ class ShortURLController extends Controller
             $url = [];
         }
 
-        $this->logger->debug('Hash Resolved', [
+        $this->logger::debug('Hash Resolved', [
             'url' => (array) $url,
         ]);
 
@@ -186,7 +186,7 @@ class ShortURLController extends Controller
             'expires' => $request->get('expires'),
         ];
 
-        $this->logger->debug('Creating ShortURL', [
+        $this->logger::debug('Creating ShortURL', [
             'data' => $data,
         ]);
 
@@ -231,7 +231,7 @@ class ShortURLController extends Controller
      */
     public function createAndRedirect(Request $request)
     {
-        $this->logger->debug('Creating ShortURL');
+        $this->logger::debug('Creating ShortURL');
         try {
             $url = $this->create($request);
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException | ExpiredException $e) {

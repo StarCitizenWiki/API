@@ -30,7 +30,7 @@ class ImageResizeController extends Controller
             ],
         ];
 
-        $this->logger->debug('Image Resizer requested');
+        $this->logger::debug('Image Resizer requested');
 
         return view('tools.imageresizer', compact('imageResizeSettings'));
     }

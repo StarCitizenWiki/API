@@ -28,15 +28,6 @@ class Log extends \Illuminate\Support\Facades\Log
     }
 
     /**
-     * @param mixed $message
-     * @param array $context
-     */
-    public static function info($message, $context = [])
-    {
-        parent::info($message, $context);
-    }
-
-    /**
      * Extend default debug Function to include Class and Method name
      *
      * @param mixed $message

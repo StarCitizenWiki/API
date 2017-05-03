@@ -27,7 +27,7 @@ class AdminController extends Controller
      */
     public function showDashboardView() : View
     {
-        $this->logger->debug('Admin Dashboard View requested');
+        $this->logger::debug('Admin Dashboard View requested');
         $today = Carbon::today()->toDateString();
 
         return view('admin.dashboard')
@@ -49,7 +49,7 @@ class AdminController extends Controller
      */
     public function showLogsView(Request $request)
     {
-        $this->logger->debug('Admin Logs View requested');
+        $this->logger::debug('Admin Logs View requested');
 
         if ($request->input('l')) {
             LaravelLogViewer::setFile(base64_decode($request->input('l')));
@@ -72,7 +72,7 @@ class AdminController extends Controller
      */
     public function showRoutesView() : View
     {
-        $this->logger->debug('Admin Routes View requested');
+        $this->logger::debug('Admin Routes View requested');
 
         return view('admin.routes.index');
     }

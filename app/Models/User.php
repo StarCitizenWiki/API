@@ -110,7 +110,7 @@ class User extends Authenticatable
             }
         }
 
-        App::make('Log')->info('User Account updated', [
+        App::make('Log')::info('User Account updated', [
             'changes' => $changes,
         ]);
 
@@ -125,7 +125,7 @@ class User extends Authenticatable
     public function isAdmin() : bool
     {
         $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
-        App::make('Log')->debug('Checked if User is Admin', [
+        App::make('Log')::debug('Checked if User is Admin', [
             'id' => $this->id,
             'admin' => $isAdmin,
         ]);
@@ -141,7 +141,7 @@ class User extends Authenticatable
     public function isWhitelisted() : bool
     {
         $whitelisted = $this->whitelisted == 1;
-        App::make('Log')->debug('Checked if User is whitelisted', [
+        App::make('Log')::debug('Checked if User is whitelisted', [
             'id' => $this->id,
             'whitelisted' => $whitelisted,
         ]);
@@ -157,7 +157,7 @@ class User extends Authenticatable
     public function isBlacklisted() : bool
     {
         $blacklisted = $this->blacklisted == 1;
-        App::make('Log')->debug('Checked if User is blacklisted', [
+        App::make('Log')::debug('Checked if User is blacklisted', [
             'id' => $this->id,
             'blacklisted' => $blacklisted,
         ]);
@@ -172,7 +172,7 @@ class User extends Authenticatable
      */
     public function shortURLs()
     {
-        App::make('Log')->debug('Requested Users ShortURLs', [
+        App::make('Log')::debug('Requested Users ShortURLs', [
             'id' => Auth::id(),
         ]);
 

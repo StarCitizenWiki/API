@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function showUsersListView()
     {
-        $this->logger->debug('Users List View requested');
+        $this->logger::debug('Users List View requested');
 
         return view('admin.users.index')->with(
             'users',
@@ -45,14 +45,14 @@ class UserController extends Controller
         try {
             $user = User::withTrashed()->findOrFail($id);
 
-            $this->logger->debug('Edit User View for User requested');
+            $this->logger::debug('Edit User View for User requested');
 
             return view('admin.users.edit')->with(
                 'user',
                 $user
             );
         } catch (ModelNotFoundException $e) {
-            $this->logger->warning('User not found', [
+            $this->logger::warning('User not found', [
                 'id' => $id,
             ]);
         }
@@ -69,7 +69,7 @@ class UserController extends Controller
      */
     public function showRequestsView(int $id)
     {
-        $this->logger->debug('Users Requests View requested');
+        $this->logger::debug('Users Requests View requested');
 
         return view('admin.users.requests')->with(
             'requests',
@@ -92,7 +92,7 @@ class UserController extends Controller
 
         try {
             $user = User::findOrFail($request->id);
-            $this->logger->info('Account deleted', [
+            $this->logger::notice('Account deleted', [
                 'account_id' => $request->get('id'),
                 'deleted_by' => Auth::id(),
             ]);
@@ -120,7 +120,7 @@ class UserController extends Controller
 
         try {
             $user = User::withTrashed()->findOrFail($request->id);
-            $this->logger->info('Account restored', [
+            $this->logger::notice('Account restored', [
                 'account_id'  => $request->get('id'),
                 'restored_by' => Auth::id(),
             ]);

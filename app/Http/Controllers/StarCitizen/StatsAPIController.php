@@ -44,7 +44,7 @@ class StatsAPIController extends Controller
      */
     public function getFunds()
     {
-        $this->logger->debug('Funds Stats requested');
+        $this->logger::debug('Funds Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -56,7 +56,7 @@ class StatsAPIController extends Controller
      */
     public function getFleet()
     {
-        $this->logger->debug('Fleet Stats requested');
+        $this->logger::debug('Fleet Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -68,7 +68,7 @@ class StatsAPIController extends Controller
      */
     public function getFans()
     {
-        $this->logger->debug('Fans Stats requested');
+        $this->logger::debug('Fans Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -82,7 +82,7 @@ class StatsAPIController extends Controller
      */
     public function getAll(Request $request)
     {
-        $this->logger->debug('All Stats requested');
+        $this->logger::debug('All Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }

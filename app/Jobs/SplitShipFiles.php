@@ -64,7 +64,7 @@ class SplitShipFiles implements ShouldQueue
      */
     public function handle() : void
     {
-        App::make('Log')->info('Starting Split Ship Files Job');
+        App::make('Log')::info('Starting Split Ship Files Job');
         foreach (File::allFiles(config('filesystems.disks.scdb_ships_base.root')) as $ship) {
             $this->setContent((String) $ship);
 
@@ -72,24 +72,24 @@ class SplitShipFiles implements ShouldQueue
                 $this->checkIfShipHasNameField();
                 $this->getDataForBaseVersion();
                 if ($this->checkIfShipHasModifications()) {
-                    App::make('Log')->debug('Ship has Modifications');
+                    App::make('Log')::debug('Ship has Modifications');
                     foreach ($this->content['Modifications'] as $modification) {
                         if ($this->checkIfModificationIsValid($modification)) {
                             $this->content = $modification;
                             $this->prepareModificationArray();
-                            App::make('Log')->debug('Mod: '.$this->content['@name']);
+                            App::make('Log')::debug('Mod: '.$this->content['@name']);
                             $this->getDataForModifications();
 
                         }
                     }
                 }
             } catch (InvalidDataException $e) {
-                App::make('Log')->warning($e->getMessage(), [
+                App::make('Log')::warning($e->getMessage(), [
                     'file' => (String) $ship,
                 ]);
             }
         }
-        App::make('Log')->info('Finished Split Ship Files Job');
+        App::make('Log')::info('Finished Split Ship Files Job');
     }
 
     /**
@@ -119,7 +119,7 @@ class SplitShipFiles implements ShouldQueue
     private function getDataForBaseVersion() : void
     {
         $this->getShipNameForBaseVersion();
-        App::make('Log')->info('Processing '.$this->content['processedName']);
+        App::make('Log')::info('Processing '.$this->content['processedName']);
 
         $baseVersion = $this->content;
         unset($baseVersion['Modifications']);
@@ -212,7 +212,7 @@ class SplitShipFiles implements ShouldQueue
     private function getDataForModifications() : void
     {
         $this->getShipNameForModification();
-        App::make('Log')->info('Processing Modification '.$this->content['processedName']);
+        App::make('Log')::info('Processing Modification '.$this->content['processedName']);
 
         $collectedData = $this->fractalManager->item($this->content)->toArray()['data'];
 
@@ -296,7 +296,7 @@ class SplitShipFiles implements ShouldQueue
     {
         $this->prepareFilename($content);
 
-        App::make('Log')->info('Saving '.$content['name']);
+        App::make('Log')::info('Saving '.$content['name']);
         Storage::disk('scdb_ships_splitted')->put(
             $content['filename'],
             json_encode($content, JSON_PRETTY_PRINT)

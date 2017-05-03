@@ -34,7 +34,7 @@ class DownloadStarCitizenDBShips implements ShouldQueue
      */
     public function handle()
     {
-        App::make('Log')->info('Starting Ship Download Job');
+        App::make('Log')::info('Starting Ship Download Job');
         $client = new Client([
             'timeout' => 10.0,
         ]);
@@ -55,12 +55,12 @@ class DownloadStarCitizenDBShips implements ShouldQueue
                     self::STAR_CITIZEN_DB_URL.$url,
                     ['save_to' => $stream]
                 );
-                App::make('Log')->info('Downloading '.$fileName);
+                App::make('Log')::info('Downloading '.$fileName);
             }
         }
-        App::make('Log')->info('Ship Download Job Finished');
+        App::make('Log')::info('Ship Download Job Finished');
 
-        App::make('Log')->info('Dispatching Split Files Job');
+        App::make('Log')::info('Dispatching Split Files Job');
         dispatch(new SplitShipFiles());
     }
 }

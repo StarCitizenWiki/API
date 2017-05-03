@@ -49,7 +49,7 @@ class ShortURLWhitelist extends Model
             'internal' => $data['internal'],
         ]);
 
-        App::make('Log')->info('Whitelist URL added', [
+        App::make('Log')::info('Whitelist URL added', [
             'url' => $data['url'],
             'internal' => $data['internal'],
         ]);

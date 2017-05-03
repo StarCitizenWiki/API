@@ -50,7 +50,7 @@ trait BaseAPITrait
     public function __construct()
     {
         $this->logger = App::make('Log');
-        $this->logger->debug('Setting Guzzle Client');
+        $this->logger::debug('Setting Guzzle Client');
         $this->guzzleClient = new Client([
             'base_uri' => $this::API_URL,
             'timeout' => 3.0,
@@ -70,7 +70,7 @@ trait BaseAPITrait
      */
     public function request(String $requestMethod, String $uri, array $data = null) : Response
     {
-        $this->logger->debug('Starting Guzzle Request', [
+        $this->logger::debug('Starting Guzzle Request', [
             'uri' => $uri,
             'request_method' => $requestMethod,
             'data' => $data,
@@ -91,17 +91,17 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsValid() : bool
     {
-        $this->logger->debug('Checking if Response is valid');
+        $this->logger::debug('Checking if Response is valid');
         if ($this->checkIfResponseIsNotNull() &&
             $this->checkIfResponseIsNotEmpty() &&
             $this->checkIfResponseStatusIsOK() &&
             $this->checkIfResponseDataIsValid()
         ) {
-            $this->logger->debug('Response is valid');
+            $this->logger::debug('Response is valid');
 
             return true;
         }
-        $this->logger->debug('Response is not valid');
+        $this->logger::debug('Response is not valid');
         throw new InvalidDataException('Response Data is not valid');
     }
 
@@ -112,7 +112,7 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsNotNull() : bool
     {
-        $this->logger->debug('Checking if Response is not null', [
+        $this->logger::debug('Checking if Response is not null', [
             'null' => is_null($this->response),
         ]);
 
@@ -126,7 +126,7 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsNotEmpty() : bool
     {
-        $this->logger->debug('Checking if Response is not empty', [
+        $this->logger::debug('Checking if Response is not empty', [
             'empty' => empty($this->response),
         ]);
 
@@ -140,7 +140,7 @@ trait BaseAPITrait
      */
     private function checkIfResponseStatusIsOK() : bool
     {
-        $this->logger->debug('Checking if Response Status is 200', [
+        $this->logger::debug('Checking if Response Status is 200', [
             'status' => $this->response->getStatusCode(),
         ]);
 
@@ -168,7 +168,7 @@ trait BaseAPITrait
      */
     private function validateJSON(String $string) : bool
     {
-        $this->logger->debug('Checking if Parameter is valid JSON');
+        $this->logger::debug('Checking if Parameter is valid JSON');
         if (is_string($string)) {
             @json_decode($string);
 
@@ -200,7 +200,7 @@ trait BaseAPITrait
 
         $this->transformedResource->addMeta($metaData);
 
-        $this->logger->debug('Adding Metadata to Transformation', [
+        $this->logger::debug('Adding Metadata to Transformation', [
             'data' => $metaData,
         ]);
 
@@ -223,16 +223,16 @@ trait BaseAPITrait
      */
     private function validateAndSaveResponseBody() : void
     {
-        $this->logger->debug('Saving Response Body');
+        $this->logger::debug('Saving Response Body');
         $responseBody = (String) $this->response->getBody();
         if ($this->validateJSON($responseBody)) {
-            $this->logger->debug('Response Body is json');
+            $this->logger::debug('Response Body is json');
             $this->dataToTransform = json_decode($responseBody, true);
         } elseif (is_array($responseBody)) {
-            $this->logger->debug('Response Body is array');
+            $this->logger::debug('Response Body is array');
             $this->dataToTransform = $responseBody;
         } else {
-            $this->logger->warning('Response Body is neither json nor array');
+            $this->logger::warning('Response Body is neither json nor array');
             throw new InvalidDataException('Response Body is invalid');
         }
     }
