@@ -124,4 +124,51 @@ class DownloadStarmapData implements ShouldQueue
                 array_key_exists('resultset', $data['data']) &&
                 array_key_exists(0, $data['data']['resultset']);
     }
+
+    /**
+     * [WIP]
+     */
+    private function writeStarmapContentToDB() : void
+    {
+        $this->writeStarsystemsToDB();
+    }
+
+    private function writeStarsystemsToDB() : void
+    {
+        DB::table('starsystems')->insert([
+            'cig_id'                          => $this->starmapContent['data']['resultset']['id'],
+            'status'                          => $this->starmapContent['data']['resultset']['status'],
+            'cig_time_modified'               => $this->starmapContent['data']['resultset']['cig_time_modified'],
+            'type'                            => $this->starmapContent['data']['resultset']['type'],
+            'name'                            => $this->starmapContent['data']['resultset']['name'],
+            'position_x'                      => $this->starmapContent['data']['resultset']['position_x'],
+            'position_y'                      => $this->starmapContent['data']['resultset']['position_y'],
+            'position_z'                      => $this->starmapContent['data']['resultset']['position_z'],
+            'info_url'                        => $this->starmapContent['data']['resultset']['info_url'],
+            'habitable_zone_inner'            => $this->starmapContent['data']['resultset']['habitable_zone_inner'],
+            'habitable_zone_outer'            => $this->starmapContent['data']['resultset']['habitable_zone_outer'],
+            'frost_line'                      => $this->starmapContent['data']['resultset']['frost_line'],
+            'description'                     => $this->starmapContent['data']['resultset']['description'],
+            'shader_data_lightColor'          => $this->starmapContent['data']['resultset']['shader_data_lightColor'],
+            'shader_data_starfield_radius'    => $this->starmapContent['data']['resultset']['shader_data_starfield_radius'],
+            'shader_data_starfield_count'     => $this->starmapContent['data']['resultset']['shader_data_starfield_count'],
+            'shader_data_starfield_sizeMin'   => $this->starmapContent['data']['resultset']['shader_data_starfield_sizeMin'],
+            'shader_data_starfield_sizeMax'   => $this->starmapContent['data']['resultset']['shader_data_starfield_sizeMax'],
+            'shader_data_starfield_color1'    => $this->starmapContent['data']['resultset']['shader_data_starfield_color1'],
+            'shader_data_starfield_color2'    => $this->starmapContent['data']['resultset']['shader_data_starfield_color2'],
+            'shader_data_planetsSize_min'     => $this->starmapContent['data']['resultset']['shader_data_planetsSize_min'],
+            'shader_data_planetsSize_max'     => $this->starmapContent['data']['resultset']['shader_data_planetsSize_max'],
+            'shader_data_planetsSize_kFactor' => $this->starmapContent['data']['resultset']['shader_data_planetsSize_kFactor'],
+            'affiliation_id'                  => $this->starmapContent['data']['resultset']['affiliation_id'],
+            'affiliation_name'                => $this->starmapContent['data']['resultset']['affiliation_name'],
+            'affiliation_code'                => $this->starmapContent['data']['resultset']['affiliation_code'],
+            'affiliation_color'               => $this->starmapContent['data']['resultset']['affiliation_color'],
+            'affiliation_membership_id'       => $this->starmapContent['data']['resultset']['affiliation_membership_id'],
+            'aggregated_size'                 => $this->starmapContent['data']['resultset']['aggregated_size'],
+            'aggregated_population'           => $this->starmapContent['data']['resultset']['aggregated_population'],
+            'aggregated_economy'              => $this->starmapContent['data']['resultset']['aggregated_economy'],
+            'aggregated_danger'               => $this->starmapContent['data']['resultset']['aggregated_danger'],
+            'sourcedata'                      => $this->starmapContent['data']['resultset']['sourcedata']
+        ]);
+    }
 }
