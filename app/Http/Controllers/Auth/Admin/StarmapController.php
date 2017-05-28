@@ -33,6 +33,13 @@ class StarmapController extends Controller
         );
     }
 
+    public function showStarmapCelestialObjectView() : View
+    {
+        Log::debug('Starmap Celestial Objects View requested', [
+            'method' => __METHOD__,
+        ]);
+    }
+
     /**
      * @param String $code Starmap System Code
      *

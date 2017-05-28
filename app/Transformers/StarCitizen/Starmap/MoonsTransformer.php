@@ -11,15 +11,15 @@ use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
 /**
- * Class SystemTransformer
+ * Class MoonsTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class AsteroidbeltsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
+class MoonsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
 {
 
     /**
-     * Returns all Asteroidbelts of the System Data
+     * Returns all Moons of the System Data
      *
      * @param mixed $system System Data
      *

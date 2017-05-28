@@ -13,23 +13,24 @@ class CreateCelestialObjectsTable extends Migration
      */
     public function up()
     {
-        Schema::create('Celestial_Objects', function (Blueprint $table) {
+        Schema::create('celestial_objects', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->boolean('exclude')->default(false);
             $table->timestamps();
             $table->integer('cig_id');
+            $table->integer('cig_system_id');
             $table->dateTime('cig_time_modified');
             $table->enum('type', ['JUMPPOINT', 'STAR', 'ASTEROID_BELT', 'MANMADE', 'PLANET', 'LZ', 'SATELLITE']);
             $table->string('designation');
             $table->string('name')->nullable();
             $table->string('code');
-            $table->decimal('age');
-            $table->decimal('distance');
-            $table->decimal('latitude');
-            $table->decimal('longitude');
-            $table->decimal('axial_tilt');
+            $table->decimal('age')->nullable();
+            $table->decimal('distance')->nullable();
+            $table->decimal('latitude')->nullable();
+            $table->decimal('longitude')->nullable();
+            $table->decimal('axial_tilt')->nullable();
             $table->decimal('orbit_period')->nullable();
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->string('info_url')->nullable();
             $table->boolean('habitable')->nullable();
             $table->boolean('fairchanceact')->nullable();
@@ -41,20 +42,22 @@ class CreateCelestialObjectsTable extends Migration
             $table->integer('sensor_danger');
             //TODO Shader Data as Table ShaderData (see BACCHUS.STARS.BACCHUSA)
             $table->string('shader_data')->nullable();
-            $table->decimal('size');
+            $table->decimal('size')->nullable();
             $table->integer('parent_id')->nullable();
+            //TODO Subtype Data as Table Subtype (see BACCHUS.STARS.BACCHUSA)
             $table->integer('subtype_id')->nullable();
             $table->string('subtype_name')->nullable();
+            $table->string('subtype_type')->nullable();
 
             //TODO affiliation as new table
-            $table->integer('affiliation_id');
-            $table->string('affiliation_name');
-            $table->string('affiliation_code');
-            $table->string('affiliation_color');
-            $table->integer('affiliation_membership_id');
+            $table->integer('affiliation_id')->nullable();
+            $table->string('affiliation_name')->nullable();
+            $table->string('affiliation_code')->nullable();
+            $table->string('affiliation_color')->nullable();
+            $table->integer('affiliation_membership_id')->nullable();
 
             //TODO population as new table (content not defined yet)
-            $table->string('population');
+            $table->string('population')->nullable();
 
             $table->json('sourcedata');
         });

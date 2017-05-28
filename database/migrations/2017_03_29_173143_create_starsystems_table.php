@@ -27,21 +27,7 @@ class CreateStarsystemsTable extends Migration
             $table->decimal('position_y');
             $table->decimal('position_z');
             $table->string('info_url')->nullable();
-            $table->decimal('habitable_zone_inner');
-            $table->decimal('habitable_zone_outer');
-            $table->double('frost_line');
             $table->string('description');
-            //TODO Shader Data as Table ShaderData (see BACCHUS.STARS.BACCHUSA)
-            $table->string('shader_data_lightColor');
-            $table->string('shader_data_starfield_radius');
-            $table->string('shader_data_starfield_count');
-            $table->string('shader_data_starfield_sizeMin');
-            $table->string('shader_data_starfield_sizeMax');
-            $table->string('shader_data_starfield_color1');
-            $table->string('shader_data_starfield_color2');
-            $table->decimal('shader_data_planetsSize_min');
-            $table->decimal('shader_data_planetsSize_max');
-            $table->integer('shader_data_planetsSize_kFactor');
 
             //TODO affiliation as seperate table
             $table->integer('affiliation_id')->nullable();
@@ -56,6 +42,32 @@ class CreateStarsystemsTable extends Migration
             $table->integer('aggregated_danger');
 
             $table->json('sourcedata');
+
+            /* Additional Data:
+            $table->double('frost_line');
+            $table->decimal('habitable_zone_inner');
+            $table->decimal('habitable_zone_outer');
+
+            //TODO Shader Data as Table ShaderData (see BACCHUS.STARS.BACCHUSA)
+            $table->string('shader_data_lightColor');
+            $table->string('shader_data_starfield_radius');
+            $table->string('shader_data_starfield_count');
+            $table->string('shader_data_starfield_sizeMin');
+            $table->string('shader_data_starfield_sizeMax');
+            $table->string('shader_data_starfield_color1');
+            $table->string('shader_data_starfield_color2');
+            $table->decimal('shader_data_planetsSize_min');
+            $table->decimal('shader_data_planetsSize_max');
+            $table->integer('shader_data_planetsSize_kFactor');
+
+            // Thubnail Data
+            $table->string('thumbnail_slug');
+            $table->string('thumbnail_source');
+            $table->string('thumbnail_images_post');
+            $table->string('thumbnail_images_product_thumb_large');
+            $table->string('thumbnail_images_subscribers_vault_thumbnail');
+
+            */
         });
     }
 
