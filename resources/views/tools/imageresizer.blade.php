@@ -42,5 +42,5 @@
         const HALF_SELECTION_RECTANGLE_SIZE = outputHeight / 2;
         const selectionRectangleColor = "{{ $imageResizeSettings['default']['selectionRectangleColor'] }}";
     </script>
-    <script src="{{ elixir('js/tools/imageresizer.js') }}"></script>
+    <script src="{{ mix('js/tools/imageresizer.js') }}"></script>
 @endsection
