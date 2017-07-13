@@ -1,10 +1,12 @@
 // Fonts
 //@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
 @import "node_modules/font-awesome/scss/font-awesome.scss";
+// Fonts
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
 
 // Bootstrap
-$enable-flex: true;
-@import "node_modules/bootstrap/scss/bootstrap.scss";
+@import "variables";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
 
-@import "datatables_bs4.scss";
-@import "datatables.scss";
+@import "./datatables_bs4.scss";
+@import "./datatables.scss";
