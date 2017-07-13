@@ -17,7 +17,7 @@
                     </div>
                     <div class="form-group">
                         <label for="rectangleSlider">@lang('tools/imageresizer.move_slider')</label>
-                        <input type="range" min="0" max="100" class="form-control mt-1" id="rectangleSlider" onchange="moveSelectionRectangle(this.value)" oninput="moveSelectionRectangle(this.value)"/>
+                        <input type="range" min="0" max="100" class="form-control mt-1" id="rectangleSlider" />
                     </div>
                 </form>
             </div>
