@@ -14,31 +14,21 @@ namespace App\Facades;
 class Log extends \Illuminate\Support\Facades\Log
 {
     /**
-     * Extend default warning Function to include Class and Method name
+     * Passes all static calls (debug, info, ...) to Parent
      *
-     * @param mixed $message
-     * @param array $context
+     * @param string $method
+     * @param array  $args
+     *
+     * @return mixed
      */
-    public static function warning($message, $context = [])
+    public static function __callStatic($method, $args)
     {
+        $message = $args[0] ?? "";
+        $context = $args[1] ?? [];
         $context = self::prepareContext($context);
         $context = self::addInfoToContext($context);
 
-        parent::warning($message, $context);
-    }
-
-    /**
-     * Extend default debug Function to include Class and Method name
-     *
-     * @param mixed $message
-     * @param array $context
-     */
-    public static function debug($message, $context = [])
-    {
-        $context = self::prepareContext($context);
-        $context = self::addInfoToContext($context);
-
-        parent::debug($message, $context);
+        return parent::__callStatic($method, [$message, $context]);
     }
 
     /**
@@ -66,8 +56,10 @@ class Log extends \Illuminate\Support\Facades\Log
      */
     private static function addInfoToContext(array $context) : array
     {
-        $context['class'] = debug_backtrace()[2]['class'] ?? debug_backtrace()[1]['class'];
-        $context['method'] = debug_backtrace()[2]['function'];
+        $context['object'] = [
+            'class' => debug_backtrace()[2]['class'] ?? debug_backtrace()[1]['class'],
+            'method' => debug_backtrace()[2]['function'],
+        ];
 
         return $context;
     }
