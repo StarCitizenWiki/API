@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
@@ -52,7 +53,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        $this->logger::debug('User logged out', [
+        Log::debug('User logged out', [
             'user_id' => Auth::id(),
         ]);
 
@@ -76,7 +77,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if ($user->isBlacklisted()) {
-            $this->logger::notice('Blacklisted User tried to login', [
+            Log::notice('Blacklisted User tried to login', [
                 'user_id' => $user->id,
             ]);
             Auth::logout();

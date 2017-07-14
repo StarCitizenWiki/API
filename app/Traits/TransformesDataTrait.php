@@ -9,8 +9,8 @@ namespace App\Traits;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingTransformerException;
+use App\Facades\Log;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\App;
 use League\Fractal\TransformerAbstract;
 use Spatie\Fractal\Fractal;
 
@@ -72,7 +72,7 @@ trait TransformesDataTrait
      */
     public function item()
     {
-        App::make('Log')::debug('Setting Transformation Type to '.TRANSFORM_ITEM);
+        Log::debug('Setting Transformation Type to '.TRANSFORM_ITEM);
         $this->transformationType = TRANSFORM_ITEM;
 
         return $this;
@@ -85,7 +85,7 @@ trait TransformesDataTrait
      */
     public function collection()
     {
-        App::make('Log')::debug('Setting Transformation Type to '.TRANSFORM_COLLECTION);
+        Log::debug('Setting Transformation Type to '.TRANSFORM_COLLECTION);
         $this->transformationType = TRANSFORM_COLLECTION;
 
         return $this;
@@ -98,7 +98,7 @@ trait TransformesDataTrait
      */
     public function null()
     {
-        App::make('Log')::debug('Setting Transformation Type to '.TRANSFORM_NULL);
+        Log::debug('Setting Transformation Type to '.TRANSFORM_NULL);
         $this->transformationType = TRANSFORM_NULL;
 
         return $this;
@@ -113,7 +113,7 @@ trait TransformesDataTrait
      */
     public function withTransformer(String $transformer)
     {
-        App::make('Log')::debug('Setting Transformer', [
+        Log::debug('Setting Transformer', [
             'transformer' => $transformer,
         ]);
         $this->transformer = resolve($transformer);
@@ -130,7 +130,7 @@ trait TransformesDataTrait
      */
     public function transform($data = null)
     {
-        App::make('Log')::debug('Starting to Transform Data');
+        Log::debug('Starting to Transform Data');
         if (!is_null($data)) {
             $this->dataToTransform = $data;
         }
@@ -149,7 +149,7 @@ trait TransformesDataTrait
 
         $this->addMetadataToTransformation();
 
-        App::make('Log')::debug('Finished Transforming Data');
+        Log::debug('Finished Transforming Data');
 
         return $this;
     }
@@ -161,7 +161,7 @@ trait TransformesDataTrait
      */
     public function asJSON() : String
     {
-        App::make('Log')::debug('Returning Transformation as JSON');
+        Log::debug('Returning Transformation as JSON');
         if (is_null($this->transformedResource)) {
             $this->transform();
         }
@@ -176,7 +176,7 @@ trait TransformesDataTrait
      */
     public function asArray() : array
     {
-        App::make('Log')::debug('Returning Transformation as Array');
+        Log::debug('Returning Transformation as Array');
         if (is_null($this->transformedResource)) {
             $this->transform();
         }
@@ -191,12 +191,12 @@ trait TransformesDataTrait
      */
     protected function createFractalInstance() : void
     {
-        App::make('Log')::debug('Creating Fractal Manager Instance');
+        Log::debug('Creating Fractal Manager Instance');
         if (is_null($this->fractalManager)) {
-            App::make('Log')::debug('Fractal Manager is null, creating new one');
+            Log::debug('Fractal Manager is null, creating new one');
             $this->fractalManager = Fractal::create();
         } else {
-            App::make('Log')::debug('Fractal Manager already Set');
+            Log::debug('Fractal Manager already Set');
         }
     }
 
@@ -209,12 +209,12 @@ trait TransformesDataTrait
      */
     protected function checkIfTransformerIsValid() : void
     {
-        App::make('Log')::debug('Checking if Transformer is valid');
+        Log::debug('Checking if Transformer is valid');
         if (is_null($this->transformer)) {
-            App::make('Log')::warning('Transformer not set, aborting');
+            Log::warning('Transformer not set, aborting');
             throw new MissingTransformerException();
         } else {
-            App::make('Log')::debug('Transformer is valid');
+            Log::debug('Transformer is valid');
         }
     }
 
@@ -234,7 +234,7 @@ trait TransformesDataTrait
      */
     protected function addMetadataToTransformation() : void
     {
-        App::make('Log')::debug('Adding Metadata to Transformation');
+        Log::debug('Adding Metadata to Transformation');
         $this->transformedResource->addMeta([
             'processed_at' => Carbon::now(),
         ]);
@@ -249,14 +249,14 @@ trait TransformesDataTrait
      */
     protected function checkIfDataIsValid() : void
     {
-        App::make('Log')::debug('Checking if Data to transform is valid');
+        Log::debug('Checking if Data to transform is valid');
         if (is_null($this->dataToTransform) && $this->transformationType !== TRANSFORM_NULL) {
-            App::make('Log')::debug('dataToTransform is null, aborting', [
+            Log::debug('dataToTransform is null, aborting', [
                 'transformation_type' => $this->transformationType,
             ]);
             throw new InvalidDataException('Data to transform is empty');
         } else {
-            App::make('Log')::debug('Data to transform is valid');
+            Log::debug('Data to transform is valid');
         }
     }
 
@@ -267,12 +267,12 @@ trait TransformesDataTrait
      */
     protected function checkNullTransformation() : void
     {
-        App::make('Log')::debug('Checking if data should be transformed as '.TRANSFORM_NULL);
+        Log::debug('Checking if data should be transformed as '.TRANSFORM_NULL);
         if (is_null($this->dataToTransform) || empty($this->dataToTransform)) {
-            App::make('Log')::debug('Data is either empty or null, setting transformationType to '.TRANSFORM_NULL);
+            Log::debug('Data is either empty or null, setting transformationType to '.TRANSFORM_NULL);
             $this->transformationType = TRANSFORM_NULL;
         } else {
-            App::make('Log')::debug('Data is not empty');
+            Log::debug('Data is not empty');
         }
     }
 }

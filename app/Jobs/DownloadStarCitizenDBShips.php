@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
 use function GuzzleHttp\Psr7\stream_for;
 
 /**
@@ -34,7 +34,7 @@ class DownloadStarCitizenDBShips implements ShouldQueue
      */
     public function handle()
     {
-        App::make('Log')::info('Starting Ship Download Job');
+        Log::info('Starting Ship Download Job');
         $client = new Client([
             'timeout' => 10.0,
         ]);
@@ -55,12 +55,12 @@ class DownloadStarCitizenDBShips implements ShouldQueue
                     self::STAR_CITIZEN_DB_URL.$url,
                     ['save_to' => $stream]
                 );
-                App::make('Log')::info('Downloading '.$fileName);
+                Log::debug('Downloading '.$fileName);
             }
         }
-        App::make('Log')::info('Ship Download Job Finished');
+        Log::info('Ship Download Job Finished');
 
-        App::make('Log')::info('Dispatching Split Files Job');
+        Log::info('Dispatching Split Files Job');
         dispatch(new SplitShipFiles());
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Models\ShortURL;
 
+use App\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\App;
 
 /**
  * Class ShortURLWhitelist
@@ -49,7 +49,7 @@ class ShortURLWhitelist extends Model
             'internal' => $data['internal'],
         ]);
 
-        App::make('Log')::info('Whitelist URL added', [
+        Log::info('Whitelist URL added', [
             'url' => $data['url'],
             'internal' => $data['internal'],
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tools;
 
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\View\View;
 
@@ -29,7 +30,7 @@ class ImageResizeController extends Controller
             ],
         ];
 
-        $this->logger::debug('Image Resizer requested');
+        Log::debug('Image Resizer requested');
 
         return view('tools.imageresizer', compact('imageResizeSettings'));
     }

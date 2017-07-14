@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Events\UserRegistered;
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -50,7 +51,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        $this->logger::debug('Registration Form requested');
+        Log::debug('Registration Form requested');
 
         return redirect(AUTH_HOME);
     }
@@ -76,7 +77,7 @@ class RegisterController extends Controller
             'last_login' => date('Y-m-d H:i:s'),
         ]);
 
-        $this->logger::notice('Account created', [
+        Log::notice('Account created', [
             'id' => $user->id,
             'email' => $user->email,
         ]);

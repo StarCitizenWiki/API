@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\StarCitizenDB;
 
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizenDB\ShipsRepository;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ class ShipsAPIController extends Controller
      */
     public function getShip(Request $request, String $name)
     {
-        $this->logger::debug('Ship requested', [
+        Log::debug('Ship requested', [
             'name' => $name,
         ]);
 
@@ -64,7 +65,7 @@ class ShipsAPIController extends Controller
      */
     public function getShipList(Request $request)
     {
-        $this->logger::debug('ShipList requested');
+        Log::debug('ShipList requested');
 
         $this->repository->getShipList();
         $this->repository->transformer->addFilters($request);
@@ -86,7 +87,7 @@ class ShipsAPIController extends Controller
      */
     public function searchShips(Request $request)
     {
-        $this->logger::debug('Ship search requested', [
+        Log::debug('Ship search requested', [
             'query' => $request->get('query'),
         ]);
 

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
+use App\Facades\Log;
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function showUsersListView()
     {
-        $this->logger::debug('Users List View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.users.index')->with(
             'users',
@@ -42,20 +42,24 @@ class UserController extends Controller
      */
     public function showEditUserView(int $id)
     {
+        self::startExecutionTimer();
+
         try {
             $user = User::withTrashed()->findOrFail($id);
 
-            $this->logger::debug('Edit User View for User requested');
+            Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
             return view('admin.users.edit')->with(
                 'user',
                 $user
             );
         } catch (ModelNotFoundException $e) {
-            $this->logger::warning('User not found', [
+            Log::warning('User not found', [
                 'id' => $id,
             ]);
         }
+
+        self::endExecutionTimer();
 
         return redirect()->route('admin_users_list');
     }
@@ -69,7 +73,7 @@ class UserController extends Controller
      */
     public function showRequestsView(int $id)
     {
-        $this->logger::debug('Users Requests View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.users.requests')->with(
             'requests',
@@ -86,21 +90,27 @@ class UserController extends Controller
      */
     public function deleteUser(Request $request) : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $this->validate($request, [
             'id' => 'required|exists:users|int',
         ]);
 
         try {
             $user = User::findOrFail($request->id);
-            $this->logger::notice('Account deleted', [
+            Log::notice('Account deleted', [
                 'account_id' => $request->get('id'),
                 'deleted_by' => Auth::id(),
             ]);
             $user->delete();
         } catch (ModelNotFoundException $e) {
+            self::endExecutionTimer();
+
             return redirect()->route('admin_users_list')
                              ->withErrors(__('admin/users/edit.not_found'));
         }
+
+        self::endExecutionTimer();
 
         return redirect()->route('admin_users_list');
     }
@@ -114,21 +124,27 @@ class UserController extends Controller
      */
     public function restoreUser(Request $request) : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $this->validate($request, [
             'id' => 'required|exists:users|int',
         ]);
 
         try {
             $user = User::withTrashed()->findOrFail($request->id);
-            $this->logger::notice('Account restored', [
+            Log::notice('Account restored', [
                 'account_id'  => $request->get('id'),
                 'restored_by' => Auth::id(),
             ]);
             $user->restore();
         } catch (ModelNotFoundException $e) {
+            self::endExecutionTimer();
+
             return redirect()->route('admin_users_list')
                              ->withErrors(__('admin/users/edit.not_found'));
         }
+
+        self::endExecutionTimer();
 
         return redirect()->route('admin_users_list');
     }
@@ -142,6 +158,8 @@ class UserController extends Controller
      */
     public function updateUser(Request $request) : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $this->validate($request, [
             'id' => 'required|exists:users|int',
             'name' => 'present',
@@ -183,6 +201,8 @@ class UserController extends Controller
         }
 
         User::updateUser($data);
+
+        self::endExecutionTimer();
 
         return redirect()->route('admin_users_list');
     }

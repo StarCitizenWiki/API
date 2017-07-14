@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth\Admin;
 
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
@@ -29,7 +30,7 @@ class ShortURLController extends Controller
      */
     public function showURLsListView() : View
     {
-        $this->logger::debug('ShortURL List View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.shorturls.index')->with(
             'urls',
@@ -46,9 +47,10 @@ class ShortURLController extends Controller
      */
     public function showURLsListForUserView(int $id) : View
     {
-        $this->logger::debug('ShortURL List For User View requested', [
-            'user_id' => $id,
-        ]);
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__),
+            Auth::user()->getBasicInfoForLog() +
+            ['requested_user_id' => $id]
+        );
 
         return view('admin.shorturls.index')->with(
             'urls',
@@ -63,7 +65,7 @@ class ShortURLController extends Controller
      */
     public function showURLWhitelistView() : View
     {
-        $this->logger::debug('ShortURL Whitelist List View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.shorturls.whitelists.index')->with(
             'urls',
@@ -78,7 +80,7 @@ class ShortURLController extends Controller
      */
     public function showAddURLWhitelistView() : View
     {
-        $this->logger::debug('Add ShortURL Whitelist View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.shorturls.whitelists.add');
     }
@@ -92,20 +94,26 @@ class ShortURLController extends Controller
      */
     public function showEditURLView(int $id)
     {
+        self::startExecutionTimer();
+
         try {
             $url = ShortURL::findOrFail($id);
 
-            $this->logger::debug('Edit ShortURL List View requested for URL', [
-                'url' => $url->toArray(),
-            ]);
+            Log::info(get_human_readable_name_from_view_function(__FUNCTION__),
+                Auth::user()->getBasicInfoForLog() +
+                ['url' => $url->toArray()]
+            );
+
+            self::endExecutionTimer();
 
             return view('admin.shorturls.edit')
                         ->with('url', $url)
                         ->with('users', User::all());
         } catch (ModelNotFoundException $e) {
-            $this->logger::warning('URL not found', [
+            Log::warning('URL not found', [
                 'id' => $id,
             ]);
+            self::endExecutionTimer();
         }
 
         return redirect()->route('admin_urls_list');
@@ -120,18 +128,22 @@ class ShortURLController extends Controller
      */
     public function deleteURL(Request $request) : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $this->validate($request, [
             'id' => 'required|exists:short_urls|int',
         ]);
 
         $url = ShortURL::findOrFail($request->id);
-        $this->logger::notice('URL deleted', [
+        Log::notice('URL deleted', [
             'deleted_by' => Auth::id(),
             'url_id' => $url->id,
             'url' => $url->url,
             'hash_name' => $url->hash_name,
         ]);
         $url->delete();
+
+        self::endExecutionTimer();
 
         return redirect()->route('admin_urls_list');
     }
@@ -145,17 +157,21 @@ class ShortURLController extends Controller
      */
     public function deleteWhitelistURL(Request $request) : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $this->validate($request, [
             'id' => 'required|exists:short_url_whitelists|int',
         ]);
 
         $url = ShortURLWhitelist::findOrFail($request->id);
-        $this->logger::notice('Whitelist URL deleted', [
+        Log::notice('Whitelist URL deleted', [
             'deleted_by' => Auth::id(),
             'url_id' => $url->id,
             'url' => $url->url,
         ]);
         $url->delete();
+
+        self::endExecutionTimer();
 
         return redirect()->route('admin_urls_whitelist_list');
     }
@@ -169,6 +185,8 @@ class ShortURLController extends Controller
      */
     public function addWhitelistURL(Request $request)
     {
+        self::startExecutionTimer();
+
         $data = [
             'url' => ShortURL::sanitizeURL($request->get('url')),
             'internal' => $request->get('internal'),
@@ -186,6 +204,8 @@ class ShortURLController extends Controller
             'internal' => !$request->get('internal')[0],
         ]);
 
+        self::endExecutionTimer();
+
         return redirect()->route('admin_urls_whitelist_list');
     }
 
@@ -198,6 +218,8 @@ class ShortURLController extends Controller
      */
     public function updateURL(Request $request)
     {
+        self::startExecutionTimer();
+
         $this->validate($request, [
             'id' => 'required|exists:short_urls|int',
         ]);
@@ -227,9 +249,13 @@ class ShortURLController extends Controller
                 'expires' => $request->get('expires'),
             ]);
         } catch (URLNotWhitelistedException | HashNameAlreadyAssignedException $e) {
+            self::endExecutionTimer();
+
             return back()->withErrors($e->getMessage())
                          ->withInput(Input::all());
         }
+
+        self::endExecutionTimer();
 
         return redirect()->route('admin_urls_list');
     }

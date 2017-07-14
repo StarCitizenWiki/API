@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\APIRequests;
 use App\Models\ShortURL\ShortURL;
@@ -10,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Rap2hpoutre\LaravelLogViewer\LaravelLogViewer;
 
 /**
@@ -26,7 +28,8 @@ class AdminController extends Controller
      */
     public function showDashboardView() : View
     {
-        $this->logger::debug('Admin Dashboard View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
+
         $today = Carbon::today()->toDateString();
 
         return view('admin.dashboard')
@@ -48,7 +51,7 @@ class AdminController extends Controller
      */
     public function showLogsView(Request $request)
     {
-        $this->logger::debug('Admin Logs View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         if ($request->input('l')) {
             LaravelLogViewer::setFile(base64_decode($request->input('l')));
@@ -71,7 +74,7 @@ class AdminController extends Controller
      */
     public function showRoutesView() : View
     {
-        $this->logger::debug('Admin Routes View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.routes.index');
     }

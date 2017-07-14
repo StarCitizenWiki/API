@@ -8,8 +8,8 @@
 namespace App\Traits;
 
 use App\Exceptions\InvalidDataException;
+use App\Facades\Log;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 
 /**
  * Class FiltersDataTrait
@@ -32,11 +32,11 @@ trait FiltersDataTrait
      */
     public function addFilters(Request $request)
     {
-        App::make('Log')::debug('Adding Filters');
+        Log::debug('Adding Filters');
         $filters = $request->get('fields', null);
         if (!is_null($filters) && !empty($filters)) {
             $this->requestedFields = explode(',', $filters);
-            App::make('Log')::debug('Filters added', [
+            Log::debug('Filters added', [
                 'filters' => $this->requestedFields,
             ]);
             $this->validateRequestedFields();
@@ -87,7 +87,7 @@ trait FiltersDataTrait
      */
     public function getAvailableFields() : array
     {
-        App::make('Log')::debug('Returning Available Fields');
+        Log::debug('Returning Available Fields');
         if (isset($this->validFields)) {
             return $this->validFields;
         }

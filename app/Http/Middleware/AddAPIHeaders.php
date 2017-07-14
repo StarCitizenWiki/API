@@ -8,9 +8,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Facades\Log;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 
 /**
  * Class AfterApiRequest
@@ -45,7 +45,7 @@ class AddAPIHeaders
         $response->header("Connection", "keep-alive");
         $response->header("X-SCW-API-Version", API_VERSION);
 
-        App::make('Log')::debug('Added API Headers', [
+        Log::debug('Added API Headers', [
             'request_url' => $request->fullUrl(),
         ]);
 

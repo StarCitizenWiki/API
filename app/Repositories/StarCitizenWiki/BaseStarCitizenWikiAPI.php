@@ -8,9 +8,9 @@
 
 namespace App\Repositories\StarCitizenWiki;
 
+use App\Facades\Log;
 use App\Repositories\BaseAPITrait;
 use App\Traits\TransformesDataTrait;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class BaseStarCitizenWikiAPI
@@ -33,16 +33,16 @@ class BaseStarCitizenWikiAPI
      */
     private function checkIfResponseDataIsValid() : bool
     {
-        $this->logger::debug('Checking if Response Data is valid');
+        Log::debug('Checking if Response Data is valid');
         if (!empty($this->response->getHeader('MediaWiki-Interfaces-Error'))) {
-            $this->logger::warning('Response Data is not valid', [
+            Log::warning('Response Data is not valid', [
                 'response' => (String) $this->response->getBody(),
             ]);
 
             return false;
         }
 
-        $this->logger::debug('Response Data is valid');
+        Log::debug('Response Data is valid');
 
         return true;
     }

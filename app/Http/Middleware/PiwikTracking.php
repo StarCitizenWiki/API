@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Facades\Log;
 use Closure;
 use Composer\DependencyResolver\Request;
 use Illuminate\Support\Facades\App;
@@ -42,7 +43,7 @@ class PiwikTracking
             $piwikClient->setUserId($request->get(AUTH_KEY_FIELD_NAME, false));
             $piwikClient->doTrackPageView($request->getRequestUri());
 
-            App::make('Log')::debug('Passed URL to Piwik', [
+            Log::debug('Passed URL to Piwik', [
                 'url' => $request->fullUrl(),
             ]);
         }

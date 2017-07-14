@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Facades\Log;
 use App\Models\Starsystem;
 use App\Repositories\StarCitizen\APIv1\StarmapRepository;
 use GuzzleHttp\Client;
@@ -10,8 +11,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -44,12 +43,12 @@ class DownloadStarmapData implements ShouldQueue
      */
     public function handle() : void
     {
-        App::make('Log')::info('Starting Starmap Download Job');
+        Log::info('Starting Starmap Download Job');
         $this->guzzleClient = new Client(['timeout' => 10.0]);
 
         foreach (Starsystem::where('exclude', '=', false)->get() as $system) {
             $fileName = Starsystem::makeFilenameFromCode($system->code);
-            App::make('Log')::info('Downloading '.$system->code);
+            Log::info('Downloading '.$system->code);
             $this->starmapContent = $this->getJsonArrayFromStarmap('star-systems/'.$system->code);
 
             if ($this->checkIfDataCanBeProcessed($this->starmapContent) &&
@@ -57,13 +56,13 @@ class DownloadStarmapData implements ShouldQueue
                 $this->addCelestialContent();
             }
 
-            App::make('Log')::info('Writing System to file '.$system->code);
+            Log::info('Writing System to file '.$system->code);
             Storage::disk('starmap')->put(
                 $fileName,
                 json_encode($this->starmapContent, JSON_PRETTY_PRINT)
             );
         }
-        App::make('Log')::info('Starmap Download Job Finished');
+        Log::info('Starmap Download Job Finished');
     }
 
     /**

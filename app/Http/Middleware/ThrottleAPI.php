@@ -3,11 +3,11 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\UserBlacklistedException;
+use App\Facades\Log;
 use App\Models\User;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\App;
 
 /**
  * Class ThrottleAPI
@@ -17,8 +17,6 @@ use Illuminate\Support\Facades\App;
  */
 class ThrottleAPI extends ThrottleRequests
 {
-    private $logger;
-
     /**
      * ThrottleAPI constructor.
      *
@@ -27,7 +25,6 @@ class ThrottleAPI extends ThrottleRequests
     public function __construct(RateLimiter $limiter)
     {
         parent::__construct($limiter);
-        $this->logger = App::make('Log');
     }
 
     /**
@@ -42,29 +39,29 @@ class ThrottleAPI extends ThrottleRequests
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        $this->logger::debug('Getting User From Request');
+        Log::debug('Getting User From Request');
 
         $user = User::where('api_token', $request->get(AUTH_KEY_FIELD_NAME, null))->first();
 
         if (!is_null($user)) {
             if ($user->whitelisted) {
-                $this->logger::debug('User is Whitelisted, no Throttling');
+                Log::debug('User is Whitelisted, no Throttling');
 
                 return $next($request);
             }
         } else {
-            $this->logger::debug('No User for key found', [
+            Log::debug('No User for key found', [
                 'api_key' => $request->get(AUTH_KEY_FIELD_NAME),
             ]);
         }
 
         try {
             $rpm = $this->determineRequestsPerMinute($user);
-            $this->logger::debug('Got RPM for Request', [
+            Log::debug('Got RPM for Request', [
                 'rpm' => $rpm,
             ]);
         } catch (UserBlacklistedException $e) {
-            $this->logger::notice('Request from blacklisted User', [
+            Log::notice('Request from blacklisted User', [
                 'user_id' => $user->id,
                 'request_url' => $request->getUri(),
             ]);

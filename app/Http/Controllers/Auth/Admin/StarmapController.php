@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarmapData;
 use App\Models\Starsystem;
@@ -22,7 +23,7 @@ class StarmapController extends Controller
      */
     public function showStarmapSystemsView() : View
     {
-        $this->logger::debug('Starmap Systems View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.starmap.systems.index')->with(
             'systems',
@@ -37,7 +38,7 @@ class StarmapController extends Controller
      */
     public function showEditStarmapSystemsView(String $code) : View
     {
-        $this->logger::debug('Edit Starmap System View requested');
+        Log::debug('Edit Starmap System View requested');
 
         $content = '';
         if (Storage::disk('starmap')->exists(Starsystem::makeFilenameFromCode($code))) {
@@ -53,7 +54,7 @@ class StarmapController extends Controller
      */
     public function showAddStarmapSystemsView() : View
     {
-        $this->logger::debug('Add Starmap System View requested');
+        Log::debug('Add Starmap System View requested');
 
         return view('admin.starmap.systems.add');
     }
@@ -72,7 +73,7 @@ class StarmapController extends Controller
         ]);
 
         $system = Starsystem::findOrFail($request->id);
-        $this->logger::notice('Starmap System updated', [
+        Log::notice('Starmap System updated', [
             'updated_by' => Auth::id(),
             'code_old' => $system->code,
             'code_new' => $request->code,
@@ -98,7 +99,7 @@ class StarmapController extends Controller
         ]);
 
         $system = Starsystem::findOrFail($request->id);
-        $this->logger::notice('Starmap System deleted', [
+        Log::notice('Starmap System deleted', [
             'deleted_by' => Auth::id(),
             'system_id' => $system->id,
             'code' => $system->code,
@@ -126,7 +127,7 @@ class StarmapController extends Controller
         $system->exclude = $request->exclude === "1";
         $system->save();
 
-        $this->logger::notice('Starmap System added', [
+        Log::notice('Starmap System added', [
             'added_by' => Auth::id(),
             'system_code' => $request->code,
             'exclude' => $request->exclude === "1",
@@ -140,7 +141,11 @@ class StarmapController extends Controller
      */
     public function downloadStarmap() : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $this->dispatch(new DownloadStarmapData());
+
+        self::endExecutionTimer();
 
         return redirect()->back()->with(
             'success',

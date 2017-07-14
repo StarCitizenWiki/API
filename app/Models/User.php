@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
+use App\Facades\Log;
 use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Facades\App;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class User
@@ -110,11 +108,24 @@ class User extends Authenticatable
             }
         }
 
-        App::make('Log')::info('User Account updated', [
+        Log::notice('User Account updated', [
             'changes' => $changes,
         ]);
 
         return $user->save();
+    }
+
+    /**
+     * Returns user_id and either name or email as assoc array
+     *
+     * @return array
+     */
+    public function getBasicInfoForLog() : array
+    {
+        return [
+            'user_id' => $this->id,
+            'username' => $this->name ?? $this->email,
+        ];
     }
 
     /**
@@ -125,7 +136,7 @@ class User extends Authenticatable
     public function isAdmin() : bool
     {
         $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
-        App::make('Log')::debug('Checked if User is Admin', [
+        Log::debug('Checked if User is Admin', [
             'id' => $this->id,
             'admin' => $isAdmin,
         ]);
@@ -141,7 +152,7 @@ class User extends Authenticatable
     public function isWhitelisted() : bool
     {
         $whitelisted = $this->whitelisted == 1;
-        App::make('Log')::debug('Checked if User is whitelisted', [
+        Log::debug('Checked if User is whitelisted', [
             'id' => $this->id,
             'whitelisted' => $whitelisted,
         ]);
@@ -157,7 +168,7 @@ class User extends Authenticatable
     public function isBlacklisted() : bool
     {
         $blacklisted = $this->blacklisted == 1;
-        App::make('Log')::debug('Checked if User is blacklisted', [
+        Log::debug('Checked if User is blacklisted', [
             'id' => $this->id,
             'blacklisted' => $blacklisted,
         ]);
@@ -172,7 +183,7 @@ class User extends Authenticatable
      */
     public function shortURLs()
     {
-        App::make('Log')::debug('Requested Users ShortURLs', [
+        Log::debug('Requested Users ShortURLs', [
             'id' => Auth::id(),
         ]);
 

@@ -2,6 +2,7 @@
 namespace App\Repositories\StarCitizenDB;
 
 use App\Exceptions\MethodNotImplementedException;
+use App\Facades\Log;
 use App\Repositories\BaseAPITrait;
 use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
 use App\Traits\TransformesDataTrait;
@@ -9,7 +10,6 @@ use App\Transformers\FakeTransformer as ShipsTransformer;
 use App\Transformers\StarCitizenDB\Ships\ShipsListTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -29,7 +29,7 @@ class ShipsRepository implements ShipsInterface
      */
     public function getShipList() : ShipsRepository
     {
-        $this->logger::debug('Getting ShipList');
+        Log::debug('Getting ShipList');
         $this->collection()->withTransformer(ShipsListTransformer::class);
         $this->dataToTransform = File::allFiles(config('filesystems.disks.scdb_ships_splitted.root'));
 
@@ -47,7 +47,7 @@ class ShipsRepository implements ShipsInterface
     public function getShip(Request $request, String $shipName)
     {
         $shipName = urldecode($shipName);
-        $this->logger::debug('Getting Ship by name', [
+        Log::debug('Getting Ship by name', [
             'ship' => $shipName,
         ]);
 

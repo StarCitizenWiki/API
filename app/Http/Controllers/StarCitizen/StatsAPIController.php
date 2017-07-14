@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
 use Illuminate\Http\Request;
@@ -43,7 +44,7 @@ class StatsAPIController extends Controller
      */
     public function getFunds()
     {
-        $this->logger::debug('Funds Stats requested');
+        Log::debug('Funds Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -55,7 +56,7 @@ class StatsAPIController extends Controller
      */
     public function getFleet()
     {
-        $this->logger::debug('Fleet Stats requested');
+        Log::debug('Fleet Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -67,7 +68,7 @@ class StatsAPIController extends Controller
      */
     public function getFans()
     {
-        $this->logger::debug('Fans Stats requested');
+        Log::debug('Fans Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -81,7 +82,7 @@ class StatsAPIController extends Controller
      */
     public function getAll(Request $request)
     {
-        $this->logger::debug('All Stats requested');
+        Log::debug('All Stats requested');
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth\Account;
 
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -23,9 +24,7 @@ class AccountController extends Controller
      */
     public function showAccountView() : View
     {
-        $this->logger::debug('User requested Account View', [
-            'user_id' => Auth::id(),
-        ]);
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('auth.account.index')->with(
             'user',
@@ -40,11 +39,7 @@ class AccountController extends Controller
      */
     public function showEditAccountView() : View
     {
-        $this->logger::debug('User requested Edit Account View', [
-            'user_id' => Auth::id(),
-        ]);
-
-        $this->logger::error('text');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('auth.account.edit')->with(
             'user',
@@ -59,13 +54,18 @@ class AccountController extends Controller
      */
     public function delete() : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $user = Auth::user();
         Auth::logout();
         $user->delete();
-        $this->logger::notice('Account deleted', [
+
+        Log::notice('User Account deleted', [
             'id' => $user->id,
             'email' => $user->email,
         ]);
+
+        self::endExecutionTimer();
 
         return redirect(AUTH_HOME);
     }
@@ -79,6 +79,8 @@ class AccountController extends Controller
      */
     public function updateAccount(Request $request) : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $user = Auth::user();
         $data = [];
 
@@ -104,6 +106,8 @@ class AccountController extends Controller
 
             return redirect()->route('auth_login_form');
         }
+
+        self::endExecutionTimer();
 
         return redirect()->route('account');
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
+use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +20,7 @@ class ShipsController extends Controller
      */
     public function showShipsView() : View
     {
-        $this->logger::debug('Ships View requested');
+        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.ships.index')->with(
             'ships',
@@ -32,7 +33,11 @@ class ShipsController extends Controller
      */
     public function downloadShips() : RedirectResponse
     {
+        self::startExecutionTimer();
+
         $this->dispatch(new DownloadStarCitizenDBShips());
+
+        self::endExecutionTimer();
 
         return redirect()->back()->with(
             'success',
