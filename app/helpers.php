@@ -14,7 +14,7 @@ if (!function_exists('validate_array')) {
      */
     function validate_array(array $data, array $rules, \Illuminate\Http\Request $request)
     {
-        \Illuminate\Support\Facades\App::make('Log')::debug('Validated data', [
+        \App\Facades\Log::debug('Validated data', [
             'data' => $data,
             'rules' => $rules,
         ]);
@@ -24,5 +24,28 @@ if (!function_exists('validate_array')) {
         if ($validator->fails()) {
             throw new \Illuminate\Validation\ValidationException($validator);
         }
+    }
+}
+
+if (!function_exists('getHumanReadableNameFromViewFunction')) {
+    /**
+     * @param String $methodName name of view function
+     *
+     * @return String
+     */
+    function get_human_readable_name_from_view_function(String $methodName) : String
+    {
+        if (!starts_with($methodName, 'show')) {
+            \App\Facades\Log::warning($methodName.' is not a valid name for a View-Function!');
+        } else {
+            $readableName = preg_replace(
+                '/(?!^)[A-Z]{2,}(?=[A-Z][a-z])|[A-Z][a-z]|[0-9]{1,}/',
+                ' $0',
+                $methodName
+            );
+            $methodName = $readableName;
+        }
+
+        return $methodName;
     }
 }
