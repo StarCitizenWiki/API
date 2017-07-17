@@ -8,7 +8,7 @@
 
 namespace App\Exceptions;
 
-use \Exception;
+use Exception;
 
 /**
  * Class MethodNotImplementedException

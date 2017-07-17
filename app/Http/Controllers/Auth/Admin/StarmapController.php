@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
-use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarmapData;
 use App\Models\Starsystem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -23,7 +23,6 @@ class StarmapController extends Controller
      */
     public function showStarmapSystemsView() : View
     {
-        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
 
         return view('admin.starmap.systems.index')->with(
             'systems',
@@ -141,11 +140,7 @@ class StarmapController extends Controller
      */
     public function downloadStarmap() : RedirectResponse
     {
-        self::startExecutionTimer();
-
         $this->dispatch(new DownloadStarmapData());
-
-        self::endExecutionTimer();
 
         return redirect()->back()->with(
             'success',

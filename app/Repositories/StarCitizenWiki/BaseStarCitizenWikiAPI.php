@@ -10,7 +10,6 @@ namespace App\Repositories\StarCitizenWiki;
 
 use App\Facades\Log;
 use App\Repositories\BaseAPITrait;
-use App\Traits\ProfilesMethodsTrait;
 use App\Traits\TransformesDataTrait;
 
 /**

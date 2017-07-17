@@ -29,7 +29,7 @@ class UserInfoProcessor
         $userData['name'] = $auth::user()->name ?? $auth::user()->email ?? null;
 
         if (is_null($userData['name'])) {
-            if (config('app.env') === 'local') {
+            if (config('app.env') === 'local' || config('app.env') === 'testing') {
                 $userData['name'] = 'localhost';
             } elseif (config('app.env') === 'production') {
                 $userData['name'] = 'Visitor';
