@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\StarCitizenWiki;
 
-use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizenWiki\APIv1\ShipsRepository;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
 
 /**
@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
  */
 class ShipsAPIController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * ShipsRepository
      *
@@ -42,11 +44,12 @@ class ShipsAPIController extends Controller
      */
     public function getShip(Request $request, String $name)
     {
-        Log::debug('Ship requested', [
-            'name' => $name,
-        ]);
+        $this->startProfiling(__FUNCTION__);
 
+        app('Log')::info(make_name_readable(__FUNCTION__), ['name' => $name]);
         $this->repository->getShip($request, $name);
+
+        $this->stopProfiling(__FUNCTION__);
 
         return response()->json(
             $this->repository->asArray(),
@@ -65,13 +68,16 @@ class ShipsAPIController extends Controller
      */
     public function getShipList(Request $request)
     {
-        Log::debug('ShipList requested');
+        $this->startProfiling(__FUNCTION__);
 
         $this->repository->getShipList();
         $this->repository->transformer->addFilters($request);
+        $data = $this->repository->asArray();
+
+        $this->stopProfiling(__FUNCTION__);
 
         return response()->json(
-            $this->repository->asArray(),
+            $data,
             200,
             [],
             JSON_PRETTY_PRINT
@@ -87,17 +93,20 @@ class ShipsAPIController extends Controller
      */
     public function searchShips(Request $request)
     {
-        Log::debug('Ship search requested', [
-            'query' => $request->get('query'),
-        ]);
+        $this->startProfiling(__FUNCTION__);
+
+        app('Log')::debug('Ship search requested', ['query' => $request->get('query')]);
 
         $this->validate($request, [
             'query' => 'present|alpha_dash',
         ]);
         $shipName = $request->input('query');
+        $data = $this->repository->searchShips($shipName)->asArray();
+
+        $this->stopProfiling(__FUNCTION__);
 
         return response()->json(
-            $this->repository->searchShips($shipName)->asArray(),
+            $data,
             200,
             [],
             JSON_PRETTY_PRINT

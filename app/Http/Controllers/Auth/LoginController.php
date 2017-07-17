@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +26,7 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers;
+    use AuthenticatesUsers, ProfilesMethodsTrait;
 
     /**
      * Where to redirect users after login.
@@ -53,9 +53,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        Log::debug('User logged out', [
-            'user_id' => Auth::id(),
-        ]);
+        app('Log')::info("User with ID: ".Auth::id()." logged out");
 
         $this->guard()->logout();
 
@@ -77,14 +75,14 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if ($user->isBlacklisted()) {
-            Log::notice('Blacklisted User tried to login', [
-                'user_id' => $user->id,
-            ]);
+            app('Log')::notice("Blacklisted User with ID: {$user->id} tried to login");
             Auth::logout();
 
             return redirect()->route('auth_login_form')
                              ->withErrors('Account is blacklisted');
         }
+
+        app('Log')::info("User with ID: {$user->id} logged in");
 
         return null;
     }

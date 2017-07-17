@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
-use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
@@ -15,12 +15,14 @@ use Illuminate\View\View;
  */
 class ShipsController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * @return View
      */
     public function showShipsView() : View
     {
-        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('admin.ships.index')->with(
             'ships',
@@ -33,11 +35,11 @@ class ShipsController extends Controller
      */
     public function downloadShips() : RedirectResponse
     {
-        self::startExecutionTimer();
+        $this->startProfiling(__FUNCTION__);
 
         $this->dispatch(new DownloadStarCitizenDBShips());
 
-        self::endExecutionTimer();
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->back()->with(
             'success',

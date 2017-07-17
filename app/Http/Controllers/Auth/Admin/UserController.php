@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth\Admin;
 
-use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +18,8 @@ use Illuminate\View\View;
  */
 class UserController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * Returns the View with all Users listed
      *
@@ -25,7 +27,7 @@ class UserController extends Controller
      */
     public function showUsersListView()
     {
-        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('admin.users.index')->with(
             'users',
@@ -42,24 +44,23 @@ class UserController extends Controller
      */
     public function showEditUserView(int $id)
     {
-        self::startExecutionTimer();
+        $this->startProfiling(__FUNCTION__);
 
+        app('Log')::info(make_name_readable(__FUNCTION__));
         try {
+            $this->addTrace(__FUNCTION__, "Getting User with ID: {$id}", __LINE__);
             $user = User::withTrashed()->findOrFail($id);
-
-            Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
+            $this->stopProfiling(__FUNCTION__);
 
             return view('admin.users.edit')->with(
                 'user',
                 $user
             );
         } catch (ModelNotFoundException $e) {
-            Log::warning('User not found', [
-                'id' => $id,
-            ]);
+            app('Log')::warning("User with ID: {$id} not found");
         }
 
-        self::endExecutionTimer();
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('admin_users_list');
     }
@@ -73,7 +74,7 @@ class UserController extends Controller
      */
     public function showRequestsView(int $id)
     {
-        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('admin.users.requests')->with(
             'requests',
@@ -90,27 +91,29 @@ class UserController extends Controller
      */
     public function deleteUser(Request $request) : RedirectResponse
     {
-        self::startExecutionTimer();
+        $this->startProfiling(__FUNCTION__);
 
         $this->validate($request, [
             'id' => 'required|exists:users|int',
         ]);
 
         try {
+            $this->addTrace(__FUNCTION__, "Getting User with ID: {$request->id}", __LINE__);
             $user = User::findOrFail($request->id);
-            Log::notice('Account deleted', [
+            app('Log')::notice('Account deleted', [
                 'account_id' => $request->get('id'),
                 'deleted_by' => Auth::id(),
             ]);
             $user->delete();
         } catch (ModelNotFoundException $e) {
-            self::endExecutionTimer();
+            $this->addTrace(__FUNCTION__, "User not found", __LINE__);
+            $this->stopProfiling(__FUNCTION__);
 
             return redirect()->route('admin_users_list')
                              ->withErrors(__('admin/users/edit.not_found'));
         }
 
-        self::endExecutionTimer();
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('admin_users_list');
     }
@@ -124,27 +127,26 @@ class UserController extends Controller
      */
     public function restoreUser(Request $request) : RedirectResponse
     {
-        self::startExecutionTimer();
+        $this->startProfiling(__FUNCTION__);
 
         $this->validate($request, [
             'id' => 'required|exists:users|int',
         ]);
 
         try {
+            $this->addTrace(__FUNCTION__, "Getting User with ID: {$request->id}", __LINE__);
             $user = User::withTrashed()->findOrFail($request->id);
-            Log::notice('Account restored', [
-                'account_id'  => $request->get('id'),
-                'restored_by' => Auth::id(),
-            ]);
+            app('Log')::notice("Restored Account with ID: {$request->id}");
             $user->restore();
         } catch (ModelNotFoundException $e) {
-            self::endExecutionTimer();
+            $this->addTrace(__FUNCTION__, "User not found", __LINE__);
+            $this->stopProfiling(__FUNCTION__);
 
             return redirect()->route('admin_users_list')
                              ->withErrors(__('admin/users/edit.not_found'));
         }
 
-        self::endExecutionTimer();
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('admin_users_list');
     }
@@ -158,7 +160,7 @@ class UserController extends Controller
      */
     public function updateUser(Request $request) : RedirectResponse
     {
-        self::startExecutionTimer();
+        $this->startProfiling(__FUNCTION__);
 
         $this->validate($request, [
             'id' => 'required|exists:users|int',
@@ -182,6 +184,7 @@ class UserController extends Controller
         if (!is_null($request->get('password')) &&
             !empty($request->get('password'))
         ) {
+            $this->addTrace(__FUNCTION__, "Password changed", __LINE__);
             $data['password'] = $request->get('password');
         }
 
@@ -189,20 +192,24 @@ class UserController extends Controller
         $data['blacklisted'] = false;
 
         if ($request->has('list')) {
+            $this->addTrace(__FUNCTION__, "Black/Whitelist-Flag set", __LINE__);
             if ($request->list === 'blacklisted') {
+                $this->addTrace(__FUNCTION__, "User is now blacklisted", __LINE__);
                 $data['whitelisted'] = false;
                 $data['blacklisted'] = true;
             }
 
             if ($request->list === 'whitelisted') {
+                $this->addTrace(__FUNCTION__, "User is now whitelisted", __LINE__);
                 $data['whitelisted'] = true;
                 $data['blacklisted'] = false;
             }
         }
 
+        $this->addTrace(__FUNCTION__, "Start Update", __LINE__);
         User::updateUser($data);
 
-        self::endExecutionTimer();
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('admin_users_list');
     }

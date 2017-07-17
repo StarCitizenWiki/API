@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth\Account;
 
-use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +17,16 @@ use Illuminate\Support\Facades\Auth;
  */
 class AccountController extends Controller
 {
+    use ProfilesMethodsTrait;
+
+    /**
+     * AccountController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * Returns the Account Dashboard View
      *
@@ -24,7 +34,7 @@ class AccountController extends Controller
      */
     public function showAccountView() : View
     {
-        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('auth.account.index')->with(
             'user',
@@ -39,7 +49,7 @@ class AccountController extends Controller
      */
     public function showEditAccountView() : View
     {
-        Log::info(get_human_readable_name_from_view_function(__FUNCTION__), Auth::user()->getBasicInfoForLog());
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('auth.account.edit')->with(
             'user',
@@ -54,18 +64,14 @@ class AccountController extends Controller
      */
     public function delete() : RedirectResponse
     {
-        self::startExecutionTimer();
+        $this->startProfiling(__FUNCTION__);
 
         $user = Auth::user();
         Auth::logout();
         $user->delete();
+        app('Log')::notice('User Account deleted');
 
-        Log::notice('User Account deleted', [
-            'id' => $user->id,
-            'email' => $user->email,
-        ]);
-
-        self::endExecutionTimer();
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect(AUTH_HOME);
     }
@@ -79,7 +85,7 @@ class AccountController extends Controller
      */
     public function updateAccount(Request $request) : RedirectResponse
     {
-        self::startExecutionTimer();
+        $this->startProfiling(__FUNCTION__);
 
         $user = Auth::user();
         $data = [];
@@ -96,18 +102,22 @@ class AccountController extends Controller
         if (!is_null($request->get('password')) &&
             !empty($request->get('password'))
         ) {
+            $this->addTrace(__FUNCTION__, 'Password changed', __LINE__);
             $data['password'] = $request->get('password');
         }
 
+        $this->addTrace(__FUNCTION__, 'Updating User', __LINE__);
         User::updateUser($data);
 
         if (array_key_exists('password', $data)) {
             Auth::logout();
+            $this->addTrace(__FUNCTION__, 'Password changed, logging out', __LINE__);
+            $this->stopProfiling(__FUNCTION__);
 
             return redirect()->route('auth_login_form');
         }
 
-        self::endExecutionTimer();
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('account');
     }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\ExecutionTimeTrait;
+use App\Processors\UserInfoProcessor;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -15,12 +15,13 @@ use Illuminate\Routing\Controller as BaseController;
  */
 class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, ExecutionTimeTrait;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
      * Controller constructor.
      */
     public function __construct()
     {
+        app('Log')::getMonolog()->pushProcessor(new UserInfoProcessor());
     }
 }

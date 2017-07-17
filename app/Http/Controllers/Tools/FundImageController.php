@@ -7,6 +7,7 @@ use App\Exceptions\MissingExtensionException;
 use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use App\Traits\ProfilesMethodsTrait;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,8 @@ use InvalidArgumentException;
  */
 class FundImageController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     const COLORS = [
         'blue' => [0, 231, 255],
         'darkblue' => [69, 117, 129],
@@ -82,8 +85,9 @@ class FundImageController extends Controller
      */
     public function __construct(Request $request, StatsRepository $repository)
     {
+        $this->startProfiling(__FUNCTION__);
+
         parent::__construct();
-        Log::debug('Setting defaults');
         $this->checkIfImageCanBeCreated();
         $this->request = $request;
         $this->repository = $repository;
@@ -91,7 +95,8 @@ class FundImageController extends Controller
             'assets/fonts/orbitron-light-webfont.ttf'
         );
         $this->font['color'] = FundImageController::COLORS['black'];
-        Log::debug('Finished setting defaults');
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -102,7 +107,7 @@ class FundImageController extends Controller
     public function getImageWithText()
     {
         $this->image['type'] = FundImageController::FUNDING_AND_TEXT;
-        Log::debug('Setting Image Type to '.FUNDIMAGE_FUNDING_AND_TEXT);
+        $this->addTrace(__FUNCTION__, 'Setting Image Type to ' . FUNDIMAGE_FUNDING_AND_TEXT, __LINE__);
 
         return $this->getImage();
     }
@@ -115,7 +120,7 @@ class FundImageController extends Controller
     public function getImageWithBars()
     {
         $this->image['type'] = FundImageController::FUNDING_AND_BARS;
-        Log::debug('Setting Image Type to '.FUNDIMAGE_FUNDING_AND_BARS);
+        $this->addTrace(__FUNCTION__, 'Setting Image Type to ' . FUNDIMAGE_FUNDING_AND_BARS, __LINE__);
 
         return $this->getImage();
     }
@@ -127,10 +132,15 @@ class FundImageController extends Controller
      */
     public function getImage()
     {
-        Log::debug('Starting Fund Image Request');
+        $this->startProfiling(__FUNCTION__);
+
         try {
+            $this->addTrace(__FUNCTION__, "Setting Image Type", __LINE__);
             $this->setImageType();
         } catch (InvalidArgumentException $e) {
+            $this->addTrace(__FUNCTION__, "Setting Image Type failed with Message {$e->getMessage()}", __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             abort(400, $e->getMessage());
         }
 
@@ -138,6 +148,8 @@ class FundImageController extends Controller
         $this->assembleFilename();
 
         if ($this->checkIfImageCanBeLoadedFromCache()) {
+            $this->stopProfiling(__FUNCTION__);
+
             return $this->loadImageFromDisk();
         }
 
@@ -156,14 +168,19 @@ class FundImageController extends Controller
                 'requester' => $this->request->getHost(),
                 'message' => $e,
             ]);
+
+            $this->stopProfiling(__FUNCTION__);
+
             throw new Exception('Fund Image generation failed');
         }
 
-        Log::notice('Fund Image Requested', [
+        app('Log')::info('Fund Image Requested', [
             'type' => $this->image['type'],
             'name' => $this->image['name'],
             'requester' => $this->request->getHost(),
         ]);
+
+        $this->stopProfiling(__FUNCTION__);
 
         return $this->loadImageFromDisk();
     }
@@ -177,7 +194,7 @@ class FundImageController extends Controller
      */
     private function checkIfImageCanBeCreated() : void
     {
-        Log::debug('Checking if Image can be created');
+        $this->addTrace(__FUNCTION__, 'Checking if Image can be created', __LINE__);
         if (!in_array('gd', get_loaded_extensions())) {
             throw new MissingExtensionException('GD Library is missing!');
         }
@@ -190,9 +207,11 @@ class FundImageController extends Controller
      */
     private function setImageType() : void
     {
-        Log::debug('Setting Image Type');
+        $this->startProfiling(__FUNCTION__);
+
         $action = Route::getCurrentRoute()->getAction()['type'];
         if (in_array($action, FundImageController::SUPPORTED_FUNDS)) {
+            $this->addTrace(__FUNCTION__, "{$action} is a supported ImageType", __LINE__);
             $this->image['type'] = Route::getCurrentRoute()->getAction()['type'];
         } else {
             $message = 'FundImage function only accepts Supported Image Types('.
@@ -201,8 +220,13 @@ class FundImageController extends Controller
             Log::warning('Requested Image type does not exist', [
                 'message' => $message,
             ]);
+
+            $this->stopProfiling(__FUNCTION__);
+
             throw new InvalidArgumentException($message);
         }
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -210,16 +234,19 @@ class FundImageController extends Controller
      */
     private function setFontColorFromRequest()
     {
-        Log::debug('Getting Font Color from request');
+        $this->startProfiling(__FUNCTION__);
+
         $requestColor = $this->request->get('color');
         if (!is_null($requestColor) && !empty($requestColor)) {
-            Log::debug('Requested Color is '.$requestColor);
+            $this->addTrace(__FUNCTION__, "Requested Color is {$requestColor}", __LINE__);
             $colorArray = $this->convertHexToRGBColor($requestColor);
             if (!empty($colorArray)) {
+                $this->addTrace(__FUNCTION__, "Color is " . implode('', $colorArray) . " in HEX", __LINE__);
                 $this->font['color'] = $colorArray;
             }
-            Log::debug('Finished converting and setting Font Color');
         }
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -232,6 +259,8 @@ class FundImageController extends Controller
      */
     private function convertHexToRGBColor($hexStr) : array
     {
+        $this->startProfiling(__FUNCTION__);
+
         $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
         $rgbArray = [];
         if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
@@ -247,6 +276,8 @@ class FundImageController extends Controller
             return [];
         }
 
+        $this->stopProfiling(__FUNCTION__);
+
         return $rgbArray;
     }
 
@@ -257,12 +288,13 @@ class FundImageController extends Controller
      */
     private function assembleFilename() : void
     {
-        Log::debug('Starting Filename Assembly');
+        $this->startProfiling(__FUNCTION__);
+
         $color = implode('', $this->font['color']);
         $this->image['name'] = $this->image['type'].'_'.$color.'.png';
-        Log::debug('Finished Filename Assembly', [
-            'name' => $this->image['name'],
-        ]);
+        $this->addTrace(__FUNCTION__, "Filename is: {$this->image['name']}", __LINE__);
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -272,17 +304,21 @@ class FundImageController extends Controller
      */
     private function checkIfImageCanBeLoadedFromCache() : bool
     {
-        Log::debug('Starting Check if Image can be loaded from Cache');
+        $this->startProfiling(__FUNCTION__);
+
         if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->image['name'])) {
-            Log::debug('Image Exists in Cache');
+            $this->addTrace(__FUNCTION__, "Image Exists in Cache", __LINE__);
             $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->lastModified($this->image['name']);
             $cacheDuration = time() - FUNDIMAGE_CACHE_TIME;
             if ($imageCreationTime > $cacheDuration) {
-                Log::debug('Image is valid and can be loaded');
+                $this->addTrace(__FUNCTION__, "Image is valid and can be loaded", __LINE__);
+                $this->stopProfiling(__FUNCTION__);
 
                 return true;
             }
         }
+
+        $this->stopProfiling(__FUNCTION__);
 
         return false;
     }
@@ -294,12 +330,13 @@ class FundImageController extends Controller
      */
     private function getFundsFromAPI() : void
     {
-        Log::debug('Starting Funds Request from Repository');
+        $this->startProfiling(__FUNCTION__);
+
         $funds = $this->repository->getFunds()->asArray();
         $this->funds['current'] = substr($funds['data']['funds'], 0, -2);
-        Log::debug('Finished getting Funds from Repository', [
-            'funds' => $this->funds['current'],
-        ]);
+        $this->addTrace(__FUNCTION__, "Got Funds from API ({$this->funds['current']})", __LINE__);
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -309,13 +346,13 @@ class FundImageController extends Controller
      */
     private function formatFunds($source = 'current') : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         if ($source !== 'current') {
             $source = 'nextMillion';
         }
 
-        Log::debug('Formatting funds', [
-            'source' => $source,
-        ]);
+        $this->addTrace(__FUNCTION__, "Formatting Funds. Source: {$source}", __LINE__);
 
         $this->funds[$source.'Formatted'] = number_format(
             $this->funds[$source],
@@ -324,9 +361,9 @@ class FundImageController extends Controller
             '.'
         ).' $';
 
-        Log::debug('Funds formatted', [
-            'formatted' => $this->funds[$source.'Formatted'],
-        ]);
+        $this->addTrace(__FUNCTION__, "Funds formatted. Formatted: {$this->funds[$source.'Formatted']}", __LINE__);
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -336,7 +373,8 @@ class FundImageController extends Controller
      */
     private function determineImageWidth() : void
     {
-        Log::debug('Starting Image Width Determination');
+        $this->startProfiling(__FUNCTION__);
+
         switch ($this->image['type']) {
             case FundImageController::FUNDING_ONLY:
                 $this->image['width'] = 230;
@@ -350,9 +388,9 @@ class FundImageController extends Controller
                 $this->image['width'] = 305;
                 break;
         }
-        Log::debug('Finished Image Width Determination', [
-            'width' => $this->image['width'],
-        ]);
+        $this->addTrace(__FUNCTION__, "Image Width is: {$this->image['width']}", __LINE__);
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -362,7 +400,8 @@ class FundImageController extends Controller
      */
     private function determineImageHeight() : void
     {
-        Log::debug('Starting Image Height Determination');
+        $this->startProfiling(__FUNCTION__);
+
         switch ($this->image['type']) {
             case FundImageController::FUNDING_ONLY:
                 $this->image['height'] = 35;
@@ -376,9 +415,9 @@ class FundImageController extends Controller
                 $this->image['height'] = 41;
                 break;
         }
-        Log::debug('Finished Image Height Determination', [
-            'height' => $this->image['height'],
-        ]);
+        $this->addTrace(__FUNCTION__, "Image Height is: {$this->image['height']}", __LINE__);
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -386,7 +425,8 @@ class FundImageController extends Controller
      */
     private function initImage() : void
     {
-        Log::debug('Initializing Image');
+        $this->startProfiling(__FUNCTION__);
+
         $this->image['pointer'] = imagecreatetruecolor(
             $this->image['width'],
             $this->image['height']
@@ -407,7 +447,8 @@ class FundImageController extends Controller
             0,
             $transparentColor
         );
-        Log::debug('Image initialized');
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -417,9 +458,10 @@ class FundImageController extends Controller
      */
     private function addDataToImage() : void
     {
-        Log::debug('Adding Data to Image', [
-            'type' => $this->image['type'],
-        ]);
+        $this->startProfiling(__FUNCTION__);
+
+        $this->addTrace(__FUNCTION__, "Adding Data to Image with Type: {$this->image['type']}", __LINE__);
+
         $fontColor = $this->allocateColorFromFontArray();
         switch ($this->image['type']) {
             case FundImageController::FUNDING_AND_TEXT:
@@ -472,7 +514,8 @@ class FundImageController extends Controller
                 );
                 break;
         }
-        Log::debug('Data added');
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -482,10 +525,14 @@ class FundImageController extends Controller
      */
     private function initBarImage() : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         $this->font['color'] = FundImageController::COLORS['blue'];
         $this->roundFundsToNextMillion();
         $this->calculatePercentageToNextMillion();
         $this->image['text'] = 'Crowdfunding: '.$this->funds['currentFormatted'].' von '.$this->funds['nextMillionFormatted'].' ('.$this->funds['percentageToNextMillion'].'%)';
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -495,6 +542,8 @@ class FundImageController extends Controller
      */
     private function addBarsToBarImage() : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         $this->font['color'] = FundImageController::COLORS['darkblue'];
         $darkBlue = $this->allocateColorFromFontArray();
 
@@ -512,6 +561,8 @@ class FundImageController extends Controller
                 imageline($this->image['pointer'], $i + 2, 15, $i + 2, 40, $darkBlue);
             }
         }
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -536,12 +587,14 @@ class FundImageController extends Controller
      */
     private function flushImageToString() : void
     {
-        Log::debug('Flushing Image to String');
+        $this->startProfiling(__FUNCTION__);
+
         ob_start();
         imagepng($this->image['pointer']);
         $this->image['data'] = ob_get_contents();
         ob_end_clean();
-        Log::debug('Finished Flushing Image');
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -551,9 +604,11 @@ class FundImageController extends Controller
      */
     private function saveImageToDisk() : void
     {
-        Log::debug('Starting saving Image to disk');
+        $this->startProfiling(__FUNCTION__);
+
         Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->put($this->image['name'], $this->image['data']);
-        Log::debug('Finished saving Image to disk');
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -563,7 +618,7 @@ class FundImageController extends Controller
      */
     private function loadImageFromDisk()
     {
-        Log::debug('Requesting Image from disk');
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return response()->file(
             storage_path(FUNDIMAGE_RELATIVE_SAVE_PATH.$this->image['name'])

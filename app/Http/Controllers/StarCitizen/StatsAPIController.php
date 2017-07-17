@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
-use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
 
 /**
@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
  */
 class StatsAPIController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * StatsRepository
      *
@@ -44,7 +46,7 @@ class StatsAPIController extends Controller
      */
     public function getFunds()
     {
-        Log::debug('Funds Stats requested');
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -56,7 +58,7 @@ class StatsAPIController extends Controller
      */
     public function getFleet()
     {
-        Log::debug('Fleet Stats requested');
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -68,7 +70,7 @@ class StatsAPIController extends Controller
      */
     public function getFans()
     {
-        Log::debug('Fans Stats requested');
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -82,7 +84,7 @@ class StatsAPIController extends Controller
      */
     public function getAll(Request $request)
     {
-        Log::debug('All Stats requested');
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -136,19 +138,30 @@ class StatsAPIController extends Controller
      */
     private function getJsonPrettyPrintResponse($func)
     {
+        $this->startProfiling(__FUNCTION__);
+
         try {
+            $this->addTrace(__FUNCTION__, "Calling Function {$func}", __LINE__);
             $this->repository->$func();
             if (method_exists($this->repository->transformer, 'addFilters')) {
+                $this->addTrace(__FUNCTION__, "Adding Filters", __LINE__);
                 $this->repository->transformer->addFilters($this->request);
             }
+            $this->addTrace(__FUNCTION__, "Getting Data", __LINE__);
+            $data = $this->repository->asArray();
+
+            $this->stopProfiling(__FUNCTION__);
 
             return response()->json(
-                $this->repository->asArray(),
+                $data,
                 200,
                 [],
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
+            $this->addTrace(__FUNCTION__, "Getting Data failed with Message {$e->getMessage()}", __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             return $e->getMessage();
         }
     }
