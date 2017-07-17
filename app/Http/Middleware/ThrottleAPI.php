@@ -3,8 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\UserBlacklistedException;
-use App\Facades\Log;
 use App\Models\User;
+use App\Traits\ProfilesMethodsTrait;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -17,6 +17,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
  */
 class ThrottleAPI extends ThrottleRequests
 {
+    use ProfilesMethodsTrait;
+
     /**
      * ThrottleAPI constructor.
      *
@@ -39,34 +41,37 @@ class ThrottleAPI extends ThrottleRequests
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        Log::debug('Getting User From Request');
+        $this->startProfiling(__FUNCTION__);
 
+        $this->addTrace(__FUNCTION__, 'Getting User From Request', __LINE__);
         $user = User::where('api_token', $request->get(AUTH_KEY_FIELD_NAME, null))->first();
 
         if (!is_null($user)) {
             if ($user->whitelisted) {
-                Log::debug('User is Whitelisted, no Throttling');
+                $this->addTrace(__FUNCTION__, 'User is Whitelisted, no Throttling', __LINE__);
+                $this->stopProfiling(__FUNCTION__);
 
                 return $next($request);
             }
-        } else {
-            Log::debug('No User for key found', [
-                'api_key' => $request->get(AUTH_KEY_FIELD_NAME),
-            ]);
+        } elseif (!is_null($request->get(AUTH_KEY_FIELD_NAME))) {
+            app('Log')::notice("No User for key: {$request->get(AUTH_KEY_FIELD_NAME)} found");
         }
 
         try {
             $rpm = $this->determineRequestsPerMinute($user);
-            Log::debug('Got RPM for Request', [
-                'rpm' => $rpm,
-            ]);
+            $this->addTrace(__FUNCTION__, "Got RPM: {$rpm} for Request");
         } catch (UserBlacklistedException $e) {
-            Log::notice('Request from blacklisted User', [
+            app('Log')::notice('Request from blacklisted User', [
                 'user_id' => $user->id,
                 'request_url' => $request->getUri(),
             ]);
+
+            $this->stopProfiling(__FUNCTION__);
+
             abort(403, 'API Key blacklisted');
         }
+
+        $this->stopProfiling(__FUNCTION__);
 
         return parent::handle($request, $next, $rpm, THROTTLE_PERIOD);
     }

@@ -7,7 +7,6 @@
 
 namespace App\Repositories\StarCitizen\APIv1;
 
-use App\Facades\Log;
 use App\Models\Starsystem;
 use App\Repositories\StarCitizen\BaseStarCitizenAPI;
 use App\Repositories\StarCitizen\Interfaces\StarmapInterface;
@@ -32,9 +31,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getSystem(String $systemName)
     {
-        Log::debug('Requesting System', [
-            'system' => $systemName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
         $this->withTransformer(SystemTransformer::class)->request(
             'POST',
@@ -52,9 +49,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getAsteroidbelts(String $systemName)
     {
-        Log::debug('Requesting Astreoidbelts', [
-            'system' => $systemName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
         $this->withTransformer(AsteroidbeltsTransformer::class)->request(
             'POST',
@@ -99,7 +94,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getSystemList()
     {
-        Log::debug('Requesting System List');
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->dataToTransform = Starsystem::all()->toArray();
 
         return $this->collection()->withTransformer(SystemListTransformer::class);

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Facades\Log;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -108,24 +107,11 @@ class User extends Authenticatable
             }
         }
 
-        Log::notice('User Account updated', [
+        app('Log')::notice('User Account updated', [
             'changes' => $changes,
         ]);
 
         return $user->save();
-    }
-
-    /**
-     * Returns user_id and either name or email as assoc array
-     *
-     * @return array
-     */
-    public function getBasicInfoForLog() : array
-    {
-        return [
-            'user_id' => $this->id,
-            'username' => $this->name ?? $this->email,
-        ];
     }
 
     /**
@@ -136,10 +122,6 @@ class User extends Authenticatable
     public function isAdmin() : bool
     {
         $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
-        Log::debug('Checked if User is Admin', [
-            'id' => $this->id,
-            'admin' => $isAdmin,
-        ]);
 
         return $isAdmin;
     }
@@ -152,10 +134,6 @@ class User extends Authenticatable
     public function isWhitelisted() : bool
     {
         $whitelisted = $this->whitelisted == 1;
-        Log::debug('Checked if User is whitelisted', [
-            'id' => $this->id,
-            'whitelisted' => $whitelisted,
-        ]);
 
         return $whitelisted;
     }
@@ -168,10 +146,6 @@ class User extends Authenticatable
     public function isBlacklisted() : bool
     {
         $blacklisted = $this->blacklisted == 1;
-        Log::debug('Checked if User is blacklisted', [
-            'id' => $this->id,
-            'blacklisted' => $blacklisted,
-        ]);
 
         return $blacklisted;
     }
@@ -183,10 +157,6 @@ class User extends Authenticatable
      */
     public function shortURLs()
     {
-        Log::debug('Requested Users ShortURLs', [
-            'id' => Auth::id(),
-        ]);
-
         return $this->hasMany('App\Models\ShortURL\ShortURL');
     }
 

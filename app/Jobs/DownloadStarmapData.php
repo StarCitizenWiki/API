@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Facades\Log;
 use App\Models\Starsystem;
 use App\Repositories\StarCitizen\APIv1\StarmapRepository;
+use App\Traits\ProfilesMethodsTrait;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class DownloadStarmapData implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ProfilesMethodsTrait;
 
     // Requests for Celestial Subobject
     const CELESTIAL_SUBOBJECTS_REQUEST = ['PLANET'];
@@ -43,12 +43,14 @@ class DownloadStarmapData implements ShouldQueue
      */
     public function handle() : void
     {
-        Log::info('Starting Starmap Download Job');
+        $this->startProfiling(__FUNCTION__);
+
+        app('Log')::info('Starting Starmap Download Job');
         $this->guzzleClient = new Client(['timeout' => 10.0]);
 
         foreach (Starsystem::where('exclude', '=', false)->get() as $system) {
             $fileName = Starsystem::makeFilenameFromCode($system->code);
-            Log::info('Downloading '.$system->code);
+            $this->addTrace(__FUNCTION__, "Downloading {$system->code}");
             $this->starmapContent = $this->getJsonArrayFromStarmap('star-systems/'.$system->code);
 
             if ($this->checkIfDataCanBeProcessed($this->starmapContent) &&
@@ -56,13 +58,15 @@ class DownloadStarmapData implements ShouldQueue
                 $this->addCelestialContent();
             }
 
-            Log::info('Writing System to file '.$system->code);
+            $this->addTrace(__FUNCTION__, "Writing System to file {$system->code}");
             Storage::disk('starmap')->put(
                 $fileName,
                 json_encode($this->starmapContent, JSON_PRETTY_PRINT)
             );
         }
-        Log::info('Starmap Download Job Finished');
+        app('Log')::info('Starmap Download Job Finished');
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -70,12 +74,16 @@ class DownloadStarmapData implements ShouldQueue
      */
     private function addCelestialContent() : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         foreach ($this->starmapContent['data']['resultset'][0]['celestial_objects'] as $celestialObject) {
             if (in_array($celestialObject['type'], self::CELESTIAL_SUBOBJECTS_REQUEST)) {
                 $celestialContent = $this->getJsonArrayFromStarmap('celestial-objects/'.$celestialObject['code']);
                 $this->addCelestialSubobjectsToStarmap($celestialContent);
             }
         }
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -85,6 +93,8 @@ class DownloadStarmapData implements ShouldQueue
      */
     private function addCelestialSubobjectsToStarmap($celestialContent) : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         if ($this->checkIfDataCanBeProcessed($celestialContent) &&
             array_key_exists('children', $celestialContent['data']['resultset'][0])) {
             foreach ($celestialContent['data']['resultset'][0]['children'] as $celestrialChildren) {
@@ -93,6 +103,8 @@ class DownloadStarmapData implements ShouldQueue
                 }
             }
         }
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
