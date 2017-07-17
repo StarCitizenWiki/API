@@ -8,7 +8,7 @@
 
 namespace App\Exceptions;
 
-use Exception;
+use \Exception;
 
 /**
  * Class MethodNotImplementedException
@@ -16,7 +16,7 @@ use Exception;
  *
  * @package App\Exceptions
  */
-class MethodNotImplementedException extends \Exception
+class MethodNotImplementedException extends Exception
 {
 
 }
