@@ -23,8 +23,6 @@ use Illuminate\Support\Facades\Storage;
  */
 class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
 {
-    use ProfilesMethodsTrait;
-
     /**
      * Returns Ship data
      *
@@ -35,18 +33,14 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function getShip(Request $request, String $shipName) : ShipsRepository
     {
-        $this->startProfiling(__FUNCTION__);
-
         $shipName = urldecode($shipName);
-        app('Log')::info("Getting Ship with name {$shipName}");
+        app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
 
         $this->getShipDataFromWiki($shipName);
         $this->resetTransform();
         $this->transformer = resolve(ShipsTransformer::class);
         $this->transformer->addFilters($request);
         $this->getShipDataFromSCDB();
-
-        $this->stopProfiling(__FUNCTION__);
 
         return $this;
     }
@@ -58,7 +52,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function getShipList() : ShipsRepository
     {
-        app('Log')::debug('Getting ShipList');
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->collection();
         $this->transformer = resolve(ShipsListTransformer::class);
 
@@ -74,13 +68,9 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             $data = array_merge($data, $response['query']['results']);
             if (array_key_exists('query-continue-offset', $response)) {
                 $offset = $response['query-continue-offset'];
-                app('Log')::debug('Getting Data for next offset', [
-                    'offset' => $offset,
-                ]);
             }
         } while (array_key_exists('query-continue-offset', $response));
 
-        app('Log')::debug('Finished getting Data from Wiki');
         $this->dataToTransform = $data;
 
         return $this;
@@ -95,9 +85,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      */
     public function searchShips(String $shipName)
     {
-        app('Log')::debug('Searching for Ship', [
-            'name' => $shipName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
         /**
          * TODO: Suche Gibt teils Mist zurück
          * Beispiel: Suche nach Aurora gibt zusätzlich Orion und Hull A zurück!?
@@ -109,7 +97,6 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             []
         );
         $this->dataToTransform = $this->dataToTransform['query']['search'];
-        app('Log')::debug('Finished getting Data from Wiki');
 
         return $this;
     }
@@ -153,11 +140,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
                 $shipName = last($subject);
                 $fileName = strtolower($subject[1].'_'.$shipName.'.json');
 
-                app('Log')::debug('Checking if StarCitizenDB Data exists for ship', [
-                    'filename' => $fileName,
-                ]);
                 if (Storage::disk('scdb_ships_splitted')->exists($fileName)) {
-                    app('Log')::debug('File exists adding content to transformation');
                     $content = Storage::disk('scdb_ships_splitted')->get($fileName);
                 }
             }
