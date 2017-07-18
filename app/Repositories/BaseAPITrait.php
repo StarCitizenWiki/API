@@ -195,7 +195,7 @@ trait BaseAPITrait
         } elseif (is_array($responseBody)) {
             $this->dataToTransform = $responseBody;
         } else {
-            Log::warning('Response Body is neither json nor array');
+            app('Log')::warning('Response Body is neither json nor array');
             throw new InvalidDataException('Response Body is invalid');
         }
     }
