@@ -66,7 +66,7 @@ class SplitShipFiles implements ShouldQueue
     {
         $this->startProfiling(__FUNCTION__);
 
-        app('Log')::info('Starting Split Ship Files Job');
+        $this->addTrace('Starting Split Ship Files Job', __FUNCTION__, __LINE__);
         foreach (File::allFiles(config('filesystems.disks.scdb_ships_base.root')) as $ship) {
             $this->setContent((String) $ship);
 
@@ -85,12 +85,10 @@ class SplitShipFiles implements ShouldQueue
                     }
                 }
             } catch (InvalidDataException $e) {
-                Log::warning($e->getMessage(), [
-                    'file' => (String) $ship,
-                ]);
+                app('Log')::warning($e->getMessage(), ['file' => (String) $ship]);
             }
         }
-        app('Log')::info('Finished Split Ship Files Job');
+        $this->addTrace('Finished Split Ship Files Job', __FUNCTION__, __LINE__);
 
         $this->stopProfiling(__FUNCTION__);
     }
@@ -281,6 +279,7 @@ class SplitShipFiles implements ShouldQueue
 
         // Transformer benötigt ifcs array
         if (!isset($this->content['ifcs'])) {
+            $this->addTrace('IFCS not set', __FUNCTION__, __LINE__);
             $this->content['ifcs'] = [];
         }
 
