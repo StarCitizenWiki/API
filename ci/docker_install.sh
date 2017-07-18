@@ -23,8 +23,8 @@ docker-php-ext-configure gd \
         --with-jpeg-dir=/usr/include \
     && docker-php-ext-install gd
 
-pecl install xdebug
-docker-php-ext-enable xdebug
+#pecl install xdebug
+#docker-php-ext-enable xdebug
 
 # Install phpunit, the tool that we will use for testing
 curl --location --output /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-6.2.3.phar
