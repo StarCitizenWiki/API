@@ -52,13 +52,6 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
 
             return $this->filterData($data);
         }
-
-        Log::warning('Invalid Ship Search Result. Size should be 3, is '.count($result), [
-            'search' => $search,
-        ]);
-
-        throw new InvalidDataException(
-            'result size should be 3, is '.count($result)
-        );
+        throw new InvalidDataException('result size should be 3, is '.count($result));
     }
 }
