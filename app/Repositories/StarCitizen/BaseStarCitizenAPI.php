@@ -94,7 +94,7 @@ class BaseStarCitizenAPI
 
             $this->__construct();
         } catch (\Exception $e) {
-            Log::warning("Guzzle Request failed with Message: {$e->getMessage()}");
+            app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");
         }
     }
 }
