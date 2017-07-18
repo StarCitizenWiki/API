@@ -107,9 +107,7 @@ class User extends Authenticatable
             }
         }
 
-        app('Log')::notice('User Account updated', [
-            'changes' => $changes,
-        ]);
+        app('Log')::notice('User Account updated', ['changes' => $changes]);
 
         return $user->save();
     }

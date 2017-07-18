@@ -46,9 +46,7 @@ class ShipsRepository implements ShipsInterface
     public function getShip(Request $request, String $shipName)
     {
         $shipName = urldecode($shipName);
-        app('Log')::debug('Getting Ship by name', [
-            'ship' => $shipName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
 
         $shipName = str_replace(' ', '_', $shipName).'.json';
         $shipName = strtolower($shipName);

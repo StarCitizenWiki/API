@@ -21,7 +21,6 @@ use App\Transformers\StarCitizen\Starmap\SystemTransformer;
  */
 class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
 {
-
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}
      *

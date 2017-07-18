@@ -22,8 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ShortURLWhitelist extends Model
 {
-
-
     protected $table = 'short_url_whitelists';
 
     /**

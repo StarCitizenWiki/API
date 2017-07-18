@@ -21,8 +21,6 @@ use App\Transformers\StarCitizen\Stats\StatsTransformer;
  */
 class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
 {
-
-
     private $getFans = true;
     private $getFleet = true;
     private $getFunds = true;

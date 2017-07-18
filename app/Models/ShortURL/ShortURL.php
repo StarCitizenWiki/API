@@ -81,9 +81,7 @@ class ShortURL extends Model
         $url->expires = $data['expires'];
         $url->save();
 
-        app('Log')::info('URL Shortened', [
-            'data' => $data,
-        ]);
+        app('Log')::info('URL Shortened', ['data' => $data]);
 
         return $url;
     }
@@ -116,9 +114,7 @@ class ShortURL extends Model
             }
         }
 
-        app('Log')::info('ShortURL updated', [
-            'changes' => $changes,
-        ]);
+        app('Log')::info('ShortURL updated', ['changes' => $changes]);
 
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
