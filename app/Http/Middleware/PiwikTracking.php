@@ -47,7 +47,7 @@ class PiwikTracking
             $piwikClient->setUserId($request->get(AUTH_KEY_FIELD_NAME, false));
             $piwikClient->doTrackPageView($request->getRequestUri());
 
-            $this->addTrace(__FUNCTION__, "Passed URL: {$request->fullUrl()} to Piwik", __LINE__);
+            $this->addTrace("Passed URL: {$request->fullUrl()} to Piwik", __FUNCTION__, __LINE__);
         }
 
         $this->stopProfiling(__FUNCTION__);

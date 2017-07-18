@@ -30,7 +30,7 @@ class CheckIfAdmin
         $this->startProfiling(__FUNCTION__);
 
         if (App::isLocal()) {
-            $this->addTrace(__FUNCTION__, "App is local", __LINE__);
+            $this->addTrace("App is local", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return $next($request);

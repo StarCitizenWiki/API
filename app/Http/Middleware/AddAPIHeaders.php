@@ -49,7 +49,7 @@ class AddAPIHeaders
         $response->header("Connection", "keep-alive");
         $response->header("X-SCW-API-Version", API_VERSION);
 
-        $this->addTrace(__FUNCTION__, "Added API Headers to Request: {$request->fullUrl()}", __LINE__);
+        $this->addTrace("Added API Headers to Request: {$request->fullUrl()}", __FUNCTION__, __LINE__);
 
         $this->stopProfiling(__FUNCTION__);
 

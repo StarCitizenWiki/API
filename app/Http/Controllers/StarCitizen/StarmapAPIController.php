@@ -56,9 +56,9 @@ class StarmapAPIController extends Controller
         app('Log')::info(make_name_readable(__FUNCTION__), ['name' => $name]);
 
         try {
-            $this->addTrace(__FUNCTION__, "Getting System with Name: {$name}", __LINE__);
+            $this->addTrace("Getting System with Name: {$name}", __FUNCTION__, __LINE__);
             $data = $this->repository->getSystem($name)->asArray();
-            $this->addTrace(__FUNCTION__, "Got System", __LINE__);
+            $this->addTrace("Got System", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return response()->json(
@@ -68,7 +68,7 @@ class StarmapAPIController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
-            $this->addTrace(__FUNCTION__, "Getting System failed with Message {$e->getMessage()}", __LINE__);
+            $this->addTrace("Getting System failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();
@@ -100,7 +100,7 @@ class StarmapAPIController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
-            $this->addTrace(__FUNCTION__, "Getting System-List failed with Message {$e->getMessage()}", __LINE__);
+            $this->addTrace("Getting System-List failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();
@@ -123,7 +123,7 @@ class StarmapAPIController extends Controller
         $name = strtoupper($name);
 
         try {
-            $this->addTrace(__FUNCTION__, "Getting Asteroidbelt", __LINE__);
+            $this->addTrace("Getting Asteroidbelt", __FUNCTION__, __LINE__);
             $data = $this->repository->getAsteroidbelts($name)->asArray();
             $this->stopProfiling(__FUNCTION__);
 

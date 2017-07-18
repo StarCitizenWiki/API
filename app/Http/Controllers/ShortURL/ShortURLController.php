@@ -36,7 +36,7 @@ class ShortURLController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->addTrace(__FUNCTION__, 'Setting Transformer', 0);
+        $this->addTrace('Setting Transformer', __FUNCTION__, 0);
         $this->transformer = new ShortURLTransformer();
     }
 
@@ -84,12 +84,12 @@ class ShortURLController extends Controller
         $url = $this->getURLRedirectIfException('short_url_index', $hash);
 
         if ($url instanceof RedirectResponse) {
-            $this->addTrace(__FUNCTION__, "No URL for Hash: {$hash} found", __LINE__);
+            $this->addTrace("No URL for Hash: {$hash} found", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return $url;
         }
-        $this->addTrace(__FUNCTION__, "Redirecting to URL: {$url->url}", __LINE__);
+        $this->addTrace("Redirecting to URL: {$url->url}", __FUNCTION__, __LINE__);
         $this->stopProfiling(__FUNCTION__);
 
         return redirect($url->url, 301);

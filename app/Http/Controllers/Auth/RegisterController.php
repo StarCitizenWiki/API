@@ -70,7 +70,7 @@ class RegisterController extends Controller
         $api_token = str_random(60);
         $password = str_random(32);
 
-        $this->addTrace(__FUNCTION__, "Creating User", __LINE__);
+        $this->addTrace("Creating User", __FUNCTION__, __LINE__);
         $user = User::create([
             'name' => null,
             'email' => $data['email'],

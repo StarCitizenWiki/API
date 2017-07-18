@@ -102,16 +102,16 @@ class AccountController extends Controller
         if (!is_null($request->get('password')) &&
             !empty($request->get('password'))
         ) {
-            $this->addTrace(__FUNCTION__, 'Password changed', __LINE__);
+            $this->addTrace('Password changed', __FUNCTION__, __LINE__);
             $data['password'] = $request->get('password');
         }
 
-        $this->addTrace(__FUNCTION__, 'Updating User', __LINE__);
+        $this->addTrace('Updating User', __FUNCTION__, __LINE__);
         User::updateUser($data);
 
         if (array_key_exists('password', $data)) {
             Auth::logout();
-            $this->addTrace(__FUNCTION__, 'Password changed, logging out', __LINE__);
+            $this->addTrace('Password changed, logging out', __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return redirect()->route('auth_login_form');

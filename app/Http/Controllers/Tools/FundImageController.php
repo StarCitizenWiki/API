@@ -107,7 +107,7 @@ class FundImageController extends Controller
     public function getImageWithText()
     {
         $this->image['type'] = FundImageController::FUNDING_AND_TEXT;
-        $this->addTrace(__FUNCTION__, 'Setting Image Type to ' . FUNDIMAGE_FUNDING_AND_TEXT, __LINE__);
+        $this->addTrace('Setting Image Type to ' . FUNDIMAGE_FUNDING_AND_TEXT, __FUNCTION__, __LINE__);
 
         return $this->getImage();
     }
@@ -120,7 +120,7 @@ class FundImageController extends Controller
     public function getImageWithBars()
     {
         $this->image['type'] = FundImageController::FUNDING_AND_BARS;
-        $this->addTrace(__FUNCTION__, 'Setting Image Type to ' . FUNDIMAGE_FUNDING_AND_BARS, __LINE__);
+        $this->addTrace('Setting Image Type to ' . FUNDIMAGE_FUNDING_AND_BARS, __FUNCTION__, __LINE__);
 
         return $this->getImage();
     }
@@ -135,10 +135,10 @@ class FundImageController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         try {
-            $this->addTrace(__FUNCTION__, "Setting Image Type", __LINE__);
+            $this->addTrace("Setting Image Type", __FUNCTION__, __LINE__);
             $this->setImageType();
         } catch (InvalidArgumentException $e) {
-            $this->addTrace(__FUNCTION__, "Setting Image Type failed with Message {$e->getMessage()}", __LINE__);
+            $this->addTrace("Setting Image Type failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             abort(400, $e->getMessage());
@@ -194,7 +194,7 @@ class FundImageController extends Controller
      */
     private function checkIfImageCanBeCreated() : void
     {
-        $this->addTrace(__FUNCTION__, 'Checking if Image can be created', __LINE__);
+        $this->addTrace('Checking if Image can be created', __FUNCTION__, __LINE__);
         if (!in_array('gd', get_loaded_extensions())) {
             throw new MissingExtensionException('GD Library is missing!');
         }
@@ -211,7 +211,7 @@ class FundImageController extends Controller
 
         $action = Route::getCurrentRoute()->getAction()['type'];
         if (in_array($action, FundImageController::SUPPORTED_FUNDS)) {
-            $this->addTrace(__FUNCTION__, "{$action} is a supported ImageType", __LINE__);
+            $this->addTrace("{$action} is a supported ImageType", __FUNCTION__, __LINE__);
             $this->image['type'] = Route::getCurrentRoute()->getAction()['type'];
         } else {
             $message = 'FundImage function only accepts Supported Image Types('.
@@ -238,10 +238,10 @@ class FundImageController extends Controller
 
         $requestColor = $this->request->get('color');
         if (!is_null($requestColor) && !empty($requestColor)) {
-            $this->addTrace(__FUNCTION__, "Requested Color is {$requestColor}", __LINE__);
+            $this->addTrace("Requested Color is {$requestColor}", __FUNCTION__, __LINE__);
             $colorArray = $this->convertHexToRGBColor($requestColor);
             if (!empty($colorArray)) {
-                $this->addTrace(__FUNCTION__, "Color is " . implode('', $colorArray) . " in HEX", __LINE__);
+                $this->addTrace("Color is " . implode('', $colorArray) . " in HEX", __FUNCTION__, __LINE__);
                 $this->font['color'] = $colorArray;
             }
         }
@@ -292,7 +292,7 @@ class FundImageController extends Controller
 
         $color = implode('', $this->font['color']);
         $this->image['name'] = $this->image['type'].'_'.$color.'.png';
-        $this->addTrace(__FUNCTION__, "Filename is: {$this->image['name']}", __LINE__);
+        $this->addTrace("Filename is: {$this->image['name']}", __FUNCTION__, __LINE__);
 
         $this->stopProfiling(__FUNCTION__);
     }
@@ -307,11 +307,11 @@ class FundImageController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->image['name'])) {
-            $this->addTrace(__FUNCTION__, "Image Exists in Cache", __LINE__);
+            $this->addTrace("Image Exists in Cache", __FUNCTION__, __LINE__);
             $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->lastModified($this->image['name']);
             $cacheDuration = time() - FUNDIMAGE_CACHE_TIME;
             if ($imageCreationTime > $cacheDuration) {
-                $this->addTrace(__FUNCTION__, "Image is valid and can be loaded", __LINE__);
+                $this->addTrace("Image is valid and can be loaded", __FUNCTION__, __LINE__);
                 $this->stopProfiling(__FUNCTION__);
 
                 return true;
@@ -334,7 +334,7 @@ class FundImageController extends Controller
 
         $funds = $this->repository->getFunds()->asArray();
         $this->funds['current'] = substr($funds['data']['funds'], 0, -2);
-        $this->addTrace(__FUNCTION__, "Got Funds from API ({$this->funds['current']})", __LINE__);
+        $this->addTrace("Got Funds from API ({$this->funds['current']})", __FUNCTION__, __LINE__);
 
         $this->stopProfiling(__FUNCTION__);
     }
@@ -352,7 +352,7 @@ class FundImageController extends Controller
             $source = 'nextMillion';
         }
 
-        $this->addTrace(__FUNCTION__, "Formatting Funds. Source: {$source}", __LINE__);
+        $this->addTrace("Formatting Funds. Source: {$source}", __FUNCTION__, __LINE__);
 
         $this->funds[$source.'Formatted'] = number_format(
             $this->funds[$source],
@@ -361,7 +361,7 @@ class FundImageController extends Controller
             '.'
         ).' $';
 
-        $this->addTrace(__FUNCTION__, "Funds formatted. Formatted: {$this->funds[$source.'Formatted']}", __LINE__);
+        $this->addTrace("Funds formatted. Formatted: {$this->funds[$source.'Formatted']}", __FUNCTION__, __LINE__);
 
         $this->stopProfiling(__FUNCTION__);
     }
@@ -388,7 +388,7 @@ class FundImageController extends Controller
                 $this->image['width'] = 305;
                 break;
         }
-        $this->addTrace(__FUNCTION__, "Image Width is: {$this->image['width']}", __LINE__);
+        $this->addTrace("Image Width is: {$this->image['width']}", __FUNCTION__, __LINE__);
 
         $this->stopProfiling(__FUNCTION__);
     }
@@ -415,7 +415,7 @@ class FundImageController extends Controller
                 $this->image['height'] = 41;
                 break;
         }
-        $this->addTrace(__FUNCTION__, "Image Height is: {$this->image['height']}", __LINE__);
+        $this->addTrace("Image Height is: {$this->image['height']}", __FUNCTION__, __LINE__);
 
         $this->stopProfiling(__FUNCTION__);
     }
@@ -460,7 +460,7 @@ class FundImageController extends Controller
     {
         $this->startProfiling(__FUNCTION__);
 
-        $this->addTrace(__FUNCTION__, "Adding Data to Image with Type: {$this->image['type']}", __LINE__);
+        $this->addTrace("Adding Data to Image with Type: {$this->image['type']}", __FUNCTION__, __LINE__);
 
         $fontColor = $this->allocateColorFromFontArray();
         switch ($this->image['type']) {

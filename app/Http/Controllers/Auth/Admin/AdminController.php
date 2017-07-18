@@ -65,7 +65,7 @@ class AdminController extends Controller
         app('Log')::info(make_name_readable(__FUNCTION__));
 
         if ($request->input('l')) {
-            $this->addTrace(__FUNCTION__, "Setting File to {$request->input('l')}", __LINE__);
+            $this->addTrace("Setting File to {$request->input('l')}", __FUNCTION__, __LINE__);
             LaravelLogViewer::setFile(base64_decode($request->input('l')));
         }
 

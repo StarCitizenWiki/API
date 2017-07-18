@@ -48,7 +48,7 @@ class UserController extends Controller
 
         app('Log')::info(make_name_readable(__FUNCTION__));
         try {
-            $this->addTrace(__FUNCTION__, "Getting User with ID: {$id}", __LINE__);
+            $this->addTrace("Getting User with ID: {$id}", __FUNCTION__, __LINE__);
             $user = User::withTrashed()->findOrFail($id);
             $this->stopProfiling(__FUNCTION__);
 
@@ -98,7 +98,7 @@ class UserController extends Controller
         ]);
 
         try {
-            $this->addTrace(__FUNCTION__, "Getting User with ID: {$request->id}", __LINE__);
+            $this->addTrace("Getting User with ID: {$request->id}", __FUNCTION__, __LINE__);
             $user = User::findOrFail($request->id);
             app('Log')::notice('Account deleted', [
                 'account_id' => $request->get('id'),
@@ -106,7 +106,7 @@ class UserController extends Controller
             ]);
             $user->delete();
         } catch (ModelNotFoundException $e) {
-            $this->addTrace(__FUNCTION__, "User not found", __LINE__);
+            $this->addTrace("User not found", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return redirect()->route('admin_users_list')

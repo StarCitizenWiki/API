@@ -141,13 +141,13 @@ class StatsAPIController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         try {
-            $this->addTrace(__FUNCTION__, "Calling Function {$func}", __LINE__);
+            $this->addTrace("Calling Function {$func}", __FUNCTION__, __LINE__);
             $this->repository->$func();
             if (method_exists($this->repository->transformer, 'addFilters')) {
-                $this->addTrace(__FUNCTION__, "Adding Filters", __LINE__);
+                $this->addTrace("Adding Filters", __FUNCTION__, __LINE__);
                 $this->repository->transformer->addFilters($this->request);
             }
-            $this->addTrace(__FUNCTION__, "Getting Data", __LINE__);
+            $this->addTrace("Getting Data", __FUNCTION__, __LINE__);
             $data = $this->repository->asArray();
 
             $this->stopProfiling(__FUNCTION__);
@@ -159,7 +159,7 @@ class StatsAPIController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
-            $this->addTrace(__FUNCTION__, "Getting Data failed with Message {$e->getMessage()}", __LINE__);
+            $this->addTrace("Getting Data failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();
