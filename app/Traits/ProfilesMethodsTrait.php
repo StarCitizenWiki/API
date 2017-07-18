@@ -29,7 +29,7 @@ trait ProfilesMethodsTrait
         $this->curID = $functionName;
         $this->idStack[] = $this->curID;
         $this->log[$functionName]['exec_time'] = microtime(true);
-        $this->addTrace($functionName, "Profiling for {$functionName} started");
+        $this->addTrace("Profiling for {$functionName} started", $functionName);
     }
 
     /**
@@ -40,17 +40,17 @@ trait ProfilesMethodsTrait
     protected function stopProfiling(String $functionName) : void
     {
         $this->log[$functionName]['exec_time'] = microtime(true) - $this->log[$functionName]['exec_time'];
-        $this->addTrace($functionName, "Profiling for {$functionName} finished");
+        $this->addTrace("Profiling for {$functionName} finished", $functionName);
     }
 
     /**
      * Adds Line and Message to Log
      *
-     * @param String $functionName
      * @param String $message
+     * @param String $functionName
      * @param int    $line
      */
-    protected function addTrace(String $functionName, String $message, int $line = 0) : void
+    protected function addTrace(String $message, String $functionName, int $line = 0) : void
     {
         if ($line > 0) {
             $message = "[Line: {$line}] {$message}";
@@ -64,7 +64,7 @@ trait ProfilesMethodsTrait
      */
     public function __destruct()
     {
-        if (!$this->destructed) {
+        if (!$this->destructed && config('app.log_profiling')) {
             app('Log')::debug("Profiling for Class ".__CLASS__." finished", $this->log);
             $this->destructed = true;
         }

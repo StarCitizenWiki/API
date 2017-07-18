@@ -129,6 +129,8 @@ return [
 
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
 
+    'log_profiling' => env('APP_LOG_PROFILING', false),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
