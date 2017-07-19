@@ -64,7 +64,7 @@ trait ProfilesMethodsTrait
      */
     public function __destruct()
     {
-        if (!$this->destructed && config('app.log_profiling')) {
+        if (!$this->destructed && env('APP_LOG_PROFILING', false)) {
             app('Log')::debug("Profiling for Class ".__CLASS__." finished", $this->log);
             $this->destructed = true;
         }

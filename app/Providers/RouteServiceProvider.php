@@ -56,7 +56,9 @@ class RouteServiceProvider extends ServiceProvider
             'middleware' => 'web',
             'namespace' => $this->namespace,
         ], function ($router) {
-            foreach (File::allFiles(base_path('routes/web')) as $route) {
+            $files = File::allFiles(base_path('routes/web'));
+            sort($files);
+            foreach ($files as $route) {
                 Route::group(['domain' => $this->getDomainForRoute($route)], function ($router) use ($route) {
                     require $route;
                 });
