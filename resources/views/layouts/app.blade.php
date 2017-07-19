@@ -23,7 +23,7 @@
     </head>
     <body>
         <ul class="nav nav-pills mt-2 mr-2 justify-content-end ">
-            @if(App::isLocal() || (!is_null(Auth::user()) && Auth::user()->isAdmin()))
+            @if(!is_null(Auth::user()) && Auth::user()->isAdmin())
                 <li class="nav-item mr-2">
                     <a class="nav-link" href="{{ route('admin_dashboard') }}">@lang('layouts/app.admin')</a>
                 </li>
