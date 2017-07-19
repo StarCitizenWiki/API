@@ -16,7 +16,7 @@ use Exception;
  *
  * @package App\Exceptions
  */
-class MethodNotImplementedException extends \Exception
+class MethodNotImplementedException extends Exception
 {
 
 }

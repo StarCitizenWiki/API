@@ -9,7 +9,6 @@ use App\Transformers\FakeTransformer as ShipsTransformer;
 use App\Transformers\StarCitizenDB\Ships\ShipsListTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -29,9 +28,7 @@ class ShipsRepository implements ShipsInterface
      */
     public function getShipList() : ShipsRepository
     {
-        Log::debug('Getting ShipList', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->collection()->withTransformer(ShipsListTransformer::class);
         $this->dataToTransform = File::allFiles(config('filesystems.disks.scdb_ships_splitted.root'));
 
@@ -49,10 +46,7 @@ class ShipsRepository implements ShipsInterface
     public function getShip(Request $request, String $shipName)
     {
         $shipName = urldecode($shipName);
-        Log::debug('Getting Ship by name', [
-            'method' => __METHOD__,
-            'ship' => $shipName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
 
         $shipName = str_replace(' ', '_', $shipName).'.json';
         $shipName = strtolower($shipName);

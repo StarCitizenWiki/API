@@ -5,8 +5,8 @@ namespace App\Http\Controllers\StarCitizen;
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class StatsAPIController
@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Log;
  */
 class StatsAPIController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * StatsRepository
      *
@@ -32,6 +34,7 @@ class StatsAPIController extends Controller
      */
     public function __construct(Request $request, StatsRepository $repository)
     {
+        parent::__construct();
         $this->repository = $repository;
         $this->request = $request;
     }
@@ -43,9 +46,7 @@ class StatsAPIController extends Controller
      */
     public function getFunds()
     {
-        Log::debug('Funds Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -57,9 +58,7 @@ class StatsAPIController extends Controller
      */
     public function getFleet()
     {
-        Log::debug('Fleet Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -71,9 +70,7 @@ class StatsAPIController extends Controller
      */
     public function getFans()
     {
-        Log::debug('Fans Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -87,9 +84,7 @@ class StatsAPIController extends Controller
      */
     public function getAll(Request $request)
     {
-        Log::debug('All Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -143,19 +138,30 @@ class StatsAPIController extends Controller
      */
     private function getJsonPrettyPrintResponse($func)
     {
+        $this->startProfiling(__FUNCTION__);
+
         try {
+            $this->addTrace("Calling Function {$func}", __FUNCTION__, __LINE__);
             $this->repository->$func();
             if (method_exists($this->repository->transformer, 'addFilters')) {
+                $this->addTrace("Adding Filters", __FUNCTION__, __LINE__);
                 $this->repository->transformer->addFilters($this->request);
             }
+            $this->addTrace("Getting Data", __FUNCTION__, __LINE__);
+            $data = $this->repository->asArray();
+
+            $this->stopProfiling(__FUNCTION__);
 
             return response()->json(
-                $this->repository->asArray(),
+                $data,
                 200,
                 [],
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
+            $this->addTrace("Getting Data failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             return $e->getMessage();
         }
     }

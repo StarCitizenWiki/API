@@ -23,9 +23,6 @@ class StarmapController extends Controller
      */
     public function showStarmapSystemsView() : View
     {
-        Log::debug('Starmap Systems View requested', [
-            'method' => __METHOD__,
-        ]);
 
         return view('admin.starmap.systems.index')->with(
             'systems',
@@ -40,9 +37,7 @@ class StarmapController extends Controller
      */
     public function showEditStarmapSystemsView(String $code) : View
     {
-        Log::debug('Edit Starmap System View requested', [
-            'method' => __METHOD__,
-        ]);
+        Log::debug('Edit Starmap System View requested');
 
         $content = '';
         if (Storage::disk('starmap')->exists(Starsystem::makeFilenameFromCode($code))) {
@@ -58,9 +53,7 @@ class StarmapController extends Controller
      */
     public function showAddStarmapSystemsView() : View
     {
-        Log::debug('Add Starmap System View requested', [
-            'method' => __METHOD__,
-        ]);
+        Log::debug('Add Starmap System View requested');
 
         return view('admin.starmap.systems.add');
     }
@@ -79,7 +72,7 @@ class StarmapController extends Controller
         ]);
 
         $system = Starsystem::findOrFail($request->id);
-        Log::info('Starmap System updated', [
+        Log::notice('Starmap System updated', [
             'updated_by' => Auth::id(),
             'code_old' => $system->code,
             'code_new' => $request->code,
@@ -105,7 +98,7 @@ class StarmapController extends Controller
         ]);
 
         $system = Starsystem::findOrFail($request->id);
-        Log::info('Starmap System deleted', [
+        Log::notice('Starmap System deleted', [
             'deleted_by' => Auth::id(),
             'system_id' => $system->id,
             'code' => $system->code,
@@ -133,7 +126,7 @@ class StarmapController extends Controller
         $system->exclude = $request->exclude === "1";
         $system->save();
 
-        Log::info('Starmap System added', [
+        Log::notice('Starmap System added', [
             'added_by' => Auth::id(),
             'system_code' => $request->code,
             'exclude' => $request->exclude === "1",

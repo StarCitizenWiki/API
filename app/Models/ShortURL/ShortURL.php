@@ -10,7 +10,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -68,9 +67,6 @@ class ShortURL extends Model
      */
     public static function createShortURL(array $data) : ShortURL
     {
-        Log::debug('Creating ShortURL', [
-            'method' => __METHOD__,
-        ]);
         ShortURL::checkURLinWhitelist($data['url']);
         ShortURL::checkHashNameInDB($data['hash_name']);
 
@@ -85,9 +81,7 @@ class ShortURL extends Model
         $url->expires = $data['expires'];
         $url->save();
 
-        Log::info('URL Shortened', [
-            'data' => $data,
-        ]);
+        app('Log')::info('URL Shortened', ['data' => $data]);
 
         return $url;
     }
@@ -103,10 +97,6 @@ class ShortURL extends Model
      */
     public static function updateShortURL(array $data) : bool
     {
-        Log::debug('Updating ShortURL', [
-            'method' => __METHOD__,
-            'update_data' => $data,
-        ]);
         ShortURL::checkURLinWhitelist($data['url']);
         $url = ShortURL::findOrFail($data['id']);
 
@@ -124,9 +114,7 @@ class ShortURL extends Model
             }
         }
 
-        Log::info('ShortURL updated', [
-            'changes' => $changes,
-        ]);
+        app('Log')::info('ShortURL updated', ['changes' => $changes]);
 
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
@@ -149,8 +137,7 @@ class ShortURL extends Model
     {
         $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
 
-        Log::debug('URL resolved', [
-            'method' => __METHOD__,
+        app('Log')::info('URL resolved', [
             'id' => $url->id,
             'hash_name' => $url->hash_name,
             'url' => $url->url,
@@ -158,7 +145,7 @@ class ShortURL extends Model
         ]);
 
         if (!is_null($url->expires) && Carbon::parse($url->expires)->lte(Carbon::now())) {
-            throw new ExpiredException('Url has Expired');
+            throw new ExpiredException('URL has Expired');
         }
 
         if ($url->user()->first()->isBlacklisted()) {
@@ -178,21 +165,27 @@ class ShortURL extends Model
      */
     public static function sanitizeURL($url) : String
     {
-        Log::debug('Sanitizing URL', [
-            'method' => __METHOD__,
-            'url' => $url,
-        ]);
         $url = filter_var($url, FILTER_SANITIZE_URL);
         if (!isset(parse_url($url)['path'])) {
             $url .= '/';
         }
 
-        Log::debug('Sanitized URL', [
-            'method' => __METHOD__,
-            'url' => $url,
-        ]);
-
         return $url;
+    }
+
+    /**
+     * @param String|null $date Date to check
+     *
+     * @throws ExpiredException
+     */
+    public static function checkIfDateIsPast($date) : void
+    {
+        if (!is_null($date)) {
+            $expires = Carbon::parse($date);
+            if ($expires->lte(Carbon::now())) {
+                throw new ExpiredException('Expires date can\'t be in the past');
+            }
+        }
     }
 
     /**
@@ -206,19 +199,9 @@ class ShortURL extends Model
      */
     private static function checkHashNameInDB($hashName) : void
     {
-        Log::debug('Checking if hash is in DB', [
-            'method' => __METHOD__,
-            'hash' => $hashName,
-        ]);
         if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
-            Log::debug('Hash is in DB', [
-                'method' => __METHOD__,
-            ]);
             throw new HashNameAlreadyAssignedException('Name already assigned');
         }
-        Log::debug('Hash is not in DB', [
-            'method' => __METHOD__,
-        ]);
     }
 
     /**
@@ -235,20 +218,9 @@ class ShortURL extends Model
         $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
 
-        Log::debug('Checking if URL is whitelisted', [
-            'method' => __METHOD__,
-            'url' => $url,
-        ]);
-
         if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {
-            Log::debug('URL is not whitelisted', [
-                'method' => __METHOD__,
-            ]);
-            throw new URLNotWhitelistedException('Url '.$url.' is not whitelisted');
+            throw new URLNotWhitelistedException('URL '.$url.' is not whitelisted');
         }
-        Log::debug('URL is whitelisted', [
-            'method' => __METHOD__,
-        ]);
     }
 
     /**
@@ -258,17 +230,11 @@ class ShortURL extends Model
      */
     private static function generateShortURLHash() : String
     {
-        Log::debug('Generating Hash', [
-            'method' => __METHOD__,
-        ]);
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);
         } while (ShortURL::where('hash_name', '=', $hashName)->count() > 0);
 
-        Log::debug('Generated Hash', [
-            'method' => __METHOD__,
-            'hash' => $hashName,
-        ]);
+        app('Log')::info("Generated Hash: {$hashName}");
 
         return $hashName;
     }

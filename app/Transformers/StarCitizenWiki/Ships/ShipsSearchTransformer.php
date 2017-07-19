@@ -8,9 +8,9 @@
 namespace App\Transformers\StarCitizenWiki\Ships;
 
 use App\Exceptions\InvalidDataException;
+use App\Facades\Log;
 use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
-use Illuminate\Support\Facades\Log;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -52,13 +52,6 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
 
             return $this->filterData($data);
         }
-
-        Log::warning('Invalid Ship Search Result. Size should be 3, is '.count($result), [
-            'search' => $search,
-        ]);
-
-        throw new InvalidDataException(
-            'result size should be 3, is '.count($result)
-        );
+        throw new InvalidDataException('result size should be 3, is '.count($result));
     }
 }

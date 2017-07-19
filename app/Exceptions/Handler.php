@@ -4,12 +4,9 @@ namespace App\Exceptions;
 
 use App\Traits\RestExceptionHandlerTrait;
 use App\Traits\RestTrait;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Validation\ValidationException;
 
 /**
  * Class Handler

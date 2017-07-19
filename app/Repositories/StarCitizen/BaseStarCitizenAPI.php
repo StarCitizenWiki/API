@@ -7,11 +7,11 @@
 
 namespace App\Repositories\StarCitizen;
 
+use App\Facades\Log;
 use App\Repositories\BaseAPITrait;
 use App\Traits\TransformesDataTrait;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class BaseStarCitizenAPI
@@ -51,23 +51,11 @@ class BaseStarCitizenAPI
      */
     private function checkIfResponseDataIsValid() : bool
     {
-        Log::debug('Checking if Response Data is valid', [
-            'method' => __METHOD__,
-        ]);
-
         $valid = str_contains((String) $this->response->getBody(), 'success');
 
         if (!$valid) {
-            Log::debug('Response data is not valid', [
-                'method' => __METHOD__,
-            ]);
-
             return false;
         }
-
-        Log::debug('Response data is valid', [
-            'method' => __METHOD__,
-        ]);
 
         return true;
     }
@@ -79,9 +67,7 @@ class BaseStarCitizenAPI
      */
     private function getRSIToken() : void
     {
-        Log::debug('Trying to get RSI Token', [
-            'method' => __METHOD__,
-        ]);
+
         try {
             $response = $this->guzzleClient->request(
                 'POST',
@@ -90,15 +76,12 @@ class BaseStarCitizenAPI
             $token = $response->getHeader('Set-Cookie');
 
             if (empty($token)) {
-                Log::info('Getting RSI Token failed', [
-                    'method' => __METHOD__,
-                ]);
+                app('Log')::notice('Getting RSI Token failed');
                 $this->rsiToken = 'StarCitizenWiki_DE';
             } else {
                 $token = explode(';', $token[0])[0];
                 $token = str_replace('Rsi-Token=', '', $token);
-                Log::debug('Getting RSI Token succeeded', [
-                    'method' => __METHOD__,
+                app('Log')::info('Getting RSI Token succeeded', [
                     'token' => $token,
                 ]);
                 $this->rsiToken = $token;
@@ -111,10 +94,7 @@ class BaseStarCitizenAPI
 
             $this->__construct();
         } catch (\Exception $e) {
-            Log::warning('Guzzle Request failed', [
-                'method' => __METHOD__,
-                'message' => $e->getMessage(),
-            ]);
+            app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");
         }
     }
 }

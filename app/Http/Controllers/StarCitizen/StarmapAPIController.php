@@ -10,8 +10,8 @@ namespace App\Http\Controllers\StarCitizen;
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StarmapRepository;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class StarmapAPIController
@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Log;
  */
 class StarmapAPIController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * StarmapRepository
      *
@@ -34,6 +36,7 @@ class StarmapAPIController extends Controller
      */
     public function __construct(StarmapRepository $repository)
     {
+        parent::__construct();
         $this->repository = $repository;
     }
 
@@ -46,21 +49,28 @@ class StarmapAPIController extends Controller
      */
     public function getSystem(String $name)
     {
+        $this->startProfiling(__FUNCTION__);
+
         $name = strtoupper($name);
 
-        Log::debug('Starmap System requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['name' => $name]);
 
         try {
+            $this->addTrace("Getting System with Name: {$name}", __FUNCTION__, __LINE__);
+            $data = $this->repository->getSystem($name)->asArray();
+            $this->addTrace("Got System", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             return response()->json(
-                $this->repository->getSystem($name)->asArray(),
+                $data,
                 200,
                 [],
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
+            $this->addTrace("Getting System failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             return $e->getMessage();
         }
     }
@@ -74,20 +84,25 @@ class StarmapAPIController extends Controller
      */
     public function getSystemList(Request $request)
     {
-        Log::debug('Starmap System List requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->startProfiling(__FUNCTION__);
 
         $this->repository->getSystemList();
         $this->repository->transformer->addFilters($request);
+        $data = $this->repository->asArray();
+
         try {
+            $this->stopProfiling(__FUNCTION__);
+
             return response()->json(
-                $this->repository->asArray(),
+                $data,
                 200,
                 [],
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
+            $this->addTrace("Getting System-List failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             return $e->getMessage();
         }
     }
@@ -101,21 +116,27 @@ class StarmapAPIController extends Controller
      */
     public function getAsteroidbelts(String $name)
     {
+        $this->startProfiling(__FUNCTION__);
+
+        app('Log')::info(make_name_readable(__FUNCTION__), ['name' => $name]);
+
         $name = strtoupper($name);
 
-        Log::debug('Starmap System Asteroidbelts requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
-
         try {
+            $this->addTrace("Getting Asteroidbelt", __FUNCTION__, __LINE__);
+            $data = $this->repository->getAsteroidbelts($name)->asArray();
+            $this->stopProfiling(__FUNCTION__);
+
             return response()->json(
-                $this->repository->getAsteroidbelts($name)->asArray(),
+                $data,
                 200,
                 [],
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
+            $this->addTrace(__FUNCTION__, "Failed getting Asteroidbelt with Message: {$e->getMessage()}", __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             return $e->getMessage();
         }
     }

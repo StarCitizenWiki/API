@@ -9,7 +9,6 @@ namespace App\Traits;
 
 use App\Exceptions\InvalidDataException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class FiltersDataTrait
@@ -32,16 +31,9 @@ trait FiltersDataTrait
      */
     public function addFilters(Request $request)
     {
-        Log::debug('Adding Filters', [
-            'method' => __METHOD__,
-        ]);
         $filters = $request->get('fields', null);
         if (!is_null($filters) && !empty($filters)) {
             $this->requestedFields = explode(',', $filters);
-            Log::debug('Filters added', [
-                'method' => __METHOD__,
-                'filters' => $this->requestedFields,
-            ]);
             $this->validateRequestedFields();
         }
     }
@@ -77,10 +69,8 @@ trait FiltersDataTrait
             if (is_array($item)) {
                 $data[$key] = $this->filterData($item);
             }
-            if (in_array($key, $this->validFields)) {
-                if (!in_array($key, $this->filters)) {
-                    unset($data[$key]);
-                }
+            if (in_array($key, $this->validFields) && !in_array($key, $this->filters)) {
+                unset($data[$key]);
             }
         }
 
@@ -92,9 +82,6 @@ trait FiltersDataTrait
      */
     public function getAvailableFields() : array
     {
-        Log::debug('Returning Available Fields', [
-            'method' => __METHOD__,
-        ]);
         if (isset($this->validFields)) {
             return $this->validFields;
         }

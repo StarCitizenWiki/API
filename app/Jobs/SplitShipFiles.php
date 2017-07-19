@@ -3,14 +3,15 @@
 namespace App\Jobs;
 
 use App\Exceptions\InvalidDataException;
+use App\Facades\Log;
+use App\Traits\ProfilesMethodsTrait;
 use App\Transformers\StarCitizenDB\Ships\ShipsTransformer;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Fractal\Fractal;
 
@@ -20,7 +21,7 @@ use Spatie\Fractal\Fractal;
  */
 class SplitShipFiles implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ProfilesMethodsTrait;
 
     private const WIKI_SHIP_NAMES = [
         'RSI_Bengal' => 'RSI_Bengal_Carrier',
@@ -63,7 +64,9 @@ class SplitShipFiles implements ShouldQueue
      */
     public function handle() : void
     {
-        Log::info('Starting Split Ship Files Job');
+        $this->startProfiling(__FUNCTION__);
+
+        $this->addTrace('Starting Split Ship Files Job', __FUNCTION__, __LINE__);
         foreach (File::allFiles(config('filesystems.disks.scdb_ships_base.root')) as $ship) {
             $this->setContent((String) $ship);
 
@@ -71,25 +74,23 @@ class SplitShipFiles implements ShouldQueue
                 $this->checkIfShipHasNameField();
                 $this->getDataForBaseVersion();
                 if ($this->checkIfShipHasModifications()) {
-                    Log::debug('Ship has Modifications');
+                    $this->addTrace(__FUNCTION__, 'Ship has Modifications', __LINE__);
                     foreach ($this->content['Modifications'] as $modification) {
                         if ($this->checkIfModificationIsValid($modification)) {
                             $this->content = $modification;
                             $this->prepareModificationArray();
-                            Log::debug('Mod: '.$this->content['@name']);
+                            $this->addTrace(__FUNCTION__, "Mod: {$this->content['@name']}");
                             $this->getDataForModifications();
-
                         }
                     }
                 }
             } catch (InvalidDataException $e) {
-                Log::warning($e->getMessage(), [
-                    'method' => __METHOD__,
-                    'file' => (String) $ship,
-                ]);
+                app('Log')::warning($e->getMessage(), ['file' => (String) $ship]);
             }
         }
-        Log::info('Finished Split Ship Files Job');
+        $this->addTrace('Finished Split Ship Files Job', __FUNCTION__, __LINE__);
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -118,8 +119,10 @@ class SplitShipFiles implements ShouldQueue
      */
     private function getDataForBaseVersion() : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         $this->getShipNameForBaseVersion();
-        Log::info('Processing '.$this->content['processedName']);
+        app('Log')::info('Processing '.$this->content['processedName']);
 
         $baseVersion = $this->content;
         unset($baseVersion['Modifications']);
@@ -129,6 +132,8 @@ class SplitShipFiles implements ShouldQueue
         $this->saveDataToDisk($collectedData);
 
         $this->baseVersion = $collectedData;
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     private function getShipNameForBaseVersion() : void
@@ -211,8 +216,10 @@ class SplitShipFiles implements ShouldQueue
      */
     private function getDataForModifications() : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         $this->getShipNameForModification();
-        Log::info('Processing Modification '.$this->content['processedName']);
+        app('Log')::info('Processing Modification '.$this->content['processedName']);
 
         $collectedData = $this->fractalManager->item($this->content)->toArray()['data'];
 
@@ -221,10 +228,14 @@ class SplitShipFiles implements ShouldQueue
         $collectedData = array_replace_recursive($this->baseVersion, $collectedData);
 
         $this->saveDataToDisk($collectedData);
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     private function getShipNameForModification() : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         $patchFileName = $this->content['@patchFile'];
         $name = str_replace(
             'Modifications/',
@@ -250,6 +261,8 @@ class SplitShipFiles implements ShouldQueue
         }
 
         $this->content['processedName'] = $name;
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -257,6 +270,8 @@ class SplitShipFiles implements ShouldQueue
      */
     private function prepareModificationArray() : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         // Content des MOD arrays eine Ebene höherstufen, damit nur ein ShipsTransformer benötigt wird
         $mod = $this->content['mod'];
         unset($this->content['mod']);
@@ -264,8 +279,11 @@ class SplitShipFiles implements ShouldQueue
 
         // Transformer benötigt ifcs array
         if (!isset($this->content['ifcs'])) {
+            $this->addTrace('IFCS not set', __FUNCTION__, __LINE__);
             $this->content['ifcs'] = [];
         }
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -277,6 +295,8 @@ class SplitShipFiles implements ShouldQueue
      */
     private function filterModificationArray(&$array) : array
     {
+        $this->startProfiling(__FUNCTION__);
+
         foreach ($array as $key => $item) {
             if (is_array($item)) {
                 $array[$key] = $this->filterModificationArray($item);
@@ -286,6 +306,8 @@ class SplitShipFiles implements ShouldQueue
             }
         }
 
+        $this->stopProfiling(__FUNCTION__);
+
         return $array;
     }
 
@@ -294,13 +316,17 @@ class SplitShipFiles implements ShouldQueue
      */
     private function saveDataToDisk(array $content) : void
     {
+        $this->startProfiling(__FUNCTION__);
+
         $this->prepareFilename($content);
 
-        Log::info('Saving '.$content['name']);
+        app('Log')::info('Saving '.$content['name']);
         Storage::disk('scdb_ships_splitted')->put(
             $content['filename'],
             json_encode($content, JSON_PRETTY_PRINT)
         );
+
+        $this->stopProfiling(__FUNCTION__);
     }
 
     /**

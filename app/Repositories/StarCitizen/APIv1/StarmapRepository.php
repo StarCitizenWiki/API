@@ -13,7 +13,6 @@ use App\Repositories\StarCitizen\Interfaces\StarmapInterface;
 use App\Transformers\StarCitizen\Starmap\AsteroidbeltsTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemListTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class StarmapRepository
@@ -22,7 +21,6 @@ use Illuminate\Support\Facades\Log;
  */
 class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
 {
-
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}
      *
@@ -32,10 +30,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getSystem(String $systemName)
     {
-        Log::debug('Requesting System', [
-            'method' => __METHOD__,
-            'system' => $systemName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
         $this->withTransformer(SystemTransformer::class)->request(
             'POST',
@@ -53,10 +48,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getAsteroidbelts(String $systemName)
     {
-        Log::debug('Requesting Astreoidbelts', [
-            'method' => __METHOD__,
-            'system' => $systemName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
         $this->withTransformer(AsteroidbeltsTransformer::class)->request(
             'POST',
@@ -101,9 +93,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getSystemList()
     {
-        Log::debug('Requesting System List', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->dataToTransform = Starsystem::all()->toArray();
 
         return $this->collection()->withTransformer(SystemListTransformer::class);

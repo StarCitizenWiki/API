@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Events\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -26,7 +26,7 @@ class RegisterController extends Controller
     |
     */
 
-    use RegistersUsers;
+    use RegistersUsers, ProfilesMethodsTrait;
 
     /**
      * Where to redirect users after registration.
@@ -40,6 +40,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('guest');
     }
 
@@ -50,9 +51,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        Log::debug('Registration Form requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return redirect(AUTH_HOME);
     }
@@ -66,9 +65,12 @@ class RegisterController extends Controller
      */
     public function create(array $data)
     {
+        $this->startProfiling(__FUNCTION__);
+
         $api_token = str_random(60);
         $password = str_random(32);
 
+        $this->addTrace("Creating User", __FUNCTION__, __LINE__);
         $user = User::create([
             'name' => null,
             'email' => $data['email'],
@@ -78,12 +80,13 @@ class RegisterController extends Controller
             'last_login' => date('Y-m-d H:i:s'),
         ]);
 
-        Log::info('Account created', [
+        app('Log')::notice('Account created', [
             'id' => $user->id,
             'email' => $user->email,
         ]);
-
         event(new UserRegistered($user, $password));
+
+        $this->stopProfiling(__FUNCTION__);
 
         return $user;
     }
