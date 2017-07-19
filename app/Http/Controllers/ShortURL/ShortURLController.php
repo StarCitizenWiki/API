@@ -38,6 +38,7 @@ class ShortURLController extends Controller
         parent::__construct();
         $this->addTrace('Setting Transformer', __FUNCTION__, 0);
         $this->transformer = new ShortURLTransformer();
+        $this->middleware('throttle', ['except' => ['showShortURLView', 'showResolveView']]);
     }
 
     /**

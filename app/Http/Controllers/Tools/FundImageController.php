@@ -88,6 +88,8 @@ class FundImageController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         parent::__construct();
+        $this->middleware('throttle');
+        $this->middleware('token_usage');
         $this->checkIfImageCanBeCreated();
         $this->request = $request;
         $this->repository = $repository;

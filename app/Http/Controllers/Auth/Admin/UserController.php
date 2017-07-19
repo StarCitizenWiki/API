@@ -21,6 +21,16 @@ class UserController extends Controller
     use ProfilesMethodsTrait;
 
     /**
+     * UserController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+        $this->middleware('admin');
+    }
+
+    /**
      * Returns the View with all Users listed
      *
      * @return View

@@ -26,6 +26,16 @@ class ShortURLController extends Controller
     use ProfilesMethodsTrait;
 
     /**
+     * ShortURLController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+        $this->middleware('admin');
+    }
+
+    /**
      * Returns the ShortURL List View
      *
      * @return View
