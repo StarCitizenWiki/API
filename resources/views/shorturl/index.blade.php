@@ -9,7 +9,7 @@
                 @include('components.errors')
                 @if (session('hash_name'))
                     <div class="alert alert-success text-center">
-                        https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
+                        {{config('app.shorturl_url')}}/{{ session('hash_name') }}
                     </div>
                 @endif
                 <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_create_redirect') }}">
@@ -47,7 +47,7 @@
                     <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">@lang('shorturl/index.whitelist')</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="https://{{ config('app.api_url') }}">@lang('shorturl/index.api')</a>
+                    <a class="nav-link text-info" href="{{ config('app.api_url') }}">@lang('shorturl/index.api')</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-info" href="https://star-citizen.wiki/Star_Citizen_Wiki:Impressum">@lang('shorturl/index.legal')</a>
