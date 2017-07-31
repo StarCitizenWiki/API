@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers;
 
@@ -19,7 +19,7 @@ class APIPageController extends Controller
      *
      * @return View
      */
-    public function showAPIView() : View
+    public function showAPIView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -31,7 +31,7 @@ class APIPageController extends Controller
      *
      * @return View
      */
-    public function showFAQView() : View
+    public function showFAQView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 

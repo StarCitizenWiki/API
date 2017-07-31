@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -38,7 +38,7 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
 
         $transformed = [
             $ship['displaytitle'] => [
-                'api_url' => '//'.config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
+                'api_url'  => '//'.config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
                 'wiki_url' => $ship['fullurl'],
             ],
         ];

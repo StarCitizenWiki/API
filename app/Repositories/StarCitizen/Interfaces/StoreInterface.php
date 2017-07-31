@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 19.01.2017
@@ -41,11 +41,13 @@ interface StoreInterface
      * https://robertsspaceindustries.com/api/store/getShipSuggestedSKU
      * ship_id : 100
      * storefront : "pledge"
+     *
      * @param Integer $shipID
-     * @param String  $storeFront
+     * @param string  $storeFront
+     *
      * @return string json
      */
-    public function getShipSuggestedSKU(Integer $shipID, String $storeFront);
+    public function getShipSuggestedSKU(Integer $shipID, string $storeFront);
 
     /**
      * https://robertsspaceindustries.com/api/store/getShipUpgradeSKU

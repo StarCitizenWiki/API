@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -32,7 +32,7 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
      */
     public function transform($ship)
     {
-        $content = (String) File::get($ship->getLinkTarget());
+        $content = (string) File::get($ship->getLinkTarget());
         $content = json_decode($content, true);
 
         $name = $this->prepareName($content['name']);
@@ -49,11 +49,11 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
     /**
      * Normalises the Name to match the wiki sites name
      *
-     * @param String $name
+     * @param string $name
      *
      * @return String
      */
-    private function prepareName(String $name) : String
+    private function prepareName(string $name): String
     {
         $name = explode('_', $name);
         unset($name[0]);

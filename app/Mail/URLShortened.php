@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Mail;
 
@@ -15,7 +15,8 @@ use Illuminate\Queue\SerializesModels;
  */
 class URLShortened extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $url;
 

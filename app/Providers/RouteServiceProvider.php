@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Providers;
 
@@ -6,6 +6,10 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
+/**
+ * Class RouteServiceProvider
+ * @package App\Providers
+ */
 class RouteServiceProvider extends ServiceProvider
 {
     /**
@@ -59,7 +63,7 @@ class RouteServiceProvider extends ServiceProvider
             $files = File::allFiles(base_path('routes/web'));
             sort($files);
             foreach ($files as $route) {
-                Route::group(['domain' => $this->getDomainForRoute($route)], function ($router) use ($route) {
+                Route::group(['domain' => $this->getDomainForRoute((string) $route)], function ($router) use ($route) {
                     require $route;
                 });
             }
@@ -85,7 +89,7 @@ class RouteServiceProvider extends ServiceProvider
                 $versionRoutePrefix = str_replace([base_path('routes/api'), '/'], '', $version);
                 Route::group(['prefix' => $versionRoutePrefix], function ($router) use ($version) {
                     foreach (File::allFiles($version) as $route) {
-                        Route::group(['domain' => $this->getDomainForRoute($route)], function ($router) use ($route) {
+                        Route::group(['domain' => $this->getDomainForRoute((string) $route)], function ($router) use ($route) {
                             require $route;
                         });
                     }
@@ -97,11 +101,11 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Returns the Config for app.<filename>_url
      *
-     * @param String $route
+     * @param string $route
      *
-     * @return String
+     * @return string
      */
-    private function getDomainForRoute(String $route) : String
+    private function getDomainForRoute(string $route) : string
     {
         $key = str_replace(
             [

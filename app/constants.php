@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 /**
  * Global Constants
@@ -10,7 +10,10 @@ define('FUNDIMAGE_FUNDING_ONLY', 'funding_only');
 define('FUNDIMAGE_FUNDING_AND_TEXT', 'funding_and_text');
 define('FUNDIMAGE_FUNDING_AND_BARS', 'funding_and_bars');
 define('FUNDIMAGE_DISK_SAVE_PATH', 'tools_media_images');
-define('FUNDIMAGE_RELATIVE_SAVE_PATH', join(DIRECTORY_SEPARATOR, ['app', 'tools', 'media', 'images'.DIRECTORY_SEPARATOR]));
+define(
+    'FUNDIMAGE_RELATIVE_SAVE_PATH',
+    join(DIRECTORY_SEPARATOR, ['app', 'tools', 'media', 'images'.DIRECTORY_SEPARATOR])
+);
 define('FUNDIMAGE_CACHE_TIME', 600);
 
 /** Auth */

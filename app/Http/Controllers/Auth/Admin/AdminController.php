@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth\Admin;
 
@@ -37,7 +37,7 @@ class AdminController extends Controller
      *
      * @return View
      */
-    public function showDashboardView() : View
+    public function showDashboardView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -81,9 +81,9 @@ class AdminController extends Controller
         $this->stopProfiling(__FUNCTION__);
 
         return view('admin.logs')
-                    ->with('logs', LaravelLogViewer::all())
-                    ->with('files', LaravelLogViewer::getFiles(true))
-                    ->with('current_file', LaravelLogViewer::getFileName());
+            ->with('logs', LaravelLogViewer::all())
+            ->with('files', LaravelLogViewer::getFiles(true))
+            ->with('current_file', LaravelLogViewer::getFileName());
     }
 
     /**
@@ -91,7 +91,7 @@ class AdminController extends Controller
      *
      * @return View
      */
-    public function showRoutesView() : View
+    public function showRoutesView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 

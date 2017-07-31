@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 19.01.2017
@@ -27,12 +27,27 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     private $chartType = 'hour';
 
     /**
+     * Requests only funds
+     *
+     * @return StatsRepository
+     */
+    public function getFunds(): StatsRepository
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__));
+        $this->getFans = false;
+        $this->getFleet = false;
+        $this->withTransformer(FundsTransformer::class);
+
+        return $this->getCrowdfundStats();
+    }
+
+    /**
      * Reads the Crowdfunding Stats from RSI
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
      * @return StatsRepository
      */
-    public function getCrowdfundStats() : StatsRepository
+    public function getCrowdfundStats(): StatsRepository
     {
         $requestBody = $this->getRequestBody();
 
@@ -48,26 +63,11 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     }
 
     /**
-     * Requests only funds
-     *
-     * @return StatsRepository
-     */
-    public function getFunds() : StatsRepository
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->getFans = false;
-        $this->getFleet = false;
-        $this->withTransformer(FundsTransformer::class);
-
-        return $this->getCrowdfundStats();
-    }
-
-    /**
      * Requests only fans
      *
      * @return StatsRepository
      */
-    public function getFans() : StatsRepository
+    public function getFans(): StatsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->getFleet = false;
@@ -82,7 +82,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return StatsRepository
      */
-    public function getFleet() : StatsRepository
+    public function getFleet(): StatsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->getFans = false;
@@ -93,24 +93,11 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     }
 
     /**
-     * Requests all stats
-     *
-     * @return StatsRepository
-     */
-    public function getAll() : StatsRepository
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->withTransformer(StatsTransformer::class);
-
-        return $this->getCrowdfundStats();
-    }
-
-    /**
      * Sets the Chart Type to 'hour'
      *
      * @return StatsRepository
      */
-    public function lastHours() : StatsRepository
+    public function lastHours(): StatsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->chartType = 'hour';
@@ -119,11 +106,24 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     }
 
     /**
+     * Requests all stats
+     *
+     * @return StatsRepository
+     */
+    public function getAll(): StatsRepository
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__));
+        $this->withTransformer(StatsTransformer::class);
+
+        return $this->getCrowdfundStats();
+    }
+
+    /**
      * Sets the Chart Type to 'day'
      *
      * @return StatsRepository
      */
-    public function lastDays() : StatsRepository
+    public function lastDays(): StatsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->chartType = 'day';
@@ -136,7 +136,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return StatsRepository
      */
-    public function lastWeeks() : StatsRepository
+    public function lastWeeks(): StatsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->chartType = 'week';
@@ -149,7 +149,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return StatsRepository
      */
-    public function lastMonths() : StatsRepository
+    public function lastMonths(): StatsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->chartType = 'month';
@@ -162,28 +162,37 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return array
      */
-    private function getRequestBody() : array
+    private function getRequestBody(): array
     {
         $requestContent = [
             'chart' => $this->chartType,
         ];
 
         if ($this->getFans) {
-            $requestContent = array_merge($requestContent, [
-                'fans' => $this->getFans,
-            ]);
+            $requestContent = array_merge(
+                $requestContent,
+                [
+                    'fans' => $this->getFans,
+                ]
+            );
         }
 
         if ($this->getFleet) {
-            $requestContent = array_merge($requestContent, [
-                'fleet' => $this->getFleet,
-            ]);
+            $requestContent = array_merge(
+                $requestContent,
+                [
+                    'fleet' => $this->getFleet,
+                ]
+            );
         }
 
         if ($this->getFunds) {
-            $requestContent = array_merge($requestContent, [
-                'funds' => $this->getFunds,
-            ]);
+            $requestContent = array_merge(
+                $requestContent,
+                [
+                    'funds' => $this->getFunds,
+                ]
+            );
         }
 
         $requestBody = [

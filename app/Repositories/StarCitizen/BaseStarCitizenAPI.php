@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 19.01.2017
@@ -33,11 +33,13 @@ class BaseStarCitizenAPI
      */
     public function __construct()
     {
-        $this->guzzleClient = new Client([
-            'base_uri' => $this::API_URL,
-            'timeout' => 3.0,
-            'headers' => ['X-Rsi-Token' => $this->rsiToken],
-        ]);
+        $this->guzzleClient = new Client(
+            [
+                'base_uri' => $this::API_URL,
+                'timeout'  => 3.0,
+                'headers'  => ['X-Rsi-Token' => $this->rsiToken],
+            ]
+        );
 
         if (is_null($this->rsiToken)) {
             $this->getRSIToken();
@@ -45,27 +47,11 @@ class BaseStarCitizenAPI
     }
 
     /**
-     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
-     *
-     * @return bool
-     */
-    private function checkIfResponseDataIsValid() : bool
-    {
-        $valid = str_contains((String) $this->response->getBody(), 'success');
-
-        if (!$valid) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Requests a RSI-Token, uses Crowdfunding Stats Endpoint
      *
      * @return void
      */
-    private function getRSIToken() : void
+    private function getRSIToken(): void
     {
 
         try {
@@ -81,9 +67,12 @@ class BaseStarCitizenAPI
             } else {
                 $token = explode(';', $token[0])[0];
                 $token = str_replace('Rsi-Token=', '', $token);
-                app('Log')::info('Getting RSI Token succeeded', [
-                    'token' => $token,
-                ]);
+                app('Log')::info(
+                    'Getting RSI Token succeeded',
+                    [
+                        'token' => $token,
+                    ]
+                );
                 $this->rsiToken = $token;
             }
 
@@ -96,5 +85,21 @@ class BaseStarCitizenAPI
         } catch (\Exception $e) {
             app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");
         }
+    }
+
+    /**
+     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
+     *
+     * @return bool
+     */
+    private function checkIfResponseDataIsValid(): bool
+    {
+        $valid = str_contains((string) $this->response->getBody(), 'success');
+
+        if (!$valid) {
+            return false;
+        }
+
+        return true;
     }
 }

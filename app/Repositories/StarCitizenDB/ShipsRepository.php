@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 namespace App\Repositories\StarCitizenDB;
 
 use App\Exceptions\MethodNotImplementedException;
@@ -17,16 +18,16 @@ use Illuminate\Support\Facades\Storage;
  */
 class ShipsRepository implements ShipsInterface
 {
-    private const API_URL = '';
-
     use BaseAPITrait, TransformesDataTrait {
         BaseAPITrait::addMetadataToTransformation insteadof TransformesDataTrait;
     }
 
+    private const API_URL = '';
+
     /**
      * @return ShipsRepository
      */
-    public function getShipList() : ShipsRepository
+    public function getShipList(): ShipsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->collection()->withTransformer(ShipsListTransformer::class);
@@ -39,11 +40,11 @@ class ShipsRepository implements ShipsInterface
      * Returns Ship data
      *
      * @param Request $request
-     * @param String  $shipName ShipName
+     * @param string  $shipName ShipName
      *
      * @return ShipsInterface
      */
-    public function getShip(Request $request, String $shipName)
+    public function getShip(Request $request, string $shipName)
     {
         $shipName = urldecode($shipName);
         app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
@@ -68,12 +69,12 @@ class ShipsRepository implements ShipsInterface
     /**
      * Not Implemented
      *
-     * @param String $shipName ShipName
+     * @param string $shipName ShipName
      *
      * @return ShipsInterface
      * @throws MethodNotImplementedException
      */
-    public function searchShips(String $shipName)
+    public function searchShips(string $shipName)
     {
         throw new MethodNotImplementedException('Can\'t currently search for scdb ships');
     }

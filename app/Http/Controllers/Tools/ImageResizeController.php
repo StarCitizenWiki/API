@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Tools;
 
@@ -20,15 +20,15 @@ class ImageResizeController extends Controller
      *
      * @return View
      */
-    public function showImageResizeView() : View
+    public function showImageResizeView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $imageResizeSettings = [
             'default' => [
-                'outputWidth' => 1920,
-                'outputHeight' => 250,
-                'displayWidth' => 960,
-                'displayHeight' => 125,
+                'outputWidth'             => 1920,
+                'outputHeight'            => 250,
+                'displayWidth'            => 960,
+                'displayHeight'           => 125,
                 'selectionRectangleColor' => '#ff0000',
             ],
         ];

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth\Account;
 
@@ -33,7 +33,7 @@ class AccountController extends Controller
      *
      * @return View
      */
-    public function showAccountView() : View
+    public function showAccountView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -48,7 +48,7 @@ class AccountController extends Controller
      *
      * @return View
      */
-    public function showEditAccountView() : View
+    public function showEditAccountView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -63,7 +63,7 @@ class AccountController extends Controller
      *
      * @return RedirectResponse
      */
-    public function delete() : RedirectResponse
+    public function delete(): RedirectResponse
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -84,25 +84,26 @@ class AccountController extends Controller
      *
      * @return RedirectResponse
      */
-    public function updateAccount(Request $request) : RedirectResponse
+    public function updateAccount(Request $request): RedirectResponse
     {
         $this->startProfiling(__FUNCTION__);
 
         $user = Auth::user();
         $data = [];
 
-        $this->validate($request, [
-            'name' => 'present',
-            'email' => 'required|min:3|email',
-            'password' => 'nullable|min:8|confirmed',
-        ]);
+        $this->validate(
+            $request,
+            [
+                'name'     => 'present',
+                'email'    => 'required|min:3|email',
+                'password' => 'nullable|min:8|confirmed',
+            ]
+        );
 
         $data['id'] = $user->id;
         $data['name'] = $request->get('name');
         $data['email'] = $request->get('email');
-        if (!is_null($request->get('password')) &&
-            !empty($request->get('password'))
-        ) {
+        if (!is_null($request->get('password')) && !empty($request->get('password'))) {
             $this->addTrace('Password changed', __FUNCTION__, __LINE__);
             $data['password'] = $request->get('password');
         }

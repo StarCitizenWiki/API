@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth;
 
@@ -78,8 +78,7 @@ class LoginController extends Controller
             app('Log')::notice("Blacklisted User with ID: {$user->id} tried to login");
             Auth::logout();
 
-            return redirect()->route('auth_login_form')
-                             ->withErrors('Account is blacklisted');
+            return redirect()->route('auth_login_form')->withErrors('Account is blacklisted');
         }
 
         app('Log')::info("User with ID: {$user->id} logged in");

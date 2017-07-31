@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 if (!function_exists('validate_array')) {
     /**
@@ -14,7 +14,7 @@ if (!function_exists('validate_array')) {
      */
     function validate_array(array $data, array $rules, \Illuminate\Http\Request $request)
     {
-         $validator = resolve(\Illuminate\Contracts\Validation\Factory::class)->make($data, $rules);
+        $validator = resolve(\Illuminate\Contracts\Validation\Factory::class)->make($data, $rules);
 
         if ($validator->fails()) {
             throw new \Illuminate\Validation\ValidationException($validator);
@@ -24,12 +24,12 @@ if (!function_exists('validate_array')) {
 
 if (!function_exists('make_name_readable')) {
     /**
-     * @param String $methodName name of view function
+     * @param string $methodName name of view function
      *
      * @return String
      * @throws \App\Exceptions\WrongMethodNameException
      */
-    function make_name_readable(String $methodName) : String
+    function make_name_readable(string $methodName): String
     {
         if (ends_with($methodName, 'View') && !starts_with($methodName, 'show')) {
             throw new \App\Exceptions\WrongMethodNameException($methodName.' is not a valid name for a View-Function!');

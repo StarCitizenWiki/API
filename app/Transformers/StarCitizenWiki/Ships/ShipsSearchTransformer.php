@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -45,7 +45,7 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
 
             $data = [
                 $shipName => [
-                    'api_url' => '//'.config('app.api_url').'/api/v1/ships/'.$shipName,
+                    'api_url'  => '//'.config('app.api_url').'/api/v1/ships/'.$shipName,
                     'wiki_url' => '//star-citizen.wiki/'.$search['title'],
                 ],
             ];

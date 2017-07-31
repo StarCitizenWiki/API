@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 25.03.2017
@@ -38,10 +38,22 @@ trait FiltersDataTrait
         }
     }
 
+    private function validateRequestedFields()
+    {
+        foreach ($this->requestedFields as $field) {
+            if (!in_array($field, $this->validFields)) {
+                throw new InvalidDataException(
+                    'Requested field '.$field.' is not in valid fields ['.implode(',', $this->validFields).']'
+                );
+            }
+            $this->filters[] = $field;
+        }
+    }
+
     /**
      * @param array $data
      */
-    public function addFilterArray(array $data) : void
+    public function addFilterArray(array $data): void
     {
         $this->requestedFields = $data;
         $this->validateRequestedFields();
@@ -80,22 +92,12 @@ trait FiltersDataTrait
     /**
      * @return array
      */
-    public function getAvailableFields() : array
+    public function getAvailableFields(): array
     {
         if (isset($this->validFields)) {
             return $this->validFields;
         }
 
         return [];
-    }
-
-    private function validateRequestedFields()
-    {
-        foreach ($this->requestedFields as $field) {
-            if (!in_array($field, $this->validFields)) {
-                throw new InvalidDataException('Requested field '.$field.' is not in valid fields ['.implode(',', $this->validFields).']');
-            }
-            $this->filters[] = $field;
-        }
     }
 }

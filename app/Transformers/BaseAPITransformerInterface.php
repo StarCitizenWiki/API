@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by PhpStorm.
- * User: Hanne
+ * User: Hannes
  * Date: 05.02.2017
  * Time: 22:02
  */

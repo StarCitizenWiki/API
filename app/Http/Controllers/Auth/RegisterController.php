@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth;
 
@@ -71,19 +71,24 @@ class RegisterController extends Controller
         $password = str_random(32);
 
         $this->addTrace("Creating User", __FUNCTION__, __LINE__);
-        $user = User::create([
-            'name' => null,
-            'email' => $data['email'],
-            'api_token' => $api_token,
-            'password' => bcrypt($password),
-            'requests_per_minute' => 60,
-            'last_login' => date('Y-m-d H:i:s'),
-        ]);
+        $user = User::create(
+            [
+                'name'                => null,
+                'email'               => $data['email'],
+                'api_token'           => $api_token,
+                'password'            => bcrypt($password),
+                'requests_per_minute' => 60,
+                'last_login'          => date('Y-m-d H:i:s'),
+            ]
+        );
 
-        app('Log')::notice('Account created', [
-            'id' => $user->id,
-            'email' => $user->email,
-        ]);
+        app('Log')::notice(
+            'Account created',
+            [
+                'id'    => $user->id,
+                'email' => $user->email,
+            ]
+        );
         event(new UserRegistered($user, $password));
 
         $this->stopProfiling(__FUNCTION__);
@@ -100,8 +105,11 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
-            'email' => 'required|email|max:255|unique:users',
-        ]);
+        return Validator::make(
+            $data,
+            [
+                'email' => 'required|email|max:255|unique:users',
+            ]
+        );
     }
 }

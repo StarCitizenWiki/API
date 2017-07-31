@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 03.03.2017
@@ -9,7 +9,6 @@ namespace App\Repositories\StarCitizenWiki\APIv1;
 
 use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI;
 use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
-use App\Traits\ProfilesMethodsTrait;
 use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
@@ -27,11 +26,11 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      * Returns Ship data
      *
      * @param Request $request
-     * @param String  $shipName ShipName
+     * @param string  $shipName ShipName
      *
      * @return ShipsRepository
      */
-    public function getShip(Request $request, String $shipName) : ShipsRepository
+    public function getShip(Request $request, string $shipName): ShipsRepository
     {
         $shipName = urldecode($shipName);
         app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
@@ -50,7 +49,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      *
      * @return ShipsRepository
      */
-    public function getShipList() : ShipsRepository
+    public function getShipList(): ShipsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->collection();
@@ -59,7 +58,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         $offset = 0;
         $data = [];
         do {
-            $response = (String) $this->request(
+            $response = (string) $this->request(
                 'GET',
                 '?action=askargs&format=json&conditions=Kategorie%3ARaumschiff%7CHersteller%3A%3A%2B&parameters=offset%3D'.$offset,
                 []
@@ -79,11 +78,11 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     /**
      * Seraches for a Ship
      *
-     * @param String $shipName ShipName
+     * @param string $shipName ShipName
      *
      * @return ShipsRepository
      */
-    public function searchShips(String $shipName)
+    public function searchShips(string $shipName)
     {
         app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
         /**
@@ -104,9 +103,9 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     /**
      * Loads SMW Data by ship name
      *
-     * @param String $shipName
+     * @param string $shipName
      */
-    private function getShipDataFromWiki(String $shipName) : void
+    private function getShipDataFromWiki(string $shipName): void
     {
         $this->transformer = resolve(SMWTransformer::class);
         $this->request(
@@ -122,15 +121,24 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         $this->dataToTransform = [
             'wiki' => [
                 'subject' => $smwData['subject'],
-                'data' => $smwData[$smwData['subject']] ?? $smwData[$altIndex],
+                'data'    => $smwData[$smwData['subject']] ?? $smwData[$altIndex],
             ],
         ];
     }
 
     /**
+     * Resets the transformer and transformedResource to null
+     */
+    private function resetTransform(): void
+    {
+        $this->transformer = null;
+        $this->transformedResource = null;
+    }
+
+    /**
      * Loads SCDB Data from file
      */
-    private function getShipDataFromSCDB() : void
+    private function getShipDataFromSCDB(): void
     {
         if (isset($this->dataToTransform['wiki']['subject'])) {
             $content = '';
@@ -146,14 +154,5 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             }
             $this->dataToTransform['scdb'] = json_decode($content, true);
         }
-    }
-
-    /**
-     * Resets the transformer and transformedResource to null
-     */
-    private function resetTransform() : void
-    {
-        $this->transformer = null;
-        $this->transformedResource = null;
     }
 }

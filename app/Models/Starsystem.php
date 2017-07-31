@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  * @mixin \Eloquent
- * @property int $id
- * @property string $code
+ * @property int            $id
+ * @property string         $code
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Starsystem whereCode($value)
@@ -25,20 +25,20 @@ class Starsystem extends Model
     ];
 
     /**
-     * @return bool
-     */
-    public function isExcluded() : bool
-    {
-        return (bool) $this->exclude;
-    }
-
-    /**
-     * @param String $code
+     * @param string $code
      *
      * @return String
      */
-    public static function makeFilenameFromCode(String $code) : String
+    public static function makeFilenameFromCode(string $code): String
     {
         return $code.'_System.json';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isExcluded(): bool
+    {
+        return (bool)$this->exclude;
     }
 }

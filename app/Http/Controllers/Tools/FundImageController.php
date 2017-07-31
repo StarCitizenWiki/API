@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Tools;
 
@@ -24,9 +24,9 @@ class FundImageController extends Controller
     use ProfilesMethodsTrait;
 
     const COLORS = [
-        'blue' => [0, 231, 255],
+        'blue'     => [0, 231, 255],
         'darkblue' => [69, 117, 129],
-        'black' => [51, 51, 51],
+        'black'    => [51, 51, 51],
     ];
 
     const FUNDING_ONLY = FUNDIMAGE_FUNDING_ONLY;
@@ -54,26 +54,26 @@ class FundImageController extends Controller
     private $repository;
 
     private $funds = [
-        'current' => null,
-        'currentFormatted' => null,
-        'nextMillion' => null,
-        'nextMillionFormatted' => null,
+        'current'                 => null,
+        'currentFormatted'        => null,
+        'nextMillion'             => null,
+        'nextMillionFormatted'    => null,
         'percentageToNextMillion' => null,
-        'substractor' => null,
+        'substractor'             => null,
     ];
 
     private $image = [
         'pointer' => null,
-        'width' => null,
-        'height' => null,
-        'data' => null,
-        'type' => null,
-        'text' => 'Crowdfunding:',
-        'name' => null,
+        'width'   => null,
+        'height'  => null,
+        'data'    => null,
+        'type'    => null,
+        'text'    => 'Crowdfunding:',
+        'name'    => null,
     ];
 
     private $font = [
-        'path' => null,
+        'path'  => null,
         'color' => null,
     ];
 
@@ -109,7 +109,7 @@ class FundImageController extends Controller
     public function getImageWithText()
     {
         $this->image['type'] = FundImageController::FUNDING_AND_TEXT;
-        $this->addTrace('Setting Image Type to ' . FUNDIMAGE_FUNDING_AND_TEXT, __FUNCTION__, __LINE__);
+        $this->addTrace('Setting Image Type to '.FUNDIMAGE_FUNDING_AND_TEXT, __FUNCTION__, __LINE__);
 
         return $this->getImage();
     }
@@ -122,7 +122,7 @@ class FundImageController extends Controller
     public function getImageWithBars()
     {
         $this->image['type'] = FundImageController::FUNDING_AND_BARS;
-        $this->addTrace('Setting Image Type to ' . FUNDIMAGE_FUNDING_AND_BARS, __FUNCTION__, __LINE__);
+        $this->addTrace('Setting Image Type to '.FUNDIMAGE_FUNDING_AND_BARS, __FUNCTION__, __LINE__);
 
         return $this->getImage();
     }
@@ -165,22 +165,28 @@ class FundImageController extends Controller
             $this->flushImageToString();
             $this->saveImageToDisk();
         } catch (Exception $e) {
-            Log::warning('Fund Image generation failed', [
-                'type' => $this->image['type'],
-                'requester' => $this->request->getHost(),
-                'message' => $e,
-            ]);
+            Log::warning(
+                'Fund Image generation failed',
+                [
+                    'type'      => $this->image['type'],
+                    'requester' => $this->request->getHost(),
+                    'message'   => $e,
+                ]
+            );
 
             $this->stopProfiling(__FUNCTION__);
 
             throw new Exception('Fund Image generation failed');
         }
 
-        app('Log')::info('Fund Image Requested', [
-            'type' => $this->image['type'],
-            'name' => $this->image['name'],
-            'requester' => $this->request->getHost(),
-        ]);
+        app('Log')::info(
+            'Fund Image Requested',
+            [
+                'type'      => $this->image['type'],
+                'name'      => $this->image['name'],
+                'requester' => $this->request->getHost(),
+            ]
+        );
 
         $this->stopProfiling(__FUNCTION__);
 
@@ -194,7 +200,7 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function checkIfImageCanBeCreated() : void
+    private function checkIfImageCanBeCreated(): void
     {
         $this->addTrace('Checking if Image can be created', __FUNCTION__, __LINE__);
         if (!in_array('gd', get_loaded_extensions())) {
@@ -207,7 +213,7 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function setImageType() : void
+    private function setImageType(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -216,12 +222,16 @@ class FundImageController extends Controller
             $this->addTrace("{$action} is a supported ImageType", __FUNCTION__, __LINE__);
             $this->image['type'] = Route::getCurrentRoute()->getAction()['type'];
         } else {
-            $message = 'FundImage function only accepts Supported Image Types('.
-                        implode(', ', FundImageController::SUPPORTED_FUNDS).'). Input was: '.
-                        Route::getCurrentRoute()->getAction()['type'];
-            Log::warning('Requested Image type does not exist', [
-                'message' => $message,
-            ]);
+            $message = 'FundImage function only accepts Supported Image Types('.implode(
+                ', ',
+                FundImageController::SUPPORTED_FUNDS
+            ).'). Input was: '.Route::getCurrentRoute()->getAction()['type'];
+            Log::warning(
+                'Requested Image type does not exist',
+                [
+                    'message' => $message,
+                ]
+            );
 
             $this->stopProfiling(__FUNCTION__);
 
@@ -243,7 +253,7 @@ class FundImageController extends Controller
             $this->addTrace("Requested Color is {$requestColor}", __FUNCTION__, __LINE__);
             $colorArray = $this->convertHexToRGBColor($requestColor);
             if (!empty($colorArray)) {
-                $this->addTrace("Color is " . implode('', $colorArray) . " in HEX", __FUNCTION__, __LINE__);
+                $this->addTrace("Color is ".implode('', $colorArray)." in HEX", __FUNCTION__, __LINE__);
                 $this->font['color'] = $colorArray;
             }
         }
@@ -259,7 +269,7 @@ class FundImageController extends Controller
      *
      * @return array or string (depending on second parameter. Returns False if invalid hex color value)
      */
-    private function convertHexToRGBColor($hexStr) : array
+    private function convertHexToRGBColor($hexStr): array
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -288,7 +298,7 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function assembleFilename() : void
+    private function assembleFilename(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -304,7 +314,7 @@ class FundImageController extends Controller
      *
      * @return bool
      */
-    private function checkIfImageCanBeLoadedFromCache() : bool
+    private function checkIfImageCanBeLoadedFromCache(): bool
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -326,16 +336,30 @@ class FundImageController extends Controller
     }
 
     /**
+     * Retrieves the image from disk
+     *
+     * @return mixed
+     */
+    private function loadImageFromDisk()
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__));
+
+        return response()->file(
+            storage_path(FUNDIMAGE_RELATIVE_SAVE_PATH.$this->image['name'])
+        );
+    }
+
+    /**
      * Requests the API and saves the funds
      *
      * @return void
      */
-    private function getFundsFromAPI() : void
+    private function getFundsFromAPI(): void
     {
         $this->startProfiling(__FUNCTION__);
 
         $funds = $this->repository->getFunds()->asArray();
-        $this->funds['current'] = substr($funds['data']['funds'], 0, -2);
+        $this->funds['current'] = (int) substr(strval($funds['data']['funds']), 0, -2);
         $this->addTrace("Got Funds from API ({$this->funds['current']})", __FUNCTION__, __LINE__);
 
         $this->stopProfiling(__FUNCTION__);
@@ -346,7 +370,7 @@ class FundImageController extends Controller
      *
      * @param string $source Array Key to use the funds from
      */
-    private function formatFunds($source = 'current') : void
+    private function formatFunds($source = 'current'): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -373,7 +397,7 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function determineImageWidth() : void
+    private function determineImageWidth(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -400,7 +424,7 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function determineImageHeight() : void
+    private function determineImageHeight(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -425,7 +449,7 @@ class FundImageController extends Controller
     /**
      * Initializes the image
      */
-    private function initImage() : void
+    private function initImage(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -458,7 +482,7 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function addDataToImage() : void
+    private function addDataToImage(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -521,11 +545,26 @@ class FundImageController extends Controller
     }
 
     /**
+     * Creates the font color from font array
+     *
+     * @return int
+     */
+    private function allocateColorFromFontArray()
+    {
+        return imagecolorallocate(
+            $this->image['pointer'],
+            $this->font['color'][0],
+            $this->font['color'][1],
+            $this->font['color'][2]
+        );
+    }
+
+    /**
      * Initializes the old 'bar-style' image
      *
      * @return void
      */
-    private function initBarImage() : void
+    private function initBarImage(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -538,11 +577,41 @@ class FundImageController extends Controller
     }
 
     /**
+     * Rounds the current funds to its next million
+     *
+     * @return void
+     */
+    private function roundFundsToNextMillion(): void
+    {
+        $currentFunds = $this->funds['current'] / 1000000;
+        $this->funds['nextMillion'] = ceil($currentFunds) * 1000000;
+        $this->formatFunds('nextMillion');
+    }
+
+    /**
+     * Calculates the percent to next million based on current funds
+     *
+     * @throws InvalidDataException
+     *
+     * @return void
+     */
+    private function calculatePercentageToNextMillion(): void
+    {
+        if ($this->funds['nextMillion'] === null || $this->funds['current'] === null) {
+            throw new InvalidDataException('Did you call _roundFundsToNextMillion()?');
+        }
+        $this->funds['substractor'] = $this->funds['nextMillion'] - 1000000;
+        $this->funds['percentageToNextMillion'] = round(
+            (($this->funds['current'] - $this->funds['substractor']) / ($this->funds['nextMillion'] - $this->funds['substractor'])) * 100
+        );
+    }
+
+    /**
      * Adds filled and unfilled bars to the image
      *
      * @return void
      */
-    private function addBarsToBarImage() : void
+    private function addBarsToBarImage(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -568,26 +637,11 @@ class FundImageController extends Controller
     }
 
     /**
-     * Creates the font color from font array
-     *
-     * @return int
-     */
-    private function allocateColorFromFontArray()
-    {
-        return imagecolorallocate(
-            $this->image['pointer'],
-            $this->font['color'][0],
-            $this->font['color'][1],
-            $this->font['color'][2]
-        );
-    }
-
-    /**
      * Flushes the generated image to a string and saves it in the 'data' key
      *
      * @return void
      */
-    private function flushImageToString() : void
+    private function flushImageToString(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -604,56 +658,12 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function saveImageToDisk() : void
+    private function saveImageToDisk(): void
     {
         $this->startProfiling(__FUNCTION__);
 
         Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->put($this->image['name'], $this->image['data']);
 
         $this->stopProfiling(__FUNCTION__);
-    }
-
-    /**
-     * Retrieves the image from disk
-     *
-     * @return mixed
-     */
-    private function loadImageFromDisk()
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-
-        return response()->file(
-            storage_path(FUNDIMAGE_RELATIVE_SAVE_PATH.$this->image['name'])
-        );
-    }
-
-    /**
-     * Rounds the current funds to its next million
-     *
-     * @return void
-     */
-    private function roundFundsToNextMillion() : void
-    {
-        $currentFunds = $this->funds['current'] / 1000000;
-        $this->funds['nextMillion'] = ceil($currentFunds) * 1000000;
-        $this->formatFunds('nextMillion');
-    }
-
-    /**
-     * Calculates the percent to next million based on current funds
-     *
-     * @throws InvalidDataException
-     *
-     * @return void
-     */
-    private function calculatePercentageToNextMillion() : void
-    {
-        if ($this->funds['nextMillion'] === null ||
-            $this->funds['current'] === null) {
-            throw new InvalidDataException('Did you call _roundFundsToNextMillion()?');
-        }
-        $this->funds['substractor'] = $this->funds['nextMillion'] - 1000000;
-        $this->funds['percentageToNextMillion'] = round((($this->funds['current'] - $this->funds['substractor']) /
-        ($this->funds['nextMillion'] - $this->funds['substractor'])) * 100);
     }
 }

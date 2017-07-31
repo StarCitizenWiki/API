@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by PhpStorm.
- * User: Hanne
+ * User: Hannes
  * Date: 01.02.2017
  * Time: 23:11
  */
@@ -25,6 +25,12 @@ use Illuminate\Support\Facades\App;
 trait BaseAPITrait
 {
     /**
+     * Guzzle Response
+     *
+     * @var  Response
+     */
+    protected $response;
+    /**
      * Guzzle Client
      *
      * @var Client
@@ -32,35 +38,30 @@ trait BaseAPITrait
     private $guzzleClient;
 
     /**
-     * Guzzle Response
-     *
-     * @var  Response
-     */
-    protected $response;
-
-    /**
      * BaseAPI constructor.
      */
     public function __construct()
     {
-        $this->guzzleClient = new Client([
-            'base_uri' => $this::API_URL,
-            'timeout' => 3.0,
-        ]);
+        $this->guzzleClient = new Client(
+            [
+                'base_uri' => $this::API_URL,
+                'timeout'  => 3.0,
+            ]
+        );
     }
 
     /**
      * Wrapper for Guzzle Request Function
      *
-     * @param String     $requestMethod Request Method
-     * @param String     $uri           Request URL
+     * @param string     $requestMethod Request Method
+     * @param string     $uri           Request URL
      * @param array|null $data          Data
      *
      * @return Response
      *
      * @throws InvalidDataException
      */
-    public function request(String $requestMethod, String $uri, array $data = null) : Response
+    public function request(string $requestMethod, string $uri, array $data = null): Response
     {
         $this->response = $this->guzzleClient->request($requestMethod, $uri, $data);
         $this->checkIfResponseIsValid();
@@ -76,7 +77,7 @@ trait BaseAPITrait
      *
      * @throws InvalidDataException
      */
-    private function checkIfResponseIsValid() : bool
+    private function checkIfResponseIsValid(): bool
     {
         if ($this->checkIfResponseIsNotNull() &&
             $this->checkIfResponseIsNotEmpty() &&
@@ -93,7 +94,7 @@ trait BaseAPITrait
      *
      * @return bool
      */
-    private function checkIfResponseIsNotNull() : bool
+    private function checkIfResponseIsNotNull(): bool
     {
         return !is_null($this->response);
     }
@@ -103,7 +104,7 @@ trait BaseAPITrait
      *
      * @return bool
      */
-    private function checkIfResponseIsNotEmpty() : bool
+    private function checkIfResponseIsNotEmpty(): bool
     {
         return !empty($this->response);
     }
@@ -113,31 +114,39 @@ trait BaseAPITrait
      *
      * @return bool
      */
-    private function checkIfResponseStatusIsOK() : bool
+    private function checkIfResponseStatusIsOK(): bool
     {
         return $this->response->getStatusCode() === 200;
     }
 
     /**
-     * Checks if the Response Data is valid, must be overridden
+     * Checks if the response body is a valid json response
      *
-     * @return bool
+     * @throws InvalidDataException
      *
-     * @throws MethodNotImplementedException
+     * @return void
      */
-    private function checkIfResponseDataIsValid() : bool
+    private function validateAndSaveResponseBody(): void
     {
-        throw new MethodNotImplementedException();
+        $responseBody = (string) $this->response->getBody();
+        if ($this->validateJSON($responseBody)) {
+            $this->dataToTransform = json_decode($responseBody, true);
+        } elseif (is_array($responseBody)) {
+            $this->dataToTransform = $responseBody;
+        } else {
+            app('Log')::warning('Response Body is neither json nor array');
+            throw new InvalidDataException('Response Body is invalid');
+        }
     }
 
     /**
      * Validates a String to JSON
      *
-     * @param String $string String to validate
+     * @param string $string String to validate
      *
      * @return bool
      */
-    private function validateJSON(String $string) : bool
+    private function validateJSON(string $string): bool
     {
         if (is_string($string)) {
             @json_decode($string);
@@ -153,11 +162,11 @@ trait BaseAPITrait
      *
      * @return void
      */
-    protected function addMetadataToTransformation() : void
+    protected function addMetadataToTransformation(): void
     {
         $metaData = [
             'filterable_fields' => [],
-            'processed_at' => Carbon::now(),
+            'processed_at'      => Carbon::now(),
         ];
 
         if (!is_null($this->response)) {
@@ -171,32 +180,26 @@ trait BaseAPITrait
         $this->transformedResource->addMeta($metaData);
 
         if (App::isLocal() && !is_null($this->response)) {
-            $this->transformedResource->addMeta([
-                'dev' => [
-                    'response_protocol' => $this->response->getProtocolVersion(),
-                    'response_headers' => $this->response->getHeaders(),
-                ],
-            ]);
+            $this->transformedResource->addMeta(
+                [
+                    'dev' => [
+                        'response_protocol' => $this->response->getProtocolVersion(),
+                        'response_headers'  => $this->response->getHeaders(),
+                    ],
+                ]
+            );
         }
     }
 
     /**
-     * Checks if the response body is a valid json response
+     * Checks if the Response Data is valid, must be overridden
      *
-     * @throws InvalidDataException
+     * @return bool
      *
-     * @return void
+     * @throws MethodNotImplementedException
      */
-    private function validateAndSaveResponseBody() : void
+    private function checkIfResponseDataIsValid(): bool
     {
-        $responseBody = (String) $this->response->getBody();
-        if ($this->validateJSON($responseBody)) {
-            $this->dataToTransform = json_decode($responseBody, true);
-        } elseif (is_array($responseBody)) {
-            $this->dataToTransform = $responseBody;
-        } else {
-            app('Log')::warning('Response Body is neither json nor array');
-            throw new InvalidDataException('Response Body is invalid');
-        }
+        throw new MethodNotImplementedException();
     }
 }

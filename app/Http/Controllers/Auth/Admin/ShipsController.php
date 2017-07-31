@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth\Admin;
 
@@ -30,7 +30,7 @@ class ShipsController extends Controller
     /**
      * @return View
      */
-    public function showShipsView() : View
+    public function showShipsView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -43,7 +43,7 @@ class ShipsController extends Controller
     /**
      * @return RedirectResponse
      */
-    public function downloadShips() : RedirectResponse
+    public function downloadShips(): RedirectResponse
     {
         $this->startProfiling(__FUNCTION__);
 

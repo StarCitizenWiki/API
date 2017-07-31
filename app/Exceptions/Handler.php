@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Exceptions;
 
@@ -41,7 +41,7 @@ class Handler extends ExceptionHandler
      *
      * @return void
      */
-    public function report(Exception $exception) : void
+    public function report(Exception $exception): void
     {
         parent::report($exception);
     }
@@ -52,7 +52,7 @@ class Handler extends ExceptionHandler
      * @param \Illuminate\Http\Request $request   The HTTP Request
      * @param \Exception               $exception The Exception to render
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response | \Symfony\Component\HttpFoundation\Response
      */
     public function render($request, Exception $exception)
     {
@@ -68,7 +68,7 @@ class Handler extends ExceptionHandler
      *
      * @param \Illuminate\Http\Request                 $request   The HTTP Request
      * @param \Illuminate\Auth\AuthenticationException $exception The Auth Exception
-
+     *
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception)

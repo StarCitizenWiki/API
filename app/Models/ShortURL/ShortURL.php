@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Models\ShortURL;
 
@@ -18,19 +18,19 @@ use Illuminate\Support\Str;
  * @package App\Models\ShortURL
  * @property-read \App\Models\User $user
  * @mixin \Eloquent
- * @property int $id
- * @property string $url
- * @property string $hash_name
- * @property int $user_id
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property int                   $id
+ * @property string                $url
+ * @property string                $hash_name
+ * @property int                   $user_id
+ * @property \Carbon\Carbon        $created_at
+ * @property \Carbon\Carbon        $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereHashName($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUrl($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUserId($value)
- * @property string $expires
+ * @property string                $expires
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereExpires($value)
  */
 class ShortURL extends Model
@@ -49,23 +49,13 @@ class ShortURL extends Model
     ];
 
     /**
-     * Sets the User Relation
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
-    {
-        return $this->belongsTo('App\Models\User');
-    }
-
-    /**
      * Creates a shortened url
      *
      * @param array $data URL Data
      *
      * @return ShortURL
      */
-    public static function createShortURL(array $data) : ShortURL
+    public static function createShortURL(array $data): ShortURL
     {
         ShortURL::checkURLinWhitelist($data['url']);
         ShortURL::checkHashNameInDB($data['hash_name']);
@@ -87,6 +77,83 @@ class ShortURL extends Model
     }
 
     /**
+     * Resolves a url based on its hash
+     *
+     * @param string $hashName Name to resolve
+     *
+     * @return mixed
+     * @throws ExpiredException
+     * @throws UserBlacklistedException
+     */
+    public static function resolve(string $hashName)
+    {
+        $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
+
+        app('Log')::info(
+            'URL resolved',
+            [
+                'id'        => $url->id,
+                'hash_name' => $url->hash_name,
+                'url'       => $url->url,
+                'expires'   => $url->expires,
+            ]
+        );
+
+        if (!is_null($url->expires) && Carbon::parse($url->expires)->lte(Carbon::now())) {
+            throw new ExpiredException('URL has Expired');
+        }
+
+        if ($url->user()->first()->isBlacklisted()) {
+            throw new UserBlacklistedException('User is blacklisted, can\'t resolve URL');
+        }
+
+        return $url;
+    }
+
+    /**
+     * Sets the User Relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
+
+    /**
+     * Sanitizes the given url and prepends '/' is missing
+     * only if $url is a plain url without a path
+     *
+     * @param string $url URL to sanitize
+     *
+     * @return String
+     */
+    public static function sanitizeURL($url): String
+    {
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+        if (!isset(parse_url($url)['path'])) {
+            $url .= '/';
+        }
+
+        return $url;
+    }
+
+    /**
+     * @param string|null $date Date to check
+     *
+     * @throws ExpiredException
+     */
+    public static function checkIfDateIsPast($date): void
+    {
+        if (!is_null($date)) {
+            $expires = Carbon::parse($date);
+            if ($expires->lte(Carbon::now())) {
+                throw new ExpiredException('Expires date can\'t be in the past');
+            }
+        }
+    }
+
+    /**
      * Updates an existing url
      *
      * @param array $data URL Data
@@ -95,7 +162,7 @@ class ShortURL extends Model
      *
      * @throws ModelNotFoundException
      */
-    public static function updateShortURL(array $data) : bool
+    public static function updateShortURL(array $data): bool
     {
         ShortURL::checkURLinWhitelist($data['url']);
         $url = ShortURL::findOrFail($data['id']);
@@ -125,95 +192,15 @@ class ShortURL extends Model
     }
 
     /**
-     * Resolves a url based on its hash
-     *
-     * @param String $hashName Name to resolve
-     *
-     * @return mixed
-     * @throws ExpiredException
-     * @throws UserBlacklistedException
-     */
-    public static function resolve(String $hashName)
-    {
-        $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
-
-        app('Log')::info('URL resolved', [
-            'id' => $url->id,
-            'hash_name' => $url->hash_name,
-            'url' => $url->url,
-            'expires' => $url->expires,
-        ]);
-
-        if (!is_null($url->expires) && Carbon::parse($url->expires)->lte(Carbon::now())) {
-            throw new ExpiredException('URL has Expired');
-        }
-
-        if ($url->user()->first()->isBlacklisted()) {
-            throw new UserBlacklistedException('User is blacklisted, can\'t resolve URL');
-        }
-
-        return $url;
-    }
-
-    /**
-     * Sanitizes the given url and prepends '/' is missing
-     * only if $url is a plain url without a path
-     *
-     * @param String $url URL to sanitize
-     *
-     * @return String
-     */
-    public static function sanitizeURL($url) : String
-    {
-        $url = filter_var($url, FILTER_SANITIZE_URL);
-        if (!isset(parse_url($url)['path'])) {
-            $url .= '/';
-        }
-
-        return $url;
-    }
-
-    /**
-     * @param String|null $date Date to check
-     *
-     * @throws ExpiredException
-     */
-    public static function checkIfDateIsPast($date) : void
-    {
-        if (!is_null($date)) {
-            $expires = Carbon::parse($date);
-            if ($expires->lte(Carbon::now())) {
-                throw new ExpiredException('Expires date can\'t be in the past');
-            }
-        }
-    }
-
-    /**
-     * Checks if a given hash exists in the database
-     *
-     * @param String $hashName Hash to check
-     *
-     * @throws HashNameAlreadyAssignedException
-     *
-     * @return void
-     */
-    private static function checkHashNameInDB($hashName) : void
-    {
-        if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
-            throw new HashNameAlreadyAssignedException('Name already assigned');
-        }
-    }
-
-    /**
      * Checks if a given url host is whitelisted
      *
-     * @param String $url URL to check
+     * @param string $url URL to check
      *
      * @throws URLNotWhitelistedException
      *
      * @return void
      */
-    private static function checkURLinWhitelist(String $url) : void
+    private static function checkURLinWhitelist(string $url): void
     {
         $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
@@ -224,11 +211,27 @@ class ShortURL extends Model
     }
 
     /**
+     * Checks if a given hash exists in the database
+     *
+     * @param string $hashName Hash to check
+     *
+     * @throws HashNameAlreadyAssignedException
+     *
+     * @return void
+     */
+    private static function checkHashNameInDB($hashName): void
+    {
+        if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
+            throw new HashNameAlreadyAssignedException('Name already assigned');
+        }
+    }
+
+    /**
      * Creates a short url hash
      *
      * @return String
      */
-    private static function generateShortURLHash() : String
+    private static function generateShortURLHash(): String
     {
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);

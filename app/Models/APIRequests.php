@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * App\Models\APIRequests
  *
- * @property int $id
- * @property int $user_id
+ * @property int            $id
+ * @property int            $user_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\APIRequests whereCreatedAt($value)

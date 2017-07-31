@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Models\ShortURL;
 
@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models\ShortURL
  * @mixin \Eloquent
- * @property int $id
- * @property string $url
- * @property bool $internal
+ * @property int            $id
+ * @property string         $url
+ * @property bool           $internal
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURLWhitelist whereCreatedAt($value)
@@ -41,17 +41,22 @@ class ShortURLWhitelist extends Model
      *
      * @return ShortURLWhitelist
      */
-    public static function createWhitelistURL(array $data) : ShortURLWhitelist
+    public static function createWhitelistURL(array $data): ShortURLWhitelist
     {
-        $url = ShortURLWhitelist::create([
-            'url' => $data['url'],
-            'internal' => $data['internal'],
-        ]);
+        $url = ShortURLWhitelist::create(
+            [
+                'url'      => $data['url'],
+                'internal' => $data['internal'],
+            ]
+        );
 
-        app('Log')::info('Whitelist URL added', [
-            'url' => $data['url'],
-            'internal' => $data['internal'],
-        ]);
+        app('Log')::info(
+            'Whitelist URL added',
+            [
+                'url'      => $data['url'],
+                'internal' => $data['internal'],
+            ]
+        );
 
         return $url;
     }

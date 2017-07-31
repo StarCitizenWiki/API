@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 17.07.2017
@@ -20,11 +20,22 @@ trait ProfilesMethodsTrait
     protected $destructed = false;
 
     /**
+     * Adds Monolog Processors and writes Log-Data to debug log
+     */
+    public function __destruct()
+    {
+        if (!$this->destructed && env('APP_LOG_PROFILING', false)) {
+            app('Log')::debug("Profiling for Class ".__CLASS__." finished", $this->log);
+            $this->destructed = true;
+        }
+    }
+
+    /**
      * starts the profiler
      *
-     * @param String $functionName
+     * @param string $functionName
      */
-    protected function startProfiling(String $functionName) : void
+    protected function startProfiling(string $functionName): void
     {
         $this->curID = $functionName;
         $this->idStack[] = $this->curID;
@@ -33,24 +44,13 @@ trait ProfilesMethodsTrait
     }
 
     /**
-     * Stops the profiler
-     *
-     * @param String $functionName
-     */
-    protected function stopProfiling(String $functionName) : void
-    {
-        $this->log[$functionName]['exec_time'] = microtime(true) - $this->log[$functionName]['exec_time'];
-        $this->addTrace("Profiling for {$functionName} finished", $functionName);
-    }
-
-    /**
      * Adds Line and Message to Log
      *
-     * @param String $message
-     * @param String $functionName
+     * @param string $message
+     * @param string $functionName
      * @param int    $line
      */
-    protected function addTrace(String $message, String $functionName, int $line = 0) : void
+    protected function addTrace(string $message, string $functionName, int $line = 0): void
     {
         if ($line > 0) {
             $message = "[Line: {$line}] {$message}";
@@ -60,13 +60,13 @@ trait ProfilesMethodsTrait
     }
 
     /**
-     * Adds Monolog Processors and writes Log-Data to debug log
+     * Stops the profiler
+     *
+     * @param string $functionName
      */
-    public function __destruct()
+    protected function stopProfiling(string $functionName): void
     {
-        if (!$this->destructed && env('APP_LOG_PROFILING', false)) {
-            app('Log')::debug("Profiling for Class ".__CLASS__." finished", $this->log);
-            $this->destructed = true;
-        }
+        $this->log[$functionName]['exec_time'] = microtime(true) - $this->log[$functionName]['exec_time'];
+        $this->addTrace("Profiling for {$functionName} finished", $functionName);
     }
 }

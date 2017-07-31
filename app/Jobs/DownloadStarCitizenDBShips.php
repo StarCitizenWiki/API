@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Jobs;
 
@@ -17,7 +17,11 @@ use function GuzzleHttp\Psr7\stream_for;
  */
 class DownloadStarCitizenDBShips implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ProfilesMethodsTrait;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use ProfilesMethodsTrait;
 
     private const STAR_CITIZEN_DB_URL = 'http://starcitizendb.com/';
 
@@ -37,11 +41,13 @@ class DownloadStarCitizenDBShips implements ShouldQueue
         $this->startProfiling(__FUNCTION__);
 
         app('Log')::info('Starting Ship Download Job');
-        $client = new Client([
-            'timeout' => 10.0,
-        ]);
+        $client = new Client(
+            [
+                'timeout' => 10.0,
+            ]
+        );
 
-        $urls = (String) $client->get(self::STAR_CITIZEN_DB_URL.'api/ships/specs')->getBody();
+        $urls = (string) $client->get(self::STAR_CITIZEN_DB_URL.'api/ships/specs')->getBody();
         preg_match_all('/href="([^\'\"]+)/', $urls, $urls);
         $urls = $urls[1];
 

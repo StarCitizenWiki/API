@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * User: Hannes
  * Date: 17.07.2017
@@ -18,11 +18,11 @@ class UserInfoProcessor
      *
      * @return array
      */
-    public function __invoke(array $record) : array
+    public function __invoke(array $record): array
     {
         $auth = app('Auth');
         $userData = [
-            'id' => '',
+            'id'   => '',
             'name' => '',
         ];
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -24,11 +24,11 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}
      *
-     * @param String $systemName
+     * @param string $systemName
      *
      * @return StarmapRepository
      */
-    public function getSystem(String $systemName)
+    public function getSystem(string $systemName)
     {
         app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
@@ -42,11 +42,11 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     }
 
     /**
-     * @param String $systemName
+     * @param string $systemName
      *
      * @return $this
      */
-    public function getAsteroidbelts(String $systemName)
+    public function getAsteroidbelts(string $systemName)
     {
         app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
@@ -62,13 +62,13 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     /**
      * https://robertsspaceindustries.com/api/starmap/celestial-objects/{SYSTEM_NAME}.[TYPE}.{NAME}
      *
-     * @param String $systemName
-     * @param String $type
-     * @param String $objectName
+     * @param string $systemName
+     * @param string $type
+     * @param string $objectName
      *
      * @return StarmapRepository
      */
-    public function getCelestialObject(String $systemName, String $type, String $objectName)
+    public function getCelestialObject(string $systemName, string $type, string $objectName)
     {
         // TODO: Implement getCelestialObject() method.
         return $this;
@@ -78,11 +78,11 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      * https://robertsspaceindustries.com/api/starmap/find
      * POST Parameter: query
      *
-     * @param String $searchString
+     * @param string $searchString
      *
      * @return StarmapRepository
      */
-    public function search(String $searchString)
+    public function search(string $searchString)
     {
         // TODO: Implement search() method.
         return $this;

@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Middleware;
 
 use App\Traits\ProfilesMethodsTrait;
 use Closure;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 
 /**

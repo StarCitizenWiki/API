@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth\Admin;
 
@@ -99,28 +99,33 @@ class UserController extends Controller
      *
      * @return RedirectResponse
      */
-    public function deleteUser(Request $request) : RedirectResponse
+    public function deleteUser(Request $request): RedirectResponse
     {
         $this->startProfiling(__FUNCTION__);
 
-        $this->validate($request, [
-            'id' => 'required|exists:users|int',
-        ]);
+        $this->validate(
+            $request,
+            [
+                'id' => 'required|exists:users|int',
+            ]
+        );
 
         try {
             $this->addTrace("Getting User with ID: {$request->id}", __FUNCTION__, __LINE__);
             $user = User::findOrFail($request->id);
-            app('Log')::notice('Account deleted', [
-                'account_id' => $request->get('id'),
-                'deleted_by' => Auth::id(),
-            ]);
+            app('Log')::notice(
+                'Account deleted',
+                [
+                    'account_id' => $request->get('id'),
+                    'deleted_by' => Auth::id(),
+                ]
+            );
             $user->delete();
         } catch (ModelNotFoundException $e) {
             $this->addTrace("User not found", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
-            return redirect()->route('admin_users_list')
-                             ->withErrors(__('admin/users/edit.not_found'));
+            return redirect()->route('admin_users_list')->withErrors(__('admin/users/edit.not_found'));
         }
 
         $this->stopProfiling(__FUNCTION__);
@@ -135,13 +140,16 @@ class UserController extends Controller
      *
      * @return RedirectResponse
      */
-    public function restoreUser(Request $request) : RedirectResponse
+    public function restoreUser(Request $request): RedirectResponse
     {
         $this->startProfiling(__FUNCTION__);
 
-        $this->validate($request, [
-            'id' => 'required|exists:users|int',
-        ]);
+        $this->validate(
+            $request,
+            [
+                'id' => 'required|exists:users|int',
+            ]
+        );
 
         try {
             $this->addTrace(__FUNCTION__, "Getting User with ID: {$request->id}", __LINE__);
@@ -152,8 +160,7 @@ class UserController extends Controller
             $this->addTrace(__FUNCTION__, "User not found", __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
-            return redirect()->route('admin_users_list')
-                             ->withErrors(__('admin/users/edit.not_found'));
+            return redirect()->route('admin_users_list')->withErrors(__('admin/users/edit.not_found'));
         }
 
         $this->stopProfiling(__FUNCTION__);
@@ -168,20 +175,23 @@ class UserController extends Controller
      *
      * @return RedirectResponse
      */
-    public function updateUser(Request $request) : RedirectResponse
+    public function updateUser(Request $request): RedirectResponse
     {
         $this->startProfiling(__FUNCTION__);
 
-        $this->validate($request, [
-            'id' => 'required|exists:users|int',
-            'name' => 'present',
-            'requests_per_minute' => 'required|integer',
-            'api_token' => 'required|max:60|min:60|alpha_num',
-            'email' => 'required|min:3|email',
-            'list' => 'nullable|alpha',
-            'notes' => 'nullable',
-            'password' => 'present',
-        ]);
+        $this->validate(
+            $request,
+            [
+                'id'                  => 'required|exists:users|int',
+                'name'                => 'present',
+                'requests_per_minute' => 'required|integer',
+                'api_token'           => 'required|max:60|min:60|alpha_num',
+                'email'               => 'required|min:3|email',
+                'list'                => 'nullable|alpha',
+                'notes'               => 'nullable',
+                'password'            => 'present',
+            ]
+        );
 
         $data = [];
         $data['id'] = $request->id;
@@ -191,9 +201,7 @@ class UserController extends Controller
         $data['email'] = $request->get('email');
         $data['notes'] = $request->get('notes');
 
-        if (!is_null($request->get('password')) &&
-            !empty($request->get('password'))
-        ) {
+        if (!is_null($request->get('password')) && !empty($request->get('password'))) {
             $this->addTrace(__FUNCTION__, "Password changed", __LINE__);
             $data['password'] = $request->get('password');
         }

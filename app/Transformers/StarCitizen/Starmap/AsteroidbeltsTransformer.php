@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -29,15 +29,15 @@ class AsteroidbeltsTransformer extends TransformerAbstract implements BaseAPITra
     public function transform($system)
     {
         $transformed = [
-            'success' => $system['success'],
-            'rowcount'  => $system['data']['rowcount'],
-            'totalrows'  => $system['data']['totalrows'],
-            'estimatedrows'  => $system['data']['estimatedrows'],
-            'pagesize'  => $system['data']['pagesize'],
-            'pagecount'  => $system['data']['pagecount'],
-            'page'  => $system['data']['page'],
-            'offset'  => $system['data']['offset'],
-            'startrow'  => $system['data']['startrow'],
+            'success'       => $system['success'],
+            'rowcount'      => $system['data']['rowcount'],
+            'totalrows'     => $system['data']['totalrows'],
+            'estimatedrows' => $system['data']['estimatedrows'],
+            'pagesize'      => $system['data']['pagesize'],
+            'pagecount'     => $system['data']['pagecount'],
+            'page'          => $system['data']['page'],
+            'offset'        => $system['data']['offset'],
+            'startrow'      => $system['data']['startrow'],
         ];
 
         $asteroidbelts = [];
@@ -53,7 +53,7 @@ class AsteroidbeltsTransformer extends TransformerAbstract implements BaseAPITra
         ];
 
         $codeMessage = [
-            'code'  => $system['code'],
+            'code' => $system['code'],
             'msg'  => $system['msg'],
         ];
 

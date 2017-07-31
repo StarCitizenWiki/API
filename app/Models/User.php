@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -12,24 +12,41 @@ use Illuminate\Support\Facades\Auth;
  * Class User
  *
  * @package App\Models
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortURL\ShortURL[] $shortURLs
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[]
+ *                $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortURL\ShortURL[]
+ *                    $shortURLs
  * @mixin \Eloquent
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $api_token
- * @property string $password
- * @property int $requests_per_minute
- * @property bool $whitelisted
- * @property bool $blacklisted
- * @property string $notes
- * @property string $last_login
- * @property string $api_token_last_used
- * @property string $remember_token
- * @property string $deleted_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property int
+ *               $id
+ * @property string
+ *               $name
+ * @property string
+ *               $email
+ * @property string
+ *               $api_token
+ * @property string
+ *               $password
+ * @property int
+ *               $requests_per_minute
+ * @property bool
+ *               $whitelisted
+ * @property bool
+ *               $blacklisted
+ * @property string
+ *               $notes
+ * @property string
+ *               $last_login
+ * @property string
+ *               $api_token_last_used
+ * @property string
+ *               $remember_token
+ * @property string
+ *               $deleted_at
+ * @property \Carbon\Carbon
+ *               $created_at
+ * @property \Carbon\Carbon
+ *               $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereApiToken($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereApiTokenLastUsed($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereBlacklisted($value)
@@ -48,7 +65,9 @@ use Illuminate\Support\Facades\Auth;
  */
 class User extends Authenticatable
 {
-    use Notifiable, SoftDeletes, CanResetPassword;
+    use Notifiable;
+    use SoftDeletes;
+    use CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
@@ -81,7 +100,7 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public static function updateUser(array $data) : bool
+    public static function updateUser(array $data): bool
     {
         $changes = [];
         $changes[] = [
@@ -117,7 +136,7 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isAdmin() : bool
+    public function isAdmin(): bool
     {
         $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
 
@@ -129,7 +148,7 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isWhitelisted() : bool
+    public function isWhitelisted(): bool
     {
         $whitelisted = $this->whitelisted == 1;
 
@@ -141,7 +160,7 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isBlacklisted() : bool
+    public function isBlacklisted(): bool
     {
         $blacklisted = $this->blacklisted == 1;
 

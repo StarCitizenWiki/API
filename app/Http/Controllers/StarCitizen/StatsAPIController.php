@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\StarCitizen;
 
@@ -49,6 +49,43 @@ class StatsAPIController extends Controller
         app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
+    }
+
+    /**
+     * Wrapper for all get Calls
+     *
+     * @param \Closure | String $func Function to call
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    private function getJsonPrettyPrintResponse($func)
+    {
+        $this->startProfiling(__FUNCTION__);
+
+        try {
+            $this->addTrace("Calling Function {$func}", __FUNCTION__, __LINE__);
+            $this->repository->$func();
+            if (method_exists($this->repository->transformer, 'addFilters')) {
+                $this->addTrace("Adding Filters", __FUNCTION__, __LINE__);
+                $this->repository->transformer->addFilters($this->request);
+            }
+            $this->addTrace("Getting Data", __FUNCTION__, __LINE__);
+            $data = $this->repository->asArray();
+
+            $this->stopProfiling(__FUNCTION__);
+
+            return response()->json(
+                $data,
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        } catch (InvalidDataException $e) {
+            $this->addTrace("Getting Data failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
+            return $e->getMessage();
+        }
     }
 
     /**
@@ -127,42 +164,5 @@ class StatsAPIController extends Controller
     public function getLastMonthsFunds()
     {
         return $this->getJsonPrettyPrintResponse("lastMonths");
-    }
-
-    /**
-     * Wrapper for all get Calls
-     *
-     * @param \Closure | String $func Function to call
-     *
-     * @return \Illuminate\Http\JsonResponse|string
-     */
-    private function getJsonPrettyPrintResponse($func)
-    {
-        $this->startProfiling(__FUNCTION__);
-
-        try {
-            $this->addTrace("Calling Function {$func}", __FUNCTION__, __LINE__);
-            $this->repository->$func();
-            if (method_exists($this->repository->transformer, 'addFilters')) {
-                $this->addTrace("Adding Filters", __FUNCTION__, __LINE__);
-                $this->repository->transformer->addFilters($this->request);
-            }
-            $this->addTrace("Getting Data", __FUNCTION__, __LINE__);
-            $data = $this->repository->asArray();
-
-            $this->stopProfiling(__FUNCTION__);
-
-            return response()->json(
-                $data,
-                200,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        } catch (InvalidDataException $e) {
-            $this->addTrace("Getting Data failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
-            $this->stopProfiling(__FUNCTION__);
-
-            return $e->getMessage();
-        }
     }
 }

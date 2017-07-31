@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Jobs;
 
@@ -19,7 +19,11 @@ use Illuminate\Support\Facades\Storage;
  */
 class DownloadStarmapData implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ProfilesMethodsTrait;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use ProfilesMethodsTrait;
 
     // Requests for Celestial Subobject
     const CELESTIAL_SUBOBJECTS_REQUEST = ['PLANET'];
@@ -41,7 +45,7 @@ class DownloadStarmapData implements ShouldQueue
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -53,8 +57,10 @@ class DownloadStarmapData implements ShouldQueue
             $this->addTrace(__FUNCTION__, "Downloading {$system->code}");
             $this->starmapContent = $this->getJsonArrayFromStarmap('star-systems/'.$system->code);
 
-            if ($this->checkIfDataCanBeProcessed($this->starmapContent) &&
-                array_key_exists('celestial_objects', $this->starmapContent['data']['resultset'][0])) {
+            if ($this->checkIfDataCanBeProcessed($this->starmapContent) && array_key_exists(
+                'celestial_objects',
+                $this->starmapContent['data']['resultset'][0]
+            )) {
                 $this->addCelestialContent();
             }
 
@@ -70,9 +76,38 @@ class DownloadStarmapData implements ShouldQueue
     }
 
     /**
+     * Gets JSON from Starmap and returns it as array
+     *
+     * @param string $uri
+     *
+     * @return array
+     */
+    private function getJsonArrayFromStarmap(string $uri): array
+    {
+        $response = $this->guzzleClient->request('POST', StarmapRepository::API_URL.'starmap/'.$uri);
+
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    /**
+     * Checks if provided data array can be processed
+     *
+     * @param $data
+     *
+     * @return bool
+     */
+    private function checkIfDataCanBeProcessed($data): bool
+    {
+        return is_array($data) && $data['success'] === 1 && array_key_exists('data', $data) && array_key_exists(
+            'resultset',
+            $data['data']
+        ) && array_key_exists(0, $data['data']['resultset']);
+    }
+
+    /**
      * Download Celestrial Objects from CIG and add it to the Starmap
      */
-    private function addCelestialContent() : void
+    private function addCelestialContent(): void
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -91,12 +126,14 @@ class DownloadStarmapData implements ShouldQueue
      *
      * @param $celestialContent array Celstrial Object
      */
-    private function addCelestialSubobjectsToStarmap($celestialContent) : void
+    private function addCelestialSubobjectsToStarmap($celestialContent): void
     {
         $this->startProfiling(__FUNCTION__);
 
-        if ($this->checkIfDataCanBeProcessed($celestialContent) &&
-            array_key_exists('children', $celestialContent['data']['resultset'][0])) {
+        if ($this->checkIfDataCanBeProcessed($celestialContent) && array_key_exists(
+            'children',
+            $celestialContent['data']['resultset'][0]
+        )) {
             foreach ($celestialContent['data']['resultset'][0]['children'] as $celestrialChildren) {
                 if (in_array($celestrialChildren['type'], self::CELESTIAL_SUBOBJECTS_TYPE)) {
                     array_push($this->starmapContent['data']['resultset'][0]['celestial_objects'], $celestrialChildren);
@@ -105,35 +142,5 @@ class DownloadStarmapData implements ShouldQueue
         }
 
         $this->stopProfiling(__FUNCTION__);
-    }
-
-    /**
-     * Gets JSON from Starmap and returns it as array
-     *
-     * @param String $uri
-     *
-     * @return array
-     */
-    private function getJsonArrayFromStarmap(String $uri) : array
-    {
-        $response = $this->guzzleClient->request('POST', StarmapRepository::API_URL.'starmap/'.$uri);
-
-        return json_decode($response->getBody()->getContents(), true);
-    }
-
-    /**
-     * Checks if provided data array can be processed
-     *
-     * @param $data
-     *
-     * @return bool
-     */
-    private function checkIfDataCanBeProcessed($data) : bool
-    {
-        return is_array($data) &&
-                $data['success'] === 1 &&
-                array_key_exists('data', $data) &&
-                array_key_exists('resultset', $data['data']) &&
-                array_key_exists(0, $data['data']['resultset']);
     }
 }

@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 namespace App\Transformers\StarCitizenWiki;
 
 use App\Traits\FiltersDataTrait;
@@ -15,10 +16,10 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
 
     private const SMW_KEYS = [
         '_DTITLE' => 'page_title',
-        '_INST' => 'categories',
-        '_MDAT' => 'last_modified',
-        '_SOBJ' => 'sub_objects',
-        '_SKEY' => 'search_key',
+        '_INST'   => 'categories',
+        '_MDAT'   => 'last_modified',
+        '_SOBJ'   => 'sub_objects',
+        '_SKEY'   => 'search_key',
     ];
 
     /**
@@ -30,9 +31,12 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
      */
     public function transform($data)
     {
-        array_walk_recursive($data, function (&$value, $key) {
-            $value = preg_replace('/#[0-9]{1,3}#/', '', $value);
-        });
+        array_walk_recursive(
+            $data,
+            function (&$value, $key) {
+                $value = preg_replace('/#[0-9]{1,3}#/', '', $value);
+            }
+        );
 
         $title = str_replace(' ', '_', $data['query']['subject']);
         $transformed = [];
@@ -49,9 +53,12 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
             } else {
                 $key = self::SMW_KEYS[$shipData['property']] ?? $shipData['property'];
                 $transformed['smw'][$key] = array_flatten($shipData['dataitem']);
-                $transformed['smw'][$key] = array_filter($transformed['smw'][$key], function ($value) {
-                    return !is_int($value);
-                });
+                $transformed['smw'][$key] = array_filter(
+                    $transformed['smw'][$key],
+                    function ($value) {
+                        return !is_int($value);
+                    }
+                );
                 sort($transformed['smw'][$key], SORT_NUMERIC);
             }
 
@@ -77,7 +84,7 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
 
         $transformed = [
             'subject' => $data['query']['subject'],
-            $title => $transformed,
+            $title    => $transformed,
         ];
 
         return $transformed;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 23.03.2017
@@ -104,15 +104,29 @@ trait TransformesDataTrait
     /**
      * Resolves a Transformer Class Name
      *
-     * @param String $transformer Transformer to use
+     * @param string $transformer Transformer to use
      *
      * @return $this
      */
-    public function withTransformer(String $transformer)
+    public function withTransformer(string $transformer)
     {
         $this->transformer = resolve($transformer);
 
         return $this;
+    }
+
+    /**
+     * Returns the transformed Resource as JSON
+     *
+     * @return String
+     */
+    public function asJSON(): String
+    {
+        if (is_null($this->transformedResource)) {
+            $this->transform();
+        }
+
+        return $this->transformedResource->toJson();
     }
 
     /**
@@ -146,42 +160,28 @@ trait TransformesDataTrait
     }
 
     /**
-     * Returns the transformed Resource as JSON
-     *
-     * @return String
-     */
-    public function asJSON() : String
-    {
-        if (is_null($this->transformedResource)) {
-            $this->transform();
-        }
-
-        return $this->transformedResource->toJson();
-    }
-
-    /**
-     * Returns the transformed Resource as Array
-     *
-     * @return array
-     */
-    public function asArray() : array
-    {
-        if (is_null($this->transformedResource)) {
-            $this->transform();
-        }
-
-        return $this->transformedResource->toArray();
-    }
-
-    /**
      * Creates a fractal instance if null
      *
      * @return void
      */
-    protected function createFractalInstance() : void
+    protected function createFractalInstance(): void
     {
         if (is_null($this->fractalManager)) {
             $this->fractalManager = Fractal::create();
+        }
+    }
+
+    /**
+     * Checks if the data to transform is valid
+     *
+     * @throws InvalidDataException
+     *
+     * @return void
+     */
+    protected function checkIfDataIsValid(): void
+    {
+        if (is_null($this->dataToTransform) && $this->transformationType !== TRANSFORM_NULL) {
+            throw new InvalidDataException('Data to transform is empty');
         }
     }
 
@@ -192,7 +192,7 @@ trait TransformesDataTrait
      *
      * @return void
      */
-    protected function checkIfTransformerIsValid() : void
+    protected function checkIfTransformerIsValid(): void
     {
         if (is_null($this->transformer)) {
             Log::warning('Transformer not set, aborting');
@@ -201,12 +201,38 @@ trait TransformesDataTrait
     }
 
     /**
+     * Sets the transformation type to NullResource if data is empty
+     *
+     * @return void
+     */
+    protected function checkNullTransformation(): void
+    {
+        if (is_null($this->dataToTransform) || empty($this->dataToTransform)) {
+            $this->transformationType = TRANSFORM_NULL;
+        }
+    }
+
+    /**
      * Called before Transformation to check if Ready to transform
      *
      * @return void
      */
-    protected function checkIfReadyToTransform() : void
+    protected function checkIfReadyToTransform(): void
     {
+    }
+
+    /**
+     * Returns the transformed Resource as Array
+     *
+     * @return array
+     */
+    public function asArray(): array
+    {
+        if (is_null($this->transformedResource)) {
+            $this->transform();
+        }
+
+        return $this->transformedResource->toArray();
     }
 
     /**
@@ -214,36 +240,12 @@ trait TransformesDataTrait
      *
      * @return void
      */
-    protected function addMetadataToTransformation() : void
+    protected function addMetadataToTransformation(): void
     {
-        $this->transformedResource->addMeta([
-            'processed_at' => Carbon::now(),
-        ]);
-    }
-
-    /**
-     * Checks if the data to transform is valid
-     *
-     * @throws InvalidDataException
-     *
-     * @return void
-     */
-    protected function checkIfDataIsValid() : void
-    {
-        if (is_null($this->dataToTransform) && $this->transformationType !== TRANSFORM_NULL) {
-            throw new InvalidDataException('Data to transform is empty');
-        }
-    }
-
-    /**
-     * Sets the transformation type to NullResource if data is empty
-     *
-     * @return void
-     */
-    protected function checkNullTransformation() : void
-    {
-        if (is_null($this->dataToTransform) || empty($this->dataToTransform)) {
-            $this->transformationType = TRANSFORM_NULL;
-        }
+        $this->transformedResource->addMeta(
+            [
+                'processed_at' => Carbon::now(),
+            ]
+        );
     }
 }

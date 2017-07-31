@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -43,11 +43,11 @@ class StarmapAPIController extends Controller
     /**
      * Requests the given System Name
      *
-     * @param String $name SystemName
+     * @param string $name SystemName
      *
      * @return \Illuminate\Http\JsonResponse|string
      */
-    public function getSystem(String $name)
+    public function getSystem(string $name)
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -110,11 +110,11 @@ class StarmapAPIController extends Controller
     /**
      * Requests the given System Name Asteroid belts
      *
-     * @param String $name SystemName
+     * @param string $name SystemName
      *
      * @return \Illuminate\Http\JsonResponse|string
      */
-    public function getAsteroidbelts(String $name)
+    public function getAsteroidbelts(string $name)
     {
         $this->startProfiling(__FUNCTION__);
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\StarCitizenWiki;
 
@@ -38,11 +38,11 @@ class ShipsAPIController extends Controller
      * Returns a Ship by its name
      *
      * @param Request $request
-     * @param String  $name    ShipName
+     * @param string  $name    ShipName
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getShip(Request $request, String $name)
+    public function getShip(Request $request, string $name)
     {
         $this->startProfiling(__FUNCTION__);
 
@@ -97,9 +97,12 @@ class ShipsAPIController extends Controller
 
         app('Log')::debug('Ship search requested', ['query' => $request->get('query')]);
 
-        $this->validate($request, [
-            'query' => 'present|alpha_dash',
-        ]);
+        $this->validate(
+            $request,
+            [
+                'query' => 'present|alpha_dash',
+            ]
+        );
         $shipName = $request->input('query');
         $data = $this->repository->searchShips($shipName)->asArray();
 

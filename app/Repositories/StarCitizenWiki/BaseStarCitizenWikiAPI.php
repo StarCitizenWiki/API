@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by PhpStorm.
- * User: Hanne
+ * User: Hannes
  * Date: 01.02.2017
  * Time: 22:58
  */
@@ -31,10 +31,10 @@ class BaseStarCitizenWikiAPI
      *
      * @return bool
      */
-    private function checkIfResponseDataIsValid() : bool
+    private function checkIfResponseDataIsValid(): bool
     {
         if (!empty($this->response->getHeader('MediaWiki-Interfaces-Error'))) {
-            app('Log')::warning('Response Data is not valid', ['response' => (String) $this->response->getBody()]);
+            app('Log')::warning('Response Data is not valid', ['response' => (string) $this->response->getBody()]);
 
             return false;
         }
