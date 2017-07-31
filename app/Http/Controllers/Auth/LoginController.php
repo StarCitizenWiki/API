@@ -53,7 +53,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        app('Log')::info("User with ID: ".Auth::id()." logged out");
+        app('Log')::info('User with ID: '.Auth::id().' logged out');
 
         $this->guard()->logout();
 

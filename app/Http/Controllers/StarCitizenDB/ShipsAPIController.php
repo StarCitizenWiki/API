@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\StarCitizenDB;
 
@@ -38,7 +38,7 @@ class ShipsAPIController extends Controller
      * Returns a Ship by its name
      *
      * @param Request $request
-     * @param string  $name    ShipName
+     * @param string  $name ShipName
      *
      * @return \Illuminate\Http\JsonResponse
      */

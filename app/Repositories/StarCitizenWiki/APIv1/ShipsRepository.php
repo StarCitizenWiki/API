@@ -144,7 +144,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             $content = '';
 
             $subject = explode('/', $this->dataToTransform['wiki']['subject']);
-            if (count($subject) === 3) {
+            if (3 === count($subject)) {
                 $shipName = last($subject);
                 $fileName = strtolower($subject[1].'_'.$shipName.'.json');
 

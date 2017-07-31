@@ -34,9 +34,9 @@ class AddAPIHeaders
         $this->startProfiling(__FUNCTION__);
 
         $response = $next($request);
-        $response->header("Content-Type", "application/json; charset=utf-8");
-        $response->header("Cache-Control", "no-cache,no-store, must-revalidate");
-        $response->header("Pragma", "no-cache");
+        $response->header('Content-Type', 'application/json; charset=utf-8');
+        $response->header('Cache-Control', 'no-cache,no-store, must-revalidate');
+        $response->header('Pragma', 'no-cache');
         if (is_array($response->content())) {
             $contentLength = strlen(
                 json_encode($response->content(), JSON_PRETTY_PRINT)
@@ -44,10 +44,10 @@ class AddAPIHeaders
         } else {
             $contentLength = strlen($response->content());
         }
-        $response->header("Content-Length", $contentLength);
-        $response->header("Vary", "Accept-Encoding");
-        $response->header("Connection", "keep-alive");
-        $response->header("X-SCW-API-Version", API_VERSION);
+        $response->header('Content-Length', $contentLength);
+        $response->header('Vary', 'Accept-Encoding');
+        $response->header('Connection', 'keep-alive');
+        $response->header('X-SCW-API-Version', API_VERSION);
 
         $this->addTrace("Added API Headers to Request: {$request->fullUrl()}", __FUNCTION__, __LINE__);
 

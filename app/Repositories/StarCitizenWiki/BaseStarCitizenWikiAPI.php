@@ -30,7 +30,7 @@ class BaseStarCitizenWikiAPI
      *
      * @return bool
      */
-    private function checkIfResponseDataIsValid(): bool
+    protected function checkIfResponseDataIsValid(): bool
     {
         if (!empty($this->response->getHeader('MediaWiki-Interfaces-Error'))) {
             app('Log')::warning('Response Data is not valid', ['response' => (string) $this->response->getBody()]);

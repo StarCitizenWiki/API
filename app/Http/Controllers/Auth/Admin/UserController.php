@@ -122,7 +122,7 @@ class UserController extends Controller
             );
             $user->delete();
         } catch (ModelNotFoundException $e) {
-            $this->addTrace("User not found", __FUNCTION__, __LINE__);
+            $this->addTrace('User not found', __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return redirect()->route('admin_users_list')->withErrors(__('admin/users/edit.not_found'));
@@ -152,12 +152,12 @@ class UserController extends Controller
         );
 
         try {
-            $this->addTrace(__FUNCTION__, "Getting User with ID: {$request->id}", __LINE__);
+            $this->addTrace("Getting User with ID: {$request->id}", __FUNCTION__, __LINE__);
             $user = User::withTrashed()->findOrFail($request->id);
             app('Log')::notice("Restored Account with ID: {$request->id}");
             $user->restore();
         } catch (ModelNotFoundException $e) {
-            $this->addTrace(__FUNCTION__, "User not found", __LINE__);
+            $this->addTrace('User not found', __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return redirect()->route('admin_users_list')->withErrors(__('admin/users/edit.not_found'));
@@ -202,7 +202,7 @@ class UserController extends Controller
         $data['notes'] = $request->get('notes');
 
         if (!is_null($request->get('password')) && !empty($request->get('password'))) {
-            $this->addTrace(__FUNCTION__, "Password changed", __LINE__);
+            $this->addTrace('Password changed', __FUNCTION__, __LINE__);
             $data['password'] = $request->get('password');
         }
 
@@ -210,21 +210,21 @@ class UserController extends Controller
         $data['blacklisted'] = false;
 
         if ($request->has('list')) {
-            $this->addTrace(__FUNCTION__, "Black/Whitelist-Flag set", __LINE__);
-            if ($request->list === 'blacklisted') {
-                $this->addTrace(__FUNCTION__, "User is now blacklisted", __LINE__);
+            $this->addTrace('Black/Whitelist-Flag set', __FUNCTION__, __LINE__);
+            if ('blacklisted' === $request->list) {
+                $this->addTrace('User is now blacklisted', __FUNCTION__, __LINE__);
                 $data['whitelisted'] = false;
                 $data['blacklisted'] = true;
             }
 
-            if ($request->list === 'whitelisted') {
-                $this->addTrace(__FUNCTION__, "User is now whitelisted", __LINE__);
+            if ('whitelisted' === $request->list) {
+                $this->addTrace('User is now whitelisted', __FUNCTION__, __LINE__);
                 $data['whitelisted'] = true;
                 $data['blacklisted'] = false;
             }
         }
 
-        $this->addTrace(__FUNCTION__, "Start Update", __LINE__);
+        $this->addTrace('Start Update', __FUNCTION__, __LINE__);
         User::updateUser($data);
 
         $this->stopProfiling(__FUNCTION__);

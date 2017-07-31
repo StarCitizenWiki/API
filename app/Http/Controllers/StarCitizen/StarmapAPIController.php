@@ -134,7 +134,7 @@ class StarmapAPIController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
-            $this->addTrace(__FUNCTION__, "Failed getting Asteroidbelt with Message: {$e->getMessage()}", __LINE__);
+            $this->addTrace("Failed getting Asteroidbelt with Message: {$e->getMessage()}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();

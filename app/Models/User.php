@@ -62,6 +62,12 @@ use Illuminate\Support\Facades\Auth;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereRequestsPerMinute($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereWhitelisted($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\APIRequests[] $apiRequests
+ * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\User onlyTrashed()
+ * @method static bool|null restore()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\User withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\User withoutTrashed()
  */
 class User extends Authenticatable
 {
@@ -111,7 +117,7 @@ class User extends Authenticatable
 
         foreach ($data as $key => $value) {
             if ($user->$key != $value) {
-                if ($key !== 'password') {
+                if ('password' !== $key) {
                     $changes[] = [
                         $key.'_old' => $user->$key,
                         $key.'_new' => $value,

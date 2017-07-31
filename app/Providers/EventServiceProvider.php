@@ -16,13 +16,13 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\UserRegistered' => [
+        'App\Events\UserRegistered'    => [
             'App\Listeners\SendUserCredentials',
         ],
         'Illuminate\Auth\Events\Login' => [
             'App\Listeners\LogSuccessfulLogin',
         ],
-        'App\Events\URLShortened' => [
+        'App\Events\URLShortened'      => [
             'App\Listeners\SendURLShortenedNotification',
         ],
     ];
@@ -35,7 +35,6 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
         //
     }
 }

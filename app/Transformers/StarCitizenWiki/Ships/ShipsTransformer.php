@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -62,9 +62,9 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
                             explode('/', $wiki['data']['Hersteller'][0] ?? '')
                         ) ?? $scdb['manufacturer'] ?? '',
                     'id'       => isset($wiki['subject']) && str_contains($wiki['subject'], '/') ? explode(
-                        '/',
-                        $wiki['subject']
-                    )[1] : '',
+                                                                                                       '/',
+                                                                                                       $wiki['subject']
+                                                                                                   )[1] : '',
                     'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? BaseStarCitizenWikiAPI::URL.$wiki['data']['Hersteller'][0] : '',
                 ],
                 'description'      => [

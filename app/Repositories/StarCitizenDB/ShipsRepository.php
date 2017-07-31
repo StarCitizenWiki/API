@@ -78,4 +78,15 @@ class ShipsRepository implements ShipsInterface
     {
         throw new MethodNotImplementedException('Can\'t currently search for scdb ships');
     }
+
+    /**
+     * Checks if the Response Data is valid, must be overridden
+     *
+     * @return bool
+     */
+    protected function checkIfResponseDataIsValid(): bool
+    {
+        // TODO: Implement checkIfResponseDataIsValid() method.
+        return true;
+    }
 }

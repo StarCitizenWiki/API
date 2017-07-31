@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 17.07.2017
@@ -36,7 +36,7 @@ class UserInfoProcessor
             }
         }
 
-        if ($userData['name'] !== 'localhost') {
+        if ('localhost' !== $userData['name']) {
             $userData['id'] = $auth::user()->id;
         } else {
             unset($userData['id']);

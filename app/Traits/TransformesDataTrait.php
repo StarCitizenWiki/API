@@ -179,7 +179,7 @@ trait TransformesDataTrait
      */
     protected function checkIfDataIsValid(): void
     {
-        if (is_null($this->dataToTransform) && $this->transformationType !== TRANSFORM_NULL) {
+        if (is_null($this->dataToTransform) && TRANSFORM_NULL !== $this->transformationType) {
             throw new InvalidDataException('Data to transform is empty');
         }
     }
@@ -194,7 +194,7 @@ trait TransformesDataTrait
     protected function checkIfTransformerIsValid(): void
     {
         if (is_null($this->transformer)) {
-            app('Log')->warning('Transformer not set, aborting');
+            app('Log')::warning('Transformer not set, aborting');
             throw new MissingTransformerException();
         }
     }

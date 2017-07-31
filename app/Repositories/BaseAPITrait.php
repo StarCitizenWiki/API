@@ -9,7 +9,6 @@
 namespace App\Repositories;
 
 use App\Exceptions\InvalidDataException;
-use App\Exceptions\MethodNotImplementedException;
 use App\Traits\FiltersDataTrait;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
@@ -78,11 +77,8 @@ trait BaseAPITrait
      */
     private function checkIfResponseIsValid(): bool
     {
-        if ($this->checkIfResponseIsNotNull() &&
-            $this->checkIfResponseIsNotEmpty() &&
-            $this->checkIfResponseStatusIsOK() &&
-            $this->checkIfResponseDataIsValid()
-        ) {
+        if ($this->checkIfResponseIsNotNull() && $this->checkIfResponseIsNotEmpty() && $this->checkIfResponseStatusIsOK(
+            ) && $this->checkIfResponseDataIsValid()) {
             return true;
         }
         throw new InvalidDataException('Response Data is not valid');
@@ -115,7 +111,7 @@ trait BaseAPITrait
      */
     private function checkIfResponseStatusIsOK(): bool
     {
-        return $this->response->getStatusCode() === 200;
+        return 200 === $this->response->getStatusCode();
     }
 
     /**
@@ -194,11 +190,6 @@ trait BaseAPITrait
      * Checks if the Response Data is valid, must be overridden
      *
      * @return bool
-     *
-     * @throws MethodNotImplementedException
      */
-    private function checkIfResponseDataIsValid(): bool
-    {
-        throw new MethodNotImplementedException();
-    }
+    abstract protected function checkIfResponseDataIsValid(): bool;
 }

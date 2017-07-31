@@ -39,7 +39,7 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
     {
         $search['title'] = str_replace(' ', '_', $search['title']);
         $result = explode('/', $search['title']);
-        if (count($result) === 3) {
+        if (3 === count($result)) {
             $shipName = $result[2];
 
             $data = [

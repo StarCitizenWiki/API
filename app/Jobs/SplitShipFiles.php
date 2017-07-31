@@ -77,12 +77,12 @@ class SplitShipFiles implements ShouldQueue
                 $this->checkIfShipHasNameField();
                 $this->getDataForBaseVersion();
                 if ($this->checkIfShipHasModifications()) {
-                    $this->addTrace(__FUNCTION__, 'Ship has Modifications', __LINE__);
+                    $this->addTrace('Ship has Modifications', __FUNCTION__, __LINE__);
                     foreach ($this->content['Modifications'] as $modification) {
                         if ($this->checkIfModificationIsValid($modification)) {
                             $this->content = $modification;
                             $this->prepareModificationArray();
-                            $this->addTrace(__FUNCTION__, "Mod: {$this->content['@name']}");
+                            $this->addTrace("Mod: {$this->content['@name']}", __FUNCTION__);
                             $this->getDataForModifications();
                         }
                     }

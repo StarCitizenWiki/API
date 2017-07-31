@@ -136,7 +136,7 @@ class FundImageController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         try {
-            $this->addTrace("Setting Image Type", __FUNCTION__, __LINE__);
+            $this->addTrace('Setting Image Type', __FUNCTION__, __LINE__);
             $this->setImageType();
         } catch (InvalidArgumentException $e) {
             $this->addTrace("Setting Image Type failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
@@ -164,7 +164,7 @@ class FundImageController extends Controller
             $this->flushImageToString();
             $this->saveImageToDisk();
         } catch (Exception $e) {
-            app('Log')->warning(
+            app('Log')::warning(
                 'Fund Image generation failed',
                 [
                     'type'      => $this->image['type'],
@@ -222,10 +222,10 @@ class FundImageController extends Controller
             $this->image['type'] = Route::getCurrentRoute()->getAction()['type'];
         } else {
             $message = 'FundImage function only accepts Supported Image Types('.implode(
-                ', ',
-                FundImageController::SUPPORTED_FUNDS
-            ).'). Input was: '.Route::getCurrentRoute()->getAction()['type'];
-            app('Log')->warning(
+                    ', ',
+                    FundImageController::SUPPORTED_FUNDS
+                ).'). Input was: '.Route::getCurrentRoute()->getAction()['type'];
+            app('Log')::warning(
                 'Requested Image type does not exist',
                 [
                     'message' => $message,
@@ -252,7 +252,7 @@ class FundImageController extends Controller
             $this->addTrace("Requested Color is {$requestColor}", __FUNCTION__, __LINE__);
             $colorArray = $this->convertHexToRGBColor($requestColor);
             if (!empty($colorArray)) {
-                $this->addTrace("Color is ".implode('', $colorArray)." in HEX", __FUNCTION__, __LINE__);
+                $this->addTrace('Color is '.implode('', $colorArray).' in HEX', __FUNCTION__, __LINE__);
                 $this->font['color'] = $colorArray;
             }
         }
@@ -272,7 +272,7 @@ class FundImageController extends Controller
     {
         $this->startProfiling(__FUNCTION__);
 
-        $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
+        $hexStr = preg_replace('/[^0-9A-Fa-f]/', '', $hexStr); // Gets a proper hex string
         $rgbArray = [];
         if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
             $colorVal = hexdec($hexStr);
@@ -318,11 +318,11 @@ class FundImageController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->image['name'])) {
-            $this->addTrace("Image Exists in Cache", __FUNCTION__, __LINE__);
+            $this->addTrace('Image Exists in Cache', __FUNCTION__, __LINE__);
             $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->lastModified($this->image['name']);
             $cacheDuration = time() - FUNDIMAGE_CACHE_TIME;
             if ($imageCreationTime > $cacheDuration) {
-                $this->addTrace("Image is valid and can be loaded", __FUNCTION__, __LINE__);
+                $this->addTrace('Image is valid and can be loaded', __FUNCTION__, __LINE__);
                 $this->stopProfiling(__FUNCTION__);
 
                 return true;
@@ -373,18 +373,18 @@ class FundImageController extends Controller
     {
         $this->startProfiling(__FUNCTION__);
 
-        if ($source !== 'current') {
+        if ('current' !== $source) {
             $source = 'nextMillion';
         }
 
         $this->addTrace("Formatting Funds. Source: {$source}", __FUNCTION__, __LINE__);
 
         $this->funds[$source.'Formatted'] = number_format(
-            $this->funds[$source],
-            0,
-            ',',
-            '.'
-        ).' $';
+                $this->funds[$source],
+                0,
+                ',',
+                '.'
+            ).' $';
 
         $this->addTrace("Funds formatted. Formatted: {$this->funds[$source.'Formatted']}", __FUNCTION__, __LINE__);
 
@@ -596,7 +596,7 @@ class FundImageController extends Controller
      */
     private function calculatePercentageToNextMillion(): void
     {
-        if ($this->funds['nextMillion'] === null || $this->funds['current'] === null) {
+        if (null === $this->funds['nextMillion'] || null === $this->funds['current']) {
             throw new InvalidDataException('Did you call _roundFundsToNextMillion()?');
         }
         $this->funds['substractor'] = $this->funds['nextMillion'] - 1000000;

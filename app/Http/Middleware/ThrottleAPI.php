@@ -43,12 +43,12 @@ class ThrottleAPI extends ThrottleRequests
     {
         $this->startProfiling(__FUNCTION__);
 
-        $this->addTrace(__FUNCTION__, 'Getting User From Request', __LINE__);
+        $this->addTrace('Getting User From Request', __FUNCTION__, __LINE__);
         $user = User::where('api_token', $request->get(AUTH_KEY_FIELD_NAME, null))->first();
 
         if (!is_null($user)) {
             if ($user->whitelisted) {
-                $this->addTrace(__FUNCTION__, 'User is Whitelisted, no Throttling', __LINE__);
+                $this->addTrace('User is Whitelisted, no Throttling', __FUNCTION__, __LINE__);
                 $this->stopProfiling(__FUNCTION__);
 
                 return $next($request);
@@ -59,12 +59,15 @@ class ThrottleAPI extends ThrottleRequests
 
         try {
             $rpm = $this->determineRequestsPerMinute($user);
-            $this->addTrace(__FUNCTION__, "Got RPM: {$rpm} for Request");
+            $this->addTrace("Got RPM: {$rpm} for Request", __FUNCTION__);
         } catch (UserBlacklistedException $e) {
-            app('Log')::notice('Request from blacklisted User', [
-                'user_id' => $user->id,
-                'request_url' => $request->getUri(),
-            ]);
+            app('Log')::notice(
+                'Request from blacklisted User',
+                [
+                    'user_id'     => $user->id,
+                    'request_url' => $request->getUri(),
+                ]
+            );
 
             $this->stopProfiling(__FUNCTION__);
 

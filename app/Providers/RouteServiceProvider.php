@@ -43,7 +43,6 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
-
         //
     }
 
@@ -56,18 +55,24 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes()
     {
-        Route::group([
-            'middleware' => 'web',
-            'namespace' => $this->namespace,
-        ], function ($router) {
-            $files = File::allFiles(base_path('routes/web'));
-            sort($files);
-            foreach ($files as $route) {
-                Route::group(['domain' => $this->getDomainForRoute((string) $route)], function ($router) use ($route) {
-                    require $route;
-                });
+        Route::group(
+            [
+                'middleware' => 'web',
+                'namespace'  => $this->namespace,
+            ],
+            function ($router) {
+                $files = File::allFiles(base_path('routes/web'));
+                sort($files);
+                foreach ($files as $route) {
+                    Route::group(
+                        ['domain' => $this->getDomainForRoute((string) $route)],
+                        function ($router) use ($route) {
+                            require $route;
+                        }
+                    );
+                }
             }
-        });
+        );
     }
 
     /**
@@ -79,23 +84,32 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::group([
-            'middleware' => 'api',
-            'namespace' => $this->namespace,
-            'prefix' => 'api',
-        ], function ($router) {
-            $apiVersions = glob(base_path('routes/api/*'), GLOB_ONLYDIR);
-            foreach ($apiVersions as $version) {
-                $versionRoutePrefix = str_replace([base_path('routes/api'), '/'], '', $version);
-                Route::group(['prefix' => $versionRoutePrefix], function ($router) use ($version) {
-                    foreach (File::allFiles($version) as $route) {
-                        Route::group(['domain' => $this->getDomainForRoute((string) $route)], function ($router) use ($route) {
-                            require $route;
-                        });
-                    }
-                });
+        Route::group(
+            [
+                'middleware' => 'api',
+                'namespace'  => $this->namespace,
+                'prefix'     => 'api',
+            ],
+            function ($router) {
+                $apiVersions = glob(base_path('routes/api/*'), GLOB_ONLYDIR);
+                foreach ($apiVersions as $version) {
+                    $versionRoutePrefix = str_replace([base_path('routes/api'), '/'], '', $version);
+                    Route::group(
+                        ['prefix' => $versionRoutePrefix],
+                        function ($router) use ($version) {
+                            foreach (File::allFiles($version) as $route) {
+                                Route::group(
+                                    ['domain' => $this->getDomainForRoute((string) $route)],
+                                    function ($router) use ($route) {
+                                        require $route;
+                                    }
+                                );
+                            }
+                        }
+                    );
+                }
             }
-        });
+        );
     }
 
     /**
@@ -105,7 +119,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return string
      */
-    private function getDomainForRoute(string $route) : string
+    private function getDomainForRoute(string $route): string
     {
         $key = str_replace(
             [

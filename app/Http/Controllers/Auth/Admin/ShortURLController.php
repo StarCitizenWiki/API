@@ -108,7 +108,7 @@ class ShortURLController extends Controller
         app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
 
         try {
-            $this->addTrace(__FUNCTION__, "Getting ShortURL for ID: {$id}", __LINE__);
+            $this->addTrace("Getting ShortURL for ID: {$id}", __FUNCTION__, __LINE__);
             $url = ShortURL::findOrFail($id);
             $this->stopProfiling(__FUNCTION__);
 
@@ -214,7 +214,7 @@ class ShortURLController extends Controller
 
         validate_array($data, $rules, $request);
 
-        $this->addTrace(__FUNCTION__, 'Adding WhitelistURL', __LINE__);
+        $this->addTrace('Adding WhitelistURL', __FUNCTION__, __LINE__);
         ShortURLWhitelist::createWhitelistURL(
             [
                 'url'      => parse_url($request->get('url'))['host'],
@@ -262,7 +262,7 @@ class ShortURLController extends Controller
         validate_array($data, $rules, $request);
 
         try {
-            $this->addTrace(__FUNCTION__, "Updating ShortURL", __LINE__);
+            $this->addTrace('Updating ShortURL', __FUNCTION__, __LINE__);
             ShortURL::updateShortURL(
                 [
                     'id'        => $request->id,
@@ -273,7 +273,7 @@ class ShortURLController extends Controller
                 ]
             );
         } catch (URLNotWhitelistedException | HashNameAlreadyAssignedException $e) {
-            $this->addTrace(__FUNCTION__, get_class($e), __LINE__);
+            $this->addTrace(get_class($e), __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return back()->withErrors($e->getMessage())->withInput(Input::all());

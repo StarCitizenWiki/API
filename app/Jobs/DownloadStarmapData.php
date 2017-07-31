@@ -54,17 +54,17 @@ class DownloadStarmapData implements ShouldQueue
 
         foreach (Starsystem::where('exclude', '=', false)->get() as $system) {
             $fileName = Starsystem::makeFilenameFromCode($system->code);
-            $this->addTrace(__FUNCTION__, "Downloading {$system->code}");
+            $this->addTrace("Downloading {$system->code}", __FUNCTION__);
             $this->starmapContent = $this->getJsonArrayFromStarmap('star-systems/'.$system->code);
 
             if ($this->checkIfDataCanBeProcessed($this->starmapContent) && array_key_exists(
-                'celestial_objects',
-                $this->starmapContent['data']['resultset'][0]
-            )) {
+                    'celestial_objects',
+                    $this->starmapContent['data']['resultset'][0]
+                )) {
                 $this->addCelestialContent();
             }
 
-            $this->addTrace(__FUNCTION__, "Writing System to file {$system->code}");
+            $this->addTrace("Writing System to file {$system->code}", __FUNCTION__);
             Storage::disk('starmap')->put(
                 $fileName,
                 json_encode($this->starmapContent, JSON_PRETTY_PRINT)
@@ -99,9 +99,9 @@ class DownloadStarmapData implements ShouldQueue
     private function checkIfDataCanBeProcessed($data): bool
     {
         return is_array($data) && $data['success'] === 1 && array_key_exists('data', $data) && array_key_exists(
-            'resultset',
-            $data['data']
-        ) && array_key_exists(0, $data['data']['resultset']);
+                'resultset',
+                $data['data']
+            ) && array_key_exists(0, $data['data']['resultset']);
     }
 
     /**
@@ -131,9 +131,9 @@ class DownloadStarmapData implements ShouldQueue
         $this->startProfiling(__FUNCTION__);
 
         if ($this->checkIfDataCanBeProcessed($celestialContent) && array_key_exists(
-            'children',
-            $celestialContent['data']['resultset'][0]
-        )) {
+                'children',
+                $celestialContent['data']['resultset'][0]
+            )) {
             foreach ($celestialContent['data']['resultset'][0]['children'] as $celestrialChildren) {
                 if (in_array($celestrialChildren['type'], self::CELESTIAL_SUBOBJECTS_TYPE)) {
                     array_push($this->starmapContent['data']['resultset'][0]['celestial_objects'], $celestrialChildren);

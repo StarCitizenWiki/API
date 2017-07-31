@@ -63,7 +63,7 @@ class DownloadStarCitizenDBShips implements ShouldQueue
                     self::STAR_CITIZEN_DB_URL.$url,
                     ['save_to' => $stream]
                 );
-                $this->addTrace(__FUNCTION__, "Downloading {$fileName}");
+                $this->addTrace("Downloading {$fileName}", __FUNCTION__);
             }
         }
         app('Log')::info('Ship Download Job Finished');

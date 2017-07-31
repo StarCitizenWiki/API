@@ -38,7 +38,7 @@ class ShipsAPIController extends Controller
      * Returns a Ship by its name
      *
      * @param Request $request
-     * @param string  $name    ShipName
+     * @param string  $name ShipName
      *
      * @return \Illuminate\Http\JsonResponse
      */

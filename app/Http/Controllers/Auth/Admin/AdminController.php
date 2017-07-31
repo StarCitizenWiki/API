@@ -72,7 +72,7 @@ class AdminController extends Controller
         }
 
         if ($request->input('dl')) {
-            $this->addTrace(__FUNCTION__, "Downloading {$request->input('dl')}", __LINE__);
+            $this->addTrace("Downloading {$request->input('dl')}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return response()->download(LaravelLogViewer::pathToLogFile(base64_decode($request->input('dl'))));

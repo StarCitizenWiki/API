@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Starsystem whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Starsystem whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Starsystem whereUpdatedAt($value)
+ * @property int            $exclude
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Starsystem whereExclude($value)
  */
 class Starsystem extends Model
 {
@@ -39,6 +41,6 @@ class Starsystem extends Model
      */
     public function isExcluded(): bool
     {
-        return (bool)$this->exclude;
+        return (bool) $this->exclude;
     }
 }

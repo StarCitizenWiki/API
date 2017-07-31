@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\ShortURL;
 
@@ -105,7 +105,7 @@ class ShortURLController extends Controller
     public function resolveAndDisplay(Request $request)
     {
         $this->startProfiling(__FUNCTION__);
-        $this->addTrace(__FUNCTION__, "Resolving ShortURL {$request->get('url')}", __LINE__);
+        $this->addTrace("Resolving ShortURL {$request->get('url')}", __FUNCTION__, __LINE__);
 
         $this->validate(
             $request,
@@ -131,7 +131,7 @@ class ShortURLController extends Controller
         $url = $this->getURLRedirectIfException('short_url_resolve_form', $hash);
 
         if ($url instanceof RedirectResponse) {
-            $this->addTrace(__FUNCTION__, "No Long-URL for Hash: {$hash} found", __LINE__);
+            $this->addTrace("No Long-URL for Hash: {$hash} found", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return $url;
@@ -165,10 +165,10 @@ class ShortURLController extends Controller
         app('Log')::info("Resolving Hash: {$request->get('hash_name')}");
 
         try {
-            $this->addTrace(__FUNCTION__, "Getting URL for Hash: {$request->get('hash_name')}", __LINE__);
+            $this->addTrace("Getting URL for Hash: {$request->get('hash_name')}", __FUNCTION__, __LINE__);
             $url = ShortURL::resolve($request->get('hash_name'));
         } catch (ModelNotFoundException | ExpiredException $e) {
-            $this->addTrace(__FUNCTION__, get_class($e), __LINE__);
+            $this->addTrace(get_class($e), __FUNCTION__, __LINE__);
             $url = [];
         }
 
@@ -235,15 +235,15 @@ class ShortURLController extends Controller
         $key = $request->get(AUTH_KEY_FIELD_NAME, null);
 
         if (!is_null($key)) {
-            $this->addTrace(__FUNCTION__, "Key: {$key} is not null", __LINE__);
+            $this->addTrace("Key: {$key} is not null", __FUNCTION__, __LINE__);
             $user = User::where('api_token', $key)->first();
             if (!is_null($user)) {
                 $user_id = $user->id;
-                $this->addTrace(__FUNCTION__, "Provided Key belongs to User {$user_id} ({$user->email})", __LINE__);
+                $this->addTrace("Provided Key belongs to User {$user_id} ({$user->email})", __FUNCTION__, __LINE__);
             }
         }
 
-        $this->addTrace(__FUNCTION__, "Creating ShortURL", __LINE__);
+        $this->addTrace('Creating ShortURL', __FUNCTION__, __LINE__);
         $url = ShortURL::createShortURL(
             [
                 'url'       => ShortURL::sanitizeURL($request->get('url')),

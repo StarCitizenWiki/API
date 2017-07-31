@@ -32,14 +32,14 @@ class CheckIfAdmin
             $user = Auth::user();
 
             if (in_array($user->id, AUTH_ADMIN_IDS)) {
-                $this->addTrace(__FUNCTION__, "User with ID: {$user->id} is Admin", __LINE__);
+                $this->addTrace("User with ID: {$user->id} is Admin", __FUNCTION__, __LINE__);
                 $this->stopProfiling(__FUNCTION__);
 
                 return $next($request);
             }
         }
 
-        app('Log')::notice("Unauthenticated User with ID: ".Auth::id()." tried to access Admin area");
+        app('Log')::notice('Unauthenticated User with ID: '.Auth::id().' tried to access Admin area');
 
         $this->stopProfiling(__FUNCTION__);
 

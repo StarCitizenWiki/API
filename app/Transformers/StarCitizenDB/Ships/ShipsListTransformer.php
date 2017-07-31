@@ -39,7 +39,11 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
 
         $transformed = [
             $name => [
-                'api_url' => '//'.config('app.api_url').'/api/v1/ships/scdb/'.str_replace('.json', '', $content['filename']),
+                'api_url' => '//'.config('app.api_url').'/api/v1/ships/scdb/'.str_replace(
+                        '.json',
+                        '',
+                        $content['filename']
+                    ),
             ],
         ];
 

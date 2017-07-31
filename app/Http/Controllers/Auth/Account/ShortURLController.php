@@ -127,7 +127,7 @@ class ShortURLController extends Controller
             $this->addTrace("Checking if date {$expires} is in the past", __FUNCTION__, __LINE__);
             ShortURL::checkIfDateIsPast($expires);
 
-            $this->addTrace("Creating ShortURL", __FUNCTION__, __LINE__);
+            $this->addTrace('Creating ShortURL', __FUNCTION__, __LINE__);
             $url = ShortURL::createShortURL(
                 [
                     'url'       => ShortURL::sanitizeURL($request->get('url')),

@@ -46,6 +46,22 @@ class BaseStarCitizenAPI
     }
 
     /**
+     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
+     *
+     * @return bool
+     */
+    protected function checkIfResponseDataIsValid(): bool
+    {
+        $valid = str_contains((string) $this->response->getBody(), 'success');
+
+        if (!$valid) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Requests a RSI-Token, uses Crowdfunding Stats Endpoint
      *
      * @return void
@@ -84,21 +100,5 @@ class BaseStarCitizenAPI
         } catch (\Exception $e) {
             app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");
         }
-    }
-
-    /**
-     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
-     *
-     * @return bool
-     */
-    private function checkIfResponseDataIsValid(): bool
-    {
-        $valid = str_contains((string) $this->response->getBody(), 'success');
-
-        if (!$valid) {
-            return false;
-        }
-
-        return true;
     }
 }

@@ -33,7 +33,7 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
     {
         array_walk_recursive(
             $data,
-            function (&$value, $key) {
+            function (&$value) {
                 $value = preg_replace('/#[0-9]{1,3}#/', '', $value);
             }
         );
@@ -62,7 +62,7 @@ class SMWTransformer extends TransformerAbstract implements BaseAPITransformerIn
                 sort($transformed['smw'][$key], SORT_NUMERIC);
             }
 
-            if ($shipData['property'] === '_DTITLE') {
+            if ('_DTITLE' === $shipData['property']) {
                 $title = $shipData['dataitem'][0]['item'];
             }
         }

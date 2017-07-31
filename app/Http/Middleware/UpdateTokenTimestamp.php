@@ -39,10 +39,12 @@ class UpdateTokenTimestamp
                 $user->save();
 
                 app('Log')::info("Updated Token Last Used Timestamp for User: {$user->id}");
-                APIRequests::create([
-                    'user_id' => $user->id,
-                    'request_uri' => $request->path(),
-                ]);
+                APIRequests::create(
+                    [
+                        'user_id'     => $user->id,
+                        'request_uri' => $request->path(),
+                    ]
+                );
             } catch (ModelNotFoundException $e) {
                 app('Log')::notice("Provided Api Key: {$key} has no associated user");
             }
