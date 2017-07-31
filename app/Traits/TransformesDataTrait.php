@@ -9,7 +9,6 @@ namespace App\Traits;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingTransformerException;
-use App\Facades\Log;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 use Spatie\Fractal\Fractal;
@@ -195,7 +194,7 @@ trait TransformesDataTrait
     protected function checkIfTransformerIsValid(): void
     {
         if (is_null($this->transformer)) {
-            Log::warning('Transformer not set, aborting');
+            app('Log')->warning('Transformer not set, aborting');
             throw new MissingTransformerException();
         }
     }

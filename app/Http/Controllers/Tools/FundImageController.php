@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tools;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
-use App\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
 use App\Traits\ProfilesMethodsTrait;
@@ -165,7 +164,7 @@ class FundImageController extends Controller
             $this->flushImageToString();
             $this->saveImageToDisk();
         } catch (Exception $e) {
-            Log::warning(
+            app('Log')->warning(
                 'Fund Image generation failed',
                 [
                     'type'      => $this->image['type'],
@@ -226,7 +225,7 @@ class FundImageController extends Controller
                 ', ',
                 FundImageController::SUPPORTED_FUNDS
             ).'). Input was: '.Route::getCurrentRoute()->getAction()['type'];
-            Log::warning(
+            app('Log')->warning(
                 'Requested Image type does not exist',
                 [
                     'message' => $message,
