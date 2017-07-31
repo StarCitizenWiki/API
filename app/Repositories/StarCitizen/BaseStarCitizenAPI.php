@@ -21,7 +21,7 @@ class BaseStarCitizenAPI
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
 
-    private $rsiToken = null;
+    private static $rsiToken = null;
 
     use BaseAPITrait, TransformesDataTrait {
         BaseAPITrait::addMetadataToTransformation insteadof TransformesDataTrait;
@@ -36,12 +36,52 @@ class BaseStarCitizenAPI
             [
                 'base_uri' => $this::API_URL,
                 'timeout'  => 3.0,
-                'headers'  => ['X-Rsi-Token' => $this->rsiToken],
+                'headers'  => ['X-Rsi-Token' => self::$rsiToken],
             ]
         );
 
-        if (is_null($this->rsiToken)) {
+        if (is_null(self::$rsiToken)) {
             $this->getRSIToken();
+        }
+    }
+
+    /**
+     * Requests a RSI-Token, uses Crowdfunding Stats Endpoint
+     *
+     * @return void
+     */
+    private function getRSIToken(): void
+    {
+        try {
+            $response = $this->guzzleClient->request(
+                'POST',
+                'stats/getCrowdfundStats'
+            );
+            $token = $response->getHeader('Set-Cookie');
+
+            if (empty($token)) {
+                app('Log')::notice('Getting RSI Token failed');
+                self::$rsiToken = 'StarCitizenWiki_DE';
+            } else {
+                $token = explode(';', $token[0])[0];
+                $token = str_replace('Rsi-Token=', '', $token);
+                app('Log')::info(
+                    'Getting RSI Token succeeded',
+                    [
+                        'token' => $token,
+                    ]
+                );
+                self::$rsiToken = $token;
+            }
+
+            if (App::isLocal()) {
+                $this->createFractalInstance();
+                $this->fractalManager->addMeta(['RSI-Token' => $token]);
+            }
+            app('Log')::debug(self::$rsiToken);
+            $this->__construct();
+        } catch (\Exception $e) {
+            app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");
         }
     }
 
@@ -59,46 +99,5 @@ class BaseStarCitizenAPI
         }
 
         return true;
-    }
-
-    /**
-     * Requests a RSI-Token, uses Crowdfunding Stats Endpoint
-     *
-     * @return void
-     */
-    private function getRSIToken(): void
-    {
-
-        try {
-            $response = $this->guzzleClient->request(
-                'POST',
-                'stats/getCrowdfundStats'
-            );
-            $token = $response->getHeader('Set-Cookie');
-
-            if (empty($token)) {
-                app('Log')::notice('Getting RSI Token failed');
-                $this->rsiToken = 'StarCitizenWiki_DE';
-            } else {
-                $token = explode(';', $token[0])[0];
-                $token = str_replace('Rsi-Token=', '', $token);
-                app('Log')::info(
-                    'Getting RSI Token succeeded',
-                    [
-                        'token' => $token,
-                    ]
-                );
-                $this->rsiToken = $token;
-            }
-
-            if (App::isLocal()) {
-                $this->createFractalInstance();
-                $this->fractalManager->addMeta(['RSI-Token' => $token]);
-            }
-
-            $this->__construct();
-        } catch (\Exception $e) {
-            app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");
-        }
     }
 }

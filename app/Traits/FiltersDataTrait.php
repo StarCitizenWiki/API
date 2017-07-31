@@ -17,7 +17,6 @@ use Illuminate\Http\Request;
  */
 trait FiltersDataTrait
 {
-    //protected $validFields = [];
     protected $filters = [];
 
     private $requestedFields = [];
