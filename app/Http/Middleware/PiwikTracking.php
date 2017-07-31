@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App\Traits\ProfilesMethodsTrait;
 use Closure;
-use Composer\DependencyResolver\Request;
 use Illuminate\Support\Facades\App;
 use PiwikTracker;
 

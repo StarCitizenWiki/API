@@ -7,7 +7,6 @@
 
 namespace App\Repositories\StarCitizen;
 
-use App\Facades\Log;
 use App\Repositories\BaseAPITrait;
 use App\Traits\TransformesDataTrait;
 use GuzzleHttp\Client;

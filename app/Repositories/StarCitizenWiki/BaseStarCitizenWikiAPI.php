@@ -8,7 +8,6 @@
 
 namespace App\Repositories\StarCitizenWiki;
 
-use App\Facades\Log;
 use App\Repositories\BaseAPITrait;
 use App\Traits\TransformesDataTrait;
 

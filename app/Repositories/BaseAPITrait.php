@@ -10,7 +10,6 @@ namespace App\Repositories;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MethodNotImplementedException;
-use App\Facades\Log;
 use App\Traits\FiltersDataTrait;
 use Carbon\Carbon;
 use GuzzleHttp\Client;

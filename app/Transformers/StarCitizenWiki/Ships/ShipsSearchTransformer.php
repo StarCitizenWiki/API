@@ -8,7 +8,6 @@
 namespace App\Transformers\StarCitizenWiki\Ships;
 
 use App\Exceptions\InvalidDataException;
-use App\Facades\Log;
 use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
