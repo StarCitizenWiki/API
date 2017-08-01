@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Jobs;
 
+use App\Traits\ProfilesMethodsTrait;
 use GuzzleHttp\Client;
-use function GuzzleHttp\Psr7\stream_for;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * Class DownloadStarCitizenDBShips
@@ -17,7 +17,11 @@ use Illuminate\Support\Facades\Log;
  */
 class DownloadStarCitizenDBShips implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use ProfilesMethodsTrait;
 
     private const STAR_CITIZEN_DB_URL = 'http://starcitizendb.com/';
 
@@ -34,12 +38,16 @@ class DownloadStarCitizenDBShips implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('Starting Ship Download Job');
-        $client = new Client([
-            'timeout' => 10.0,
-        ]);
+        $this->startProfiling(__FUNCTION__);
 
-        $urls = (String) $client->get(self::STAR_CITIZEN_DB_URL.'api/ships/specs')->getBody();
+        app('Log')::info('Starting Ship Download Job');
+        $client = new Client(
+            [
+                'timeout' => 10.0,
+            ]
+        );
+
+        $urls = (string) $client->get(self::STAR_CITIZEN_DB_URL.'api/ships/specs')->getBody();
         preg_match_all('/href="([^\'\"]+)/', $urls, $urls);
         $urls = $urls[1];
 
@@ -55,12 +63,14 @@ class DownloadStarCitizenDBShips implements ShouldQueue
                     self::STAR_CITIZEN_DB_URL.$url,
                     ['save_to' => $stream]
                 );
-                Log::info('Downloading '.$fileName);
+                $this->addTrace("Downloading {$fileName}", __FUNCTION__);
             }
         }
-        Log::info('Ship Download Job Finished');
+        app('Log')::info('Ship Download Job Finished');
 
-        Log::info('Dispatching Split Files Job');
+        app('Log')::info('Dispatching Split Files Job');
         dispatch(new SplitShipFiles());
+
+        $this->stopProfiling(__FUNCTION__);
     }
 }

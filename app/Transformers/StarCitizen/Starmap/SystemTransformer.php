@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -17,7 +17,6 @@ use League\Fractal\TransformerAbstract;
  */
 class SystemTransformer extends TransformerAbstract implements BaseAPITransformerInterface
 {
-
     /**
      * TODO
      *

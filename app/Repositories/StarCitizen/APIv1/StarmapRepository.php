@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -21,7 +21,6 @@ use App\Transformers\StarCitizen\Starmap\SpacestationsTransformer;
 use App\Transformers\StarCitizen\Starmap\JumppointsTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemListTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class StarmapRepository
@@ -35,16 +34,13 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}
      *
-     * @param String $systemName
+     * @param string $systemName
      *
      * @return StarmapRepository
      */
-    public function getSystem(String $systemName)
+    public function getSystem(string $systemName)
     {
-        Log::debug('Requesting System', [
-            'method' => __METHOD__,
-            'system' => $systemName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
         $systemQueryData = Starsystem::where('code', $systemName)
             ->orderby(self::TIME_GROUP_FIELD, 'DESC')
@@ -58,12 +54,9 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      * @param String $systemName
      * @return $this
      */
-    public function getAsteroidbelts(String $systemName)
+    public function getAsteroidbelts(string $systemName)
     {
-        Log::debug('Requesting Astreoidbelts', [
-            'method' => __METHOD__,
-            'system' => $systemName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
         $cigSystemId = $this->getCigSystemId($systemName);
         $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId)
@@ -205,13 +198,13 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     /**
      * https://robertsspaceindustries.com/api/starmap/celestial-objects/{SYSTEM_NAME}.[TYPE}.{NAME}
      *
-     * @param String $systemName
-     * @param String $type
-     * @param String $objectName
+     * @param string $systemName
+     * @param string $type
+     * @param string $objectName
      *
      * @return StarmapRepository
      */
-    public function getCelestialObject(String $systemName, String $type, String $objectName)
+    public function getCelestialObject(string $systemName, string $type, string $objectName)
     {
         $celestialObjectName = $systemName . '.' . $type . '.' . $objectName;
 
@@ -230,11 +223,11 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      * https://robertsspaceindustries.com/api/starmap/find
      * POST Parameter: query
      *
-     * @param String $searchString
+     * @param string $searchString
      *
      * @return StarmapRepository
      */
-    public function search(String $searchString)
+    public function search(string $searchString)
     {
         Log::debug('Requesting Search', [
             'method' => __METHOD__,
@@ -253,9 +246,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      */
     public function getSystemList()
     {
-        Log::debug('Requesting System List', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->dataToTransform = Starsystem::all()->toArray();
 
         return $this->collection()->withTransformer(SystemListTransformer::class);

@@ -10,7 +10,7 @@
 
         <title>Star Citizen Wiki API - @yield('title')</title>
         @if ($bootstrapModules['enableCSS'])
-            <link rel="stylesheet" href="{{ URL::asset('/css/app.css') }}">
+            <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
         @endif
 
         <!-- Scripts -->
@@ -23,7 +23,7 @@
     </head>
     <body>
         <ul class="nav nav-pills mt-2 mr-2 justify-content-end ">
-            @if(App::isLocal() || (!is_null(Auth::user()) && Auth::user()->isAdmin()))
+            @if(!is_null(Auth::user()) && Auth::user()->isAdmin())
                 <li class="nav-item mr-2">
                     <a class="nav-link" href="{{ route('admin_dashboard') }}">@lang('layouts/app.admin')</a>
                 </li>
@@ -58,7 +58,7 @@
 
         @if ($bootstrapModules['enableJS'])
             <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.js" integrity="sha256-jVfFb7AbGi7S/SLNl8SB4/MYaf549eEs+NlIWMoARHg=" crossorigin="anonymous"></script>
-            <script src="{{ URL::asset('/js/app.js') }}"></script>
+            <script src="{{ mix('/js/app.js') }}"></script>
         @endif
 
         @yield('scripts')

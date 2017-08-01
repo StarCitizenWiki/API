@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Middleware;
 
 use App\Models\APIRequests;
 use App\Models\User;
+use App\Traits\ProfilesMethodsTrait;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class UpdateTokenTimestamp
@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Log;
  */
 class UpdateTokenTimestamp
 {
+    use ProfilesMethodsTrait;
+
     /**
      * Handle an incoming request.
      *
@@ -26,6 +28,8 @@ class UpdateTokenTimestamp
      */
     public function handle($request, Closure $next)
     {
+        $this->startProfiling(__FUNCTION__);
+
         $key = $request->get(AUTH_KEY_FIELD_NAME, null);
 
         if (!is_null($key)) {
@@ -33,20 +37,20 @@ class UpdateTokenTimestamp
                 $user = User::where('api_token', $key)->firstOrFail();
                 $user->api_token_last_used = date('Y-m-d H:i:s');
                 $user->save();
-                Log::debug('Updated Token Last Used', [
-                    'method' => __METHOD__,
-                    'user_id' => $user->id,
-                ]);
-                APIRequests::create([
-                    'user_id' => $user->id,
-                    'request_uri' => $request->path(),
-                ]);
+
+                app('Log')::info("Updated Token Last Used Timestamp for User: {$user->id}");
+                APIRequests::create(
+                    [
+                        'user_id'     => $user->id,
+                        'request_uri' => $request->path(),
+                    ]
+                );
             } catch (ModelNotFoundException $e) {
-                Log::info('Provided Api Key has no associated user', [
-                    'api_token' => $key,
-                ]);
+                app('Log')::notice("Provided Api Key: {$key} has no associated user");
             }
         }
+
+        $this->stopProfiling(__FUNCTION__);
 
         return $next($request);
     }

@@ -1,11 +1,15 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Providers;
 
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
+/**
+ * Class RouteServiceProvider
+ * @package App\Providers
+ */
 class RouteServiceProvider extends ServiceProvider
 {
     /**
@@ -39,7 +43,6 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
-
         //
     }
 
@@ -52,16 +55,24 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes()
     {
-        Route::group([
-            'middleware' => 'web',
-            'namespace' => $this->namespace,
-        ], function ($router) {
-            foreach (File::allFiles(base_path('routes/web')) as $route) {
-                Route::group(['domain' => $this->getDomainForRoute($route)], function ($router) use ($route) {
-                    require $route;
-                });
+        Route::group(
+            [
+                'middleware' => 'web',
+                'namespace'  => $this->namespace,
+            ],
+            function ($router) {
+                $files = File::allFiles(base_path('routes/web'));
+                sort($files);
+                foreach ($files as $route) {
+                    Route::group(
+                        ['domain' => $this->getDomainForRoute((string) $route)],
+                        function ($router) use ($route) {
+                            require $route;
+                        }
+                    );
+                }
             }
-        });
+        );
     }
 
     /**
@@ -73,33 +84,42 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::group([
-            'middleware' => 'api',
-            'namespace' => $this->namespace,
-            'prefix' => 'api',
-        ], function ($router) {
-            $apiVersions = glob(base_path('routes/api/*'), GLOB_ONLYDIR);
-            foreach ($apiVersions as $version) {
-                $versionRoutePrefix = str_replace([base_path('routes/api'), '/'], '', $version);
-                Route::group(['prefix' => $versionRoutePrefix], function ($router) use ($version) {
-                    foreach (File::allFiles($version) as $route) {
-                        Route::group(['domain' => $this->getDomainForRoute($route)], function ($router) use ($route) {
-                            require $route;
-                        });
-                    }
-                });
+        Route::group(
+            [
+                'middleware' => 'api',
+                'namespace'  => $this->namespace,
+                'prefix'     => 'api',
+            ],
+            function ($router) {
+                $apiVersions = glob(base_path('routes/api/*'), GLOB_ONLYDIR);
+                foreach ($apiVersions as $version) {
+                    $versionRoutePrefix = str_replace([base_path('routes/api'), '/'], '', $version);
+                    Route::group(
+                        ['prefix' => $versionRoutePrefix],
+                        function ($router) use ($version) {
+                            foreach (File::allFiles($version) as $route) {
+                                Route::group(
+                                    ['domain' => $this->getDomainForRoute((string) $route)],
+                                    function ($router) use ($route) {
+                                        require $route;
+                                    }
+                                );
+                            }
+                        }
+                    );
+                }
             }
-        });
+        );
     }
 
     /**
      * Returns the Config for app.<filename>_url
      *
-     * @param String $route
+     * @param string $route
      *
-     * @return String
+     * @return string
      */
-    private function getDomainForRoute(String $route) : String
+    private function getDomainForRoute(string $route): string
     {
         $key = str_replace(
             [

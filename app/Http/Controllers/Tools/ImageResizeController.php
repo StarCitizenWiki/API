@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\View\View;
 
 /**
@@ -13,26 +13,25 @@ use Illuminate\View\View;
  */
 class ImageResizeController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * Returns the Image Resize View
      *
      * @return View
      */
-    public function showImageResizeView() : View
+    public function showImageResizeView(): View
     {
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $imageResizeSettings = [
             'default' => [
-                'outputWidth' => 1920,
-                'outputHeight' => 250,
-                'displayWidth' => 960,
-                'displayHeight' => 125,
+                'outputWidth'             => 1920,
+                'outputHeight'            => 250,
+                'displayWidth'            => 960,
+                'displayHeight'           => 125,
                 'selectionRectangleColor' => '#ff0000',
             ],
         ];
-
-        Log::debug('Image Resizer requested', [
-            'method' => __METHOD__,
-        ]);
 
         return view('tools.imageresizer', compact('imageResizeSettings'));
     }

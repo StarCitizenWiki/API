@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 namespace App\Repositories\StarCitizenWiki\Interfaces;
 
 use Illuminate\Http\Request;
@@ -14,11 +15,11 @@ interface ShipsInterface
      * Returns Ship data
      *
      * @param Request $request
-     * @param String  $shipName ShipName
+     * @param string  $shipName ShipName
      *
      * @return ShipsInterface
      */
-    public function getShip(Request $request, String $shipName);
+    public function getShip(Request $request, string $shipName);
 
     /**
      * Gets a ShipList
@@ -30,9 +31,9 @@ interface ShipsInterface
     /**
      * Searches for a Ship
      *
-     * @param String $shipName ShipName
+     * @param string $shipName ShipName
      *
      * @return ShipsInterface
      */
-    public function searchShips(String $shipName);
+    public function searchShips(string $shipName);
 }

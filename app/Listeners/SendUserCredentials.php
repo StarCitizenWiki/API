@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Listeners;
 
@@ -26,9 +26,11 @@ class SendUserCredentials implements ShouldQueue
     {
         $user = $event->user;
         $password = $event->password;
-        Mail::to([
-            $user->email,
-            'info@star-citizen.wiki',
-        ])->send(new UserRegisteredMail($user, $password));
+        Mail::to(
+            [
+                $user->email,
+                'info@star-citizen.wiki',
+            ]
+        )->send(new UserRegisteredMail($user, $password));
     }
 }

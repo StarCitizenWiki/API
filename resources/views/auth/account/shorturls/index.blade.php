@@ -12,7 +12,7 @@
                 @include('components.errors')
                 @if (session('hash_name'))
                 <div class="alert alert-success text-center">
-                    https://{{config('app.shorturl_url')}}/{{ session('hash_name') }}
+                    {{config('app.shorturl_url')}}/{{ session('hash_name') }}
                 </div>
                 @endif
             </div>
@@ -38,7 +38,7 @@
                         @foreach($urls as $url)
                         <tr>
                             <td>
-                                https://{{config('app.shorturl_url')}}/{{ $url->hash_name }}
+                                {{config('app.shorturl_url')}}/{{ $url->hash_name }}
                             </td>
                             <td>
                                 {{ $url->url }}

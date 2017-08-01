@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 19.01.2017
@@ -11,7 +11,6 @@ use App\Repositories\BaseAPITrait;
 use App\Traits\TransformesDataTrait;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class BaseStarCitizenAPI
@@ -33,11 +32,13 @@ class BaseStarCitizenAPI
      */
     public function __construct()
     {
-        $this->guzzleClient = new Client([
-            'base_uri' => $this::API_URL,
-            'timeout' => 3.0,
-            'headers' => ['X-Rsi-Token' => $this->rsiToken],
-        ]);
+        $this->guzzleClient = new Client(
+            [
+                'base_uri' => $this::API_URL,
+                'timeout'  => 3.0,
+                'headers'  => ['X-Rsi-Token' => $this->rsiToken],
+            ]
+        );
 
         if (is_null($this->rsiToken)) {
             $this->getRSIToken();
@@ -49,25 +50,13 @@ class BaseStarCitizenAPI
      *
      * @return bool
      */
-    private function checkIfResponseDataIsValid() : bool
+    protected function checkIfResponseDataIsValid(): bool
     {
-        Log::debug('Checking if Response Data is valid', [
-            'method' => __METHOD__,
-        ]);
-
-        $valid = str_contains((String) $this->response->getBody(), 'success');
+        $valid = str_contains((string) $this->response->getBody(), 'success');
 
         if (!$valid) {
-            Log::debug('Response data is not valid', [
-                'method' => __METHOD__,
-            ]);
-
             return false;
         }
-
-        Log::debug('Response data is valid', [
-            'method' => __METHOD__,
-        ]);
 
         return true;
     }
@@ -77,11 +66,9 @@ class BaseStarCitizenAPI
      *
      * @return void
      */
-    private function getRSIToken() : void
+    private function getRSIToken(): void
     {
-        Log::debug('Trying to get RSI Token', [
-            'method' => __METHOD__,
-        ]);
+
         try {
             $response = $this->guzzleClient->request(
                 'POST',
@@ -90,17 +77,17 @@ class BaseStarCitizenAPI
             $token = $response->getHeader('Set-Cookie');
 
             if (empty($token)) {
-                Log::info('Getting RSI Token failed', [
-                    'method' => __METHOD__,
-                ]);
+                app('Log')::notice('Getting RSI Token failed');
                 $this->rsiToken = 'StarCitizenWiki_DE';
             } else {
                 $token = explode(';', $token[0])[0];
                 $token = str_replace('Rsi-Token=', '', $token);
-                Log::debug('Getting RSI Token succeeded', [
-                    'method' => __METHOD__,
-                    'token' => $token,
-                ]);
+                app('Log')::info(
+                    'Getting RSI Token succeeded',
+                    [
+                        'token' => $token,
+                    ]
+                );
                 $this->rsiToken = $token;
             }
 
@@ -111,10 +98,7 @@ class BaseStarCitizenAPI
 
             $this->__construct();
         } catch (\Exception $e) {
-            Log::warning('Guzzle Request failed', [
-                'method' => __METHOD__,
-                'message' => $e->getMessage(),
-            ]);
+            app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");
         }
     }
 }

@@ -10,6 +10,9 @@ var imageLoader = document.getElementById('image');
 imageLoader.addEventListener('change', loadImageToCanvas, false);
 
 var rectangleSlider = document.getElementById('rectangleSlider');
+rectangleSlider.addEventListener('input', function () {
+    moveSelectionRectangle(rectangleSlider.value);
+}, false);
 
 var mainCanvas = document.getElementById('imageCanvas');
 mainCanvas.width = displayWidth;

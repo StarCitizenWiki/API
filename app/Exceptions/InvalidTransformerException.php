@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 23.03.2017

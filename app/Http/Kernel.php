@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http;
 
@@ -55,15 +55,15 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle' => \App\Http\Middleware\ThrottleAPI::class,
-        'admin' => \App\Http\Middleware\CheckIfAdmin::class,
-        'token_usage' => \App\Http\Middleware\UpdateTokenTimestamp::class,
+        'auth'            => \Illuminate\Auth\Middleware\Authenticate::class,
+        'auth.basic'      => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings'        => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'can'             => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest'           => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'throttle'        => \App\Http\Middleware\ThrottleAPI::class,
+        'admin'           => \App\Http\Middleware\CheckIfAdmin::class,
+        'token_usage'     => \App\Http\Middleware\UpdateTokenTimestamp::class,
         'add_api_headers' => \App\Http\Middleware\AddAPIHeaders::class,
-        'piwik_tracking' => \App\Http\Middleware\PiwikTracking::class,
+        'piwik_tracking'  => \App\Http\Middleware\PiwikTracking::class,
     ];
 }

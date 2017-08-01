@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by IntelliJ IDEA.
  * User: Sebastian
@@ -39,7 +39,7 @@ class StatsTransformer extends TransformerAbstract implements BaseAPITransformer
     {
         $stats = $stats['data'];
         $data = [
-            'fans' => (string) $stats['fans'],
+            'fans'  => (string) $stats['fans'],
             'fleet' => (string) $stats['fleet'],
             'funds' => (string) $stats['funds'],
             'chart' => $stats['chart'],

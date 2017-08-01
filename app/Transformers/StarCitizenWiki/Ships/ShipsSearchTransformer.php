@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -10,7 +10,6 @@ namespace App\Transformers\StarCitizenWiki\Ships;
 use App\Exceptions\InvalidDataException;
 use App\Traits\FiltersDataTrait;
 use App\Transformers\BaseAPITransformerInterface;
-use Illuminate\Support\Facades\Log;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -40,25 +39,18 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
     {
         $search['title'] = str_replace(' ', '_', $search['title']);
         $result = explode('/', $search['title']);
-        if (count($result) === 3) {
+        if (3 === count($result)) {
             $shipName = $result[2];
 
             $data = [
                 $shipName => [
-                    'api_url' => '//'.config('app.api_url').'/api/v1/ships/'.$shipName,
+                    'api_url'  => '//'.config('app.api_url').'/api/v1/ships/'.$shipName,
                     'wiki_url' => '//star-citizen.wiki/'.$search['title'],
                 ],
             ];
 
             return $this->filterData($data);
         }
-
-        Log::warning('Invalid Ship Search Result. Size should be 3, is '.count($result), [
-            'search' => $search,
-        ]);
-
-        throw new InvalidDataException(
-            'result size should be 3, is '.count($result)
-        );
+        throw new InvalidDataException('result size should be 3, is '.count($result));
     }
 }

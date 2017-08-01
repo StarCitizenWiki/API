@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by PhpStorm.
- * User: Hanne
+ * User: Hannes
  * Date: 21.03.2017
  * Time: 09:50
  */
@@ -30,8 +30,8 @@ class ShortURLTransformer extends TransformerAbstract
         return [
             [
                 'original_url' => $url->url,
-                'hash_name' => $url->hash_name,
-                'url' => 'https://'.config('app.shorturl_url').'/'.$url->hash_name,
+                'hash_name'    => $url->hash_name,
+                'url'          => 'https://'.config('app.shorturl_url').'/'.$url->hash_name,
             ],
         ];
     }

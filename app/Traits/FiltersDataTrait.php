@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 25.03.2017
@@ -9,7 +9,6 @@ namespace App\Traits;
 
 use App\Exceptions\InvalidDataException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class FiltersDataTrait
@@ -32,24 +31,29 @@ trait FiltersDataTrait
      */
     public function addFilters(Request $request)
     {
-        Log::debug('Adding Filters', [
-            'method' => __METHOD__,
-        ]);
         $filters = $request->get('fields', null);
         if (!is_null($filters) && !empty($filters)) {
             $this->requestedFields = explode(',', $filters);
-            Log::debug('Filters added', [
-                'method' => __METHOD__,
-                'filters' => $this->requestedFields,
-            ]);
             $this->validateRequestedFields();
+        }
+    }
+
+    private function validateRequestedFields()
+    {
+        foreach ($this->requestedFields as $field) {
+            if (!in_array($field, $this->validFields)) {
+                throw new InvalidDataException(
+                    'Requested field '.$field.' is not in valid fields ['.implode(',', $this->validFields).']'
+                );
+            }
+            $this->filters[] = $field;
         }
     }
 
     /**
      * @param array $data
      */
-    public function addFilterArray(array $data) : void
+    public function addFilterArray(array $data): void
     {
         $this->requestedFields = $data;
         $this->validateRequestedFields();
@@ -77,10 +81,8 @@ trait FiltersDataTrait
             if (is_array($item)) {
                 $data[$key] = $this->filterData($item);
             }
-            if (in_array($key, $this->validFields)) {
-                if (!in_array($key, $this->filters)) {
-                    unset($data[$key]);
-                }
+            if (in_array($key, $this->validFields) && !in_array($key, $this->filters)) {
+                unset($data[$key]);
             }
         }
 
@@ -90,25 +92,12 @@ trait FiltersDataTrait
     /**
      * @return array
      */
-    public function getAvailableFields() : array
+    public function getAvailableFields(): array
     {
-        Log::debug('Returning Available Fields', [
-            'method' => __METHOD__,
-        ]);
         if (isset($this->validFields)) {
             return $this->validFields;
         }
 
         return [];
-    }
-
-    private function validateRequestedFields()
-    {
-        foreach ($this->requestedFields as $field) {
-            if (!in_array($field, $this->validFields)) {
-                throw new InvalidDataException('Requested field '.$field.' is not in valid fields ['.implode(',', $this->validFields).']');
-            }
-            $this->filters[] = $field;
-        }
     }
 }

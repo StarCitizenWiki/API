@@ -2,7 +2,7 @@
 Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');
 Route::get('/faq', ['uses' => 'APIPageController@showFAQView'])->name('api_faq');
 
-Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Auth\Admin'], function () {
+Route::group(['prefix' => 'admin', 'namespace' => 'Auth\Admin'], function () {
     Route::get('/', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');
     Route::get('logs', ['uses' => 'AdminController@showLogsView'])->name('admin_logs');
 
@@ -65,7 +65,7 @@ Route::group(['namespace' => 'Auth'], function () {
     Route::get('password/reset/{token}', 'ResetPasswordController@showResetForm')->name('password.reset');
     Route::post('password/reset', 'ResetPasswordController@reset');
 
-    Route::group(['middleware' => ['auth'], 'prefix' => 'account', 'namespace' => 'Account'], function () {
+    Route::group(['prefix' => 'account', 'namespace' => 'Account'], function () {
         // Account Routes...
         Route::get('/', ['uses' => 'AccountController@showAccountView'])->name('account');
         Route::delete('/', ['uses' => 'AccountController@delete'])->name('account_delete');

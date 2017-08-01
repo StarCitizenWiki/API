@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by PhpStorm.
- * User: Hanne
+ * User: Hannes
  * Date: 07.03.2017
  * Time: 11:54
  */
@@ -16,7 +16,7 @@ use Exception;
  *
  * @package App\Exceptions
  */
-class MethodNotImplementedException extends \Exception
+class MethodNotImplementedException extends Exception
 {
 
 }

@@ -12,3 +12,7 @@ composer.phar
 /composer.lock
 /_ide_helper.php
 /.phpstorm.meta.php
+/public/css/
+/public/fonts/
+/public/js/
+

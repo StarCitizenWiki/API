@@ -10,7 +10,7 @@
 
         <title>Star Citizen Wiki API Admin - @yield('title')</title>
         @if ($bootstrapModules['enableCSS'])
-            <link rel="stylesheet" href="{{ URL::asset('/css/app.css') }}">
+            <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
         @endif
 
         <!-- Scripts -->
@@ -141,7 +141,7 @@
             </div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.js" integrity="sha256-jVfFb7AbGi7S/SLNl8SB4/MYaf549eEs+NlIWMoARHg=" crossorigin="anonymous"></script>
-        <script src="{{ URL::asset('/js/app.js') }}"></script>
+        <script src="{{ mix('/js/app.js') }}"></script>
         @yield('scripts')
     </body>
 </html>

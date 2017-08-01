@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types = 1);
+
 namespace App\Repositories\StarCitizenDB;
 
 use App\Exceptions\MethodNotImplementedException;
@@ -9,7 +10,6 @@ use App\Transformers\FakeTransformer as ShipsTransformer;
 use App\Transformers\StarCitizenDB\Ships\ShipsListTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -18,20 +18,18 @@ use Illuminate\Support\Facades\Storage;
  */
 class ShipsRepository implements ShipsInterface
 {
-    private const API_URL = '';
-
     use BaseAPITrait, TransformesDataTrait {
         BaseAPITrait::addMetadataToTransformation insteadof TransformesDataTrait;
     }
 
+    private const API_URL = '';
+
     /**
      * @return ShipsRepository
      */
-    public function getShipList() : ShipsRepository
+    public function getShipList(): ShipsRepository
     {
-        Log::debug('Getting ShipList', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->collection()->withTransformer(ShipsListTransformer::class);
         $this->dataToTransform = File::allFiles(config('filesystems.disks.scdb_ships_splitted.root'));
 
@@ -42,17 +40,14 @@ class ShipsRepository implements ShipsInterface
      * Returns Ship data
      *
      * @param Request $request
-     * @param String  $shipName ShipName
+     * @param string  $shipName ShipName
      *
      * @return ShipsInterface
      */
-    public function getShip(Request $request, String $shipName)
+    public function getShip(Request $request, string $shipName)
     {
         $shipName = urldecode($shipName);
-        Log::debug('Getting Ship by name', [
-            'method' => __METHOD__,
-            'ship' => $shipName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
 
         $shipName = str_replace(' ', '_', $shipName).'.json';
         $shipName = strtolower($shipName);
@@ -74,13 +69,24 @@ class ShipsRepository implements ShipsInterface
     /**
      * Not Implemented
      *
-     * @param String $shipName ShipName
+     * @param string $shipName ShipName
      *
      * @return ShipsInterface
      * @throws MethodNotImplementedException
      */
-    public function searchShips(String $shipName)
+    public function searchShips(string $shipName)
     {
         throw new MethodNotImplementedException('Can\'t currently search for scdb ships');
+    }
+
+    /**
+     * Checks if the Response Data is valid, must be overridden
+     *
+     * @return bool
+     */
+    protected function checkIfResponseDataIsValid(): bool
+    {
+        // TODO: Implement checkIfResponseDataIsValid() method.
+        return true;
     }
 }

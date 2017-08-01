@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 19.01.2017
@@ -13,7 +13,6 @@ use App\Transformers\StarCitizen\Stats\FansTransformer;
 use App\Transformers\StarCitizen\Stats\FleetTransformer;
 use App\Transformers\StarCitizen\Stats\FundsTransformer;
 use App\Transformers\StarCitizen\Stats\StatsTransformer;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class StatsRepository
@@ -28,19 +27,31 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     private $chartType = 'hour';
 
     /**
+     * Requests only funds
+     *
+     * @return StatsRepository
+     */
+    public function getFunds(): StatsRepository
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__));
+        $this->getFans = false;
+        $this->getFleet = false;
+        $this->withTransformer(FundsTransformer::class);
+
+        return $this->getCrowdfundStats();
+    }
+
+    /**
      * Reads the Crowdfunding Stats from RSI
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
      * @return StatsRepository
      */
-    public function getCrowdfundStats() : StatsRepository
+    public function getCrowdfundStats(): StatsRepository
     {
         $requestBody = $this->getRequestBody();
 
-        Log::debug('Requesting CrowdfundStats', [
-            'method' => __METHOD__,
-            'request_body' => $requestBody,
-        ]);
+        app('Log')::info('Requesting CrowdfundStats', ['request_body' => $requestBody]);
 
         $this->request(
             'POST',
@@ -52,32 +63,13 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     }
 
     /**
-     * Requests only funds
-     *
-     * @return StatsRepository
-     */
-    public function getFunds() : StatsRepository
-    {
-        Log::debug('Getting Fund Stats', [
-            'method' => __METHOD__,
-        ]);
-        $this->getFans = false;
-        $this->getFleet = false;
-        $this->withTransformer(FundsTransformer::class);
-
-        return $this->getCrowdfundStats();
-    }
-
-    /**
      * Requests only fans
      *
      * @return StatsRepository
      */
-    public function getFans() : StatsRepository
+    public function getFans(): StatsRepository
     {
-        Log::debug('Getting Fans Stats', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->getFleet = false;
         $this->getFunds = false;
         $this->withTransformer(FansTransformer::class);
@@ -90,29 +82,12 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return StatsRepository
      */
-    public function getFleet() : StatsRepository
+    public function getFleet(): StatsRepository
     {
-        Log::debug('Getting Fleet Stats', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->getFans = false;
         $this->getFunds = false;
         $this->withTransformer(FleetTransformer::class);
-
-        return $this->getCrowdfundStats();
-    }
-
-    /**
-     * Requests all stats
-     *
-     * @return StatsRepository
-     */
-    public function getAll() : StatsRepository
-    {
-        Log::debug('Getting All Stats', [
-            'method' => __METHOD__,
-        ]);
-        $this->withTransformer(StatsTransformer::class);
 
         return $this->getCrowdfundStats();
     }
@@ -122,14 +97,25 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return StatsRepository
      */
-    public function lastHours() : StatsRepository
+    public function lastHours(): StatsRepository
     {
-        Log::debug('Getting Stats for last Hours', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->chartType = 'hour';
 
         return $this->getAll();
+    }
+
+    /**
+     * Requests all stats
+     *
+     * @return StatsRepository
+     */
+    public function getAll(): StatsRepository
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__));
+        $this->withTransformer(StatsTransformer::class);
+
+        return $this->getCrowdfundStats();
     }
 
     /**
@@ -137,11 +123,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return StatsRepository
      */
-    public function lastDays() : StatsRepository
+    public function lastDays(): StatsRepository
     {
-        Log::debug('Getting Stats for last Days', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->chartType = 'day';
 
         return $this->getAll();
@@ -152,11 +136,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return StatsRepository
      */
-    public function lastWeeks() : StatsRepository
+    public function lastWeeks(): StatsRepository
     {
-        Log::debug('Getting Stats for last Weeks', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->chartType = 'week';
 
         return $this->getAll();
@@ -167,11 +149,9 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return StatsRepository
      */
-    public function lastMonths() : StatsRepository
+    public function lastMonths(): StatsRepository
     {
-        Log::debug('Getting Stats for last Months', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->chartType = 'month';
 
         return $this->getAll();
@@ -182,40 +162,42 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      *
      * @return array
      */
-    private function getRequestBody() : array
+    private function getRequestBody(): array
     {
-        Log::debug('Starting Request Body Assembly', [
-            'method' => __METHOD__,
-        ]);
         $requestContent = [
             'chart' => $this->chartType,
         ];
 
         if ($this->getFans) {
-            $requestContent = array_merge($requestContent, [
-                'fans' => $this->getFans,
-            ]);
+            $requestContent = array_merge(
+                $requestContent,
+                [
+                    'fans' => $this->getFans,
+                ]
+            );
         }
 
         if ($this->getFleet) {
-            $requestContent = array_merge($requestContent, [
-                'fleet' => $this->getFleet,
-            ]);
+            $requestContent = array_merge(
+                $requestContent,
+                [
+                    'fleet' => $this->getFleet,
+                ]
+            );
         }
 
         if ($this->getFunds) {
-            $requestContent = array_merge($requestContent, [
-                'funds' => $this->getFunds,
-            ]);
+            $requestContent = array_merge(
+                $requestContent,
+                [
+                    'funds' => $this->getFunds,
+                ]
+            );
         }
 
         $requestBody = [
             'json' => $requestContent,
         ];
-
-        Log::debug('Finished assembling Request Body', [
-            'method' => __METHOD__,
-        ]);
 
         return $requestBody;
     }

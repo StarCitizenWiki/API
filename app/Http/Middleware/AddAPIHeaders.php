@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by IntelliJ IDEA.
  * User: Sebastian
@@ -8,9 +8,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Traits\ProfilesMethodsTrait;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class AfterApiRequest
@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Log;
  */
 class AddAPIHeaders
 {
+    use ProfilesMethodsTrait;
+
     /**
      * Sets Header for API Requests
      *
@@ -29,11 +31,12 @@ class AddAPIHeaders
      */
     public function handle($request, Closure $next)
     {
+        $this->startProfiling(__FUNCTION__);
+
         $response = $next($request);
-        //$response->header("Host", $request->getHost());
-        $response->header("Content-Type", "application/json; charset=utf-8");
-        $response->header("Cache-Control", "no-cache,no-store, must-revalidate");
-        $response->header("Pragma", "no-cache");
+        $response->header('Content-Type', 'application/json; charset=utf-8');
+        $response->header('Cache-Control', 'no-cache,no-store, must-revalidate');
+        $response->header('Pragma', 'no-cache');
         if (is_array($response->content())) {
             $contentLength = strlen(
                 json_encode($response->content(), JSON_PRETTY_PRINT)
@@ -41,15 +44,14 @@ class AddAPIHeaders
         } else {
             $contentLength = strlen($response->content());
         }
-        $response->header("Content-Length", $contentLength);
-        $response->header("Vary", "Accept-Encoding");
-        $response->header("Connection", "keep-alive");
-        $response->header("X-SCW-API-Version", API_VERSION);
+        $response->header('Content-Length', $contentLength);
+        $response->header('Vary', 'Accept-Encoding');
+        $response->header('Connection', 'keep-alive');
+        $response->header('X-SCW-API-Version', API_VERSION);
 
-        Log::debug('Added API Headers', [
-            'method' => __METHOD__,
-            'request_url' => $request->fullUrl(),
-        ]);
+        $this->addTrace("Added API Headers to Request: {$request->fullUrl()}", __FUNCTION__, __LINE__);
+
+        $this->stopProfiling(__FUNCTION__);
 
         return $response;
     }

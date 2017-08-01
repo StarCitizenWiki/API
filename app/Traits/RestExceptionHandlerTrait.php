@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 21.03.2017
@@ -11,8 +11,8 @@ use App\Exceptions\InvalidDataException;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -23,7 +23,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 trait RestExceptionHandlerTrait
 {
-
     /**
      * Creates a new JSON response based on exception type.
      *
@@ -41,17 +40,17 @@ trait RestExceptionHandlerTrait
             'errors' => [
                 'Something went wrong',
             ],
-            'meta' => [
-                'status' => 400,
+            'meta'   => [
+                'status'       => 400,
                 'processed_at' => Carbon::now(),
             ],
         ];
 
         if (config('app.debug')) {
             $response['meta'] += [
-                'message' => $exception->getMessage(),
+                'message'   => $exception->getMessage(),
                 'exception' => get_class($exception),
-                'trace' => $exception->getTrace(),
+                'trace'     => $exception->getTrace(),
             ];
         }
 

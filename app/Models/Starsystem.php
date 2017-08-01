@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Models;
 
@@ -37,6 +37,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Starsystem whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Starsystem whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Starsystem whereUpdatedAt($value)
+ * @property int            $exclude
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Starsystem whereExclude($value)
  */
 class Starsystem extends Model
 {
@@ -67,20 +69,20 @@ class Starsystem extends Model
     protected $table = 'starsystems';
 
     /**
-     * @return bool
-     */
-    public function isExcluded() : bool
-    {
-        return (bool) $this->exclude;
-    }
-
-    /**
-     * @param String $code
+     * @param string $code
      *
      * @return String
      */
-    public static function makeFilenameFromCode(String $code) : String
+    public static function makeFilenameFromCode(string $code): String
     {
         return $code.'_System.json';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isExcluded(): bool
+    {
+        return (bool) $this->exclude;
     }
 }

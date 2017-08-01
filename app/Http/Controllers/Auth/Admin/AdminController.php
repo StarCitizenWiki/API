@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth\Admin;
 
@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\APIRequests;
 use App\Models\ShortURL\ShortURL;
 use App\Models\User;
+use App\Traits\ProfilesMethodsTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Rap2hpoutre\LaravelLogViewer\LaravelLogViewer;
 
 /**
@@ -20,16 +20,27 @@ use Rap2hpoutre\LaravelLogViewer\LaravelLogViewer;
  */
 class AdminController extends Controller
 {
+    use ProfilesMethodsTrait;
+
+    /**
+     * AdminController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+        $this->middleware('admin');
+    }
+
     /**
      * Returns the Dashboard View
      *
      * @return View
      */
-    public function showDashboardView() : View
+    public function showDashboardView(): View
     {
-        Log::debug('Admin Dashboard View requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
+
         $today = Carbon::today()->toDateString();
 
         return view('admin.dashboard')
@@ -51,22 +62,28 @@ class AdminController extends Controller
      */
     public function showLogsView(Request $request)
     {
-        Log::debug('Admin Logs View requested', [
-            'method' => __METHOD__,
-        ]);
+        $this->startProfiling(__FUNCTION__);
+
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         if ($request->input('l')) {
+            $this->addTrace("Setting File to {$request->input('l')}", __FUNCTION__, __LINE__);
             LaravelLogViewer::setFile(base64_decode($request->input('l')));
         }
 
         if ($request->input('dl')) {
+            $this->addTrace("Downloading {$request->input('dl')}", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             return response()->download(LaravelLogViewer::pathToLogFile(base64_decode($request->input('dl'))));
         }
 
+        $this->stopProfiling(__FUNCTION__);
+
         return view('admin.logs')
-                    ->with('logs', LaravelLogViewer::all())
-                    ->with('files', LaravelLogViewer::getFiles(true))
-                    ->with('current_file', LaravelLogViewer::getFileName());
+            ->with('logs', LaravelLogViewer::all())
+            ->with('files', LaravelLogViewer::getFiles(true))
+            ->with('current_file', LaravelLogViewer::getFileName());
     }
 
     /**
@@ -74,11 +91,9 @@ class AdminController extends Controller
      *
      * @return View
      */
-    public function showRoutesView() : View
+    public function showRoutesView(): View
     {
-        Log::debug('Admin Routes View requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('admin.routes.index');
     }

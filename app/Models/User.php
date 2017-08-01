@@ -1,37 +1,52 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Models;
 
 use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class User
  *
  * @package App\Models
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortURL\ShortURL[] $shortURLs
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[]
+ *                $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortURL\ShortURL[]
+ *                    $shortURLs
  * @mixin \Eloquent
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $api_token
- * @property string $password
- * @property int $requests_per_minute
- * @property bool $whitelisted
- * @property bool $blacklisted
- * @property string $notes
- * @property string $last_login
- * @property string $api_token_last_used
- * @property string $remember_token
- * @property string $deleted_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property int
+ *               $id
+ * @property string
+ *               $name
+ * @property string
+ *               $email
+ * @property string
+ *               $api_token
+ * @property string
+ *               $password
+ * @property int
+ *               $requests_per_minute
+ * @property bool
+ *               $whitelisted
+ * @property bool
+ *               $blacklisted
+ * @property string
+ *               $notes
+ * @property string
+ *               $last_login
+ * @property string
+ *               $api_token_last_used
+ * @property string
+ *               $remember_token
+ * @property string
+ *               $deleted_at
+ * @property \Carbon\Carbon
+ *               $created_at
+ * @property \Carbon\Carbon
+ *               $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereApiToken($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereApiTokenLastUsed($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereBlacklisted($value)
@@ -47,10 +62,18 @@ use Illuminate\Support\Facades\Log;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereRequestsPerMinute($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereWhitelisted($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\APIRequests[] $apiRequests
+ * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\User onlyTrashed()
+ * @method static bool|null restore()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\User withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\User withoutTrashed()
  */
 class User extends Authenticatable
 {
-    use Notifiable, SoftDeletes, CanResetPassword;
+    use Notifiable;
+    use SoftDeletes;
+    use CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
@@ -83,7 +106,7 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public static function updateUser(array $data) : bool
+    public static function updateUser(array $data): bool
     {
         $changes = [];
         $changes[] = [
@@ -94,7 +117,7 @@ class User extends Authenticatable
 
         foreach ($data as $key => $value) {
             if ($user->$key != $value) {
-                if ($key !== 'password') {
+                if ('password' !== $key) {
                     $changes[] = [
                         $key.'_old' => $user->$key,
                         $key.'_new' => $value,
@@ -109,9 +132,7 @@ class User extends Authenticatable
             }
         }
 
-        Log::info('User Account updated', [
-            'changes' => $changes,
-        ]);
+        app('Log')::notice('User Account updated', ['changes' => $changes]);
 
         return $user->save();
     }
@@ -121,14 +142,9 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isAdmin() : bool
+    public function isAdmin(): bool
     {
         $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
-        Log::debug('Checked if User is Admin', [
-            'method' => __METHOD__,
-            'id' => $this->id,
-            'admin' => $isAdmin,
-        ]);
 
         return $isAdmin;
     }
@@ -138,14 +154,9 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isWhitelisted() : bool
+    public function isWhitelisted(): bool
     {
         $whitelisted = $this->whitelisted == 1;
-        Log::debug('Checked if User is whitelisted', [
-            'method' => __METHOD__,
-            'id' => $this->id,
-            'whitelisted' => $whitelisted,
-        ]);
 
         return $whitelisted;
     }
@@ -155,14 +166,9 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isBlacklisted() : bool
+    public function isBlacklisted(): bool
     {
         $blacklisted = $this->blacklisted == 1;
-        Log::debug('Checked if User is blacklisted', [
-            'method' => __METHOD__,
-            'id' => $this->id,
-            'blacklisted' => $blacklisted,
-        ]);
 
         return $blacklisted;
     }
@@ -174,11 +180,6 @@ class User extends Authenticatable
      */
     public function shortURLs()
     {
-        Log::debug('Requested Users ShortURLs', [
-            'method' => __METHOD__,
-            'id' => Auth::id(),
-        ]);
-
         return $this->hasMany('App\Models\ShortURL\ShortURL');
     }
 
