@@ -8,7 +8,6 @@
 namespace App\Transformers\StarCitizen\Starmap;
 
 use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class StarsTransformer
@@ -17,11 +16,10 @@ use League\Fractal\TransformerAbstract;
  */
 class StarsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
 {
-
     /**
      * Returns all Stars of the System Data
      *
-     * @param mixed $system System Data
+     * @param mixed $celestialObject
      *
      * @return mixed
      */

@@ -16,7 +16,6 @@ use App\Transformers\BaseAPITransformerInterface;
  */
 class LandingzonesTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
 {
-
     /**
      * Returns all Landingzones of the System Data
      *

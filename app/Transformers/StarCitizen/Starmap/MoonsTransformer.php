@@ -16,7 +16,6 @@ use App\Transformers\BaseAPITransformerInterface;
  */
 class MoonsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
 {
-
     /**
      * Returns all Moons of the System Data
      *

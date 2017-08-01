@@ -16,7 +16,6 @@ use App\Transformers\BaseAPITransformerInterface;
  */
 class AsteroidbeltsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
 {
-
     /**
      * Returns all Asteroidbelts of the System Data
      *

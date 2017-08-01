@@ -11,7 +11,6 @@ use App\Transformers\BaseAPITransformerInterface;
  */
 class JumppointsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
 {
-
     /**
      * Returns all Jumppoints of the System Data
      *

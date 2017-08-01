@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StarmapRepository;
 use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 /**
  * Class StarmapAPIController
@@ -108,31 +109,6 @@ class StarmapAPIController extends Controller
     }
 
     /**
-     * Return a list with all Celestial Objects
-     * @param Request $request
-     *
-     * @return \Illuminate\Http\JsonResponse|string
-     */
-    public function getObjectList(Request $request)
-    {
-        app('Log')::debug('Starmap Obects List requested', [
-            'method' => __METHOD__,
-        ]);
-
-        $this->repository->getCelestialObjectList();
-        $this->repository->transformer->addFilter($request);
-        try {
-            return response()->json(
-                $this->repository->asArray(),
-                200,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        } catch (InvalidDataException $e) {
-            return $e->getMessage();
-        }}
-
-    /**
      * Requests the given System Name Asteroid belts
      *
      * @param string $name SystemName
@@ -166,14 +142,22 @@ class StarmapAPIController extends Controller
         }
     }
 
-    public function getSpacestations(String $name)
+    /**
+     * @param string $name
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getSpacestations(string $name)
     {
         $name = strtoupper($name);
 
-        app('Log')::debug('Starmap System Spacestations requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
+        app('Log')::debug(
+            'Starmap System Spacestations requested',
+            [
+                'method' => __METHOD__,
+                'name'   => $name,
+            ]
+        );
 
         try {
             return response()->json(
@@ -187,14 +171,22 @@ class StarmapAPIController extends Controller
         }
     }
 
-    public function getJumppoints(String $name)
+    /**
+     * @param string $name
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getJumppoints(string $name)
     {
         $name = strtoupper($name);
 
-        app('Log')::debug('Starmap System Jumppoints requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
+        app('Log')::debug(
+            'Starmap System Jumppoints requested',
+            [
+                'method' => __METHOD__,
+                'name'   => $name,
+            ]
+        );
 
         try {
             return response()->json(
@@ -208,14 +200,22 @@ class StarmapAPIController extends Controller
         }
     }
 
-    public function getPlanets(String $name)
+    /**
+     * @param string $name
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getPlanets(string $name)
     {
         $name = strtoupper($name);
 
-        app('Log')::debug('Starmap System Planets requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
+        app('Log')::debug(
+            'Starmap System Planets requested',
+            [
+                'method' => __METHOD__,
+                'name'   => $name,
+            ]
+        );
 
         try {
             return response()->json(
@@ -229,14 +229,22 @@ class StarmapAPIController extends Controller
         }
     }
 
-    public function getMoons(String $name)
+    /**
+     * @param string $name
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getMoons(string $name)
     {
         $name = strtoupper($name);
 
-        app('Log')::debug('Starmap System Moons requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
+        app('Log')::debug(
+            'Starmap System Moons requested',
+            [
+                'method' => __METHOD__,
+                'name'   => $name,
+            ]
+        );
 
         try {
             return response()->json(
@@ -250,14 +258,22 @@ class StarmapAPIController extends Controller
         }
     }
 
-    public function getStars(String $name)
+    /**
+     * @param string $name
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getStars(string $name)
     {
         $name = strtoupper($name);
 
-        app('Log')::debug('Starmap System Suns requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
+        app('Log')::debug(
+            'Starmap System Suns requested',
+            [
+                'method' => __METHOD__,
+                'name'   => $name,
+            ]
+        );
 
         try {
             return response()->json(
@@ -271,14 +287,22 @@ class StarmapAPIController extends Controller
         }
     }
 
-    public function getLandingzones(String $name)
+    /**
+     * @param string $name
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getLandingzones(string $name)
     {
         $name = strtoupper($name);
 
-        app('Log')::debug('Starmap System Landingzones requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
+        app('Log')::debug(
+            'Starmap System Landingzones requested',
+            [
+                'method' => __METHOD__,
+                'name'   => $name,
+            ]
+        );
 
         try {
             return response()->json(
@@ -292,19 +316,29 @@ class StarmapAPIController extends Controller
         }
     }
 
-    public function getObject(String $objectname)
+    /**
+     * @param string $objectname
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getObject(string $objectname)
     {
         $name = strtoupper($objectname);
 
-        app('Log')::debug('Starmap System Object requested', [
-            'method' => __METHOD__,
-            'name' => $name,
-        ]);
+        app('Log')::debug(
+            'Starmap System Object requested',
+            [
+                'method' => __METHOD__,
+                'name'   => $name,
+            ]
+        );
 
         try {
             $objectNames = explode('.', $name);
             if (is_null($objectNames) || count($objectNames) != 3) {
-                throw new InvalidArgumentException('Objectname not like SYSTEM.TYPE.NAME (e.g. STANTON.PLANETS.STANTONIIIARCCORP). Input was '.$name);
+                throw new InvalidArgumentException(
+                    'Objectname not like SYSTEM.TYPE.NAME (e.g. STANTON.PLANETS.STANTONIIIARCCORP). Input was '.$name
+                );
             }
 
             return response()->json(
@@ -313,19 +347,27 @@ class StarmapAPIController extends Controller
                 [],
                 JSON_PRETTY_PRINT
             );
-        } catch (InvalidDataException | InvalidArgumentException $e ) {
+        } catch (InvalidDataException | InvalidArgumentException $e) {
             return $e->getMessage();
         }
     }
 
-    public function searchStarmap(String $searchstring)
+    /**
+     * @param string $searchstring
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function searchStarmap(string $searchstring)
     {
         $searchstring = strtoupper($searchstring);
 
-        app('Log')::debug('Searching Starmap requested', [
-            'method' => __METHOD__,
-            'searchstring' => $searchstring,
-        ]);
+        app('Log')::debug(
+            'Searching Starmap requested',
+            [
+                'method' => __METHOD__,
+                'searchstring' => $searchstring,
+            ]
+        );
 
         try {
             return response()->json(
@@ -338,6 +380,4 @@ class StarmapAPIController extends Controller
             return $e->getMessage();
         }
     }
-
-
 }

@@ -16,7 +16,6 @@ use App\Transformers\BaseAPITransformerInterface;
  */
 class PlanetsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
 {
-
     /**
      * Returns all Planets of the System Data
      *

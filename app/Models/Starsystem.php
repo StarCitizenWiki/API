@@ -9,28 +9,28 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  * @mixin \Eloquent
- * @property int $id
- * @property string $code
- * @property integer $cig_id
- * @property string $status
- * @property dateTime $cig_time_modified
- * @property string $type
- * @property string $name
- * @property decimal $position_x
- * @property decimal $position_y
- * @property decimal $position_z
- * @property string $info_url
- * @property string $description
- * @property integer $affiliation_id
- * @property string $affiliation_name
- * @property string $affiliation_code
- * @property string $affiliation_color
- * @property integer $affiliation_membership_id
- * @property string $aggregated_size
- * @property string $aggregated_population
- * @property string $aggregated_economy
- * @property string $aggregated_danger
- * @property string $sourcedata
+ * @property int            $id
+ * @property string         $code
+ * @property integer        $cig_id
+ * @property string         $status
+ * @property dateTime       $cig_time_modified
+ * @property string         $type
+ * @property string         $name
+ * @property decimal        $position_x
+ * @property decimal        $position_y
+ * @property decimal        $position_z
+ * @property string         $info_url
+ * @property string         $description
+ * @property integer        $affiliation_id
+ * @property string         $affiliation_name
+ * @property string         $affiliation_code
+ * @property string         $affiliation_color
+ * @property integer        $affiliation_membership_id
+ * @property string         $aggregated_size
+ * @property string         $aggregated_population
+ * @property string         $aggregated_economy
+ * @property string         $aggregated_danger
+ * @property string         $sourcedata
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Starsystem whereCode($value)
@@ -42,7 +42,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Starsystem extends Model
 {
-       protected $fillable = [
+    protected $fillable = [
         'code',
         'cig_id',
         'status',

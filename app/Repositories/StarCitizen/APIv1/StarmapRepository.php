@@ -78,14 +78,14 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @return int cig_id for SystemName
      */
-    private function getCigSystemId(String $systemName): int
+    private function getCigSystemId(string $systemName): int
     {
         $systemQueryData = Starsystem::where('code', $systemName)
             ->orderBy(self::TIME_GROUP_FIELD, 'DESC')
             ->firstOrFail();
         $system = $systemQueryData->toArray();
 
-        return $system['cig_id'];
+        return (int) $system['cig_id'];
     }
 
     /**
@@ -94,7 +94,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @return $this
      */
-    public function getSpacestations(String $systemName)
+    public function getSpacestations(string $systemName)
     {
         app('Log')::debug(
             'Requesting Spacestations',
@@ -120,7 +120,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @return $this
      */
-    public function getJumppoints(String $systemName)
+    public function getJumppoints(string $systemName)
     {
         app('Log')::debug(
             'Requesting Jumppoints',
@@ -146,7 +146,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @return $this
      */
-    public function getPlanets(String $systemName)
+    public function getPlanets(string $systemName)
     {
         app('Log')::debug(
             'Requesting Planets',
@@ -172,7 +172,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @return $this
      */
-    public function getMoons(String $systemName)
+    public function getMoons(string $systemName)
     {
         app('Log')::debug(
             'Requesting Moons',
@@ -198,7 +198,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @return $this
      */
-    public function getLandingzones(String $systemName)
+    public function getLandingzones(string $systemName)
     {
         app('Log')::debug(
             'Requesting Landingzones',
@@ -224,7 +224,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @return $this
      */
-    public function getStars(String $systemName)
+    public function getStars(string $systemName)
     {
         app('Log')::debug(
             'Requesting Stars',

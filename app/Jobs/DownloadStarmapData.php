@@ -41,11 +41,6 @@ class DownloadStarmapData implements ShouldQueue
     private $celestialObjectsUpdated = 0;
 
     /**
-     * @var array
-     */
-    private $starmapContent;
-
-    /**
      * Execute the job.
      *
      * @return void
@@ -84,13 +79,18 @@ class DownloadStarmapData implements ShouldQueue
      *
      * @return array
      */
-    private function getJsonArrayFromStarmap(String $uri): array
+    private function getJsonArrayFromStarmap(string $uri): array
     {
         $response = $this->guzzleClient->request('POST', StarmapRepository::API_URL.'starmap/'.$uri);
 
         return json_decode($response->getBody()->getContents(), true);
     }
 
+    /**
+     * @param $data
+     *
+     * @return bool
+     */
     private function checkIfOverviewDataCanBeProcessed($data): bool
     {
         return is_array($data) &&
@@ -101,6 +101,9 @@ class DownloadStarmapData implements ShouldQueue
             array_key_exists(0, $data['data']['systems']['resultset']);
     }
 
+    /**
+     * @param $system
+     */
     private function writeStarmapContentToDB($system): void
     {
         $systemId = $this->writeStarsystemToDB($system);
@@ -112,11 +115,16 @@ class DownloadStarmapData implements ShouldQueue
         }
     }
 
+    /**
+     * @param $system
+     *
+     * @return int
+     */
     private function writeStarsystemToDB($system): int
     {
         $systemId = null;
         $lastStarsystem = null;
-        $starsystemQueryData = Starsystem::where('code', $system['code'])->orderby('created_at', 'DESC')->first();
+        $starsystemQueryData = Starsystem::where('code', $system['code'])->orderBy('created_at', 'DESC')->first();
         if (!is_null($starsystemQueryData)) {
             $lastStarsystem = $starsystemQueryData->toArray();
         }
@@ -158,6 +166,11 @@ class DownloadStarmapData implements ShouldQueue
 
     // TODO change check to variable parameter List, with recursiv check
 
+    /**
+     * @param $starsystemName
+     *
+     * @return array
+     */
     private function getCelestialObjects($starsystemName): array
     {
         $allCelestialObjects = [];
@@ -174,6 +187,11 @@ class DownloadStarmapData implements ShouldQueue
 
     // TODO change check to variable parameter List, with recursiv check
 
+    /**
+     * @param $data
+     *
+     * @return bool
+     */
     private function checkIfCelestialObjectsDataCanBeProcessed($data): bool
     {
         return is_array($data) &&
@@ -187,6 +205,11 @@ class DownloadStarmapData implements ShouldQueue
 
     // TODO change check to variable parameter List, with recursiv check
 
+    /**
+     * @param $celestialObjects
+     *
+     * @return array
+     */
     private function addCelestialSubobjects($celestialObjects): array
     {
         foreach ($celestialObjects as $celestialObject) {
@@ -199,6 +222,11 @@ class DownloadStarmapData implements ShouldQueue
         return $celestialObjects;
     }
 
+    /**
+     * @param $celestialContent
+     *
+     * @return array
+     */
     private function getCelestialSubobjects($celestialContent): array
     {
         $celestialSubobjects = [];
@@ -213,6 +241,11 @@ class DownloadStarmapData implements ShouldQueue
         return $celestialSubobjects;
     }
 
+    /**
+     * @param $data
+     *
+     * @return bool
+     */
     private function checkIfCelestialSubobjectsDataCanBeProcessed($data): bool
     {
         return is_array($data) &&
@@ -224,14 +257,14 @@ class DownloadStarmapData implements ShouldQueue
             array_key_exists(0, $data['data']['resultset'][0]['children']);
     }
 
+    /**
+     * @param $celestialObject
+     * @param $systemId
+     */
     private function writeCelestialObjectToDb($celestialObject, $systemId): void
     {
-        if ($celestialObject['code'] == 'TERRA.BELTS.HENGECLUSTER') {
-            app('Log')::info('in TERRA.BELTS.HENGECLUSTER');
-        }
-
         $lastCelestialObject = null;
-        $celestialObjectQueryData = CelestialObject::where('code', $celestialObject['code'])->orderby(
+        $celestialObjectQueryData = CelestialObject::where('code', $celestialObject['code'])->orderBy(
             'cig_time_modified',
             'DESC'
         )->first();

@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(UsersTableSeeder::class);
         $this->call(ShortUrlWhitelistsTableSeeder::class);
-        $this->call(StarsystemsTableSeeder::class);
         $this->call(ShortURLsTableSeeder::class);
     }
 }
