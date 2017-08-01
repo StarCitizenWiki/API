@@ -19,6 +19,7 @@ return [
 
     'starmap' => 'Starmap',
     'systems' => 'Systeme',
+    'celestialobjects' => 'Celestial Objects',
     'add_system' => 'System hinzufügen',
     'download_starmap' => 'Starmap downloaden',
 

@@ -12,6 +12,7 @@ class StarsystemsTableSeeder extends Seeder
      */
     public function run()
     {
+        /*
         DB::table('starsystems')->insert(['code' => "AYR'KA"]);
         DB::table('starsystems')->insert(['code' => "BACCHUS"]);
         DB::table('starsystems')->insert(['code' => "BAKER"]);
@@ -102,5 +103,6 @@ class StarsystemsTableSeeder extends Seeder
         DB::table('starsystems')->insert(['code' => "VOODOO"]);
         DB::table('starsystems')->insert(['code' => "VULTURE"]);
         DB::table('starsystems')->insert(['code' => "YULIN"]);
+        */
     }
 }

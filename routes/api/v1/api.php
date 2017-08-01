@@ -15,7 +15,7 @@ Route::group(['namespace' => 'StarCitizen'], function () {
     });
 
     Route::group(['prefix' => 'starmap'], function () {
-        Route::post('search', ['uses' => 'StarmapAPIController@searchStarmap']);
+        Route::get('search/{searchstring}', ['uses' => 'StarmapAPIController@searchStarmap']);
         Route::get('systems', ['uses' => 'StarmapAPIController@getSystemList']);
 
         Route::group(['prefix' => 'systems'], function () {
@@ -25,9 +25,16 @@ Route::group(['namespace' => 'StarCitizen'], function () {
             Route::get('{name}/jumppoints', ['uses' => 'StarmapAPIController@getJumppoints']);
             Route::get('{name}/planets', ['uses' => 'StarmapAPIController@getPlanets']);
             Route::get('{name}/moons', ['uses' => 'StarmapAPIController@getMoons']);
-            Route::get('{name}/{objectname}', ['uses' => 'StarmapAPIController@getObject']);
+            Route::get('{name}/stars', ['uses' => 'StarmapAPIController@getStars']);
+            Route::get('{name}/landingzones', ['uses' => 'StarmapAPIController@getLandingzones']);
+        });
+
+        Route::group(['prefix' => 'objects'], function () {
+            Route::get('{objectname}', ['uses' => 'StarmapAPIController@getObjectList']);
         });
     });
+
+    // Alle Astroidbelts, Spaceestations, etc. fuer gesamtes Universum holen
 
     Route::group(['prefix' => 'community'], function () {
         Route::get('livestreamers', function(){});
