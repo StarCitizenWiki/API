@@ -39,7 +39,7 @@ class SystemListTransformer extends TransformerAbstract implements BaseAPITransf
     {
         $transformed = [
             $system['code'] => [
-                'api_url'  => '//'.config('app.api_url').'/api/v1/starmap/systems/'.$system['code'],
+                'api_url'  => config('app.api_url').'/api/v1/starmap/systems/'.$system['code'],
                 'wiki_url' => '//star-citizen.wiki/'.ucfirst(strtolower($system['code'])),
             ],
         ];
