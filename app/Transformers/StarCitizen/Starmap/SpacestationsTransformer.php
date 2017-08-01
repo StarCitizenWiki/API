@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -11,15 +11,15 @@ use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
 /**
- * Class SystemTransformer
+ * Class SpacestationsTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class AsteroidbeltsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
+class SpacestationsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
 {
 
     /**
-     * Returns all Asteroidbelts of the System Data
+     * Returns all Spacestations of the System Data
      *
      * @param mixed $system System Data
      *

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarmapData;
+use App\Models\CelestialObject;
 use App\Models\Starsystem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,32 +32,18 @@ class StarmapController extends Controller
     }
 
     /**
-     * @param string $code Starmap System Code
-     *
      * @return View
      */
-    public function showEditStarmapSystemsView(string $code): View
+    public function showStarmapCelestialObjectView() : View
     {
-        Log::debug('Edit Starmap System View requested');
+        Log::debug('Starmap Celestial Objects View requested', [
+            'method' => __METHOD__,
+        ]);
 
-        $content = '';
-        if (Storage::disk('starmap')->exists(Starsystem::makeFilenameFromCode($code))) {
-            $content = Storage::disk('starmap')->get(Starsystem::makeFilenameFromCode($code));
-        }
-
-        return view('admin.starmap.systems.edit')
-            ->with('system', Starsystem::where('code', '=', $code)->first())
-            ->with('content', $content);
-    }
-
-    /**
-     * @return View
-     */
-    public function showAddStarmapSystemsView(): View
-    {
-        Log::debug('Add Starmap System View requested');
-
-        return view('admin.starmap.systems.add');
+        return view('admin.starmap.celestialobjects.index')->with(
+            'celestialobjects',
+            CelestialObject::orderBy('code')->get()
+        );
     }
 
     /**
@@ -118,38 +105,6 @@ class StarmapController extends Controller
             ]
         );
         $system->delete();
-
-        return redirect()->route('admin_starmap_systems_list');
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return RedirectResponse
-     */
-    public function addStarmapSystem(Request $request): RedirectResponse
-    {
-        $this->validate(
-            $request,
-            [
-                'code'    => 'required|regex:/[A-Z0-9\'-]/',
-                'exclude' => 'nullable',
-            ]
-        );
-
-        $system = new Starsystem();
-        $system->code = $request->code;
-        $system->exclude = $request->exclude === "1";
-        $system->save();
-
-        Log::notice(
-            'Starmap System added',
-            [
-                'added_by'    => Auth::id(),
-                'system_code' => $request->code,
-                'exclude'     => $request->exclude === "1",
-            ]
-        );
 
         return redirect()->route('admin_starmap_systems_list');
     }
