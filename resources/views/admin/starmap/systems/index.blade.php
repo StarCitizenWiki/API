@@ -76,7 +76,6 @@
                 <tr>
                     <th>@lang('admin/starmap/systems/index.id')</th>
                     <th>@lang('admin/starmap/systems/index.code')</th>
-                    <th>@lang('admin/starmap/systems/index.state')</th>
                     <th>@lang('admin/starmap/systems/index.last_download')</th>
                     <th>@lang('admin/starmap/systems/index.name')</th>
                     <th>@lang('admin/starmap/systems/index.type')</th>
@@ -90,22 +89,6 @@
                 <tr>
                     <td>{{ $system->id }}</td>
                     <td>{{ $system->code }}</td>
-                    <td>
-
-                        @if($system->isExcluded())
-                        <span class="badge badge-default">
-                            @lang('admin/starmap/systems/index.excluded')
-                        </span>
-                        @elseif(\Illuminate\Support\Facades\Session::has('success'))
-                        <span class="badge badge-info">
-                            @lang('admin/starmap/systems/index.downloading')
-                        </span>
-                        @else
-                        <span class="badge badge-warning">
-                            @lang('admin/starmap/systems/index.downloaded')
-                        </span>
-                        @endif
-                    </td>
                     <td>{{ $system->created_at }}</td>
                     <td>{{ $system->name }}</td>
                     <td>{{ $system->type }}</td>

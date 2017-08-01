@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Transformers\StarCitizen\Starmap;
 
 use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class JumppointsTransformer
@@ -16,12 +15,12 @@ class JumppointsTransformer extends CelestialObjectTransformer implements BaseAP
     /**
      * Returns all Jumppoints of the System Data
      *
-     * @param mixed $system System Data
+     * @param mixed $celestialObject
      *
      * @return mixed
      */
-    public function transform($celestrialObject)
+    public function transform($celestialObject)
     {
-        return parent::transform($celestrialObject);
+        return parent::transform($celestialObject);
     }
 }

@@ -74,7 +74,6 @@
             <tr>
                 <th>@lang('admin/starmap/celestialobjects/index.id')</th>
                 <th>@lang('admin/starmap/celestialobjects/index.code')</th>
-                <th>@lang('admin/starmap/celestialobjects/index.state')</th>
                 <th>@lang('admin/starmap/celestialobjects/index.last_download')</th>
                 <th>@lang('admin/starmap/celestialobjects/index.name')</th>
                 <th>@lang('admin/starmap/celestialobjects/index.type')</th>
@@ -88,23 +87,7 @@
             @foreach($celestialobjects as $celestialobject)
             <tr>
                 <td>{{ $celestialobject->id }}</td>
-                <td>{{ $celestialobject->code }}</td>
-                <td>
-
-                    @if($celestialobject->isExcluded())
-                    <span class="badge badge-default">
-                                @lang('admin/starmap/celestialobjects/index.excluded')
-                    </span>
-                    @elseif(\Illuminate\Support\Facades\Session::has('success'))
-                    <span class="badge badge-info">
-                                @lang('admin/starmap/celestialobjects/index.downloading')
-                    </span>
-                    @else
-                    <span class="badge badge-warning">
-                                @lang('admin/starmap/celestialobjects/index.downloaded')
-                    </span>
-                    @endif
-                </td>
+                <td title="{{ $celestialobject->code }}">{{ explode('.', $celestialobject->code)[0] }}</td>
                 <td>{{ $celestialobject->created_at }}</td>
                 <td>{{ $celestialobject->name }}</td>
                 <td>{{ $celestialobject->type }}</td>

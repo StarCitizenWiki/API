@@ -8,7 +8,6 @@
 namespace App\Transformers\StarCitizen\Starmap;
 
 use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class SystemTransformer
@@ -21,12 +20,12 @@ class AsteroidbeltsTransformer extends CelestialObjectTransformer implements Bas
     /**
      * Returns all Asteroidbelts of the System Data
      *
-     * @param mixed $system System Data
+     * @param mixed $celestialObject
      *
      * @return mixed
      */
-    public function transform($celestrialObject)
+    public function transform($celestialObject)
     {
-        return parent::transform($celestrialObject);
+        return parent::transform($celestialObject);
     }
 }

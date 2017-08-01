@@ -115,7 +115,7 @@ class StarmapAPIController extends Controller
      */
     public function getObjectList(Request $request)
     {
-        Log::debug('Starmap Obects List requested', [
+        app('Log')::debug('Starmap Obects List requested', [
             'method' => __METHOD__,
         ]);
 
@@ -170,7 +170,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System Spacestations requested', [
+        app('Log')::debug('Starmap System Spacestations requested', [
             'method' => __METHOD__,
             'name' => $name,
         ]);
@@ -191,7 +191,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System Jumppoints requested', [
+        app('Log')::debug('Starmap System Jumppoints requested', [
             'method' => __METHOD__,
             'name' => $name,
         ]);
@@ -212,7 +212,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System Planets requested', [
+        app('Log')::debug('Starmap System Planets requested', [
             'method' => __METHOD__,
             'name' => $name,
         ]);
@@ -233,7 +233,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System Moons requested', [
+        app('Log')::debug('Starmap System Moons requested', [
             'method' => __METHOD__,
             'name' => $name,
         ]);
@@ -254,7 +254,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System Suns requested', [
+        app('Log')::debug('Starmap System Suns requested', [
             'method' => __METHOD__,
             'name' => $name,
         ]);
@@ -275,7 +275,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($name);
 
-        Log::debug('Starmap System Landingzones requested', [
+        app('Log')::debug('Starmap System Landingzones requested', [
             'method' => __METHOD__,
             'name' => $name,
         ]);
@@ -296,7 +296,7 @@ class StarmapAPIController extends Controller
     {
         $name = strtoupper($objectname);
 
-        Log::debug('Starmap System Object requested', [
+        app('Log')::debug('Starmap System Object requested', [
             'method' => __METHOD__,
             'name' => $name,
         ]);
@@ -322,7 +322,7 @@ class StarmapAPIController extends Controller
     {
         $searchstring = strtoupper($searchstring);
 
-        Log::debug('Searching Starmap requested', [
+        app('Log')::debug('Searching Starmap requested', [
             'method' => __METHOD__,
             'searchstring' => $searchstring,
         ]);

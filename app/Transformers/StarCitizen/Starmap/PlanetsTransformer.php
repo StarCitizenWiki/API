@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -8,7 +8,6 @@
 namespace App\Transformers\StarCitizen\Starmap;
 
 use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class PlanetsTransformer
@@ -21,12 +20,12 @@ class PlanetsTransformer extends CelestialObjectTransformer implements BaseAPITr
     /**
      * Returns all Planets of the System Data
      *
-     * @param mixed $system System Data
+     * @param mixed $celestialObject
      *
      * @return mixed
      */
-    public function transform($celestrialObject)
+    public function transform($celestialObject)
     {
-        return parent::transform($celestrialObject);
+        return parent::transform($celestialObject);
     }
 }

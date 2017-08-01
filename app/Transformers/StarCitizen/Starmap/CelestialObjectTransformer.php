@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -22,26 +22,34 @@ class CelestialObjectTransformer extends TransformerAbstract implements BaseAPIT
     /**
      * Returns all Celestial Object of the System Data
      *
-     * @param mixed $system System Data
+     * @param mixed $celestialObjects
      *
      * @return mixed
      */
-    public function transform($celestrialObjects)
+    public function transform($celestialObjects)
     {
         $filteredCelestialObjects = [];
 
         // One Array has to be in an Array of Arrays
-        if (!array_key_exists(0, $celestrialObjects)) {
-            $tmpCelestrialObjects = $celestrialObjects;
-            $celestrialObjects = [];
-            array_push($celestrialObjects, $tmpCelestrialObjects);
+        if (!array_key_exists(0, $celestialObjects)) {
+            $tmpCelestrialObjects = $celestialObjects;
+            $celestialObjects = [];
+            array_push($celestialObjects, $tmpCelestrialObjects);
         }
 
-        foreach ($celestrialObjects as $celestrialObject) {
-            array_push($filteredCelestialObjects, array_filter($celestrialObject, function($key) {
-                return !in_array($key, self::FILTER_FIELDS);
-            }, ARRAY_FILTER_USE_KEY));
+        foreach ($celestialObjects as $celestialObject) {
+            array_push(
+                $filteredCelestialObjects,
+                array_filter(
+                    $celestialObject,
+                    function ($key) {
+                        return !in_array($key, self::FILTER_FIELDS);
+                    },
+                    ARRAY_FILTER_USE_KEY
+                )
+            );
         }
+
         return $filteredCelestialObjects;
     }
 }

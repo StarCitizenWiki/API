@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -25,8 +25,8 @@ class SpacestationsTransformer extends CelestialObjectTransformer implements Bas
      *
      * @return mixed
      */
-    public function transform($celestrialObject)
+    public function transform($celestialObject)
     {
-        return parent::transform($celestrialObject);
+        return parent::transform($celestialObject);
     }
 }

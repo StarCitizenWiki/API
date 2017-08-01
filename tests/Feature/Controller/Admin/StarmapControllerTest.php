@@ -39,16 +39,4 @@ class StarmapControllerTest extends TestCase
         $response = $this->actingAs($this->user)->get('admin/starmap/celestialobject');
         $response->assertStatus(200);
     }
-
-    /**
-     * @covers \App\Http\Controllers\Auth\Admin\StarmapController::updateStarmapSystem()
-     */
-    public function testUpdateStarmapSystem()
-    {
-        $response = $this->actingAs($this->user)->patch('admin/starmap/systems', [
-            'id' => 1,
-            'code' => 'NEWSYSTEM',
-        ]);
-        $response->assertStatus(302);
-    }
 }
