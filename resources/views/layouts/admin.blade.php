@@ -100,7 +100,7 @@
                                     <a class="nav-link text-white" href="{{ route('admin_starmap_systems_list') }}"><i class="fa fa-circle-o-notch mr-1"></i> @lang('layouts/admin.systems')</a>
                                 </li>
                                 <li class="nav-item ">
-                                    <a class="nav-link text-white" href="{{ route('admin_starmap_systems_add_form') }}"><i class="fa fa-plus-circle mr-1"></i> @lang('layouts/admin.add_system')</a>
+                                    <a class="nav-link text-white" href="{{ route('admin_starmap_celestialobject_list') }}"><i class="fa fa-circle-o-notch mr-1"></i> @lang('layouts/admin.celestialobjects')</a>
                                 </li>
                                 <li class="nav-item ">
                                     <a href="#" class="nav-link text-white" onclick="event.preventDefault(); document.getElementById('download-starmap').submit();">

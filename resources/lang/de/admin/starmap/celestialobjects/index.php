@@ -1,7 +1,7 @@
 <?php
 return [
-    'header' => 'Starmap System',
-    'systems' => 'Systeme',
+    'header' => 'Starmap Celestial Objects',
+    'celestialobjects' => 'Celestial Objects',
     'last_download' => 'Letzter Download',
     'excluded' => 'Ausgeschlossen',
     'id' => 'ID',

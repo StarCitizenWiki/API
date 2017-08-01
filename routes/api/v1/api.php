@@ -30,7 +30,7 @@ Route::group(['namespace' => 'StarCitizen'], function () {
         });
 
         Route::group(['prefix' => 'objects'], function () {
-            Route::get('{objectname}', ['uses' => 'StarmapAPIController@getObject']);
+            Route::get('{objectname}', ['uses' => 'StarmapAPIController@getObjectList']);
         });
     });
 

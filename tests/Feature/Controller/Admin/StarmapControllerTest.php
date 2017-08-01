@@ -32,43 +32,12 @@ class StarmapControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\StarmapController::showAddStarmapSystemsView()
+     * @covers \App\Http\Controllers\Auth\Admin\StarmapController::showStarmapCelestialObjectView()
      */
-    public function testAddStarmapSystemsView()
+    public function testStarmapCelestialObjectsView()
     {
-        $response = $this->actingAs($this->user)->get('admin/starmap/systems/add');
+        $response = $this->actingAs($this->user)->get('admin/starmap/celestialobject');
         $response->assertStatus(200);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Auth\Admin\StarmapController::showEditStarmapSystemsView()
-     */
-    public function testEditStarmapSystemsView()
-    {
-        $response = $this->actingAs($this->user)->get('admin/starmap/systems/SOL');
-        $response->assertStatus(200);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Auth\Admin\StarmapController::deleteStarmapSystem()
-     */
-    public function testDeleteStarmapSystem()
-    {
-        $response = $this->actingAs($this->user)->delete('admin/starmap/systems', [
-            'id' => 1,
-        ]);
-        $response->assertStatus(302);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Auth\Admin\StarmapController::addStarmapSystem()
-     */
-    public function testAddStarmapSystem()
-    {
-        $response = $this->actingAs($this->user)->post('admin/starmap/systems', [
-            'code' => 'NEWSYSTEM',
-        ]);
-        $response->assertStatus(302);
     }
 
     /**

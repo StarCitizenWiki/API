@@ -93,6 +93,31 @@ class StarmapAPIController extends Controller
     }
 
     /**
+     * Return a list with all Celestial Objects
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getObjectList(Request $request)
+    {
+        Log::debug('Starmap Obects List requested', [
+            'method' => __METHOD__,
+        ]);
+
+        $this->repository->getCelestialObjectList();
+        $this->repository->transformer->addFilter($request);
+        try {
+            return response()->json(
+                $this->repository->asArray(),
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        } catch (InvalidDataException $e) {
+            return $e->getMessage();
+        }}
+
+    /**
      * Requests the given System Name Asteroid belts
      *
      * @param String $name SystemName

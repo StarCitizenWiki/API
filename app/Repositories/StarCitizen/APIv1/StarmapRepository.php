@@ -262,6 +262,19 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     }
 
     /**
+     * @return StarmapRepository
+     */
+    public function getCelestialObjectList()
+    {
+        Log::debug('Requesting Celestial Objects List', [
+            'method' => __METHOD__,
+        ]);
+        $this->dataToTransform = CelestialObject::all()->toArray();
+
+        return $this->collection()->withTransformer(CelestialObjectTransformer::class);
+    }
+
+    /**
      * @param String $systemName
      *
      * @return int cig_id for SystemName
