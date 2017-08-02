@@ -9,6 +9,7 @@ namespace App\Processors;
 
 /**
  * Class UserProcessor
+ *
  * @package App\Processors
  */
 class UserInfoProcessor

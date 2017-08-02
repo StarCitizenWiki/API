@@ -9,6 +9,7 @@ namespace App\Traits;
 
 /**
  * Trait ProfilesClassTrait
+ *
  * @package App\Traits
  */
 trait ProfilesMethodsTrait

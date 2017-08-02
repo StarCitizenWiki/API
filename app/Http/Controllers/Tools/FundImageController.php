@@ -41,14 +41,14 @@ class FundImageController extends Controller
     /**
      * The Request Object
      *
-     * @var Request
+     * @var \Illuminate\Http\Request
      */
     private $request;
 
     /**
      * StatsRepository
      *
-     * @var StatsRepository
+     * @var \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     private $repository;
 
@@ -79,8 +79,8 @@ class FundImageController extends Controller
     /**
      * FundImageController constructor.
      *
-     * @param Request         $request    HTTP Request
-     * @param StatsRepository $repository StatsApi
+     * @param \Illuminate\Http\Request                            $request    HTTP Request
+     * @param \App\Repositories\StarCitizen\APIv1\StatsRepository $repository StatsApi
      */
     public function __construct(Request $request, StatsRepository $repository)
     {
@@ -128,7 +128,9 @@ class FundImageController extends Controller
 
     /**
      * Generates the Image with the defined Values
+     *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function getImage()
@@ -195,7 +197,7 @@ class FundImageController extends Controller
     /**
      * Checks if the GD Library is installed
      *
-     * @throws MissingExtensionException
+     * @throws \App\Exceptions\MissingExtensionException
      *
      * @return void
      */
@@ -222,9 +224,9 @@ class FundImageController extends Controller
             $this->image['type'] = Route::getCurrentRoute()->getAction()['type'];
         } else {
             $message = 'FundImage function only accepts Supported Image Types('.implode(
-                    ', ',
-                    FundImageController::SUPPORTED_FUNDS
-                ).'). Input was: '.Route::getCurrentRoute()->getAction()['type'];
+                ', ',
+                FundImageController::SUPPORTED_FUNDS
+            ).'). Input was: '.Route::getCurrentRoute()->getAction()['type'];
             app('Log')::warning(
                 'Requested Image type does not exist',
                 [
@@ -266,7 +268,7 @@ class FundImageController extends Controller
      *
      * @param string $hexStr (hexadecimal color value)
      *
-     * @return array or string (depending on second parameter. Returns False if invalid hex color value)
+     * @return array | string (depending on second parameter. Returns False if invalid hex color value)
      */
     private function convertHexToRGBColor($hexStr): array
     {
@@ -365,7 +367,7 @@ class FundImageController extends Controller
     }
 
     /**
-     * Formates the funds and appends a dollar sign
+     * Formats funds and appends a dollar sign
      *
      * @param string $source Array Key to use the funds from
      */
@@ -380,11 +382,11 @@ class FundImageController extends Controller
         $this->addTrace("Formatting Funds. Source: {$source}", __FUNCTION__, __LINE__);
 
         $this->funds[$source.'Formatted'] = number_format(
-                $this->funds[$source],
-                0,
-                ',',
-                '.'
-            ).' $';
+            $this->funds[$source],
+            0,
+            ',',
+            '.'
+        ).' $';
 
         $this->addTrace("Funds formatted. Formatted: {$this->funds[$source.'Formatted']}", __FUNCTION__, __LINE__);
 
@@ -590,7 +592,7 @@ class FundImageController extends Controller
     /**
      * Calculates the percent to next million based on current funds
      *
-     * @throws InvalidDataException
+     * @throws \App\Exceptions\InvalidDataException
      *
      * @return void
      */

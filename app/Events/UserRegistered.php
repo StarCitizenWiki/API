@@ -26,8 +26,8 @@ class UserRegistered implements ShouldQueue
     /**
      * Create a new event instance.
      *
-     * @param User   $user     The newly registered User
-     * @param string $password The users randomly generated plaintext Password
+     * @param \App\Models\User $user     The newly registered User
+     * @param string           $password The users randomly generated plaintext Password
      */
     public function __construct(User $user, string $password)
     {

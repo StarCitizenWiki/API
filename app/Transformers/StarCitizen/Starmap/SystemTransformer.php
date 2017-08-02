@@ -7,15 +7,14 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class SystemTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class SystemTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class SystemTransformer extends AbstractBaseTransformer
 {
     /**
      * TODO

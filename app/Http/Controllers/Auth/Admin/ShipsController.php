@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Auth\Admin;
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
 use App\Traits\ProfilesMethodsTrait;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
-use Illuminate\View\View;
 
 /**
  * Class ShipsController
+ *
  * @package App\Http\Controllers\Auth\Admin
  */
 class ShipsController extends Controller
@@ -28,7 +29,7 @@ class ShipsController extends Controller
     }
 
     /**
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showShipsView(): View
     {
@@ -41,7 +42,7 @@ class ShipsController extends Controller
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function downloadShips(): RedirectResponse
     {

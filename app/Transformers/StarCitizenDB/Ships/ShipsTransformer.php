@@ -2,17 +2,14 @@
 
 namespace App\Transformers\StarCitizenDB\Ships;
 
-use App\Traits\FiltersDataTrait;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipTransformer
  * @package App\Transformers\StarCitizenDB
  */
-class ShipsTransformer extends TransformerAbstract
+class ShipsTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     private $totalHitPoints = 0;
 
     /**
@@ -20,7 +17,7 @@ class ShipsTransformer extends TransformerAbstract
      *
      * @return array
      */
-    public function transform(array $data): array
+    public function transform($data): array
     {
         $name = $data['processedName'];
 

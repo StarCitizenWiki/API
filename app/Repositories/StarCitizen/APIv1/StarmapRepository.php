@@ -9,7 +9,7 @@ namespace App\Repositories\StarCitizen\APIv1;
 
 use App\Models\CelestialObject;
 use App\Models\Starsystem;
-use App\Repositories\StarCitizen\BaseStarCitizenAPI;
+use App\Repositories\StarCitizen\BaseStarCitizenRepository;
 use App\Repositories\StarCitizen\Interfaces\StarmapInterface;
 use App\Transformers\StarCitizen\Starmap\AsteroidbeltsTransformer;
 use App\Transformers\StarCitizen\Starmap\CelestialObjectTransformer;
@@ -21,13 +21,14 @@ use App\Transformers\StarCitizen\Starmap\SpacestationsTransformer;
 use App\Transformers\StarCitizen\Starmap\StarsTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemListTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
+use InvalidArgumentException;
 
 /**
  * Class StarmapRepository
  *
  * @package App\Repositories\StarCitizen\APIv1\Starmap
  */
-class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
+class StarmapRepository extends BaseStarCitizenRepository implements StarmapInterface
 {
     const TIME_GROUP_FIELD = 'cig_time_modified';
 
@@ -36,7 +37,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @param string $systemName
      *
-     * @return StarmapRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getSystem(string $systemName)
     {
@@ -51,221 +52,125 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/asteroidbelts
-     * @param String $systemName
+     * @param string $systemName
      *
-     * @return $this
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getAsteroidbelts(string $systemName)
     {
         app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
-        $cigSystemId = $this->getCigSystemId($systemName);
-        $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId)
-            ->where(
-                function ($query) {
-                    $query->where('type', 'ASTEROID_FIELD')->orWhere('type', 'ASTEROID_BELT');
-                }
-            )
-            ->groupBy('code')
-            ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
-            ->get();
+        $where = function ($query) {
+            $query->where('type', 'ASTEROID_FIELD')->orWhere('type', 'ASTEROID_BELT');
+        };
 
-        return $this->withTransformer(AsteroidbeltsTransformer::class)->transform($celestialObjectQueryData->toArray());
-    }
+        $celestialObjectQueryData = $this->getQueryData($systemName, $where);
 
-    /**
-     * @param String $systemName
-     *
-     * @return int cig_id for SystemName
-     */
-    private function getCigSystemId(string $systemName): int
-    {
-        $systemQueryData = Starsystem::where('code', $systemName)
-            ->orderBy(self::TIME_GROUP_FIELD, 'DESC')
-            ->firstOrFail();
-        $system = $systemQueryData->toArray();
-
-        return (int) $system['cig_id'];
+        return $this->withTransformer(AsteroidbeltsTransformer::class)->transform($celestialObjectQueryData);
     }
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/spacestations
-     * @param String $systemName
+     * @param string $systemName
      *
-     * @return $this
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getSpacestations(string $systemName)
     {
-        app('Log')::debug(
-            'Requesting Spacestations',
-            [
-                'method' => __METHOD__,
-                'system' => $systemName,
-            ]
-        );
+        app('Log')::info(make_name_readable(__FUNCTION__), ['systemName' => $systemName]);
 
-        $cigSystemId = $this->getCigSystemId($systemName);
-        $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId)
-            ->where('type', 'MANMADE')
-            ->groupBy('code')
-            ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
-            ->get();
+        $celestialObjectQueryData = $this->getQueryData($systemName, 'MANMADE');
 
-        return $this->withTransformer(SpacestationsTransformer::class)->transform($celestialObjectQueryData->toArray());
+        return $this->withTransformer(SpacestationsTransformer::class)->transform($celestialObjectQueryData);
     }
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/jumppoints
-     * @param String $systemName
+     * @param string $systemName
      *
      * @return $this
      */
     public function getJumppoints(string $systemName)
     {
-        app('Log')::debug(
-            'Requesting Jumppoints',
-            [
-                'method' => __METHOD__,
-                'system' => $systemName,
-            ]
-        );
+        app('Log')::info(make_name_readable(__FUNCTION__), ['systemName' => $systemName]);
 
-        $cigSystemId = $this->getCigSystemId($systemName);
-        $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId)
-            ->where('type', 'JUMPPOINT')
-            ->groupBy('code')
-            ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
-            ->get();
+        $celestialObjectQueryData = $this->getQueryData($systemName, 'JUMPPOINT');
 
-        return $this->withTransformer(JumppointsTransformer::class)->transform($celestialObjectQueryData->toArray());
+        return $this->withTransformer(JumppointsTransformer::class)->transform($celestialObjectQueryData);
     }
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/planets
-     * @param String $systemName
+     * @param string $systemName
      *
-     * @return $this
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getPlanets(string $systemName)
     {
-        app('Log')::debug(
-            'Requesting Planets',
-            [
-                'method' => __METHOD__,
-                'system' => $systemName,
-            ]
-        );
+        app('Log')::info(make_name_readable(__FUNCTION__), ['systemName' => $systemName]);
 
-        $cigSystemId = $this->getCigSystemId($systemName);
-        $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId)
-            ->where('type', 'PLANET')
-            ->groupBy('code')
-            ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
-            ->get();
+        $celestialObjectQueryData = $this->getQueryData($systemName, 'PLANET');
 
-        return $this->withTransformer(PlanetsTransformer::class)->transform($celestialObjectQueryData->toArray());
+        return $this->withTransformer(PlanetsTransformer::class)->transform($celestialObjectQueryData);
     }
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/moons
-     * @param String $systemName
+     * @param string $systemName
      *
-     * @return $this
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getMoons(string $systemName)
     {
-        app('Log')::debug(
-            'Requesting Moons',
-            [
-                'method' => __METHOD__,
-                'system' => $systemName,
-            ]
-        );
+        app('Log')::info(make_name_readable(__FUNCTION__), ['systemName' => $systemName]);
 
-        $cigSystemId = $this->getCigSystemId($systemName);
-        $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId)
-            ->where('type', 'SATELLITE')
-            ->groupBy('code')
-            ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
-            ->get();
+        $celestialObjectQueryData = $this->getQueryData($systemName, 'SATELLITE');
 
-        return $this->withTransformer(MoonsTransformer::class)->transform($celestialObjectQueryData->toArray());
+        return $this->withTransformer(MoonsTransformer::class)->transform($celestialObjectQueryData);
     }
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/landingzones
-     * @param String $systemName
+     * @param string $systemName
      *
-     * @return $this
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getLandingzones(string $systemName)
     {
-        app('Log')::debug(
-            'Requesting Landingzones',
-            [
-                'method' => __METHOD__,
-                'system' => $systemName,
-            ]
-        );
+        app('Log')::info(make_name_readable(__FUNCTION__), ['systemName' => $systemName]);
 
-        $cigSystemId = $this->getCigSystemId($systemName);
-        $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId)
-            ->where('type', 'LZ')
-            ->groupBy('code')
-            ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
-            ->get();
+        $celestialObjectQueryData = $this->getQueryData($systemName, 'LZ');
 
-        return $this->withTransformer(LandingzonesTransformer::class)->transform($celestialObjectQueryData->toArray());
+        return $this->withTransformer(LandingzonesTransformer::class)->transform($celestialObjectQueryData);
     }
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/stars
-     * @param String $systemName
+     * @param string $systemName
      *
-     * @return $this
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getStars(string $systemName)
     {
-        app('Log')::debug(
-            'Requesting Stars',
-            [
-                'method' => __METHOD__,
-                'system' => $systemName,
-            ]
-        );
+        app('Log')::info(make_name_readable(__FUNCTION__), ['systemName' => $systemName]);
 
-        $cigSystemId = $this->getCigSystemId($systemName);
-        $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId)
-            ->where('type', 'STAR')
-            ->groupBy('code')
-            ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
-            ->get();
+        $celestialObjectQueryData = $this->getQueryData($systemName, 'STAR');
 
-        return $this->withTransformer(StarsTransformer::class)->transform($celestialObjectQueryData->toArray());
+        return $this->withTransformer(StarsTransformer::class)->transform($celestialObjectQueryData);
     }
 
     /**
      * https://robertsspaceindustries.com/api/starmap/celestial-objects/{SYSTEM_NAME}.[TYPE}.{NAME}
      *
-     * @param string $systemName
-     * @param string $type
      * @param string $objectName
      *
-     * @return StarmapRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
-    public function getCelestialObject(string $systemName, string $type, string $objectName)
+    public function getCelestialObject(string $objectName)
     {
-        $celestialObjectName = $systemName.'.'.$type.'.'.$objectName;
+        app('Log')::info(make_name_readable(__FUNCTION__), ['objectName' => $objectName]);
 
-        app('Log')::debug(
-            'Requesting Celestial Object',
-            [
-                'method'              => __METHOD__,
-                'CelestialObjectname' => $celestialObjectName,
-            ]
-        );
-
-        $celestialObjectQueryData = CelestialObject::where('CODE', $celestialObjectName)
+        $celestialObjectQueryData = CelestialObject::where('CODE', $objectName)
             ->orderBy(self::TIME_GROUP_FIELD, 'DESC')
             ->firstOrFail();
 
@@ -280,17 +185,11 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
      *
      * @param string $searchString
      *
-     * @return StarmapRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function search(string $searchString)
     {
-        app('Log')::debug(
-            'Requesting Search',
-            [
-                'method'       => __METHOD__,
-                'searchString' => $searchString,
-            ]
-        );
+        app('Log')::info(make_name_readable(__FUNCTION__), ['searchString' => $searchString]);
 
         $celestialObjectQueryData = CelestialObject::where('code', 'LIKE', '%'.$searchString.'%')
             ->groupBy('code')
@@ -303,7 +202,7 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     }
 
     /**
-     * @return StarmapRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getSystemList()
     {
@@ -314,18 +213,54 @@ class StarmapRepository extends BaseStarCitizenAPI implements StarmapInterface
     }
 
     /**
-     * @return StarmapRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
      */
     public function getCelestialObjectList()
     {
-        app('Log')::debug(
-            'Requesting Celestial Objects List',
-            [
-                'method' => __METHOD__,
-            ]
-        );
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->dataToTransform = CelestialObject::all()->toArray();
 
         return $this->collection()->withTransformer(CelestialObjectTransformer::class);
+    }
+
+    /**
+     * @param string $systemName
+     *
+     * @return int cig_id for SystemName
+     */
+    private function getCigSystemId(string $systemName): int
+    {
+        $systemQueryData = Starsystem::where('code', $systemName)
+            ->orderBy(self::TIME_GROUP_FIELD, 'DESC')
+            ->firstOrFail();
+        $system = $systemQueryData->toArray();
+
+        return (int) $system['cig_id'];
+    }
+
+    /**
+     * @param string            $systemName
+     * @param \Closure | string $where
+     *
+     * @return array
+     */
+    private function getQueryData(string $systemName, $where): array
+    {
+        $cigSystemId = $this->getCigSystemId($systemName);
+        $celestialObjectQueryData = CelestialObject::where('cig_system_id', $cigSystemId);
+
+        if (is_string($where)) {
+            $celestialObjectQueryData->where('type', $where);
+        } elseif (is_callable($where)) {
+            $celestialObjectQueryData->where($where);
+        } else {
+            throw new InvalidArgumentException('type Parameter must be of type String or Closure');
+        }
+
+        $celestialObjectQueryData->groupBy('code')->havingRaw(
+            self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')'
+        );
+
+        return $celestialObjectQueryData->get()->toArray();
     }
 }

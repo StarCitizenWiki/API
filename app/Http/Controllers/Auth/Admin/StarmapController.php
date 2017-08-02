@@ -6,17 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarmapData;
 use App\Models\CelestialObject;
 use App\Models\Starsystem;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 
 /**
  * Class AdminStarmapController
+ *
  * @package App\Http\Controllers\Auth\Admin
  */
 class StarmapController extends Controller
 {
     /**
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showStarmapSystemsView(): View
     {
@@ -29,7 +30,7 @@ class StarmapController extends Controller
     }
 
     /**
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showStarmapCelestialObjectView(): View
     {
@@ -42,7 +43,7 @@ class StarmapController extends Controller
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function downloadStarmap(): RedirectResponse
     {

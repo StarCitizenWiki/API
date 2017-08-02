@@ -7,20 +7,15 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Models\Starsystem;
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipsListTransformer
  *
  * @package App\Transformers\StarCitizenWiki\Ships
  */
-class SystemListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class SystemListTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     protected $validFields = [
         'wiki_url',
         'api_url',
@@ -29,11 +24,9 @@ class SystemListTransformer extends TransformerAbstract implements BaseAPITransf
     /**
      * Transformes the whole ship list
      *
-     * @param Starsystem $system
+     * @param \App\Models\Starsystem $system
      *
      * @return array
-     * @internal param mixed $ship Data
-     *
      */
     public function transform($system)
     {

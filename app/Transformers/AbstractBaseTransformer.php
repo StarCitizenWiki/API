@@ -1,32 +1,35 @@
 <?php declare(strict_types = 1);
 /**
  * User: Hannes
- * Date: 25.03.2017
- * Time: 15:45
+ * Date: 02.08.2017
+ * Time: 13:41
  */
 
-namespace App\Traits;
+namespace App\Transformers;
 
 use App\Exceptions\InvalidDataException;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
+use League\Fractal\TransformerAbstract;
 
 /**
- * Class FiltersDataTrait
- *
- * @package App\Traits
+ * Class AbstractBaseTransformer
+ * @package App\Transformers
  */
-trait FiltersDataTrait
+abstract class AbstractBaseTransformer extends TransformerAbstract
 {
-    protected $filters = [];
+    use ProfilesMethodsTrait;
 
-    private $requestedFields = [];
+    protected $filters = [];
+    protected $requestedFields = [];
+    protected $validFields = [];
 
     /**
      * Adds requested fields to the filter array
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @throws InvalidDataException
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function addFilters(Request $request)
     {
@@ -34,18 +37,6 @@ trait FiltersDataTrait
         if (!is_null($filters) && !empty($filters)) {
             $this->requestedFields = explode(',', $filters);
             $this->validateRequestedFields();
-        }
-    }
-
-    private function validateRequestedFields()
-    {
-        foreach ($this->requestedFields as $field) {
-            if (!in_array($field, $this->validFields)) {
-                throw new InvalidDataException(
-                    'Requested field '.$field.' is not in valid fields ['.implode(',', $this->validFields).']'
-                );
-            }
-            $this->filters[] = $field;
         }
     }
 
@@ -64,7 +55,7 @@ trait FiltersDataTrait
      * @param array $data
      *
      * @return array
-     * @throws InvalidDataException
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function filterData(array &$data)
     {
@@ -98,5 +89,17 @@ trait FiltersDataTrait
         }
 
         return [];
+    }
+
+    protected function validateRequestedFields()
+    {
+        foreach ($this->requestedFields as $field) {
+            if (!in_array($field, $this->validFields)) {
+                throw new InvalidDataException(
+                    'Requested field '.$field.' is not in valid fields ['.implode(',', $this->validFields).']'
+                );
+            }
+            $this->filters[] = $field;
+        }
     }
 }

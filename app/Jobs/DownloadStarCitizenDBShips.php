@@ -13,6 +13,7 @@ use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * Class DownloadStarCitizenDBShips
+ *
  * @package App\Jobs
  */
 class DownloadStarCitizenDBShips implements ShouldQueue

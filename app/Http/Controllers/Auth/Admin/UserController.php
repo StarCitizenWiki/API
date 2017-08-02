@@ -9,11 +9,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 
 /**
  * Class AdminUserController
+ *
  * @package App\Http\Controllers\Auth\Admin
  */
 class UserController extends Controller
@@ -33,7 +32,7 @@ class UserController extends Controller
     /**
      * Returns the View with all Users listed
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showUsersListView()
     {
@@ -50,7 +49,7 @@ class UserController extends Controller
      *
      * @param int $id The User ID
      *
-     * @return View | Redirect
+     * @return \Illuminate\Contracts\View\View | \Illuminate\Routing\Redirector
      */
     public function showEditUserView(int $id)
     {
@@ -80,7 +79,7 @@ class UserController extends Controller
      *
      * @param int $id
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showRequestsView(int $id)
     {
@@ -95,9 +94,9 @@ class UserController extends Controller
     /**
      * Deletes a User by ID
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteUser(Request $request): RedirectResponse
     {
@@ -136,9 +135,9 @@ class UserController extends Controller
     /**
      * Restores a User by ID
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function restoreUser(Request $request): RedirectResponse
     {
@@ -171,9 +170,9 @@ class UserController extends Controller
     /**
      * Updates a User by ID
      *
-     * @param Request $request Update Request
+     * @param \Illuminate\Http\Request $request Update Request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateUser(Request $request): RedirectResponse
     {

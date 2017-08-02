@@ -31,7 +31,7 @@ class AccountController extends Controller
     /**
      * Returns the Account Dashboard View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showAccountView(): View
     {
@@ -46,7 +46,7 @@ class AccountController extends Controller
     /**
      * Returns the Account Edit View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showEditAccountView(): View
     {
@@ -61,7 +61,7 @@ class AccountController extends Controller
     /**
      * Function to delete the associated User Account
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function delete(): RedirectResponse
     {
@@ -80,9 +80,9 @@ class AccountController extends Controller
     /**
      * Updates the current users account
      *
-     * @param Request $request The Update Request
+     * @param \Illuminate\Http\Request $request The Update Request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateAccount(Request $request): RedirectResponse
     {

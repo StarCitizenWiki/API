@@ -7,14 +7,12 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\BaseAPITransformerInterface;
-
 /**
  * Class SpacestationsTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class SpacestationsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
+class SpacestationsTransformer extends CelestialObjectTransformer
 {
     /**
      * Returns all Spacestations of the System Data

@@ -7,7 +7,7 @@
 
 namespace App\Repositories\StarCitizen\APIv1;
 
-use App\Repositories\StarCitizen\BaseStarCitizenAPI;
+use App\Repositories\StarCitizen\BaseStarCitizenRepository;
 use App\Repositories\StarCitizen\Interfaces\StatsInterface;
 use App\Transformers\StarCitizen\Stats\FansTransformer;
 use App\Transformers\StarCitizen\Stats\FleetTransformer;
@@ -19,7 +19,7 @@ use App\Transformers\StarCitizen\Stats\StatsTransformer;
  *
  * @package App\Repositories\StarCitizen\APIv1\Stats
  */
-class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
+class StatsRepository extends BaseStarCitizenRepository implements StatsInterface
 {
     private $getFans = true;
     private $getFleet = true;
@@ -29,7 +29,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     /**
      * Requests only funds
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function getFunds(): StatsRepository
     {
@@ -45,7 +45,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
      * Reads the Crowdfunding Stats from RSI
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function getCrowdfundStats(): StatsRepository
     {
@@ -65,7 +65,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     /**
      * Requests only fans
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function getFans(): StatsRepository
     {
@@ -80,7 +80,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     /**
      * Requests only fleet
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function getFleet(): StatsRepository
     {
@@ -95,7 +95,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     /**
      * Sets the Chart Type to 'hour'
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function lastHours(): StatsRepository
     {
@@ -108,7 +108,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     /**
      * Requests all stats
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function getAll(): StatsRepository
     {
@@ -121,7 +121,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     /**
      * Sets the Chart Type to 'day'
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function lastDays(): StatsRepository
     {
@@ -134,7 +134,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     /**
      * Sets the Chart Type to 'week'
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function lastWeeks(): StatsRepository
     {
@@ -147,7 +147,7 @@ class StatsRepository extends BaseStarCitizenAPI implements StatsInterface
     /**
      * Sets the Chart Type to 'month'
      *
-     * @return StatsRepository
+     * @return \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     public function lastMonths(): StatsRepository
     {

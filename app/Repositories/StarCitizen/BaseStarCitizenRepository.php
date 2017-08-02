@@ -7,8 +7,7 @@
 
 namespace App\Repositories\StarCitizen;
 
-use App\Repositories\BaseAPITrait;
-use App\Traits\TransformesDataTrait;
+use App\Repositories\AbstractBaseRepository;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 
@@ -17,21 +16,19 @@ use Illuminate\Support\Facades\App;
  *
  * @package App\Repositories\StarCitizen\APIv1
  */
-class BaseStarCitizenAPI
+class BaseStarCitizenRepository extends AbstractBaseRepository
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
 
     private static $rsiToken = null;
-
-    use BaseAPITrait, TransformesDataTrait {
-        BaseAPITrait::addMetadataToTransformation insteadof TransformesDataTrait;
-    }
 
     /**
      * BaseStarCitizenAPI constructor.
      */
     public function __construct()
     {
+        parent::__construct();
+
         $this->guzzleClient = new Client(
             [
                 'base_uri' => $this::API_URL,
@@ -43,6 +40,22 @@ class BaseStarCitizenAPI
         if (is_null(self::$rsiToken)) {
             $this->getRSIToken();
         }
+    }
+
+    /**
+     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
+     *
+     * @return bool
+     */
+    protected function checkIfResponseDataIsValid(): bool
+    {
+        $valid = str_contains((string) $this->response->getBody(), 'success');
+
+        if (!$valid) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -83,21 +96,5 @@ class BaseStarCitizenAPI
         } catch (\Exception $e) {
             app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");
         }
-    }
-
-    /**
-     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
-     *
-     * @return bool
-     */
-    protected function checkIfResponseDataIsValid(): bool
-    {
-        $valid = str_contains((string) $this->response->getBody(), 'success');
-
-        if (!$valid) {
-            return false;
-        }
-
-        return true;
     }
 }

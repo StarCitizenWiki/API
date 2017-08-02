@@ -9,15 +9,16 @@ use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
 use App\Traits\ProfilesMethodsTrait;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
-use Illuminate\View\View;
 
 /**
  * Class ShortURLController
+ *
  * @package App\Http\Controllers\Auth\Account
  */
 class ShortURLController extends Controller
@@ -36,7 +37,7 @@ class ShortURLController extends Controller
     /**
      * Returns the View which lists all associated ShortURLs
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showURLsListView(): View
     {
@@ -51,7 +52,7 @@ class ShortURLController extends Controller
     /**
      * Returns the add short url view
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showAddURLView(): View
     {
@@ -68,7 +69,7 @@ class ShortURLController extends Controller
      *
      * @param int $id The ShortURL ID to edit
      *
-     * @return View | RedirectResponse
+     * @return \Illuminate\Contracts\View\View | \Illuminate\Http\RedirectResponse
      */
     public function showEditURLView(int $id)
     {
@@ -98,11 +99,11 @@ class ShortURLController extends Controller
     /**
      * Validates the url add Request and creates a new ShortURL
      *
-     * @param Request $request The Request
+     * @param \Illuminate\Http\Request $request The Request
      *
-     * @return RedirectResponse| \Illuminate\Support\Facades\Redirect
+     * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
      *
-     * @throws ExpiredException
+     * @throws \App\Exceptions\ExpiredException
      */
     public function addURL(Request $request)
     {
@@ -154,9 +155,9 @@ class ShortURLController extends Controller
     /**
      * Deletes a Users ShortURL
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteURL(Request $request): RedirectResponse
     {
@@ -197,9 +198,9 @@ class ShortURLController extends Controller
     /**
      * Updates a ShortURL by its ID
      *
-     * @param Request $request The Update Request
+     * @param \Illuminate\Http\Request $request The Update Request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateURL(Request $request): RedirectResponse
     {

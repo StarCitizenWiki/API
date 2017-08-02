@@ -7,17 +7,13 @@
 
 namespace App\Transformers;
 
-use App\Traits\FiltersDataTrait;
-use League\Fractal\TransformerAbstract;
-
 /**
- * Class FakeTransformer returns data as is
+ * Class NullTransformer returns data as is
+ *
  * @package App\Transformers\StarCitizenDB\Ships
  */
-class FakeTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class NullTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     /**
      * Transformes the given data
      *

@@ -8,19 +8,15 @@
 namespace App\Transformers\StarCitizenWiki\Ships;
 
 use App\Exceptions\InvalidDataException;
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipsSearchTransformer
  *
  * @package App\Transformers\StarCitizenWiki\Ships
  */
-class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class ShipsSearchTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     protected $validFields = [
         'wiki_url',
         'api_url',
@@ -33,7 +29,7 @@ class ShipsSearchTransformer extends TransformerAbstract implements BaseAPITrans
      *
      * @return array
      *
-     * @throws InvalidDataException
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function transform($search)
     {

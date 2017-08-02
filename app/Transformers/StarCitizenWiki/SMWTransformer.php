@@ -2,18 +2,14 @@
 
 namespace App\Transformers\StarCitizenWiki;
 
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class SMWTransformer
  * @package App\Transformers\StarCitizenWiki
  */
-class SMWTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class SMWTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     private const SMW_KEYS = [
         '_DTITLE' => 'page_title',
         '_INST'   => 'categories',

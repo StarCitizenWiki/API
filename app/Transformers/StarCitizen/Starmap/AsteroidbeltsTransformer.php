@@ -7,14 +7,12 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\BaseAPITransformerInterface;
-
 /**
  * Class SystemTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class AsteroidbeltsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
+class AsteroidbeltsTransformer extends CelestialObjectTransformer
 {
     /**
      * Returns all Asteroidbelts of the System Data

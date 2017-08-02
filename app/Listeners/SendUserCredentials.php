@@ -18,7 +18,7 @@ class SendUserCredentials implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param UserRegistered $event Event
+     * @param \App\Events\UserRegistered $event Event
      *
      * @return void
      */

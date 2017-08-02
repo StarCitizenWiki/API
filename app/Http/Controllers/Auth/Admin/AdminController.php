@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Traits\ProfilesMethodsTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Rap2hpoutre\LaravelLogViewer\LaravelLogViewer;
 
@@ -35,7 +34,7 @@ class AdminController extends Controller
     /**
      * Returns the Dashboard View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showDashboardView(): View
     {
@@ -56,9 +55,9 @@ class AdminController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return View|RedirectResponse
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     public function showLogsView(Request $request)
     {
@@ -89,7 +88,7 @@ class AdminController extends Controller
     /**
      * Returns the View to list all routes
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showRoutesView(): View
     {

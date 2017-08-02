@@ -108,7 +108,7 @@ class SplitShipFiles implements ShouldQueue
     }
 
     /**
-     * @throws InvalidDataException
+     * @throws \App\Exceptions\InvalidDataException
      */
     private function checkIfShipHasNameField(): void
     {
@@ -174,7 +174,7 @@ class SplitShipFiles implements ShouldQueue
     /**
      * @param string $name
      *
-     * @return String
+     * @return string
      */
     private function assembleFilename(string $name): String
     {

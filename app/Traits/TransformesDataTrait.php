@@ -10,7 +10,6 @@ namespace App\Traits;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingTransformerException;
 use Carbon\Carbon;
-use League\Fractal\TransformerAbstract;
 use Spatie\Fractal\Fractal;
 
 /**
@@ -23,14 +22,14 @@ trait TransformesDataTrait
     /**
      * Transformer
      *
-     * @var TransformerAbstract
+     * @var \App\Transformers\AbstractBaseTransformer
      */
     public $transformer;
 
     /**
      * Fractal Manager Instance
      *
-     * @var Fractal
+     * @var \Spatie\Fractal\Fractal
      */
     protected $fractalManager;
 
@@ -60,7 +59,7 @@ trait TransformesDataTrait
     /**
      * Transformed Fractal Object
      *
-     * @var Fractal
+     * @var \Spatie\Fractal\Fractal
      */
     protected $transformedResource;
 
@@ -117,7 +116,7 @@ trait TransformesDataTrait
     /**
      * Returns the transformed Resource as JSON
      *
-     * @return String
+     * @return string
      */
     public function asJSON(): String
     {

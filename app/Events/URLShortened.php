@@ -24,7 +24,7 @@ class URLShortened implements ShouldQueue
     /**
      * Create a new event instance.
      *
-     * @param ShortURL $url The generated ShortURL
+     * @param \App\Models\ShortURL\ShortURL $url The generated ShortURL
      */
     public function __construct(ShortURL $url)
     {

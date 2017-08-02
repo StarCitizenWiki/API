@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
 use App\Traits\ProfilesMethodsTrait;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 /**
  * Class ImageResizeController
@@ -18,7 +18,7 @@ class ImageResizeController extends Controller
     /**
      * Returns the Image Resize View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showImageResizeView(): View
     {

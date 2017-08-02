@@ -15,6 +15,7 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Class DownloadStarmapData
+ *
  * @package App\Jobs
  */
 class DownloadStarmapData implements ShouldQueue
@@ -31,7 +32,7 @@ class DownloadStarmapData implements ShouldQueue
     const CELESTIAL_SUBOBJECTS_TYPE = ['LZ'];
 
     /**
-     * @var Client
+     * @var \GuzzleHttp\Client
      */
     private $guzzleClient;
 
@@ -75,7 +76,7 @@ class DownloadStarmapData implements ShouldQueue
     /**
      * Gets JSON from Starmap and returns it as array
      *
-     * @param String $uri
+     * @param string $uri
      *
      * @return array
      */
@@ -315,8 +316,8 @@ class DownloadStarmapData implements ShouldQueue
             }
 
             if (!is_null($celestialObject['affiliation']) && is_array(
-                    $celestialObject['affiliation']
-                ) && array_key_exists(0, $celestialObject['affiliation'])) {
+                $celestialObject['affiliation']
+            ) && array_key_exists(0, $celestialObject['affiliation'])) {
                 $celestialObjectModel->affiliation_id = $celestialObject['affiliation'][0]['id'];
                 $celestialObjectModel->affiliation_name = $celestialObject['affiliation'][0]['name'];
                 $celestialObjectModel->affiliation_code = $celestialObject['affiliation'][0]['code'];

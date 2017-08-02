@@ -9,19 +9,19 @@
 namespace App\Transformers\ShortURL;
 
 use App\Models\ShortURL\ShortURL;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShortURLTransformer
  *
  * @package App\Transformers\Tools
  */
-class ShortURLTransformer extends TransformerAbstract
+class ShortURLTransformer extends AbstractBaseTransformer
 {
     /**
      * Transformes a given ShortURL
      *
-     * @param ShortURL $url URL to transform
+     * @param \App\Models\ShortURL\ShortURL $url URL to transform
      *
      * @return array
      */

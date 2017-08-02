@@ -19,14 +19,14 @@ class ShipsAPIController extends Controller
     /**
      * ShipsRepository
      *
-     * @var ShipsRepository
+     * @var \App\Repositories\StarCitizenDB\ShipsRepository
      */
     private $repository;
 
     /**
      * ShipsAPIController constructor.
      *
-     * @param ShipsRepository $repository ShipsRepository
+     * @param \App\Repositories\StarCitizenDB\ShipsRepository $repository ShipsRepository
      */
     public function __construct(ShipsRepository $repository)
     {
@@ -37,8 +37,8 @@ class ShipsAPIController extends Controller
     /**
      * Returns a Ship by its name
      *
-     * @param Request $request
-     * @param string  $name    ShipName
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $name    ShipName
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -62,7 +62,7 @@ class ShipsAPIController extends Controller
     /**
      * Returns all ships as a list
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -88,7 +88,7 @@ class ShipsAPIController extends Controller
     /**
      * Searchs for a ship by name
      *
-     * @param Request $request Search Request
+     * @param \Illuminate\Http\Request $request Search Request
      *
      * @return \Illuminate\Http\JsonResponse
      */

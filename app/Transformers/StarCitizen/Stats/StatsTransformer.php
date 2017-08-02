@@ -8,19 +8,15 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class StatsTransformer
  *
  * @package App\Transformers\StarCitizen\Stats
  */
-class StatsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class StatsTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     protected $validFields = [
         'fans',
         'funds',

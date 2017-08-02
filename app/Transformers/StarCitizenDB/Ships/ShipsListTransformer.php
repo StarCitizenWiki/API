@@ -7,22 +7,16 @@
 
 namespace App\Transformers\StarCitizenDB\Ships;
 
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
+use App\Transformers\AbstractBaseTransformer;
 use Illuminate\Support\Facades\File;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class ShipsListTransformer
  *
  * @package App\Transformers\StarCitizenWiki\Ships
  */
-class ShipsListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class ShipsListTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
-    protected $validFields = [];
-
     /**
      * Transformes the whole ship list
      *
@@ -55,7 +49,7 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
      *
      * @param string $name
      *
-     * @return String
+     * @return string
      */
     private function prepareName(string $name): String
     {

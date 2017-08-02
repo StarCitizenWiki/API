@@ -17,7 +17,7 @@ class APIPageController extends Controller
     /**
      * Returns the API Index View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showAPIView(): View
     {
@@ -29,7 +29,7 @@ class APIPageController extends Controller
     /**
      * Returns the API FAQ View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showFAQView(): View
     {

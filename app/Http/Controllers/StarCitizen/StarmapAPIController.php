@@ -46,7 +46,7 @@ class StarmapAPIController extends Controller
      *
      * @param string $name SystemName
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getSystem(string $name)
     {
@@ -79,9 +79,9 @@ class StarmapAPIController extends Controller
     /**
      * Returns a list with all known Systems
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getSystemList(Request $request)
     {
@@ -113,7 +113,7 @@ class StarmapAPIController extends Controller
      *
      * @param string $name SystemName
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getAsteroidbelts(string $name)
     {
@@ -145,7 +145,7 @@ class StarmapAPIController extends Controller
     /**
      * @param string $name
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getSpacestations(string $name)
     {
@@ -174,7 +174,7 @@ class StarmapAPIController extends Controller
     /**
      * @param string $name
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getJumppoints(string $name)
     {
@@ -203,7 +203,7 @@ class StarmapAPIController extends Controller
     /**
      * @param string $name
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getPlanets(string $name)
     {
@@ -232,7 +232,7 @@ class StarmapAPIController extends Controller
     /**
      * @param string $name
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getMoons(string $name)
     {
@@ -261,7 +261,7 @@ class StarmapAPIController extends Controller
     /**
      * @param string $name
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getStars(string $name)
     {
@@ -290,7 +290,7 @@ class StarmapAPIController extends Controller
     /**
      * @param string $name
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLandingzones(string $name)
     {
@@ -319,7 +319,7 @@ class StarmapAPIController extends Controller
     /**
      * @param string $objectname
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getObject(string $objectname)
     {
@@ -342,7 +342,7 @@ class StarmapAPIController extends Controller
             }
 
             return response()->json(
-                $this->repository->getCelestialObject($objectNames[0], $objectNames[1], $objectNames[2])->asArray(),
+                $this->repository->getCelestialObject($name)->asArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
@@ -355,7 +355,7 @@ class StarmapAPIController extends Controller
     /**
      * @param string $searchstring
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function searchStarmap(string $searchstring)
     {

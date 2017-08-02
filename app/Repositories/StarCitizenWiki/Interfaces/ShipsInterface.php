@@ -14,8 +14,8 @@ interface ShipsInterface
     /**
      * Returns Ship data
      *
-     * @param Request $request
-     * @param string  $shipName ShipName
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $shipName ShipName
      *
      * @return ShipsInterface
      */

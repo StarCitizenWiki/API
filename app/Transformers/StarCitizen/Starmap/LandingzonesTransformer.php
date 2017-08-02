@@ -7,14 +7,12 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\BaseAPITransformerInterface;
-
 /**
  * Class LandingzonesTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class LandingzonesTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
+class LandingzonesTransformer extends CelestialObjectTransformer
 {
     /**
      * Returns all Landingzones of the System Data

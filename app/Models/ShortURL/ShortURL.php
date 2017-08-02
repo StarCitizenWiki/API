@@ -8,7 +8,6 @@ use App\Exceptions\URLNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -53,7 +52,7 @@ class ShortURL extends Model
      *
      * @param array $data URL Data
      *
-     * @return ShortURL
+     * @return \App\Models\ShortURL\ShortURL
      */
     public static function createShortURL(array $data): ShortURL
     {
@@ -77,64 +76,14 @@ class ShortURL extends Model
     }
 
     /**
-     * Checks if a given url host is whitelisted
-     *
-     * @param string $url URL to check
-     *
-     * @throws URLNotWhitelistedException
-     *
-     * @return void
-     */
-    private static function checkURLinWhitelist(string $url): void
-    {
-        $url = parse_url($url, PHP_URL_HOST);
-        $url = str_replace('www.', '', $url);
-
-        if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {
-            throw new URLNotWhitelistedException('URL '.$url.' is not whitelisted');
-        }
-    }
-
-    /**
-     * Checks if a given hash exists in the database
-     *
-     * @param string $hashName Hash to check
-     *
-     * @throws HashNameAlreadyAssignedException
-     *
-     * @return void
-     */
-    private static function checkHashNameInDB($hashName): void
-    {
-        if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
-            throw new HashNameAlreadyAssignedException('Name already assigned');
-        }
-    }
-
-    /**
-     * Creates a short url hash
-     *
-     * @return String
-     */
-    private static function generateShortURLHash(): String
-    {
-        do {
-            $hashName = Str::random(SHORT_URL_LENGTH);
-        } while (ShortURL::where('hash_name', '=', $hashName)->count() > 0);
-
-        app('Log')::info("Generated Hash: {$hashName}");
-
-        return $hashName;
-    }
-
-    /**
      * Resolves a url based on its hash
      *
      * @param string $hashName Name to resolve
      *
      * @return mixed
-     * @throws ExpiredException
-     * @throws UserBlacklistedException
+     *
+     * @throws \App\Exceptions\ExpiredException
+     * @throws \App\Exceptions\UserBlacklistedException
      */
     public static function resolve(string $hashName)
     {
@@ -162,22 +111,12 @@ class ShortURL extends Model
     }
 
     /**
-     * Sets the User Relation
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
-    {
-        return $this->belongsTo('App\Models\User');
-    }
-
-    /**
      * Sanitizes the given url and prepends '/' is missing
      * only if $url is a plain url without a path
      *
      * @param string $url URL to sanitize
      *
-     * @return String
+     * @return string
      */
     public static function sanitizeURL($url): String
     {
@@ -192,7 +131,7 @@ class ShortURL extends Model
     /**
      * @param string|null $date Date to check
      *
-     * @throws ExpiredException
+     * @throws \App\Exceptions\ExpiredException
      */
     public static function checkIfDateIsPast($date): void
     {
@@ -211,7 +150,7 @@ class ShortURL extends Model
      *
      * @return bool
      *
-     * @throws ModelNotFoundException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public static function updateShortURL(array $data): bool
     {
@@ -240,5 +179,66 @@ class ShortURL extends Model
         $url->expires = $data['expires'];
 
         return $url->save();
+    }
+
+    /**
+     * Sets the User Relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
+
+    /**
+     * Checks if a given url host is whitelisted
+     *
+     * @param string $url URL to check
+     *
+     * @throws \App\Exceptions\URLNotWhitelistedException
+     *
+     * @return void
+     */
+    private static function checkURLinWhitelist(string $url): void
+    {
+        $url = parse_url($url, PHP_URL_HOST);
+        $url = str_replace('www.', '', $url);
+
+        if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {
+            throw new URLNotWhitelistedException('URL '.$url.' is not whitelisted');
+        }
+    }
+
+    /**
+     * Checks if a given hash exists in the database
+     *
+     * @param string $hashName Hash to check
+     *
+     * @throws \App\Exceptions\HashNameAlreadyAssignedException
+     *
+     * @return void
+     */
+    private static function checkHashNameInDB($hashName): void
+    {
+        if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
+            throw new HashNameAlreadyAssignedException('Name already assigned');
+        }
+    }
+
+    /**
+     * Creates a short url hash
+     *
+     * @return string
+     */
+    private static function generateShortURLHash(): String
+    {
+        do {
+            $hashName = Str::random(SHORT_URL_LENGTH);
+        } while (ShortURL::where('hash_name', '=', $hashName)->count() > 0);
+
+        app('Log')::info("Generated Hash: {$hashName}");
+
+        return $hashName;
     }
 }

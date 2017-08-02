@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
  * Class LoginController
+ *
  * @package App\Http\Controllers\Auth
  */
 class LoginController extends Controller
@@ -70,7 +70,7 @@ class LoginController extends Controller
      * @param \Illuminate\Http\Request $request Login Request
      * @param mixed                    $user    Authenticated User
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     protected function authenticated(Request $request, $user)
     {

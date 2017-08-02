@@ -9,8 +9,8 @@ use Tests\TestCase;
 /**
  * Class StatsRepositoryTest
  * @package Tests\Feature\Repository
- * @covers \App\Repositories\BaseAPITrait
- * @covers \App\Repositories\StarCitizen\BaseStarCitizenAPI
+ * @covers \App\Repositories\AbstractBaseRepository
+ * @covers \App\Repositories\StarCitizen\BaseStarCitizenRepository
  */
 class StatsRepositoryTest extends TestCase
 {

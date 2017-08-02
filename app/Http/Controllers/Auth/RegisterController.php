@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * Class RegisterController
+ *
  * @package App\Http\Controllers\Auth
  */
 class RegisterController extends Controller
@@ -61,13 +62,13 @@ class RegisterController extends Controller
      *
      * @param array $data UserData
      *
-     * @return User
+     * @return \App\Models\User
      */
     public function create(array $data)
     {
         $this->startProfiling(__FUNCTION__);
 
-        $api_token = str_random(60);
+        $apiToken = str_random(60);
         $password = str_random(32);
 
         $this->addTrace('Creating User', __FUNCTION__, __LINE__);
@@ -75,7 +76,7 @@ class RegisterController extends Controller
             [
                 'name'                => null,
                 'email'               => $data['email'],
-                'api_token'           => $api_token,
+                'api_token'           => $apiToken,
                 'password'            => bcrypt($password),
                 'requests_per_minute' => 60,
                 'last_login'          => date('Y-m-d H:i:s'),

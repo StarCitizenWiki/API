@@ -2,14 +2,12 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\BaseAPITransformerInterface;
-
 /**
  * Class JumppointsTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class JumppointsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
+class JumppointsTransformer extends CelestialObjectTransformer
 {
     /**
      * Returns all Jumppoints of the System Data

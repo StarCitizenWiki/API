@@ -7,14 +7,12 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\BaseAPITransformerInterface;
-
 /**
  * Class PlanetsTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class PlanetsTransformer extends CelestialObjectTransformer implements BaseAPITransformerInterface
+class PlanetsTransformer extends CelestialObjectTransformer
 {
     /**
      * Returns all Planets of the System Data

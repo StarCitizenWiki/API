@@ -10,8 +10,8 @@ use Tests\TestCase;
 /**
  * Class ShipsTest
  * @package Tests\Feature\Repository
- * @covers \App\Repositories\BaseAPITrait
- * @covers \App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI
+ * @covers \App\Repositories\AbstractBaseRepository
+ * @covers \App\Repositories\StarCitizenWiki\BaseStarCitizenWikiRepository
  */
 class ShipsRepositoryTest extends TestCase
 {

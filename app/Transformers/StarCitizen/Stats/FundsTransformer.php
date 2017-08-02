@@ -8,15 +8,14 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class FundsTransformer
  *
  * @package App\Transformers\StarCitizen\Stats
  */
-class FundsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class FundsTransformer extends AbstractBaseTransformer
 {
     /**
      * Transformes Stats to only return the funds

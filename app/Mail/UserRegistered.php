@@ -24,8 +24,8 @@ class UserRegistered extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      *
-     * @param User   $user     User Object
-     * @param string $password User Password
+     * @param \Illuminate\Foundation\Auth\User $user     User Object
+     * @param string                           $password User Password
      */
     public function __construct(User $user, string $password)
     {

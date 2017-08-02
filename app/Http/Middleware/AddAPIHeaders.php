@@ -10,7 +10,6 @@ namespace App\Http\Middleware;
 
 use App\Traits\ProfilesMethodsTrait;
 use Closure;
-use Illuminate\Http\Request;
 
 /**
  * Class AfterApiRequest
@@ -24,8 +23,8 @@ class AddAPIHeaders
     /**
      * Sets Header for API Requests
      *
-     * @param Request $request Current Request
-     * @param Closure $next    Next Function
+     * @param \Illuminate\Http\Request $request Current Request
+     * @param \Closure                 $next    Next Function
      *
      * @return mixed
      */

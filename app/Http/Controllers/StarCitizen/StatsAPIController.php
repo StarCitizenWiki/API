@@ -20,7 +20,7 @@ class StatsAPIController extends Controller
     /**
      * StatsRepository
      *
-     * @var StatsRepository
+     * @var \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     private $repository;
 
@@ -29,8 +29,8 @@ class StatsAPIController extends Controller
     /**
      * StatsAPIController constructor.
      *
-     * @param Request         $request
-     * @param StatsRepository $repository StatsRepository
+     * @param \Illuminate\Http\Request                            $request
+     * @param \App\Repositories\StarCitizen\APIv1\StatsRepository $repository StatsRepository
      */
     public function __construct(Request $request, StatsRepository $repository)
     {
@@ -42,7 +42,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just the Funds
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getFunds()
     {
@@ -54,7 +54,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just the Fleet
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getFleet()
     {
@@ -66,7 +66,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just the Fans
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getFans()
     {
@@ -78,9 +78,9 @@ class StatsAPIController extends Controller
     /**
      * Returns all
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getAll(Request $request)
     {
@@ -92,7 +92,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just Funds from last hours
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLastHoursFunds()
     {
@@ -102,7 +102,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just Funds from last days
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLastDaysFunds()
     {
@@ -112,7 +112,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just Funds from last weeks
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLastWeeksFunds()
     {
@@ -122,7 +122,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just Funds from last months
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLastMonthsFunds()
     {
@@ -132,9 +132,9 @@ class StatsAPIController extends Controller
     /**
      * Wrapper for all get Calls
      *
-     * @param \Closure | String $func Function to call
+     * @param \Closure | string $func Function to call
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     private function getJsonPrettyPrintResponse($func)
     {

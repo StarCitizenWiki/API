@@ -39,7 +39,7 @@ class ShortURLWhitelist extends Model
      *
      * @param array $data URL Data
      *
-     * @return ShortURLWhitelist
+     * @return \App\Models\ShortURL\ShortURLWhitelist
      */
     public static function createWhitelistURL(array $data): ShortURLWhitelist
     {

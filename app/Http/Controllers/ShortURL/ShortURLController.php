@@ -5,7 +5,6 @@ namespace App\Http\Controllers\ShortURL;
 use App\Events\URLShortened;
 use App\Exceptions\ExpiredException;
 use App\Exceptions\HashNameAlreadyAssignedException;
-use App\Exceptions\InvalidDataException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
 use App\Http\Controllers\Controller;
@@ -45,7 +44,7 @@ class ShortURLController extends Controller
     /**
      * Returns the ShortURL Index View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showShortURLView(): View
     {
@@ -60,7 +59,7 @@ class ShortURLController extends Controller
     /**
      * Returns the ShortURL resolve Web View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showResolveView(): View
     {
@@ -74,7 +73,7 @@ class ShortURLController extends Controller
      *
      * @param string $hash Hash to resolve
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function resolveAndRedirect(string $hash)
     {
@@ -98,9 +97,9 @@ class ShortURLController extends Controller
     /**
      * Resolves a ShortURL Hash and displays the underlying Long URL
      *
-     * @param Request $request Resolve Request
+     * @param \Illuminate\Http\Request $request Resolve Request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function resolveAndDisplay(Request $request)
     {
@@ -145,11 +144,11 @@ class ShortURLController extends Controller
     /**
      * Resolves a hash to a url and transforms it
      *
-     * @param Request $request Resolve Request
+     * @param \Illuminate\Http\Request $request Resolve Request
      *
      * @return array
      *
-     * @throws InvalidDataException
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function resolve(Request $request)
     {
@@ -180,9 +179,9 @@ class ShortURLController extends Controller
     /**
      * Creates a ShortURL and redirects to the Index with the URL Hash
      *
-     * @param Request $request Create Request
+     * @param \Illuminate\Http\Request $request Create Request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function createAndRedirect(Request $request)
     {
@@ -201,17 +200,17 @@ class ShortURLController extends Controller
     /**
      * Creates a ShortURL
      *
-     * @param Request $request Create Request
+     * @param \Illuminate\Http\Request $request Create Request
      *
      * @return array
      *
-     * @throws ExpiredException
+     * @throws \App\Exceptions\ExpiredException
      */
     public function create(Request $request)
     {
         $this->startProfiling(__FUNCTION__);
 
-        $user_id = AUTH_ADMIN_IDS[0];
+        $userID = AUTH_ADMIN_IDS[0];
 
         $data = [
             'url'       => ShortURL::sanitizeURL($request->get('url')),
@@ -238,8 +237,8 @@ class ShortURLController extends Controller
             $this->addTrace("Key: {$key} is not null", __FUNCTION__, __LINE__);
             $user = User::where('api_token', $key)->first();
             if (!is_null($user)) {
-                $user_id = $user->id;
-                $this->addTrace("Provided Key belongs to User {$user_id} ({$user->email})", __FUNCTION__, __LINE__);
+                $userID = $user->id;
+                $this->addTrace("Provided Key belongs to User {$userID} ({$user->email})", __FUNCTION__, __LINE__);
             }
         }
 
@@ -248,7 +247,7 @@ class ShortURLController extends Controller
             [
                 'url'       => ShortURL::sanitizeURL($request->get('url')),
                 'hash_name' => $request->get('hash_name'),
-                'user_id'   => $user_id,
+                'user_id'   => $userID,
                 'expires'   => $expires,
             ]
         );
@@ -265,7 +264,7 @@ class ShortURLController extends Controller
      * @param string $route route
      * @param string $hash  urlHash
      *
-     * @return ShortURL | RedirectResponse
+     * @return \App\Models\ShortURL\ShortURL | \Illuminate\Http\RedirectResponse
      */
     private function getURLRedirectIfException(string $route, string $hash)
     {

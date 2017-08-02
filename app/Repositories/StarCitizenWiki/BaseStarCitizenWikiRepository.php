@@ -8,21 +8,24 @@
 
 namespace App\Repositories\StarCitizenWiki;
 
-use App\Repositories\BaseAPITrait;
-use App\Traits\TransformesDataTrait;
+use App\Repositories\AbstractBaseRepository;
 
 /**
  * Class BaseStarCitizenWikiAPI
  *
  * @package App\Repositories\StarCitizenWiki\APIv1
  */
-class BaseStarCitizenWikiAPI
+class BaseStarCitizenWikiRepository extends AbstractBaseRepository
 {
     const URL = 'https://star-citizen.wiki/';
-    const API_URL = BaseStarCitizenWikiAPI::URL.'api.php';
+    const API_URL = BaseStarCitizenWikiRepository::URL.'api.php';
 
-    use BaseAPITrait, TransformesDataTrait {
-        BaseAPITrait::addMetadataToTransformation insteadof TransformesDataTrait;
+    /**
+     * BaseStarCitizenWikiAPI constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
     }
 
     /**

@@ -9,13 +9,12 @@ use App\Models\ShortURL\ShortURL;
 use App\Models\ShortURL\ShortURLWhitelist;
 use App\Models\User;
 use App\Traits\ProfilesMethodsTrait;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 
 /**
  * Class AdminShortURLController
@@ -38,7 +37,7 @@ class ShortURLController extends Controller
     /**
      * Returns the ShortURL List View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showURLsListView(): View
     {
@@ -55,7 +54,7 @@ class ShortURLController extends Controller
      *
      * @param int $id UserID
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showURLsListForUserView(int $id): View
     {
@@ -70,7 +69,7 @@ class ShortURLController extends Controller
     /**
      * Returns the ShortUrl Whitelist View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showURLWhitelistView(): View
     {
@@ -85,7 +84,7 @@ class ShortURLController extends Controller
     /**
      * Returns the View to add a ShortURL Whitelist URL
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
     public function showAddURLWhitelistView(): View
     {
@@ -99,7 +98,7 @@ class ShortURLController extends Controller
      *
      * @param int $id The ShortURL ID
      *
-     * @return View | RedirectResponse
+     * @return \Illuminate\Contracts\View\View | RedirectResponse
      */
     public function showEditURLView(int $id)
     {
@@ -125,9 +124,9 @@ class ShortURLController extends Controller
     /**
      * Deletes a ShortURL by ID
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteURL(Request $request): RedirectResponse
     {
@@ -160,9 +159,9 @@ class ShortURLController extends Controller
     /**
      * Deletes a ShortURL Whitelisted URL by ID
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deleteWhitelistURL(Request $request): RedirectResponse
     {
@@ -194,9 +193,9 @@ class ShortURLController extends Controller
     /**
      * Adds a new Whitelisted URL
      *
-     * @param Request $request The Add Whitelist URL Request
+     * @param \Illuminate\Http\Request $request The Add Whitelist URL Request
      *
-     * @return Redirect | RedirectResponse
+     * @return \Illuminate\Routing\Redirector | \Illuminate\Http\RedirectResponse
      */
     public function addWhitelistURL(Request $request)
     {
@@ -230,9 +229,9 @@ class ShortURLController extends Controller
     /**
      * Updates a ShortURL by ID
      *
-     * @param Request $request The Update Request
+     * @param \Illuminate\Http\Request $request The Update Request
      *
-     * @return Redirect | RedirectResponse
+     * @return \Illuminate\Routing\Redirector | \Illuminate\Http\RedirectResponse
      */
     public function updateURL(Request $request)
     {

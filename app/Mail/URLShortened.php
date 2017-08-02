@@ -23,7 +23,7 @@ class URLShortened extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      *
-     * @param ShortURL $url URL Object
+     * @param \App\Models\ShortURL\ShortURL $url URL Object
      */
     public function __construct(ShortURL $url)
     {

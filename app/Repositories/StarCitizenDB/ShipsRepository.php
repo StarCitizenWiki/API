@@ -3,10 +3,9 @@
 namespace App\Repositories\StarCitizenDB;
 
 use App\Exceptions\MethodNotImplementedException;
-use App\Repositories\BaseAPITrait;
+use App\Repositories\AbstractBaseRepository;
 use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
-use App\Traits\TransformesDataTrait;
-use App\Transformers\FakeTransformer as ShipsTransformer;
+use App\Transformers\NullTransformer as ShipsTransformer;
 use App\Transformers\StarCitizenDB\Ships\ShipsListTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -14,18 +13,23 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ShipsRepository
+ *
  * @package App\Repositories\StarCitizenDB
  */
-class ShipsRepository implements ShipsInterface
+class ShipsRepository extends AbstractBaseRepository implements ShipsInterface
 {
-    use BaseAPITrait, TransformesDataTrait {
-        BaseAPITrait::addMetadataToTransformation insteadof TransformesDataTrait;
-    }
-
-    private const API_URL = '';
+    const API_URL = '';
 
     /**
-     * @return ShipsRepository
+     * ShipsRepository constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * @return \App\Repositories\StarCitizenDB\ShipsRepository
      */
     public function getShipList(): ShipsRepository
     {
@@ -39,8 +43,8 @@ class ShipsRepository implements ShipsInterface
     /**
      * Returns Ship data
      *
-     * @param Request $request
-     * @param string  $shipName ShipName
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $shipName ShipName
      *
      * @return ShipsInterface
      */
@@ -71,8 +75,9 @@ class ShipsRepository implements ShipsInterface
      *
      * @param string $shipName ShipName
      *
-     * @return ShipsInterface
-     * @throws MethodNotImplementedException
+     * @return \App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface
+     *
+     * @throws \App\Exceptions\MethodNotImplementedException
      */
     public function searchShips(string $shipName)
     {

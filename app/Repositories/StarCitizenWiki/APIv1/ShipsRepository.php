@@ -7,7 +7,7 @@
 
 namespace App\Repositories\StarCitizenWiki\APIv1;
 
-use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI;
+use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiRepository;
 use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
 use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
@@ -20,15 +20,15 @@ use Illuminate\Support\Facades\Storage;
  * Class ShipsRepository
  * @package App\Repositories\StarCitizenWiki\APIv1\Ships
  */
-class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
+class ShipsRepository extends BaseStarCitizenWikiRepository implements ShipsInterface
 {
     /**
      * Returns Ship data
      *
-     * @param Request $request
-     * @param string  $shipName ShipName
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $shipName ShipName
      *
-     * @return ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
      */
     public function getShip(Request $request, string $shipName): ShipsRepository
     {
@@ -47,7 +47,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     /**
      * Gets a ShipList
      *
-     * @return ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
      */
     public function getShipList(): ShipsRepository
     {
@@ -80,7 +80,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
      *
      * @param string $shipName ShipName
      *
-     * @return ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
      */
     public function searchShips(string $shipName)
     {

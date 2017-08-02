@@ -7,20 +7,16 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI;
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiRepository;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipsTransformer
  *
  * @package App\Transformers\StarCitizenWiki\Ships
  */
-class ShipsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class ShipsTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     protected $validFields = [
         'wiki_url',
         'status',
@@ -55,17 +51,14 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
             last(explode('/', $wiki['subject'])) ?? $wiki['subject'] => [
                 'ship'             => [
                     'name'     => last(explode('/', $wiki['subject'])) ?? $wiki['subject'],
-                    'wiki_url' => BaseStarCitizenWikiAPI::URL.$wiki['subject'],
+                    'wiki_url' => BaseStarCitizenWikiRepository::URL.$wiki['subject'],
                 ],
                 'manufacturer'     => [
-                    'name'     => last(
-                            explode('/', $wiki['data']['Hersteller'][0] ?? '')
-                        ) ?? $scdb['manufacturer'] ?? '',
-                    'id'       => isset($wiki['subject']) && str_contains($wiki['subject'], '/') ? explode(
-                                                                                                       '/',
-                                                                                                       $wiki['subject']
-                                                                                                   )[1] : '',
-                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? BaseStarCitizenWikiAPI::URL.$wiki['data']['Hersteller'][0] : '',
+                    'name'     => last(explode('/', $wiki['data']['Hersteller'][0] ?? '')) ?? $scdb['manufacturer'] ?? '',
+                    'id'       => isset($wiki['subject']) && str_contains($wiki['subject'], '/') ?
+                                    explode('/', $wiki['subject'])[1]
+                                    : '',
+                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? BaseStarCitizenWikiRepository::URL.$wiki['data']['Hersteller'][0] : '',
                 ],
                 'description'      => [
                     'wiki'      => $wiki['data']['Beschreibung'][0] ?? '',
