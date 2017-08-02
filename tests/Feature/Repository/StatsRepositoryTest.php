@@ -34,7 +34,7 @@ class StatsRepositoryTest extends TestCase
      */
     public function testAllRepository()
     {
-        $content = $this->repository->getAll()->asJSON();
+        $content = $this->repository->getAll()->toJson();
         $this->assertNotEmpty($content);
         $this->assertContains('fans', $content);
     }
@@ -44,7 +44,7 @@ class StatsRepositoryTest extends TestCase
      */
     public function testFansRepository()
     {
-        $content = $this->repository->getFans()->asJSON();
+        $content = $this->repository->getFans()->toJson();
         $this->assertNotEmpty($content);
         $this->assertContains('fans', $content);
     }
@@ -54,7 +54,7 @@ class StatsRepositoryTest extends TestCase
      */
     public function testFleetRepository()
     {
-        $content = $this->repository->getFleet()->asJSON();
+        $content = $this->repository->getFleet()->toJson();
         $this->assertNotEmpty($content);
         $this->assertContains('fleet', $content);
     }
@@ -64,7 +64,7 @@ class StatsRepositoryTest extends TestCase
      */
     public function testFundsRepository()
     {
-        $content = $this->repository->getFunds()->asJSON();
+        $content = $this->repository->getFunds()->toJson();
         $this->assertNotEmpty($content);
         $this->assertContains('funds', $content);
     }
@@ -76,6 +76,6 @@ class StatsRepositoryTest extends TestCase
     public function testEmptyResponseException()
     {
         $this->expectException(InvalidDataException::class);
-        $this->repository->asJSON();
+        $this->repository->toJson();
     }
 }

@@ -173,7 +173,7 @@ class ShortURLController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return $this->transform($url)->asArray();
+        return $this->transform($url)->toArray();
     }
 
     /**
@@ -255,7 +255,7 @@ class ShortURLController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return $this->transform($url)->asArray();
+        return $this->transform($url)->toArray();
     }
 
     /**

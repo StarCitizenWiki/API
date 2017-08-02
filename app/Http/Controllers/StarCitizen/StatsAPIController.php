@@ -148,7 +148,7 @@ class StatsAPIController extends Controller
                 $this->repository->transformer->addFilters($this->request);
             }
             $this->addTrace("Getting Data", __FUNCTION__, __LINE__);
-            $data = $this->repository->asArray();
+            $data = $this->repository->toArray();
 
             $this->stopProfiling(__FUNCTION__);
 

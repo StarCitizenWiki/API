@@ -58,7 +58,7 @@ class StarmapAPIController extends Controller
 
         try {
             $this->addTrace("Getting System with Name: {$name}", __FUNCTION__, __LINE__);
-            $data = $this->repository->getSystem($name)->asArray();
+            $data = $this->repository->getSystem($name)->toArray();
             $this->addTrace("Got System", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
@@ -89,7 +89,7 @@ class StarmapAPIController extends Controller
 
         $this->repository->getSystemList();
         $this->repository->transformer->addFilters($request);
-        $data = $this->repository->asArray();
+        $data = $this->repository->toArray();
 
         try {
             $this->stopProfiling(__FUNCTION__);
@@ -125,7 +125,7 @@ class StarmapAPIController extends Controller
 
         try {
             $this->addTrace("Getting Asteroidbelt", __FUNCTION__, __LINE__);
-            $data = $this->repository->getAsteroidbelts($name)->asArray();
+            $data = $this->repository->getAsteroidbelts($name)->toArray();
             $this->stopProfiling(__FUNCTION__);
 
             return response()->json(
@@ -161,7 +161,7 @@ class StarmapAPIController extends Controller
 
         try {
             return response()->json(
-                $this->repository->getSpacestations($name)->asArray(),
+                $this->repository->getSpacestations($name)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
@@ -190,7 +190,7 @@ class StarmapAPIController extends Controller
 
         try {
             return response()->json(
-                $this->repository->getJumppoints($name)->asArray(),
+                $this->repository->getJumppoints($name)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
@@ -219,7 +219,7 @@ class StarmapAPIController extends Controller
 
         try {
             return response()->json(
-                $this->repository->getPlanets($name)->asArray(),
+                $this->repository->getPlanets($name)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
@@ -248,7 +248,7 @@ class StarmapAPIController extends Controller
 
         try {
             return response()->json(
-                $this->repository->getMoons($name)->asArray(),
+                $this->repository->getMoons($name)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
@@ -277,7 +277,7 @@ class StarmapAPIController extends Controller
 
         try {
             return response()->json(
-                $this->repository->getStars($name)->asArray(),
+                $this->repository->getStars($name)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
@@ -306,7 +306,7 @@ class StarmapAPIController extends Controller
 
         try {
             return response()->json(
-                $this->repository->getLandingzones($name)->asArray(),
+                $this->repository->getLandingzones($name)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
@@ -342,7 +342,7 @@ class StarmapAPIController extends Controller
             }
 
             return response()->json(
-                $this->repository->getCelestialObject($name)->asArray(),
+                $this->repository->getCelestialObject($name)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT
@@ -371,7 +371,7 @@ class StarmapAPIController extends Controller
 
         try {
             return response()->json(
-                $this->repository->search($searchstring)->asArray(),
+                $this->repository->search($searchstring)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT

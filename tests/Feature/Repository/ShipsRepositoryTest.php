@@ -34,7 +34,7 @@ class ShipsRepositoryTest extends TestCase
     public function testShipRetrieval()
     {
         $this->repository->getShip(new Request(), '300i');
-        $this->assertContains('300i', $this->repository->asJSON());
+        $this->assertContains('300i', $this->repository->toJson());
     }
 
     /**
@@ -43,7 +43,7 @@ class ShipsRepositoryTest extends TestCase
     public function testShipList()
     {
         $this->repository->getShipList();
-        $this->assertContains('300i', $this->repository->asJSON());
+        $this->assertContains('300i', $this->repository->toJson());
     }
 
     /**
@@ -52,7 +52,7 @@ class ShipsRepositoryTest extends TestCase
     public function testShipSearch()
     {
         $this->repository->searchShips('300i');
-        $this->assertContains('300i', $this->repository->asJSON());
+        $this->assertContains('300i', $this->repository->toJson());
     }
 
     /**
@@ -64,7 +64,7 @@ class ShipsRepositoryTest extends TestCase
     {
          $this->repository->getShipList();
          $this->repository->transformer->addFilterArray(['api_url']);
-         $this->assertNotContains('"wiki_url":', $this->repository->asJSON());
+         $this->assertNotContains('"wiki_url":', $this->repository->toJson());
     }
 
     /**
@@ -80,6 +80,6 @@ class ShipsRepositoryTest extends TestCase
         $this->repository->transformer->addFilterArray([
             'notexists',
         ]);
-        $this->repository->asJSON();
+        $this->repository->toJson();
     }
 }

@@ -113,7 +113,7 @@ class ShipsRepository extends BaseStarCitizenWikiRepository implements ShipsInte
             '?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
             []
         );
-        $smwData = $this->asArray()['data'];
+        $smwData = $this->toArray()['data'];
 
         $altIndex = last(explode('/', $smwData['subject']));
         $altIndex = str_replace('_', ' ', $altIndex);

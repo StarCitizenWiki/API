@@ -73,7 +73,7 @@ class ShipsAPIController extends Controller
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->repository->getShipList();
         $this->repository->transformer->addFilters($request);
-        $data = $this->repository->asArray();
+        $data = $this->repository->toArray();
 
         $this->stopProfiling(__FUNCTION__);
 

@@ -52,7 +52,7 @@ class ShipsAPIController extends Controller
         $this->stopProfiling(__FUNCTION__);
 
         return response()->json(
-            $this->repository->asArray(),
+            $this->repository->toArray(),
             200,
             [],
             JSON_PRETTY_PRINT
@@ -72,7 +72,7 @@ class ShipsAPIController extends Controller
 
         $this->repository->getShipList();
         $this->repository->transformer->addFilters($request);
-        $data = $this->repository->asArray();
+        $data = $this->repository->toArray();
 
         $this->stopProfiling(__FUNCTION__);
 
@@ -104,7 +104,7 @@ class ShipsAPIController extends Controller
             ]
         );
         $shipName = $request->input('query');
-        $data = $this->repository->searchShips($shipName)->asArray();
+        $data = $this->repository->searchShips($shipName)->toArray();
 
         $this->stopProfiling(__FUNCTION__);
 

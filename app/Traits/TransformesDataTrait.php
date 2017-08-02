@@ -118,7 +118,7 @@ trait TransformesDataTrait
      *
      * @return string
      */
-    public function asJSON(): String
+    public function toJson(): String
     {
         if (is_null($this->transformedResource)) {
             $this->transform();
@@ -224,7 +224,7 @@ trait TransformesDataTrait
      *
      * @return array
      */
-    public function asArray(): array
+    public function toArray(): array
     {
         if (is_null($this->transformedResource)) {
             $this->transform();

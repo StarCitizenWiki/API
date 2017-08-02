@@ -359,7 +359,7 @@ class FundImageController extends Controller
     {
         $this->startProfiling(__FUNCTION__);
 
-        $funds = $this->repository->getFunds()->asArray();
+        $funds = $this->repository->getFunds()->toArray();
         $this->funds['current'] = (int) substr(strval($funds['data']['funds']), 0, -2);
         $this->addTrace("Got Funds from API ({$this->funds['current']})", __FUNCTION__, __LINE__);
 
