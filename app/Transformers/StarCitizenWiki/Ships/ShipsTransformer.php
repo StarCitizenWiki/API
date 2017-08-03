@@ -7,7 +7,7 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiRepository;
+use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -51,14 +51,14 @@ class ShipsTransformer extends AbstractBaseTransformer
             last(explode('/', $wiki['subject'])) ?? $wiki['subject'] => [
                 'ship'             => [
                     'name'     => last(explode('/', $wiki['subject'])) ?? $wiki['subject'],
-                    'wiki_url' => BaseStarCitizenWikiRepository::URL.$wiki['subject'],
+                    'wiki_url' => AbstractStarCitizenWikiRepository::URL.$wiki['subject'],
                 ],
                 'manufacturer'     => [
                     'name'     => last(explode('/', $wiki['data']['Hersteller'][0] ?? '')) ?? $scdb['manufacturer'] ?? '',
                     'id'       => isset($wiki['subject']) && str_contains($wiki['subject'], '/') ?
                                     explode('/', $wiki['subject'])[1]
                                     : '',
-                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? BaseStarCitizenWikiRepository::URL.$wiki['data']['Hersteller'][0] : '',
+                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? AbstractStarCitizenWikiRepository::URL.$wiki['data']['Hersteller'][0] : '',
                 ],
                 'description'      => [
                     'wiki'      => $wiki['data']['Beschreibung'][0] ?? '',

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\App;
  *
  * @package App\Repositories\StarCitizen\APIv1
  */
-class BaseStarCitizenRepository extends AbstractBaseRepository
+abstract class AbstractStarCitizenRepository extends AbstractBaseRepository
 {
     const API_URL = 'https://robertsspaceindustries.com/api/';
 
@@ -91,7 +91,7 @@ class BaseStarCitizenRepository extends AbstractBaseRepository
                 $this->createFractalInstance();
                 $this->fractalManager->addMeta(['RSI-Token' => $token]);
             }
-            app('Log')::debug(self::$rsiToken);
+
             $this->__construct();
         } catch (\Exception $e) {
             app('Log')::warning("Guzzle Request failed with Message: {$e->getMessage()}");

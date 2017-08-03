@@ -15,10 +15,10 @@ use App\Repositories\AbstractBaseRepository;
  *
  * @package App\Repositories\StarCitizenWiki\APIv1
  */
-class BaseStarCitizenWikiRepository extends AbstractBaseRepository
+abstract class AbstractStarCitizenWikiRepository extends AbstractBaseRepository
 {
     const URL = 'https://star-citizen.wiki/';
-    const API_URL = BaseStarCitizenWikiRepository::URL.'api.php';
+    const API_URL = AbstractStarCitizenWikiRepository::URL.'api.php';
 
     /**
      * BaseStarCitizenWikiAPI constructor.

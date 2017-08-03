@@ -10,7 +10,7 @@ use Tests\TestCase;
  * Class StatsRepositoryTest
  * @package Tests\Feature\Repository
  * @covers \App\Repositories\AbstractBaseRepository
- * @covers \App\Repositories\StarCitizen\BaseStarCitizenRepository
+ * @covers \App\Repositories\StarCitizen\AbstractStarCitizenRepository
  */
 class StatsRepositoryTest extends TestCase
 {

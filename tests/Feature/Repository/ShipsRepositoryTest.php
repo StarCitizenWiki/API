@@ -11,7 +11,7 @@ use Tests\TestCase;
  * Class ShipsTest
  * @package Tests\Feature\Repository
  * @covers \App\Repositories\AbstractBaseRepository
- * @covers \App\Repositories\StarCitizenWiki\BaseStarCitizenWikiRepository
+ * @covers \App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository
  */
 class ShipsRepositoryTest extends TestCase
 {
