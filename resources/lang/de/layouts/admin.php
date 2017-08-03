@@ -20,8 +20,9 @@ return [
     'starmap' => 'Starmap',
     'systems' => 'Systeme',
     'celestialobjects' => 'Celestial Objects',
-    'add_system' => 'System hinzufügen',
+    'jumppointtunnels' => 'Jumppoint Tunnel',
     'download_starmap' => 'Starmap downloaden',
+    'download_jumppointtunnels' => 'Jumppoint Tunnels downloaden',
 
     'ships' => 'Schiffe',
     'download_ships' => 'Schiffe downloaden',

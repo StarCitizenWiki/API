@@ -35,12 +35,16 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Auth\Admin'], function () {
             Route::patch('/', ['uses' => 'StarmapController@updateStarmapSystem'])->name('admin_starmap_systems_update');
             Route::post('/', ['uses' => 'StarmapController@addStarmapSystem'])->name('admin_starmap_systems_add');
             Route::post('/download', ['uses' => 'StarmapController@downloadStarmap'])->name('admin_starmap_systems_download');
+            Route::post('/downloadjumppointtunnel', ['uses' => 'JumppointTunnelController@downloadJumppointTunnels'])->name('admin_starmap_jumppointtunnel_download');
         });
         Route::group(['prefix' => 'celestialobject'], function () {
             Route::get('/', ['uses' => 'StarmapController@showStarmapCelestialObjectView'])->name('admin_starmap_celestialobject_list');
             Route::patch('/', ['uses' => 'StarmapController@updateStarmapCelestialobject'])->name('admin_starmap_celestialobject_update');
             Route::delete('/', ['uses' => 'StarmapController@deleteStarmapCelestialobject'])->name('admin_starmap_celestialobject_delete');
             Route::post('/', ['uses' => 'StarmapController@addStarmapCelestialobject'])->name('admin_starmap_celestialobject_add');
+        });
+        Route::group(['prefix' => 'jumppointtunnel'], function () {
+            Route::get('/', ['uses' => 'JumppointTunnelController@showJumppointTunnelView'])->name('admin_starmap_jumppointtunnel_list');
         });
     });
 

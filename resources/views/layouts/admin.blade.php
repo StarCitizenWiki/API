@@ -103,6 +103,9 @@
                                     <a class="nav-link text-white" href="{{ route('admin_starmap_celestialobject_list') }}"><i class="fa fa-circle-o-notch mr-1"></i> @lang('layouts/admin.celestialobjects')</a>
                                 </li>
                                 <li class="nav-item ">
+                                    <a class="nav-link text-white" href="{{ route('admin_starmap_jumppointtunnel_list') }}"><i class="fa fa-circle-o-notch mr-1"></i> @lang('layouts/admin.jumppointtunnels')</a>
+                                </li>
+                                <li class="nav-item ">
                                     <a href="#" class="nav-link text-white" onclick="event.preventDefault(); document.getElementById('download-starmap').submit();">
                                         <form id="download-starmap" action="{{ route('admin_starmap_systems_download') }}" method="POST" style="display: none;">
                                             <input name="_method" type="hidden" value="POST">
@@ -111,6 +114,16 @@
                                         <i class="fa fa-repeat mr-1"></i> @lang('layouts/admin.download_starmap')
                                     </a>
                                 </li>
+                                <li class="nav-item ">
+                                    <a href="#" class="nav-link text-white" onclick="event.preventDefault(); document.getElementById('download-jumppointtunnels').submit();">
+                                        <form id="download-jumppointtunnels" action="{{ route('admin_starmap_jumppointtunnel_download') }}" method="POST" style="display: none;">
+                                            <input name="_method" type="hidden" value="POST">
+                                            {{ csrf_field() }}
+                                        </form>
+                                        <i class="fa fa-repeat mr-1"></i> @lang('layouts/admin.download_jumppointtunnels')
+                                    </a>
+                                </li>
+
                             </ul>
                         </li>
                     </ul>
