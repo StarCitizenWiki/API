@@ -26,6 +26,8 @@ class FansTransformer extends AbstractBaseTransformer
      */
     public function transform($stats)
     {
-        return ['fans' => $stats['data']['fans']];
+        return [
+            'fans' => (string) $stats['data']['fans'],
+        ];
     }
 }

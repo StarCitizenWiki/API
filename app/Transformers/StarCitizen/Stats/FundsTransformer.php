@@ -26,6 +26,8 @@ class FundsTransformer extends AbstractBaseTransformer
      */
     public function transform($stats)
     {
-        return ['funds' => $stats['data']['funds']];
+        return [
+            'funds' => (string) $stats['data']['funds'],
+        ];
     }
 }

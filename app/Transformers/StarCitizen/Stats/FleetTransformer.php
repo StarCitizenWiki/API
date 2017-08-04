@@ -26,6 +26,8 @@ class FleetTransformer extends AbstractBaseTransformer
      */
     public function transform($stats)
     {
-        return ['fleet' => $stats['data']['fleet']];
+        return [
+            'fleet' => (string) $stats['data']['fleet'],
+        ];
     }
 }
