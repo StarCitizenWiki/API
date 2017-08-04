@@ -1,0 +1,81 @@
+{
+  "info": {
+    "description": "",
+    "version": "0.0.1",
+    "title": "Star Citizen Wiki API",
+    "contact": "api@star-citizen.wiki"
+  },
+  "host": "api.star-citizen.wiki",
+  "basePath": " /v1",
+  "tags": {
+    "stats": {
+
+    },
+    "starmap": {
+      "description": "Starmap stuff"
+    }
+  },
+  "paths": {
+    "/stats/funds": {
+      "tag": "stats",
+      "GET": {
+        "summary": "Returns current funds",
+        "produces": "application/json",
+        "parameters": {
+          "api_key": "schemas/api_key"
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": "schemas/stats"
+          },
+          "500": {
+            "description": "Backend returned bad Data"
+          }
+        }
+      }
+    },
+    "/starmap/systems": {
+      "tag": "starmap",
+      "GET": {
+        "summary": "",
+        "description": "Gets all Systems",
+        "produces": "application/json", /* Array möglich */
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "defaults": [
+            "404"
+          ]
+        }
+      }
+    }
+  },
+  "schemas": {
+    "api_key": {
+      "name": "api_key",
+      "in": [
+        "post",
+        "get"
+      ],
+      "required": false,
+      "type": "string",
+      "description": "API Key to link Requests to Accounts, and up the Request Limit"
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "{type}": {
+              "type": "int"
+            }
+          }
+        }
+      }
+    }
+  }
+}
