@@ -6,7 +6,7 @@ Route::group(['namespace' => 'Tools'], function () {
         Route::get('imageresizer', ['uses' => 'ImageResizeController@showImageResizeView'])->name('tools_imageresizer');
     });
 
-    Route::group(['prefix' => 'media', 'middleware' => ['throttle','token_usage']], function () {
+    Route::group(['prefix' => 'media'], function () {
         Route::group(['prefix' => 'images'], function () {
             Route::get('funds', ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_ONLY]);
             Route::group(['prefix' => 'funds'], function () {

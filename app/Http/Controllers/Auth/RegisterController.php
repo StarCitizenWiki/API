@@ -1,16 +1,17 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth;
 
 use App\Events\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 /**
  * Class RegisterController
+ *
  * @package App\Http\Controllers\Auth
  */
 class RegisterController extends Controller
@@ -26,7 +27,7 @@ class RegisterController extends Controller
     |
     */
 
-    use RegistersUsers;
+    use RegistersUsers, ProfilesMethodsTrait;
 
     /**
      * Where to redirect users after registration.
@@ -40,6 +41,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         $this->middleware('guest');
     }
 
@@ -50,9 +52,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        Log::debug('Registration Form requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return redirect(AUTH_HOME);
     }
@@ -62,28 +62,37 @@ class RegisterController extends Controller
      *
      * @param array $data UserData
      *
-     * @return User
+     * @return \App\Models\User
      */
     public function create(array $data)
     {
-        $api_token = str_random(60);
+        $this->startProfiling(__FUNCTION__);
+
+        $apiToken = str_random(60);
         $password = str_random(32);
 
-        $user = User::create([
-            'name' => null,
-            'email' => $data['email'],
-            'api_token' => $api_token,
-            'password' => bcrypt($password),
-            'requests_per_minute' => 60,
-            'last_login' => date('Y-m-d H:i:s'),
-        ]);
+        $this->addTrace('Creating User', __FUNCTION__, __LINE__);
+        $user = User::create(
+            [
+                'name'                => null,
+                'email'               => $data['email'],
+                'api_token'           => $apiToken,
+                'password'            => bcrypt($password),
+                'requests_per_minute' => 60,
+                'last_login'          => date('Y-m-d H:i:s'),
+            ]
+        );
 
-        Log::info('Account created', [
-            'id' => $user->id,
-            'email' => $user->email,
-        ]);
-
+        app('Log')::notice(
+            'Account created',
+            [
+                'id'    => $user->id,
+                'email' => $user->email,
+            ]
+        );
         event(new UserRegistered($user, $password));
+
+        $this->stopProfiling(__FUNCTION__);
 
         return $user;
     }
@@ -97,8 +106,11 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
-            'email' => 'required|email|max:255|unique:users',
-        ]);
+        return Validator::make(
+            $data,
+            [
+                'email' => 'required|email|max:255|unique:users',
+            ]
+        );
     }
 }

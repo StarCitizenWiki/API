@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers;
 
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class APIPageController
@@ -12,16 +12,16 @@ use Illuminate\Support\Facades\Log;
  */
 class APIPageController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * Returns the API Index View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
-    public function showAPIView() : View
+    public function showAPIView(): View
     {
-        Log::debug('API Index requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('api.index');
     }
@@ -29,13 +29,11 @@ class APIPageController extends Controller
     /**
      * Returns the API FAQ View
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
-    public function showFAQView() : View
+    public function showFAQView(): View
     {
-        Log::debug('API FAQ requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('api.faq');
     }

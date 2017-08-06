@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -7,20 +7,16 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI;
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipsTransformer
  *
  * @package App\Transformers\StarCitizenWiki\Ships
  */
-class ShipsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class ShipsTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     protected $validFields = [
         'wiki_url',
         'status',
@@ -45,7 +41,7 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
                 $hardpoints += [
                     $name => [
                         'count' => $item[0]['Anzahl'] ?? '',
-                        'size' => $item[1]['Größe'] ?? '',
+                        'size'  => $item[1]['Größe'] ?? '',
                     ],
                 ];
             }
@@ -53,58 +49,60 @@ class ShipsTransformer extends TransformerAbstract implements BaseAPITransformer
 
         $transformed = [
             last(explode('/', $wiki['subject'])) ?? $wiki['subject'] => [
-                'ship' => [
-                    'name' => last(explode('/', $wiki['subject'])) ?? $wiki['subject'],
-                    'wiki_url' => BaseStarCitizenWikiAPI::URL.$wiki['subject'],
+                'ship'             => [
+                    'name'     => last(explode('/', $wiki['subject'])) ?? $wiki['subject'],
+                    'wiki_url' => AbstractStarCitizenWikiRepository::URL.$wiki['subject'],
                 ],
-                'manufacturer' => [
-                    'name' => last(explode('/', $wiki['data']['Hersteller'][0] ?? '')) ?? $scdb['manufacturer'] ?? '',
-                    'id' => isset($wiki['subject']) && str_contains($wiki['subject'], '/') ? explode('/', $wiki['subject'])[1] : '',
-                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? BaseStarCitizenWikiAPI::URL.$wiki['data']['Hersteller'][0] : '',
+                'manufacturer'     => [
+                    'name'     => last(explode('/', $wiki['data']['Hersteller'][0] ?? '')) ?? $scdb['manufacturer'] ?? '',
+                    'id'       => isset($wiki['subject']) && str_contains($wiki['subject'], '/') ?
+                                    explode('/', $wiki['subject'])[1]
+                                    : '',
+                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? AbstractStarCitizenWikiRepository::URL.$wiki['data']['Hersteller'][0] : '',
                 ],
-                'description' => [
-                    'wiki' => $wiki['data']['Beschreibung'][0] ?? '',
+                'description'      => [
+                    'wiki'      => $wiki['data']['Beschreibung'][0] ?? '',
                     'game_data' => $scdb['description'] ?? '',
                 ],
-                'focus' => $wiki['data']['Fokus'] ?? '',
-                'status' => $scdb['stats']['status'] ?? snake_case($wiki['data']['Status'][0] ?? ''),
-                'price' => $wiki['data']['Schiffspreis'][0] ?? '',
-                'dimensions' => [
+                'focus'            => $wiki['data']['Fokus'] ?? '',
+                'status'           => $scdb['stats']['status'] ?? snake_case($wiki['data']['Status'][0] ?? ''),
+                'price'            => $wiki['data']['Schiffspreis'][0] ?? '',
+                'dimensions'       => [
                     'length' => $wiki['data']['Länge'][0] ?? '',
-                    'beam' => $wiki['data']['Breite'][0] ?? '',
+                    'beam'   => $wiki['data']['Breite'][0] ?? '',
                     'height' => $wiki['data']['Höhe'][0] ?? '',
-                    'size' => $scdb['stats']['size'] ?? '',
+                    'size'   => $scdb['stats']['size'] ?? '',
                 ],
-                'mass' => $scdb['mass'] ?? '',
-                'crew' => [
+                'mass'             => $scdb['mass'] ?? '',
+                'crew'             => [
                     'max' => $wiki['data']['Besatzung'][0] ?? '',
                 ],
                 'freight_capacity' => [
                     'scu' => $wiki['data']['SCU'][0] ?? '',
                 ],
-                'hit_points' => [
+                'hit_points'       => [
                     'total' => $scdb['stats']['total_hit_points'] ?? '',
                 ],
-                'components' => [
-                    'thruster' => [
-                        'main' => [
-                            'count' => $wiki['data']['Triebwerk'][0]['Anzahl'] ?? '',
-                            'size' => $wiki['data']['Triebwerk'][1]['Größe'] ?? '',
+                'components'       => [
+                    'thruster'  => [
+                        'main'        => [
+                            'count'    => $wiki['data']['Triebwerk'][0]['Anzahl'] ?? '',
+                            'size'     => $wiki['data']['Triebwerk'][1]['Größe'] ?? '',
                             'velocity' => $scdb['velocity'] ?? '',
                         ],
                         'maneuvering' => [
-                            'count' => $wiki['data']['Steuerdüse'][0]['Anzahl'] ?? '',
-                            'size' => $wiki['data']['Steuerdüse'][1]['Größe'] ?? '',
+                            'count'    => $wiki['data']['Steuerdüse'][0]['Anzahl'] ?? '',
+                            'size'     => $wiki['data']['Steuerdüse'][1]['Größe'] ?? '',
                             'rotation' => $scdb['rotation'] ?? '',
                         ],
                     ],
-                    'engine' => [
+                    'engine'    => [
                         'count' => $wiki['data']['Generator'][0]['Anzahl'] ?? '',
-                        'size' => $wiki['data']['Generator'][1]['Größe'] ?? '',
+                        'size'  => $wiki['data']['Generator'][1]['Größe'] ?? '',
                     ],
-                    'shield' => [
+                    'shield'    => [
                         'count' => $wiki['data']['Schild'][0]['Anzahl'] ?? '',
-                        'size' => $wiki['data']['Schild'][1]['Größe'] ?? '',
+                        'size'  => $wiki['data']['Schild'][1]['Größe'] ?? '',
                     ],
                     'hardpoint' => [
                         $hardpoints,

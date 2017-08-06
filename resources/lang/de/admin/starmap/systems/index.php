@@ -10,4 +10,10 @@ return [
     'downloading' => 'Im Download',
     'downloaded' => 'Geladen',
     'not_found' => 'Nicht vorhanden',
+    'name' => 'Name',
+    'type' => 'Typ',
+    'designation' => 'Bezeichnung',
+    'description' => 'Beschreibung',
+    'affiliation' => 'Zugehörigkeit',
+    'cig_time_modified' => 'CIG Änderung',
 ];

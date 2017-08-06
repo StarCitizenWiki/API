@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -7,17 +7,15 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class SystemTransformer
  *
  * @package App\Transformers\StarCitizen\Starmap
  */
-class SystemTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class SystemTransformer extends AbstractBaseTransformer
 {
-
     /**
      * TODO
      *

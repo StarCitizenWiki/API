@@ -1,10 +1,13 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
+/**
+ * Class EventServiceProvider
+ * @package App\Providers
+ */
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -13,15 +16,15 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\UserRegistered' => [
+        'App\Events\UserRegistered'    => [
             'App\Listeners\SendUserCredentials',
         ],
         'Illuminate\Auth\Events\Login' => [
             'App\Listeners\LogSuccessfulLogin',
         ],
-        'App\Events\URLShortened' => [
+        'App\Events\URLShortened'      => [
             'App\Listeners\SendURLShortenedNotification',
-        ]
+        ],
     ];
 
     /**
@@ -32,7 +35,6 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
         //
     }
 }

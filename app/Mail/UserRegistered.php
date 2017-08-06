@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 /**
  * Class UserRegistered
@@ -15,7 +15,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
  */
 class UserRegistered extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $user;
     private $password;
@@ -23,10 +24,10 @@ class UserRegistered extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      *
-     * @param User   $user     User Object
-     * @param String $password User Password
+     * @param \Illuminate\Foundation\Auth\User $user     User Object
+     * @param string                           $password User Password
      */
-    public function __construct(User $user, String $password)
+    public function __construct(User $user, string $password)
     {
         $this->user = $user;
         $this->password = $password;

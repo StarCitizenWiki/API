@@ -1,28 +1,39 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
+use App\Traits\ProfilesMethodsTrait;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Illuminate\View\View;
 
 /**
  * Class ShipsController
+ *
  * @package App\Http\Controllers\Auth\Admin
  */
 class ShipsController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
-     * @return View
+     * ShipsController constructor.
      */
-    public function showShipsView() : View
+    public function __construct()
     {
-        Log::debug('Ships View requested', [
-            'method' => __METHOD__,
-        ]);
+        parent::__construct();
+        $this->middleware('auth');
+        $this->middleware('admin');
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function showShipsView(): View
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('admin.ships.index')->with(
             'ships',
@@ -31,11 +42,15 @@ class ShipsController extends Controller
     }
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function downloadShips() : RedirectResponse
+    public function downloadShips(): RedirectResponse
     {
+        $this->startProfiling(__FUNCTION__);
+
         $this->dispatch(new DownloadStarCitizenDBShips());
+
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->back()->with(
             'success',

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by IntelliJ IDEA.
  * User: Sebastian
@@ -8,15 +8,14 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class FleetTransformer
  *
  * @package App\Transformers\StarCitizen\Stats
  */
-class FleetTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class FleetTransformer extends AbstractBaseTransformer
 {
     /**
      * Transformes Stats to only return the fleet

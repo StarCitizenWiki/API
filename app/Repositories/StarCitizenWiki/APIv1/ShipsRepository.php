@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 03.03.2017
@@ -7,37 +7,33 @@
 
 namespace App\Repositories\StarCitizenWiki\APIv1;
 
-use App\Repositories\StarCitizenWiki\BaseStarCitizenWikiAPI;
+use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
 use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
 use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
 use App\Transformers\StarCitizenWiki\SMWTransformer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ShipsRepository
  * @package App\Repositories\StarCitizenWiki\APIv1\Ships
  */
-class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
+class ShipsRepository extends AbstractStarCitizenWikiRepository implements ShipsInterface
 {
     /**
      * Returns Ship data
      *
-     * @param Request $request
-     * @param String  $shipName ShipName
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $shipName ShipName
      *
-     * @return ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
      */
-    public function getShip(Request $request, String $shipName) : ShipsRepository
+    public function getShip(Request $request, string $shipName): ShipsRepository
     {
         $shipName = urldecode($shipName);
-        Log::debug('Getting Ship by name', [
-            'method' => __METHOD__,
-            'ship' => $shipName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
 
         $this->getShipDataFromWiki($shipName);
         $this->resetTransform();
@@ -51,20 +47,18 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     /**
      * Gets a ShipList
      *
-     * @return ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
      */
-    public function getShipList() : ShipsRepository
+    public function getShipList(): ShipsRepository
     {
-        Log::debug('Getting ShipList', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->collection();
         $this->transformer = resolve(ShipsListTransformer::class);
 
         $offset = 0;
         $data = [];
         do {
-            $response = (String) $this->request(
+            $response = (string) $this->request(
                 'GET',
                 '?action=askargs&format=json&conditions=Kategorie%3ARaumschiff%7CHersteller%3A%3A%2B&parameters=offset%3D'.$offset,
                 []
@@ -73,16 +67,9 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             $data = array_merge($data, $response['query']['results']);
             if (array_key_exists('query-continue-offset', $response)) {
                 $offset = $response['query-continue-offset'];
-                Log::debug('Getting Data for next offset', [
-                    'method' => __METHOD__,
-                    'offset' => $offset,
-                ]);
             }
         } while (array_key_exists('query-continue-offset', $response));
 
-        Log::debug('Finished getting Data from Wiki', [
-            'method' => __METHOD__,
-        ]);
         $this->dataToTransform = $data;
 
         return $this;
@@ -91,16 +78,13 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     /**
      * Seraches for a Ship
      *
-     * @param String $shipName ShipName
+     * @param string $shipName ShipName
      *
-     * @return ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
      */
-    public function searchShips(String $shipName)
+    public function searchShips(string $shipName)
     {
-        Log::debug('Searching for Ship', [
-            'method' => __METHOD__,
-            'name' => $shipName,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['ship' => $shipName]);
         /**
          * TODO: Suche Gibt teils Mist zurück
          * Beispiel: Suche nach Aurora gibt zusätzlich Orion und Hull A zurück!?
@@ -112,9 +96,6 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             []
         );
         $this->dataToTransform = $this->dataToTransform['query']['search'];
-        Log::debug('Finished getting Data from Wiki', [
-            'method' => __METHOD__,
-        ]);
 
         return $this;
     }
@@ -122,9 +103,9 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
     /**
      * Loads SMW Data by ship name
      *
-     * @param String $shipName
+     * @param string $shipName
      */
-    private function getShipDataFromWiki(String $shipName) : void
+    private function getShipDataFromWiki(string $shipName): void
     {
         $this->transformer = resolve(SMWTransformer::class);
         $this->request(
@@ -132,7 +113,7 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
             '?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
             []
         );
-        $smwData = $this->asArray()['data'];
+        $smwData = $this->toArray()['data'];
 
         $altIndex = last(explode('/', $smwData['subject']));
         $altIndex = str_replace('_', ' ', $altIndex);
@@ -140,45 +121,38 @@ class ShipsRepository extends BaseStarCitizenWikiAPI implements ShipsInterface
         $this->dataToTransform = [
             'wiki' => [
                 'subject' => $smwData['subject'],
-                'data' => $smwData[$smwData['subject']] ?? $smwData[$altIndex],
+                'data'    => $smwData[$smwData['subject']] ?? $smwData[$altIndex],
             ],
         ];
     }
 
     /**
+     * Resets the transformer and transformedResource to null
+     */
+    private function resetTransform(): void
+    {
+        $this->transformer = null;
+        $this->transformedResource = null;
+    }
+
+    /**
      * Loads SCDB Data from file
      */
-    private function getShipDataFromSCDB() : void
+    private function getShipDataFromSCDB(): void
     {
         if (isset($this->dataToTransform['wiki']['subject'])) {
             $content = '';
 
             $subject = explode('/', $this->dataToTransform['wiki']['subject']);
-            if (count($subject) === 3) {
+            if (3 === count($subject)) {
                 $shipName = last($subject);
                 $fileName = strtolower($subject[1].'_'.$shipName.'.json');
 
-                Log::debug('Checking if StarCitizenDB Data exists for ship', [
-                    'method' => __METHOD__,
-                    'filename' => $fileName,
-                ]);
                 if (Storage::disk('scdb_ships_splitted')->exists($fileName)) {
-                    Log::debug('File exists adding content to transformation', [
-                        'method' => __METHOD__,
-                    ]);
                     $content = Storage::disk('scdb_ships_splitted')->get($fileName);
                 }
             }
             $this->dataToTransform['scdb'] = json_decode($content, true);
         }
-    }
-
-    /**
-     * Resets the transformer and transformedResource to null
-     */
-    private function resetTransform() : void
-    {
-        $this->transformer = null;
-        $this->transformedResource = null;
     }
 }

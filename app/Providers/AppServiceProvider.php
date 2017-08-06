@@ -1,10 +1,14 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Providers;
 
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * Class AppServiceProvider
+ * @package App\Providers
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -15,8 +19,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $bootstrapModules = [
-            'enableCSS' =>  true,
-            'enableJS' => true,
+            'enableCSS' => true,
+            'enableJS'  => true,
         ];
 
         View::share('bootstrapModules', $bootstrapModules);
@@ -29,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if ($this->app->environment() !== 'production') {
+        if ('production' !== $this->app->environment()) {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
 
@@ -41,6 +45,9 @@ class AppServiceProvider extends ServiceProvider
         /**
          * Star Citizen Wiki API Interfaces
          */
-        $this->app->bind('StarCitizenWiki\API\ShipsRepository', \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::class);
+        $this->app->bind(
+            'StarCitizenWiki\API\ShipsRepository',
+            \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::class
+        );
     }
 }

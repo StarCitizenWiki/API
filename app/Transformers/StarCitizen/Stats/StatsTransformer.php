@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * Created by IntelliJ IDEA.
  * User: Sebastian
@@ -8,19 +8,15 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class StatsTransformer
  *
  * @package App\Transformers\StarCitizen\Stats
  */
-class StatsTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class StatsTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     protected $validFields = [
         'fans',
         'funds',
@@ -39,7 +35,7 @@ class StatsTransformer extends TransformerAbstract implements BaseAPITransformer
     {
         $stats = $stats['data'];
         $data = [
-            'fans' => (string) $stats['fans'],
+            'fans'  => (string) $stats['fans'],
             'fleet' => (string) $stats['fleet'],
             'funds' => (string) $stats['funds'],
             'chart' => $stats['chart'],

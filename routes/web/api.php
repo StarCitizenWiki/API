@@ -2,7 +2,7 @@
 Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');
 Route::get('/faq', ['uses' => 'APIPageController@showFAQView'])->name('api_faq');
 
-Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Auth\Admin'], function () {
+Route::group(['prefix' => 'admin', 'namespace' => 'Auth\Admin'], function () {
     Route::get('/', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');
     Route::get('logs', ['uses' => 'AdminController@showLogsView'])->name('admin_logs');
 
@@ -33,11 +33,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['admin'], 'namespace' => 'Au
         Route::group(['prefix' => 'systems'], function () {
             Route::get('/', ['uses' => 'StarmapController@showStarmapSystemsView'])->name('admin_starmap_systems_list');
             Route::patch('/', ['uses' => 'StarmapController@updateStarmapSystem'])->name('admin_starmap_systems_update');
-            Route::delete('/', ['uses' => 'StarmapController@deleteStarmapSystem'])->name('admin_starmap_systems_delete');
             Route::post('/', ['uses' => 'StarmapController@addStarmapSystem'])->name('admin_starmap_systems_add');
-            Route::get('add', ['uses' => 'StarmapController@showAddStarmapSystemsView'])->name('admin_starmap_systems_add_form');
-            Route::get('{code}', ['uses' => 'StarmapController@showEditStarmapSystemsView'])->name('admin_starmap_systems_edit_form');
             Route::post('/download', ['uses' => 'StarmapController@downloadStarmap'])->name('admin_starmap_systems_download');
+        });
+        Route::group(['prefix' => 'celestialobject'], function () {
+            Route::get('/', ['uses' => 'StarmapController@showStarmapCelestialObjectView'])->name('admin_starmap_celestialobject_list');
+            Route::patch('/', ['uses' => 'StarmapController@updateStarmapCelestialobject'])->name('admin_starmap_celestialobject_update');
+            Route::delete('/', ['uses' => 'StarmapController@deleteStarmapCelestialobject'])->name('admin_starmap_celestialobject_delete');
+            Route::post('/', ['uses' => 'StarmapController@addStarmapCelestialobject'])->name('admin_starmap_celestialobject_add');
         });
     });
 
@@ -62,7 +65,7 @@ Route::group(['namespace' => 'Auth'], function () {
     Route::get('password/reset/{token}', 'ResetPasswordController@showResetForm')->name('password.reset');
     Route::post('password/reset', 'ResetPasswordController@reset');
 
-    Route::group(['middleware' => ['auth'], 'prefix' => 'account', 'namespace' => 'Account'], function () {
+    Route::group(['prefix' => 'account', 'namespace' => 'Account'], function () {
         // Account Routes...
         Route::get('/', ['uses' => 'AccountController@showAccountView'])->name('account');
         Route::delete('/', ['uses' => 'AccountController@delete'])->name('account_delete');

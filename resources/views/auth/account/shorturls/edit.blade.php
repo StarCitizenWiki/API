@@ -23,7 +23,7 @@
                     </div>
                     <div class="form-group">
                         <label for="expires" aria-label="expires">@lang('auth/account/shorturls/edit.expires'):</label>
-                        <input type="datetime-local" class="form-control" id="expires" name="expires" aria-required="true" aria-labelledby="expires" tabindex="3" value="@unless(is_null($url->expires)){{ \Carbon\Carbon::parse($url->expires)->format('Y-m-d\TH:i') }}@endunless">
+                        <input type="datetime-local" class="form-control" id="expires" name="expires" aria-required="true" aria-labelledby="expires" tabindex="3" min="{{ \Carbon\Carbon::now()->format("Y-m-d\TH:i") }}" value="@unless(is_null($url->expires)){{ \Carbon\Carbon::parse($url->expires)->format('Y-m-d\TH:i') }}@endunless">
                     </div>
                     <button type="submit" class="btn btn-warning my-3">@lang('auth/account/shorturls/edit.edit')</button>
                 </form>

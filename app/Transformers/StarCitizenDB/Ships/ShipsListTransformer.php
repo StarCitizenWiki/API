@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -7,22 +7,16 @@
 
 namespace App\Transformers\StarCitizenDB\Ships;
 
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
+use App\Transformers\AbstractBaseTransformer;
 use Illuminate\Support\Facades\File;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class ShipsListTransformer
  *
  * @package App\Transformers\StarCitizenWiki\Ships
  */
-class ShipsListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class ShipsListTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
-    protected $validFields = [];
-
     /**
      * Transformes the whole ship list
      *
@@ -32,14 +26,18 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
      */
     public function transform($ship)
     {
-        $content = (String) File::get($ship->getLinkTarget());
+        $content = (string) File::get($ship->getLinkTarget());
         $content = json_decode($content, true);
 
         $name = $this->prepareName($content['name']);
 
         $transformed = [
             $name => [
-                'api_url' => '//'.config('app.api_url').'/api/v1/ships/scdb/'.str_replace('.json', '', $content['filename']),
+                'api_url' => config('app.api_url').'/api/v1/ships/scdb/'.str_replace(
+                    '.json',
+                    '',
+                    $content['filename']
+                ),
             ],
         ];
 
@@ -49,11 +47,11 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
     /**
      * Normalises the Name to match the wiki sites name
      *
-     * @param String $name
+     * @param string $name
      *
-     * @return String
+     * @return string
      */
-    private function prepareName(String $name) : String
+    private function prepareName(string $name): String
     {
         $name = explode('_', $name);
         unset($name[0]);

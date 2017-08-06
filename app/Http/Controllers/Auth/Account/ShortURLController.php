@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\Auth\Account;
 
@@ -8,57 +8,59 @@ use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
 use App\Http\Controllers\Controller;
 use App\Models\ShortURL\ShortURL;
-use Carbon\Carbon;
+use App\Traits\ProfilesMethodsTrait;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 
 /**
  * Class ShortURLController
+ *
  * @package App\Http\Controllers\Auth\Account
  */
 class ShortURLController extends Controller
 {
+    use ProfilesMethodsTrait;
+
+    /**
+     * ShortURLController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+    }
+
     /**
      * Returns the View which lists all associated ShortURLs
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
-    public function showURLsListView() : View
+    public function showURLsListView(): View
     {
-        $user = Auth::user();
-        Log::debug('User requested Show URL List View', [
-            'method' => __METHOD__,
-            'user_id' => Auth::id(),
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('auth.account.shorturls.index')->with(
             'urls',
-            $user->shortURLs()->get()
+            Auth::user()->shortURLs()->get()
         );
     }
 
     /**
      * Returns the add short url view
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
-    public function showAddURLView() : View
+    public function showAddURLView(): View
     {
-        $user = Auth::user();
-        Log::debug('User requested Add Url View', [
-            'method' => __METHOD__,
-            'user_id' => $user->id,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('auth.account.shorturls.add')->with(
             'user',
-            $user
+            Auth::user()
         );
     }
 
@@ -67,27 +69,26 @@ class ShortURLController extends Controller
      *
      * @param int $id The ShortURL ID to edit
      *
-     * @return View | RedirectResponse
+     * @return \Illuminate\Contracts\View\View | \Illuminate\Http\RedirectResponse
      */
     public function showEditURLView(int $id)
     {
+        $this->startProfiling(__FUNCTION__);
+
+        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
+
         try {
+            $this->addTrace("Getting ShortURL with ID: {$id}", __FUNCTION__, __LINE__);
             $url = Auth::user()->shortURLs()->findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            Log::info('User tried to edit unowned ShortURL', [
-                'user_id' => Auth::id(),
-                'email' => Auth::user()->email,
-                'url_id' => $id,
-            ]);
+            app('Log')::notice("User tried to edit unowned ShortURL with ID: {$id}");
+            $this->addTrace("ShortURL with ID: {$id} not found", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
 
-            return redirect()->route('account_urls_list')
-                             ->withErrors(__('auth/account/shorturls/edit.no_permission'));
+            return redirect()->route('account_urls_list')->withErrors(__('auth/account/shorturls/edit.no_permission'));
         }
 
-        Log::debug('User requested Edit ShortURL View', [
-            'method' => __METHOD__,
-            'url' => (array) $url,
-        ]);
+        $this->stopProfiling(__FUNCTION__);
 
         return view('auth.account.shorturls.edit')->with(
             'url',
@@ -98,45 +99,52 @@ class ShortURLController extends Controller
     /**
      * Validates the url add Request and creates a new ShortURL
      *
-     * @param Request $request The Request
+     * @param \Illuminate\Http\Request $request The Request
      *
-     * @return RedirectResponse|Redirect
+     * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
      *
-     * @throws ExpiredException
+     * @throws \App\Exceptions\ExpiredException
      */
     public function addURL(Request $request)
     {
+        $this->startProfiling(__FUNCTION__);
+
         $data = [
-            'url' => ShortURL::sanitizeURL($request->get('url')),
+            'url'       => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
-            'expires' => $request->get('expires'),
+            'expires'   => $request->get('expires'),
         ];
 
         $rules = [
-            'url' => 'required|url|max:255|unique:short_urls',
+            'url'       => 'required|url|max:255|unique:short_urls',
             'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls',
-            'expires' => 'nullable|date',
+            'expires'   => 'nullable|date',
         ];
 
         validate_array($data, $rules, $request);
 
         $expires = $request->get('expires');
         try {
-            $this->checkExpiresDate($expires);
+            $this->addTrace("Checking if date {$expires} is in the past", __FUNCTION__, __LINE__);
+            ShortURL::checkIfDateIsPast($expires);
 
-            $url = ShortURL::createShortURL([
-                'url' => ShortURL::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => Auth::id(),
-                'expires' => $expires,
-            ]);
+            $this->addTrace('Creating ShortURL', __FUNCTION__, __LINE__);
+            $url = ShortURL::createShortURL(
+                [
+                    'url'       => ShortURL::sanitizeURL($request->get('url')),
+                    'hash_name' => $request->get('hash_name'),
+                    'user_id'   => Auth::id(),
+                    'expires'   => $expires,
+                ]
+            );
         } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException | ExpiredException $e) {
-            return redirect()->route('account_urls_add_form')
-                             ->withErrors($e->getMessage())
-                             ->withInput(Input::all());
-        }
+            $this->addTrace(get_class($e), __FUNCTION__, __LINE__);
 
+            return redirect()->route('account_urls_add_form')->withErrors($e->getMessage())->withInput(Input::all());
+        }
         event(new URLShortened($url));
+
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('account_urls_list')->with(
             'hash_name',
@@ -147,34 +155,42 @@ class ShortURLController extends Controller
     /**
      * Deletes a Users ShortURL
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function deleteURL(Request $request) : RedirectResponse
+    public function deleteURL(Request $request): RedirectResponse
     {
-        $this->validate($request, [
-            'id' => 'required|exists:short_urls|int',
-        ]);
+        $this->startProfiling(__FUNCTION__);
+
+        $this->validate(
+            $request,
+            [
+                'id' => 'required|exists:short_urls|int',
+            ]
+        );
 
         try {
+            $this->addTrace("Getting ShortURL with ID: {$request->id}", __FUNCTION__, __LINE__);
             $url = Auth::user()->shortURLs()->findOrFail($request->id);
-            Log::info('URL deleted', [
-                'user_id' => Auth::id(),
-                'url_id' => $url->id,
-                'url' => $url->url,
-                'hash_name' => $url->hash_name,
-            ]);
+            app('Log')::notice(
+                'URL deleted',
+                [
+                    'user_id'   => Auth::id(),
+                    'url_id'    => $url->id,
+                    'url'       => $url->url,
+                    'hash_name' => $url->hash_name,
+                ]
+            );
             $url->delete();
         } catch (ModelNotFoundException $e) {
-            Log::info('User tried to delete unowned ShortURL', [
-                'user_id' => Auth::id(),
-                'email' => Auth::user()->email,
-                'url_id' => $request->id,
-            ]);
+            app('Log')::notice("User tried to delete unowned ShortURL with ID: {$request->id}");
+            $this->stopProfiling(__FUNCTION__);
 
             return back()->withErrors(__('auth/account/shorturls/edit.no_permission'));
         }
+
+        $this->stopProfiling(__FUNCTION__);
 
         return back();
     }
@@ -182,68 +198,67 @@ class ShortURLController extends Controller
     /**
      * Updates a ShortURL by its ID
      *
-     * @param Request $request The Update Request
+     * @param \Illuminate\Http\Request $request The Update Request
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateURL(Request $request) : RedirectResponse
+    public function updateURL(Request $request): RedirectResponse
     {
+        $this->startProfiling(__FUNCTION__);
+
         try {
+            $this->addTrace("Getting ShortURL with ID: {$request->id}", __FUNCTION__, __LINE__);
             Auth::user()->shortURLs()->findOrFail($request->id);
         } catch (ModelNotFoundException $e) {
-            Log::info('User tried to forge ShortURL edit request', [
-                'user_id' => Auth::id(),
-                'provided_id' => $request->get('user_id'),
-                'url_id' => $request->id,
-                'url' => $request->get('url'),
-                'hash_name' => $request->get('hash_name'),
-            ]);
+            app('Log')::notice(
+                'User tried to forge ShortURL edit request',
+                [
+                    'provided_id' => $request->get('user_id'),
+                    'url_id'      => $request->id,
+                    'url'         => $request->get('url'),
+                    'hash_name'   => $request->get('hash_name'),
+                ]
+            );
+
+            $this->stopProfiling(__FUNCTION__);
 
             return back()->withErrors(__('auth/account/shorturls/edit.no_permission'));
         }
 
         $data = [
-            'url' => ShortURL::sanitizeURL($request->get('url')),
+            'url'       => ShortURL::sanitizeURL($request->get('url')),
             'hash_name' => $request->get('hash_name'),
-            'expires' => $request->get('expires'),
+            'expires'   => $request->get('expires'),
         ];
 
         $rules = [
-            'url' => 'required|url|max:255',
+            'url'       => 'required|url|max:255',
             'hash_name' => 'required|alpha_dash|max:32',
-            'expires' => 'nullable|date',
+            'expires'   => 'nullable|date',
         ];
 
         validate_array($data, $rules, $request);
 
         try {
-            ShortURL::updateShortURL([
-                'id' => $request->id,
-                'url' => ShortURL::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id' => Auth::id(),
-                'expires' => $request->get('expires'),
-            ]);
+            $this->addTrace("Starting to update ShortURL", __FUNCTION__, __LINE__);
+            ShortURL::updateShortURL(
+                [
+                    'id'        => $request->id,
+                    'url'       => ShortURL::sanitizeURL($request->get('url')),
+                    'hash_name' => $request->get('hash_name'),
+                    'user_id'   => Auth::id(),
+                    'expires'   => $request->get('expires'),
+                ]
+            );
         } catch (URLNotWhitelistedException | HashNameAlreadyAssignedException $e) {
-            return back()->withErrors($e->getMessage())
-                         ->withInput(Input::all());
+            $this->addTrace(get_class($e), __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
+            return back()->withErrors($e->getMessage())->withInput(Input::all());
         }
+
+        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('account_urls_list');
-    }
-
-    /**
-     * @param $date
-     *
-     * @throws ExpiredException
-     */
-    private function checkExpiresDate($date) : void
-    {
-        if (!is_null($date)) {
-            $expires = Carbon::parse($date);
-            if ($expires->lte(Carbon::now())) {
-                throw new ExpiredException('Expires date can\'t be in the past');
-            }
-        }
     }
 }

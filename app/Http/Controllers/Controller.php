@@ -1,11 +1,13 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
+use App\Processors\UserInfoProcessor;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
+use Monolog\Processor\WebProcessor;
 
 /**
  * Class Controller
@@ -14,5 +16,16 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  */
 class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests;
+    use DispatchesJobs;
+    use ValidatesRequests;
+
+    /**
+     * Controller constructor.
+     */
+    public function __construct()
+    {
+        app('Log')::getMonolog()->pushProcessor(new UserInfoProcessor());
+        app('Log')::getMonolog()->pushProcessor(new WebProcessor());
+    }
 }

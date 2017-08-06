@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -7,19 +7,15 @@
 
 namespace App\Transformers\StarCitizenWiki\Ships;
 
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipsListTransformer
  *
  * @package App\Transformers\StarCitizenWiki\Ships
  */
-class ShipsListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class ShipsListTransformer extends AbstractBaseTransformer
 {
-    use FiltersDataTrait;
-
     protected $validFields = [
         'wiki_url',
         'api_url',
@@ -38,7 +34,7 @@ class ShipsListTransformer extends TransformerAbstract implements BaseAPITransfo
 
         $transformed = [
             $ship['displaytitle'] => [
-                'api_url' => '//'.config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
+                'api_url'  => config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
                 'wiki_url' => $ship['fullurl'],
             ],
         ];

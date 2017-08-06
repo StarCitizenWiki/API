@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class StatsAPIController
@@ -15,10 +15,12 @@ use Illuminate\Support\Facades\Log;
  */
 class StatsAPIController extends Controller
 {
+    use ProfilesMethodsTrait;
+
     /**
      * StatsRepository
      *
-     * @var StatsRepository
+     * @var \App\Repositories\StarCitizen\APIv1\StatsRepository
      */
     private $repository;
 
@@ -27,11 +29,12 @@ class StatsAPIController extends Controller
     /**
      * StatsAPIController constructor.
      *
-     * @param Request         $request
-     * @param StatsRepository $repository StatsRepository
+     * @param \Illuminate\Http\Request                            $request
+     * @param \App\Repositories\StarCitizen\APIv1\StatsRepository $repository StatsRepository
      */
     public function __construct(Request $request, StatsRepository $repository)
     {
+        parent::__construct();
         $this->repository = $repository;
         $this->request = $request;
     }
@@ -39,13 +42,11 @@ class StatsAPIController extends Controller
     /**
      * Returns just the Funds
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getFunds()
     {
-        Log::debug('Funds Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -53,13 +54,11 @@ class StatsAPIController extends Controller
     /**
      * Returns just the Fleet
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getFleet()
     {
-        Log::debug('Fleet Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -67,13 +66,11 @@ class StatsAPIController extends Controller
     /**
      * Returns just the Fans
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getFans()
     {
-        Log::debug('Fans Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -81,15 +78,13 @@ class StatsAPIController extends Controller
     /**
      * Returns all
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getAll(Request $request)
     {
-        Log::debug('All Stats requested', [
-            'method' => __METHOD__,
-        ]);
+        app('Log')::info(make_name_readable(__FUNCTION__));
 
         return $this->getJsonPrettyPrintResponse(__FUNCTION__);
     }
@@ -97,7 +92,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just Funds from last hours
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLastHoursFunds()
     {
@@ -107,7 +102,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just Funds from last days
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLastDaysFunds()
     {
@@ -117,7 +112,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just Funds from last weeks
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLastWeeksFunds()
     {
@@ -127,7 +122,7 @@ class StatsAPIController extends Controller
     /**
      * Returns just Funds from last months
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     public function getLastMonthsFunds()
     {
@@ -137,25 +132,36 @@ class StatsAPIController extends Controller
     /**
      * Wrapper for all get Calls
      *
-     * @param \Closure | String $func Function to call
+     * @param \Closure | string $func Function to call
      *
-     * @return \Illuminate\Http\JsonResponse|string
+     * @return \Illuminate\Http\JsonResponse | string
      */
     private function getJsonPrettyPrintResponse($func)
     {
+        $this->startProfiling(__FUNCTION__);
+
         try {
+            $this->addTrace("Calling Function {$func}", __FUNCTION__, __LINE__);
             $this->repository->$func();
             if (method_exists($this->repository->transformer, 'addFilters')) {
+                $this->addTrace("Adding Filters", __FUNCTION__, __LINE__);
                 $this->repository->transformer->addFilters($this->request);
             }
+            $this->addTrace("Getting Data", __FUNCTION__, __LINE__);
+            $data = $this->repository->toArray();
+
+            $this->stopProfiling(__FUNCTION__);
 
             return response()->json(
-                $this->repository->asArray(),
+                $data,
                 200,
                 [],
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
+            $this->addTrace("Getting Data failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
             return $e->getMessage();
         }
     }

@@ -1,47 +1,41 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
- * Date: 25.03.2017
- * Time: 15:45
+ * Date: 02.08.2017
+ * Time: 13:41
  */
 
-namespace App\Traits;
+namespace App\Transformers;
 
 use App\Exceptions\InvalidDataException;
+use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use League\Fractal\TransformerAbstract;
 
 /**
- * Class FiltersDataTrait
- *
- * @package App\Traits
+ * Class AbstractBaseTransformer
+ * @package App\Transformers
  */
-trait FiltersDataTrait
+abstract class AbstractBaseTransformer extends TransformerAbstract
 {
-    //protected $validFields = [];
-    protected $filters = [];
+    use ProfilesMethodsTrait;
 
-    private $requestedFields = [];
+    protected $filters = [];
+    protected $requestedFields = [];
+    protected $validFields = [];
 
     /**
      * Adds requested fields to the filter array
      *
-     * @param Request $request
+     * @param \Illuminate\Http\Request $request
      *
-     * @throws InvalidDataException
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function addFilters(Request $request)
     {
-        Log::debug('Adding Filters', [
-            'method' => __METHOD__,
-        ]);
         $filters = $request->get('fields', null);
         if (!is_null($filters) && !empty($filters)) {
             $this->requestedFields = explode(',', $filters);
-            Log::debug('Filters added', [
-                'method' => __METHOD__,
-                'filters' => $this->requestedFields,
-            ]);
             $this->validateRequestedFields();
         }
     }
@@ -49,7 +43,7 @@ trait FiltersDataTrait
     /**
      * @param array $data
      */
-    public function addFilterArray(array $data) : void
+    public function addFilterArray(array $data): void
     {
         $this->requestedFields = $data;
         $this->validateRequestedFields();
@@ -61,7 +55,7 @@ trait FiltersDataTrait
      * @param array $data
      *
      * @return array
-     * @throws InvalidDataException
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function filterData(array &$data)
     {
@@ -77,10 +71,8 @@ trait FiltersDataTrait
             if (is_array($item)) {
                 $data[$key] = $this->filterData($item);
             }
-            if (in_array($key, $this->validFields)) {
-                if (!in_array($key, $this->filters)) {
-                    unset($data[$key]);
-                }
+            if (in_array($key, $this->validFields) && !in_array($key, $this->filters)) {
+                unset($data[$key]);
             }
         }
 
@@ -90,11 +82,8 @@ trait FiltersDataTrait
     /**
      * @return array
      */
-    public function getAvailableFields() : array
+    public function getAvailableFields(): array
     {
-        Log::debug('Returning Available Fields', [
-            'method' => __METHOD__,
-        ]);
         if (isset($this->validFields)) {
             return $this->validFields;
         }
@@ -102,11 +91,13 @@ trait FiltersDataTrait
         return [];
     }
 
-    private function validateRequestedFields()
+    protected function validateRequestedFields()
     {
         foreach ($this->requestedFields as $field) {
             if (!in_array($field, $this->validFields)) {
-                throw new InvalidDataException('Requested field '.$field.' is not in valid fields ['.implode(',', $this->validFields).']');
+                throw new InvalidDataException(
+                    'Requested field '.$field.' is not in valid fields ['.implode(',', $this->validFields).']'
+                );
             }
             $this->filters[] = $field;
         }

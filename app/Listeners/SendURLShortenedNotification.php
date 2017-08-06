@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Listeners;
 
@@ -18,7 +18,7 @@ class SendURLShortenedNotification implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param URLShortened $event Event
+     * @param \App\Events\URLShortened $event Event
      *
      * @return void
      */
