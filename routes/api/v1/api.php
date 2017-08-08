@@ -29,6 +29,13 @@ Route::group(['namespace' => 'StarCitizen'], function () {
             Route::get('{name}/landingzones', ['uses' => 'StarmapAPIController@getLandingzones']);
         });
 
+        Route::get('tunnels', ['uses' => 'JumppointTunnelAPIController@getJumppointtunnels']);
+
+        Route::group(['prefix' => 'systems'], function () {
+            Route::get('id/{cig_id}', ['uses' => 'JumppointTunnelAPIController@getJumppointTunnelById']);
+            Route::get('system/{name}', ['uses' => 'JumppointTunnelAPIController@getJumppointTunnelBySystem']);
+        });
+
         Route::group(['prefix' => 'objects'], function () {
             Route::get('{objectname}', ['uses' => 'StarmapAPIController@getObjectList']);
         });
