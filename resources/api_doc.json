@@ -71,7 +71,42 @@
           "type": "object",
           "properties": {
             "{type}": {
-              "type": "int"
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "stats_all": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "fans": {
+              "type": "string"
+            },
+            "fleet": {
+              "type": "string"
+            },
+            "funds": {
+              "type": "string"
+            },
+            "chart": {
+              "type": "object",
+              "properties": {
+                "{date}": {
+                  "type": "object",
+                  "properties": {
+                    "gross": {
+                      "type": "string"
+                    },
+                    "axis": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
