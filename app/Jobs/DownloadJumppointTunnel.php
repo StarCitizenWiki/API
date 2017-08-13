@@ -20,7 +20,7 @@ use Illuminate\Queue\SerializesModels;
  * Class DownloadJumppointTunnel
  * @package App\Jobs
  */
-class DownloadJumppointTunnel implements ShouldQueue
+class DownloadJumppointTunnel extends AbstractBaseDownloadData implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -30,6 +30,8 @@ class DownloadJumppointTunnel implements ShouldQueue
 
     private $jumppointtunnels;
     private $jumppointtunnels_updated = 0;
+
+    const OVERVIEWDATA_CHECKLIST = ['data', 'tunnels', 'resultset', 0];
 
     /**
      * Execute the job.
@@ -47,31 +49,18 @@ class DownloadJumppointTunnel implements ShouldQueue
         foreach ($this->jumppointtunnels as $jumppointtunnel) {
             $this->writeJumppointtunnelToDB($jumppointtunnel);
         }
+        app('Log')::info('Jumppoint Tunnel Download Job Finished (updated:'.$this->jumppointtunnels_updated.")");
     }
 
     private function setJumppointtunnels()
     {
         $overviewData = $this->getJsonArrayFromStarmap('bootup/');
-        if ($this->checkIfOverviewDataCanBeProcessed($overviewData)) {
+        if ($this->checkIfDataCanBeProcessed($overviewData, static::OVERVIEWDATA_CHECKLIST)) {
             $this->jumppointtunnels = $overviewData['data']['tunnels']['resultset'];
-        } else {
+        }
+        else {
             app('Log')::error('Can not read Jumppoint Tunnels from RSI');
         }
-    }
-
-    /**
-     * @param $data
-     *
-     * @return bool
-     */
-    private function checkIfOverviewDataCanBeProcessed($data): bool
-    {
-        return is_array($data) &&
-        $data['success'] === 1 &&
-        array_key_exists('data', $data) &&
-        array_key_exists('tunnels', $data['data']) &&
-        array_key_exists('resultset', $data['data']['tunnels']) &&
-        array_key_exists(0, $data['data']['tunnels']['resultset']);
     }
 
     /**
@@ -83,7 +72,6 @@ class DownloadJumppointTunnel implements ShouldQueue
      */
     private function getJsonArrayFromStarmap(string $uri): array
     {
-        //TODO API_URL should be in Base Download Class, not in Repository
         $response = $this->guzzleClient->request('POST', StarmapRepository::API_URL.'starmap/'.$uri);
 
         return json_decode($response->getBody()->getContents(), true);
