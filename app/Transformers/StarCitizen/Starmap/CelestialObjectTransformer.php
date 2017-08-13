@@ -16,7 +16,9 @@ use App\Transformers\AbstractBaseTransformer;
  */
 class CelestialObjectTransformer extends AbstractBaseTransformer
 {
-    const FILTER_FIELDS = ['sourcedata'];
+    const FILTER_FIELDS = ['sourcedata', 'id', 'exclude', 'created_at', 'updated_at', 'info_url', 'shader_data'];
+    const RENAME_KEYS = ['cig_id' => 'id', 'cig_system_id' => 'system_id', 'cig_time_modified' => 'time_modified'];
+    const SUBARRAY_NODES = ['sensor', 'subtype', 'affiliation'];
 
     /**
      * Returns all Celestial Object of the System Data
@@ -27,28 +29,17 @@ class CelestialObjectTransformer extends AbstractBaseTransformer
      */
     public function transform($celestialObjects)
     {
-        $filteredCelestialObjects = [];
-
         // One Array has to be in an Array of Arrays
         if (!array_key_exists(0, $celestialObjects)) {
-            $tmpCelestrialObjects = $celestialObjects;
+            $tmpCelestialObjects = $celestialObjects;
             $celestialObjects = [];
-            array_push($celestialObjects, $tmpCelestrialObjects);
+            array_push($celestialObjects, $tmpCelestialObjects);
         }
 
-        foreach ($celestialObjects as $celestialObject) {
-            array_push(
-                $filteredCelestialObjects,
-                array_filter(
-                    $celestialObject,
-                    function ($key) {
-                        return !in_array($key, self::FILTER_FIELDS);
-                    },
-                    ARRAY_FILTER_USE_KEY
-                )
-            );
+        foreach ($celestialObjects as &$celestialObject) {
+            $celestialObject = $this->moveToSubarray($celestialObject, static::SUBARRAY_NODES);
+            $celestialObject = $this->filterAndRenameFields($celestialObject);
         }
-
-        return $filteredCelestialObjects;
+        return $celestialObjects;
     }
 }
