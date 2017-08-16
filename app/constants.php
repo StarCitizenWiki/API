@@ -5,6 +5,8 @@
  */
 define('API_VERSION', "1.0");
 
+define('SCW_URL', 'http://localhost/');
+
 /** FundImageController */
 define('FUNDIMAGE_FUNDING_ONLY', 'funding_only');
 define('FUNDIMAGE_FUNDING_AND_TEXT', 'funding_and_text');
@@ -22,7 +24,7 @@ define('AUTH_ACCOUNT', '/account');
 define('AUTH_LOGIN', '/login');
 define('AUTH_KEY_FIELD_NAME', 'key');
 
-define('AUTH_ADMIN_IDS', [1]);
+define('ADMIN_INTERNAL_PASSWORD', '4L4bgcM;i,Hw@l~a/&s\Yd;R`QdoH/at');
 
 /** Throttling */
 define('THROTTLE_PERIOD', 1);

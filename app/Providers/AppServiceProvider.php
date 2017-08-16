@@ -35,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if ('production' !== $this->app->environment()) {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
+            $this->app->register('Hesto\MultiAuth\MultiAuthServiceProvider');
         }
 
         /**

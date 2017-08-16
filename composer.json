@@ -10,7 +10,8 @@
         "guzzlehttp/guzzle": "^6.3",
         "spatie/laravel-fractal": "^3.4",
         "piwik/piwik-php-tracker": "^1.2",
-        "rap2hpoutre/laravel-log-viewer": "^0.8.1"
+        "rap2hpoutre/laravel-log-viewer": "^0.8.1",
+        "hesto/multi-auth": "^1.0"
     },
     "require-dev": {
         "caouecs/laravel-lang": "~3.0",
