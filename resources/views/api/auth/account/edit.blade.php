@@ -1,14 +1,26 @@
-@extends('layouts.app')
+@extends('api.layouts.default')
+
+{{-- Page Title --}}
 @section('title')
     @lang('auth/account/edit.header')
 @endsection
 
-@section('content')
-    @include('layouts.heading');
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12 col-md-6 offset-md-3 mt-5">
-                @include('components.errors')
+@section('sidebar__content')
+    @parent
+    @include('api.auth.account.menu')
+@endsection
+
+@section('P__content')
+    @component('components.elements.container', ['type' => 'fluid', 'class' => 'mt-5'])
+        {{-- Row --}}
+        @component('components.elements.div', ['class' => 'row flex-column mt-5'])
+            {{-- Wrap Div --}}
+            @component('components.elements.div', ['class' => 'col-12 col-md-4 mx-auto d-flex flex-column mb-5'])
+
+                @component('components.heading', ['class' => 'mb-4', 'hideImage' => 1])
+                    Edit Account
+                @endcomponent
+
                 <form role="form" method="POST" action="{{ route('account_update') }}">
                     {{ csrf_field() }}
                     <input name="_method" type="hidden" value="PATCH">
@@ -30,8 +42,18 @@
                     </div>
                     <button type="submit" class="btn btn-warning my-3">@lang('auth/account/edit.edit')</button>
                 </form>
-            </div>
-        </div>
-    </div>
+                @unless($user->isBlacklisted())
+                    <hr>
+                    <h4 class="my-4">Danger Zone:</h4>
+                    <form role="form" method="POST" action="{{ route('account_delete') }}">
+                        {{ csrf_field() }}
+                        <input name="_method" type="hidden" value="DELETE">
+                        <button class="btn btn-danger" type="submit">
+                            @lang('auth/account/index.delete')
+                        </button>
+                    </form>
+                @endunless
+            @endcomponent
+        @endcomponent
+    @endcomponent
 @endsection
-

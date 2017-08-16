@@ -1,11 +1,19 @@
-@extends('layouts.app')
+@extends('api.layouts.default')
+
+{{-- Page Title --}}
 @section('title')
     @lang('auth/account/shorturls/edit.header')
 @endsection
 
-@section('content')
-    @include('layouts.heading')
-    <div class="container">
+@section('sidebar__content')
+    @parent
+    @include('api.auth.account.menu')
+@endsection
+
+@section('P__content')
+    @component('components.elements.container')
+        @slot('type', 'fluid')
+
         <div class="row">
             <div class="col-12 col-md-6 mx-auto">
                 @include('components.errors')
@@ -29,6 +37,5 @@
                 </form>
             </div>
         </div>
-    </div>
+    @endcomponent
 @endsection
-

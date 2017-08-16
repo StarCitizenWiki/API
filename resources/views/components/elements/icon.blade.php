@@ -1,0 +1,1 @@
+<i id="{{ $id or '' }}" class="fa fa-{{ $slot }} {{ $class or '' }}">{{ $content or '' }}</i>

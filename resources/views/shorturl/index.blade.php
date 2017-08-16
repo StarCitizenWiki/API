@@ -1,6 +1,6 @@
-@extends('layouts.shorturl')
+@extends('shorturl.layouts.app')
 
-@section('content')
+@section('body__content')
 <main class="container" id="form">
     <div class="row justify-content-center" style="height: 100vh">
         <div class="col-10 col-md-6 align-self-center d-flex form-container">

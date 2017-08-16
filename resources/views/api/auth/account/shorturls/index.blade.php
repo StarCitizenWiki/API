@@ -1,12 +1,19 @@
-@extends('layouts.app')
+@extends('api.layouts.default')
+
+{{-- Page Title --}}
 @section('title')
     @lang('auth/account/shorturls/index.header')
 @endsection
 
-@section('content')
-    @include('layouts.heading')
+@section('sidebar__content')
+    @parent
+    @include('api.auth.account.menu')
+@endsection
 
-    <div class="container-fluid">
+@section('P__content')
+    @component('components.elements.container')
+        @slot('type', 'fluid')
+
         <div class="row">
             <div class="col-10 col-md-3 mx-auto">
                 @include('components.errors')
@@ -17,9 +24,10 @@
                 @endif
             </div>
         </div>
-    </div>
+    @endcomponent
 
-    <div class="container-fluid">
+    @component('components.elements.container')
+        @slot('type', 'fluid')
         <div class="row">
             <div class="col-10 mx-auto my-5">
                 <table class="table table-striped" id="urlTable" cellspacing="0" width="100%">
@@ -74,7 +82,7 @@
                 </table>
             </div>
         </div>
-    </div>
+    @endcomponent
 @endsection
 
 @section('scripts')

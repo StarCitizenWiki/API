@@ -1,0 +1,1 @@
+<img src="{{ $slot }}" class="{{ $class or '' }}" id="{{ $id or '' }}" {{ $options or '' }} />
