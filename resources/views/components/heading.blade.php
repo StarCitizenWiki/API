@@ -9,11 +9,7 @@
                 {{ $linkClass or '' }}
             @endslot
             @slot('options')
-                href="@if(empty($route) || $route === '#' || str_contains($route, '/')){{--
-                --}}{{ $route or '' }}{{--
-                --}}@else{{--
-                --}}{{ route($route) }}{{--
-                --}}@endif"
+                href="@if(empty($route) || $route === '#' || str_contains($route, '/')) {{ $route or '' }} @else {{ route($route) }} @endif"
             @endslot
 
             @component('components.elements.img')

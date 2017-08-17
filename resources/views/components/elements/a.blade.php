@@ -1,4 +1,4 @@
-@component('components.elements.element', ['type' => 'div'])
+@component('components.elements.element', ['type' => 'a'])
     @slot('id')
         {{ $id or '' }}
     @endslot
@@ -6,7 +6,7 @@
         {{ $class or '' }}
     @endslot
     @slot('options')
-        {{ $options or '' }}
+        href="{{ $href or '' }}" {{ $options or '' }}
     @endslot
     {{ $slot or '' }}
 @endcomponent

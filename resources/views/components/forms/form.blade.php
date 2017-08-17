@@ -1,4 +1,14 @@
-<form method="{{ $method or '' }}" id="{{ $id or '' }}" class="{{ $class or '' }}" action="{{ $action or '' }}">
+@component('components.elements.element', ['type' => 'form'])
+    @slot('id')
+        {{ $id or '' }}
+    @endslot
+    @slot('class')
+        {{ $class or '' }}
+    @endslot
+    @slot('options')
+        method="{{ $method or '' }}" action="{{ $action or '' }}"
+    @endslot
+
     {{ csrf_field() }}
     {{ $slot }}
-</form>
+@endcomponent

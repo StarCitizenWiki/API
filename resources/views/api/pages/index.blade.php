@@ -11,7 +11,12 @@
         {{-- Content --}}
         @component('components.elements.div', ['class' => 'row'])
             @component('components.elements.div', ['class' => 'col-12 col-md-4 mx-auto'])
-                @component('components.heading', ['class' => 'my-5 text-center', ['contentClass' => 'mt-5']])
+                @component('components.heading', [
+                    'class' => 'my-5 text-center',
+                    'contentClass' => 'mt-5',
+                    'imageClass' => 'mb-2',
+                    'route' => route('api_index')
+                ])
                     Star Citizen Wiki API
                 @endcomponent
 
@@ -50,7 +55,7 @@
         @endcomponent
 
         @component('components.elements.div', ['class' => 'row mt-5'])
-            @component('components.elements.div', ['class' => 'col-12 col-md-6 mt-5 mx-auto'])
+            @component('components.elements.div', ['class' => 'col-12 col-md-6 mt-5 mx-auto mb-5 mb-md-0'])
                 @component('components.elements.div', ['class' => 'panel panel-default'])
                     @component('components.elements.div', ['class' => 'panel-heading'])
                         @component('components.elements.element', ['type' => 'h4'])

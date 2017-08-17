@@ -17,17 +17,23 @@
 
 
 {{-- Body --}}
-@section('sidebarRow--class', 'flex-column')
+@section('sidebar--class', 'd-none d-md-flex')
+
+@section('sidebarRow--class', 'flex-column w-100')
 
 {{-- Sidebar Content --}}
 @section('sidebar__content')
-    @include('api.menu')
+    @include('api.menu.main')
 @endsection
 
 {{-- Main Content --}}
 @section('topNav--class', 'bg-blue-grey')
 
 @section('topNav__content')
+    @component('components.elements.div', ['class' => 'nav flex-column d-sm-flex d-md-none'])
+        @include('api.menu.main')
+    @endcomponent
+
     @if (Auth::guest())
         @component('components.navs.nav_element', ['route' => 'auth_login'])
             @component('components.elements.icon')

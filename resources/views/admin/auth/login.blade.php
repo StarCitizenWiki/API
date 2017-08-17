@@ -9,33 +9,34 @@
 
 @section('topNav--class', 'd-none')
 
+@section('main--class', 'justify-content-center align-items-center d-flex mvh-100')
+
 @section('P__content')
-    @component('components.heading')
-        @slot('class', 'mt-5')
-        @slot('contentClass', 'mt-5 text-white')
-        @slot('route', '/')
-        Star Citizen Wiki API Admin
+    @component('components.elements.div', ['class' => 'col-sm-6 col-md-3 text-white mb-5'])
+        @component('components.heading', ['class' => 'mb-4 text-white text-center', 'contentClass' => 'mt-5', 'imageClass' => 'mb-2', 'route' => route('api_index')])
+            SCW API Admin
+        @endcomponent
+
+        @component('components.elements.div', ['class' => 'row'])
+            @component('components.elements.div', ['class' => 'col-12 col-md-10 mx-auto'])
+                @component('components.forms.form', ['method' => 'POST', 'action' => route('admin_login')])
+                    @include('components.errors')
+
+                    @component('components.forms.form-group', ['id' => 'username', 'required' => 1, 'autofocus' => 1, 'value' => old('username'), 'tabindex' => 1])
+                        @lang('admin/auth.username'):
+                    @endcomponent
+
+                    @component('components.forms.form-group', ['inputType' => 'password', 'id' => 'password', 'required' => 1, 'tabindex' => 2])
+                        @lang('admin/auth.password'):
+                    @endcomponent
+
+                    @component('components.elements.div', ['class' => 'form-group mt-3'])
+                        @component('components.elements.element', ['type' => 'button', 'class' => 'btn'])
+                            @lang('auth/login.login')
+                        @endcomponent
+                    @endcomponent
+                @endcomponent
+            @endcomponent
+        @endcomponent
     @endcomponent
-
-    <div class="col-sm-6 col-md-3 mx-auto mt-3 text-white">
-        @include('components.errors')
-        <form role="form" method="POST" action="{{ route('admin_login') }}">
-            {{ csrf_field() }}
-            <div class="form-group">
-                <label for="username" aria-label="E-Mail">@lang('admin/auth.username'):</label>
-                <input type="text" class="form-control" id="username" name="username" required aria-required="true" aria-labelledby="username" tabindex="1" data-minlength="3" value="{{ old('username') }}" autofocus>
-            </div>
-
-            <div class="form-group">
-                <label for="password" aria-label="API Key">@lang('admin/auth.password'):</label>
-                <input type="password" class="form-control" id="password" name="password" required aria-required="true" aria-labelledby="password" tabindex="2" data-minlength="3" value="{{ old('password') }}">
-            </div>
-
-            <div class="form-group mt-3">
-                <button type="submit" class="btn">
-                    @lang('auth/login.login')
-                </button>
-            </div>
-        </form>
-    </div>
 @endsection

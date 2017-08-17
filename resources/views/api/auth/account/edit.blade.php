@@ -6,18 +6,29 @@
 @endsection
 
 @section('sidebar__content')
-    @parent
-    @include('api.auth.account.menu')
+    @include('api.auth.menu.main')
+@endsection
+
+@section('topNav__content')
+    @component('components.elements.div', ['class' => 'nav flex-column d-sm-flex d-md-none'])
+        @include('api.auth.menu.main')
+    @endcomponent
 @endsection
 
 @section('P__content')
-    @component('components.elements.container', ['type' => 'fluid', 'class' => 'mt-5'])
+    @component('components.elements.container', [
+        'type' => 'fluid',
+        'class' => 'mt-5'
+    ])
         {{-- Row --}}
-        @component('components.elements.div', ['class' => 'row flex-column mt-5'])
+        @component('components.elements.div', ['class' => 'row flex-column mt-md-5'])
             {{-- Wrap Div --}}
             @component('components.elements.div', ['class' => 'col-12 col-md-4 mx-auto d-flex flex-column mb-5'])
 
-                @component('components.heading', ['class' => 'mb-4', 'hideImage' => 1])
+                @component('components.heading', [
+                    'class' => 'mb-4',
+                    'hideImage' => 1
+                ])
                     Edit Account
                 @endcomponent
 
