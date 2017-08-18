@@ -11,17 +11,17 @@
             @slot('options')
                 {{ $options or '' }}
             @endslot
-            {{ $slot or '' }}
+            {{ $slot }}
         @endcomponent
     @else
         @component('components.elements.element', ['type' => 'a'])
             @slot('class')
-                nav-link @if(Route::currentRouteName() == $route) active @endif {{ $contentClass or '' }}
+                nav-link @if(Request::fullUrl() == $route) active @endif {{ $contentClass or '' }}
             @endslot
             @slot('options')
-                href="@if($route === '#' || str_contains($route, '//')) {{ $route }} @else {{ route($route) }} @endif" {{ $options or '' }}
+                href="{{ $route }}" {{ $options or '' }}
             @endslot
-            {{ $slot or '' }}
+            {{ $slot }}
         @endcomponent
     @endif
     {{ $body or '' }}

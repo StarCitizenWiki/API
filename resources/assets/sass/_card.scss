@@ -1,0 +1,22 @@
+.row.equal-height {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.row.equal-height > [class*='col-'] {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  flex: 1;
+}
+
+.card {
+  .card-footer {
+    .pagination {
+      margin-bottom: 0;
+      justify-content: flex-end !important;
+    }
+  }
+}

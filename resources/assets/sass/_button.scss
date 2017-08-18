@@ -1,0 +1,15 @@
+.btn-warning,
+.btn-danger {
+  color: #fefefe;
+
+  &:hover {
+    color: #e2e2e2;
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  .btn-block-xs-only {
+    display: block;
+    width: 100%;
+  }
+}

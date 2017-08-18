@@ -1,6 +1,6 @@
-<{{ $type }} id="{{ $id or '' }}" class="{{ $class or '' }}" {{ $options or '' }}
-@unless(in_array($type, ['img', 'input']))
->{{ $slot or '' }}</{{ $type }}>
-@else
-/>
-@endunless
+<{{ $type }}
+    @if(isset($id)) id="{{ $id or '' }}" @endif
+    @if(isset($class)) class="{{ $class or '' }}" @endif
+    {{ $options or '' }}>
+    {{ $slot }}
+</{{ $type }}>

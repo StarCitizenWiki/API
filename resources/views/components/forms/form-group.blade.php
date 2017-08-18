@@ -1,49 +1,48 @@
-@component('components.elements.div')
-    @slot('class')
-        form-group {{ $class or '' }}
-    @endslot
+<div class="form-group {{ $class or '' }}">
+    @if(isset($label))
+    <label @if(isset($labelClass)) class="{{ $labelClass or '' }}" @endif
+           for="{{ $id }}"
+           aria-label="{{ $id }}"
+           {{ $labelOptions or '' }}>
+        {{ $label }}:
+    </label>
+    @endif
 
-    @component('components.elements.element', ['type' => 'label'])
-        @slot('class')
-            {{ $labelClass or '' }}
-        @endslot
-        @slot('options')
-            for="{{ $id }}" aria-label="{{ $id }}" {{ $labelOptions or '' }}
-        @endslot
-
-        {{ $slot or '' }}
-    @endcomponent
-
-    @component('components.elements.input')
-        @slot('id')
-            {{ $id or '' }}
-        @endslot
-        @slot('class')
-            {{ $inputClass or 'form-control' }}
-        @endslot
-        @slot('type')
-            {{ $inputType or 'text' }}
-        @endslot
-        @slot('name')
-            {{ $name or $id }}
-        @endslot
-        @slot('for')
-            {{ $for or $id }}
-        @endslot
-        @slot('tabIndex')
-            {{ $tabIndex or 0 }}
-        @endslot
-        @slot('value')
-            {{ $value or '' }}
-        @endslot
-        @slot('options')
-            {{ $inputOptions or '' }}
-        @endslot
-        @slot('required')
-            {{ $required or '' }}
-        @endslot
-        @slot('autofocus')
-            {{ $autofocus or '' }}
-        @endslot
-    @endcomponent
-@endcomponent
+    @if(isset($inputType) && $inputType === 'textarea')
+        <textarea type="{{ $inputType or 'text' }}"
+               name="{{ $name or $id }}"
+               aria-label="{{ $id }}"
+               @if(isset($tabIndex)) tabindex="{{ $tabIndex or 0 }}" @endif
+               @if(isset($cols)) cols="{{ $cols or 0 }}" @endif
+               rows="{{ $rows or 3 }}"
+               id="{{ $id }}"
+               class="{{ $inputClass or 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
+               @if(isset($required) && $required == '1') required @endif
+               @if(isset($autofocus) && $autofocus == '1') autofocus @endif
+                {{ $inputOptions or '' }}>{{ $value or old($id) }}</textarea>
+    @elseif(isset($inputType) && $inputType === 'select')
+        <select type="{{ $inputType or 'text' }}"
+                  name="{{ $name or $id }}"
+                  aria-label="{{ $id }}"
+                  @if(isset($tabIndex)) tabindex="{{ $tabIndex or 0 }}" @endif
+                  id="{{ $id }}"
+                  class="{{ $inputClass or 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
+                  @if(isset($required) && $required == '1') required @endif
+                  @if(isset($autofocus) && $autofocus == '1') autofocus @endif
+                {{ $inputOptions or '' }}>
+            {{ $selectOptions or '' }}
+        </select>
+    @else
+        <input type="{{ $inputType or 'text' }}"
+               name="{{ $name or $id }}"
+               aria-label="{{ $id }}"
+               @if(isset($tabIndex)) tabindex="{{ $tabIndex or 0 }}" @endif
+               @if(isset($value)) value="{{ $value or '' }}" @endif
+               id="{{ $id }}"
+               class="{{ $inputClass or 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
+               @if(isset($required) && $required == '1') required @endif
+               @if(isset($autofocus) && $autofocus == '1') autofocus @endif
+                {{ $inputOptions or '' }}>
+    @endif
+    {{ $slot }}
+</div>

@@ -1,21 +1,9 @@
 @extends('layouts.default')
 
-@include('admin.layouts.layout_config')
+@include('admin.layouts.config')
 
-{{-- Body --}}
-@section('sidebar__pre')
-    @parent
-    @component('components.elements.element', ['type' => 'a', 'class' => 'w-100'])
-        @slot('options')
-            href="/"
-        @endslot
-
-        @component('components.elements.img', ['class' => 'd-block mx-auto my-5 img-fluid'])
-            @slot('options')
-                style="max-width: 100px;"
-            @endslot
-
-            {{ asset('media/images/Star_Citizen_Wiki_Logo_White.png') }}
-        @endcomponent
-    @endcomponent
+@section('P__content')
+    <div class="col-12 col-md-12 col-lg-10 col-xl-5 mx-auto mt-3 mt-lg-5 mb-3">
+        @yield('content')
+    </div>
 @endsection

@@ -1,3 +1,3 @@
 @extends('layouts.full_width')
 
-@include('admin.layouts.layout_config')
+@include('admin.layouts.config')

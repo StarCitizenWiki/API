@@ -1,40 +1,45 @@
-@extends('api.layouts.default')
+@extends('api.auth.layouts.default')
 
 {{-- Page Title --}}
-@section('title')
-    @lang('auth/account/shorturls/add.header')
-@endsection
+@section('title', trans('auth/account/shorturls/add.header'))
 
-@section('sidebar__content')
-    @parent
-    @include('api.auth.account.menu')
-@endsection
+@section('content')
+@include('components.errors')
 
-@section('P__content')
-    @component('components.elements.container')
-        @slot('type', 'fluid')
+<div class="card">
+    <h4 class="card-header">@lang('auth/account/shorturls/add.header')</h4>
+    <div class="card-body">
+        @component('components.forms.form', ['action' => route('account_urls_add')])
+            @component('components.forms.form-group', [
+                'id' => 'url',
+                'label' => trans('auth/account/shorturls/add.url'),
+                'inputType' => 'url',
+                'tabIndex' => 1,
+                'autofocus' => 1,
+                'required' => 1,
+                'value' => old('url'),
+                'inputOptions' => 'spellcheck=false',
+            ])@endcomponent
 
-        <div class="row">
-            <div class="col-12 col-md-6 mx-auto">
-                @include('components.errors')
-                <form role="form" method="POST" action="{{ route('account_urls_add') }}">
-                    {{ csrf_field() }}
-                    <input name="_method" type="hidden" value="POST">
-                    <div class="form-group">
-                        <label for="url" aria-label="Name">@lang('auth/account/shorturls/add.url'):</label>
-                        <input type="url" class="form-control" id="url" name="url" aria-labelledby="url" tabindex="1" autofocus value="{{ old('url') }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="hash_name" aria-label="Name">@lang('auth/account/shorturls/add.name'):</label>
-                        <input type="text" class="form-control" id="hash_name" name="hash_name" aria-required="true" aria-labelledby="hash_name" tabindex="2" data-minlength="3" value="{{ old('hash_name') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="expires" aria-label="expires">@lang('auth/account/shorturls/add.expires'):</label>
-                        <input type="datetime-local" class="form-control" id="expires" name="expires" aria-required="true" aria-labelledby="expires" tabindex="3" value="{{ old('expires') }}" min="{{ \Carbon\Carbon::now()->format("Y-m-d\TH:i") }}">
-                    </div>
-                    <button type="submit" class="btn btn-success my-3">@lang('auth/account/shorturls/add.add')</button>
-                </form>
-            </div>
-        </div>
-    @endcomponent
+            @component('components.forms.form-group', [
+                'id' => 'hash_name',
+                'label' => trans('auth/account/shorturls/add.name'),
+                'tabIndex' => 2,
+                'value' => old('hash_name'),
+                'inputOptions' => 'data-minlength=3 spellcheck=false',
+            ])@endcomponent
+
+            @component('components.forms.form-group', [
+                'id' => 'expires',
+                'label' => trans('auth/account/shorturls/add.expires'),
+                'inputType' => 'datetime-local',
+                'tabIndex' => 3,
+                'value' => old('expires'),
+                'inputOptions' => 'min='.\Carbon\Carbon::now()->format("Y-m-d\TH:i"),
+            ])@endcomponent
+
+            <button class="btn btn-outline-success btn-block-xs-only pull-right">@lang('auth/account/shorturls/add.add')</button>
+        @endcomponent
+    </div>
+</div>
 @endsection

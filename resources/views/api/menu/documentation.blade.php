@@ -1,8 +1,6 @@
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
-    'route' => 'api_faq'
+    'route' => route('api_faq'),
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         question-circle
     @endcomponent
@@ -11,10 +9,9 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
+    'contentClass' => 'disabled',
     'route' => '-'
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         cloud
     @endcomponent
@@ -23,10 +20,9 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
+    'contentClass' => 'disabled',
     'route' => '-'
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         rocket
     @endcomponent
@@ -35,10 +31,9 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
+    'contentClass' => 'disabled',
     'route' => '-'
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         link
     @endcomponent
@@ -47,10 +42,9 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
+    'contentClass' => 'disabled',
     'route' => '-'
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         image
     @endcomponent

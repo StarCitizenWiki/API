@@ -1,7 +1,6 @@
 <?php
 return [
     'app' => 'App',
-    'logout' => 'Logout',
     'logs' => 'Logs',
     'api' => 'API',
     'tools' => 'Tools',
@@ -25,4 +24,9 @@ return [
 
     'ships' => 'Schiffe',
     'download_ships' => 'Schiffe downloaden',
+
+    'login' => 'Login',
+    'logout' => 'Logout',
+    'password' => 'Passwort',
+    'username' => 'Benutzername',
 ];

@@ -1,14 +1,10 @@
-@component('components.elements.element', ['type' => 'form'])
-    @slot('id')
-        {{ $id or '' }}
-    @endslot
-    @slot('class')
-        {{ $class or '' }}
-    @endslot
-    @slot('options')
-        method="{{ $method or '' }}" action="{{ $action or '' }}"
-    @endslot
-
+<form method="POST"
+      @if(isset($id)) id="{{ $id or '' }}" @endif
+      @if(isset($action)) action="{{ $action or '' }}" @endif
+      @if(isset($class)) class="{{ $class or '' }}" @endif>
     {{ csrf_field() }}
+    @if (isset($method) && $method !== 'POST')
+        @include('components.forms.fields.'.$method)
+    @endif
     {{ $slot }}
-@endcomponent
+</form>

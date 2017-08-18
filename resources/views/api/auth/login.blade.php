@@ -1,72 +1,47 @@
 @extends('api.layouts.full_width')
 
-@section('body--class', 'bg-dark')
-
 {{-- Page Title --}}
-@section('title')
-    @lang('auth/login.header')
-@endsection
+@section('title', trans('auth/login.header'))
 
-@section('topNav--class', 'd-none')
+@section('content')
+    @component('components.heading', [
+        'class' => 'text-center mb-5',
+        'route' => route('api_index'),
+    ])@endcomponent
 
-@section('main--class', 'justify-content-center align-items-center d-flex mvh-100')
+    @include('components.errors')
 
-@section('P__content')
-    @component('components.elements.div', ['class' => 'col-sm-6 col-md-3 text-white mb-5'])
-        @component('components.heading', [
-            'class' => 'mb-4 text-white text-center',
-            'contentClass' => 'mt-5',
-            'imageClass' => 'mb-2',
-            'route' => route('api_index')
-        ])
-            Star Citizen Wiki API
-        @endcomponent
+    <div class="card bg-dark text-light-grey">
+        <h4 class="card-header">API @lang('auth/login.header')</h4>
+        <div class="card-body">
 
-        @component('components.elements.div', ['class' => 'row'])
-            @component('components.elements.div', ['class' => 'col-12 col-md-10 mx-auto'])
-                @component('components.forms.form', [
-                    'method' => 'POST',
-                    'action' => route('auth_login')
-                ])
-                    @include('components.errors')
+            @component('components.forms.form', ['action' => route('auth_login')])
+                @component('components.forms.form-group', [
+                    'inputType' => 'email',
+                    'label' => trans('auth/login.email'),
+                    'id' => 'email',
+                    'required' => 1,
+                    'autofocus' => 1,
+                    'value' => old('email'),
+                    'tabIndex' => 1,
+                    'inputOptions' => 'spellcheck=false',
+                ])@endcomponent
 
-                    @component('components.forms.form-group', [
-                        'inputType' => 'email',
-                        'id' => 'email',
-                        'required' => 1,
-                        'autofocus' => 1,
-                        'value' => old('email'),
-                        'tabIndex' => 1
-                    ])
-                        @lang('auth/login.email'):
-                    @endcomponent
+                @component('components.forms.form-group', [
+                    'inputType' => 'password',
+                    'label' => trans('auth/login.password'),
+                    'id' => 'password',
+                    'required' => 1,
+                    'tabIndex' => 2,
+                ])@endcomponent
 
-                    @component('components.forms.form-group', [
-                        'inputType' => 'password',
-                        'id' => 'password',
-                        'required' => 1,
-                        'tabIndex' => 2
-                    ])
-                        @lang('auth/login.password'):
-                    @endcomponent
-
-                    @component('components.elements.div', ['class' => 'form-group mt-3'])
-                        @component('components.elements.element', [
-                            'type' => 'button',
-                            'class' => 'btn'
-                        ])
-                            @lang('auth/login.login')
-                        @endcomponent
-
-                        @component('components.elements.a', [
-                            'class' => 'btn btn-link pull-right text-white',
-                            'href' => route('password.request')
-                        ])
-                            @lang('auth/login.forgot_password')
-                        @endcomponent
-                    @endcomponent
-                @endcomponent
+                <button class="btn btn-outline-secondary">
+                    @lang('auth/login.login')
+                </button>
+                <a href="{{ route('password.request') }}" class="btn btn-link pull-right text-light-grey">
+                    @lang('auth/login.forgot_password')
+                </a>
             @endcomponent
-        @endcomponent
-    @endcomponent
+        </div>
+    </div>
 @endsection

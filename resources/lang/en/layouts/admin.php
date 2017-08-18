@@ -1,7 +1,6 @@
 <?php
 return [
     'app' => 'App',
-    'logout' => 'Logout',
     'logs' => 'Logs',
     'api' => 'API',
     'tools' => 'Tools',
@@ -9,19 +8,25 @@ return [
 
     'admin' => 'Admin',
     'dashboard' => 'Dashboard',
-    'routes' => 'Routes',
-    'user' => 'User',
+    'routes' => 'Routen',
+    'user' => 'Benutzer',
 
     'urls' =>'URLs',
     'short_urls' => 'ShortURLs',
     'whitelist' => 'Whitelist',
-    'add_whitelist' => 'Add Whitelist',
+    'add_whitelist' => 'Whitelist hinzufügen',
 
     'starmap' => 'Starmap',
-    'systems' => 'Systems',
-    'add_system' => 'Add System',
-    'download_starmap' => 'Download Starmap',
+    'systems' => 'Systeme',
+    'celestialobjects' => 'Celestial Objects',
+    'add_system' => 'System hinzufügen',
+    'download_starmap' => 'Starmap downloaden',
 
-    'ships' => 'Ships',
-    'download_ships' => 'Download Ships',
+    'ships' => 'Schiffe',
+    'download_ships' => 'Schiffe downloaden',
+
+    'login' => 'Login',
+    'logout' => 'Logout',
+    'password' => 'Password',
+    'username' => 'Username',
 ];

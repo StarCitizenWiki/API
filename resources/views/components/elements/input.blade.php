@@ -1,23 +1,11 @@
-@component('components.elements.element', ['type' => 'input'])
-    @slot('id')
-        {{ $id or '' }}
-    @endslot
-    @slot('class')
-        {{ $labelClass or 'form-control' }}
-    @endslot
-    @slot('options')
-        type="{{ $type or 'text' }}"
-        name="{{ $name or $id }}"
-        for="{{ $for or $id }}"
-        aria-label="{{ $id or '' }}"
-        tabindex="{{ $tabIndex or 0 }}"
-        value="{{ $value or '' }}"
-        {{ $inputOptions or '' }}
-        @if(isset($required) && $required == '1')
-{{--    --}}required
-        @endif
-        @if(isset($autofocus) && $autofocus == '1')
-{{--    --}}autofocus
-        @endif
-    @endslot
-@endcomponent
+<input type="{{ $type or 'text' }}"
+       name="{{ $name or $id }}"
+       aria-label="{{ $id or '' }}"
+
+       @if(isset($tabIndex)) tabindex="{{ $tabIndex or 0 }}" @endif
+       @if(isset($value)) value="{{ $value or '' }}" @endif
+       @if(isset($id)) id="{{ $id or '' }}" @endif
+       @if(isset($required) && $required == '1') required @endif
+       @if(isset($autofocus) && $autofocus == '1') autofocus @endif
+       class="{{ $labelClass or 'form-control' }}"
+       {{ $inputOptions or '' }}>

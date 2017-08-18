@@ -1,71 +1,60 @@
 @extends('api.layouts.full_width')
 
-@section('body--class', 'bg-dark')
-
 {{-- Page Title --}}
-@section('P__title')
-    @lang('auth/passwords/reset.header')
-@endsection
+@section('title', trans('auth/passwords/reset.header'))
 
-@section('topNav--class', 'd-noane')
+@section('content')
+    @component('components.heading', [
+        'class' => 'text-center mb-5',
+        'route' => route('auth_login'),
+    ])@endcomponent
 
-@section('P__content')
-    @component('components.heading')
-        @slot('class', 'mt-5')
-        @slot('contentClass', 'mt-5 text-white')
-        Star Citizen Wiki API
-    @endcomponent
+    @if (session('status'))
+        <div class="alert alert-success">
+            {{ session('status') }}
+        </div>
+    @endif
 
-    <div class="col-sm-6 col-md-3 mx-auto mt-3 text-white">
-        @if (session('status'))
-            <div class="alert alert-success">
-                {{ session('status') }}
-            </div>
-        @endif
+    @include('components.errors')
 
-        <form class="form-horizontal" role="form" method="POST" action="{{ route('password.request') }}">
-            {{ csrf_field() }}
+    <div class="card bg-dark text-light-grey">
+        <h4 class="card-header">@lang('auth/passwords/reset.header')</h4>
+        <div class="card-body">
+            @component('components.forms.form', ['action' => route('password.request')])
+                <input type="hidden" name="token" value="{{ $token or '' }}">
 
-            <input type="hidden" name="token" value="{{ $token }}">
+                @component('components.forms.form-group', [
+                    'inputType' => 'email',
+                    'label' => trans('auth/login.email'),
+                    'id' => 'email',
+                    'required' => 1,
+                    'autofocus' => 1,
+                    'tabIndex' => 1,
+                    'inputOptions' => 'spellcheck=false',
+                ])
+                    @slot('value'){{ $email or old('email') }}@endslot
+                @endcomponent
 
-            <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                <label for="email" class="control-label">@lang('auth/passwords/reset.email')</label>
-                <input id="email" type="email" class="form-control" name="email" value="{{ $email or old('email') }}" required autofocus>
+                @component('components.forms.form-group', [
+                    'inputType' => 'password',
+                    'label' => trans('auth/passwords/reset.password'),
+                    'id' => 'password',
+                    'tabIndex' => 2,
+                    'required' => 1,
+                ])@endcomponent
 
-                @if ($errors->has('email'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first('email') }}</strong>
-                    </span>
-                @endif
-            </div>
+                @component('components.forms.form-group', [
+                    'inputType' => 'password',
+                    'label' => trans('auth/passwords/reset.password_confirmation'),
+                    'id' => 'password_confirmation',
+                    'tabIndex' => 3,
+                    'required' => 1,
+                ])@endcomponent
 
-            <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-                <label for="password" class="control-label">@lang('auth/passwords/reset.password')</label>
-                <input id="password" type="password" class="form-control" name="password" required>
-
-                @if ($errors->has('password'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first('password') }}</strong>
-                    </span>
-                @endif
-            </div>
-
-            <div class="form-group{{ $errors->has('password_confirmation') ? ' has-error' : '' }}">
-                <label for="password-confirm" class="control-label">@lang('auth/passwords/reset.password_confirmation')</label>
-                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
-
-                @if ($errors->has('password_confirmation'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first('password_confirmation') }}</strong>
-                    </span>
-                @endif
-            </div>
-
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">
+                <button class="btn btn-outline-secondary btn-block">
                     @lang('auth/passwords/reset.reset_password')
                 </button>
-            </div>
-        </form>
+            @endcomponent
+        </div>
     </div>
 @endsection

@@ -1,36 +1,23 @@
-@component('components.elements.div')
-    @slot('class')
-        {{ $class or '' }}
-    @endslot
-
+@if(isset($class) && strlen($class) > 0)
+<div class="{{ $class or '' }}">
+@endif
     @unless(isset($hideImage))
-        @component('components.elements.element', ['type' => 'a'])
-            @slot('class')
-                {{ $linkClass or '' }}
-            @endslot
-            @slot('options')
-                href="@if(empty($route) || $route === '#' || str_contains($route, '/')) {{ $route or '' }} @else {{ route($route) }} @endif"
-            @endslot
-
-            @component('components.elements.img')
-                @slot('class')
-                    center-block {{ $imageClass or '' }}
-                @endslot
-
-                {{ asset('media/images/Star_Citizen_Wiki_Logo.png') }}
-            @endcomponent
-        @endcomponent
+        @if(isset($route) && strlen($route) > 0)
+        <a href="{{ $route or '' }}" class="{{ $linkClass or '' }}">
+        @endif
+            <img src="{{ asset('media/images/Star_Citizen_Wiki_Logo_White.png') }}" style="max-width: 120px;" class="{{ $imageClass or '' }}">
+        @if(isset($route) && strlen($route) > 0)
+        </a>
+        @endif
     @endunless
 
     @unless(strlen($slot) === 0)
-        @component('components.elements.element', ['type' => 'h1'])
-            {{ $slot }}
-        @endcomponent
+        <h1 class="{{ $titleClass or '' }}">{{ $slot }}</h1>
     @endunless
 
     @unless(empty($subTitle))
-        @component('components.elements.element', ['type' => 'p', 'class' => 'lead'])
-            {{ $subTitle or '' }}
-        @endcomponent
+        <p class="lead {{ $subTitleClass or '' }}">{{ $subTitle or '' }}</p>
     @endunless
-@endcomponent
+@if(isset($class) && strlen($class) > 0)
+</div>
+@endif

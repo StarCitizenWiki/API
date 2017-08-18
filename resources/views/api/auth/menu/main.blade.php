@@ -1,7 +1,7 @@
 @component('components.navs.sidebar_section', [
-    'titleClass' => 'text-muted',
-    'contentClass' => 'pl-2',
-    'isLink' => 1,
+    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_account',
     'title' => 'Account',
     'show' => 1,
@@ -10,9 +10,9 @@
 @endcomponent
 
 @component('components.navs.sidebar_section', [
-    'titleClass' => 'text-muted',
-    'contentClass' => 'pl-2',
-    'isLink' => 1,
+    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_shorturls',
     'title' => 'ShortURLs',
 ])

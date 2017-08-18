@@ -1,8 +1,6 @@
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
-    'route' => 'https://star-citizen.wiki/'
+    'route' => 'https://star-citizen.wiki/',
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         globe
     @endcomponent
@@ -11,10 +9,8 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
-    'route' => 'https://twitter.com/SC_Wiki'
+    'route' => 'https://twitter.com/SC_Wiki',
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         twitter
     @endcomponent
@@ -23,10 +19,8 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
-    'route' => 'https://facebook.com/StarCitizenWiki'
+    'route' => 'https://facebook.com/StarCitizenWiki',
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         facebook-square
     @endcomponent
@@ -35,10 +29,8 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'text-white',
-    'route' => 'https://robertsspaceindustries.com/orgs/WIKI'
+    'route' => 'https://robertsspaceindustries.com/orgs/WIKI',
 ])
-
     @component('components.elements.icon', ['class' => 'mr-2'])
         building-o
     @endcomponent

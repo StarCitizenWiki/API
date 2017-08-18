@@ -1,33 +1,21 @@
-@component('components.elements.element', ['type' => 'nav'])
-    @slot('class')
-        navbar navbar-expand-lg navbar-dark {{ $class or '' }}
-    @endslot
+<nav class="navbar navbar-expand-md navbar-dark col {{ $class or '' }}">
+    @if (isset($title) && strlen($title) > 0)
+        <a class="navbar-brand {{ $titleClass or '' }}" href="{{ $titleLink or '#' }}">{{ $title }}</a>
+    @endif
 
-    <?php if (isset($title) && !empty($title)) { ?>
-        @component('components.elements.element', ['type' => 'a', 'class' => 'navbar-brand'])
-            @slot('options')
-                href="{{ $titleLink or '#' }}"
-            @endslot
-            {{ $title }}
-        @endcomponent
-    <?php } ?>
+    <button class="navbar-toggler {{ $togglerClass or '' }}"
+            type="button"
+            data-toggle="collapse"
+            data-target="#{{ $navID or 'nav-top-menu' }}"
+            aria-controls="{{ $navID or 'nav-top-menu' }}"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-    @component('components.elements.element', ['type' => 'button', 'class' => 'navbar-toggler'])
-        @slot('options')
-            type="button" data-toggle="collapse" data-target="#nav-top-menu" aria-controls="nav-top-menu" aria-expanded="false" aria-label="Toggle navigation"
-        @endslot
-
-        @component('components.elements.element', ['type' => 'span', 'class' => 'navbar-toggler-icon'])
-        @endcomponent
-    @endcomponent
-
-    @component('components.elements.element', ['type' => 'div', 'id' => 'nav-top-menu'])
-        @slot('class')
-            collapse navbar-collapse justify-content-end {{ $contentClass or '' }}
-        @endslot
-
-        @component('components.elements.element', ['type' => 'ul', 'class' => 'navbar-nav'])
-            {{ $slot or '' }}
-        @endcomponent
-    @endcomponent
-@endcomponent
+    <div id="{{ $navID or 'nav-top-menu' }}" class="collapse navbar-collapse justify-content-end {{ $contentClass or '' }}">
+        <ul class="navbar-nav {{$navbarClass or ''}}">
+            {{ $slot }}
+        </ul>
+    </div>
+</nav>

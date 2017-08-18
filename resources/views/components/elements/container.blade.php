@@ -1,12 +1,5 @@
-@component('components.elements.element', ['type' => 'div'])
-    @slot('id')
-        {{ $id or '' }}
-    @endslot
-    @slot('class')
-        container{{ $type == 'fluid' ? '-fluid' : '' }} {{ $class or '' }}
-    @endslot
-    @slot('options')
-        {{ $options or '' }}
-    @endslot
-    {{ $slot or '' }}
-@endcomponent
+<div class="container{{ $type == 'fluid' ? '-fluid' : '' }} {{ $class or '' }}"
+     @if(isset($id)) id="{{ $id or '' }}" @endif
+    {{ $options or '' }}>
+    {{ $slot}}
+</div>

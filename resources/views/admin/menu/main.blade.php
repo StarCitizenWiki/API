@@ -1,39 +1,47 @@
-@component('components.navs.sidebar_section', ['class' => 'mb-3', 'titleClass' => 'text-muted', 'contentClass' => 'pl-2 mb-0', 'isLink' => 1, 'id' => 'm_admin', 'show' => 1])
-    @slot('title')
-        @lang('layouts/admin.admin')
-    @endslot
-
-    @include('admin.menu.admin')
-@endcomponent
-
-@component('components.navs.sidebar_section', ['class' => 'mb-3', 'titleClass' => 'text-muted', 'contentClass' => 'pl-2 mb-0', 'isLink' => 1, 'id' => 'm_app'])
-    @slot('title')
-        @lang('layouts/admin.app') Links
-    @endslot
-
+@component('components.navs.sidebar_section', [
+    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+])
     @include('admin.menu.app_links')
 @endcomponent
 
-@component('components.navs.sidebar_section', ['class' => 'mb-3', 'titleClass' => 'text-muted', 'contentClass' => 'pl-2 mb-0', 'isLink' => 1, 'id' => 'm_urls'])
-    @slot('title')
-        @lang('layouts/admin.urls')
-    @endslot
+@component('components.navs.sidebar_section', [
+    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_admin',
+    'title' => trans('layouts/admin.admin'),
+])
+    @include('admin.menu.admin')
+@endcomponent
 
+@component('components.navs.sidebar_section', [
+    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_urls',
+    'title' => trans('layouts/admin.urls'),
+])
     @include('admin.menu.urls')
 @endcomponent
 
-@component('components.navs.sidebar_section', ['class' => 'mb-3', 'titleClass' => 'text-muted', 'contentClass' => 'pl-2 mb-0', 'isLink' => 1, 'id' => 'm_starmap'])
-    @slot('title')
-        @lang('layouts/admin.starmap')
-    @endslot
-
+@component('components.navs.sidebar_section', [
+    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_starmap',
+    'title' => trans('layouts/admin.starmap'),
+])
     @include('admin.menu.starmap')
 @endcomponent
 
-@component('components.navs.sidebar_section', ['class' => 'mb-3', 'titleClass' => 'text-muted', 'contentClass' => 'pl-2 mb-0', 'isLink' => 1, 'id' => 'm_ships'])
-    @slot('title')
-        @lang('layouts/admin.ships')
-    @endslot
-
+@component('components.navs.sidebar_section', [
+    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_ships',
+    'title' => trans('layouts/admin.ships'),
+])
     @include('admin.menu.ships')
 @endcomponent

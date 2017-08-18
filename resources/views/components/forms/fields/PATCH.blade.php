@@ -1,0 +1,1 @@
+@component('components.forms.fields.method_field', ['method' => 'PATCH'])@endcomponent

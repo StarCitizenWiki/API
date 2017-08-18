@@ -3,7 +3,7 @@
 @section('body__content')
     @component('components.elements.container', ['type' => 'fluid'])
         @slot('class')
-{{--    --}}mvh-100 @yield('container--class')
+{{--    --}}@yield('container--class')
         @endslot
 
         @slot('id')
@@ -18,11 +18,15 @@
         <div class="row">
         @component('components.navs.top_nav')
             @slot('class')
-{{--        --}}col-12 pr-4 @yield('topNav--class')
+{{--        --}}@yield('topNav--class')
             @endslot
 
             @slot('title')
 {{--        --}}@yield('topNav__title')
+            @endslot
+
+            @slot('titleClass')
+{{--        --}}@yield('topNav--titleClass')
             @endslot
 
             @slot('titleLink')
@@ -39,7 +43,7 @@
         </div>
 
         <div class="row @yield('containerRow--class')" id="@yield('containerRow--id')" @yield('containerRow--options')>
-            <main class="col-12 @yield('main--class')" id="@yield('main--id')" @yield('main--options')>
+            <main class="col @yield('main--class')" id="@yield('main--id')" @yield('main--options')>
 {{--        --}}@yield('P__content')
             </main>
         </div>

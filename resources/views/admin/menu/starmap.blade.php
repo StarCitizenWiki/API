@@ -1,23 +1,34 @@
-@component('components.navs.nav_element', ['contentClass' => 'text-white py-1', 'route' => 'admin_starmap_systems_list'])
+@component('components.navs.nav_element', [
+    'route' => route('admin_starmap_systems_list'),
+])
     @component('components.elements.icon', ['class' => 'mr-2'])
         circle-o-notch
     @endcomponent
     @lang('layouts/admin.systems')
 @endcomponent
 
-@component('components.navs.nav_element', ['contentClass' => 'text-white py-1', 'route' => 'admin_starmap_celestialobject_list'])
+@component('components.navs.nav_element', [
+    'route' => route('admin_starmap_celestialobject_list'),
+])
     @component('components.elements.icon', ['class' => 'mr-2'])
         circle-o-notch
     @endcomponent
     @lang('layouts/admin.celestialobjects')
 @endcomponent
 
-@component('components.navs.nav_element', ['contentClass' => 'text-white py-1', 'route' => '#'])
+@component('components.navs.nav_element', [
+    'route' => '#',
+])
     @slot('options')
         onclick="event.preventDefault(); document.getElementById('download-starmap').submit();"
     @endslot
 
-    @component('components.forms.form', ['id' => 'download-starmap', 'action' => route('admin_starmap_systems_download'), 'method' => 'POST', 'class' => 'd-none'])
+    @component('components.forms.form', [
+        'id' => 'download-starmap',
+        'action' => route('admin_starmap_systems_download'),
+        'method' => 'POST',
+        'class' => 'd-none',
+    ])
         @component('components.elements.element', ['type' => 'input'])
             @slot('options')
                 name="_method" type="hidden" value="POST"

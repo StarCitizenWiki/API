@@ -1,4 +1,4 @@
-@component('components.navs.nav_element', ['contentClass' => 'text-white py-1'])
+@component('components.navs.nav_element')
     @slot('route')
         //{{ config('app.api_url') }}
     @endslot
@@ -8,7 +8,8 @@
     @lang('layouts/admin.api')
 @endcomponent
 
-@component('components.navs.nav_element', ['contentClass' => 'text-white py-1'])
+
+@component('components.navs.nav_element')
     @slot('route')
         //{{ config('app.tools_url') }}
     @endslot
@@ -18,7 +19,8 @@
     @lang('layouts/admin.tools')
 @endcomponent
 
-@component('components.navs.nav_element', ['contentClass' => 'text-white py-1'])
+
+@component('components.navs.nav_element')
     @slot('route')
         //{{ config('app.shorturl_url') }}
     @endslot
