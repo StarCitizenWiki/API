@@ -337,7 +337,7 @@ class StarmapAPIController extends Controller
             $objectNames = explode('.', $name);
             if (is_null($objectNames) || count($objectNames) != 3) {
                 throw new InvalidArgumentException(
-                    'Objectname not like SYSTEM.TYPE.NAME (e.g. STANTON.PLANETS.STANTONIIIARCCORP). Input was '.$name
+                    "Objectname not like SYSTEM.TYPE.NAME (e.g. STANTON.PLANETS.STANTONIIIARCCORP). Input was {$name}"
                 );
             }
 

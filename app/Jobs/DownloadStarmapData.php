@@ -35,11 +35,6 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     const CELESTIALOBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
     const CELESTIALSUBOBJECTS_CHECKLIST = ['data', 'resultset', 0, 'children', 0];
 
-    /**
-     * @var \GuzzleHttp\Client
-     */
-    private $guzzleClient;
-
     private $starsystems;
 
     private $starsystemsUpdated = 0;
@@ -64,8 +59,8 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
 
         //TODO Mail an api@startcitizen.wiki und ins log mit Anzahl wieviel System und Celestial Objects Updated
 
-        app('Log')::info('Starmap Download Job Finished (Starsystems updated:'.$this->starsystemsUpdated
-                         ." CelestialObjects updated:".$this->celestialObjectsUpdated.")");
+        app('Log')::info("Starmap Download Job Finished (Starsystems updated:{$this->starsystemsUpdated} 
+                         CelestialObjects updated:{$this->celestialObjectsUpdated})");
     }
 
     private function setSystems(): void
@@ -99,7 +94,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     {
         $systemId = $this->writeStarsystemToDB($system);
 
-        app('Log')::info('Read Celestial Objets of '.$system['code'].' (Id: '.$systemId.')');
+        app('Log')::info("Read Celestial Objects of {$system['code']} (Id: {$systemId})");
         $celestialObjects = $this->getCelestialObjects($system['code']);
         foreach ($celestialObjects as $celestialObject) {
             $this->writeCelestialObjectToDb($celestialObject, $systemId);
@@ -168,7 +163,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
             $celestialObjects = $starsystemData['data']['resultset'][0]['celestial_objects'];
             $allCelestialObjects = $this->addCelestialSubobjects($celestialObjects);
         } else {
-            app('Log')::error('Can not read System '.$starsystemName.' from RSI');
+            app('Log')::error("Can not read System {$starsystemName} from RSI");
         }
 
         return $allCelestialObjects;

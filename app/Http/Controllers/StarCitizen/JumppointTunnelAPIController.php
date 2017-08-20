@@ -78,7 +78,7 @@ class JumppointTunnelAPIController extends Controller
 
         try {
             $this->addTrace("Getting JumppointtunnelById {$id}", __FUNCTION__, __LINE__);
-            $data = $this->repository->getJumppointTunnel($id);
+            $data = $this->repository->getJumppointTunnelById($id)->asArray();
 
             $this->addTrace("Got JumppointtunnelById {$id}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
@@ -110,7 +110,7 @@ class JumppointTunnelAPIController extends Controller
 
         try {
             $this->addTrace("Getting JumppointtunnelBySystem {$name}", __FUNCTION__, __LINE__);
-            $data = $this->repository->getJumppointTunnelForSystem($name)->asArray();
+            $data = $this->repository->getJumppointTunnelBySystem($name)->asArray();
             $this->addTrace("Got JumppointtunnelBySystem {$name}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
@@ -122,6 +122,37 @@ class JumppointTunnelAPIController extends Controller
             );
         } catch (InvalidDataException | InvalidArgumentException  $e) {
             $this->addTrace("Getting JumppointtunnelBySystem failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Get all Jumppointtunnels by size
+     * @param $size
+     *
+     * @return \Illuminate\Http\JsonResponse|string
+     */
+    public function getJumppointTunnelBySize($size)
+    {
+        $this->startProfiling(__FUNCTION__);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['size' => $size]);
+
+        try {
+            $this->addTrace("Getting JumppointtunnelBySize {$size}", __FUNCTION__, __LINE__);
+            $data = $this->repository->getJumppointTunnelForBySize($size)->asArray();
+            $this->addTrace("Got JumppointtunnelBySize {$size}", __FUNCTION__, __LINE__);
+            $this->stopProfiling(__FUNCTION__);
+
+            return response()->json(
+                $data,
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        } catch (InvalidDataException | InvalidArgumentException  $e) {
+            $this->addTrace("Getting JumppointtunnelBySize failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();

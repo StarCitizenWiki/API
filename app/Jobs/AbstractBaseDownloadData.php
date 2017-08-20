@@ -15,6 +15,11 @@ abstract class AbstractBaseDownloadData
 {
 
     /**
+     * @var \GuzzleHttp\Client
+     */
+    protected $guzzleClient;
+
+    /**
      * Check if Data is successfull, and if Data contains the check Array values in is structure
      * e.g. for check ['data, 'resultset'], data have to contain the key 'data' with an array value,
      * which contains a key with 'resultset'

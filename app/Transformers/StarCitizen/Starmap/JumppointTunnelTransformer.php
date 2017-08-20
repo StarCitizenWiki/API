@@ -23,9 +23,21 @@ class JumppointTunnelTransformer extends AbstractBaseTransformer
      *
      * @return mixed
      */
-    public function transform($jumppointTunnel)
+    public function transform($jumppointTunnelInput)
     {
-        $jumppointTunnel = $this->moveToSubarray($jumppointTunnel, static::SUBARRAY_NODES);
-        return $this->filterAndRenameFields($jumppointTunnel);
+        // One Array has to be in an Array of Arrays
+        if (!array_key_exists(0, $jumppointTunnelInput)) {
+            $tmpJumppointTunnel = $jumppointTunnelInput;
+            $jumppointTunnels = [];
+            array_push($jumppointTunnels, $tmpJumppointTunnel);
+        } else {
+            $jumppointTunnels = $jumppointTunnelInput;
+        }
+
+        foreach ($jumppointTunnels as &$jumppointTunnel) {
+            $jumppointTunnel = $this->moveToSubarray($jumppointTunnel, static::SUBARRAY_NODES);
+            $jumppointTunnel = $this->filterAndRenameFields($jumppointTunnel);
+        }
+        return $jumppointTunnels;
     }
 }

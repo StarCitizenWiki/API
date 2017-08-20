@@ -49,7 +49,7 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
         foreach ($this->jumppointtunnels as $jumppointtunnel) {
             $this->writeJumppointtunnelToDB($jumppointtunnel);
         }
-        app('Log')::info('Jumppoint Tunnel Download Job Finished (updated:'.$this->jumppointtunnels_updated.")");
+        app('Log')::info("Jumppoint Tunnel Download Job Finished (updated:{$this->jumppointtunnels_updated})");
     }
 
     private function setJumppointtunnels()
@@ -95,7 +95,7 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
 
         if (is_null($lastJumppointtunnelSource)
         || strcmp($jumppointtunnelSourceData, $lastJumppointtunnelSource) != 0) {
-            app('Log')::info('Write to Database Jumppointtunnel '.$jumppointtunnel['id']);
+            app('Log')::info("Write to Database Jumppointtunnel {$jumppointtunnel['id']}");
 
             $jumppointModel = new Jumppoint();
             $jumppointModel->cig_id = $jumppointtunnel['id'];

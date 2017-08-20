@@ -9,6 +9,7 @@ namespace App\Repositories\StarCitizen\APIv1;
 
 use App\Models\CelestialObject;
 use App\Models\Starsystem;
+use App\Models\Jumppoint;
 use App\Repositories\StarCitizen\BaseStarCitizenRepository;
 use App\Repositories\StarCitizen\Interfaces\StarmapInterface;
 use App\Transformers\StarCitizen\Starmap\AsteroidbeltsTransformer;
@@ -31,6 +32,7 @@ use InvalidArgumentException;
 class StarmapRepository extends BaseStarCitizenRepository implements StarmapInterface
 {
     const TIME_GROUP_FIELD = 'cig_time_modified';
+    const JUMPPOINTTUNNEL_TIME_GROUP_FIELD = 'created_at';
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}
@@ -96,7 +98,33 @@ class StarmapRepository extends BaseStarCitizenRepository implements StarmapInte
 
         $celestialObjectQueryData = $this->getQueryData($systemName, 'JUMPPOINT');
 
+        $celestialObjectQueryData = $this->addJumppointSize($celestialObjectQueryData);
         return $this->withTransformer(JumppointsTransformer::class)->transform($celestialObjectQueryData);
+    }
+
+    private function addJumppointSize($celestialObjects)
+    {
+        if (is_array($celestialObjects)
+            && array_key_exists(0, $celestialObjects)) {
+            $cig_system_id = $celestialObjects[0]['cig_system_id'];
+
+            $jumppointtunnelQueryData = Jumppoint::where('entry_cig_system_id', $cig_system_id)
+                ->orWhere('exit_cig_system_id', $cig_system_id)
+                ->groupBy('cig_id')
+                ->havingRaw(self::JUMPPOINTTUNNEL_TIME_GROUP_FIELD.' = max('.self::JUMPPOINTTUNNEL_TIME_GROUP_FIELD.')')
+                ->get()
+                ->toArray();
+
+            foreach ($celestialObjects as &$celestialObject) {
+                foreach ($jumppointtunnelQueryData as $jumppointtunnel) {
+                    if ($celestialObject['cig_id'] == $jumppointtunnel['entry_cig_id']
+                        || $celestialObject['cig_id'] == $jumppointtunnel['exit_cig_id']) {
+                        $celestialObject['jumppoint_size'] = $jumppointtunnel['size'];
+                    }
+                }
+            }
+        }
+        return $celestialObjects;
     }
 
     /**
