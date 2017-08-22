@@ -17,30 +17,48 @@
 
 
 {{-- Body --}}
-@section('sidebar--class', 'd-none d-md-flex')
+@section('sidebar--class', 'd-none d-md-flex flex-column')
 
-@section('sidebarRow--class', 'flex-column w-100')
 
 {{-- Sidebar Content --}}
 @section('sidebar__content')
     @include('admin.menu.main')
 @endsection
 
+@section('sidebar__pre')
+    @parent
+    <a href="{{ route('admin_dashboard') }}">
+        <img src="{{ asset('media/images/Star_Citizen_Wiki_Logo_White.png') }}"
+             class="d-block mx-auto my-5 img-fluid"
+             style="max-width: 100px;">
+    </a>
+@endsection
+
+@section('sidebar__after')
+    @parent
+    @include('components.sidebar_imprint')
+@endsection
+
+
 {{-- Main Content --}}
 @section('topNav--class', 'bg-blue-grey')
 
-@section('topNav__content')
-    @component('components.elements.div', ['class' => 'nav flex-column d-sm-flex d-md-none'])
-        @include('admin.menu.main')
-    @endcomponent
+@section('topNav__title', 'API Admin')
+@section('topNav__title--class', 'd-md-none')
 
+
+@section('topNav__content')
     @unless(Auth::guest())
-        @component('components.navs.nav_element', ['route' => 'admin_logout'])
+        @component('components.navs.nav_element', ['route' => route('admin_logout')])
             @slot('options')
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
             @endslot
 
-            @component('components.forms.form', ['id' => 'logout-form', 'action' => route('admin_logout'), 'method' => 'POST', 'class' => 'd-none'])
+            @component('components.forms.form', [
+                'id' => 'logout-form',
+                'action' => route('admin_logout'),
+                'class' => 'd-none',
+            ])
             @endcomponent
 
             @component('components.elements.icon', ['class' => 'mr-1'])
@@ -49,6 +67,10 @@
             @lang('layouts/app.logout')
         @endcomponent
     @endunless
+
+    <div class="nav d-flex d-md-none flex-row flex-lg-column">
+        @include('admin.menu.main')
+    </div>
 @endsection
 
 
