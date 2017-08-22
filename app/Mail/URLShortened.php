@@ -39,6 +39,6 @@ class URLShortened extends Mailable implements ShouldQueue
     {
         $this->subject('Star Citizen Wiki API - URL Shortened');
 
-        return $this->markdown('mail.urlshortened');
+        return $this->markdown('emails.urlshortened');
     }
 }
