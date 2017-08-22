@@ -1,7 +1,7 @@
 @extends('api.layouts.full_width')
 
 {{-- Page Title --}}
-@section('title', trans('auth/login.header'))
+@section('title', '__LOC__Login')
 
 @section('content')
     @component('components.heading', [
@@ -12,13 +12,13 @@
     @include('components.errors')
 
     <div class="card bg-dark text-light-grey">
-        <h4 class="card-header">API @lang('auth/login.header')</h4>
+        <h4 class="card-header">__LOC__API Login</h4>
         <div class="card-body">
 
             @component('components.forms.form', ['action' => route('auth_login')])
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
-                    'label' => trans('auth/login.email'),
+                    'label' => '__LOC__Email',
                     'id' => 'email',
                     'required' => 1,
                     'autofocus' => 1,
@@ -29,17 +29,17 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'password',
-                    'label' => trans('auth/login.password'),
+                    'label' => '__LOC__Password',
                     'id' => 'password',
                     'required' => 1,
                     'tabIndex' => 2,
                 ])@endcomponent
 
                 <button class="btn btn-outline-secondary">
-                    @lang('auth/login.login')
+                    __LOC__Login
                 </button>
                 <a href="{{ route('password.request') }}" class="btn btn-link pull-right text-light-grey">
-                    @lang('auth/login.forgot_password')
+                    __LOC__Forgot_Password
                 </a>
             @endcomponent
         </div>

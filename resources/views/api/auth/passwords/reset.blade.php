@@ -1,7 +1,7 @@
 @extends('api.layouts.full_width')
 
 {{-- Page Title --}}
-@section('title', trans('auth/passwords/reset.header'))
+@section('title', '__LOC__Reset_Password')
 
 @section('content')
     @component('components.heading', [
@@ -25,7 +25,7 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
-                    'label' => trans('auth/login.email'),
+                    'label' => '__LOC__Email',
                     'id' => 'email',
                     'required' => 1,
                     'autofocus' => 1,
@@ -37,7 +37,7 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'password',
-                    'label' => trans('auth/passwords/reset.password'),
+                    'label' => '__LOC__Password',
                     'id' => 'password',
                     'tabIndex' => 2,
                     'required' => 1,
@@ -45,14 +45,14 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'password',
-                    'label' => trans('auth/passwords/reset.password_confirmation'),
+                    'label' => '__LOC__Password_Confirmation',
                     'id' => 'password_confirmation',
                     'tabIndex' => 3,
                     'required' => 1,
                 ])@endcomponent
 
                 <button class="btn btn-outline-secondary btn-block">
-                    @lang('auth/passwords/reset.reset_password')
+                    __LOC__Reset_Password
                 </button>
             @endcomponent
         </div>

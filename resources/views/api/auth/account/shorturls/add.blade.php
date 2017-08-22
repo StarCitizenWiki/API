@@ -1,7 +1,7 @@
 @extends('api.auth.layouts.default')
 
 {{-- Page Title --}}
-@section('title', trans('auth/account/shorturls/add.header'))
+@section('title', '__LOC__Add_Url')
 
 @section('content')
 @include('components.errors')
@@ -12,7 +12,7 @@
         @component('components.forms.form', ['action' => route('account_urls_add')])
             @component('components.forms.form-group', [
                 'id' => 'url',
-                'label' => trans('auth/account/shorturls/add.url'),
+                'label' => '__LOC__Url',
                 'inputType' => 'url',
                 'tabIndex' => 1,
                 'autofocus' => 1,
@@ -23,22 +23,22 @@
 
             @component('components.forms.form-group', [
                 'id' => 'hash',
-                'label' => trans('auth/account/shorturls/add.name'),
+                'label' => '__LOC__Hash',
                 'tabIndex' => 2,
                 'value' => old('hash'),
                 'inputOptions' => 'data-minlength=3 spellcheck=false',
             ])@endcomponent
 
             @component('components.forms.form-group', [
-                'id' => 'expires',
-                'label' => trans('auth/account/shorturls/add.expires'),
+                'id' => 'expired_at',
+                'label' => '__LOC__Expired_at',
                 'inputType' => 'datetime-local',
                 'tabIndex' => 3,
-                'value' => old('expires'),
+                'value' => old('expired_at'),
                 'inputOptions' => 'min='.\Carbon\Carbon::now()->format("Y-m-d\TH:i"),
             ])@endcomponent
 
-            <button class="btn btn-outline-success btn-block-xs-only pull-right">@lang('auth/account/shorturls/add.add')</button>
+            <button class="btn btn-outline-success btn-block-xs-only pull-right">__LOC__Add</button>
         @endcomponent
     </div>
 </div>

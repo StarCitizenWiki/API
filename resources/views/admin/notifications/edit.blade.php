@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">Edit Notification ID:{{ $notification->getRouteKey() }}</h4>
+        <h4 class="card-header">__LOC__Edit_Notification __LOC__ID:{{ $notification->getRouteKey() }}</h4>
         <div class="card-body">
             @component('components.forms.form', [
                 'method' => 'PATCH',
@@ -10,7 +10,7 @@
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'textarea',
-                    'label' => 'Notification',
+                    'label' => '__LOC__Notification',
                     'id' => 'content',
                     'rows' => 6,
                     'value' => $notification->content,
@@ -25,17 +25,17 @@
                             'id' => 'level',
                         ])
                             @slot('selectOptions')
-                                <option value="0" @if($notification->level == 0) selected @endif>Info</option>
-                                <option value="1" @if($notification->level == 1) selected @endif>Warnung</option>
-                                <option value="2" @if($notification->level == 2) selected @endif>Fehler</option>
-                                <option value="3" @if($notification->level == 3) selected @endif>Kritisch</option>
+                                <option value="0" @if($notification->level == 0) selected @endif>__LOC__Info</option>
+                                <option value="1" @if($notification->level == 1) selected @endif>__LOC__Warnung</option>
+                                <option value="2" @if($notification->level == 2) selected @endif>__LOC__Fehler</option>
+                                <option value="3" @if($notification->level == 3) selected @endif>__LOC__Kritisch</option>
                             @endslot
                         @endcomponent
                     </div>
                     <div class="col-12 col-lg-6">
                         @component('components.forms.form-group', [
                             'inputType' => 'datetime-local',
-                            'label' => 'Ablaufdatum',
+                            'label' => '__LOC__Ablaufdatum',
                             'id' => 'expired_at',
                             'value' => $notification->expired_at->format("Y-m-d\TH:i"),
                         ])@endcomponent
@@ -45,12 +45,12 @@
                     <div class="col-12 col-lg-6">
                         @component('components.forms.form-group', [
                             'inputType' => 'number',
-                            'label' => 'Order',
+                            'label' => '__LOC__Order',
                             'id' => 'order',
                             'value' => $notification->order,
                             'inputOptions' => 'min=0 max=5',
                         ])
-                            <small class="help-block">Reihenfolge auf Startseite, Aufsteigend sortiert</small>
+                            <small class="help-block">__LOC__Reihenfolge auf Startseite, Aufsteigend sortiert</small>
                         @endcomponent
                     </div>
                     <div class="col-12 col-lg-6">
@@ -63,39 +63,39 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <span class="d-block">Ausgabetyp:</span>
+                    <span class="d-block">__LOC__Ausgabetyp:</span>
                     <label class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="status" name="output[]" value="status"
                                @if($notification->output_status) checked @endif>
                         <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">Status</span>
+                        <span class="custom-control-description">__LOC__Status</span>
                     </label>
                     <label class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="index" name="output[]" value="index"
                                @if($notification->output_index) checked @endif>
                         <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">Startseite</span>
+                        <span class="custom-control-description">__LOC__Startseite</span>
                     </label>
                     <label class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="email" name="output[]" value="email"
                                @if($notification->output_email) checked disabled @endif>
                         <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">E-Mail</span>
+                        <span class="custom-control-description">__LOC__E-Mail</span>
                     </label>
                     @if($notification->output_email)
                         <label class="custom-control custom-checkbox text-danger">
                             <input type="checkbox" class="custom-control-input" id="resend_mail" name="resend_mail"
                                    value="resend_mail">
                             <span class="custom-control-indicator"></span>
-                            <span class="custom-control-description">Resend E-Mail</span>
+                            <span class="custom-control-description">__LOC__Resend E-Mail</span>
                         </label>
                     @endif
                 </div>
-                <button class="btn btn-outline-secondary" name="save">Speichern</button>
+                <button class="btn btn-outline-secondary" name="save">__LOC__Speichern</button>
                 @if($notification->trashed())
-                    <button class="btn btn-outline-success pull-right" name="restore">Restore</button>
+                    <button class="btn btn-outline-success pull-right" name="restore">__LOC__Restore</button>
                 @else
-                    <button class="btn btn-outline-danger pull-right" name="delete">Löschen</button>
+                    <button class="btn btn-outline-danger pull-right" name="delete">__LOC__Löschen</button>
                 @endif
             @endcomponent
         </div>

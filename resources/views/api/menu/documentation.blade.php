@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         question-circle
     @endcomponent
-    @lang('api/index.faq')
+    __LOC__Faq
 @endcomponent
 
 
@@ -15,7 +15,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         cloud
     @endcomponent
-    @lang('api/index.rsi_api')
+    __LOC__Rsi Api
 @endcomponent
 
 
@@ -26,7 +26,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         rocket
     @endcomponent
-    @lang('api/index.wiki_api')
+    __LOC__Wiki Api
 @endcomponent
 
 
@@ -37,7 +37,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         link
     @endcomponent
-    @lang('api/index.url_api')
+    __LOC__Url Api
 @endcomponent
 
 
@@ -48,5 +48,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         image
     @endcomponent
-    @lang('api/index.media_api')
+    __LOC__Media Api
 @endcomponent

@@ -4,5 +4,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         dot-circle-o
     @endcomponent
-    API Status
+    __LOC__API Status
 @endcomponent

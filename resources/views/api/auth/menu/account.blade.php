@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         home
     @endcomponent
-    Home
+    __LOC__Home
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -13,7 +13,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         pencil
     @endcomponent
-    Bearbeiten
+    __LOC__Bearbeiten
 @endcomponent
 
 @unless(Auth::user()->isBlacklisted())
@@ -23,6 +23,6 @@
         @component('components.elements.icon', ['class' => 'mr-2'])
             trash
         @endcomponent
-        Löschen
+        __LOC__Löschen
     @endcomponent
 @endunless

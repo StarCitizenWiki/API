@@ -4,16 +4,16 @@
     <div class="row">
         <div class="col-12 col-md-8 mx-auto">
             <div class="card mb-3">
-                <h4 class="card-header">ShortURLs</h4>
+                <h4 class="card-header">__LOC__ShortURLs</h4>
                 <div class="card-body px-0">
                     <table class="table table-striped table-responsive mb-0">
                         <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Hash ID</th>
-                            <th>Created</th>
-                            <th>URL</th>
-                            <th>Internal</th>
+                            <th>__LOC__ID</th>
+                            <th>__LOC__Hash ID</th>
+                            <th>__LOC__Created</th>
+                            <th>__LOC__URL</th>
+                            <th>__LOC__Internal</th>
                             <th>&nbsp;</th>
                         </tr>
                         </thead>
@@ -53,7 +53,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4">@lang('auth/account/urls/index.no_urls_found')</td>
+                                <td colspan="4">__LOC__No_Whitelist_Urls_Found</td>
                             </tr>
                         @endforelse
                         </tbody>

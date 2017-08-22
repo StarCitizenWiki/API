@@ -1,19 +1,19 @@
 @extends('api.auth.layouts.default')
 
 {{-- Page Title --}}
-@section('title', trans('auth/account/index.header'))
+@section('title', '__LOC__Account')
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">Account</h4>
+        <h4 class="card-header">__LOC__Account</h4>
 
         <div class="card-body">
-            <h6 class="card-title">Stammdaten:</h6>
+            <h6 class="card-title">__LOC__Stammdaten:</h6>
             @component('components.forms.form-group', [
                 'id' => '',
                 'inputOptions' => 'readonly',
                 'value' => $user->name,
-                'label' => trans('auth/account/index.name'),
+                'label' => '__LOC__Name',
             ])@endcomponent
 
             <div class="row">
@@ -22,7 +22,7 @@
                         'id' => '',
                         'inputOptions' => 'readonly',
                         'value' => $user->email,
-                        'label' => trans('auth/account/index.email'),
+                        'label' => '__LOC__Email',
                     ])@endcomponent
                 </div>
                 <div class="col-12 col-lg-6">
@@ -30,7 +30,7 @@
                         'id' => '',
                         'inputOptions' => 'readonly',
                         'value' => \App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$user->receive_notification_level].' and up',
-                        'label' => trans('auth/account/index.notification_level'),
+                        'label' => '__LOC__Notification_Level',
                     ])@endcomponent
                 </div>
             </div>
@@ -39,7 +39,7 @@
                 'id' => '',
                 'inputOptions' => 'readonly',
                 'value' => $user->api_token,
-                'label' => trans('auth/account/index.api_key'),
+                'label' => '__LOC__Api_Key',
             ])@endcomponent
 
             <div class="row">
@@ -48,7 +48,7 @@
                         'id' => '',
                         'inputOptions' => 'readonly',
                         'value' => $user->requests_per_minute,
-                        'label' => trans('auth/account/index.requests_per_minute'),
+                        'label' => '__LOC__Requests_per_minute',
                     ])@endcomponent
                 </div>
                 <div class="col-12 col-lg-6">
@@ -56,7 +56,7 @@
                         'id' => '',
                         'inputOptions' => 'readonly',
                         'value' => $request_count,
-                        'label' => 'Anfragen in der letzten Minute',
+                        'label' => '__LOC__Anfragen in der letzten Minute',
                     ])
                         @slot('inputClass')
                             <?php $perc = round(($request_count / $user->requests_per_minute) * 100); ?>

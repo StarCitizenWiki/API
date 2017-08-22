@@ -1,7 +1,7 @@
 @extends('api.layouts.full_width')
 
 {{-- Page Title --}}
-@section('title', trans('auth/passwords/email.header'))
+@section('title', '__LOC__Reset_Password')
 
 @section('content')
     @component('components.heading', [
@@ -24,7 +24,7 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
-                    'label' => trans('auth/passwords/email.email'),
+                    'label' => '__LOC__Email',
                     'id' => 'email',
                     'labelClass' => 'control-label',
                     'value' => old('email'),
@@ -33,7 +33,7 @@
                 ])@endcomponent
 
                 <button class="btn btn-outline-secondary btn-block">
-                    @lang('auth/passwords/email.send_mail')
+                    __LOC__Send_Email
                 </button>
             @endcomponent
         </div>

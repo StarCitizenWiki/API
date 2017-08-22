@@ -1,12 +1,12 @@
 @extends('api.layouts.default')
 
 {{-- Page Title --}}
-@section('title', trans('api/index.header'))
+@section('title', '__LOC__Status')
 
 {{-- Page Content --}}
 @section('content')
     <div class="card status">
-        <h4 class="card-header">Status</h4>
+        <h4 class="card-header">__LOC__Status</h4>
         <div class="card-body">
             @foreach($notifications as $notification)
                 <div class="card @if($notification->expired()) text-muted @else bg-{{ $notification->getBootstrapClass() }}@endif mb-4">

@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">Edit ShortUrl: {{ $url->hash }}</h4>
+        <h4 class="card-header">__LOC__Edit ShortUrl: {{ $url->hash }}</h4>
         <div class="card-body">
             @component('components.forms.form', [
                 'method' => 'PATCH',
@@ -10,7 +10,7 @@
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'url',
-                    'label' => 'Url',
+                    'label' => '__LOC__Url',
                     'id' => 'url',
                     'required' => 1,
                     'autofocus' => 1,
@@ -22,7 +22,7 @@
                 <div class="row">
                     <div class="col-12 col-md-6">
                         @component('components.forms.form-group', [
-                            'label' => 'Hash',
+                            'label' => '__LOC__Hash',
                             'id' => 'hash',
                             'required' => 1,
                             'value' => $url->hash,
@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-12 col-md-6">
                         @component('admin.components.user_dropdown', [
-                            'label' => 'User',
+                            'label' => '__LOC__User',
                             'required' => 1,
                             'tabIndex' => 3,
                             'selectedID' => $url->user_id,
@@ -41,7 +41,7 @@
                 </div>
                 @component('components.forms.form-group', [
                     'inputType' => 'dateTime-local',
-                    'label' => 'Expires',
+                    'label' => '__LOC__expired_at',
                     'id' => 'expired_at',
                     'tabIndex' => 4,
                     'inputOptions' => 'spellcheck=false',
@@ -53,11 +53,11 @@
                     @endunless
                 @endcomponent
 
-                <button class="btn btn-outline-secondary" name="save">Speichern</button>
+                <button class="btn btn-outline-secondary" name="save">__LOC__Speichern</button>
                 @if($url->trashed())
-                    <button class="btn btn-outline-success pull-right" name="restore">Restore</button>
+                    <button class="btn btn-outline-success pull-right" name="restore">__LOC__Restore</button>
                 @else
-                    <button class="btn btn-outline-danger pull-right" name="delete">Löschen</button>
+                    <button class="btn btn-outline-danger pull-right" name="delete">__LOC__Löschen</button>
                 @endif
             @endcomponent
         </div>

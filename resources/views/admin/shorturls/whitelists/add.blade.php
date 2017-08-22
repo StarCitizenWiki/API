@@ -19,10 +19,10 @@
                 <label class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" name="internal" id="internal">
                     <span class="custom-control-indicator"></span>
-                    <span class="custom-control-description">Intern</span>
+                    <span class="custom-control-description">__LOC__Intern</span>
                 </label>
                 <br>
-                <button class="btn btn-outline-secondary" name="save">Speichern</button>
+                <button class="btn btn-outline-secondary" name="save">__LOC__Speichern</button>
             @endcomponent
         </div>
     </div>

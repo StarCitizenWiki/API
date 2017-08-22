@@ -1,7 +1,7 @@
 @extends('api.auth.layouts.default_wide')
 
 {{-- Page Title --}}
-@section('title', trans('auth/account/shorturls/index.header'))
+@section('title', '__LOC__ShortUrls')
 
 
 @section('content')
@@ -18,17 +18,17 @@
     <div class="row">
         <div class="col-12 col-xl-11 mx-auto mt-xl-1">
             <div class="card">
-                <h4 class="card-header">ShortURLs</h4>
+                <h4 class="card-header">__LOC__ShortURLs</h4>
 
                 <div class="card-body px-0">
                     <table class="table table-striped table-responsive" id="urlTable" cellspacing="0" width="100%">
                         <thead>
                         <tr>
-                            <th><span>Short</span></th>
-                            <th><span>@lang('auth/account/shorturls/index.url')</span></th>
-                            <th><span>@lang('auth/account/shorturls/index.hash')</span></th>
-                            <th><span>@lang('auth/account/shorturls/index.created_at')</span></th>
-                            <th><span>@lang('auth/account/shorturls/index.expires')</span></th>
+                            <th><span>__LOC__Short</span></th>
+                            <th><span>__LOC__url</span></th>
+                            <th><span>__LOC__hash</span></th>
+                            <th><span>__LOC__created_at</span></th>
+                            <th><span>__LOC__expired_at_at</span></th>
                             <th>&nbsp;</th>
                         </tr>
                         </thead>
@@ -49,7 +49,7 @@
                                         {{ Carbon\Carbon::parse($url->created_at)->format('d.m.Y') }}
                                     </td>
                                     <td>
-                                        @component('components.shorturls.expiresfield', ['expires' => $url->expires])@endcomponent
+                                        @component('components.shorturls.expired_atfield', ['expired_at' => $url->expired_at])@endcomponent
                                     </td>
                                     <td>
                                         @component('components.edit_delete_block')
@@ -66,7 +66,7 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="7">@lang('auth/account/shorturls/index.no_urls_found')</td>
+                                <td colspan="7">__LOC__No_Urls_Found</td>
                             </tr>
                         @endif
                         </tbody>

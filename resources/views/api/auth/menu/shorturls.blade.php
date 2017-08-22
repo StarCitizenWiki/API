@@ -5,7 +5,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         bars
     @endcomponent
-    ShortURLs
+    __LOC__ShortURLs
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -15,5 +15,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         plus
     @endcomponent
-    Erstellen
+    __LOC__Erstellen
 @endcomponent

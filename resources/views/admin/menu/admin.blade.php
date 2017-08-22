@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         dashboard
     @endcomponent
-    @lang('layouts/admin.dashboard')
+    __LOC__Dashboard
 @endcomponent
 
 
@@ -14,7 +14,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         book
     @endcomponent
-    @lang('layouts/admin.logs')
+    __LOC__Logs
 @endcomponent
 
 
@@ -24,15 +24,15 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         random
     @endcomponent
-    @lang('layouts/admin.routes')
+    __LOC__Routes
 @endcomponent
 
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_users_list'),
+    'route' => route('admin_user_list'),
 ])
     @component('components.elements.icon', ['class' => 'mr-2'])
         users
     @endcomponent
-    @lang('layouts/admin.user')
+    __LOC__Users
 @endcomponent

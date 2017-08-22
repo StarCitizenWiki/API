@@ -1,8 +1,8 @@
-@unless(is_null($expires))
-    @if(Carbon\Carbon::parse($expires)->lte(\Carbon\Carbon::now()))
-        <span class="text-warning">@lang('components/shorturls/expiresfield.expired')</span>
+@unless(is_null($expired_at))
+    @if(Carbon\Carbon::parse($expired_at)->lte(\Carbon\Carbon::now()))
+        <span class="text-warning">@lang('components/shorturls/expired_atfield.expired')</span>
     @else
-        {{ Carbon\Carbon::parse($expires)->format('d.m.Y H:i') }}
+        {{ Carbon\Carbon::parse($expired_at)->format('d.m.Y H:i') }}
     @endif
 @else
 -

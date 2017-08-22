@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         rocket
     @endcomponent
-    @lang('layouts/admin.ships')
+    __LOC__Ships
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -30,5 +30,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         repeat
     @endcomponent
-    @lang('layouts/admin.download_ships')
+    __LOC__Download_Ships
 @endcomponent

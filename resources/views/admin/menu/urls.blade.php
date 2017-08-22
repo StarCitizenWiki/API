@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         link
     @endcomponent
-    @lang('layouts/admin.short_urls')
+    __LOC__ShortUrls
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -13,7 +13,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         list
     @endcomponent
-    @lang('layouts/admin.whitelist')
+    __LOC__UrlWhitelist
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -22,5 +22,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         plus-circle
     @endcomponent
-    @lang('layouts/admin.add_whitelist')
+    __LOC__Add_Whitelist
 @endcomponent

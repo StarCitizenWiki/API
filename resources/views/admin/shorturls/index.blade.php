@@ -2,18 +2,18 @@
 
 @section('content')
     <div class="card mb-3">
-        <h4 class="card-header">ShortURLs</h4>
+        <h4 class="card-header">__LOC__ShortURLs</h4>
         <div class="card-body px-0">
             <table class="table table-striped table-responsive mb-0">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Hash ID</th>
-                    <th>User</th>
-                    <th>Created</th>
-                    <th>Hash</th>
-                    <th>URL</th>
-                    <th>Expires</th>
+                    <th>__LOC__ID</th>
+                    <th>__LOC__Hash ID</th>
+                    <th>__LOC__User</th>
+                    <th>__LOC__Created</th>
+                    <th>__LOC__Hash</th>
+                    <th>__LOC__URL</th>
+                    <th>__LOC__expired_at</th>
                     <th>&nbsp;</th>
                 </tr>
                 </thead>
@@ -66,7 +66,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7">@lang('auth/account/urls/index.no_urls_found')</td>
+                            <td colspan="7">__LOC__No_Urls_Found</td>
                         </tr>
                     @endforelse
                 </tbody>

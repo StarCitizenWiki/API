@@ -2,9 +2,9 @@
 @section('P__title')
     @parent
     @hasSection('title')
-        @yield('title') - Star Citizen Wiki API Admin
+        @yield('title') - __LOC__Star_Citizen_Wiki_API_Admin
     @else
-        Star Citizen Wiki API Admin
+        __LOC__Star_Citizen_Wiki_API_Admin
     @endif
 @endsection
 

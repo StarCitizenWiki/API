@@ -11,7 +11,7 @@
     'titleClass' => 'text-muted pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_admin',
-    'title' => trans('layouts/admin.admin'),
+    'title' => '__LOC__Admin',
 ])
     @include('admin.menu.admin')
 @endcomponent
@@ -21,7 +21,7 @@
     'titleClass' => 'text-muted pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_urls',
-    'title' => trans('layouts/admin.urls'),
+    'title' => '__LOC__Urls',
 ])
     @include('admin.menu.urls')
 @endcomponent
@@ -31,7 +31,7 @@
     'titleClass' => 'text-muted pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_starmap',
-    'title' => trans('layouts/admin.starmap'),
+    'title' => '__LOC__Starmap',
 ])
     @include('admin.menu.starmap')
 @endcomponent
@@ -41,7 +41,7 @@
     'titleClass' => 'text-muted pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_ships',
-    'title' => trans('layouts/admin.ships'),
+    'title' => '__LOC__Ships',
 ])
     @include('admin.menu.ships')
 @endcomponent

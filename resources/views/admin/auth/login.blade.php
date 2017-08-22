@@ -3,7 +3,7 @@
 @section('body--class', 'bg-dark')
 
 {{-- Page Title --}}
-@section('title', trans('auth/login.header'))
+@section('title', '__LOC__Admin_Login')
 
 @section('topNav--class', 'd-none')
 
@@ -23,12 +23,12 @@
                 @include('components.errors')
 
                 <div class="card bg-dark text-light-grey">
-                    <h4 class="card-header">Admin @lang('auth/login.header')</h4>
+                    <h4 class="card-header">__LOC__Admin_Login</h4>
                     <div class="card-body">
 
                         @component('components.forms.form', ['action' => route('admin_login')])
                             @component('components.forms.form-group', [
-                                'label' => trans('admin/auth.username'),
+                                'label' => '__LOC__Username',
                                 'id' => 'username',
                                 'required' => 1,
                                 'autofocus' => 1,
@@ -38,14 +38,14 @@
 
                             @component('components.forms.form-group', [
                                 'inputType' => 'password',
-                                'label' => trans('admin/auth.password'),
+                                'label' => '__LOC__Password',
                                 'id' => 'password',
                                 'required' => 1,
                                 'tabIndex' => 2
                             ])@endcomponent
 
                             <button class="btn btn-outline-secondary btn-block">
-                                @lang('auth/login.login')
+                                __LOC__Login
                             </button>
                         @endcomponent
                     </div>

@@ -1,7 +1,7 @@
 @extends('api.layouts.default')
 
 {{-- Page Title --}}
-@section('title', trans('api/index.header'))
+@section('title', '__LOC__Api Index')
 
 {{-- Page Content --}}
 @section('content')
@@ -12,7 +12,7 @@
     <div class="card">
         <img src="https://cdn.star-citizen.wiki/images/thumb/f/f1/BANU_Banu_Merchantman_auf_Landeplattform_Mya_Markt.jpg/800px-BANU_Banu_Merchantman_auf_Landeplattform_Mya_Markt.jpg" class="card-img-top">
         <div class="card-body">
-            <h4 class="card-title">@lang('api/index.the_project')</h4>
+            <h4 class="card-title">__LOC__Das Projekt</h4>
             <div class="card-text">
                 @lang('api/index.about')
 
@@ -21,7 +21,7 @@
                 <a href="ts3server://ts.star-citizen.wiki" class="text-italic">@lang('api/index.teamspeak_server')</a>
             </div>
             @if (Auth::guest())
-                <a href="{{ route('auth_register_form') }}" class="mt-4 btn btn-outline-primary">@lang('api/index.request_api_key')</a>
+                <a href="{{ route('auth_register_form') }}" class="mt-4 btn btn-outline-primary">__LOC__Request_API_KEY</a>
             @endif
         </div>
     </div>

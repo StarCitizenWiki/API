@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         circle-o-notch
     @endcomponent
-    @lang('layouts/admin.systems')
+    __LOC__Systems
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -13,7 +13,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         circle-o-notch
     @endcomponent
-    @lang('layouts/admin.celestialobjects')
+    __LOC__CelestialObjects
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -39,5 +39,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         repeat
     @endcomponent
-    @lang('layouts/admin.download_starmap')
+    __LOC__Download_Starmap
 @endcomponent

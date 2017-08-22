@@ -9,7 +9,7 @@
                 'titleClass' => 'text-light',
                 'icon' => 'bullhorn',
                 'contentClass' => 'bg-white pb-md-0',
-                'title' => 'Benachrichtigung erstellen',
+                'title' => '__LOC__Benachrichtigung erstellen',
             ])
                 @include('components.errors')
                 @component('components.forms.form', [
@@ -19,11 +19,11 @@
                     <div class="col-12 col-md-7 order-2 order-lg-1">
                         @component('components.forms.form-group', [
                             'inputType' => 'textarea',
-                            'label' => 'Notification',
+                            'label' => '__LOC__Notification',
                             'id' => 'content',
                             'rows' => 6,
                         ])@endcomponent
-                        <button class="btn btn-outline-secondary">Erstellen</button>
+                        <button class="btn btn-outline-secondary">__LOC__Erstellen</button>
                     </div>
                     <div class="col-12 col-md-5 order-1 order-lg-2">
                         @component('components.forms.form-group', [
@@ -33,16 +33,16 @@
                             'id' => 'level',
                         ])
                             @slot('selectOptions')
-                                <option value="0">Info</option>
-                                <option value="1">Warnung</option>
-                                <option value="2">Fehler</option>
-                                <option value="3">Kritisch</option>
+                                <option value="0">__LOC__Info</option>
+                                <option value="1">__LOC__Warnung</option>
+                                <option value="2">__LOC__Fehler</option>
+                                <option value="3">__LOC__Kritisch</option>
                             @endslot
                         @endcomponent
 
                         @component('components.forms.form-group', [
                             'inputType' => 'datetime-local',
-                            'label' => 'Ablaufdatum',
+                            'label' => '__LOC__Ablaufdatum',
                             'id' => 'expired_at',
                             'value' => \Carbon\Carbon::now()->addDay()->format("Y-m-d\TH:i"),
                             'inputOptions' => 'min='.\Carbon\Carbon::now()->format("Y-m-d\TH:i"),
@@ -51,24 +51,24 @@
                         @endcomponent
 
                         <div class="form-group">
-                            <span class="d-block">Ausgabetyp:</span>
+                            <span class="d-block">__LOC__Ausgabetyp:</span>
                             <label class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="status" name="output[]"
                                        value="status" checked>
                                 <span class="custom-control-indicator"></span>
-                                <span class="custom-control-description">Status</span>
+                                <span class="custom-control-description">__LOC__Status</span>
                             </label>
                             <label class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="index" name="output[]"
                                        value="index">
                                 <span class="custom-control-indicator"></span>
-                                <span class="custom-control-description">Startseite</span>
+                                <span class="custom-control-description">__LOC__Startseite</span>
                             </label>
                             <label class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="email" name="output[]"
                                        value="email">
                                 <span class="custom-control-indicator"></span>
-                                <span class="custom-control-description">E-Mail</span>
+                                <span class="custom-control-description">__LOC__E-Mail</span>
                             </label>
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                 'contentClass' => 'bg-white text-dark text-center p-0',
             ])
                 @slot('title')
-                    Benachrichtigungen
+                    __LOC__Benachrichtigungen
                     <small class="pull-right mt-1">
                         <a href="{{ route('admin_notifications_list') }}" class="text-light">
                             <i class="fa fa-external-link"></i>
@@ -92,10 +92,10 @@
                 @endslot
                 <table class="table table-responsive table-sm mb-0 text-left">
                     <tr>
-                        <th>Typ</th>
-                        <th>Inhalt</th>
-                        <th>Ablaufdatum</th>
-                        <th>Ausgabe</th>
+                        <th>__LOC__Typ</th>
+                        <th>__LOC__Inhalt</th>
+                        <th>__LOC__Ablaufdatum</th>
+                        <th>__LOC__Ausgabe</th>
                     </tr>
                     @forelse($notifications['last'] as $notification)
                         <tr @if($notification->expired()) class="text-muted" @endif>
@@ -124,7 +124,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4">No Not</td>
+                            <td colspan="4">__LOC__Notifications_found</td>
                         </tr>
                     @endforelse
                 </table>
@@ -140,7 +140,7 @@
                 'contentClass' => 'bg-white text-dark p-2',
             ])
                 @slot('title')
-                    Logs
+                    __LOC__Logs
                     <small class="pull-right mt-1">
                         <a href="" class="text-light">
                             <i class="fa fa-external-link"></i>
@@ -150,15 +150,15 @@
 
                 <table class="table table-sm mb-2">
                     <tr>
-                        <th class="border-top-0">Logs:</th>
-                        <th class="border-top-0 text-right" title="Error"><i class="fa fa-exclamation-triangle"></i>
+                        <th class="border-top-0">__LOC__Logs:</th>
+                        <th class="border-top-0 text-right" title="__LOC__Error"><i class="fa fa-exclamation-triangle"></i>
                         </th>
-                        <th class="border-top-0 text-right" title="Warning"><i class="fa fa-exclamation"></i></th>
-                        <th class="border-top-0 text-right" title="Info"><i class="fa fa-info"></i></th>
-                        <th class="border-top-0 text-right" title="Debug"><i class="fa fa-bug"></i></th>
+                        <th class="border-top-0 text-right" title="__LOC__Warning"><i class="fa fa-exclamation"></i></th>
+                        <th class="border-top-0 text-right" title="__LOC__Info"><i class="fa fa-info"></i></th>
+                        <th class="border-top-0 text-right" title="__LOC__Debug"><i class="fa fa-bug"></i></th>
                     </tr>
                     <tr>
-                        <td>In der letzten Stunde</td>
+                        <td>__LOC__In der letzten Stunde</td>
                         <td class="text-right @if(count($logs['error']['last_hour']) > LOG_ERROR_DANGER_HOUR) {{--
                     --}}text-danger{{--
                 --}} @elseif(count($logs['error']['last_hour']) > LOG_ERROR_WARNING_HOUR) {{--
@@ -178,7 +178,7 @@
                                 - @endif</td>
                     </tr>
                     <tr>
-                        <td>Heute</td>
+                        <td>__LOC__Heute</td>
                         <td class="text-right @if(count($logs['error']['today']) > LOG_ERROR_DANGER_DAY) {{--
                     --}}text-danger{{--
                 --}} @elseif(count($logs['error']['today']) > LOG_ERROR_WARNING_DAY) {{--
@@ -207,7 +207,7 @@
                 'contentClass' => 'bg-white text-dark p-2',
             ])
                 @slot('title')
-                    Benutzer ({{ $users['overall'] }})
+                    __LOC__Benutzer ({{ $users['overall'] }})
                     <small class="pull-right mt-1">
                         <a href="" class="text-light">
                             <i class="fa fa-external-link"></i>
@@ -217,17 +217,17 @@
 
                 <table class="table table-sm mb-2">
                     <tr>
-                        <th class="border-top-0">Benutzer:</th>
-                        <th class="border-top-0 text-right" title="Registrierungen"><i class="fa fa-user-plus"></i></th>
-                        <th class="border-top-0 text-right" title="Logins"><i class="fa fa-sign-in"></i></th>
+                        <th class="border-top-0">__LOC__Benutzer:</th>
+                        <th class="border-top-0 text-right" title="__LOC__Registrierungen"><i class="fa fa-user-plus"></i></th>
+                        <th class="border-top-0 text-right" title="__LOC__Logins"><i class="fa fa-sign-in"></i></th>
                     </tr>
                     <tr>
-                        <td>In der letzten Stunde</td>
+                        <td>__LOC__In der letzten Stunde</td>
                         <td class="text-right">{{ $users['registrations']['counts']['last_hour'] }}</td>
                         <td class="text-right">{{ $users['logins']['counts']['last_hour'] }}</td>
                     </tr>
                     <tr>
-                        <td>Heute</td>
+                        <td>__LOC__Heute</td>
                         <td class="text-right">{{ $users['registrations']['counts']['today'] }}</td>
                         <td class="text-right">{{ $users['logins']['counts']['today'] }}</td>
                     </tr>
@@ -241,7 +241,7 @@
                 'contentClass' => 'bg-white text-dark p-2',
             ])
                 @slot('title')
-                    API Requests ({{ $api_requests['counts']['overall'] }})
+                    __LOC__API Requests ({{ $api_requests['counts']['overall'] }})
                     <small class="pull-right mt-1">
                         <a href="" class="text-light">
                             <i class="fa fa-external-link"></i>
@@ -251,19 +251,19 @@
 
                 <table class="table table-sm mb-0">
                     <tr>
-                        <th class="border-top-0">Abfragen:</th>
+                        <th class="border-top-0">__LOC__Abfragen:</th>
                         <th class="border-top-0 text-right"><i class="fa fa-caret-square-o-right"></i></th>
                     </tr>
                     <tr>
-                        <td>In der letzten Stunde</td>
+                        <td>__LOC__In der letzten Stunde</td>
                         <td class="text-right">{{ $api_requests['counts']['last_hour'] }}</td>
                     </tr>
                     <tr>
-                        <td>Heute</td>
+                        <td>__LOC__Heute</td>
                         <td class="text-right">{{ $api_requests['counts']['today'] }}</td>
                     </tr>
                     <tr>
-                        <td>Insgesamt</td>
+                        <td>__LOC__Insgesamt</td>
                         <td class="text-right">{{ $api_requests['counts']['overall'] }}</td>
                     </tr>
                 </table>
@@ -276,7 +276,7 @@
                 'contentClass' => 'bg-white text-dark p-2',
             ])
                 @slot('title')
-                    ShortURLs ({{ $short_urls['counts']['overall'] }})
+                    __LOC__ShortURLs ({{ $short_urls['counts']['overall'] }})
                     <small class="pull-right mt-1">
                         <a href="" class="text-light">
                             <i class="fa fa-external-link"></i>
@@ -286,19 +286,19 @@
 
                 <table class="table table-sm mb-0">
                     <tr>
-                        <th class="border-top-0">Erstellt:</th>
+                        <th class="border-top-0">__LOC__Erstellt:</th>
                         <th class="border-top-0 text-right"><i class="fa fa-plus-square"></i></th>
                     </tr>
                     <tr>
-                        <td>In der letzten Stunde</td>
+                        <td>__LOC__In der letzten Stunde</td>
                         <td class="text-right">{{ $short_urls['counts']['last_hour'] }}</td>
                     </tr>
                     <tr>
-                        <td>Heute</td>
+                        <td>__LOC__Heute</td>
                         <td class="text-right">{{ $short_urls['counts']['today'] }}</td>
                     </tr>
                     <tr>
-                        <td>Insgesamt</td>
+                        <td>__LOC__Insgesamt</td>
                         <td class="text-right">{{ $short_urls['counts']['overall'] }}</td>
                     </tr>
                 </table>
@@ -311,14 +311,14 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'contentClass' => 'bg-white text-dark p-2',
-                'title' => 'Benutzerübersicht',
+                'title' => '__LOC__Benutzerübersicht',
                 'icon' => 'table',
             ])
                 <table class="table table-responsive table-sm mb-0">
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Registriert</th>
+                        <th>__LOC__ID</th>
+                        <th>__LOC__Name</th>
+                        <th>__LOC__Registriert</th>
                         <th></th>
                     </tr>
                     @foreach($users['last'] as $user)
@@ -336,18 +336,18 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'contentClass' => 'bg-white text-dark p-2',
-                'title' => 'API Request Übersicht',
+                'title' => '__LOC__API Request Übersicht',
                 'icon' => 'table',
             ])
                 <table class="table table-responsive table-sm mb-0">
                     <tr>
-                        <th>User</th>
-                        <th>Time</th>
-                        <th>Path</th>
+                        <th>__LOC__User</th>
+                        <th>__LOC__Time</th>
+                        <th>__LOC__Path</th>
                     </tr>
                     @if(empty($api_requests['last']))
                         <tr>
-                            <td colspan="3">No Requests</td>
+                            <td colspan="3">__LOC__No Requests</td>
                         </tr>
                     @endif
                     @foreach($api_requests['last'] as $api_request)
@@ -364,14 +364,14 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'contentClass' => 'bg-white text-dark p-2',
-                'title' => 'ShortURL Übersicht',
+                'title' => '__LOC__ShortURL Übersicht',
                 'icon' => 'table',
             ])
                 <table class="table table-responsive table-sm mb-0">
                     <tr>
-                        <th>ID</th>
-                        <th>URL</th>
-                        <th>Erstellt</th>
+                        <th>__LOC__ID</th>
+                        <th>__LOC__URL</th>
+                        <th>__LOC__Erstellt</th>
                         <th></th>
                     </tr>
                     @foreach($short_urls['last'] as $short_url)
