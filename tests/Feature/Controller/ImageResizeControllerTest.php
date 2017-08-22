@@ -11,7 +11,7 @@ use Tests\TestCase;
 class ImageResizeControllerTest extends TestCase
 {
     /**
-     * @covers \App\Http\Controllers\Tools\ImageResizeController::showImageResizeView()
+     * @covers \App\Http\Controllers\Tool\ImageResizeController::showImageResizeView()
      */
     public function testView()
     {

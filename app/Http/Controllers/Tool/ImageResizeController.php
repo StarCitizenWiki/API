@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Tools;
+namespace App\Http\Controllers\Tool;
 
 use App\Http\Controllers\Controller;
 use App\Traits\ProfilesMethodsTrait;
