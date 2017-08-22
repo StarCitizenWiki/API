@@ -6,6 +6,7 @@ use App\Exceptions\ExpiredException;
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\UrlNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
+use App\Traits\ObfuscatesIDTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,7 +21,7 @@ use Illuminate\Support\Str;
  * @mixin \Eloquent
  * @property int                   $id
  * @property string                $url
- * @property string                $hash_name
+ * @property string                $hash
  * @property int                   $user_id
  * @property \Carbon\Carbon        $created_at
  * @property \Carbon\Carbon        $updated_at
@@ -36,6 +37,7 @@ use Illuminate\Support\Str;
 class ShortUrl extends Model
 {
     use SoftDeletes;
+    use ObfuscatesIDTrait;
 
     protected $table = 'short_urls';
 
@@ -46,8 +48,15 @@ class ShortUrl extends Model
      */
     protected $fillable = [
         'url',
-        'hash_name',
+        'hash',
         'user_id',
+    ];
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'expired_at',
     ];
 
     /**
@@ -60,15 +69,15 @@ class ShortUrl extends Model
     public static function createShortUrl(array $data): ShortUrl
     {
         ShortUrl::checkUrlinWhitelist($data['url']);
-        ShortUrl::checkHashNameInDB($data['hash_name']);
+        ShortUrl::checkHashNameInDB($data['hash']);
 
-        if (is_null($data['hash_name']) || empty($data['hash_name'])) {
-            $data['hash_name'] = ShortUrl::generateShortUrlHash();
+        if (is_null($data['hash']) || empty($data['hash'])) {
+            $data['hash'] = ShortUrl::generateShortUrlHash();
         }
 
         $url = new ShortUrl();
         $url->url = $data['url'];
-        $url->hash_name = $data['hash_name'];
+        $url->hash = $data['hash'];
         $url->user_id = $data['user_id'];
         $url->expires = $data['expires'];
         $url->save();
@@ -90,13 +99,13 @@ class ShortUrl extends Model
      */
     public static function resolve(string $hashName)
     {
-        $url = ShortUrl::where('hash_name', '=', $hashName)->firstOrFail();
+        $url = ShortUrl::where('hash', '=', $hashName)->firstOrFail();
 
         app('Log')::info(
             'URL resolved',
             [
                 'id'        => $url->id,
-                'hash_name' => $url->hash_name,
+                'hash' => $url->hash,
                 'url'       => $url->url,
                 'expires'   => $url->expires,
             ]
@@ -160,8 +169,8 @@ class ShortUrl extends Model
         ShortUrl::checkUrlinWhitelist($data['url']);
         $url = ShortUrl::findOrFail($data['id']);
 
-        if ($url->hash_name !== $data['hash_name']) {
-            ShortUrl::checkHashNameInDB($data['hash_name']);
+        if ($url->hash !== $data['hash']) {
+            ShortUrl::checkHashNameInDB($data['hash']);
         }
 
         $changes = [];
@@ -177,7 +186,7 @@ class ShortUrl extends Model
         app('Log')::info('ShortUrl updated', ['changes' => $changes]);
 
         $url->url = $data['url'];
-        $url->hash_name = $data['hash_name'];
+        $url->hash = $data['hash'];
         $url->user_id = $data['user_id'];
         $url->expires = $data['expires'];
 
@@ -224,7 +233,7 @@ class ShortUrl extends Model
      */
     private static function checkHashNameInDB($hashName): void
     {
-        if (ShortUrl::where('hash_name', '=', $hashName)->count() > 0) {
+        if (ShortUrl::where('hash', '=', $hashName)->count() > 0) {
             throw new HashNameAlreadyAssignedException('Name already assigned');
         }
     }
@@ -238,7 +247,7 @@ class ShortUrl extends Model
     {
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);
-        } while (ShortUrl::where('hash_name', '=', $hashName)->count() > 0);
+        } while (ShortUrl::where('hash', '=', $hashName)->count() > 0);
 
         app('Log')::info("Generated Hash: {$hashName}");
 

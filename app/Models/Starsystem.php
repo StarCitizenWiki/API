@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ObfuscatesIDTrait;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -42,6 +43,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Starsystem extends Model
 {
+    use ObfuscatesIDTrait;
+
     protected $fillable = [
         'code',
         'cig_id',

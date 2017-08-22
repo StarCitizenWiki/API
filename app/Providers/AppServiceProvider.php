@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Hashids\Hashids;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -37,6 +38,13 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
             $this->app->register('Hesto\MultiAuth\MultiAuthServiceProvider');
         }
+
+        $this->app->bind(
+            Hashids::class,
+            function () {
+                return new Hashids(ADMIN_INTERNAL_PASSWORD, 5);
+            }
+        );
 
         /**
          * Star Citizen API Interfaces

@@ -11,7 +11,8 @@
         "spatie/laravel-fractal": "^3.4",
         "piwik/piwik-php-tracker": "^1.2",
         "jackiedo/log-reader": "2.*",
-        "hesto/multi-auth": "^1.0"
+        "hesto/multi-auth": "^1.0",
+        "hashids/hashids": "^2.0"
     },
     "require-dev": {
         "caouecs/laravel-lang": "~3.0",

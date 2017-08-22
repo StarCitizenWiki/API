@@ -2,6 +2,7 @@
 
 namespace App\Models\ShortUrl;
 
+use App\Traits\ObfuscatesIDTrait;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -22,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ShortUrlWhitelist extends Model
 {
+    use ObfuscatesIDTrait;
+
     protected $table = 'short_url_whitelists';
 
     /**

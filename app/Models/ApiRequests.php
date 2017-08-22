@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ObfuscatesIDTrait;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -22,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ApiRequests extends Model
 {
+    use ObfuscatesIDTrait;
+
     protected $table = 'api_requests';
 
     protected $fillable = [

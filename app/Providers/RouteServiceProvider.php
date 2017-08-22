@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Helpers\Hasher;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -28,7 +29,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Route::bind('id', function ($id) {
+            return Hasher::decode($id);
+        });
 
         parent::boot();
     }

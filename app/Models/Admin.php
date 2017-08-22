@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ObfuscatesIDTrait;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -12,6 +13,7 @@ use Illuminate\Notifications\Notifiable;
 class Admin extends Authenticatable
 {
     use Notifiable;
+    use ObfuscatesIDTrait;
 
     /**
      * The attributes that should be hidden for arrays.
