@@ -9,7 +9,7 @@
                 'titleClass' => 'text-light',
                 'icon' => 'bullhorn',
                 'contentClass' => 'bg-white pb-md-0',
-                'title' => 'Benachrichtigung erstellen'
+                'title' => 'Benachrichtigung erstellen',
             ])
                 @include('components.errors')
                 @component('components.forms.form', [
@@ -43,7 +43,7 @@
                         @component('components.forms.form-group', [
                             'inputType' => 'datetime-local',
                             'label' => 'Ablaufdatum',
-                            'id' => 'expires_at',
+                            'id' => 'expired_at',
                             'value' => \Carbon\Carbon::now()->addDay()->format("Y-m-d\TH:i"),
                             'inputOptions' => 'min='.\Carbon\Carbon::now()->format("Y-m-d\TH:i"),
                         ])
@@ -85,7 +85,7 @@
                 @slot('title')
                     Benachrichtigungen
                     <small class="pull-right mt-1">
-                        <a href="" class="text-light">
+                        <a href="{{ route('admin_notifications_list') }}" class="text-light">
                             <i class="fa fa-external-link"></i>
                         </a>
                     </small>
@@ -97,38 +97,36 @@
                         <th>Ablaufdatum</th>
                         <th>Ausgabe</th>
                     </tr>
-                    @unless(empty($notifications['last']))
-                        @foreach($notifications['last'] as $notification)
-                            <tr @if($notification->expired()) class="text-muted" @endif>
-                                <td class="text-{{ $notification->getBootstrapClass() }}">@lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
-                                <td title="{{ $notification->content }}">
-                                    <a href="{{ route('admin_notifications_edit_form', $notification->id) }}">{{ str_limit($notification->content, 40) }}</a>
-                                </td>
-                                <td>{{ $notification->expires_at->format('d.m.Y H:i:s') }}</td>
-                                <td>
-                                    @if($notification->output_status)
-                                        @component('components.elements.icon', ['class' => 'mr-2'])
-                                            desktop
-                                        @endcomponent
-                                    @endif
-                                    @if($notification->output_email)
-                                        @component('components.elements.icon', ['class' => 'mr-2'])
-                                            envelope-o
-                                        @endcomponent
-                                    @endif
-                                    @if($notification->output_index)
-                                        @component('components.elements.icon')
-                                            bullhorn
-                                        @endcomponent
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    @else
+                    @forelse($notifications['last'] as $notification)
+                        <tr @if($notification->expired()) class="text-muted" @endif>
+                            <td class="text-{{ $notification->getBootstrapClass() }}">@lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
+                            <td title="{{ $notification->content }}">
+                                <a href="{{ route('admin_notifications_edit_form', $notification->getRouteKey()) }}">{{ str_limit($notification->content, 40) }}</a>
+                            </td>
+                            <td>{{ $notification->expired_at->format('d.m.Y H:i:s') }}</td>
+                            <td>
+                                @if($notification->output_status)
+                                    @component('components.elements.icon', ['class' => 'mr-2'])
+                                        desktop
+                                    @endcomponent
+                                @endif
+                                @if($notification->output_email)
+                                    @component('components.elements.icon', ['class' => 'mr-2'])
+                                        envelope-o
+                                    @endcomponent
+                                @endif
+                                @if($notification->output_index)
+                                    @component('components.elements.icon')
+                                        bullhorn
+                                    @endcomponent
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
                         <tr>
                             <td colspan="4">No Not</td>
                         </tr>
-                    @endunless
+                    @endforelse
                 </table>
             @endcomponent
         </div>
@@ -325,7 +323,7 @@
                     </tr>
                     @foreach($users['last'] as $user)
                         <tr>
-                            <td>{{ $user->id }}</td>
+                            <td>{{ $user->getRouteKey() }}</td>
                             <td title="{{ $user->email }}">{{ $user->name }}</td>
                             <td>{{ $user->created_at }}</td>
                             <td class="text-center"><i class="fa fa-external-link"></i></td>
@@ -378,7 +376,7 @@
                     </tr>
                     @foreach($short_urls['last'] as $short_url)
                         <tr>
-                            <td><a href="">{{ $short_url->hash_name }}</a></td>
+                            <td><a href="">{{ $short_url->hash }}</a></td>
                             <td title="{{ $short_url->url }}">{{ parse_url($short_url->url)['host'] }}</td>
                             <td>{{ $short_url->created_at }}</td>
                             <td class="text-center"><i class="fa fa-external-link"></i></td>
