@@ -6,4 +6,4 @@
  */
 
 require('./bootstrap');
-require('datatables');
+require('datatables.net-bs4');
