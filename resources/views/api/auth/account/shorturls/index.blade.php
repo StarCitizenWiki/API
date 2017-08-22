@@ -7,9 +7,9 @@
 @section('content')
     <div class="row">
         <div class="col-12 col-md-8 col-lg-3 mx-auto">
-        @if (session('hash_name'))
+        @if (session('hash'))
                 <div class="alert alert-success text-center">
-                    {{config('app.shorturl_url')}}/{{ session('hash_name') }}
+                    {{config('app.shorturl_url')}}/{{ session('hash') }}
                 </div>
             @endif
             @include('components.errors')
@@ -37,13 +37,13 @@
                             @foreach($urls as $url)
                                 <tr>
                                     <td>
-                                        {{config('app.shorturl_url')}}/{{ $url->hash_name }}
+                                        {{config('app.shorturl_url')}}/{{ $url->hash }}
                                     </td>
                                     <td>
                                         {{ $url->url }}
                                     </td>
                                     <td>
-                                        {{ $url->hash_name }}
+                                        {{ $url->hash }}
                                     </td>
                                     <td>
                                         {{ Carbon\Carbon::parse($url->created_at)->format('d.m.Y') }}
@@ -54,12 +54,12 @@
                                     <td>
                                         @component('components.edit_delete_block')
                                             @slot('edit_url')
-                                                {{ route('account_urls_edit_form', $url->id) }}
+                                                {{ route('account_urls_edit_form', $url->getRouteKey()) }}
                                             @endslot
                                             @slot('delete_url')
                                                 {{ route('account_urls_delete') }}
                                             @endslot
-                                            {{ $url->id }}
+                                            {{ $url->getRouteKey() }}
                                         @endcomponent
                                     </td>
                                 </tr>

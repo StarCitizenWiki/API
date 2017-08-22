@@ -16,49 +16,58 @@ class ShortUrlWhitelistsTableSeeder extends Seeder
     {
         DB::table('short_url_whitelists')->insert(
             [
-                'url' => 'robertsspaceindustries.com',
+                'url'        => 'robertsspaceindustries.com',
+                'created_at' => '2017-01-01 00:00:00',
             ]
         );
         DB::table('short_url_whitelists')->insert(
             [
-                'url' => 'forums.robertsspaceindustries.com',
+                'url'        => 'forums.robertsspaceindustries.com',
+                'created_at' => '2017-01-01 00:00:00',
             ]
         );
         DB::table('short_url_whitelists')->insert(
             [
-                'url'      => 'stargov.de',
-                'internal' => true,
+                'url'        => 'stargov.de',
+                'created_at' => '2017-01-01 00:00:00',
+                'internal'   => true,
             ]
         );
         DB::table('short_url_whitelists')->insert(
             [
-                'url' => 'star-citizen.wiki',
+                'url'        => 'star-citizen.wiki',
+                'created_at' => '2017-01-01 00:00:00',
             ]
         );
         DB::table('short_url_whitelists')->insert(
             [
-                'url' => 'facebook.com',
+                'url'        => 'facebook.com',
+                'created_at' => '2017-01-01 00:00:00',
             ]
         );
         DB::table('short_url_whitelists')->insert(
             [
-                'url' => 'forum.crashcorps.de',
+                'url'        => 'forum.crashcorps.de',
+                'created_at' => '2017-01-01 00:00:00',
             ]
         );
         DB::table('short_url_whitelists')->insert(
             [
-                'url' => 'starcitizenbase.de',
+                'url'        => 'starcitizenbase.de',
+                'created_at' => '2017-01-01 00:00:00',
             ]
         );
         DB::table('short_url_whitelists')->insert(
             [
-                'url' => 'youtube.com',
+                'url'        => 'youtube.com',
+                'created_at' => '2017-01-01 00:00:00',
             ]
         );
         DB::table('short_url_whitelists')->insert(
             [
-                'url'      => 'youtu.be',
-                'internal' => true,
+                'url'        => 'youtu.be',
+                'created_at' => '2017-01-01 00:00:00',
+                'internal'   => true,
             ]
         );
     }

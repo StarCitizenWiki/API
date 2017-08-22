@@ -1,9 +1,12 @@
-<?php
+<?php declare(strict_types = 1);
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
+/**
+ * Class CreateShortUrlsTable
+ */
 class CreateShortUrlsTable extends Migration
 {
     /**
@@ -13,14 +16,18 @@ class CreateShortUrlsTable extends Migration
      */
     public function up()
     {
-        Schema::create('short_urls', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('url')->unique();
-            $table->string('hash_name')->unique();
-            $table->integer('user_id');
-            $table->dateTime('expires')->nullable();
-            $table->timestamps();
-        });
+        Schema::create(
+            'short_urls',
+            function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('url')->unique();
+                $table->string('hash')->unique();
+                $table->integer('user_id');
+                $table->dateTime('expired_at')->nullable();
+                $table->softDeletes();
+                $table->timestamps();
+            }
+        );
     }
 
     /**

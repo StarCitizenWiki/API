@@ -57,13 +57,13 @@ class ShortUrlModelTest extends TestCase
         $url = ShortUrl::createShortUrl(
             [
                 'url'        => $this->url,
-                'hash_name'  => $this->hashName,
+                'hash'  => $this->hashName,
                 'user_id'    => 1,
                 'expires_at' => null,
             ]
         );
 
-        $this->assertEquals($this->hashName, $url->hash_name);
+        $this->assertEquals($this->hashName, $url->hash);
     }
 
     /**

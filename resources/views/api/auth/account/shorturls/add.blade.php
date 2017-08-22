@@ -22,10 +22,10 @@
             ])@endcomponent
 
             @component('components.forms.form-group', [
-                'id' => 'hash_name',
+                'id' => 'hash',
                 'label' => trans('auth/account/shorturls/add.name'),
                 'tabIndex' => 2,
-                'value' => old('hash_name'),
+                'value' => old('hash'),
                 'inputOptions' => 'data-minlength=3 spellcheck=false',
             ])@endcomponent
 

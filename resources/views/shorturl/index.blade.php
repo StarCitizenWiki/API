@@ -7,9 +7,9 @@
             <div class="w-100">
                 <img src="{{ URL::asset('/media/images/rsi_im/logo.png') }}" class="img-responsive mb-5">
                 @include('components.errors')
-                @if (session('hash_name'))
+                @if (session('hash'))
                     <div class="alert alert-success text-center">
-                        {{config('app.shorturl_url')}}/{{ session('hash_name') }}
+                        {{config('app.shorturl_url')}}/{{ session('hash') }}
                     </div>
                 @endif
                 <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_create_redirect') }}">
@@ -27,12 +27,12 @@
                     </div>
                     <div class="collapse" id="customize">
                         <div class="input-group mt-3">
-                            <span class="input-group-addon" id="hash_name-label">@lang('shorturl/index.custom_name'):</span>
-                            <input type="text" class="form-control" id="hash_name" name="hash_name" aria-describedby="hash_name-label" placeholder="@lang('shorturl/index.custom_name_placeholder')" value="{{ old('hash_name') }}">
+                            <span class="input-group-addon" id="hash-label">@lang('shorturl/index.custom_name'):</span>
+                            <input type="text" class="form-control" id="hash" name="hash" aria-describedby="hash-label" placeholder="@lang('shorturl/index.custom_name_placeholder')" value="{{ old('hash') }}">
                         </div>
                         <div class="input-group mt-3">
-                            <span class="input-group-addon" id="expires-label">@lang('shorturl/index.expires'):</span>
-                            <input type="datetime-local" class="form-control" id="expires" name="expires" aria-describedby="expires-label" style="flex-direction: inherit;" value="{{ old('expires') }}">
+                            <span class="input-group-addon" id="expired_at-label">@lang('shorturl/index.expired_at'):</span>
+                            <input type="datetime-local" class="form-control" id="expired_at" name="expired_at" aria-describedby="expired_at-label" style="flex-direction: inherit;" value="{{ old('expired_at') }}">
                         </div>
                     </div>
                 </form>

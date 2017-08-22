@@ -50,7 +50,7 @@ class PageController extends Controller
         $notifications = Notification::query()
             ->where('output_status', true)
             ->orderByDesc('published_at')
-            ->orderBy('expires_at')
+            ->orderBy('expired_at')
             ->simplePaginate(4);
 
         return view('api.pages.status')->with('notifications', $notifications);

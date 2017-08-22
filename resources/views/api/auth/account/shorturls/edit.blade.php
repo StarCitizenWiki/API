@@ -13,7 +13,7 @@
             'action' => route('account_urls_update'),
             'method' => 'PATCH',
         ])
-            <input name="id" type="hidden" value="{{ $url->id }}">
+            <input name="id" type="hidden" value="{{ $url->getRouteKey() }}">
             @component('components.forms.form-group', [
                 'id' => 'url',
                 'label' => trans('auth/account/shorturls/edit.url'),
@@ -25,10 +25,10 @@
             ])@endcomponent
 
             @component('components.forms.form-group', [
-                'id' => 'hash_name',
+                'id' => 'hash',
                 'label' => trans('auth/account/shorturls/edit.name'),
                 'tabIndex' => 2,
-                'value' => $url->hash_name,
+                'value' => $url->hash,
                 'inputOptions' => 'data-minlength=3 spellcheck=false',
             ])@endcomponent
 

@@ -111,13 +111,13 @@ class ShortUrlController extends Controller
 
         $data = [
             'url'       => ShortUrl::sanitizeUrl($request->get('url')),
-            'hash_name' => $request->get('hash_name'),
+            'hash' => $request->get('hash'),
             'expires'   => $request->get('expires'),
         ];
 
         $rules = [
             'url'       => 'required|url|max:255|unique:short_urls',
-            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls',
+            'hash' => 'nullable|alpha_dash|max:32|unique:short_urls',
             'expires'   => 'nullable|date',
         ];
 
@@ -132,7 +132,7 @@ class ShortUrlController extends Controller
             $url = ShortUrl::createShortUrl(
                 [
                     'url'       => ShortUrl::sanitizeUrl($request->get('url')),
-                    'hash_name' => $request->get('hash_name'),
+                    'hash' => $request->get('hash'),
                     'user_id'   => Auth::id(),
                     'expires'   => $expires,
                 ]
@@ -147,8 +147,8 @@ class ShortUrlController extends Controller
         $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('account_urls_list')->with(
-            'hash_name',
-            $url->hash_name
+            'hash',
+            $url->hash
         );
     }
 
@@ -179,7 +179,7 @@ class ShortUrlController extends Controller
                     'user_id'   => Auth::id(),
                     'url_id'    => $url->id,
                     'url'       => $url->url,
-                    'hash_name' => $url->hash_name,
+                    'hash' => $url->hash,
                 ]
             );
             $url->delete();
@@ -216,7 +216,7 @@ class ShortUrlController extends Controller
                     'provided_id' => $request->get('user_id'),
                     'url_id'      => $request->id,
                     'url'         => $request->get('url'),
-                    'hash_name'   => $request->get('hash_name'),
+                    'hash'   => $request->get('hash'),
                 ]
             );
 
@@ -227,13 +227,13 @@ class ShortUrlController extends Controller
 
         $data = [
             'url'       => ShortUrl::sanitizeUrl($request->get('url')),
-            'hash_name' => $request->get('hash_name'),
+            'hash' => $request->get('hash'),
             'expires'   => $request->get('expires'),
         ];
 
         $rules = [
             'url'       => 'required|url|max:255',
-            'hash_name' => 'required|alpha_dash|max:32',
+            'hash' => 'required|alpha_dash|max:32',
             'expires'   => 'nullable|date',
         ];
 
@@ -245,7 +245,7 @@ class ShortUrlController extends Controller
                 [
                     'id'        => $request->id,
                     'url'       => ShortUrl::sanitizeUrl($request->get('url')),
-                    'hash_name' => $request->get('hash_name'),
+                    'hash' => $request->get('hash'),
                     'user_id'   => Auth::id(),
                     'expires'   => $request->get('expires'),
                 ]

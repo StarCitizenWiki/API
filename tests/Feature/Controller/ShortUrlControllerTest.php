@@ -38,7 +38,7 @@ class ShortUrlControllerTest extends TestCase
      */
     public function testApiResolve()
     {
-        $response = $this->post('api/v1/resolve', ['hash_name' => str_random(5)]);
+        $response = $this->post('api/v1/resolve', ['hash' => str_random(5)]);
         $response->assertSee('[]');
         $response->assertStatus(200);
     }
@@ -54,7 +54,7 @@ class ShortUrlControllerTest extends TestCase
     {
         $response = $this->post('api/v1/shorten', [
             'url' => 'https://star-citizen.wiki/'.str_random(5),
-            'hash_name' => str_random(6),
+            'hash' => str_random(6),
             'expires' => null,
         ]);
 
@@ -71,7 +71,7 @@ class ShortUrlControllerTest extends TestCase
     {
         $response = $this->post('shorten', [
             'url' => 'https://star-citizen.wiki/'.str_random(5),
-            'hash_name' => str_random(6),
+            'hash' => str_random(6),
             'expires' => null,
         ]);
 

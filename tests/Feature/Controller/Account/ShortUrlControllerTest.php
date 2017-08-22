@@ -48,7 +48,7 @@ class ShortUrlControllerTest extends TestCase
     {
         $response = $this->actingAs($this->user)->post('account/urls', [
             'url' => 'https://star-citizen.wiki/'.str_random(4),
-            'hash_name' => str_random(4),
+            'hash' => str_random(4),
         ]);
         $response->assertStatus(302);
         $response->assertRedirect('account/urls');
@@ -61,7 +61,7 @@ class ShortUrlControllerTest extends TestCase
     {
         $response = $this->actingAs($this->user)->post('account/urls', [
             'url' => 'https://notwhitelisted.wiki/'.str_random(4),
-            'hash_name' => str_random(4),
+            'hash' => str_random(4),
         ]);
         $response->assertStatus(302);
     }
@@ -74,7 +74,7 @@ class ShortUrlControllerTest extends TestCase
         $url = ShortUrl::createShortUrl([
             'user_id' => $this->user->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
-            'hash_name' => str_random(5),
+            'hash' => str_random(5),
             'expires' => null,
         ]);
 
@@ -100,20 +100,20 @@ class ShortUrlControllerTest extends TestCase
      */
     public function testUpdateUrl()
     {
-        $hash_name = str_random(5);
+        $hash = str_random(5);
         $url = ShortUrl::createShortUrl([
             'user_id' => $this->user->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
-            'hash_name' => $hash_name,
+            'hash' => $hash,
             'expires' => null,
         ]);
 
-        $this->assertEquals($hash_name, $url->hash_name);
+        $this->assertEquals($hash, $url->hash);
 
         $response = $this->actingAs($this->user)->patch('account/urls', [
             'id' => $url->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
-            'hash_name' => str_random(5),
+            'hash' => str_random(5),
         ]);
 
         $response->assertStatus(302);

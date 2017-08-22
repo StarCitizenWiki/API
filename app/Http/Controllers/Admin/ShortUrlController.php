@@ -146,7 +146,7 @@ class ShortUrlController extends Controller
                 'deleted_by' => Auth::id(),
                 'url_id'     => $url->id,
                 'url'        => $url->url,
-                'hash_name'  => $url->hash_name,
+                'hash'  => $url->hash,
             ]
         );
         $url->delete();
@@ -246,14 +246,14 @@ class ShortUrlController extends Controller
 
         $data = [
             'url'       => ShortUrl::sanitizeUrl($request->get('url')),
-            'hash_name' => $request->get('hash_name'),
+            'hash' => $request->get('hash'),
             'user_id'   => $request->get('user_id'),
             'expires'   => $request->get('expires'),
         ];
 
         $rules = [
             'url'       => 'required|url|max:255',
-            'hash_name' => 'required|alpha_dash|max:32',
+            'hash' => 'required|alpha_dash|max:32',
             'user_id'   => 'required|integer|exists:users,id',
             'expires'   => 'nullable|date',
         ];
@@ -266,7 +266,7 @@ class ShortUrlController extends Controller
                 [
                     'id'        => $request->id,
                     'url'       => ShortUrl::sanitizeUrl($request->get('url')),
-                    'hash_name' => $request->get('hash_name'),
+                    'hash' => $request->get('hash'),
                     'user_id'   => $request->get('user_id'),
                     'expires'   => $request->get('expires'),
                 ]

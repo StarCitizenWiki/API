@@ -2,11 +2,11 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">Edit Notification ID:{{ $notification->id }}</h4>
+        <h4 class="card-header">Edit Notification ID:{{ $notification->getRouteKey() }}</h4>
         <div class="card-body">
             @component('components.forms.form', [
                 'method' => 'PATCH',
-                'action' => route('admin_notifications_update', $notification->id),
+                'action' => route('admin_notifications_update', $notification->getRouteKey()),
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'textarea',
@@ -36,8 +36,8 @@
                         @component('components.forms.form-group', [
                             'inputType' => 'datetime-local',
                             'label' => 'Ablaufdatum',
-                            'id' => 'expires_at',
-                            'value' => $notification->expires_at->format("Y-m-d\TH:i"),
+                            'id' => 'expired_at',
+                            'value' => $notification->expired_at->format("Y-m-d\TH:i"),
                         ])@endcomponent
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                             'label' => 'Order',
                             'id' => 'order',
                             'value' => $notification->order,
-                            'inputOptions' => 'min=0 max=5'
+                            'inputOptions' => 'min=0 max=5',
                         ])
                             <small class="help-block">Reihenfolge auf Startseite, Aufsteigend sortiert</small>
                         @endcomponent
@@ -92,7 +92,11 @@
                     @endif
                 </div>
                 <button class="btn btn-outline-secondary" name="save">Speichern</button>
-                <button class="btn btn-outline-danger pull-right" name="delete">Löschen</button>
+                @if($notification->trashed())
+                    <button class="btn btn-outline-success pull-right" name="restore">Restore</button>
+                @else
+                    <button class="btn btn-outline-danger pull-right" name="delete">Löschen</button>
+                @endif
             @endcomponent
         </div>
     </div>

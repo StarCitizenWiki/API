@@ -3,7 +3,7 @@
 
 **URL:** `{{ $url->url }}`
 
-**Hash Name:** `{{ $url->hash_name }}`
+**Hash Name:** `{{ $url->hash }}`
 
 **Owner:** `{{ $url->user()->first()->email }}`
 

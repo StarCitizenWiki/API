@@ -30,8 +30,8 @@ class ShortUrlTransformer extends AbstractBaseTransformer
         return [
             [
                 'original_url' => $url->url,
-                'hash_name'    => $url->hash_name,
-                'url'          => 'https://'.config('app.shorturl_url').'/'.$url->hash_name,
+                'hash'    => $url->hash,
+                'url'          => 'https://'.config('app.shorturl_url').'/'.$url->hash,
             ],
         ];
     }

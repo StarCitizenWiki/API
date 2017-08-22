@@ -29,7 +29,7 @@ class CreateNotificationsTable extends Migration
                 $table->boolean('output_email')->default(false);
                 $table->boolean('output_index')->default(false);
 
-                $table->dateTime('expires_at');
+                $table->dateTime('expired_at');
                 $table->dateTime('published_at');
 
                 $table->softDeletes();

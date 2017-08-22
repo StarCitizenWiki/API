@@ -50,7 +50,7 @@ Route::group(
                         Route::delete('/', ['uses' => 'ShortUrlController@deleteUrl'])->name('account_urls_delete');
                         Route::patch('/', ['uses' => 'ShortUrlController@updateUrl'])->name('account_urls_update');
                         Route::get('add', ['uses' => 'ShortUrlController@showAddUrlView'])->name('account_urls_add_form');
-                        Route::get('{ID}', ['uses' => 'ShortUrlController@showEditUrlView'])->name('account_urls_edit_form');
+                        Route::get('{id}', ['uses' => 'ShortUrlController@showEditUrlView'])->name('account_urls_edit_form');
                     }
                 );
             }
@@ -82,10 +82,10 @@ Route::group(
                     function () {
                         Route::get('/', ['uses' => 'NotificationController@showNotificationsListView'])->name('admin_notifications_list');
                         Route::post('/', ['uses' => 'NotificationController@addNotification'])->name('admin_notification_add');
-                        Route::delete('{ID}', ['uses' => 'NotificationController@deleteNotification'])->name('admin_notifications_delete');
-                        Route::patch('{ID}', ['uses' => 'NotificationController@updateNotification'])->name('admin_notifications_update');
-                        Route::post('{ID}/restore', ['uses' => 'NotificationController@restoreNotification'])->name('admin_notifications_restore');
-                        Route::get('{ID}', ['uses' => 'NotificationController@showEditNotificationView'])->name('admin_notifications_edit_form');
+                        Route::delete('{id}', ['uses' => 'NotificationController@deleteNotification'])->name('admin_notifications_delete');
+                        Route::patch('{id}', ['uses' => 'NotificationController@updateNotification'])->name('admin_notifications_update');
+                        Route::post('{id}/restore', ['uses' => 'NotificationController@restoreNotification'])->name('admin_notifications_restore');
+                        Route::get('{id}', ['uses' => 'NotificationController@showEditNotificationView'])->name('admin_notifications_edit_form');
                     }
                 );
 
@@ -93,12 +93,12 @@ Route::group(
                     ['prefix' => 'users'],
                     function () {
                         Route::get('/', ['uses' => 'UserController@showUsersListView'])->name('admin_users_list');
-                        Route::delete('{ID}', ['uses' => 'UserController@deleteUser'])->name('admin_users_delete');
-                        Route::patch('{ID}', ['uses' => 'UserController@updateUser'])->name('admin_users_update');
-                        Route::post('{ID}/restore', ['uses' => 'UserController@restoreUser'])->name('admin_users_restore');
-                        Route::get('{ID}', ['uses' => 'UserController@showEditUserView'])->name('admin_users_edit_form');
-                        Route::get('{ID}/urls', ['uses' => 'ShortUrlController@showUrlsListForUserView'])->name('admin_users_urls_list');
-                        Route::get('{ID}/requests', ['uses' => 'UserController@showRequestsView'])->name('admin_users_requests_list');
+                        Route::delete('{id}', ['uses' => 'UserController@deleteUser'])->name('admin_users_delete');
+                        Route::patch('{id}', ['uses' => 'UserController@updateUser'])->name('admin_users_update');
+                        Route::post('{id}/restore', ['uses' => 'UserController@restoreUser'])->name('admin_users_restore');
+                        Route::get('{id}', ['uses' => 'UserController@showEditUserView'])->name('admin_users_edit_form');
+                        Route::get('{id}/urls', ['uses' => 'ShortUrlController@showUrlsListForUserView'])->name('admin_users_urls_list');
+                        Route::get('{id}/requests', ['uses' => 'UserController@showRequestsView'])->name('admin_users_requests_list');
                     }
                 );
 
@@ -107,21 +107,20 @@ Route::group(
                 Route::group(
                     ['prefix' => 'urls'],
                     function () {
-                        Route::get('/', ['uses' => 'ShortUrlController@showUrlsListView'])->name('admin_urls_list');
-                        Route::get('{ID}', ['uses' => 'ShortUrlController@showEditUrlView'])->name('admin_urls_edit_form');
-                        Route::delete('{ID}', ['uses' => 'ShortUrlController@deleteUrl'])->name('admin_urls_delete');
-                        Route::patch('{ID}', ['uses' => 'ShortUrlController@updateUrl'])->name('admin_urls_update');
-                        Route::post('{ID}', ['uses' => 'ShortUrlController@restoreUrl'])->name('admin_urls_restore');
-
                         Route::group(
                             ['prefix' => 'whitelist'],
                             function () {
                                 Route::get('/', ['uses' => 'ShortUrlController@showUrlWhitelistView'])->name('admin_urls_whitelist_list');
-                                Route::delete('{ID}', ['uses' => 'ShortUrlController@deleteWhitelistUrl'])->name('admin_urls_whitelist_delete');
+                                Route::delete('{id}', ['uses' => 'ShortUrlController@deleteWhitelistUrl'])->name('admin_urls_whitelist_delete');
                                 Route::post('/', ['uses' => 'ShortUrlController@addWhitelistUrl'])->name('admin_urls_whitelist_add');
                                 Route::get('add', ['uses' => 'ShortUrlController@showAddUrlWhitelistView'])->name('admin_urls_whitelist_add_form');
                             }
                         );
+                        Route::get('/', ['uses' => 'ShortUrlController@showUrlsListView'])->name('admin_urls_list');
+                        Route::get('{id}', ['uses' => 'ShortUrlController@showEditUrlView'])->name('admin_urls_edit_form');
+                        Route::delete('{id}', ['uses' => 'ShortUrlController@deleteUrl'])->name('admin_urls_delete');
+                        Route::patch('{id}', ['uses' => 'ShortUrlController@updateUrl'])->name('admin_urls_update');
+                        Route::post('{id}', ['uses' => 'ShortUrlController@restoreUrl'])->name('admin_urls_restore');
                     }
                 );
 
@@ -132,7 +131,7 @@ Route::group(
                             ['prefix' => 'systems'],
                             function () {
                                 Route::get('/', ['uses' => 'StarmapController@showStarmapSystemsView'])->name('admin_starmap_systems_list');
-                                Route::patch('{ID}', ['uses' => 'StarmapController@updateStarmapSystem'])->name('admin_starmap_systems_update');
+                                Route::patch('{id}', ['uses' => 'StarmapController@updateStarmapSystem'])->name('admin_starmap_systems_update');
                                 Route::post('/', ['uses' => 'StarmapController@addStarmapSystem'])->name('admin_starmap_systems_add');
                                 Route::post('/download', ['uses' => 'StarmapController@downloadStarmap'])->name('admin_starmap_systems_download');
                             }
@@ -141,7 +140,7 @@ Route::group(
                             ['prefix' => 'celestialobject'],
                             function () {
                                 Route::get('/', ['uses' => 'StarmapController@showStarmapCelestialObjectView'])->name('admin_starmap_celestialobject_list');
-                                Route::patch('{ID}', ['uses' => 'StarmapController@updateStarmapCelestialobject'])->name('admin_starmap_celestialobject_update');
+                                Route::patch('{id}', ['uses' => 'StarmapController@updateStarmapCelestialobject'])->name('admin_starmap_celestialobject_update');
                                 Route::delete('/', ['uses' => 'StarmapController@deleteStarmapCelestialobject'])->name('admin_starmap_celestialobject_delete');
                                 Route::post('/', ['uses' => 'StarmapController@addStarmapCelestialobject'])->name('admin_starmap_celestialobject_add');
                             }

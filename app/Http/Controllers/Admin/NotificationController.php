@@ -70,7 +70,7 @@ class NotificationController extends Controller
             [
                 'content'      => 'required|string|min:5',
                 'level'        => 'required|int|between:0,3',
-                'expires_at'   => 'required|date|after:'.Carbon::now(),
+                'expired_at'   => 'required|date|after:'.Carbon::now(),
                 'published_at' => 'required|date',
                 'output'       => 'required|array|in:status,email,index',
             ]
@@ -84,8 +84,8 @@ class NotificationController extends Controller
             $data['output_'.$type] = true;
         }
 
-        if (!is_null($data['expires_at'])) {
-            $data['expires_at'] = Carbon::parse($data['expires_at'])->toDateTimeString();
+        if (!is_null($data['expired_at'])) {
+            $data['expired_at'] = Carbon::parse($data['expired_at'])->toDateTimeString();
         }
 
         $data['level'] = Notification::NOTIFICATION_LEVEL_TYPES[$data['level']];
@@ -131,7 +131,7 @@ class NotificationController extends Controller
             [
                 'content'      => 'required|string|min:5',
                 'level'        => 'required|int|between:0,3',
-                'expires_at'   => 'required|date',
+                'expired_at'   => 'required|date',
                 'output'       => 'required|array|in:status,email,index',
                 'order'        => 'required|int|between:0,5',
                 'published_at' => 'required|date',
@@ -147,7 +147,7 @@ class NotificationController extends Controller
 
         $notification->content = $request->get('content');
         $notification->level = $request->get('level');
-        $notification->expires_at = Carbon::parse($request->get('expires_at'));
+        $notification->expired_at = Carbon::parse($request->get('expired_at'));
         $notification->order = $request->get('order');
         $notification->published_at = Carbon::parse($request->get('published_at'));
 

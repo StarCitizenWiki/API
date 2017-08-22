@@ -58,7 +58,7 @@ class ShortUrlControllerTest extends TestCase
     {
         $url = ShortUrl::create([
             'url' => 'https://star-citizen.wiki/'.str_random(6),
-            'hash_name' => str_random(5),
+            'hash' => str_random(5),
             'user_id' => 1,
         ]);
         $response = $this->actingAs($this->user)->get('admin/urls/'.$url->id);
@@ -81,7 +81,7 @@ class ShortUrlControllerTest extends TestCase
     {
         $url = ShortUrl::create([
             'url' => 'https://star-citizen.wiki/'.str_random(6),
-            'hash_name' => str_random(5),
+            'hash' => str_random(5),
             'user_id' => 1,
         ]);
         $response = $this->actingAs($this->user)->delete('admin/urls', [
@@ -144,13 +144,13 @@ class ShortUrlControllerTest extends TestCase
     {
         $url = ShortUrl::create([
             'url' => 'https://star-citizen.wiki/'.str_random(6),
-            'hash_name' => str_random(5),
+            'hash' => str_random(5),
             'user_id' => 1,
         ]);
         $response = $this->actingAs($this->user)->patch('admin/urls', [
             'id' => $url->id,
             'url' => 'https://url.com',
-            'hash_name' => str_random(5),
+            'hash' => str_random(5),
             'user_id' => 1,
         ]);
         $response->assertStatus(302);

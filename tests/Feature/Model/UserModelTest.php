@@ -28,24 +28,6 @@ class UserModelTest extends TestCase
     }
 
     /**
-     * @covers \App\Models\User::isAdmin()
-     */
-    public function testIsAdmin()
-    {
-        $user = User::find(1);
-        $this->assertTrue($user->isAdmin());
-    }
-
-    /**
-     * @covers \App\Models\User::isAdmin()
-     */
-    public function testIsNotAdmin()
-    {
-        $user = User::find(2);
-        $this->assertFalse($user->isAdmin());
-    }
-
-    /**
      * @covers \App\Models\User::isWhitelisted()
      */
     public function testIsWhitelisted()

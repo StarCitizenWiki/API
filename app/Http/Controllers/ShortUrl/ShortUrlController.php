@@ -157,15 +157,15 @@ class ShortUrlController extends Controller
         $this->validate(
             $request,
             [
-                'hash_name' => 'required|alpha_dash',
+                'hash' => 'required|alpha_dash',
             ]
         );
 
-        app('Log')::info("Resolving Hash: {$request->get('hash_name')}");
+        app('Log')::info("Resolving Hash: {$request->get('hash')}");
 
         try {
-            $this->addTrace("Getting URL for Hash: {$request->get('hash_name')}", __FUNCTION__, __LINE__);
-            $url = ShortUrl::resolve($request->get('hash_name'));
+            $this->addTrace("Getting URL for Hash: {$request->get('hash')}", __FUNCTION__, __LINE__);
+            $url = ShortUrl::resolve($request->get('hash'));
         } catch (ModelNotFoundException | ExpiredException $e) {
             $this->addTrace(get_class($e), __FUNCTION__, __LINE__);
             $url = [];
@@ -192,8 +192,8 @@ class ShortUrlController extends Controller
         }
 
         return redirect('/')->with(
-            'hash_name',
-            $url['data'][0]['hash_name']
+            'hash',
+            $url['data'][0]['hash']
         );
     }
 
@@ -214,22 +214,22 @@ class ShortUrlController extends Controller
 
         $data = [
             'url'        => ShortUrl::sanitizeUrl($request->get('url')),
-            'hash_name'  => $request->get('hash_name'),
-            'expires_at' => $request->get('expires_at'),
+            'hash'  => $request->get('hash'),
+            'expired_at' => $request->get('expired_at'),
         ];
 
         app('Log')::info('Creating ShortUrl', ['data' => $data]);
 
         $rules = [
             'url'        => 'required|url|max:255|unique:short_urls',
-            'hash_name'  => 'nullable|alpha_dash|max:32|unique:short_urls',
-            'expires_at' => 'nullable|date',
+            'hash'  => 'nullable|alpha_dash|max:32|unique:short_urls',
+            'expired_at' => 'nullable|date',
         ];
 
         validate_array($data, $rules, $request);
 
-        $expires_at = $request->get('expires_at');
-        ShortUrl::checkIfDateIsPast($expires_at);
+        $expired_at = $request->get('expired_at');
+        ShortUrl::checkIfDateIsPast($expired_at);
 
         $key = $request->header('Authorization', null);
 
@@ -250,9 +250,9 @@ class ShortUrlController extends Controller
         $url = ShortUrl::createShortUrl(
             [
                 'url'        => ShortUrl::sanitizeUrl($request->get('url')),
-                'hash_name'  => $request->get('hash_name'),
+                'hash'  => $request->get('hash'),
                 'user_id'    => $userID,
-                'expires_at' => $expires_at,
+                'expired_at' => $expired_at,
             ]
         );
         event(new UrlShortened($url));

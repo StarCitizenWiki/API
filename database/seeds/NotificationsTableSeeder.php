@@ -22,7 +22,7 @@ class NotificationsTableSeeder extends Seeder
                 'output_status' => true,
                 'created_at'    => \Carbon\Carbon::now(),
                 'updated_at'    => \Carbon\Carbon::now(),
-                'expires_at'    => \Carbon\Carbon::now()->addCentury(),
+                'expired_at'    => \Carbon\Carbon::now()->addCentury(),
                 'published_at'  => \Carbon\Carbon::now(),
             ]
         );
@@ -35,7 +35,7 @@ class NotificationsTableSeeder extends Seeder
                 'output_status' => false,
                 'created_at'    => \Carbon\Carbon::now()->subHours(2),
                 'updated_at'    => \Carbon\Carbon::now(),
-                'expires_at'    => \Carbon\Carbon::now()->addCentury(),
+                'expired_at'    => \Carbon\Carbon::now()->addCentury(),
                 'published_at'  => \Carbon\Carbon::now(),
             ]
         );
@@ -48,7 +48,7 @@ class NotificationsTableSeeder extends Seeder
                 'output_status' => true,
                 'created_at'    => \Carbon\Carbon::now(),
                 'updated_at'    => \Carbon\Carbon::now(),
-                'expires_at'    => \Carbon\Carbon::now()->addCentury(),
+                'expired_at'    => \Carbon\Carbon::now()->addCentury(),
                 'output_index'  => true,
                 'published_at'  => \Carbon\Carbon::now(),
             ]
@@ -62,7 +62,7 @@ class NotificationsTableSeeder extends Seeder
                 'output_status' => false,
                 'created_at'    => \Carbon\Carbon::now(),
                 'updated_at'    => \Carbon\Carbon::now(),
-                'expires_at'    => \Carbon\Carbon::now()->addCentury(),
+                'expired_at'    => \Carbon\Carbon::now()->addCentury(),
                 'published_at'  => \Carbon\Carbon::now(),
             ]
         );
@@ -75,7 +75,7 @@ class NotificationsTableSeeder extends Seeder
                 'output_status' => true,
                 'created_at'    => \Carbon\Carbon::now()->subMinutes(50),
                 'updated_at'    => \Carbon\Carbon::now(),
-                'expires_at'    => \Carbon\Carbon::now(),
+                'expired_at'    => \Carbon\Carbon::now(),
                 'published_at'  => \Carbon\Carbon::now(),
             ]
         );
@@ -88,7 +88,7 @@ class NotificationsTableSeeder extends Seeder
                 'output_status' => true,
                 'created_at'    => \Carbon\Carbon::now()->subHour(),
                 'updated_at'    => \Carbon\Carbon::now(),
-                'expires_at'    => \Carbon\Carbon::now()->addCentury(),
+                'expired_at'    => \Carbon\Carbon::now()->addCentury(),
                 'published_at'  => \Carbon\Carbon::now(),
             ]
         );
@@ -101,7 +101,7 @@ class NotificationsTableSeeder extends Seeder
                 'output_status' => true,
                 'created_at'    => \Carbon\Carbon::now()->subCentury(),
                 'updated_at'    => \Carbon\Carbon::now(),
-                'expires_at'    => \Carbon\Carbon::now()->addCentury(),
+                'expired_at'    => \Carbon\Carbon::now()->addCentury(),
                 'published_at'  => \Carbon\Carbon::now(),
             ]
         );
