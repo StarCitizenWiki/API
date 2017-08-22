@@ -1,9 +1,12 @@
-<?php
+<?php declare(strict_types = 1);
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
+/**
+ * Class CreateUsersTable
+ */
 class CreateUsersTable extends Migration
 {
     /**
@@ -20,8 +23,9 @@ class CreateUsersTable extends Migration
             $table->string('api_token', 60)->unique();
             $table->string('password', 60);
             $table->integer('requests_per_minute')->unsigned();
-            $table->boolean('whitelisted')->default(0);
-            $table->boolean('blacklisted')->default(0);
+            $table->boolean('whitelisted')->default(false);
+            $table->boolean('blacklisted')->default(false);
+            $table->tinyInteger('receive_notification_level')->default(1);
             $table->text('notes')->nullable();
             $table->timestamp('last_login')->default('01.01.1970 00:00:00');
             $table->timestamp('api_token_last_used')->nullable();

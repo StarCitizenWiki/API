@@ -1,18 +1,18 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\User\Auth;
 
-use App\Events\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
 
 /**
  * Class RegisterController
  *
- * @package App\Http\Controllers\Auth
+ * @package App\Http\Controllers\User\Auth
  */
 class RegisterController extends Controller
 {
@@ -48,13 +48,13 @@ class RegisterController extends Controller
     /**
      * Show the application registration form.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function showRegistrationForm()
+    public function showRegistrationForm(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return redirect(AUTH_HOME);
+        return view('api.auth.register');
     }
 
     /**
@@ -69,15 +69,14 @@ class RegisterController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         $apiToken = str_random(60);
-        $password = str_random(32);
 
         $this->addTrace('Creating User', __FUNCTION__, __LINE__);
         $user = User::create(
             [
-                'name'                => null,
+                'name'                => $data['name'],
                 'email'               => $data['email'],
                 'api_token'           => $apiToken,
-                'password'            => bcrypt($password),
+                'password'            => bcrypt($data['password']),
                 'requests_per_minute' => 60,
                 'last_login'          => date('Y-m-d H:i:s'),
             ]
@@ -90,7 +89,6 @@ class RegisterController extends Controller
                 'email' => $user->email,
             ]
         );
-        event(new UserRegistered($user, $password));
 
         $this->stopProfiling(__FUNCTION__);
 
@@ -109,7 +107,9 @@ class RegisterController extends Controller
         return Validator::make(
             $data,
             [
-                'email' => 'required|email|max:255|unique:users',
+                'name'     => 'required|string|max:255',
+                'email'    => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
             ]
         );
     }

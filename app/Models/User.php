@@ -81,6 +81,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'name',
         'email',
         'api_token',
         'password',
@@ -88,6 +89,7 @@ class User extends Authenticatable
         'last_login',
         'notes',
         'api_token_last_used',
+        'receive_notification_level',
     ];
 
     /**
@@ -135,18 +137,6 @@ class User extends Authenticatable
         app('Log')::notice('User Account updated', ['changes' => $changes]);
 
         return $user->save();
-    }
-
-    /**
-     * Checks if the current userid is in the defined AdminID Array
-     *
-     * @return bool
-     */
-    public function isAdmin(): bool
-    {
-        $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
-
-        return $isAdmin;
     }
 
     /**

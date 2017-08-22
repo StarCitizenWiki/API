@@ -1,10 +1,11 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Auth\Account;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Traits\ProfilesMethodsTrait;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 /**
  * Class AccountController
  *
- * @package App\Http\Controllers\Auth
+ * @package App\Http\Controllers\User
  */
 class AccountController extends Controller
 {
@@ -37,9 +38,12 @@ class AccountController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('auth.account.index')->with(
+        return view('api.auth.account.index')->with(
             'user',
             Auth::user()
+        )->with(
+            'request_count',
+            Auth::user()->apiRequests()->where('created_at', '>', Carbon::now()->subMinute())->count()
         );
     }
 
@@ -52,10 +56,22 @@ class AccountController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('auth.account.edit')->with(
+        return view('api.auth.account.edit')->with(
             'user',
             Auth::user()
         );
+    }
+
+    /**
+     * Returns the Account Deletion View
+     *
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function showDeleteAccountView(): View
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__));
+
+        return view('api.auth.account.delete');
     }
 
     /**
@@ -94,9 +110,10 @@ class AccountController extends Controller
         $this->validate(
             $request,
             [
-                'name'     => 'present',
-                'email'    => 'required|min:3|email',
-                'password' => 'nullable|min:8|confirmed',
+                'name'                       => 'present',
+                'email'                      => 'required|string|email|max:255|unique:users,email,'.$user->id,
+                'password'                   => 'nullable|string|min:8|confirmed',
+                'receive_notification_level' => 'required|int|between:-1,3',
             ]
         );
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Auth\Admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarmapData;
@@ -12,7 +12,7 @@ use Illuminate\Http\RedirectResponse;
 /**
  * Class AdminStarmapController
  *
- * @package App\Http\Controllers\Auth\Admin
+ * @package App\Http\Controllers\Admin
  */
 class StarmapController extends Controller
 {

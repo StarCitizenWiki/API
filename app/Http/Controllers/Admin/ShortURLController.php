@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Auth\Admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\URLNotWhitelistedException;
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Input;
 
 /**
  * Class AdminShortURLController
- * @package App\Http\Controllers\Auth
+ * @package App\Http\Controllers\Admin
  */
 class ShortURLController extends Controller
 {

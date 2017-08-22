@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Traits\ProfilesMethodsTrait;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 /**
  * Class LoginController
  *
- * @package App\Http\Controllers\Auth
+ * @package App\Http\Controllers\User\Auth
  */
 class LoginController extends Controller
 {
@@ -42,6 +42,16 @@ class LoginController extends Controller
     {
         parent::__construct();
         $this->middleware('guest', ['except' => 'logout']);
+    }
+
+    /**
+     * Show the application's login form.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showLoginForm()
+    {
+        return view('api.auth.login');
     }
 
     /**

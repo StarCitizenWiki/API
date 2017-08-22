@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Auth\Account;
+namespace App\Http\Controllers\User;
 
 use App\Events\URLShortened;
 use App\Exceptions\ExpiredException;
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Input;
 /**
  * Class ShortURLController
  *
- * @package App\Http\Controllers\Auth\Account
+ * @package App\Http\Controllers\User
  */
 class ShortURLController extends Controller
 {
@@ -43,7 +43,7 @@ class ShortURLController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('auth.account.shorturls.index')->with(
+        return view('api.auth.account.shorturls.index')->with(
             'urls',
             Auth::user()->shortURLs()->get()
         );
@@ -58,7 +58,7 @@ class ShortURLController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('auth.account.shorturls.add')->with(
+        return view('api.auth.account.shorturls.add')->with(
             'user',
             Auth::user()
         );
@@ -90,7 +90,7 @@ class ShortURLController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return view('auth.account.shorturls.edit')->with(
+        return view('api.auth.account.shorturls.edit')->with(
             'url',
             $url
         );

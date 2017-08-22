@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Auth\Admin;
+namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
@@ -15,7 +15,7 @@ use Mockery\Exception;
 /**
  * Class LoginController
  *
- * @package App\Http\Controllers\AdminAuth
+ * @package App\Http\Controllers\Admin\Auth
  */
 class LoginController extends Controller
 {

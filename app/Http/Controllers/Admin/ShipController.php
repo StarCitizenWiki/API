@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Auth\Admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\File;
 /**
  * Class ShipsController
  *
- * @package App\Http\Controllers\Auth\Admin
+ * @package App\Http\Controllers\Admin
  */
-class ShipsController extends Controller
+class ShipController extends Controller
 {
     use ProfilesMethodsTrait;
 
