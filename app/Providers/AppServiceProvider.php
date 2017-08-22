@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             Hashids::class,
             function () {
-                return new Hashids(ADMIN_INTERNAL_PASSWORD, 5);
+                return new Hashids(ADMIN_INTERNAL_PASSWORD, 8);
             }
         );
 
