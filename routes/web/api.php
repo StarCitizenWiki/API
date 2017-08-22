@@ -90,15 +90,15 @@ Route::group(
                 );
 
                 Route::group(
-                    ['prefix' => 'users'],
+                    ['prefix' => 'user'],
                     function () {
-                        Route::get('/', ['uses' => 'UserController@showUsersListView'])->name('admin_users_list');
-                        Route::delete('{id}', ['uses' => 'UserController@deleteUser'])->name('admin_users_delete');
-                        Route::patch('{id}', ['uses' => 'UserController@updateUser'])->name('admin_users_update');
-                        Route::post('{id}/restore', ['uses' => 'UserController@restoreUser'])->name('admin_users_restore');
-                        Route::get('{id}', ['uses' => 'UserController@showEditUserView'])->name('admin_users_edit_form');
-                        Route::get('{id}/urls', ['uses' => 'ShortUrlController@showUrlsListForUserView'])->name('admin_users_urls_list');
-                        Route::get('{id}/requests', ['uses' => 'UserController@showRequestsView'])->name('admin_users_requests_list');
+                        Route::get('/', ['uses' => 'UserController@showUserListView'])->name('admin_user_list');
+                        Route::delete('{id}', ['uses' => 'UserController@deleteUser'])->name('admin_user_delete');
+                        Route::patch('{id}', ['uses' => 'UserController@updateUser'])->name('admin_user_update');
+                        Route::post('{id}/restore', ['uses' => 'UserController@restoreUser'])->name('admin_user_restore');
+                        Route::get('{id}', ['uses' => 'UserController@showEditUserView'])->name('admin_user_edit_form');
+                        Route::get('{id}/urls', ['uses' => 'ShortUrlController@showUrlsListForUserView'])->name('admin_user_urls_list');
+                        Route::get('{id}/requests', ['uses' => 'UserController@showRequestsView'])->name('admin_user_requests_list');
                     }
                 );
 
