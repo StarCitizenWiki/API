@@ -18,5 +18,9 @@
       margin-bottom: 0;
       justify-content: flex-end !important;
     }
+
+    &:empty {
+      display: none;
+    }
   }
 }
