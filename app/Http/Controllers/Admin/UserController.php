@@ -34,13 +34,13 @@ class UserController extends Controller
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function showUsersListView()
+    public function showUserListView()
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('admin.users.index')->with(
+        return view('admin.user.index')->with(
             'users',
-            User::withTrashed()->get()
+            User::withTrashed()->orderBy('deleted_at')->simplePaginate(100)
         );
     }
 
