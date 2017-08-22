@@ -11,16 +11,16 @@ use Illuminate\Database\Eloquent\Model;
  * @property int                   $user_id
  * @property \Carbon\Carbon        $created_at
  * @property \Carbon\Carbon        $updated_at
- * @method static \Illuminate\Database\Query\Builder|\App\Models\APIRequests whereCreatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\APIRequests whereId($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\APIRequests whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\APIRequests whereUserId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ApiRequests whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ApiRequests whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ApiRequests whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ApiRequests whereUserId($value)
  * @mixin \Eloquent
  * @property string                $request_uri
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\APIRequests whereRequestUri($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ApiRequests whereRequestUri($value)
  */
-class APIRequests extends Model
+class ApiRequests extends Model
 {
     protected $table = 'api_requests';
 

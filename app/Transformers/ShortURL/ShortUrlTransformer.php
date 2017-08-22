@@ -6,26 +6,26 @@
  * Time: 09:50
  */
 
-namespace App\Transformers\ShortURL;
+namespace App\Transformers\ShortUrl;
 
-use App\Models\ShortURL\ShortURL;
+use App\Models\ShortUrl\ShortUrl;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
- * Class ShortURLTransformer
+ * Class ShortUrlTransformer
  *
  * @package App\Transformers\Tools
  */
-class ShortURLTransformer extends AbstractBaseTransformer
+class ShortUrlTransformer extends AbstractBaseTransformer
 {
     /**
-     * Transformes a given ShortURL
+     * Transformes a given ShortUrl
      *
-     * @param \App\Models\ShortURL\ShortURL $url URL to transform
+     * @param \App\Models\ShortUrl\ShortUrl $url URL to transform
      *
      * @return array
      */
-    public function transform(ShortURL $url)
+    public function transform(ShortUrl $url)
     {
         return [
             [

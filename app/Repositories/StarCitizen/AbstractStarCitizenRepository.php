@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\App;
 /**
  * Class BaseStarCitizenAPI
  *
- * @package App\Repositories\StarCitizen\APIv1
+ * @package App\Repositories\StarCitizen\ApiV1
  */
 abstract class AbstractStarCitizenRepository extends AbstractBaseRepository
 {

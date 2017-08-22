@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
 /**
  * Interface StoreInterface
  *
- * @package App\Repositories\StarCitizen\APIv1\Store
+ * @package App\Repositories\StarCitizen\ApiV1\Store
  */
 interface StoreInterface
 {

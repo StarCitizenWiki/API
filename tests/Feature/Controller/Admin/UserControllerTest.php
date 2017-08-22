@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller\Admin;
 
@@ -23,7 +23,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\UserController::showEditUserView()
+     * @covers \App\Http\Controllers\Admin\\UserController::showEditUserView()
      * @covers \App\Http\Middleware\CheckIfAdmin
      */
     public function testEditUserView()
@@ -32,7 +32,7 @@ class UserControllerTest extends TestCase
         $response->assertStatus(200);
     }
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\UserController::showEditUserView()
+     * @covers \App\Http\Controllers\Admin\\UserController::showEditUserView()
      */
     public function testEditUserViewException()
     {
@@ -41,7 +41,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\UserController::showUsersListView()
+     * @covers \App\Http\Controllers\Admin\\UserController::showUsersListView()
      */
     public function testUsersView()
     {
@@ -50,7 +50,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\UserController::deleteUser()
+     * @covers \App\Http\Controllers\Admin\\UserController::deleteUser()
      */
     public function testDeleteUser()
     {
@@ -61,7 +61,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\UserController::deleteUser()
+     * @covers \App\Http\Controllers\Admin\\UserController::deleteUser()
      */
     public function testDeleteUserException()
     {
@@ -72,7 +72,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\UserController::restoreUser()
+     * @covers \App\Http\Controllers\Admin\\UserController::restoreUser()
      */
     public function testRestoreUser()
     {
@@ -83,7 +83,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\UserController::updateUser()
+     * @covers \App\Http\Controllers\Admin\\UserController::updateUser()
      */
     public function testUpdateUser()
     {

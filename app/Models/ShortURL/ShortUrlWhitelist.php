@@ -1,26 +1,26 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\ShortURL;
+namespace App\Models\ShortUrl;
 
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class ShortURLWhitelist
+ * Class ShortUrlWhitelist
  *
- * @package App\Models\ShortURL
+ * @package App\Models\ShortUrl
  * @mixin \Eloquent
  * @property int            $id
  * @property string         $url
  * @property bool           $internal
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURLWhitelist whereCreatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURLWhitelist whereId($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURLWhitelist whereInternal($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURLWhitelist whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURLWhitelist whereUrl($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereInternal($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereUrl($value)
  */
-class ShortURLWhitelist extends Model
+class ShortUrlWhitelist extends Model
 {
     protected $table = 'short_url_whitelists';
 
@@ -39,11 +39,11 @@ class ShortURLWhitelist extends Model
      *
      * @param array $data URL Data
      *
-     * @return \App\Models\ShortURL\ShortURLWhitelist
+     * @return \App\Models\ShortUrl\ShortUrlWhitelist
      */
-    public static function createWhitelistURL(array $data): ShortURLWhitelist
+    public static function createWhitelistUrl(array $data): ShortUrlWhitelist
     {
-        $url = ShortURLWhitelist::create(
+        $url = ShortUrlWhitelist::create(
             [
                 'url'      => $data['url'],
                 'internal' => $data['internal'],

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Tools;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use App\Repositories\StarCitizen\ApiV1\StatsRepository;
 use App\Traits\ProfilesMethodsTrait;
 use Exception;
 use Illuminate\Http\Request;
@@ -48,7 +48,7 @@ class FundImageController extends Controller
     /**
      * StatsRepository
      *
-     * @var \App\Repositories\StarCitizen\APIv1\StatsRepository
+     * @var \App\Repositories\StarCitizen\ApiV1\StatsRepository
      */
     private $repository;
 
@@ -80,7 +80,7 @@ class FundImageController extends Controller
      * FundImageController constructor.
      *
      * @param \Illuminate\Http\Request                            $request    HTTP Request
-     * @param \App\Repositories\StarCitizen\APIv1\StatsRepository $repository StatsApi
+     * @param \App\Repositories\StarCitizen\ApiV1\StatsRepository $repository StatsApi
      */
     public function __construct(Request $request, StatsRepository $repository)
     {
@@ -157,7 +157,7 @@ class FundImageController extends Controller
         }
 
         try {
-            $this->getFundsFromAPI();
+            $this->getFundsFromApi();
             $this->formatFunds();
             $this->determineImageWidth();
             $this->determineImageHeight();
@@ -355,7 +355,7 @@ class FundImageController extends Controller
      *
      * @return void
      */
-    private function getFundsFromAPI(): void
+    private function getFundsFromApi(): void
     {
         $this->startProfiling(__FUNCTION__);
 

@@ -1,28 +1,28 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller;
 
 use Tests\TestCase;
 
 /**
- * Class ShortURLTest
+ * Class ShortUrlTest
  * @package Tests\Feature
  */
-class ShortURLControllerTest extends TestCase
+class ShortUrlControllerTest extends TestCase
 {
     /**
-     * @covers \App\Http\Controllers\ShortURL\ShortURLController::showResolveView()
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::showResolveView()
      */
-    public function testShortURLResolveView()
+    public function testShortUrlResolveView()
     {
         $response = $this->get('resolve');
         $response->assertStatus(200);
     }
 
     /**
-     * @covers \App\Http\Controllers\ShortURL\ShortURLController::resolveAndDisplay()
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::resolveAndDisplay()
      */
-    public function testShortURLResolveRedirect()
+    public function testShortUrlResolveRedirect()
     {
         $response = $this->post('resolve', [
             'url' => 'https://localhost/'.str_random(6),
@@ -33,10 +33,10 @@ class ShortURLControllerTest extends TestCase
     /**
      * Tests json resolve
      *
-     * @covers \App\Http\Controllers\ShortURL\ShortURLController::resolve()
-     * @covers \App\Transformers\ShortURL\ShortURLTransformer
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::resolve()
+     * @covers \App\Transformers\ShortUrl\ShortUrlTransformer
      */
-    public function testAPIResolve()
+    public function testApiResolve()
     {
         $response = $this->post('api/v1/resolve', ['hash_name' => str_random(5)]);
         $response->assertSee('[]');
@@ -46,11 +46,11 @@ class ShortURLControllerTest extends TestCase
     /**
      * Test Repository Creation
      *
-     * @covers \App\Http\Controllers\ShortURL\ShortURLController::create()
-     * @covers \App\Transformers\ShortURL\ShortURLTransformer
-     * @covers \App\Events\URLShortened
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::create()
+     * @covers \App\Transformers\ShortUrl\ShortUrlTransformer
+     * @covers \App\Events\UrlShortened
      */
-    public function testShortURLCreationAPI()
+    public function testShortUrlCreationApi()
     {
         $response = $this->post('api/v1/shorten', [
             'url' => 'https://star-citizen.wiki/'.str_random(5),
@@ -65,9 +65,9 @@ class ShortURLControllerTest extends TestCase
     /**
      * Test Repository Creation
      *
-     * @covers \App\Http\Controllers\ShortURL\ShortURLController::createAndRedirect()
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::createAndRedirect()
      */
-    public function testShortURLCreationView()
+    public function testShortUrlCreationView()
     {
         $response = $this->post('shorten', [
             'url' => 'https://star-citizen.wiki/'.str_random(5),

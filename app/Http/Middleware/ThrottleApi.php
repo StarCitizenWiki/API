@@ -10,17 +10,17 @@ use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
- * Class ThrottleAPI
+ * Class ThrottleApi
  * Throttles Request based on User
  *
  * @package App\Http\Middleware
  */
-class ThrottleAPI extends ThrottleRequests
+class ThrottleApi extends ThrottleRequests
 {
     use ProfilesMethodsTrait;
 
     /**
-     * ThrottleAPI constructor.
+     * ThrottleApi constructor.
      *
      * @param RateLimiter $limiter Limiter
      */

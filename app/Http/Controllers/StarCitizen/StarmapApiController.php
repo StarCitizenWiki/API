@@ -9,7 +9,7 @@ namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\APIv1\StarmapRepository;
+use App\Repositories\StarCitizen\ApiV1\StarmapRepository;
 use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
@@ -19,7 +19,7 @@ use InvalidArgumentException;
  *
  * @package App\Http\Controllers\StarCitizen
  */
-class StarmapAPIController extends Controller
+class StarmapApiController extends Controller
 {
     use ProfilesMethodsTrait;
 

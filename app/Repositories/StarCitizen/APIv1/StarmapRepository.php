@@ -5,7 +5,7 @@
  * Time: 20:04
  */
 
-namespace App\Repositories\StarCitizen\APIv1;
+namespace App\Repositories\StarCitizen\ApiV1;
 
 use App\Models\CelestialObject;
 use App\Models\Starsystem;
@@ -26,7 +26,7 @@ use InvalidArgumentException;
 /**
  * Class StarmapRepository
  *
- * @package App\Repositories\StarCitizen\APIv1\Starmap
+ * @package App\Repositories\StarCitizen\ApiV1\Starmap
  */
 class StarmapRepository extends AbstractStarCitizenRepository implements StarmapInterface
 {
@@ -37,7 +37,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      *
      * @param string $systemName
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getSystem(string $systemName)
     {
@@ -54,7 +54,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/asteroidbelts
      * @param string $systemName
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getAsteroidbelts(string $systemName)
     {
@@ -73,7 +73,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/spacestations
      * @param string $systemName
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getSpacestations(string $systemName)
     {
@@ -103,7 +103,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/planets
      * @param string $systemName
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getPlanets(string $systemName)
     {
@@ -118,7 +118,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/moons
      * @param string $systemName
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getMoons(string $systemName)
     {
@@ -133,7 +133,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/landingzones
      * @param string $systemName
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getLandingzones(string $systemName)
     {
@@ -148,7 +148,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/stars
      * @param string $systemName
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getStars(string $systemName)
     {
@@ -164,7 +164,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      *
      * @param string $objectName
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getCelestialObject(string $objectName)
     {
@@ -185,7 +185,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      *
      * @param string $searchString
      *
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function search(string $searchString)
     {
@@ -202,7 +202,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
     }
 
     /**
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getSystemList()
     {
@@ -213,7 +213,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
     }
 
     /**
-     * @return \App\Repositories\StarCitizen\APIv1\StarmapRepository
+     * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
      */
     public function getCelestialObjectList()
     {

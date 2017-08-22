@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller\Admin;
 
@@ -23,7 +23,7 @@ class StarmapControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\StarmapController::showStarmapSystemsView()
+     * @covers \App\Http\Controllers\Admin\\StarmapController::showStarmapSystemsView()
      */
     public function testStarmapSystemsView()
     {
@@ -32,7 +32,7 @@ class StarmapControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\StarmapController::showStarmapCelestialObjectView()
+     * @covers \App\Http\Controllers\Admin\\StarmapController::showStarmapCelestialObjectView()
      */
     public function testStarmapCelestialObjectsView()
     {

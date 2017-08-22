@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\APIRequests;
+use App\Models\ApiRequests;
 use App\Models\User;
 use App\Traits\ProfilesMethodsTrait;
 use Closure;
@@ -43,7 +43,7 @@ class UpdateTokenTimestamp
                 $user->save();
 
                 app('Log')::info("Updated Token Last Used Timestamp for User: {$user->id}");
-                APIRequests::create(
+                ApiRequests::create(
                     [
                         'user_id'     => $user->id,
                         'request_uri' => $request->path(),

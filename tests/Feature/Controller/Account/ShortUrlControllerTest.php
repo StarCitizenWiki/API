@@ -1,17 +1,17 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller\Account;
 
-use App\Models\ShortURL\ShortURL;
+use App\Models\ShortUrl\ShortUrl;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
- * Class ShortURLTest
+ * Class ShortUrlTest
  * @package Tests\Feature\Controller\Account
  */
-class ShortURLControllerTest extends TestCase
+class ShortUrlControllerTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -24,27 +24,27 @@ class ShortURLControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::showURLsListView()
+     * @covers \App\Http\Controllers\User\ShortUrlController::showUrlsListView()
      */
-    public function testURLView()
+    public function testUrlView()
     {
         $response = $this->actingAs($this->user)->get('account/urls');
         $response->assertStatus(200);
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::showAddURLView()
+     * @covers \App\Http\Controllers\User\ShortUrlController::showAddUrlView()
      */
-    public function testURLAddView()
+    public function testUrlAddView()
     {
         $response = $this->actingAs($this->user)->get('account/urls/add');
         $response->assertStatus(200);
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::addURL()
+     * @covers \App\Http\Controllers\User\ShortUrlController::addUrl()
      */
-    public function testAddURL()
+    public function testAddUrl()
     {
         $response = $this->actingAs($this->user)->post('account/urls', [
             'url' => 'https://star-citizen.wiki/'.str_random(4),
@@ -55,9 +55,9 @@ class ShortURLControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::addURL()
+     * @covers \App\Http\Controllers\User\ShortUrlController::addUrl()
      */
-    public function testAddURLException()
+    public function testAddUrlException()
     {
         $response = $this->actingAs($this->user)->post('account/urls', [
             'url' => 'https://notwhitelisted.wiki/'.str_random(4),
@@ -67,11 +67,11 @@ class ShortURLControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::deleteURL()
+     * @covers \App\Http\Controllers\User\ShortUrlController::deleteUrl()
      */
-    public function testDeleteURL()
+    public function testDeleteUrl()
     {
-        $url = ShortURL::createShortURL([
+        $url = ShortUrl::createShortUrl([
             'user_id' => $this->user->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
             'hash_name' => str_random(5),
@@ -85,23 +85,23 @@ class ShortURLControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::showEditURLView()
+     * @covers \App\Http\Controllers\User\ShortUrlController::showEditUrlView()
      */
-    public function testEditURLViewNotExist()
+    public function testEditUrlViewNotExist()
     {
         $response = $this->actingAs($this->user)->get('account/urls/-1');
         $response->assertStatus(302);
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\ShortURLController::updateURL()
-     * @covers \App\Models\ShortURL\ShortURL::createShortURL()
+     * @covers \App\Http\Controllers\User\ShortUrlController::updateUrl()
+     * @covers \App\Models\ShortUrl\ShortUrl::createShortUrl()
      * @covers \App\Http\Middleware\VerifyCsrfToken
      */
-    public function testUpdateURL()
+    public function testUpdateUrl()
     {
         $hash_name = str_random(5);
-        $url = ShortURL::createShortURL([
+        $url = ShortUrl::createShortUrl([
             'user_id' => $this->user->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
             'hash_name' => $hash_name,

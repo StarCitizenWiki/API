@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Auth;
  * @package App\Models
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[]
  *                $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortURL\ShortURL[]
- *                    $shortURLs
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortUrl\ShortUrl[]
+ *                    $shortUrls
  * @mixin \Eloquent
  * @property int
  *               $id
@@ -62,7 +62,7 @@ use Illuminate\Support\Facades\Auth;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereRequestsPerMinute($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereWhitelisted($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\APIRequests[] $apiRequests
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ApiRequests[] $apiRequests
  * @method static bool|null forceDelete()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User onlyTrashed()
  * @method static bool|null restore()
@@ -168,9 +168,9 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function shortURLs()
+    public function shortUrls()
     {
-        return $this->hasMany('App\Models\ShortURL\ShortURL');
+        return $this->hasMany('App\Models\ShortUrl\ShortUrl');
     }
 
     /**
@@ -178,6 +178,6 @@ class User extends Authenticatable
      */
     public function apiRequests()
     {
-        return $this->hasMany('App\Models\APIRequests');
+        return $this->hasMany('App\Models\ApiRequests');
     }
 }

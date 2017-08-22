@@ -22,8 +22,8 @@ class EventServiceProvider extends ServiceProvider
         'Illuminate\Auth\Events\Login'      => [
             'App\Listeners\LogSuccessfulLogin',
         ],
-        'App\Events\URLShortened'           => [
-            'App\Listeners\SendURLShortenedNotification',
+        'App\Events\UrlShortened'           => [
+            'App\Listeners\SendUrlShortenedNotification',
         ],
         'App\Events\NotificationCreated'    => [
             'App\Listeners\SendNotification',

@@ -1,21 +1,21 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller;
 
 use Tests\TestCase;
 
 /**
- * Class StatsAPIControllerTest
+ * Class StatsApiControllerTest
  * @package Tests\Feature\Controller
  */
-class StatsAPIControllerTest extends TestCase
+class StatsApiControllerTest extends TestCase
 {
     /**
      * Tests Stats from Interfaces
      *
-     * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getAll()
-     * @covers \App\Http\Middleware\ThrottleAPI
-     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Controllers\StarCitizen\StatsApiController::getAll()
+     * @covers \App\Http\Middleware\ThrottleApi
+     * @covers \App\Http\Middleware\AddApiHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\StatsTransformer
@@ -34,9 +34,9 @@ class StatsAPIControllerTest extends TestCase
     /**
      * Tests fans Interfaces
      *
-     * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFans()
-     * @covers \App\Http\Middleware\ThrottleAPI
-     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Controllers\StarCitizen\StatsApiController::getFans()
+     * @covers \App\Http\Middleware\ThrottleApi
+     * @covers \App\Http\Middleware\AddApiHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FansTransformer
@@ -55,9 +55,9 @@ class StatsAPIControllerTest extends TestCase
     /**
      * Tests Funds Interfaces
      *
-     * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFunds()
-     * @covers \App\Http\Middleware\ThrottleAPI
-     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Controllers\StarCitizen\StatsApiController::getFunds()
+     * @covers \App\Http\Middleware\ThrottleApi
+     * @covers \App\Http\Middleware\AddApiHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FundsTransformer
@@ -76,9 +76,9 @@ class StatsAPIControllerTest extends TestCase
     /**
      * Tests fleet api
      *
-     * @covers \App\Http\Controllers\StarCitizen\StatsAPIController::getFleet()
-     * @covers \App\Http\Middleware\ThrottleAPI
-     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Controllers\StarCitizen\StatsApiController::getFleet()
+     * @covers \App\Http\Middleware\ThrottleApi
+     * @covers \App\Http\Middleware\AddApiHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FleetTransformer

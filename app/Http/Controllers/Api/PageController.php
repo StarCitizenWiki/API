@@ -21,7 +21,7 @@ class PageController extends Controller
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function showAPIView(): View
+    public function showApiView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -33,7 +33,7 @@ class PageController extends Controller
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function showFAQView(): View
+    public function showFaqView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 

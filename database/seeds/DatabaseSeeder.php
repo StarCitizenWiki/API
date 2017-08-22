@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(UsersTableSeeder::class);
         $this->call(ShortUrlWhitelistsTableSeeder::class);
-        $this->call(ShortURLsTableSeeder::class);
+        $this->call(ShortUrlsTableSeeder::class);
         $this->call(AdminsTableSeeder::class);
         $this->call(WikiGroupsSeeder::class);
         if (App::environment() === 'local') {

@@ -2,18 +2,18 @@
 
 namespace App\Mail;
 
-use App\Models\ShortURL\ShortURL;
+use App\Models\ShortUrl\ShortUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class URLShortened
+ * Class UrlShortened
  *
  * @package App\Mail
  */
-class URLShortened extends Mailable implements ShouldQueue
+class UrlShortened extends Mailable implements ShouldQueue
 {
     use Queueable;
     use SerializesModels;
@@ -23,9 +23,9 @@ class URLShortened extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      *
-     * @param \App\Models\ShortURL\ShortURL $url URL Object
+     * @param \App\Models\ShortUrl\ShortUrl $url URL Object
      */
-    public function __construct(ShortURL $url)
+    public function __construct(ShortUrl $url)
     {
         $this->url = $url;
     }

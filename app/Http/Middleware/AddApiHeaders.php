@@ -16,7 +16,7 @@ use Closure;
  *
  * @package App\Http\Middleware
  */
-class AddAPIHeaders
+class AddApiHeaders
 {
     use ProfilesMethodsTrait;
 

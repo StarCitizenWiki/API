@@ -11,7 +11,7 @@ use Exception;
 
 /**
  * Class HashNameAlreadyAssignedException
- * Exception to throw if a HashName for a ShortURL is already in use
+ * Exception to throw if a HashName for a ShortUrl is already in use
  *
  * @package App\Exceptions
  */

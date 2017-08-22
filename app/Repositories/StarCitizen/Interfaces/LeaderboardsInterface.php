@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
 /**
  * Interface LeaderboardsInterface
  *
- * @package App\Repositories\StarCitizen\APIv1\Leaderboards
+ * @package App\Repositories\StarCitizen\ApiV1\Leaderboards
  */
 interface LeaderboardsInterface
 {

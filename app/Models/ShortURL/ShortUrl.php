@@ -1,20 +1,21 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\ShortURL;
+namespace App\Models\ShortUrl;
 
 use App\Exceptions\ExpiredException;
 use App\Exceptions\HashNameAlreadyAssignedException;
-use App\Exceptions\URLNotWhitelistedException;
+use App\Exceptions\UrlNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 /**
- * Class ShortURL
+ * Class ShortUrl
  *
- * @package App\Models\ShortURL
+ * @package App\Models\ShortUrl
  * @property-read \App\Models\User $user
  * @mixin \Eloquent
  * @property int                   $id
@@ -23,17 +24,19 @@ use Illuminate\Support\Str;
  * @property int                   $user_id
  * @property \Carbon\Carbon        $created_at
  * @property \Carbon\Carbon        $updated_at
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereCreatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereHashName($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereId($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUrl($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereUserId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereHashName($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereUrl($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereUserId($value)
  * @property string                $expires
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortURL\ShortURL whereExpires($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereExpires($value)
  */
-class ShortURL extends Model
+class ShortUrl extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'short_urls';
 
     /**
@@ -52,18 +55,18 @@ class ShortURL extends Model
      *
      * @param array $data URL Data
      *
-     * @return \App\Models\ShortURL\ShortURL
+     * @return \App\Models\ShortUrl\ShortUrl
      */
-    public static function createShortURL(array $data): ShortURL
+    public static function createShortUrl(array $data): ShortUrl
     {
-        ShortURL::checkURLinWhitelist($data['url']);
-        ShortURL::checkHashNameInDB($data['hash_name']);
+        ShortUrl::checkUrlinWhitelist($data['url']);
+        ShortUrl::checkHashNameInDB($data['hash_name']);
 
         if (is_null($data['hash_name']) || empty($data['hash_name'])) {
-            $data['hash_name'] = ShortURL::generateShortURLHash();
+            $data['hash_name'] = ShortUrl::generateShortUrlHash();
         }
 
-        $url = new ShortURL();
+        $url = new ShortUrl();
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
         $url->user_id = $data['user_id'];
@@ -87,7 +90,7 @@ class ShortURL extends Model
      */
     public static function resolve(string $hashName)
     {
-        $url = ShortURL::where('hash_name', '=', $hashName)->firstOrFail();
+        $url = ShortUrl::where('hash_name', '=', $hashName)->firstOrFail();
 
         app('Log')::info(
             'URL resolved',
@@ -118,7 +121,7 @@ class ShortURL extends Model
      *
      * @return string
      */
-    public static function sanitizeURL($url): String
+    public static function sanitizeUrl($url): String
     {
         $url = filter_var($url, FILTER_SANITIZE_URL);
         if (!isset(parse_url($url)['path'])) {
@@ -152,13 +155,13 @@ class ShortURL extends Model
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public static function updateShortURL(array $data): bool
+    public static function updateShortUrl(array $data): bool
     {
-        ShortURL::checkURLinWhitelist($data['url']);
-        $url = ShortURL::findOrFail($data['id']);
+        ShortUrl::checkUrlinWhitelist($data['url']);
+        $url = ShortUrl::findOrFail($data['id']);
 
         if ($url->hash_name !== $data['hash_name']) {
-            ShortURL::checkHashNameInDB($data['hash_name']);
+            ShortUrl::checkHashNameInDB($data['hash_name']);
         }
 
         $changes = [];
@@ -171,7 +174,7 @@ class ShortURL extends Model
             }
         }
 
-        app('Log')::info('ShortURL updated', ['changes' => $changes]);
+        app('Log')::info('ShortUrl updated', ['changes' => $changes]);
 
         $url->url = $data['url'];
         $url->hash_name = $data['hash_name'];
@@ -196,17 +199,17 @@ class ShortURL extends Model
      *
      * @param string $url URL to check
      *
-     * @throws \App\Exceptions\URLNotWhitelistedException
+     * @throws \App\Exceptions\UrlNotWhitelistedException
      *
      * @return void
      */
-    private static function checkURLinWhitelist(string $url): void
+    private static function checkUrlinWhitelist(string $url): void
     {
         $url = parse_url($url, PHP_URL_HOST);
         $url = str_replace('www.', '', $url);
 
-        if (ShortURLWhitelist::where('url', '=', $url)->count() !== 1) {
-            throw new URLNotWhitelistedException('URL '.$url.' is not whitelisted');
+        if (ShortUrlWhitelist::where('url', '=', $url)->count() !== 1) {
+            throw new UrlNotWhitelistedException('URL '.$url.' is not whitelisted');
         }
     }
 
@@ -221,7 +224,7 @@ class ShortURL extends Model
      */
     private static function checkHashNameInDB($hashName): void
     {
-        if (ShortURL::where('hash_name', '=', $hashName)->count() > 0) {
+        if (ShortUrl::where('hash_name', '=', $hashName)->count() > 0) {
             throw new HashNameAlreadyAssignedException('Name already assigned');
         }
     }
@@ -231,11 +234,11 @@ class ShortURL extends Model
      *
      * @return string
      */
-    private static function generateShortURLHash(): String
+    private static function generateShortUrlHash(): String
     {
         do {
             $hashName = Str::random(SHORT_URL_LENGTH);
-        } while (ShortURL::where('hash_name', '=', $hashName)->count() > 0);
+        } while (ShortUrl::where('hash_name', '=', $hashName)->count() > 0);
 
         app('Log')::info("Generated Hash: {$hashName}");
 

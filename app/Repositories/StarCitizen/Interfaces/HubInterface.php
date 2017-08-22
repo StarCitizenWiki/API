@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
 /**
  * Interface HubInterface
  *
- * @package App\Repositories\StarCitizen\APIv1\Hub
+ * @package App\Repositories\StarCitizen\ApiV1\Hub
  */
 interface HubInterface
 {

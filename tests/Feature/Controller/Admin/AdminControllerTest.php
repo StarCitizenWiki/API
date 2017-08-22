@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller\Admin;
 
@@ -23,7 +23,7 @@ class AdminControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Admin\AdminController::showRoutesView()
+     * @covers \App\Http\Controllers\Admin\\AdminController::showRoutesView()
      */
     public function testRoutesView()
     {

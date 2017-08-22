@@ -1,19 +1,19 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\ShortURL;
+namespace App\Http\Controllers\ShortUrl;
 
-use App\Events\URLShortened;
+use App\Events\UrlShortened;
 use App\Exceptions\ExpiredException;
 use App\Exceptions\HashNameAlreadyAssignedException;
-use App\Exceptions\URLNotWhitelistedException;
+use App\Exceptions\UrlNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
 use App\Http\Controllers\Controller;
-use App\Models\ShortURL\ShortURL;
-use App\Models\ShortURL\ShortURLWhitelist;
+use App\Models\ShortUrl\ShortUrl;
+use App\Models\ShortUrl\ShortUrlWhitelist;
 use App\Models\User;
 use App\Traits\ProfilesMethodsTrait;
 use App\Traits\TransformesDataTrait;
-use App\Transformers\ShortURL\ShortURLTransformer;
+use App\Transformers\ShortUrl\ShortUrlTransformer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
@@ -21,43 +21,43 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 
 /**
- * Class ShortURLController
+ * Class ShortUrlController
  *
- * @package App\Http\Controllers\ShortURL
+ * @package App\Http\Controllers\ShortUrl
  */
-class ShortURLController extends Controller
+class ShortUrlController extends Controller
 {
     use TransformesDataTrait;
     use ProfilesMethodsTrait;
 
     /**
-     * ShortURLController constructor.
+     * ShortUrlController constructor.
      */
     public function __construct()
     {
         parent::__construct();
         $this->addTrace('Setting Transformer', __FUNCTION__, 0);
-        $this->transformer = new ShortURLTransformer();
-        $this->middleware('throttle', ['except' => ['showShortURLView', 'showResolveView']]);
+        $this->transformer = new ShortUrlTransformer();
+        $this->middleware('throttle', ['except' => ['showShortUrlView', 'showResolveView']]);
     }
 
     /**
-     * Returns the ShortURL Index View
+     * Returns the ShortUrl Index View
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function showShortURLView(): View
+    public function showShortUrlView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('shorturl.index')->with(
-            'whitelistedURLs',
-            ShortURLWhitelist::all()->sortBy('url')->where('internal', false)
+            'whitelistedUrls',
+            ShortUrlWhitelist::all()->sortBy('url')->where('internal', false)
         );
     }
 
     /**
-     * Returns the ShortURL resolve Web View
+     * Returns the ShortUrl resolve Web View
      *
      * @return \Illuminate\Contracts\View\View
      */
@@ -80,7 +80,7 @@ class ShortURLController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         app('Log')::info("Resolving URL Hash: {$hash}");
-        $url = $this->getURLRedirectIfException('short_url_index', $hash);
+        $url = $this->getUrlRedirectIfException('short_url_index', $hash);
 
         if ($url instanceof RedirectResponse) {
             $this->addTrace("No URL for Hash: {$hash} found", __FUNCTION__, __LINE__);
@@ -95,7 +95,7 @@ class ShortURLController extends Controller
     }
 
     /**
-     * Resolves a ShortURL Hash and displays the underlying Long URL
+     * Resolves a ShortUrl Hash and displays the underlying Long URL
      *
      * @param \Illuminate\Http\Request $request Resolve Request
      *
@@ -104,7 +104,7 @@ class ShortURLController extends Controller
     public function resolveAndDisplay(Request $request)
     {
         $this->startProfiling(__FUNCTION__);
-        $this->addTrace("Resolving ShortURL {$request->get('url')}", __FUNCTION__, __LINE__);
+        $this->addTrace("Resolving ShortUrl {$request->get('url')}", __FUNCTION__, __LINE__);
 
         $this->validate(
             $request,
@@ -127,7 +127,7 @@ class ShortURLController extends Controller
 
         $hash = str_replace('/', '', $url['path']);
 
-        $url = $this->getURLRedirectIfException('short_url_resolve_form', $hash);
+        $url = $this->getUrlRedirectIfException('short_url_resolve_form', $hash);
 
         if ($url instanceof RedirectResponse) {
             $this->addTrace("No Long-URL for Hash: {$hash} found", __FUNCTION__, __LINE__);
@@ -165,7 +165,7 @@ class ShortURLController extends Controller
 
         try {
             $this->addTrace("Getting URL for Hash: {$request->get('hash_name')}", __FUNCTION__, __LINE__);
-            $url = ShortURL::resolve($request->get('hash_name'));
+            $url = ShortUrl::resolve($request->get('hash_name'));
         } catch (ModelNotFoundException | ExpiredException $e) {
             $this->addTrace(get_class($e), __FUNCTION__, __LINE__);
             $url = [];
@@ -177,7 +177,7 @@ class ShortURLController extends Controller
     }
 
     /**
-     * Creates a ShortURL and redirects to the Index with the URL Hash
+     * Creates a ShortUrl and redirects to the Index with the URL Hash
      *
      * @param \Illuminate\Http\Request $request Create Request
      *
@@ -187,7 +187,7 @@ class ShortURLController extends Controller
     {
         try {
             $url = $this->create($request);
-        } catch (HashNameAlreadyAssignedException | URLNotWhitelistedException | ExpiredException $e) {
+        } catch (HashNameAlreadyAssignedException | UrlNotWhitelistedException | ExpiredException $e) {
             return redirect('/')->withErrors($e->getMessage())->withInput(Input::all());
         }
 
@@ -198,7 +198,7 @@ class ShortURLController extends Controller
     }
 
     /**
-     * Creates a ShortURL
+     * Creates a ShortUrl
      *
      * @param \Illuminate\Http\Request $request Create Request
      *
@@ -213,23 +213,23 @@ class ShortURLController extends Controller
         $userID = 1;
 
         $data = [
-            'url'       => ShortURL::sanitizeURL($request->get('url')),
-            'hash_name' => $request->get('hash_name'),
-            'expires'   => $request->get('expires'),
+            'url'        => ShortUrl::sanitizeUrl($request->get('url')),
+            'hash_name'  => $request->get('hash_name'),
+            'expires_at' => $request->get('expires_at'),
         ];
 
-        app('Log')::info('Creating ShortURL', ['data' => $data]);
+        app('Log')::info('Creating ShortUrl', ['data' => $data]);
 
         $rules = [
-            'url'       => 'required|url|max:255|unique:short_urls',
-            'hash_name' => 'nullable|alpha_dash|max:32|unique:short_urls',
-            'expires'   => 'nullable|date',
+            'url'        => 'required|url|max:255|unique:short_urls',
+            'hash_name'  => 'nullable|alpha_dash|max:32|unique:short_urls',
+            'expires_at' => 'nullable|date',
         ];
 
         validate_array($data, $rules, $request);
 
-        $expires = $request->get('expires');
-        ShortURL::checkIfDateIsPast($expires);
+        $expires_at = $request->get('expires_at');
+        ShortUrl::checkIfDateIsPast($expires_at);
 
         $key = $request->header('Authorization', null);
 
@@ -246,16 +246,16 @@ class ShortURLController extends Controller
             }
         }
 
-        $this->addTrace('Creating ShortURL', __FUNCTION__, __LINE__);
-        $url = ShortURL::createShortURL(
+        $this->addTrace('Creating ShortUrl', __FUNCTION__, __LINE__);
+        $url = ShortUrl::createShortUrl(
             [
-                'url'       => ShortURL::sanitizeURL($request->get('url')),
-                'hash_name' => $request->get('hash_name'),
-                'user_id'   => $userID,
-                'expires'   => $expires,
+                'url'        => ShortUrl::sanitizeUrl($request->get('url')),
+                'hash_name'  => $request->get('hash_name'),
+                'user_id'    => $userID,
+                'expires_at' => $expires_at,
             ]
         );
-        event(new URLShortened($url));
+        event(new UrlShortened($url));
 
         $this->stopProfiling(__FUNCTION__);
 
@@ -268,12 +268,12 @@ class ShortURLController extends Controller
      * @param string $route route
      * @param string $hash  urlHash
      *
-     * @return \App\Models\ShortURL\ShortURL | \Illuminate\Http\RedirectResponse
+     * @return \App\Models\ShortUrl\ShortUrl | \Illuminate\Http\RedirectResponse
      */
-    private function getURLRedirectIfException(string $route, string $hash)
+    private function getUrlRedirectIfException(string $route, string $hash)
     {
         try {
-            $url = ShortURL::resolve($hash);
+            $url = ShortUrl::resolve($hash);
         } catch (ModelNotFoundException $e) {
             return redirect()->route($route)->withErrors('No URL found')->withInput(Input::all());
         } catch (UserBlacklistedException | ExpiredException $e) {

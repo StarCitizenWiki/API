@@ -2,18 +2,18 @@
 
 namespace App\Events;
 
-use App\Models\ShortURL\ShortURL;
+use App\Models\ShortUrl\ShortUrl;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class URLShortened
+ * Class UrlShortened
  *
  * @package App\Events
  */
-class URLShortened implements ShouldQueue
+class UrlShortened implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -24,9 +24,9 @@ class URLShortened implements ShouldQueue
     /**
      * Create a new event instance.
      *
-     * @param \App\Models\ShortURL\ShortURL $url The generated ShortURL
+     * @param \App\Models\ShortUrl\ShortUrl $url The generated ShortUrl
      */
-    public function __construct(ShortURL $url)
+    public function __construct(ShortUrl $url)
     {
         $this->url = $url;
     }

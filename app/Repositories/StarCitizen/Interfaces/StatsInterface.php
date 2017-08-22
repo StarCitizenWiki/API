@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
 /**
  * Interface StatsInterface
  *
- * @package App\Repositories\StarCitizen\APIv1\Stats
+ * @package App\Repositories\StarCitizen\ApiV1\Stats
  */
 interface StatsInterface
 {

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\APIRequests;
+use App\Models\ApiRequests;
 use App\Models\Notification;
-use App\Models\ShortURL\ShortURL;
+use App\Models\ShortUrl\ShortUrl;
 use App\Models\User;
 use App\Traits\ProfilesMethodsTrait;
 use Carbon\Carbon;
@@ -65,20 +65,20 @@ class AdminController extends Controller
         ];
 
         $apiRequests = [
-            'last'   => APIRequests::take(5)->orderBy('created_at', 'desc')->get(),
+            'last'   => ApiRequests::take(5)->orderBy('created_at', 'desc')->get(),
             'counts' => [
-                'last_hour' => APIRequests::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
-                'today'     => APIRequests::whereDate('created_at', '=', $today)->get()->count(),
-                'overall'   => APIRequests::all()->count(),
+                'last_hour' => ApiRequests::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
+                'today'     => ApiRequests::whereDate('created_at', '=', $today)->get()->count(),
+                'overall'   => ApiRequests::all()->count(),
             ],
         ];
 
         $shortUrls = [
-            'last'   => ShortURL::take(5)->orderBy('created_at', 'desc')->get(),
+            'last'   => ShortUrl::take(5)->orderBy('created_at', 'desc')->get(),
             'counts' => [
-                'last_hour' => ShortURL::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
-                'today'     => ShortURL::whereDate('created_at', '=', $today)->get()->count(),
-                'overall'   => ShortURL::all()->count(),
+                'last_hour' => ShortUrl::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
+                'today'     => ShortUrl::whereDate('created_at', '=', $today)->get()->count(),
+                'overall'   => ShortUrl::all()->count(),
             ],
         ];
 

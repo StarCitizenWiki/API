@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller;
 
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\User\Auth\RegisterController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -27,7 +27,7 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\RegisterController::register()
+     * @covers \App\Http\Controllers\User\Auth\RegisterController::register()
      * @covers \App\Events\UserRegistered
      */
     public function testRegistration()
@@ -41,7 +41,7 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\RegisterController::create()
+     * @covers \App\Http\Controllers\User\Auth\RegisterController::create()
      */
     public function testCreate()
     {
@@ -60,7 +60,7 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\RegisterController::showRegistrationForm()
+     * @covers \App\Http\Controllers\User\Auth\RegisterController::showRegistrationForm()
      */
     public function testRegistrationFormView()
     {

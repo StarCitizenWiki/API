@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 /**
  * Interface ShipsInterface
  *
- * @package App\Repositories\StarCitizenWiki\APIv1\Ships
+ * @package App\Repositories\StarCitizenWiki\ApiV1\Ships
  */
 interface ShipsInterface
 {

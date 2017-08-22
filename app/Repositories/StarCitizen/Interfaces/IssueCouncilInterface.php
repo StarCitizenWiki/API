@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
 /**
  * Interface IssueCouncilInterface
  *
- * @package App\Repositories\StarCitizen\APIv1\IssueCouncil
+ * @package App\Repositories\StarCitizen\ApiV1\IssueCouncil
  */
 interface IssueCouncilInterface
 {

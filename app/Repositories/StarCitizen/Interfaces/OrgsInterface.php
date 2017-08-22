@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
 /**
  * Interface OrgsInterface
  *
- * @package App\Repositories\StarCitizen\APIv1\Orgs
+ * @package App\Repositories\StarCitizen\ApiV1\Orgs
  */
 interface OrgsInterface
 {

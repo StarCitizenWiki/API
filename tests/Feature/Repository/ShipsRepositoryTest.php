@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Repository;
 
 use App\Exceptions\InvalidDataException;
-use App\Repositories\StarCitizenWiki\APIv1\ShipsRepository;
+use App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository;
 use Illuminate\Http\Request;
 use Tests\TestCase;
 
@@ -29,7 +29,7 @@ class ShipsRepositoryTest extends TestCase
     /**
      * Get Ship from Repository
      *
-     * @covers \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::getShip()
+     * @covers \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository::getShip()
      */
     public function testShipRetrieval()
     {
@@ -38,7 +38,7 @@ class ShipsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::getShipList()
+     * @covers \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository::getShipList()
      */
     public function testShipList()
     {
@@ -47,7 +47,7 @@ class ShipsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::searchShips()
+     * @covers \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository::searchShips()
      */
     public function testShipSearch()
     {
@@ -58,7 +58,7 @@ class ShipsRepositoryTest extends TestCase
     /**
      * Test if Filter is working
      *
-     * @covers \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::getShipList()
+     * @covers \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository::getShipList()
      */
     public function testFilter()
     {

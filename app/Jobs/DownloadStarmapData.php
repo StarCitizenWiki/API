@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\CelestialObject;
 use App\Models\Starsystem;
-use App\Repositories\StarCitizen\APIv1\StarmapRepository;
+use App\Repositories\StarCitizen\ApiV1\StarmapRepository;
 use App\Traits\ProfilesMethodsTrait;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;

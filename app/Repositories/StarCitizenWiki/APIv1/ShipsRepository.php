@@ -5,7 +5,7 @@
  * Time: 18:16
  */
 
-namespace App\Repositories\StarCitizenWiki\APIv1;
+namespace App\Repositories\StarCitizenWiki\ApiV1;
 
 use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
 use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ShipsRepository
- * @package App\Repositories\StarCitizenWiki\APIv1\Ships
+ * @package App\Repositories\StarCitizenWiki\ApiV1\Ships
  */
 class ShipsRepository extends AbstractStarCitizenWikiRepository implements ShipsInterface
 {
@@ -28,7 +28,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * @param \Illuminate\Http\Request $request
      * @param string                   $shipName ShipName
      *
-     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
      */
     public function getShip(Request $request, string $shipName): ShipsRepository
     {
@@ -47,7 +47,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
     /**
      * Gets a ShipList
      *
-     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
      */
     public function getShipList(): ShipsRepository
     {
@@ -80,7 +80,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      *
      * @param string $shipName ShipName
      *
-     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
      */
     public function searchShips(string $shipName)
     {

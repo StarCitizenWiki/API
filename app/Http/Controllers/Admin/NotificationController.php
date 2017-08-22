@@ -24,7 +24,10 @@ class NotificationController extends Controller
      */
     public function showNotificationsListView(): View
     {
-        return view('admin.notifications.index')->with('notifications', Notification::withTrashed()->get());
+        return view('admin.notifications.index')->with(
+            'notifications',
+            Notification::withTrashed()->orderByDesc('created_at')->simplePaginate(10)
+        );
     }
 
     /**
@@ -119,6 +122,10 @@ class NotificationController extends Controller
             return $this->deleteNotification($request, $id);
         }
 
+        if ($request->exists('restore')) {
+            return $this->restoreNotification($request, $id);
+        }
+
         $this->validate(
             $request,
             [
@@ -165,7 +172,7 @@ class NotificationController extends Controller
      */
     public function restoreNotification(Request $request, int $id)
     {
-        Notification::find($id)->restore();
+        Notification::withTrashed()->find($id)->restore();
 
         return redirect()->route('admin_notifications_list');
     }

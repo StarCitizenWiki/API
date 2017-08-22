@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
 /**
  * Interface CommunityInterface
  *
- * @package App\Repositories\StarCitizen\APIv1\Community
+ * @package App\Repositories\StarCitizen\ApiV1\Community
  */
 interface CommunityInterface
 {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use App\Repositories\StarCitizen\ApiV1\StatsRepository;
 use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
 
@@ -13,14 +13,14 @@ use Illuminate\Http\Request;
  *
  * @package App\Http\Controllers\StarCitizen
  */
-class StatsAPIController extends Controller
+class StatsApiController extends Controller
 {
     use ProfilesMethodsTrait;
 
     /**
      * StatsRepository
      *
-     * @var \App\Repositories\StarCitizen\APIv1\StatsRepository
+     * @var \App\Repositories\StarCitizen\ApiV1\StatsRepository
      */
     private $repository;
 
@@ -30,7 +30,7 @@ class StatsAPIController extends Controller
      * StatsAPIController constructor.
      *
      * @param \Illuminate\Http\Request                            $request
-     * @param \App\Repositories\StarCitizen\APIv1\StatsRepository $repository StatsRepository
+     * @param \App\Repositories\StarCitizen\ApiV1\StatsRepository $repository StatsRepository
      */
     public function __construct(Request $request, StatsRepository $repository)
     {

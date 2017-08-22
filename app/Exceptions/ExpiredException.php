@@ -11,7 +11,7 @@ use Exception;
 
 /**
  * Class ExpiredException
- * Exception to throw if a ShortURL has expired
+ * Exception to throw if a ShortUrl has expired
  *
  * @package App\Exceptions
  */

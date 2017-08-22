@@ -62,9 +62,9 @@ class Kernel extends HttpKernel
         'bindings'        => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can'             => \Illuminate\Auth\Middleware\Authorize::class,
         'guest'           => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle'        => \App\Http\Middleware\ThrottleAPI::class,
+        'throttle'        => \App\Http\Middleware\ThrottleApi::class,
         'token_usage'     => \App\Http\Middleware\UpdateTokenTimestamp::class,
-        'add_api_headers' => \App\Http\Middleware\AddAPIHeaders::class,
+        'add_api_headers' => \App\Http\Middleware\AddApiHeaders::class,
         'piwik_tracking'  => \App\Http\Middleware\PiwikTracking::class,
     ];
 }

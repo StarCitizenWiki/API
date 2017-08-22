@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller;
 
@@ -8,14 +8,14 @@ use Tests\TestCase;
  * Class ShipsTest
  * @package Tests\Feature
  */
-class ShipsAPIControllerTest extends TestCase
+class ShipsApiControllerTest extends TestCase
 {
     /**
      * Get Ship from Interfaces
      *
-     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::getShip()
-     * @covers \App\Http\Middleware\ThrottleAPI
-     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsApiController::getShip()
+     * @covers \App\Http\Middleware\ThrottleApi
+     * @covers \App\Http\Middleware\AddApiHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsTransformer
@@ -34,9 +34,9 @@ class ShipsAPIControllerTest extends TestCase
     /**
      * Test Search
      *
-     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::searchShips()
-     * @covers \App\Http\Middleware\ThrottleAPI
-     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsApiController::searchShips()
+     * @covers \App\Http\Middleware\ThrottleApi
+     * @covers \App\Http\Middleware\AddApiHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer
@@ -53,9 +53,9 @@ class ShipsAPIControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::getShipList()
-     * @covers \App\Http\Middleware\ThrottleAPI
-     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsApiController::getShipList()
+     * @covers \App\Http\Middleware\ThrottleApi
+     * @covers \App\Http\Middleware\AddApiHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer
@@ -72,9 +72,9 @@ class ShipsAPIControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsAPIController::getShipList()
-     * @covers \App\Http\Middleware\ThrottleAPI
-     * @covers \App\Http\Middleware\AddAPIHeaders
+     * @covers \App\Http\Controllers\StarCitizenWiki\ShipsApiController::getShipList()
+     * @covers \App\Http\Middleware\ThrottleApi
+     * @covers \App\Http\Middleware\AddApiHeaders
      * @covers \App\Http\Middleware\PiwikTracking
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer
