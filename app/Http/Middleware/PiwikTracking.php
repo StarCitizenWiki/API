@@ -43,7 +43,14 @@ class PiwikTracking
 
             $piwikClient->setUrl($request->fullUrl());
             $piwikClient->setGenerationTime(microtime(true) - LARAVEL_START);
-            $piwikClient->setUserId($request->get(AUTH_KEY_FIELD_NAME, false));
+
+            $key = $request->header('Authorization', null);
+
+            if (is_null($key)) {
+                $key = $request->query->get('Authorization', null);
+            }
+
+            $piwikClient->setUserId($key);
             $piwikClient->doTrackPageView($request->getRequestUri());
 
             $this->addTrace("Passed URL: {$request->fullUrl()} to Piwik", __FUNCTION__, __LINE__);

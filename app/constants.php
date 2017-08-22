@@ -22,7 +22,6 @@ define('FUNDIMAGE_CACHE_TIME', 600);
 define('AUTH_HOME', '/');
 define('AUTH_ACCOUNT', '/account');
 define('AUTH_LOGIN', '/login');
-define('AUTH_KEY_FIELD_NAME', 'key');
 
 define('ADMIN_INTERNAL_PASSWORD', '4L4bgcM;i,Hw@l~a/&s\Yd;R`QdoH/at');
 
@@ -41,3 +40,14 @@ define('PIWIK_SITE_ID', 15);
 
 /** Short URL */
 define('SHORT_URL_LENGTH', 6);
+
+/** Log Break Points */
+define('LOG_ERROR_DANGER_HOUR', 10);
+define('LOG_ERROR_WARNING_HOUR', 5);
+define('LOG_ERROR_DANGER_DAY', LOG_ERROR_DANGER_HOUR * 2);
+define('LOG_ERROR_WARNING_DAY', LOG_ERROR_WARNING_HOUR * 2);
+
+define('LOG_WARNING_DANGER_HOUR', 20);
+define('LOG_WARNING_WARNING_HOUR', 10);
+define('LOG_WARNING_DANGER_DAY', LOG_WARNING_DANGER_HOUR * 2);
+define('LOG_WARNING_WARNING_DAY', LOG_WARNING_WARNING_HOUR * 2);

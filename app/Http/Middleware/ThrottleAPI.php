@@ -44,7 +44,13 @@ class ThrottleAPI extends ThrottleRequests
         $this->startProfiling(__FUNCTION__);
 
         $this->addTrace('Getting User From Request', __FUNCTION__, __LINE__);
-        $user = User::where('api_token', $request->get(AUTH_KEY_FIELD_NAME, null))->first();
+        $key = $request->header('Authorization', null);
+
+        if (is_null($key)) {
+            $key = $request->query->get('Authorization', null);
+        }
+
+        $user = User::where('api_token', $key)->first();
 
         if (!is_null($user)) {
             if ($user->whitelisted) {
@@ -53,8 +59,8 @@ class ThrottleAPI extends ThrottleRequests
 
                 return $next($request);
             }
-        } elseif (!is_null($request->get(AUTH_KEY_FIELD_NAME))) {
-            app('Log')::notice("No User for key: {$request->get(AUTH_KEY_FIELD_NAME)} found");
+        } elseif (!is_null($key)) {
+            app('Log')::notice("No User for key: {$key} found");
         }
 
         try {

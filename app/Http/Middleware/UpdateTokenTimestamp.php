@@ -30,7 +30,11 @@ class UpdateTokenTimestamp
     {
         $this->startProfiling(__FUNCTION__);
 
-        $key = $request->get(AUTH_KEY_FIELD_NAME, null);
+        $key = $request->header('Authorization', null);
+
+        if (is_null($key)) {
+            $key = $request->query->get('Authorization', null);
+        }
 
         if (!is_null($key)) {
             try {

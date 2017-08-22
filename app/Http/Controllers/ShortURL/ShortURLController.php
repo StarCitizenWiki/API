@@ -210,7 +210,7 @@ class ShortURLController extends Controller
     {
         $this->startProfiling(__FUNCTION__);
 
-        $userID = AUTH_ADMIN_IDS[0];
+        $userID = 1;
 
         $data = [
             'url'       => ShortURL::sanitizeURL($request->get('url')),
@@ -231,7 +231,11 @@ class ShortURLController extends Controller
         $expires = $request->get('expires');
         ShortURL::checkIfDateIsPast($expires);
 
-        $key = $request->get(AUTH_KEY_FIELD_NAME, null);
+        $key = $request->header('Authorization', null);
+
+        if (is_null($key)) {
+            $key = $request->query->get('Authorization', null);
+        }
 
         if (!is_null($key)) {
             $this->addTrace("Key: {$key} is not null", __FUNCTION__, __LINE__);
