@@ -1,7 +1,10 @@
-<?php
+<?php declare(strict_types = 1);
 
 use Illuminate\Database\Seeder;
 
+/**
+ * Class ShortUrlWhitelistsTableSeeder
+ */
 class ShortUrlWhitelistsTableSeeder extends Seeder
 {
     /**
@@ -11,34 +14,52 @@ class ShortUrlWhitelistsTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'robertsspaceindustries.com'
-        ]);
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'forums.robertsspaceindustries.com'
-        ]);
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'stargov.de',
-            'internal' => true
-        ]);
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'star-citizen.wiki'
-        ]);
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'facebook.com'
-        ]);
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'forum.crashcorps.de'
-        ]);
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'starcitizenbase.de'
-        ]);
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'youtube.com'
-        ]);
-        DB::table('short_url_whitelists')->insert([
-            'url' => 'youtu.be',
-            'internal' => true,
-        ]);
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url' => 'robertsspaceindustries.com',
+            ]
+        );
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url' => 'forums.robertsspaceindustries.com',
+            ]
+        );
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url'      => 'stargov.de',
+                'internal' => true,
+            ]
+        );
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url' => 'star-citizen.wiki',
+            ]
+        );
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url' => 'facebook.com',
+            ]
+        );
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url' => 'forum.crashcorps.de',
+            ]
+        );
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url' => 'starcitizenbase.de',
+            ]
+        );
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url' => 'youtube.com',
+            ]
+        );
+        DB::table('short_url_whitelists')->insert(
+            [
+                'url'      => 'youtu.be',
+                'internal' => true,
+            ]
+        );
     }
 }
