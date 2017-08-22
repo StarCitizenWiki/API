@@ -20,26 +20,37 @@ class NotificationController extends Controller
     use ProfilesMethodsTrait;
 
     /**
+     * ShortUrlController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth:admin');
+    }
+
+    /**
      * @return \Illuminate\View\View
      */
     public function showNotificationsListView(): View
     {
+        app('Log')::info(make_name_readable(__FUNCTION__));
+
         return view('admin.notifications.index')->with(
             'notifications',
-            Notification::withTrashed()->orderByDesc('created_at')->simplePaginate(10)
+            Notification::withTrashed()->orderByDesc('created_at')->simplePaginate(100)
         );
     }
 
     /**
      * @param int $id
      *
-     * @return \Illuminate\View\View
+     * @return \Illuminate\View\View | \Illuminate\Http\RedirectResponse
      */
-    public function showEditNotificationView(int $id): View
+    public function showEditNotificationView(int $id)
     {
         $this->startProfiling(__FUNCTION__);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
 
-        app('Log')::info(make_name_readable(__FUNCTION__));
         try {
             $this->addTrace("Getting Notification with ID: {$id}", __FUNCTION__, __LINE__);
             $notification = Notification::withTrashed()->findOrFail($id);
@@ -55,7 +66,7 @@ class NotificationController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return redirect()->route('admin_notifications_list');
+        return redirect()->route('admin_notifications_list')->withErrors(['__LOC__notificationNotFound']);
     }
 
     /**
@@ -94,20 +105,7 @@ class NotificationController extends Controller
 
         event(new NotificationCreated($notification));
 
-        return redirect()->back();
-    }
-
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param int                      $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function deleteNotification(Request $request, int $id)
-    {
-        Notification::find($id)->delete();
-
-        return redirect()->route('admin_notifications_list');
+        return redirect()->back()->with('message', '__LOC__successAddNotification');
     }
 
     /**
@@ -126,6 +124,8 @@ class NotificationController extends Controller
             return $this->restoreNotification($request, $id);
         }
 
+        $this->startProfiling(__FUNCTION__);
+
         $this->validate(
             $request,
             [
@@ -142,26 +142,46 @@ class NotificationController extends Controller
         try {
             $notification = Notification::findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_notifications_list')->withErrors('Not found');
+            return redirect()->route('admin_notifications_list')->withErrors('__LOC__NotificationNotfound');
         }
 
-        $notification->content = $request->get('content');
-        $notification->level = $request->get('level');
-        $notification->expired_at = Carbon::parse($request->get('expired_at'));
-        $notification->order = $request->get('order');
-        $notification->published_at = Carbon::parse($request->get('published_at'));
+        $data = $request->all();
 
-        foreach ($request->get('output') as $type) {
-            $notification->{'output_'.$type} = true;
+        $data['expired_at'] = Carbon::parse($request->get('expired_at'));
+        $data['published_at'] = Carbon::parse($request->get('published_at'));
+
+        foreach (array_pull($data, 'output') as $type) {
+            $data['output_'.$type] = true;
         }
 
-        $notification->save();
-
-        if ($request->get('resend_email', false) === 'resend_email') {
+        if (array_pull($data, 'resend_email', false) === 'resend_email') {
             event(new NotificationCreated($notification));
         }
 
-        return redirect()->route('admin_notifications_list');
+        $notification->update($data);
+
+        return redirect()->route('admin_notifications_list')->with('message', '__LOC__successNotificationUpdate');
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param int                      $id
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deleteNotification(Request $request, int $id)
+    {
+        $type = 'message';
+        $message = '__LOC__successNotificationDelete';
+
+        try {
+            Notification::findOrFail($id)->delete();
+        } catch (ModelNotFoundException $e) {
+            $type = 'errors';
+            $message = '__LOC__NotificationNotFound';
+        }
+
+        return redirect()->route('admin_notifications_list')->with($type, $message);
     }
 
     /**
@@ -172,8 +192,16 @@ class NotificationController extends Controller
      */
     public function restoreNotification(Request $request, int $id)
     {
-        Notification::withTrashed()->find($id)->restore();
+        $type = 'message';
+        $message = '__LOC__successNotificationrestore';
 
-        return redirect()->route('admin_notifications_list');
+        try {
+            Notification::onlyTrashed()->findOrFail($id)->restore();
+        } catch (ModelNotFoundException $e) {
+            $type = 'errors';
+            $message = '__LOC__NotificationNotFound';
+        }
+
+        return redirect()->route('admin_notifications_list')->with($type, $message);
     }
 }
