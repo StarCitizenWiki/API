@@ -105,15 +105,15 @@ Route::group(
                 Route::get('routes', ['uses' => 'AdminController@showRoutesView'])->name('admin_routes_list');
 
                 Route::group(
-                    ['prefix' => 'urls'],
+                    ['prefix' => 'urls', 'namespace' => 'ShortUrl'],
                     function () {
                         Route::group(
                             ['prefix' => 'whitelist'],
                             function () {
-                                Route::get('/', ['uses' => 'ShortUrlController@showUrlWhitelistView'])->name('admin_urls_whitelist_list');
-                                Route::delete('{id}', ['uses' => 'ShortUrlController@deleteWhitelistUrl'])->name('admin_urls_whitelist_delete');
-                                Route::post('/', ['uses' => 'ShortUrlController@addWhitelistUrl'])->name('admin_urls_whitelist_add');
-                                Route::get('add', ['uses' => 'ShortUrlController@showAddUrlWhitelistView'])->name('admin_urls_whitelist_add_form');
+                                Route::get('/', ['uses' => 'ShortUrlWhitelistController@showUrlWhitelistView'])->name('admin_urls_whitelist_list');
+                                Route::delete('{id}', ['uses' => 'ShortUrlWhitelistController@deleteWhitelistUrl'])->name('admin_urls_whitelist_delete');
+                                Route::post('/', ['uses' => 'ShortUrlWhitelistController@addWhitelistUrl'])->name('admin_urls_whitelist_add');
+                                Route::get('add', ['uses' => 'ShortUrlWhitelistController@showAddUrlWhitelistView'])->name('admin_urls_whitelist_add_form');
                             }
                         );
                         Route::get('/', ['uses' => 'ShortUrlController@showUrlsListView'])->name('admin_urls_list');

@@ -31,7 +31,7 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereUrl($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereUserId($value)
- * @property string                $expires
+ * @property string                $expired_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrl whereExpires($value)
  */
 class ShortUrl extends Model
@@ -79,7 +79,7 @@ class ShortUrl extends Model
         $url->url = $data['url'];
         $url->hash = $data['hash'];
         $url->user_id = $data['user_id'];
-        $url->expires = $data['expires'];
+        $url->expired_at = $data['expired_at'];
         $url->save();
 
         app('Log')::info('URL Shortened', ['data' => $data]);
@@ -107,11 +107,11 @@ class ShortUrl extends Model
                 'id'        => $url->id,
                 'hash' => $url->hash,
                 'url'       => $url->url,
-                'expires'   => $url->expires,
+                'expired_at'   => $url->expired_at,
             ]
         );
 
-        if (!is_null($url->expires) && Carbon::parse($url->expires)->lte(Carbon::now())) {
+        if (!is_null($url->expired_at) && Carbon::parse($url->expired_at)->lte(Carbon::now())) {
             throw new ExpiredException('URL has Expired');
         }
 
@@ -130,7 +130,7 @@ class ShortUrl extends Model
      *
      * @return string
      */
-    public static function sanitizeUrl($url): String
+    public static function sanitizeUrl($url): string
     {
         $url = filter_var($url, FILTER_SANITIZE_URL);
         if (!isset(parse_url($url)['path'])) {
@@ -148,8 +148,8 @@ class ShortUrl extends Model
     public static function checkIfDateIsPast($date): void
     {
         if (!is_null($date)) {
-            $expires = Carbon::parse($date);
-            if ($expires->lte(Carbon::now())) {
+            $expired_at = Carbon::parse($date);
+            if ($expired_at->lte(Carbon::now())) {
                 throw new ExpiredException('Expires date can\'t be in the past');
             }
         }
@@ -188,7 +188,7 @@ class ShortUrl extends Model
         $url->url = $data['url'];
         $url->hash = $data['hash'];
         $url->user_id = $data['user_id'];
-        $url->expires = $data['expires'];
+        $url->expired_at = $data['expired_at'];
 
         return $url->save();
     }

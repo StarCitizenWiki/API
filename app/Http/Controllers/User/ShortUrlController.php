@@ -112,21 +112,21 @@ class ShortUrlController extends Controller
         $data = [
             'url'       => ShortUrl::sanitizeUrl($request->get('url')),
             'hash' => $request->get('hash'),
-            'expires'   => $request->get('expires'),
+            'expired_at'   => $request->get('expired_at'),
         ];
 
         $rules = [
             'url'       => 'required|url|max:255|unique:short_urls',
             'hash' => 'nullable|alpha_dash|max:32|unique:short_urls',
-            'expires'   => 'nullable|date',
+            'expired_at'   => 'nullable|date',
         ];
 
         validate_array($data, $rules, $request);
 
-        $expires = $request->get('expires');
+        $expired_at = $request->get('expired_at');
         try {
-            $this->addTrace("Checking if date {$expires} is in the past", __FUNCTION__, __LINE__);
-            ShortUrl::checkIfDateIsPast($expires);
+            $this->addTrace("Checking if date {$expired_at} is in the past", __FUNCTION__, __LINE__);
+            ShortUrl::checkIfDateIsPast($expired_at);
 
             $this->addTrace('Creating ShortUrl', __FUNCTION__, __LINE__);
             $url = ShortUrl::createShortUrl(
@@ -134,7 +134,7 @@ class ShortUrlController extends Controller
                     'url'       => ShortUrl::sanitizeUrl($request->get('url')),
                     'hash' => $request->get('hash'),
                     'user_id'   => Auth::id(),
-                    'expires'   => $expires,
+                    'expired_at'   => $expired_at,
                 ]
             );
         } catch (HashNameAlreadyAssignedException | UrlNotWhitelistedException | ExpiredException $e) {
@@ -228,13 +228,13 @@ class ShortUrlController extends Controller
         $data = [
             'url'       => ShortUrl::sanitizeUrl($request->get('url')),
             'hash' => $request->get('hash'),
-            'expires'   => $request->get('expires'),
+            'expired_at'   => $request->get('expired_at'),
         ];
 
         $rules = [
             'url'       => 'required|url|max:255',
             'hash' => 'required|alpha_dash|max:32',
-            'expires'   => 'nullable|date',
+            'expired_at'   => 'nullable|date',
         ];
 
         validate_array($data, $rules, $request);
@@ -247,7 +247,7 @@ class ShortUrlController extends Controller
                     'url'       => ShortUrl::sanitizeUrl($request->get('url')),
                     'hash' => $request->get('hash'),
                     'user_id'   => Auth::id(),
-                    'expires'   => $request->get('expires'),
+                    'expired_at'   => $request->get('expired_at'),
                 ]
             );
         } catch (UrlNotWhitelistedException | HashNameAlreadyAssignedException $e) {
