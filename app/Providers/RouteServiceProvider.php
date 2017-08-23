@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Helpers\Hasher;
+use Hashids\HashidsException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class RouteServiceProvider
@@ -29,9 +31,16 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Route::bind('id', function ($id) {
-            return Hasher::decode($id);
-        });
+        Route::bind(
+            'id',
+            function ($id) {
+                try {
+                    return Hasher::decode($id);
+                } catch (HashidsException $e) {
+                    throw new BadRequestHttpException();
+                }
+            }
+        );
 
         parent::boot();
     }

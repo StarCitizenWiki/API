@@ -8,9 +8,12 @@
 namespace App\Helpers;
 
 use Hashids\Hashids;
+use Hashids\HashidsException;
 
 /**
  * Class Hasher
+ * Einfacher Wrapper für HashIds
+ *
  * @package App\Helpers
  */
 class Hasher
@@ -20,22 +23,30 @@ class Hasher
      *
      * @return string
      */
-    public static function encode(...$args)
+    public static function encode(...$args): string
     {
         return app(Hashids::class)->encode(...$args);
     }
 
     /**
-     * @param $enc
+     * @param mixed $enc Data to encode
      *
-     * @return mixed
+     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     *
+     * @return int
      */
-    public static function decode($enc)
+    public static function decode($enc): int
     {
         if (is_int($enc)) {
             return $enc;
         }
 
-        return app(Hashids::class)->decode($enc)[0];
+        $decoded = app(Hashids::class)->decode($enc);
+
+        if (empty($decoded) || !is_integer($decoded[0])) {
+            throw new HashidsException();
+        }
+
+        return $decoded[0];
     }
 }
