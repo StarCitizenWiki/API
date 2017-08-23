@@ -1,12 +1,12 @@
 @extends('api.layouts.default')
 
 {{-- Page Title --}}
-@section('title', '__LOC__Status')
+@section('title', __('Status'))
 
 {{-- Page Content --}}
 @section('content')
     <div class="card status">
-        <h4 class="card-header">__LOC__Status</h4>
+        <h4 class="card-header">@lang('Status')</h4>
         <div class="card-body">
             @foreach($notifications as $notification)
                 <div class="card @if($notification->expired()) text-muted @else bg-{{ $notification->getBootstrapClass() }}@endif mb-4">
@@ -14,7 +14,7 @@
                         @component('components.elements.icon', ['class' => 'mr-2'])
                             {{ $notification->getIcon() }}
                         @endcomponent
-                        {{ $notification->level }}
+                        @lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])
                         <small class="pull-right">{{ $notification->created_at->format('d.m.Y H:i:s') }}</small>
                     </h4>
                     <div class="card-body bg-white">

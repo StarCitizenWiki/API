@@ -3,7 +3,7 @@
         @component('components.elements.icon')
             sign-in
         @endcomponent
-        __LOC__Login
+        @lang('Login')
     @endcomponent
 @else
     @component('components.navs.nav_element', [
@@ -13,7 +13,7 @@
         @component('components.elements.icon', ['class' => 'mr-1'])
             user-o
         @endcomponent
-        __LOC__Account
+        @lang('Account')
     @endcomponent
 
     @component('components.navs.nav_element', ['route' => route('auth_logout')])
@@ -31,6 +31,6 @@
         @component('components.elements.icon', ['class' => 'mr-1'])
             sign-out
         @endcomponent
-        __LOC__Logout
+        @lang('Logout')
     @endcomponent
 @endif

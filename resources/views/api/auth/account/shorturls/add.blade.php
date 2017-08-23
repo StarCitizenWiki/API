@@ -1,18 +1,18 @@
 @extends('api.auth.layouts.default')
 
 {{-- Page Title --}}
-@section('title', '__LOC__Add_Url')
+@section('title', __('ShortUrl hinzufügen'))
 
 @section('content')
 @include('components.errors')
 
 <div class="card">
-    <h4 class="card-header">@lang('auth/account/shorturls/add.header')</h4>
+    <h4 class="card-header">@lang('ShortUrl hinzufügen')</h4>
     <div class="card-body">
         @component('components.forms.form', ['action' => route('account_urls_add')])
             @component('components.forms.form-group', [
                 'id' => 'url',
-                'label' => '__LOC__Url',
+                'label' => __('Url'),
                 'inputType' => 'url',
                 'tabIndex' => 1,
                 'autofocus' => 1,
@@ -23,7 +23,7 @@
 
             @component('components.forms.form-group', [
                 'id' => 'hash',
-                'label' => '__LOC__Hash',
+                'label' => __('Hash'),
                 'tabIndex' => 2,
                 'value' => old('hash'),
                 'inputOptions' => 'data-minlength=3 spellcheck=false',
@@ -31,14 +31,14 @@
 
             @component('components.forms.form-group', [
                 'id' => 'expired_at',
-                'label' => '__LOC__Expired_at',
+                'label' => __('Ablaufdatum'),
                 'inputType' => 'datetime-local',
                 'tabIndex' => 3,
                 'value' => old('expired_at'),
                 'inputOptions' => 'min='.\Carbon\Carbon::now()->format("Y-m-d\TH:i"),
             ])@endcomponent
 
-            <button class="btn btn-outline-success btn-block-xs-only pull-right">__LOC__Add</button>
+            <button class="btn btn-outline-success btn-block-xs-only pull-right">@lang('Hinzufügen')</button>
         @endcomponent
     </div>
 </div>

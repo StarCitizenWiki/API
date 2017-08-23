@@ -41,9 +41,6 @@
 <div class="container">
     <div class="content">
         <div class="title">@yield('content')</div>
-        @if(App::environment() === 'local')
-            {{ dump($exception->getTrace()) }}
-        @endif
     </div>
 </div>
 </body>

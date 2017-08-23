@@ -6,6 +6,6 @@
     @unless(empty($exception->getMessage()))
         😒 {{ $exception->getMessage() }}
     @else
-        😒 __LOC__Bad Request
+        😒 @lang('Bad Request')
     @endunless
 @endsection

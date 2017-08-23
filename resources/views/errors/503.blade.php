@@ -2,4 +2,6 @@
 
 @section('title', 'Be right back.')
 
-@section('content', trans('errors/503.header'))
+@section('content')
+    @lang('🚀 Wartungsarbeiten')
+@endsection

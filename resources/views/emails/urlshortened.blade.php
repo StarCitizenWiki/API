@@ -7,6 +7,6 @@
 
 **Owner:** `{{ $url->user()->first()->email }}`
 
-<br>
+
 {{ config('app.name') }}
 @endcomponent

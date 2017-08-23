@@ -1,7 +1,7 @@
 @extends('api.layouts.full_width')
 
 {{-- Page Title --}}
-@section('title', '__LOC__Reset_Password')
+@section('title', __('Passwort zurücksetzen'))
 
 @section('content')
     @component('components.heading', [
@@ -18,14 +18,14 @@
     @include('components.errors')
 
     <div class="card bg-dark text-light-grey">
-        <h4 class="card-header">@lang('auth/passwords/reset.header')</h4>
+        <h4 class="card-header">@lang('Passwort zurücksetzen')</h4>
         <div class="card-body">
             @component('components.forms.form', ['action' => route('password.request')])
                 <input type="hidden" name="token" value="{{ $token or '' }}">
 
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
-                    'label' => '__LOC__Email',
+                    'label' => __('E-Mail'),
                     'id' => 'email',
                     'required' => 1,
                     'autofocus' => 1,
@@ -37,7 +37,7 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'password',
-                    'label' => '__LOC__Password',
+                    'label' => __('Passwort'),
                     'id' => 'password',
                     'tabIndex' => 2,
                     'required' => 1,
@@ -45,14 +45,14 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'password',
-                    'label' => '__LOC__Password_Confirmation',
+                    'label' => __('Passwort zurücksetzen'),
                     'id' => 'password_confirmation',
                     'tabIndex' => 3,
                     'required' => 1,
                 ])@endcomponent
 
                 <button class="btn btn-outline-secondary btn-block">
-                    __LOC__Reset_Password
+                    @lang('Speichern')
                 </button>
             @endcomponent
         </div>

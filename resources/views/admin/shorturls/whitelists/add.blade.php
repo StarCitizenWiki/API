@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">__LOC__Add Whitelist</h4>
+        <h4 class="card-header">@lang('Domain hinzufügen')</h4>
         <div class="card-body">
             @include('components.errors')
             @component('components.forms.form', [
@@ -14,15 +14,15 @@
                     'value' => old('url'),
                     'required' => 1,
                     'autofocus' => 1,
-                    'label' => '__LOC__URL',
+                    'label' => __('Domain'),
                 ])@endcomponent
                 <label class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" name="internal" id="internal">
                     <span class="custom-control-indicator"></span>
-                    <span class="custom-control-description">__LOC__Intern</span>
+                    <span class="custom-control-description">@lang('Öffentlich anzeigen')</span>
                 </label>
                 <br>
-                <button class="btn btn-outline-secondary" name="save">__LOC__Speichern</button>
+                <button class="btn btn-outline-secondary" name="save">@lang('Speichern')</button>
             @endcomponent
         </div>
     </div>

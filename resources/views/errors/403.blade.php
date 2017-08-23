@@ -6,6 +6,6 @@
     @unless(empty($exception->getMessage()))
         ✋ {{ $exception->getMessage() }}
     @else
-        ✋ __LOC__Forbidden
+        ✋ @lang('Forbidden')
     @endunless
 @endsection

@@ -15,7 +15,7 @@
                 <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_create_redirect') }}">
                     {{ csrf_field() }}
                     <div class="input-group input-group-lg mb-2">
-                        <input type="url" name="url" id="url" class="form-control" placeholder="@lang('shorturl/index.long_url')" required value="{{ old('url') }}">
+                        <input type="url" name="url" id="url" class="form-control" placeholder="@lang('Lange Url')" required value="{{ old('url') }}">
                         <span class="input-group-btn">
                             <button class="btn btn-info" type="submit">
                                 @lang('shorturl/index.shorten')
@@ -27,11 +27,11 @@
                     </div>
                     <div class="collapse" id="customize">
                         <div class="input-group mt-3">
-                            <span class="input-group-addon" id="hash-label">@lang('shorturl/index.custom_name'):</span>
-                            <input type="text" class="form-control" id="hash" name="hash" aria-describedby="hash-label" placeholder="@lang('shorturl/index.custom_name_placeholder')" value="{{ old('hash') }}">
+                            <span class="input-group-addon" id="hash-label">@lang('Name (Optional)'):</span>
+                            <input type="text" class="form-control" id="hash" name="hash" aria-describedby="hash-label" placeholder="@lang('A-Za-z_- erlaubt')" value="{{ old('hash') }}">
                         </div>
                         <div class="input-group mt-3">
-                            <span class="input-group-addon" id="expired_at-label">@lang('shorturl/index.expired_at'):</span>
+                            <span class="input-group-addon" id="expired_at-label">@lang('Ablaufdatum'):</span>
                             <input type="datetime-local" class="form-control" id="expired_at" name="expired_at" aria-describedby="expired_at-label" style="flex-direction: inherit;" value="{{ old('expired_at') }}">
                         </div>
                     </div>
@@ -41,16 +41,16 @@
         <div class="col-12 d-flex fixed-bottom">
             <ul class="nav justify-content-end w-100">
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="{{ route('short_url_resolve_form') }}">@lang('shorturl/index.resolve')</a>
+                    <a class="nav-link text-info" href="{{ route('short_url_resolve_form') }}">@lang('Url auflösen')</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">@lang('shorturl/index.whitelist')</a>
+                    <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">@lang('Erlaubte Domains')</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="{{ config('app.api_url') }}">@lang('shorturl/index.api')</a>
+                    <a class="nav-link text-info" href="{{ config('app.api_url') }}">@lang('Api')</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="https://star-citizen.wiki/Star_Citizen_Wiki:Impressum">@lang('shorturl/index.legal')</a>
+                    <a class="nav-link text-info" href="https://star-citizen.wiki/Star_Citizen_Wiki:Impressum">@lang('Impressum')</a>
                 </li>
             </ul>
         </div>
@@ -59,7 +59,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="whitelist-modal-label">URL Whitelist</h5>
+                    <h5 class="modal-title" id="whitelist-modal-label">@lang('Erlaubte Domains')</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -71,7 +71,7 @@
                         @endforeach
                     </ul>
                     <hr>
-                    <a href="mailto:api@star-citizen.wiki?subject=RSI.IM URL Whitelist Request&body=Whitelist Request for the following Domain(s):">@lang('shorturl/index.add_whitelist_request')</a>
+                    <a href="mailto:api@star-citizen.wiki?subject=RSI.IM URL Whitelist Request&body=Whitelist Request for the following Domain(s):">@lang('Domain hinzufügen')</a>
                 </div>
             </div>
         </div>

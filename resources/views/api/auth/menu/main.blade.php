@@ -3,7 +3,7 @@
     'titleClass' => 'text-muted pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_account',
-    'title' => '__LOC__Account',
+    'title' => __('Account'),
     'show' => 1,
 ])
     @include('api.auth.menu.account')
@@ -14,7 +14,7 @@
     'titleClass' => 'text-muted pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_shorturls',
-    'title' => '__LOC__ShortURLs',
+    'title' => __('ShortUrls'),
 ])
     @include('api.auth.menu.shorturls')
 @endcomponent

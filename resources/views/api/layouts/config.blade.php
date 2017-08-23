@@ -2,9 +2,9 @@
 @section('P__title')
     @parent
     @hasSection('title')
-        @yield('title') - __LOC__Star Citizen Wiki API
+        @yield('title') - Star Citizen Wiki API
     @else
-        __LOC__Star Citizen Wiki API
+        Star Citizen Wiki API
     @endif
 @endsection
 
@@ -43,7 +43,7 @@
 {{-- Main Content --}}
 @section('topNav--class', 'bg-blue-grey')
 
-@section('topNav__title', '__LOC__Star Citizen Wiki API')
+@section('topNav__title', 'Star Citizen Wiki Api')
 @section('topNav__title--class', 'd-md-none')
 
 @section('topNav__content')

@@ -59,7 +59,7 @@ class ShortUrlWhitelistController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         $type = 'message';
-        $message = '__LOC__successWhitelistUrlDelete';
+        $message = __('crud.deleted', ['type' => 'WhitelistUrl']);
 
         try {
             $url = ShortUrlWhitelist::findOrFail($id);
@@ -75,7 +75,7 @@ class ShortUrlWhitelistController extends Controller
             $url->delete();
         } catch (ModelNotFoundException $e) {
             $type = 'errors';
-            $message = '__LOC__WhitelistUrlNotFound';
+            $message = __('crud.not_found', ['type' => 'WhitelistUrl']);
         }
 
         $this->stopProfiling(__FUNCTION__);
@@ -118,6 +118,6 @@ class ShortUrlWhitelistController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return redirect()->route('admin_urls_whitelist_list')->with('message', '__LOC__addWhitelistUrlSuccess');
+        return redirect()->route('admin_urls_whitelist_list')->with('message', __('crud.created', ['type' => 'WhitelistUrl']));
     }
 }

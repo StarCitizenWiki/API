@@ -66,7 +66,7 @@ class NotificationController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return redirect()->route('admin_notifications_list')->withErrors(['__LOC__notificationNotFound']);
+        return redirect()->route('admin_notifications_list')->withErrors([__('crud.not_found', ['type' => 'Notification'])]);
     }
 
     /**
@@ -105,7 +105,7 @@ class NotificationController extends Controller
 
         event(new NotificationCreated($notification));
 
-        return redirect()->back()->with('message', '__LOC__successAddNotification');
+        return redirect()->back()->with('message', __('crud.created', ['type' => 'Notification']));
     }
 
     /**
@@ -142,7 +142,7 @@ class NotificationController extends Controller
         try {
             $notification = Notification::findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_notifications_list')->withErrors('__LOC__NotificationNotfound');
+            return redirect()->route('admin_notifications_list')->withErrors(__('crud.not_found', ['type' => 'Notification']));
         }
 
         $data = $request->all();
@@ -160,7 +160,7 @@ class NotificationController extends Controller
 
         $notification->update($data);
 
-        return redirect()->route('admin_notifications_list')->with('message', '__LOC__successNotificationUpdate');
+        return redirect()->route('admin_notifications_list')->with('message', __('crud.updated', ['type' => 'Notification']));
     }
 
     /**
@@ -172,13 +172,13 @@ class NotificationController extends Controller
     public function deleteNotification(Request $request, int $id)
     {
         $type = 'message';
-        $message = '__LOC__successNotificationDelete';
+        $message = __('crud.deleted', ['type' => 'Notification']);
 
         try {
             Notification::findOrFail($id)->delete();
         } catch (ModelNotFoundException $e) {
             $type = 'errors';
-            $message = '__LOC__NotificationNotFound';
+            $message = __('crud.not_found', ['type' => 'Notification']);
         }
 
         return redirect()->route('admin_notifications_list')->with($type, $message);
@@ -193,13 +193,13 @@ class NotificationController extends Controller
     public function restoreNotification(Request $request, int $id)
     {
         $type = 'message';
-        $message = '__LOC__successNotificationrestore';
+        $message = __('crud.restored', ['type' => 'Notification']);
 
         try {
             Notification::onlyTrashed()->findOrFail($id)->restore();
         } catch (ModelNotFoundException $e) {
             $type = 'errors';
-            $message = '__LOC__NotificationNotFound';
+            $message = __('crud.not_found', ['type' => 'Notification']);
         }
 
         return redirect()->route('admin_notifications_list')->with($type, $message);

@@ -1,7 +1,7 @@
 @extends('api.layouts.full_width')
 
 {{-- Page Title --}}
-@section('title', '__LOC__Register')
+@section('title', __('Registrieren'))
 
 @section('content')
     @component('components.heading', [
@@ -12,12 +12,12 @@
     @include('components.errors')
 
     <div class="card bg-dark text-light-grey">
-        <h4 class="card-header">__LOC__Register</h4>
+        <h4 class="card-header">@lang('Registrieren')</h4>
         <div class="card-body">
 
             @component('components.forms.form', ['action' => route('auth_register')])
                 @component('components.forms.form-group', [
-                    'label' => '__LOC__Name/Project/Org',
+                    'label' => __('Projekt / Organisation / Name'),
                     'id' => 'name',
                     'required' => 1,
                     'autofocus' => 1,
@@ -28,7 +28,7 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
-                    'label' => '__LOC__Email',
+                    'label' => __('E-Mail'),
                     'id' => 'email',
                     'required' => 1,
                     'value' => old('email'),
@@ -38,7 +38,7 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'password',
-                    'label' => '__LOC__Password',
+                    'label' => __('Passwort'),
                     'id' => 'password',
                     'required' => 1,
                     'tabIndex' => 3,
@@ -46,15 +46,13 @@
 
                 @component('components.forms.form-group', [
                     'inputType' => 'password',
-                    'label' => '__LOC__Password_Confirmation',
+                    'label' => __('Passwort bestätigen'),
                     'id' => 'password_confirmation',
                     'required' => 1,
                     'tabIndex' => 4,
                 ])@endcomponent
 
-                <button class="btn btn-outline-secondary btn-block">
-                    __LOC__Register
-                </button>
+                <button class="btn btn-outline-secondary btn-block">@lang('Registrieren')</button>
             @endcomponent
         </div>
     </div>

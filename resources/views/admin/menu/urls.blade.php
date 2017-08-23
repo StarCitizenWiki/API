@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         link
     @endcomponent
-    __LOC__ShortUrls
+    @lang('ShortUrls')
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -13,7 +13,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         list
     @endcomponent
-    __LOC__UrlWhitelist
+    @lang('Erlaubte Domains')
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -22,5 +22,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         plus-circle
     @endcomponent
-    __LOC__Add_Whitelist
+    @lang('Domain hinzufügen')
 @endcomponent

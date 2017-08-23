@@ -1,22 +1,20 @@
 @extends('layouts.base')
-@section('title')
-    @lang('tools/imageresizer.header')
-@endsection
+@section('title', __('Imageresizer'))
 
-@section('content')
+@section('body__content')
     <div class="container mt-2">
         <div class="row">
             <div class="col-md-6 offset-md-3">
-                <h4>@lang('tools/imageresizer.title')</h4>
+                <h4>@lang('Imageresizer')</h4>
                 <form>
                     <div class="form-group mt-2">
                         <div class="text-center">
-                            <label class="btn btn-primary d-inline-block align-top">@lang('tools/imageresizer.select_image')&hellip; <input type="file" style="display: none;" id="image"></label>
-                            <a href="#" name="button" class="btn btn-success d-inline-block align-top" id="save">@lang('tools/imageresizer.save')</a>
+                            <label class="btn btn-primary d-inline-block align-top">@lang('Bild auswählen')&hellip; <input type="file" style="display: none;" id="image"></label>
+                            <a href="#" name="button" class="btn btn-success d-inline-block align-top" id="save">@lang('Speichern')</a>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="rectangleSlider">@lang('tools/imageresizer.move_slider')</label>
+                        <label for="rectangleSlider">@lang('Ausschnitt verschieben')</label>
                         <input type="range" min="0" max="100" class="form-control mt-1" id="rectangleSlider" />
                     </div>
                 </form>

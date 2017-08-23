@@ -6,6 +6,6 @@
     @unless(empty($exception->getMessage()))
         😰 {{ $exception->getMessage() }}
     @else
-        😰 __LOC__Not Found
+        😰 @lang('Not Found')
     @endunless
 @endsection

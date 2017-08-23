@@ -1,7 +1,7 @@
 @extends('api.layouts.full_width')
 
 {{-- Page Title --}}
-@section('title', '__LOC__Reset_Password')
+@section('title', __('Passwort zurücksetzen'))
 
 @section('content')
     @component('components.heading', [
@@ -18,13 +18,13 @@
     @include('components.errors')
 
     <div class="card bg-dark text-light-grey">
-        <h4 class="card-header">@lang('auth/passwords/email.header')</h4>
+        <h4 class="card-header">@lang('Passwort zurücksetzen')</h4>
         <div class="card-body">
             @component('components.forms.form', ['action' => route('password.email')])
 
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
-                    'label' => '__LOC__Email',
+                    'label' => __('E-Mail'),
                     'id' => 'email',
                     'labelClass' => 'control-label',
                     'value' => old('email'),
@@ -32,9 +32,7 @@
                     'inputOptions' => 'spellcheck=false',
                 ])@endcomponent
 
-                <button class="btn btn-outline-secondary btn-block">
-                    __LOC__Send_Email
-                </button>
+                <button class="btn btn-outline-secondary btn-block">@lang('E-Mail senden')</button>
             @endcomponent
         </div>
     </div>

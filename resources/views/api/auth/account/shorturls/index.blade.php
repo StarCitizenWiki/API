@@ -1,7 +1,7 @@
 @extends('api.auth.layouts.default_wide')
 
 {{-- Page Title --}}
-@section('title', '__LOC__ShortUrls')
+@section('title', __('ShortUrls'))
 
 
 @section('content')
@@ -18,17 +18,17 @@
     <div class="row">
         <div class="col-12 col-xl-11 mx-auto mt-xl-1">
             <div class="card">
-                <h4 class="card-header">__LOC__ShortURLs</h4>
+                <h4 class="card-header">@lang('ShortUrls')</h4>
 
                 <div class="card-body px-0">
                     <table class="table table-striped table-responsive" id="urlTable" cellspacing="0" width="100%">
                         <thead>
                         <tr>
-                            <th><span>__LOC__Short</span></th>
-                            <th><span>__LOC__url</span></th>
-                            <th><span>__LOC__hash</span></th>
-                            <th><span>__LOC__created_at</span></th>
-                            <th><span>__LOC__expired_at_at</span></th>
+                            <th><span>@lang('Short')</span></th>
+                            <th><span>@lang('Url')</span></th>
+                            <th><span>@lang('Hash')</span></th>
+                            <th><span>@lang('Erstelldatum')</span></th>
+                            <th><span>@lang('Ablaufdatum')</span></th>
                             <th>&nbsp;</th>
                         </tr>
                         </thead>
@@ -66,14 +66,12 @@
                             @endforeach
                         @else
                             <tr>
-                                <td colspan="7">__LOC__No_Urls_Found</td>
+                                <td colspan="7">@lang('Keine ShortUrls gefunden')</td>
                             </tr>
                         @endif
                         </tbody>
                     </table>
                 </div>
-
-
             </div>
         </div>
     </div>

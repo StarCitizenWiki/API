@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         dashboard
     @endcomponent
-    __LOC__Dashboard
+    @lang('Dashboard')
 @endcomponent
 
 
@@ -14,7 +14,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         book
     @endcomponent
-    __LOC__Logs
+    @lang('Logs')
 @endcomponent
 
 
@@ -24,7 +24,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         random
     @endcomponent
-    __LOC__Routes
+    @lang('Routes')
 @endcomponent
 
 
@@ -34,5 +34,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         users
     @endcomponent
-    __LOC__Users
+    @lang('Benutzer')
 @endcomponent

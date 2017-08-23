@@ -4,7 +4,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         rocket
     @endcomponent
-    __LOC__Ships
+    @lang('Ships')
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -30,5 +30,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         repeat
     @endcomponent
-    __LOC__Download_Ships
+    @lang('Schiffsdaten laden')
 @endcomponent

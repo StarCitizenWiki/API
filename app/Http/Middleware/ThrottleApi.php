@@ -77,7 +77,7 @@ class ThrottleApi extends ThrottleRequests
 
             $this->stopProfiling(__FUNCTION__);
 
-            abort(403, 'API Key blacklisted');
+            abort(403, __('Benutzer ist gesperrt'));
         }
 
         $this->stopProfiling(__FUNCTION__);

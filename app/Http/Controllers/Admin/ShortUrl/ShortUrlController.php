@@ -93,7 +93,7 @@ class ShortUrlController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return redirect()->route('admin_urls_list')->withErrors(['__LOC__urlNotFound']);
+        return redirect()->route('admin_urls_list')->withErrors([__('crud.not_found', ['type' => 'ShortUrl'])]);
     }
 
     /**
@@ -168,7 +168,7 @@ class ShortUrlController extends Controller
         $this->startProfiling(__FUNCTION__);
 
         $type = 'message';
-        $message = '__LOC__successUrlDelete';
+        $message = __('crud.deleted', ['type' => 'ShortUrl']);
 
         try {
             $url = ShortUrl::findOrFail($id);
@@ -185,7 +185,7 @@ class ShortUrlController extends Controller
             $url->delete();
         } catch (ModelNotFoundException $e) {
             $type = 'errors';
-            $message = '__LOC__UrlNotFound';
+            $message = __('crud.not_found', ['type' => 'ShortUrl']);
         }
 
         $this->stopProfiling(__FUNCTION__);
@@ -202,13 +202,13 @@ class ShortUrlController extends Controller
     public function restoreUrl(Request $request, int $id)
     {
         $type = 'message';
-        $message = '__LOC__successUrlrestore';
+        $message = __('crud.restored', ['type' => 'ShortUrl']);
 
         try {
             ShortUrl::onlyTrashed()->findOrFail($id)->restore();
         } catch (ModelNotFoundException $e) {
             $type = 'errors';
-            $message = '__LOC__UrlNotFound';
+            $message = __('crud.not_found', ['type' => 'ShortUrl']);
         }
 
         return redirect()->route('admin_urls_list')->with($type, $message);

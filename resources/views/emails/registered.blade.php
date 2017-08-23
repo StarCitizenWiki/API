@@ -8,6 +8,6 @@
         @lang('mail/registered.documentation')
     @endcomponent
 
-    <br>
+
     {{ config('app.name') }}
 @endcomponent

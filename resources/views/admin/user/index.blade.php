@@ -2,18 +2,18 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">__LOC__ User</h4>
+        <h4 class="card-header">@lang('Benutzer')</h4>
         <div class="card-body px-0">
             <table class="table table-striped table-responsive mb-0">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Registriert</th>
-                    <th>Name</th>
-                    <th>E-Mail</th>
-                    <th>Notiz</th>
-                    <th>API-Key</th>
-                    <th>Status</th>
+                    <th>@lang('ID')</th>
+                    <th>@lang('Registrierdatum')</th>
+                    <th>@lang('Name')</th>
+                    <th>@lang('E-Mail')</th>
+                    <th>@lang('Notiz')</th>
+                    <th>@lang('API Key')</th>
+                    <th>@lang('Status')</th>
                     <th>&nbsp;</th>
                 </tr>
                 </thead>
@@ -42,19 +42,19 @@
                         <td>
                             @if($user->trashed())
                                 <span class="badge badge-info">
-                                    @lang('admin/users/index.deleted')
+                                    @lang('Gelöscht')
                                 </span>
                             @elseif($user->isWhitelisted())
                                 <span class="badge badge-success">
-                                    @lang('admin/users/index.whitelisted')
+                                    @lang('Unlimitiert')
                                 </span>
                             @elseif($user->isBlacklisted())
                                 <span class="badge badge-danger">
-                                    @lang('admin/users/index.blacklisted')
+                                    @lang('Gesperrt')
                                 </span>
                             @else
                                 <span class="badge badge-secondary">
-                                    @lang('admin/users/index.normal')
+                                    @lang('Normal')
                                 </span>
                             @endif
                         </td>
@@ -78,7 +78,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">__LOC__Users_Found</td>
+                        <td colspan="7">@lang('Keine Benutzer vorhanden')</td>
                     </tr>
                 @endforelse
                 </tbody>

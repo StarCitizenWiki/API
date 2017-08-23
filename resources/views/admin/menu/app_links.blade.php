@@ -5,7 +5,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         cogs
     @endcomponent
-    __LOC__API
+    @lang('API')
 @endcomponent
 
 
@@ -16,7 +16,7 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         wrench
     @endcomponent
-    __LOC__Tools
+    @lang('Tools')
 @endcomponent
 
 
@@ -27,5 +27,5 @@
     @component('components.elements.icon', ['class' => 'mr-2'])
         link
     @endcomponent
-    __LOC__ShortUrl
+    @lang('ShortUrls')
 @endcomponent

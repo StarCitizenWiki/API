@@ -15,10 +15,10 @@
                     <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_resolve_display') }}">
                         {{ csrf_field() }}
                         <div class="input-group input-group-lg mb-2">
-                            <input type="url" name="url" id="url" class="form-control" placeholder="@lang('shorturl/resolve.placeholder')" required value="{{ old('url') }}">
+                            <input type="url" name="url" id="url" class="form-control" placeholder="@lang('gekürzte Url oder Name')" required value="{{ old('url') }}">
                             <span class="input-group-btn">
                                 <button class="btn btn-info" type="submit">
-                                    @lang('shorturl/resolve.resolve')
+                                    @lang('Auflösen')
                                 </button>
                             </span>
                         </div>
@@ -29,17 +29,17 @@
                 <ul class="nav justify-content-end w-100">
                     <li class="nav-item">
                         <a class="nav-link text-info" href="/">
-                            @lang('shorturl/resolve.shorten')
+                            @lang('Verkürzen')
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-info" href="https://{{ config('app.api_url') }}">
-                            @lang('shorturl/resolve.api')
+                            @lang('Api')
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-info" href="https://star-citizen.wiki/Star_Citizen_Wiki:Impressum">
-                            @lang('shorturl/resolve.legal')
+                            @lang('Impressum')
                         </a>
                     </li>
                 </ul>

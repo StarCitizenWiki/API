@@ -20,7 +20,7 @@
         @forelse(\App\Models\User::all() as $user)
             <option value="{{ $user->getRouteKey() }}" @if($selectedID == $user->id) selected @endif>{{ $user->name }}</option>
         @empty
-            <option value="1">__LOC__Default</option>
+            <option value="1">@lang('Default')</option>
         @endforelse
     @endslot
 @endcomponent

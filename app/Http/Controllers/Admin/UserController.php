@@ -61,7 +61,7 @@ class UserController extends Controller
             $user = User::withTrashed()->findOrFail($id);
             $this->stopProfiling(__FUNCTION__);
 
-            return view('admin.users.edit')->with(
+            return view('admin.user.edit')->with(
                 'user',
                 $user
             );
@@ -85,7 +85,7 @@ class UserController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('admin.users.requests')->with(
+        return view('admin.user.requests')->with(
             'requests',
             User::find($id)->apiRequests()->getResults()
         );
