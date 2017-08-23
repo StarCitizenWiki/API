@@ -2,9 +2,9 @@
 @section('P__title')
     @parent
     @hasSection('title')
-        @yield('title') - Star Citizen Wiki Api Admin
+        @yield('title') - __LOC__Star_Citizen_Wiki_API_Admin
     @else
-        Star Citizen Wiki Api Admin
+        __LOC__Star_Citizen_Wiki_API_Admin
     @endif
 @endsection
 
@@ -64,7 +64,7 @@
             @component('components.elements.icon', ['class' => 'mr-1'])
                 sign-out
             @endcomponent
-            @lang('Logout')
+            @lang('layouts/app.logout')
         @endcomponent
     @endunless
 
