@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -59,6 +60,10 @@ class Handler extends ExceptionHandler
         if ($this->isApiCall($request) || $request->expectsJson()) {
             return $this->getJsonResponseForException($request, $exception);
         } else {
+            if (config('app.debug')) {
+                return parent::convertExceptionToResponse($exception);
+            }
+
             return parent::render($request, $exception);
         }
     }
@@ -145,6 +150,11 @@ class Handler extends ExceptionHandler
             case $exception instanceof AuthenticationException:
                 $response['meta']['status'] = 401;
                 $response['errors'] = ['No permission'];
+                break;
+
+            case $exception instanceof HttpException:
+                $response['meta']['status'] = 403;
+                $response['errors'] = [$exception->getMessage()];
                 break;
 
             case $exception instanceof InvalidDataException:
