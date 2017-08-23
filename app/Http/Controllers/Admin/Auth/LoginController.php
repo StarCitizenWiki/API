@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Auth;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
 use Hesto\MultiAuth\Traits\LogsoutGuard;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -120,7 +121,7 @@ class LoginController extends Controller
                 ]
             );
 
-        } catch (ConnectException | Exception $e) {
+        } catch (ConnectException | RequestException $e) {
             $response = new Response(500, [], '{}');
             $this->backendError = true;
         }
