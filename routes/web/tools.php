@@ -2,7 +2,7 @@
 Route::get('/', ['uses' => 'ApiPageController@showApiView'])->name('tools_index');
 
 Route::group(
-    ['namespace' => 'Tools'],
+    ['namespace' => 'Tool'],
     function () {
         Route::group(
             ['prefix' => 'tools'],
