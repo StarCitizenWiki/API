@@ -27,7 +27,7 @@
             </aside>
 
             {{-- Content --}}
-            <main class="col @yield('main--class')" id="@yield('main--id')" @yield('main--options')>
+            <main class="col-12 col-md-8 col-lg-9 col-xl-10 @yield('main--class')" id="@yield('main--id')" @yield('main--options')>
                 <div class="row @yield('topNavRow--class')" @yield('topNavRow--options')>
                     {{-- Top Nav --}}
                     @component('components.navs.top_nav')

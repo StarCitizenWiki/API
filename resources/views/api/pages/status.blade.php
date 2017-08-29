@@ -23,8 +23,6 @@
                 </div>
             @endforeach
         </div>
-        <nav class="card-footer">
-            {{ $notifications->links() }}
-        </nav>
+        <nav class="card-footer">{{ $notifications->links() }}</nav>
     </div>
 @endsection

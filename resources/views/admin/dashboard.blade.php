@@ -99,9 +99,9 @@
                     </tr>
                     @forelse($notifications['last'] as $notification)
                         <tr @if($notification->expired()) class="text-muted" @endif>
-                            <td class="text-{{ $notification->getBootstrapClass() }}">@lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
+                            <td @unless($notification->expired()) class="text-{{ $notification->getBootstrapClass() }}" @endunless>@lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
                             <td title="{{ $notification->content }}">
-                                <a href="{{ route('admin_notifications_edit_form', $notification->getRouteKey()) }}">{{ str_limit($notification->content, 40) }}</a>
+                                <a href="{{ route('admin_notifications_edit_form', $notification->getRouteKey()) }}" @if($notification->expired()) class="text-muted" @endif>{{ str_limit($notification->content, 40) }}</a>
                             </td>
                             <td>{{ $notification->expired_at->format('d.m.Y H:i:s') }}</td>
                             <td>
@@ -345,18 +345,17 @@
                         <th>@lang('Datum')</th>
                         <th>@lang('Pfad')</th>
                     </tr>
-                    @if(empty($api_requests['last']))
-                        <tr>
-                            <td colspan="3">@lang('Keine Anfragen vorhanden')</td>
-                        </tr>
-                    @endif
-                    @foreach($api_requests['last'] as $api_request)
+                    @forelse($api_requests['last'] as $api_request)
                         <tr>
                             <td>{{ $api_request->user->name }}</td>
                             <td>{{ $api_request->created_at }}</td>
                             <td>{{ $api_request->request_uri }}</td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="3">@lang('Keine Anfragen vorhanden')</td>
+                        </tr>
+                    @endforelse
                 </table>
             @endcomponent
         </div>

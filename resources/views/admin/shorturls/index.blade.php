@@ -19,56 +19,56 @@
                 </thead>
                 <tbody>
 
-                    @forelse($urls as $url)
-                        <tr @if($url->trashed()) class="text-muted" @endif>
-                            <td>
-                                {{ $url->id }}
-                            </td>
-                            <td>
-                                {{ $url->getRouteKey() }}
-                            </td>
-                            <td>
-                                {{ $url->user()->first()->name }}
-                            </td>
-                            <td title="{{ $url->created_at->format('d.m.Y H:i:s') }}">
-                                {{ $url->created_at->format('d.m.Y') }}
-                            </td>
-                            <td>
-                                {{ $url->hash }}
-                            </td>
-                            <td>
-                                {{ $url->url }}
-                            </td>
-                            <td title="@unless(is_null($url->expired_at)){{ $url->expired_at->format('d.m.Y H:i:s') }}@endunless">
-                                @unless(is_null($url->expired_at))
-                                    {{ $url->expired_at->format('d.m.Y H:i:s') }}
-                                @else
-                                    -
-                                @endunless
-                            </td>
-                            <td>
-                                @component('components.edit_delete_block')
-                                    @slot('edit_url')
-                                        {{ route('admin_urls_edit_form', $url->getRouteKey()) }}
+                @forelse($urls as $url)
+                    <tr @if($url->trashed()) class="text-muted" @endif>
+                        <td>
+                            {{ $url->id }}
+                        </td>
+                        <td>
+                            {{ $url->getRouteKey() }}
+                        </td>
+                        <td>
+                            {{ $url->user->name }}
+                        </td>
+                        <td title="{{ $url->created_at->format('d.m.Y H:i:s') }}">
+                            {{ $url->created_at->format('d.m.Y') }}
+                        </td>
+                        <td>
+                            {{ $url->hash }}
+                        </td>
+                        <td>
+                            {{ $url->url }}
+                        </td>
+                        <td title="@unless(is_null($url->expired_at)){{ $url->expired_at->format('d.m.Y H:i:s') }}@endunless">
+                            @unless(is_null($url->expired_at))
+                                {{ $url->expired_at->format('d.m.Y H:i:s') }}
+                            @else
+                                -
+                            @endunless
+                        </td>
+                        <td>
+                            @component('components.edit_delete_block')
+                                @slot('edit_url')
+                                    {{ route('admin_urls_edit_form', $url->getRouteKey()) }}
+                                @endslot
+                                @if($url->trashed())
+                                    @slot('restore_url')
+                                        {{ route('admin_urls_restore', $url->getRouteKey()) }}
                                     @endslot
-                                    @if($url->trashed())
-                                        @slot('restore_url')
-                                            {{ route('admin_urls_restore', $url->getRouteKey()) }}
-                                        @endslot
-                                    @else
-                                        @slot('delete_url')
-                                            {{ route('admin_urls_delete', $url->getRouteKey()) }}
-                                        @endslot
-                                    @endif
-                                    {{ $url->getRouteKey() }}
-                                @endcomponent
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7">@lang('Keine ShortUrls vorhanden')</td>
-                        </tr>
-                    @endforelse
+                                @else
+                                    @slot('delete_url')
+                                        {{ route('admin_urls_delete', $url->getRouteKey()) }}
+                                    @endslot
+                                @endif
+                                {{ $url->getRouteKey() }}
+                            @endcomponent
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7">@lang('Keine ShortUrls vorhanden')</td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>

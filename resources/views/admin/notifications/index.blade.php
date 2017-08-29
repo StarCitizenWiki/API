@@ -8,6 +8,7 @@
                 <thead>
                 <tr>
                     <th>@lang('ID')</th>
+                    <th>@lang('Hash ID')</th>
                     <th>@lang('Level')</th>
                     <th>@lang('Erstellt')</th>
                     <th>@lang('Inhalt')</th>
@@ -19,15 +20,18 @@
                 <tbody>
 
                     @forelse($notifications as $notification)
-                        <tr @if($notification->trashed()) class="text-muted" @endif>
+                        <tr @if($notification->expired()) class="text-muted" @endif>
+                            <td>
+                                {{ $notification->id }}
+                            </td>
                             <td>
                                 {{ $notification->getRouteKey() }}
                             </td>
-                            <td @unless($notification->trashed()) class="text-{{ $notification->getBootstrapClass() }} @endunless">
+                            <td class="@unless($notification->expired()) text-{{ $notification->getBootstrapClass() }} @else text-muted @endunless">
                                 {{ \App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level] }}
                             </td>
-                            <td title="{{ $notification->created_at->format('d.m.Y H:i:s') }}">
-                                {{ $notification->created_at->format('d.m.Y') }}
+                            <td title="{{ $notification->published_at->format('d.m.Y H:i:s') }}">
+                                {{ $notification->published_at->format('d.m.Y') }}
                             </td>
                             <td>
                                 {{ $notification->content }}
@@ -38,21 +42,21 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     @if($notification->output_status)
-                                        <button class="btn btn-link @if($notification->trashed())text-muted @endif">
+                                        <button class="btn btn-link @if($notification->expired())text-muted @endif">
                                             @component('components.elements.icon')
                                                 desktop
                                             @endcomponent
                                         </button>
                                     @endif
                                     @if($notification->output_email)
-                                        <button class="btn btn-link @if($notification->trashed())text-muted @endif">
+                                        <button class="btn btn-link @if($notification->expired())text-muted @endif">
                                             @component('components.elements.icon')
                                                 envelope-o
                                             @endcomponent
                                         </button>
                                     @endif
                                     @if($notification->output_index)
-                                        <button class="btn btn-link @if($notification->trashed())text-muted @endif">
+                                        <button class="btn btn-link @if($notification->expired())text-muted @endif">
                                             @component('components.elements.icon')
                                                 bullhorn
                                             @endcomponent
@@ -88,4 +92,9 @@
         </div>
         <div class="card-footer">{{ $notifications->links() }}</div>
     </div>
+@endsection
+
+@section('body__after')
+    @parent
+    @include('components.init_dataTables')
 @endsection

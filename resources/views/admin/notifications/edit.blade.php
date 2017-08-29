@@ -55,7 +55,7 @@
                     </div>
                     <div class="col-12 col-lg-6">
                         @component('components.forms.form-group', [
-                            'inputType' => 'dateTime-local',
+                            'inputType' => 'datetime-local',
                             'label' => __('Erstelldatum'),
                             'id' => 'published_at',
                             'value' => $notification->published_at->format("Y-m-d\TH:i"),
@@ -91,12 +91,13 @@
                         </label>
                     @endif
                 </div>
-                <button class="btn btn-outline-secondary" name="save">@lang('Speichern')</button>
+
                 @if($notification->trashed())
-                    <button class="btn btn-outline-success pull-right" name="restore">@lang('Wiederherstellen')</button>
+                    <button class="btn btn-outline-success" name="restore">@lang('Wiederherstellen')</button>
                 @else
-                    <button class="btn btn-outline-danger pull-right" name="delete">@lang('Löschen')</button>
+                    <button class="btn btn-outline-danger" name="delete">@lang('Löschen')</button>
                 @endif
+                <button class="btn btn-outline-secondary pull-right" name="save">@lang('Speichern')</button>
             @endcomponent
         </div>
     </div>

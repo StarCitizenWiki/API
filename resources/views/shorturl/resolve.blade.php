@@ -1,4 +1,4 @@
-@extends('layouts.shorturl')
+@extends('shorturl.layouts.app')
 
 @section('body__content')
     <main class="container" id="form">
