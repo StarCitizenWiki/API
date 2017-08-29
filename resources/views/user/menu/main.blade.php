@@ -6,7 +6,7 @@
     'title' => __('Account'),
     'show' => 1,
 ])
-    @include('api.auth.menu.account')
+    @include('user.menu.account')
 @endcomponent
 
 @component('components.navs.sidebar_section', [
@@ -16,5 +16,5 @@
     'id' => 'm_shorturls',
     'title' => __('ShortUrls'),
 ])
-    @include('api.auth.menu.shorturls')
+    @include('user.menu.shorturls')
 @endcomponent

@@ -1,4 +1,4 @@
-@extends('api.auth.layouts.default')
+@extends('user.layouts.default')
 
 {{-- Page Title --}}
 @section('title', __('Account'))
@@ -29,7 +29,7 @@
                     @component('components.forms.form-group', [
                         'id' => '',
                         'inputOptions' => 'readonly',
-                        'value' => \App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$user->receive_notification_level].' and up',
+                        'value' => __(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$user->receive_notification_level]),
                         'label' => __('Benachrichtigungslevel'),
                     ])@endcomponent
                 </div>

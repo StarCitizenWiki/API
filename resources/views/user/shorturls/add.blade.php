@@ -1,4 +1,4 @@
-@extends('api.auth.layouts.default')
+@extends('user.layouts.default')
 
 {{-- Page Title --}}
 @section('title', __('ShortUrl hinzufügen'))
