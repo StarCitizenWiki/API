@@ -12,7 +12,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
  *
  * @package App\Repositories\StarCitizen\ApiV1\Comments
  */
-interface CommentsInterface
+interface CommentsRepositoryInterface
 {
     /**
      * https://robertsspaceindustries.com/api/comments/listing

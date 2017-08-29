@@ -17,7 +17,7 @@ use Spatie\Fractal\Fractal;
  *
  * @package App\Traits
  */
-trait TransformesDataTrait
+trait TransformsDataTrait
 {
     /**
      * Transformer

@@ -12,7 +12,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
  *
  * @package App\Repositories\StarCitizen\ApiV1\Stats
  */
-interface StatsInterface
+interface StatsRepositoryInterface
 {
     /**
      * Returns the Crowdfund Stats

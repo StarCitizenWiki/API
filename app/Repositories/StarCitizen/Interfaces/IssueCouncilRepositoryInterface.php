@@ -12,7 +12,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
  *
  * @package App\Repositories\StarCitizen\ApiV1\IssueCouncil
  */
-interface IssueCouncilInterface
+interface IssueCouncilRepositoryInterface
 {
     /**
      * @TODO Interfaces unklar

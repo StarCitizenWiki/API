@@ -12,7 +12,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
  *
  * @package App\Repositories\StarCitizen\ApiV1\Leaderboards
  */
-interface LeaderboardsInterface
+interface LeaderboardsRepositoryInterface
 {
     /**
      * https://robertsspaceindustries.com/api/leaderboards/getOverview

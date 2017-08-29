@@ -12,7 +12,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
  *
  * @package App\Repositories\StarCitizen\ApiV1\Hub
  */
-interface HubInterface
+interface HubRepositoryInterface
 {
     /**
      * @TODO Funktion noch nicht weiter verfolgt

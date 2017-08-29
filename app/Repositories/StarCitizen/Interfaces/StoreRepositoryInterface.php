@@ -12,7 +12,7 @@ namespace App\Repositories\StarCitizen\Interfaces;
  *
  * @package App\Repositories\StarCitizen\ApiV1\Store
  */
-interface StoreInterface
+interface StoreRepositoryInterface
 {
     /**
      * https://robertsspaceindustries.com/api/store/getShips

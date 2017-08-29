@@ -8,7 +8,7 @@
 namespace App\Repositories\StarCitizenWiki\ApiV1;
 
 use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
-use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
+use App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface;
 use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
  * Class ShipsRepository
  * @package App\Repositories\StarCitizenWiki\ApiV1\Ships
  */
-class ShipsRepository extends AbstractStarCitizenWikiRepository implements ShipsInterface
+class ShipsRepository extends AbstractStarCitizenWikiRepository implements ShipsRepositoryInterface
 {
     /**
      * Returns Ship data

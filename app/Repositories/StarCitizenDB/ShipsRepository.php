@@ -4,7 +4,7 @@ namespace App\Repositories\StarCitizenDB;
 
 use App\Exceptions\MethodNotImplementedException;
 use App\Repositories\AbstractBaseRepository;
-use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
+use App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface;
 use App\Transformers\NullTransformer as ShipsTransformer;
 use App\Transformers\StarCitizenDB\Ships\ShipsListTransformer;
 use Illuminate\Http\Request;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
  *
  * @package App\Repositories\StarCitizenDB
  */
-class ShipsRepository extends AbstractBaseRepository implements ShipsInterface
+class ShipsRepository extends AbstractBaseRepository implements ShipsRepositoryInterface
 {
     const API_URL = '';
 
@@ -46,7 +46,7 @@ class ShipsRepository extends AbstractBaseRepository implements ShipsInterface
      * @param \Illuminate\Http\Request $request
      * @param string                   $shipName ShipName
      *
-     * @return ShipsInterface
+     * @return ShipsRepositoryInterface
      */
     public function getShip(Request $request, string $shipName)
     {
@@ -75,7 +75,7 @@ class ShipsRepository extends AbstractBaseRepository implements ShipsInterface
      *
      * @param string $shipName ShipName
      *
-     * @return \App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface
+     * @return \App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface
      *
      * @throws \App\Exceptions\MethodNotImplementedException
      */

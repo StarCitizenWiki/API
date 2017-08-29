@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
  *
  * @package App\Repositories\StarCitizenWiki\ApiV1\Ships
  */
-interface ShipsInterface
+interface ShipsRepositoryInterface
 {
     /**
      * Returns Ship data
@@ -17,14 +17,14 @@ interface ShipsInterface
      * @param \Illuminate\Http\Request $request
      * @param string                   $shipName ShipName
      *
-     * @return ShipsInterface
+     * @return ShipsRepositoryInterface
      */
     public function getShip(Request $request, string $shipName);
 
     /**
      * Gets a ShipList
      *
-     * @return ShipsInterface
+     * @return ShipsRepositoryInterface
      */
     public function getShipList();
 
@@ -33,7 +33,7 @@ interface ShipsInterface
      *
      * @param string $shipName ShipName
      *
-     * @return ShipsInterface
+     * @return ShipsRepositoryInterface
      */
     public function searchShips(string $shipName);
 }
