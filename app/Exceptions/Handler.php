@@ -60,7 +60,7 @@ class Handler extends ExceptionHandler
         if ($this->isApiCall($request) || $request->expectsJson()) {
             return $this->getJsonResponseForException($request, $exception);
         } else {
-            if (config('app.debug')) {
+            if (!$exception instanceof ValidationException && config('app.debug')) {
                 return parent::convertExceptionToResponse($exception);
             }
 
