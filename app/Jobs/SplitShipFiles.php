@@ -108,7 +108,7 @@ class SplitShipFiles implements ShouldQueue
     }
 
     /**
-     * Transformes the data and sets a base version
+     * Transforms the data and sets a base version
      */
     private function getDataForBaseVersion(): void
     {
@@ -244,7 +244,7 @@ class SplitShipFiles implements ShouldQueue
     }
 
     /**
-     * Transformes the Modification Data and merges it with the base version
+     * Transforms the Modification Data and merges it with the base version
      */
     private function getDataForModifications(): void
     {

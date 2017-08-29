@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use Spatie\Fractal\Fractal;
 
 /**
- * Class TransformesDataTrait
+ * Class TransformsDataTrait
  *
  * @package App\Traits
  */
@@ -137,7 +137,7 @@ trait TransformsDataTrait
     }
 
     /**
-     * Transformes the given data
+     * Transforms the given data
      *
      * @param null $data used to transform if not null
      *

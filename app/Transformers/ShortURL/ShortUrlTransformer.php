@@ -19,7 +19,7 @@ use App\Transformers\AbstractBaseTransformer;
 class ShortUrlTransformer extends AbstractBaseTransformer
 {
     /**
-     * Transformes a given ShortUrl
+     * Transforms a given ShortUrl
      *
      * @param \App\Models\ShortUrl\ShortUrl $url URL to transform
      *

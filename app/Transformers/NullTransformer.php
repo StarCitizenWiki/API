@@ -15,7 +15,7 @@ namespace App\Transformers;
 class NullTransformer extends AbstractBaseTransformer
 {
     /**
-     * Transformes the given data
+     * Transforms the given data
      *
      * @param mixed $data Data to transform
      *
