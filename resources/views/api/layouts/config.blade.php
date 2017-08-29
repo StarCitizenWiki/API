@@ -43,7 +43,7 @@
 {{-- Main Content --}}
 @section('topNav--class', 'bg-blue-grey')
 
-@section('topNav__title', '__LOC__Star Citizen Wiki API')
+@section('topNav__title', 'Star Citizen Wiki Api')
 @section('topNav__title--class', 'd-md-none')
 
 @section('topNav__content')
