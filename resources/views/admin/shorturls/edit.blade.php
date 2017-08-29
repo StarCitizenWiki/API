@@ -8,7 +8,7 @@
 
             @component('components.forms.form', [
                 'method' => 'PATCH',
-                'action' => route('admin_urls_update', $url->getRouteKey()),
+                'action' => route('admin_url_update', $url->getRouteKey()),
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'url',

@@ -46,12 +46,11 @@ class ShortUrlWhitelistController extends Controller
     /**
      * Deletes a ShortUrl Whitelisted URL by ID
      *
-     * @param \Illuminate\Http\Request $request
-     * @param int                      $id
+     * @param int $id
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function deleteWhitelistUrl(Request $request, int $id): RedirectResponse
+    public function deleteWhitelistUrl(int $id): RedirectResponse
     {
         $type = 'message';
         $message = __('crud.deleted', ['type' => 'WhitelistUrl']);
@@ -73,7 +72,7 @@ class ShortUrlWhitelistController extends Controller
             $message = __('crud.not_found', ['type' => 'WhitelistUrl']);
         }
 
-        return redirect()->route('admin_urls_whitelist_list')->with($type, $message);
+        return redirect()->route('admin_url_whitelist_list')->with($type, $message);
     }
 
     /**
@@ -89,7 +88,7 @@ class ShortUrlWhitelistController extends Controller
 
         $data = [
             'url'      => $url,
-            'internal' => $request->get('internal'),
+            'internal' => is_null($request->get('internal')) ? true : false,
         ];
 
         $rules = [
@@ -99,13 +98,11 @@ class ShortUrlWhitelistController extends Controller
 
         validate_array($data, $rules, $request);
 
-        ShortUrlWhitelist::createWhitelistUrl(
-            [
-                'url'      => $url,
-                'internal' => $request->get('internal')[0],
-            ]
-        );
+        ShortUrlWhitelist::createWhitelistUrl($data);
 
-        return redirect()->route('admin_urls_whitelist_list')->with('message', __('crud.created', ['type' => 'WhitelistUrl']));
+        return redirect()->route('admin_url_whitelist_list')->with(
+            'message',
+            __('crud.created', ['type' => 'WhitelistUrl'])
+        );
     }
 }

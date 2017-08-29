@@ -36,30 +36,13 @@ class ShortUrlController extends Controller
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function showUrlsListView(): View
+    public function showUrlListView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('admin.shorturls.index')->with(
             'urls',
             ShortUrl::with('user')->withTrashed()->orderBy('deleted_at')->simplePaginate(100)
-        );
-    }
-
-    /**
-     * Returns the ShortUrl List View
-     *
-     * @param int $id UserID
-     *
-     * @return \Illuminate\Contracts\View\View
-     */
-    public function showUrlsListForUserView(int $id): View
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
-
-        return view('admin.shorturls.index')->with(
-            'urls',
-            User::find($id)->shortUrls()->simplePaginate(100)
         );
     }
 
@@ -79,7 +62,7 @@ class ShortUrlController extends Controller
         } catch (ModelNotFoundException $e) {
             app('Log')::warning("URL with ID: {$id} not found");
 
-            return redirect()->route('admin_urls_list')->withErrors([__('crud.not_found', ['type' => 'ShortUrl'])]);
+            return redirect()->route('admin_url_list')->withErrors([__('crud.not_found', ['type' => 'ShortUrl'])]);
         }
 
         return view('admin.shorturls.edit')->with(
@@ -134,7 +117,7 @@ class ShortUrlController extends Controller
             return back()->withErrors($e->getMessage())->withInput(Input::all());
         }
 
-        return redirect()->route('admin_urls_list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
+        return redirect()->route('admin_url_list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
     }
 
 
@@ -170,7 +153,7 @@ class ShortUrlController extends Controller
             $message = __('crud.not_found', ['type' => 'ShortUrl']);
         }
 
-        return redirect()->route('admin_urls_list')->with($type, $message);
+        return redirect()->route('admin_url_list')->with($type, $message);
     }
 
     /**
@@ -191,6 +174,6 @@ class ShortUrlController extends Controller
             $message = __('crud.not_found', ['type' => 'ShortUrl']);
         }
 
-        return redirect()->route('admin_urls_list')->with($type, $message);
+        return redirect()->route('admin_url_list')->with($type, $message);
     }
 }

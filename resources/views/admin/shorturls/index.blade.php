@@ -49,15 +49,15 @@
                         <td>
                             @component('components.edit_delete_block')
                                 @slot('edit_url')
-                                    {{ route('admin_urls_edit_form', $url->getRouteKey()) }}
+                                    {{ route('admin_url_edit_form', $url->getRouteKey()) }}
                                 @endslot
                                 @if($url->trashed())
                                     @slot('restore_url')
-                                        {{ route('admin_urls_restore', $url->getRouteKey()) }}
+                                        {{ route('admin_url_restore', $url->getRouteKey()) }}
                                     @endslot
                                 @else
                                     @slot('delete_url')
-                                        {{ route('admin_urls_delete', $url->getRouteKey()) }}
+                                        {{ route('admin_url_delete', $url->getRouteKey()) }}
                                     @endslot
                                 @endif
                                 {{ $url->getRouteKey() }}

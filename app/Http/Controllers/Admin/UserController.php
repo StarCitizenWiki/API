@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 /**
  * Class AdminUserController
@@ -42,6 +43,23 @@ class UserController extends Controller
     }
 
     /**
+     * Returns the ShortUrl List View
+     *
+     * @param int $id UserID
+     *
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function showUrlListView(int $id): View
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
+
+        return view('admin.shorturls.index')->with(
+            'urls',
+            User::find($id)->shortUrls()->simplePaginate(100)
+        );
+    }
+
+    /**
      * Returns the View to Edit a User by ID
      *
      * @param int $id The User ID
@@ -52,7 +70,16 @@ class UserController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
         try {
-            $user = User::with(['shortUrls', 'apiRequests'])->withTrashed()->findOrFail($id);
+            $user = User::with(
+                [
+                    'shortUrls'   => function ($query) {
+                        $query->orderBy('created_at')->take(5);
+                    },
+                    'apiRequests' => function ($query) {
+                        $query->orderBy('created_at')->take(5);
+                    },
+                ]
+            )->withTrashed()->findOrFail($id);
 
             return view('admin.user.edit')->with(
                 'user',
@@ -62,7 +89,7 @@ class UserController extends Controller
             app('Log')::warning("User with ID: {$id} not found");
         }
 
-        return redirect()->route('admin_users_list');
+        return redirect()->route('admin_user_list');
     }
 
     /**
@@ -72,7 +99,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function showRequestsView(int $id)
+    public function showRequestView(int $id)
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -109,10 +136,10 @@ class UserController extends Controller
             );
             $user->delete();
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_users_list')->withErrors(__('admin/users/edit.not_found'));
+            return redirect()->route('admin_user_list')->withErrors(__('admin/users/edit.not_found'));
         }
 
-        return redirect()->route('admin_users_list');
+        return redirect()->route('admin_user_list');
     }
 
     /**
@@ -136,10 +163,10 @@ class UserController extends Controller
             app('Log')::notice("Restored Account with ID: {$request->id}");
             $user->restore();
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_users_list')->withErrors(__('admin/users/edit.not_found'));
+            return redirect()->route('admin_user_list')->withErrors(__('admin/users/edit.not_found'));
         }
 
-        return redirect()->route('admin_users_list');
+        return redirect()->route('admin_user_list');
     }
 
     /**
@@ -149,24 +176,23 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateUser(Request $request): RedirectResponse
+    public function updateUser(Request $request, int $id): RedirectResponse
     {
         $this->validate(
             $request,
             [
-                'id'                  => 'required|exists:users|int',
                 'name'                => 'present',
                 'requests_per_minute' => 'required|integer',
                 'api_token'           => 'required|max:60|min:60|alpha_num',
                 'email'               => 'required|min:3|email',
                 'list'                => 'nullable|alpha',
-                'notes'               => 'nullable',
+                'notes'               => 'nullable|string',
                 'password'            => 'present',
             ]
         );
 
         $data = [];
-        $data['id'] = $request->id;
+        $data['id'] = $id;
         $data['name'] = $request->get('name');
         $data['requests_per_minute'] = $request->get('requests_per_minute');
         $data['api_token'] = $request->get('api_token');
@@ -174,7 +200,7 @@ class UserController extends Controller
         $data['notes'] = $request->get('notes');
 
         if (!is_null($request->get('password')) && !empty($request->get('password'))) {
-            $data['password'] = $request->get('password');
+            $data['password'] = bcrypt($request->get('password'));
         }
 
         $data['whitelisted'] = false;
@@ -194,6 +220,6 @@ class UserController extends Controller
 
         User::updateUser($data);
 
-        return redirect()->route('admin_users_list');
+        return redirect()->route('admin_user_list');
     }
 }

@@ -45,7 +45,7 @@
                                 <td class="text-center">
                                     @component('components.edit_delete_block')
                                         @slot('delete_url')
-                                            {{ route('admin_urls_whitelist_delete', $url->getRouteKey()) }}
+                                            {{ route('admin_url_whitelist_delete', $url->getRouteKey()) }}
                                         @endslot
                                         {{ $url->getRouteKey() }}
                                     @endcomponent

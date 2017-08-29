@@ -85,7 +85,7 @@
                 @slot('title')
                     @lang('Benachrichtigungen')
                     <small class="pull-right mt-1">
-                        <a href="{{ route('admin_notifications_list') }}" class="text-light">
+                        <a href="{{ route('admin_notification_list') }}" class="text-light">
                             <i class="fa fa-external-link"></i>
                         </a>
                     </small>
@@ -101,7 +101,7 @@
                         <tr @if($notification->expired()) class="text-muted" @endif>
                             <td @unless($notification->expired()) class="text-{{ $notification->getBootstrapClass() }}" @endunless>@lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
                             <td title="{{ $notification->content }}">
-                                <a href="{{ route('admin_notifications_edit_form', $notification->getRouteKey()) }}" @if($notification->expired()) class="text-muted" @endif>{{ str_limit($notification->content, 40) }}</a>
+                                <a href="{{ route('admin_notification_edit_form', $notification->getRouteKey()) }}" @if($notification->expired()) class="text-muted" @endif>{{ str_limit($notification->content, 40) }}</a>
                             </td>
                             <td>{{ $notification->expired_at->format('d.m.Y H:i:s') }}</td>
                             <td>
@@ -209,7 +209,7 @@
                 @slot('title')
                     @lang('Benutzer') ({{ $users['overall'] }})
                     <small class="pull-right mt-1">
-                        <a href="" class="text-light">
+                        <a href="{{ route('admin_user_list') }}" class="text-light">
                             <i class="fa fa-external-link"></i>
                         </a>
                     </small>
@@ -243,7 +243,7 @@
                 @slot('title')
                     @lang('Api Anfragen') ({{ $api_requests['counts']['overall'] }})
                     <small class="pull-right mt-1">
-                        <a href="" class="text-light">
+                        <a href="{{ route('admin_request_list') }}" class="text-light">
                             <i class="fa fa-external-link"></i>
                         </a>
                     </small>
@@ -278,7 +278,7 @@
                 @slot('title')
                     @lang('ShortUrls') ({{ $short_urls['counts']['overall'] }})
                     <small class="pull-right mt-1">
-                        <a href="" class="text-light">
+                        <a href="{{ route('admin_url_list') }}" class="text-light">
                             <i class="fa fa-external-link"></i>
                         </a>
                     </small>

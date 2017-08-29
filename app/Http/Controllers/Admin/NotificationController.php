@@ -28,7 +28,7 @@ class NotificationController extends Controller
     /**
      * @return \Illuminate\View\View
      */
-    public function showNotificationsListView(): View
+    public function showNotificationListView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -58,7 +58,7 @@ class NotificationController extends Controller
             app('Log')::warning("Notification with ID: {$id} not found");
         }
 
-        return redirect()->route('admin_notifications_list')->withErrors([__('crud.not_found', ['type' => 'Notification'])]);
+        return redirect()->route('admin_notification_list')->withErrors([__('crud.not_found', ['type' => 'Notification'])]);
     }
 
     /**
@@ -132,7 +132,7 @@ class NotificationController extends Controller
         try {
             $notification = Notification::findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_notifications_list')->withErrors(__('crud.not_found', ['type' => 'Notification']));
+            return redirect()->route('admin_notification_list')->withErrors(__('crud.not_found', ['type' => 'Notification']));
         }
 
         $data = $request->all();
@@ -150,7 +150,7 @@ class NotificationController extends Controller
 
         $notification->update($data);
 
-        return redirect()->route('admin_notifications_list')->with('message', __('crud.updated', ['type' => 'Notification']));
+        return redirect()->route('admin_notification_list')->with('message', __('crud.updated', ['type' => 'Notification']));
     }
 
     /**
@@ -171,7 +171,7 @@ class NotificationController extends Controller
             $message = __('crud.not_found', ['type' => 'Notification']);
         }
 
-        return redirect()->route('admin_notifications_list')->with($type, $message);
+        return redirect()->route('admin_notification_list')->with($type, $message);
     }
 
     /**
@@ -192,6 +192,6 @@ class NotificationController extends Controller
             $message = __('crud.not_found', ['type' => 'Notification']);
         }
 
-        return redirect()->route('admin_notifications_list')->with($type, $message);
+        return redirect()->route('admin_notification_list')->with($type, $message);
     }
 }

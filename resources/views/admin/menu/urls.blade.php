@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('admin_urls_list'),
+    'route' => route('admin_url_list'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_urls_whitelist_list'),
+    'route' => route('admin_url_whitelist_list'),
 ])
     <div class="row">
         <div class="col-1">
@@ -29,7 +29,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_urls_whitelist_add_form'),
+    'route' => route('admin_url_whitelist_add_form'),
 ])
     <div class="row">
         <div class="col-1">

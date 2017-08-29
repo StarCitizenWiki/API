@@ -6,7 +6,7 @@
         <div class="card-body">
             @include('components.errors')
             @component('components.forms.form', [
-                'action' => route('admin_urls_whitelist_add'),
+                'action' => route('admin_url_whitelist_add'),
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'url',

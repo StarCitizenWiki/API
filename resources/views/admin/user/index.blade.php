@@ -13,7 +13,7 @@
                     <th>@lang('E-Mail')</th>
                     <th>@lang('Notiz')</th>
                     <th>@lang('API Key')</th>
-                    <th>@lang('Status')</th>
+                    <th class="text-center">@lang('Status')</th>
                     <th>&nbsp;</th>
                 </tr>
                 </thead>
@@ -39,7 +39,7 @@
                         <td>
                             {{ $user->api_token }}
                         </td>
-                        <td>
+                        <td class="text-center">
                             @if($user->trashed())
                                 <span class="badge badge-info">
                                     @lang('Gelöscht')
