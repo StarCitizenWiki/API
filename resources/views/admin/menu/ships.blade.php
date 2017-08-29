@@ -1,10 +1,16 @@
 @component('components.navs.nav_element', [
     'route' => route('admin_ships_list'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        rocket
-    @endcomponent
-    @lang('Ships')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                rocket
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Ships')
+        </div>
+    </div>
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -26,9 +32,14 @@
             @endslot
         @endcomponent
     @endcomponent
-
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        repeat
-    @endcomponent
-    @lang('Schiffsdaten laden')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                repeat
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Schiffsdaten laden')
+        </div>
+    </div>
 @endcomponent

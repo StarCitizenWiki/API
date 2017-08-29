@@ -1,38 +1,62 @@
 @component('components.navs.nav_element', [
     'route' => route('admin_dashboard'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        dashboard
-    @endcomponent
-    @lang('Dashboard')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                dashboard
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Dashboard')
+        </div>
+    </div>
 @endcomponent
 
 
 @component('components.navs.nav_element', [
     'route' => route('admin_logs'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        book
-    @endcomponent
-    @lang('Logs')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                book
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Logs')
+        </div>
+    </div>
 @endcomponent
 
 
 @component('components.navs.nav_element', [
     'route' => route('admin_routes_list'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        random
-    @endcomponent
-    @lang('Routes')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                random
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Routes')
+        </div>
+    </div>
 @endcomponent
 
 
 @component('components.navs.nav_element', [
     'route' => route('admin_user_list'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        users
-    @endcomponent
-    @lang('Benutzer')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                users
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Benutzer')
+        </div>
+    </div>
 @endcomponent

@@ -1,19 +1,31 @@
 @component('components.navs.nav_element', [
     'route' => route('admin_starmap_systems_list'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        circle-o-notch
-    @endcomponent
-    @lang('Systeme')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                circle-o-notch
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Systeme')
+        </div>
+    </div>
 @endcomponent
 
 @component('components.navs.nav_element', [
     'route' => route('admin_starmap_celestialobject_list'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        circle-o-notch
-    @endcomponent
-    @lang('Celestial Objects')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                circle-o-notch
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Celestial Objects')
+        </div>
+    </div>
 @endcomponent
 
 @component('components.navs.nav_element', [
@@ -35,9 +47,14 @@
             @endslot
         @endcomponent
     @endcomponent
-
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        repeat
-    @endcomponent
-    @lang('Starmapdaten laden')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                repeat
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Starmapdaten laden')
+        </div>
+    </div>
 @endcomponent

@@ -2,10 +2,16 @@
     @slot('route')
         //{{ config('app.api_url') }}
     @endslot
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        cogs
-    @endcomponent
-    @lang('API')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                cogs
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('API')
+        </div>
+    </div>
 @endcomponent
 
 
@@ -13,10 +19,16 @@
     @slot('route')
         //{{ config('app.tools_url') }}
     @endslot
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        wrench
-    @endcomponent
-    @lang('Tools')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                wrench
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Tools')
+        </div>
+    </div>
 @endcomponent
 
 
@@ -24,8 +36,14 @@
     @slot('route')
         //{{ config('app.shorturl_url') }}
     @endslot
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        link
-    @endcomponent
-    @lang('ShortUrls')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                link
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('ShortUrls')
+        </div>
+    </div>
 @endcomponent

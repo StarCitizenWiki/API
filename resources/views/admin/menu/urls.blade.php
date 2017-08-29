@@ -1,26 +1,44 @@
 @component('components.navs.nav_element', [
     'route' => route('admin_urls_list'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        link
-    @endcomponent
-    @lang('ShortUrls')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                link
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('ShortUrls')
+        </div>
+    </div>
 @endcomponent
 
 @component('components.navs.nav_element', [
     'route' => route('admin_urls_whitelist_list'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        list
-    @endcomponent
-    @lang('Erlaubte Domains')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                list
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Erlaubte Domains')
+        </div>
+    </div>
 @endcomponent
 
 @component('components.navs.nav_element', [
     'route' => route('admin_urls_whitelist_add_form'),
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        plus-circle
-    @endcomponent
-    @lang('Domain hinzufügen')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                plus-circle
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Domain hinzufügen')
+        </div>
+    </div>
 @endcomponent

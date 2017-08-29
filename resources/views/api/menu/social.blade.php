@@ -1,38 +1,62 @@
 @component('components.navs.nav_element', [
     'route' => 'https://star-citizen.wiki/',
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        globe
-    @endcomponent
-    star-citizen.wiki
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                globe
+            @endcomponent
+        </div>
+        <div class="col">
+            star-citizen.wiki
+        </div>
+    </div>
 @endcomponent
 
 
 @component('components.navs.nav_element', [
     'route' => 'https://twitter.com/SC_Wiki',
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        twitter
-    @endcomponent
-    SC_Wiki
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                twitter
+            @endcomponent
+        </div>
+        <div class="col">
+            SC_Wiki
+        </div>
+    </div>
 @endcomponent
 
 
 @component('components.navs.nav_element', [
     'route' => 'https://facebook.com/StarCitizenWiki',
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        facebook-square
-    @endcomponent
-    StarCitizenWiki
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                facebook-square
+            @endcomponent
+        </div>
+        <div class="col">
+            StarCitizenWiki
+        </div>
+    </div>
 @endcomponent
 
 
 @component('components.navs.nav_element', [
     'route' => 'https://robertsspaceindustries.com/orgs/WIKI',
 ])
-    @component('components.elements.icon', ['class' => 'mr-2'])
-        building-o
-    @endcomponent
-    WIKI
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                building-o
+            @endcomponent
+        </div>
+        <div class="col">
+            WIKI
+        </div>
+    </div>
 @endcomponent
