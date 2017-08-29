@@ -105,7 +105,7 @@
             @else
                 <button class="btn btn-outline-danger" name="delete">@lang('Löschen')</button>
             @endif
-            <button class="btn btn-outline-secondary pull-right" name="save">@lang('Speichern')</button>
+            <button class="btn btn-outline-secondary float-right" name="save">@lang('Speichern')</button>
         @endcomponent
     @endcomponent
 
@@ -116,9 +116,9 @@
     ])
         @slot('title')
             @lang('ShortUrls')
-            <small class="pull-right mt-1">
+            <small class="float-right mt-1">
                 <a href="{{ route('admin_user_url_list', $user->getRouteKey()) }}">
-                    <i class="fa fa-external-link"></i>
+                    <i class="far fa-external-link"></i>
                 </a>
             </small>
         @endslot
@@ -136,7 +136,7 @@
                     <td>{{ $shortUrl->hash }}</td>
                     <td>{{ $shortUrl->url }}</td>
                     <td>{{ $shortUrl->created_at }}</td>
-                    <td class="text-center"><a href="{{ route('admin_url_edit_form', $shortUrl->getRouteKey()) }}"><i class="fa fa-pencil"></i></a></td>
+                    <td class="text-center"><a href="{{ route('admin_url_edit_form', $shortUrl->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                 </tr>
             @empty
                 <tr>
@@ -152,9 +152,9 @@
     ])
         @slot('title')
             @lang('ApiRequests')
-            <small class="pull-right mt-1">
+            <small class="float-right mt-1">
                 <a href="{{ route('admin_user_request_list', $user->getRouteKey()) }}">
-                    <i class="fa fa-external-link"></i>
+                    <i class="far fa-external-link"></i>
                 </a>
             </small>
         @endslot

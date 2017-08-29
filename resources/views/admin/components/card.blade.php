@@ -3,14 +3,14 @@
         @if(starts_with($title, '#'))
             <h4 class="card-header {{ $titleClass or '' }}">
                 @if(isset($icon))
-                    <i class="fa fa-{{ $icon }} mr-1"></i>
+                    <i class="far fa-{{ $icon }} mr-1"></i>
                 @endif
                 {{ ltrim($title, '#') }}
             </h4>
         @else
             <div class="card-header {{ $titleClass or '' }}">
                 @if(isset($icon))
-                    <i class="fa fa-{{ $icon }} mr-1"></i>
+                    <i class="far fa-{{ $icon }} mr-1"></i>
                 @endif
                 {{ $title }}
             </div>

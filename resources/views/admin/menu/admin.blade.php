@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                dashboard
+                tachometer
             @endcomponent
         </div>
         <div class="col">

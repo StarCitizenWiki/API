@@ -38,7 +38,7 @@
                 'inputOptions' => 'min='.\Carbon\Carbon::now()->format("Y-m-d\TH:i"),
             ])@endcomponent
 
-            <button class="btn btn-outline-success btn-block-xs-only pull-right">@lang('Hinzufügen')</button>
+            <button class="btn btn-outline-success btn-block-xs-only float-right">@lang('Hinzufügen')</button>
         @endcomponent
     </div>
 </div>

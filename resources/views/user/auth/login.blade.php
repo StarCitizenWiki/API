@@ -36,7 +36,7 @@
                 ])@endcomponent
 
                 <button class="btn btn-outline-secondary">@lang('Login')</button>
-                <a href="{{ route('password.request') }}" class="btn btn-link pull-right text-light-grey">@lang('Passwort vergessen')</a>
+                <a href="{{ route('password.request') }}" class="btn btn-link float-right text-light-grey">@lang('Passwort vergessen')</a>
             @endcomponent
         </div>
     </div>

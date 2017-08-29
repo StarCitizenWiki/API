@@ -15,7 +15,7 @@
                 'method' => 'DELETE',
             ])@endcomponent
             @component('components.elements.icon')
-                trash-o
+                trash
             @endcomponent
         </a>
     @endunless

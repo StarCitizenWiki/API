@@ -47,7 +47,7 @@
                 @endcomponent
 
                 <button class="btn btn-outline-danger" name="delete">@lang('Löschen')</button>
-                <button class="btn btn-outline-secondary pull-right" name="save">@lang('Speichern')</button>
+                <button class="btn btn-outline-secondary float-right" name="save">@lang('Speichern')</button>
             @endcomponent
         </div>
     </div>

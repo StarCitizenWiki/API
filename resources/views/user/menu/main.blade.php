@@ -16,5 +16,5 @@
     'id' => 'm_shorturls',
     'title' => __('ShortUrls'),
 ])
-    @include('user.menu.shorturls')
+    @include('user.menu.urls')
 @endcomponent

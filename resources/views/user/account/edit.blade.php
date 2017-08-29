@@ -74,7 +74,7 @@
                 ])@endcomponent
             </div>
 
-            <button class="btn btn-outline-success btn-block-xs-only pull-right">@lang('Speichern')</button>
+            <button class="btn btn-outline-success btn-block-xs-only float-right">@lang('Speichern')</button>
         @endcomponent
     </div>
 </div>

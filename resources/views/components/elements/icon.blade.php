@@ -3,7 +3,7 @@
         {{ $id or '' }}
     @endslot
     @slot('class')
-        fa fa-{{ $slot }} {{ $class or '' }}
+        {{ $type or 'far' }} fa-{{ $slot }} {{ $class or '' }}
     @endslot
     @slot('options')
         {{ $options or '' }}

@@ -51,7 +51,7 @@
                                     @if($notification->output_email)
                                         <button class="btn btn-link @if($notification->expired())text-muted @endif">
                                             @component('components.elements.icon')
-                                                envelope-o
+                                                envelope
                                             @endcomponent
                                         </button>
                                     @endif

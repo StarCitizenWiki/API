@@ -11,7 +11,7 @@
         'class' => 'mr-2',
     ])
         @component('components.elements.icon', ['class' => 'mr-1'])
-            user-o
+            user
         @endcomponent
         @lang('Account')
     @endcomponent

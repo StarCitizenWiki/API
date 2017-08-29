@@ -15,7 +15,7 @@
                             {{ $notification->getIcon() }}
                         @endcomponent
                         @lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])
-                        <small class="pull-right">{{ $notification->created_at->format('d.m.Y H:i:s') }}</small>
+                        <small class="float-right">{{ $notification->created_at->format('d.m.Y H:i:s') }}</small>
                     </h4>
                     <div class="card-body bg-white">
                         {{ $notification->content }}

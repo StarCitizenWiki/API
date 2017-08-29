@@ -19,7 +19,7 @@
 ])
     <div class="row">
         <div class="col-1">
-            @component('components.elements.icon')
+            @component('components.elements.icon', ['type' => 'fab'])
                 twitter
             @endcomponent
         </div>
@@ -35,7 +35,7 @@
 ])
     <div class="row">
         <div class="col-1">
-            @component('components.elements.icon')
+            @component('components.elements.icon', ['type' => 'fab'])
                 facebook-square
             @endcomponent
         </div>
@@ -52,7 +52,7 @@
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                building-o
+                building
             @endcomponent
         </div>
         <div class="col">

@@ -79,14 +79,14 @@
         <div class="col-12 col-xl-6 mb-4">
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
-                'icon' => 'comment-o',
+                'icon' => 'comment',
                 'contentClass' => 'bg-white text-dark text-center p-0',
             ])
                 @slot('title')
                     @lang('Benachrichtigungen')
-                    <small class="pull-right mt-1">
+                    <small class="float-right mt-1">
                         <a href="{{ route('admin_notification_list') }}" class="text-light">
-                            <i class="fa fa-external-link"></i>
+                            <i class="far fa-external-link"></i>
                         </a>
                     </small>
                 @endslot
@@ -112,7 +112,7 @@
                                 @endif
                                 @if($notification->output_email)
                                     @component('components.elements.icon', ['class' => 'mr-2'])
-                                        envelope-o
+                                        envelope
                                     @endcomponent
                                 @endif
                                 @if($notification->output_index)
@@ -141,9 +141,9 @@
             ])
                 @slot('title')
                     @lang('Logs')
-                    <small class="pull-right mt-1">
+                    <small class="float-right mt-1">
                         <a href="" class="text-light">
-                            <i class="fa fa-external-link"></i>
+                            <i class="far fa-external-link"></i>
                         </a>
                     </small>
                 @endslot
@@ -151,11 +151,11 @@
                 <table class="table table-sm mb-2">
                     <tr>
                         <th class="border-top-0">@lang('Logs'):</th>
-                        <th class="border-top-0 text-right" title="@lang('Error')"><i class="fa fa-exclamation-triangle"></i>
+                        <th class="border-top-0 text-right" title="@lang('Error')"><i class="far fa-exclamation-triangle"></i>
                         </th>
-                        <th class="border-top-0 text-right" title="@lang('Warning')"><i class="fa fa-exclamation"></i></th>
-                        <th class="border-top-0 text-right" title="@lang('Info')"><i class="fa fa-info"></i></th>
-                        <th class="border-top-0 text-right" title="@lang('Debug')"><i class="fa fa-bug"></i></th>
+                        <th class="border-top-0 text-right" title="@lang('Warning')"><i class="far fa-exclamation"></i></th>
+                        <th class="border-top-0 text-right" title="@lang('Info')"><i class="far fa-info"></i></th>
+                        <th class="border-top-0 text-right" title="@lang('Debug')"><i class="far fa-bug"></i></th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -208,9 +208,9 @@
             ])
                 @slot('title')
                     @lang('Benutzer') ({{ $users['overall'] }})
-                    <small class="pull-right mt-1">
+                    <small class="float-right mt-1">
                         <a href="{{ route('admin_user_list') }}" class="text-light">
-                            <i class="fa fa-external-link"></i>
+                            <i class="far fa-external-link"></i>
                         </a>
                     </small>
                 @endslot
@@ -218,8 +218,8 @@
                 <table class="table table-sm mb-2">
                     <tr>
                         <th class="border-top-0">@lang('Benutzer'):</th>
-                        <th class="border-top-0 text-right" title="@lang('Registrierungen')"><i class="fa fa-user-plus"></i></th>
-                        <th class="border-top-0 text-right" title="@lang('Logins')"><i class="fa fa-sign-in"></i></th>
+                        <th class="border-top-0 text-right" title="@lang('Registrierungen')"><i class="far fa-user-plus"></i></th>
+                        <th class="border-top-0 text-right" title="@lang('Logins')"><i class="far fa-sign-in"></i></th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -242,9 +242,9 @@
             ])
                 @slot('title')
                     @lang('Api Anfragen') ({{ $api_requests['counts']['overall'] }})
-                    <small class="pull-right mt-1">
+                    <small class="float-right mt-1">
                         <a href="{{ route('admin_request_list') }}" class="text-light">
-                            <i class="fa fa-external-link"></i>
+                            <i class="far fa-external-link"></i>
                         </a>
                     </small>
                 @endslot
@@ -252,7 +252,7 @@
                 <table class="table table-sm mb-0">
                     <tr>
                         <th class="border-top-0">@lang('Anfragen'):</th>
-                        <th class="border-top-0 text-right"><i class="fa fa-caret-square-o-right"></i></th>
+                        <th class="border-top-0 text-right"><i class="far fa-caret-square-right"></i></th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -277,9 +277,9 @@
             ])
                 @slot('title')
                     @lang('ShortUrls') ({{ $short_urls['counts']['overall'] }})
-                    <small class="pull-right mt-1">
+                    <small class="float-right mt-1">
                         <a href="{{ route('admin_url_list') }}" class="text-light">
-                            <i class="fa fa-external-link"></i>
+                            <i class="far fa-external-link"></i>
                         </a>
                     </small>
                 @endslot
@@ -287,7 +287,7 @@
                 <table class="table table-sm mb-0">
                     <tr>
                         <th class="border-top-0">@lang('Erstellt'):</th>
-                        <th class="border-top-0 text-right"><i class="fa fa-plus-square"></i></th>
+                        <th class="border-top-0 text-right"><i class="far fa-plus-square"></i></th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -326,7 +326,7 @@
                             <td>{{ $user->getRouteKey() }}</td>
                             <td title="{{ $user->email }}">{{ $user->name }}</td>
                             <td>{{ $user->created_at }}</td>
-                            <td class="text-center"><i class="fa fa-external-link"></i></td>
+                            <td class="text-center"><i class="far fa-external-link"></i></td>
                         </tr>
                     @endforeach
                 </table>
@@ -378,7 +378,7 @@
                             <td><a href="">{{ $short_url->hash }}</a></td>
                             <td title="{{ $short_url->url }}">{{ parse_url($short_url->url)['host'] }}</td>
                             <td>{{ $short_url->created_at }}</td>
-                            <td class="text-center"><i class="fa fa-external-link"></i></td>
+                            <td class="text-center"><i class="far fa-external-link"></i></td>
                         </tr>
                     @endforeach
                 </table>

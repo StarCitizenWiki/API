@@ -22,7 +22,7 @@
                             </button>
                         </span>
                         <span class="input-group-btn">
-                            <button class="btn btn-secondary" type="button" data-toggle="collapse" href="#customize" aria-expanded="false" aria-controls="customize"><i class="fa fa-cog"></i></button>
+                            <button class="btn btn-secondary" type="button" data-toggle="collapse" href="#customize" aria-expanded="false" aria-controls="customize"><i class="far fa-cog"></i></button>
                         </span>
                     </div>
                     <div class="collapse" id="customize">
