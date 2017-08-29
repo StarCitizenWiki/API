@@ -3,15 +3,11 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Response;
+use App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface;
 use Hesto\MultiAuth\Traits\LogsoutGuard;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Mockery\Exception;
 
 /**
  * Class LoginController
@@ -35,8 +31,6 @@ class LoginController extends Controller
         LogsoutGuard::logout insteadof AuthenticatesUsers;
     }
 
-    private const API_URI = 'api.php?action=usercheck&format=json';
-
     /**
      * Where to redirect users after login / registration.
      *
@@ -45,14 +39,20 @@ class LoginController extends Controller
     public $redirectTo = '/admin/dashboard';
 
     private $backendError = false;
+    /** @var  AuthRepositoryInterface */
+    private $authRepository;
 
     /**
      * Create a new controller instance.
+     *
+     * @param \App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface $authRepository
      */
-    public function __construct()
+    public function __construct(AuthRepositoryInterface $authRepository)
     {
         parent::__construct();
         $this->middleware('admin.guest', ['except' => 'logout']);
+
+        $this->authRepository = $authRepository;
     }
 
     /**
@@ -105,30 +105,10 @@ class LoginController extends Controller
      */
     protected function attemptLogin(Request $request)
     {
-        $guzzleClient = new Client(
-            [
-                'base_uri' => SCW_URL,
-                'timeout'  => 10.0,
-            ]
-        );
-
-        try {
-            $response = $guzzleClient->request(
-                'POST',
-                self::API_URI,
-                [
-                    'form_params' => $this->credentials($request),
-                ]
-            );
-
-        } catch (ConnectException | RequestException $e) {
-            $response = new Response(500, [], '{}');
-            $this->backendError = true;
-        }
-
-        $response = json_decode($response->getBody()->getContents(), true);
-
-        if (array_key_exists('usercheck', $response) && 'ok' === $response['usercheck']['status']) {
+        if ($this->authRepository->authenticateUsingCredentials(
+            $request->get($this->username()),
+            $request->get('password')
+        )) {
             return $this->guard()->attempt(
                 [
                     'username' => $request->get('username'),
@@ -136,6 +116,8 @@ class LoginController extends Controller
                 ],
                 false
             );
+        } else {
+            $this->backendError = true;
         }
 
         return false;
