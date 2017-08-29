@@ -4,10 +4,8 @@ namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\ApiV1\StatsRepository;
+use App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface;
 use App\Traits\CachesResponseTrait as CachesResponse;
-use App\Traits\ProfilesMethodsTrait as ProfilesMethods;
-use Illuminate\Http\Request;
 
 /**
  * Class StatsAPIController
@@ -16,7 +14,6 @@ use Illuminate\Http\Request;
  */
 class StatsApiController extends Controller
 {
-    use ProfilesMethods;
     use CachesResponse;
 
     /**
@@ -29,10 +26,9 @@ class StatsApiController extends Controller
     /**
      * StatsAPIController constructor.
      *
-     * @param \Illuminate\Http\Request                            $request
-     * @param \App\Repositories\StarCitizen\ApiV1\StatsRepository $repository StatsRepository
+     * @param \App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface $repository
      */
-    public function __construct(Request $request, StatsRepository $repository)
+    public function __construct(StatsRepositoryInterface $repository)
     {
         parent::__construct();
         $this->repository = $repository;
@@ -134,24 +130,16 @@ class StatsApiController extends Controller
      */
     private function getJsonPrettyPrintResponse($func)
     {
-        $this->startProfiling(__FUNCTION__);
-
         if ($this->isCached()) {
             return $this->getCachedResponse();
         }
 
         try {
-            $this->addTrace("Calling Function {$func}", __FUNCTION__, __LINE__);
             $this->repository->$func();
-            $this->addTrace("Getting Data", __FUNCTION__, __LINE__);
             $data = $this->repository->toArray();
-            $this->stopProfiling(__FUNCTION__);
 
             return $this->jsonResponse($data);
         } catch (InvalidDataException $e) {
-            $this->addTrace("Getting Data failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
-            $this->stopProfiling(__FUNCTION__);
-
             return $e->getMessage();
         }
     }

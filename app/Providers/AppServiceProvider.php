@@ -27,10 +27,30 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if ('local' === $this->app->environment()) {
-            $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
-            $this->app->register(\Hesto\MultiAuth\MultiAuthServiceProvider::class);
+        $adminAuthImpl = \App\Repositories\StarCitizenWiki\Auth\AuthRepository::class;
+
+        switch ($this->app->environment()) {
+            case 'local':
+                $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
+                $this->app->register(\Hesto\MultiAuth\MultiAuthServiceProvider::class);
+                $adminAuthImpl = \App\Repositories\StarCitizenWiki\Auth\AuthRepositoryStub::class;
+                break;
+
+            case 'testing':
+                $adminAuthImpl = \App\Repositories\StarCitizenWiki\Auth\AuthRepositoryStub::class;
+                break;
+
+            case 'production':
+                break;
+
+            default:
+                break;
         }
+
+        $this->app->bind(
+            \App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface::class,
+            $adminAuthImpl
+        );
 
         $this->app->singleton(
             Hashids::class,
@@ -40,18 +60,22 @@ class AppServiceProvider extends ServiceProvider
         );
 
         /**
-         * Star Citizen API Interfaces
+         * Star Citizen Api Interfaces
          */
         $this->app->bind(
-            'StarCitizen\API\StatsRepository',
+            \App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface::class,
             \App\Repositories\StarCitizen\ApiV1\StatsRepository::class
+        );
+        $this->app->bind(
+            \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface::class,
+            \App\Repositories\StarCitizen\ApiV1\StarmapRepository::class
         );
 
         /**
-         * Star Citizen Wiki API Interfaces
+         * Star Citizen Wiki Api Interfaces
          */
         $this->app->bind(
-            'StarCitizenWiki\API\ShipsRepository',
+            \App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface::class,
             \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository::class
         );
     }

@@ -8,7 +8,7 @@
 namespace App\Repositories\StarCitizen\ApiV1;
 
 use App\Repositories\StarCitizen\AbstractStarCitizenRepository;
-use App\Repositories\StarCitizen\Interfaces\StatsInterface;
+use App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface;
 use App\Transformers\StarCitizen\Stats\FansTransformer;
 use App\Transformers\StarCitizen\Stats\FleetTransformer;
 use App\Transformers\StarCitizen\Stats\FundsTransformer;
@@ -19,7 +19,7 @@ use App\Transformers\StarCitizen\Stats\StatsTransformer;
  *
  * @package App\Repositories\StarCitizen\ApiV1\Stats
  */
-class StatsRepository extends AbstractStarCitizenRepository implements StatsInterface
+class StatsRepository extends AbstractStarCitizenRepository implements StatsRepositoryInterface
 {
     private $getFans = true;
     private $getFleet = true;

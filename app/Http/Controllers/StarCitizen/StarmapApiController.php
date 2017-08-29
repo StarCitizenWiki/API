@@ -9,8 +9,7 @@ namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\ApiV1\StarmapRepository;
-use App\Traits\ProfilesMethodsTrait;
+use App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
@@ -21,21 +20,19 @@ use InvalidArgumentException;
  */
 class StarmapApiController extends Controller
 {
-    use ProfilesMethodsTrait;
-
     /**
      * StarmapRepository
      *
-     * @var StarmapRepository
+     * @var StarmapRepositoryInterface
      */
     private $repository;
 
     /**
      * StarmapAPIController constructor.
      *
-     * @param StarmapRepository $repository StarmapRepository
+     * @param \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface $repository
      */
-    public function __construct(StarmapRepository $repository)
+    public function __construct(StarmapRepositoryInterface $repository)
     {
         parent::__construct();
         $this->repository = $repository;
@@ -50,17 +47,12 @@ class StarmapApiController extends Controller
      */
     public function getSystem(string $name)
     {
-        $this->startProfiling(__FUNCTION__);
-
         $name = strtoupper($name);
 
         app('Log')::info(make_name_readable(__FUNCTION__), ['name' => $name]);
 
         try {
-            $this->addTrace("Getting System with Name: {$name}", __FUNCTION__, __LINE__);
             $data = $this->repository->getSystem($name)->toArray();
-            $this->addTrace("Got System", __FUNCTION__, __LINE__);
-            $this->stopProfiling(__FUNCTION__);
 
             return response()->json(
                 $data,
@@ -69,9 +61,6 @@ class StarmapApiController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
-            $this->addTrace("Getting System failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
-            $this->stopProfiling(__FUNCTION__);
-
             return $e->getMessage();
         }
     }
@@ -85,15 +74,11 @@ class StarmapApiController extends Controller
      */
     public function getSystemList(Request $request)
     {
-        $this->startProfiling(__FUNCTION__);
-
         $this->repository->getSystemList();
         $this->repository->transformer->addFilters($request);
         $data = $this->repository->toArray();
 
         try {
-            $this->stopProfiling(__FUNCTION__);
-
             return response()->json(
                 $data,
                 200,
@@ -101,9 +86,6 @@ class StarmapApiController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
-            $this->addTrace("Getting System-List failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
-            $this->stopProfiling(__FUNCTION__);
-
             return $e->getMessage();
         }
     }
@@ -117,16 +99,12 @@ class StarmapApiController extends Controller
      */
     public function getAsteroidbelts(string $name)
     {
-        $this->startProfiling(__FUNCTION__);
-
         app('Log')::info(make_name_readable(__FUNCTION__), ['name' => $name]);
 
         $name = strtoupper($name);
 
         try {
-            $this->addTrace("Getting Asteroidbelt", __FUNCTION__, __LINE__);
             $data = $this->repository->getAsteroidbelts($name)->toArray();
-            $this->stopProfiling(__FUNCTION__);
 
             return response()->json(
                 $data,
@@ -135,9 +113,6 @@ class StarmapApiController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
-            $this->addTrace("Failed getting Asteroidbelt with Message: {$e->getMessage()}", __FUNCTION__, __LINE__);
-            $this->stopProfiling(__FUNCTION__);
-
             return $e->getMessage();
         }
     }
@@ -364,7 +339,7 @@ class StarmapApiController extends Controller
         app('Log')::debug(
             'Searching Starmap requested',
             [
-                'method' => __METHOD__,
+                'method'       => __METHOD__,
                 'searchstring' => $searchstring,
             ]
         );

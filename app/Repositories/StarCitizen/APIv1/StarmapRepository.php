@@ -10,7 +10,7 @@ namespace App\Repositories\StarCitizen\ApiV1;
 use App\Models\CelestialObject;
 use App\Models\Starsystem;
 use App\Repositories\StarCitizen\AbstractStarCitizenRepository;
-use App\Repositories\StarCitizen\Interfaces\StarmapInterface;
+use App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface;
 use App\Transformers\StarCitizen\Starmap\AsteroidbeltsTransformer;
 use App\Transformers\StarCitizen\Starmap\CelestialObjectTransformer;
 use App\Transformers\StarCitizen\Starmap\JumppointsTransformer;
@@ -28,7 +28,7 @@ use InvalidArgumentException;
  *
  * @package App\Repositories\StarCitizen\ApiV1\Starmap
  */
-class StarmapRepository extends AbstractStarCitizenRepository implements StarmapInterface
+class StarmapRepository extends AbstractStarCitizenRepository implements StarmapRepositoryInterface
 {
     const TIME_GROUP_FIELD = 'cig_time_modified';
 
