@@ -46,3 +46,27 @@ if (!function_exists('make_name_readable')) {
         return $methodName;
     }
 }
+
+if (!function_exists('get_cache_key_for_current_request')) {
+    /**
+     * From https://laravel-news.com/cache-query-params
+     * Generates a Hash based on the current URL, used by Cache
+     *
+     * @return string
+     */
+    function get_cache_key_for_current_request()
+    {
+        $url = request()->url();
+        $queryParams = request()->query();
+
+        ksort($queryParams);
+
+        $queryString = http_build_query($queryParams);
+
+        $fullUrl = "{$url}?{$queryString}";
+
+        $rememberKey = sha1($fullUrl);
+
+        return $rememberKey;
+    }
+}
