@@ -5,7 +5,8 @@ namespace App\Http\Controllers\StarCitizen;
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\ApiV1\StatsRepository;
-use App\Traits\ProfilesMethodsTrait;
+use App\Traits\CachesResponseTrait as CachesResponse;
+use App\Traits\ProfilesMethodsTrait as ProfilesMethods;
 use Illuminate\Http\Request;
 
 /**
@@ -15,7 +16,8 @@ use Illuminate\Http\Request;
  */
 class StatsApiController extends Controller
 {
-    use ProfilesMethodsTrait;
+    use ProfilesMethods;
+    use CachesResponse;
 
     /**
      * StatsRepository
@@ -23,8 +25,6 @@ class StatsApiController extends Controller
      * @var \App\Repositories\StarCitizen\ApiV1\StatsRepository
      */
     private $repository;
-
-    private $request;
 
     /**
      * StatsAPIController constructor.
@@ -36,7 +36,6 @@ class StatsApiController extends Controller
     {
         parent::__construct();
         $this->repository = $repository;
-        $this->request = $request;
     }
 
     /**
@@ -77,12 +76,9 @@ class StatsApiController extends Controller
 
     /**
      * Returns all
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\JsonResponse | string
+     * @return \Illuminate\Http\JsonResponse|string
      */
-    public function getAll(Request $request)
+    public function getAll()
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
@@ -140,24 +136,18 @@ class StatsApiController extends Controller
     {
         $this->startProfiling(__FUNCTION__);
 
+        if ($this->isCached()) {
+            return $this->getCachedResponse();
+        }
+
         try {
             $this->addTrace("Calling Function {$func}", __FUNCTION__, __LINE__);
             $this->repository->$func();
-            if (method_exists($this->repository->transformer, 'addFilters')) {
-                $this->addTrace("Adding Filters", __FUNCTION__, __LINE__);
-                $this->repository->transformer->addFilters($this->request);
-            }
             $this->addTrace("Getting Data", __FUNCTION__, __LINE__);
             $data = $this->repository->toArray();
-
             $this->stopProfiling(__FUNCTION__);
 
-            return response()->json(
-                $data,
-                200,
-                [],
-                JSON_PRETTY_PRINT
-            );
+            return $this->jsonResponse($data);
         } catch (InvalidDataException $e) {
             $this->addTrace("Getting Data failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
             $this->stopProfiling(__FUNCTION__);

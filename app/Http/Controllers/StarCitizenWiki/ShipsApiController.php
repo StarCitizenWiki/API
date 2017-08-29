@@ -4,7 +4,8 @@ namespace App\Http\Controllers\StarCitizenWiki;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository;
-use App\Traits\ProfilesMethodsTrait;
+use App\Traits\CachesResponseTrait as CachesResponse;
+use App\Traits\ProfilesMethodsTrait as ProfilesMethods;
 use Illuminate\Http\Request;
 
 /**
@@ -14,7 +15,8 @@ use Illuminate\Http\Request;
  */
 class ShipsApiController extends Controller
 {
-    use ProfilesMethodsTrait;
+    use ProfilesMethods;
+    use CachesResponse;
 
     /**
      * ShipsRepository
@@ -44,19 +46,18 @@ class ShipsApiController extends Controller
      */
     public function getShip(Request $request, string $name)
     {
-        $this->startProfiling(__FUNCTION__);
+        if ($this->isCached()) {
+            return $this->getCachedResponse();
+        }
 
+        $this->startProfiling(__FUNCTION__);
         app('Log')::info(make_name_readable(__FUNCTION__), ['name' => $name]);
+
         $this->repository->getShip($request, $name);
 
         $this->stopProfiling(__FUNCTION__);
 
-        return response()->json(
-            $this->repository->toArray(),
-            200,
-            [],
-            JSON_PRETTY_PRINT
-        );
+        return $this->jsonResponse($this->repository->toArray());
     }
 
     /**
@@ -68,6 +69,10 @@ class ShipsApiController extends Controller
      */
     public function getShipList(Request $request)
     {
+        if ($this->isCached()) {
+            return $this->getCachedResponse();
+        }
+
         $this->startProfiling(__FUNCTION__);
 
         $this->repository->getShipList();
@@ -76,12 +81,7 @@ class ShipsApiController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return response()->json(
-            $data,
-            200,
-            [],
-            JSON_PRETTY_PRINT
-        );
+        return $this->jsonResponse($data);
     }
 
     /**
@@ -93,6 +93,10 @@ class ShipsApiController extends Controller
      */
     public function searchShips(Request $request)
     {
+        if ($this->isCached()) {
+            return $this->getCachedResponse();
+        }
+
         $this->startProfiling(__FUNCTION__);
 
         app('Log')::debug('Ship search requested', ['query' => $request->get('query')]);
@@ -108,11 +112,6 @@ class ShipsApiController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return response()->json(
-            $data,
-            200,
-            [],
-            JSON_PRETTY_PRINT
-        );
+        return $this->jsonResponse($data);
     }
 }

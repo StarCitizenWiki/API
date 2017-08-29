@@ -18,6 +18,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
 
 /**
@@ -50,9 +51,15 @@ class ShortUrlController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
+        Cache::put(
+            'short_url_whitelisted_domains',
+            ShortUrlWhitelist::all()->sortBy('url')->where('internal', false),
+            CACHE_TIME * 6
+        );
+
         return view('shorturl.index')->with(
             'whitelistedUrls',
-            ShortUrlWhitelist::all()->sortBy('url')->where('internal', false)
+            Cache::get('short_url_whitelisted_domains')
         );
     }
 
@@ -214,7 +221,7 @@ class ShortUrlController extends Controller
 
         $data = [
             'url'        => ShortUrl::sanitizeUrl($request->get('url')),
-            'hash'  => $request->get('hash'),
+            'hash'       => $request->get('hash'),
             'expired_at' => $request->get('expired_at'),
         ];
 
@@ -222,7 +229,7 @@ class ShortUrlController extends Controller
 
         $rules = [
             'url'        => 'required|url|max:255|unique:short_urls',
-            'hash'  => 'nullable|alpha_dash|max:32|unique:short_urls',
+            'hash'       => 'nullable|alpha_dash|max:32|unique:short_urls',
             'expired_at' => 'nullable|date',
         ];
 
@@ -250,7 +257,7 @@ class ShortUrlController extends Controller
         $url = ShortUrl::createShortUrl(
             [
                 'url'        => ShortUrl::sanitizeUrl($request->get('url')),
-                'hash'  => $request->get('hash'),
+                'hash'       => $request->get('hash'),
                 'user_id'    => $userID,
                 'expired_at' => $expired_at,
             ]

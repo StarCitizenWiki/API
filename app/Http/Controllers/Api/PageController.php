@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class APIPageController
@@ -47,12 +48,16 @@ class PageController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        $notifications = Notification::query()
-            ->where('output_status', true)
-            ->orderByDesc('published_at')
-            ->orderBy('expired_at')
-            ->simplePaginate(4);
+        Cache::put(
+            get_cache_key_for_current_request(),
+            Notification::query()
+                ->where('output_status', true)
+                ->orderByDesc('published_at')
+                ->orderBy('expired_at')
+                ->simplePaginate(4),
+            CACHE_TIME
+        );
 
-        return view('api.pages.status')->with('notifications', $notifications);
+        return view('api.pages.status')->with('notifications', Cache::get(get_cache_key_for_current_request()));
     }
 }
