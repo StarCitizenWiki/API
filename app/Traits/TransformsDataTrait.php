@@ -9,6 +9,7 @@ namespace App\Traits;
 
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingTransformerException;
+use App\Transformers\AbstractBaseTransformer;
 use Carbon\Carbon;
 use Spatie\Fractal\Fractal;
 
@@ -24,7 +25,7 @@ trait TransformsDataTrait
      *
      * @var \App\Transformers\AbstractBaseTransformer
      */
-    public $transformer;
+    private $transformer;
 
     /**
      * Fractal Manager Instance
@@ -111,6 +112,14 @@ trait TransformsDataTrait
         $this->transformer = resolve($transformer);
 
         return $this;
+    }
+
+    /**
+     * @return \App\Transformers\AbstractBaseTransformer
+     */
+    public function getTransformer(): AbstractBaseTransformer
+    {
+        return $this->transformer;
     }
 
     /**

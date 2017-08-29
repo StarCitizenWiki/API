@@ -64,8 +64,8 @@ class ShipsRepository extends AbstractBaseRepository implements ShipsRepositoryI
         $this->dataToTransform = json_decode($content, true);
         unset($this->dataToTransform['processedName']);
         unset($this->dataToTransform['filename']);
-        $this->transformer = resolve(ShipsTransformer::class);
-        $this->transformer->addFilters($request);
+        $this->withTransformer(ShipsTransformer::class);
+        $this->getTransformer()->addFilters($request);
 
         return $this;
     }

@@ -75,7 +75,7 @@ class StarmapApiController extends Controller
     public function getSystemList(Request $request)
     {
         $this->repository->getSystemList();
-        $this->repository->transformer->addFilters($request);
+        $this->repository->getTransformer()->addFilters($request);
         $data = $this->repository->toArray();
 
         try {
