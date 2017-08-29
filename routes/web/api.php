@@ -45,11 +45,11 @@ Route::group(
                 Route::group(
                     ['prefix' => 'urls'],
                     function () {
+                        Route::get('add', ['uses' => 'ShortUrlController@showAddUrlView'])->name('account_urls_add_form');
                         Route::get('/', ['uses' => 'ShortUrlController@showUrlsListView'])->name('account_urls_list');
                         Route::post('/', ['uses' => 'ShortUrlController@addUrl'])->name('account_urls_add');
-                        Route::delete('/', ['uses' => 'ShortUrlController@deleteUrl'])->name('account_urls_delete');
-                        Route::patch('/', ['uses' => 'ShortUrlController@updateUrl'])->name('account_urls_update');
-                        Route::get('add', ['uses' => 'ShortUrlController@showAddUrlView'])->name('account_urls_add_form');
+                        Route::delete('{id}', ['uses' => 'ShortUrlController@deleteUrl'])->name('account_urls_delete');
+                        Route::patch('{id}', ['uses' => 'ShortUrlController@updateUrl'])->name('account_urls_update');
                         Route::get('{id}', ['uses' => 'ShortUrlController@showEditUrlView'])->name('account_urls_edit_form');
                     }
                 );
