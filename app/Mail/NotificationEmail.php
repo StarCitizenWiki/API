@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
  *
  * @package App\Mail
  */
-class NotificationCreated extends Mailable implements ShouldQueue
+class NotificationEmail extends Mailable implements ShouldQueue
 {
     use Queueable;
     use SerializesModels;

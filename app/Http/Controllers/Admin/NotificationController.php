@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendNotificationEmail;
 use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -39,6 +40,16 @@ class NotificationController extends Controller
     }
 
     /**
+     * @return \Illuminate\View\View
+     */
+    public function showAddNotificationView(): View
+    {
+        app('Log')::info(make_name_readable(__FUNCTION__));
+
+        return view('admin.notifications.add');
+    }
+
+    /**
      * @param int $id
      *
      * @return \Illuminate\View\View | \Illuminate\Http\RedirectResponse
@@ -58,7 +69,9 @@ class NotificationController extends Controller
             app('Log')::warning("Notification with ID: {$id} not found");
         }
 
-        return redirect()->route('admin_notification_list')->withErrors([__('crud.not_found', ['type' => 'Notification'])]);
+        return redirect()->route('admin_notification_list')->withErrors(
+            [__('crud.not_found', ['type' => 'Notification'])]
+        );
     }
 
     /**
@@ -74,7 +87,8 @@ class NotificationController extends Controller
                 'content'      => 'required|string|min:5',
                 'level'        => 'required|int|between:0,3',
                 'expired_at'   => 'required|date|after:'.Carbon::now(),
-                'published_at' => 'required|date',
+                'published_at' => 'nullable|date',
+                'order'        => 'nullable|int',
                 'output'       => 'required|array|in:status,email,index',
             ]
         );
@@ -87,17 +101,33 @@ class NotificationController extends Controller
             $data['output_'.$type] = true;
         }
 
+        if (array_key_exists('published_at', $data) && !is_null($data['published_at'])) {
+            $data['published_at'] = Carbon::parse($data['published_at'])->toDateTimeString();
+            $delay = Carbon::parse($data['published_at']);
+        } else {
+            $data['published_at'] = Carbon::now()->toDateTimeString();
+            $delay = null;
+        }
+
         if (!is_null($data['expired_at'])) {
             $data['expired_at'] = Carbon::parse($data['expired_at'])->toDateTimeString();
         }
 
-        $data['level'] = Notification::NOTIFICATION_LEVEL_TYPES[$data['level']];
+        if (!array_key_exists('order', $data) || is_null($data['order'])) {
+            $data['order'] = 0;
+        }
 
         $notification = Notification::create($data);
 
-        event(new NotificationCreated($notification));
+        $job = (new SendNotificationEmail($notification));
 
-        return redirect()->back()->with('message', __('crud.created', ['type' => 'Notification']));
+        if (!is_null($delay)) {
+            $job->delay($delay);
+        }
+
+        dispatch($job);
+
+        return redirect()->route('admin_dashboard')->with('message', __('crud.created', ['type' => 'Notification']));
     }
 
     /**
@@ -132,7 +162,9 @@ class NotificationController extends Controller
         try {
             $notification = Notification::findOrFail($id);
         } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_notification_list')->withErrors(__('crud.not_found', ['type' => 'Notification']));
+            return redirect()->route('admin_notification_list')->withErrors(
+                __('crud.not_found', ['type' => 'Notification'])
+            );
         }
 
         $data = $request->all();
@@ -150,7 +182,10 @@ class NotificationController extends Controller
 
         $notification->update($data);
 
-        return redirect()->route('admin_notification_list')->with('message', __('crud.updated', ['type' => 'Notification']));
+        return redirect()->route('admin_notification_list')->with(
+            'message',
+            __('crud.updated', ['type' => 'Notification'])
+        );
     }
 
     /**

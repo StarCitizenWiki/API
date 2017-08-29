@@ -25,9 +25,6 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\UrlShortened'           => [
             'App\Listeners\SendUrlShortenedNotification',
         ],
-        'App\Events\NotificationCreated'    => [
-            'App\Listeners\SendNotification',
-        ],
     ];
 
     /**
