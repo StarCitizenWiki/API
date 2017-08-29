@@ -7,6 +7,9 @@ define('API_VERSION', "1.0");
 
 define('SCW_URL', 'http://localhost/');
 
+/** Cache Time in Minutes */
+define('CACHE_TIME', 10);
+
 /** FundImageController */
 define('FUNDIMAGE_FUNDING_ONLY', 'funding_only');
 define('FUNDIMAGE_FUNDING_AND_TEXT', 'funding_and_text');
@@ -16,13 +19,8 @@ define(
     'FUNDIMAGE_RELATIVE_SAVE_PATH',
     join(DIRECTORY_SEPARATOR, ['app', 'tools', 'media', 'images'.DIRECTORY_SEPARATOR])
 );
-define('FUNDIMAGE_CACHE_TIME', 600);
 
 /** Auth */
-define('AUTH_HOME', '/');
-define('AUTH_ACCOUNT', '/account');
-define('AUTH_LOGIN', '/login');
-
 define('ADMIN_INTERNAL_PASSWORD', '4L4bgcM;i,Hw@l~a/&s\Yd;R`QdoH/at');
 
 /** Throttling */

@@ -322,7 +322,7 @@ class FundImageController extends Controller
         if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->image['name'])) {
             $this->addTrace('Image Exists in Cache', __FUNCTION__, __LINE__);
             $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->lastModified($this->image['name']);
-            $cacheDuration = time() - FUNDIMAGE_CACHE_TIME;
+            $cacheDuration = time() - (CACHE_TIME * 60);
             if ($imageCreationTime > $cacheDuration) {
                 $this->addTrace('Image is valid and can be loaded', __FUNCTION__, __LINE__);
                 $this->stopProfiling(__FUNCTION__);
