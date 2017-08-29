@@ -45,7 +45,7 @@ class ShortUrlController extends Controller
 
         return view('admin.shorturls.index')->with(
             'urls',
-            ShortUrl::withTrashed()->orderBy('deleted_at')->simplePaginate(100)
+            ShortUrl::with('user')->withTrashed()->orderBy('deleted_at')->simplePaginate(100)
         );
     }
 
@@ -81,19 +81,18 @@ class ShortUrlController extends Controller
         try {
             $this->addTrace("Getting ShortUrl for ID: {$id}", __FUNCTION__, __LINE__);
             $url = ShortUrl::withTrashed()->findOrFail($id);
-            $this->stopProfiling(__FUNCTION__);
-
-            return view('admin.shorturls.edit')->with(
-                'url',
-                $url
-            );
         } catch (ModelNotFoundException $e) {
             app('Log')::warning("URL with ID: {$id} not found");
-        }
+            $this->stopProfiling(__FUNCTION__);
 
+            return redirect()->route('admin_urls_list')->withErrors([__('crud.not_found', ['type' => 'ShortUrl'])]);
+        }
         $this->stopProfiling(__FUNCTION__);
 
-        return redirect()->route('admin_urls_list')->withErrors([__('crud.not_found', ['type' => 'ShortUrl'])]);
+        return view('admin.shorturls.edit')->with(
+            'url',
+            $url
+        );
     }
 
     /**
@@ -150,7 +149,7 @@ class ShortUrlController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return redirect()->route('admin_urls_list');
+        return redirect()->route('admin_urls_list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
     }
 
 

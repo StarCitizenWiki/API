@@ -58,7 +58,7 @@ class UserController extends Controller
         app('Log')::info(make_name_readable(__FUNCTION__));
         try {
             $this->addTrace("Getting User with ID: {$id}", __FUNCTION__, __LINE__);
-            $user = User::withTrashed()->findOrFail($id);
+            $user = User::with(['shortUrls', 'apiRequests'])->withTrashed()->findOrFail($id);
             $this->stopProfiling(__FUNCTION__);
 
             return view('admin.user.edit')->with(

@@ -64,7 +64,7 @@ class AdminController extends Controller
         ];
 
         $apiRequests = [
-            'last'   => ApiRequests::take(5)->orderBy('created_at', 'desc')->get(),
+            'last'   => ApiRequests::with('user')->take(5)->orderBy('created_at', 'desc')->get(),
             'counts' => [
                 'last_hour' => ApiRequests::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
                 'today'     => ApiRequests::whereDate('created_at', '=', $today)->get()->count(),
@@ -73,7 +73,7 @@ class AdminController extends Controller
         ];
 
         $shortUrls = [
-            'last'   => ShortUrl::take(5)->orderBy('created_at', 'desc')->get(),
+            'last'   => ShortUrl::with('user')->take(5)->orderBy('created_at', 'desc')->get(),
             'counts' => [
                 'last_hour' => ShortUrl::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
                 'today'     => ShortUrl::whereDate('created_at', '=', $today)->get()->count(),
@@ -82,7 +82,7 @@ class AdminController extends Controller
         ];
 
         $notifications = [
-            'last' => Notification::take(7)->orderBy('created_at', 'desc')->get(),
+            'last' => Notification::take(7)->orderByDesc('published_at')->get(),
         ];
 
         return view('admin.dashboard')->with(
