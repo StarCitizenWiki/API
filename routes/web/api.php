@@ -81,6 +81,7 @@ Route::group(
                     ['prefix' => 'notifications'],
                     function () {
                         Route::get('/', ['uses' => 'NotificationController@showNotificationListView'])->name('admin_notification_list');
+                        Route::get('/add', ['uses' => 'NotificationController@showAddNotificationView'])->name('admin_notification_add_form');
                         Route::post('/', ['uses' => 'NotificationController@addNotification'])->name('admin_notification_add');
                         Route::delete('{id}', ['uses' => 'NotificationController@deleteNotification'])->name('admin_notification_delete');
                         Route::patch('{id}', ['uses' => 'NotificationController@updateNotification'])->name('admin_notification_update');

@@ -48,6 +48,7 @@ class PageController extends Controller
         Cache::put(
             get_cache_key_for_current_request(),
             Notification::query()
+                ->published()
                 ->where('output_status', true)
                 ->orderByDesc('published_at')
                 ->orderBy('expired_at')

@@ -1,22 +1,22 @@
 @component('mail::message')
     @component('mail::notification')
         @slot('class')
-            @if($notification->type === 'critical' || $notification->type === 'danger')
+            @if($notification->getLevelAsText() === 'critical' || $notification->getLevelAsText() === 'danger')
                 notification-danger
-            @elseif($notification->type === 'warning')
+            @elseif($notification->getLevelAsText() === 'warning')
                 notification-warning
             @else
                 notification-info
             @endif
         @endslot
         @slot('title')
-            {{ trans($notification->type) }}
-            <span style="float: right;">{{ $notification->created_at->format('d.m.Y H:i:s') }}</span>
+            {{ trans($notification->getLevelAsText()) }}
+            <span style="float: right;">{{ $notification->published_at->format('d.m.Y H:i:s') }}</span>
         @endslot
         @slot('titleClass')
-            @if($notification->type === 'critical' || $notification->type === 'danger')
+            @if($notification->getLevelAsText() === 'critical' || $notification->getLevelAsText() === 'danger')
                 notification-title-danger
-            @elseif($notification->type === 'warning')
+            @elseif($notification->getLevelAsText() === 'warning')
                 notification-title-warning
             @else
                 notification-title-info

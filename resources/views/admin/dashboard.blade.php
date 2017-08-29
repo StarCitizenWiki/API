@@ -83,7 +83,7 @@
                 'contentClass' => 'bg-white text-dark text-center p-0',
             ])
                 @slot('title')
-                    @lang('Benachrichtigungen')
+                    @lang('Aktive Benachrichtigungen')
                     <small class="float-right mt-1">
                         <a href="{{ route('admin_notification_list') }}" class="text-light">
                             <i class="far fa-external-link"></i>
@@ -96,12 +96,13 @@
                         <th>@lang('Inhalt')</th>
                         <th>@lang('Ablaufdatum')</th>
                         <th>@lang('Ausgabe')</th>
+                        <th></th>
                     </tr>
                     @forelse($notifications['last'] as $notification)
-                        <tr @if($notification->expired()) class="text-muted" @endif>
-                            <td @unless($notification->expired()) class="text-{{ $notification->getBootstrapClass() }}" @endunless>@lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
+                        <tr>
+                            <td class="text-{{ $notification->getBootstrapClass() }}">@lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
                             <td title="{{ $notification->content }}">
-                                <a href="{{ route('admin_notification_edit_form', $notification->getRouteKey()) }}" @if($notification->expired()) class="text-muted" @endif>{{ str_limit($notification->content, 40) }}</a>
+                                {{ str_limit($notification->content, 40) }}
                             </td>
                             <td>{{ $notification->expired_at->format('d.m.Y H:i:s') }}</td>
                             <td>
@@ -121,6 +122,7 @@
                                     @endcomponent
                                 @endif
                             </td>
+                            <td class="text-center"><a href="{{ route('admin_notification_edit_form', $notification->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @empty
                         <tr>
@@ -326,7 +328,7 @@
                             <td>{{ $user->getRouteKey() }}</td>
                             <td title="{{ $user->email }}">{{ $user->name }}</td>
                             <td>{{ $user->created_at }}</td>
-                            <td class="text-center"><i class="far fa-external-link"></i></td>
+                            <td class="text-center"><a href="{{ route('admin_user_edit_form', $user->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @endforeach
                 </table>
@@ -369,16 +371,18 @@
                 <table class="table table-responsive table-sm mb-0">
                     <tr>
                         <th>@lang('ID')</th>
+                        <th>@lang('Hash')</th>
                         <th>@lang('Url')</th>
                         <th>@lang('Erstelldatum')</th>
                         <th></th>
                     </tr>
                     @foreach($short_urls['last'] as $short_url)
                         <tr>
-                            <td><a href="">{{ $short_url->hash }}</a></td>
-                            <td title="{{ $short_url->url }}">{{ parse_url($short_url->url)['host'] }}</td>
+                            <td>{{ $short_url->id }}</td>
+                            <td>{{ $short_url->hash }}</td>
+                            <td title="{{ $short_url->url }}"><a href="{{ $short_url->url }}" rel="noopener" target="_blank">{{ parse_url($short_url->url)['host'] }}</a></td>
                             <td>{{ $short_url->created_at }}</td>
-                            <td class="text-center"><i class="far fa-external-link"></i></td>
+                            <td class="text-center"><a href="{{ route('admin_url_edit_form', $short_url->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @endforeach
                 </table>

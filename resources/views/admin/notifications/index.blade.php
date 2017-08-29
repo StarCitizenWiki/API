@@ -12,6 +12,7 @@
                     <th>@lang('Level')</th>
                     <th>@lang('Erstellt')</th>
                     <th>@lang('Inhalt')</th>
+                    <th>@lang('Ausgabedatum')</th>
                     <th>@lang('Ablaufdatum')</th>
                     <th>@lang('Ausgabe')</th>
                     <th>&nbsp;</th>
@@ -35,6 +36,9 @@
                             </td>
                             <td>
                                 {{ $notification->content }}
+                            </td>
+                            <td title="{{ $notification->published_at->format('d.m.Y H:i:s') }}">
+                                {{ $notification->published_at->format('d.m.Y') }}
                             </td>
                             <td title="{{ $notification->expired_at->format('d.m.Y H:i:s') }}">
                                 {{ $notification->expired_at->format('d.m.Y') }}

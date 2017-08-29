@@ -79,7 +79,7 @@ class AdminController extends Controller
         ];
 
         $notifications = [
-            'last' => Notification::take(7)->orderByDesc('published_at')->get(),
+            'last' => Notification::take(7)->notExpired()->orderByDesc('created_at')->get(),
         ];
 
         return view('admin.dashboard')->with(
