@@ -4,7 +4,6 @@ namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
@@ -28,7 +27,6 @@ class RegisterController extends Controller
     */
 
     use RegistersUsers;
-    use ProfilesMethodsTrait;
 
     /**
      * Create a new controller instance.
@@ -60,11 +58,7 @@ class RegisterController extends Controller
      */
     public function create(array $data)
     {
-        $this->startProfiling(__FUNCTION__);
-
         $apiToken = str_random(60);
-
-        $this->addTrace('Creating User', __FUNCTION__, __LINE__);
         $user = User::create(
             [
                 'name'                => $data['name'],
@@ -83,8 +77,6 @@ class RegisterController extends Controller
                 'email' => $user->email,
             ]
         );
-
-        $this->stopProfiling(__FUNCTION__);
 
         return $user;
     }

@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Exceptions\InvalidDataException;
-use App\Traits\ProfilesMethodsTrait;
 use App\Transformers\StarCitizenDB\Ships\ShipsTransformer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,7 +23,6 @@ class SplitShipFiles implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use ProfilesMethodsTrait;
 
     private const WIKI_SHIP_NAMES = [
         'RSI_Bengal'               => 'RSI_Bengal_Carrier',
@@ -67,9 +65,6 @@ class SplitShipFiles implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->startProfiling(__FUNCTION__);
-
-        $this->addTrace('Starting Split Ship Files Job', __FUNCTION__, __LINE__);
         foreach (File::allFiles(config('filesystems.disks.scdb_ships_base.root')) as $ship) {
             $this->setContent((string) $ship);
 
@@ -77,12 +72,10 @@ class SplitShipFiles implements ShouldQueue
                 $this->checkIfShipHasNameField();
                 $this->getDataForBaseVersion();
                 if ($this->checkIfShipHasModifications()) {
-                    $this->addTrace('Ship has Modifications', __FUNCTION__, __LINE__);
                     foreach ($this->content['Modifications'] as $modification) {
                         if ($this->checkIfModificationIsValid($modification)) {
                             $this->content = $modification;
                             $this->prepareModificationArray();
-                            $this->addTrace("Mod: {$this->content['@name']}", __FUNCTION__);
                             $this->getDataForModifications();
                         }
                     }
@@ -91,9 +84,6 @@ class SplitShipFiles implements ShouldQueue
                 app('Log')::warning($e->getMessage(), ['file' => (string) $ship]);
             }
         }
-        $this->addTrace('Finished Split Ship Files Job', __FUNCTION__, __LINE__);
-
-        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -122,8 +112,6 @@ class SplitShipFiles implements ShouldQueue
      */
     private function getDataForBaseVersion(): void
     {
-        $this->startProfiling(__FUNCTION__);
-
         $this->getShipNameForBaseVersion();
         app('Log')::info('Processing '.$this->content['processedName']);
 
@@ -135,8 +123,6 @@ class SplitShipFiles implements ShouldQueue
         $this->saveDataToDisk($collectedData);
 
         $this->baseVersion = $collectedData;
-
-        $this->stopProfiling(__FUNCTION__);
     }
 
     private function getShipNameForBaseVersion(): void
@@ -193,8 +179,6 @@ class SplitShipFiles implements ShouldQueue
      */
     private function saveDataToDisk(array $content): void
     {
-        $this->startProfiling(__FUNCTION__);
-
         $this->prepareFilename($content);
 
         app('Log')::info('Saving '.$content['name']);
@@ -202,8 +186,6 @@ class SplitShipFiles implements ShouldQueue
             $content['filename'],
             json_encode($content, JSON_PRETTY_PRINT)
         );
-
-        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -250,8 +232,6 @@ class SplitShipFiles implements ShouldQueue
      */
     private function prepareModificationArray(): void
     {
-        $this->startProfiling(__FUNCTION__);
-
         // Content des MOD arrays eine Ebene höherstufen, damit nur ein ShipsTransformer benötigt wird
         $mod = $this->content['mod'];
         unset($this->content['mod']);
@@ -259,11 +239,8 @@ class SplitShipFiles implements ShouldQueue
 
         // Transformer benötigt ifcs array
         if (!isset($this->content['ifcs'])) {
-            $this->addTrace('IFCS not set', __FUNCTION__, __LINE__);
             $this->content['ifcs'] = [];
         }
-
-        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -271,8 +248,6 @@ class SplitShipFiles implements ShouldQueue
      */
     private function getDataForModifications(): void
     {
-        $this->startProfiling(__FUNCTION__);
-
         $this->getShipNameForModification();
         app('Log')::info('Processing Modification '.$this->content['processedName']);
 
@@ -283,14 +258,10 @@ class SplitShipFiles implements ShouldQueue
         $collectedData = array_replace_recursive($this->baseVersion, $collectedData);
 
         $this->saveDataToDisk($collectedData);
-
-        $this->stopProfiling(__FUNCTION__);
     }
 
     private function getShipNameForModification(): void
     {
-        $this->startProfiling(__FUNCTION__);
-
         $patchFileName = $this->content['@patchFile'];
         $name = str_replace(
             'Modifications/',
@@ -315,8 +286,6 @@ class SplitShipFiles implements ShouldQueue
         }
 
         $this->content['processedName'] = $name;
-
-        $this->stopProfiling(__FUNCTION__);
     }
 
     /**
@@ -328,8 +297,6 @@ class SplitShipFiles implements ShouldQueue
      */
     private function filterModificationArray(&$array): array
     {
-        $this->startProfiling(__FUNCTION__);
-
         foreach ($array as $key => $item) {
             if (is_array($item)) {
                 $array[$key] = $this->filterModificationArray($item);
@@ -338,8 +305,6 @@ class SplitShipFiles implements ShouldQueue
                 unset($array[$key]);
             }
         }
-
-        $this->stopProfiling(__FUNCTION__);
 
         return $array;
     }

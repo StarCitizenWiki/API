@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
-use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 
@@ -15,8 +14,6 @@ use Illuminate\Support\Facades\Cache;
  */
 class PageController extends Controller
 {
-    use ProfilesMethodsTrait;
-
     /**
      * Returns the API Index View
      *

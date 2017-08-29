@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App\Exceptions\UserBlacklistedException;
 use App\Models\User;
-use App\Traits\ProfilesMethodsTrait;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -17,8 +16,6 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
  */
 class ThrottleApi extends ThrottleRequests
 {
-    use ProfilesMethodsTrait;
-
     /**
      * ThrottleApi constructor.
      *
@@ -41,9 +38,6 @@ class ThrottleApi extends ThrottleRequests
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        $this->startProfiling(__FUNCTION__);
-
-        $this->addTrace('Getting User From Request', __FUNCTION__, __LINE__);
         $key = $request->header('Authorization', null);
 
         if (is_null($key)) {
@@ -54,9 +48,6 @@ class ThrottleApi extends ThrottleRequests
 
         if (!is_null($user)) {
             if ($user->whitelisted) {
-                $this->addTrace('User is Whitelisted, no Throttling', __FUNCTION__, __LINE__);
-                $this->stopProfiling(__FUNCTION__);
-
                 return $next($request);
             }
         } elseif (!is_null($key)) {
@@ -65,7 +56,6 @@ class ThrottleApi extends ThrottleRequests
 
         try {
             $rpm = $this->determineRequestsPerMinute($user);
-            $this->addTrace("Got RPM: {$rpm} for Request", __FUNCTION__);
         } catch (UserBlacklistedException $e) {
             app('Log')::notice(
                 'Request from blacklisted User',
@@ -75,12 +65,8 @@ class ThrottleApi extends ThrottleRequests
                 ]
             );
 
-            $this->stopProfiling(__FUNCTION__);
-
             abort(403, __('Benutzer ist gesperrt'));
         }
-
-        $this->stopProfiling(__FUNCTION__);
 
         return parent::handle($request, $next, $rpm, THROTTLE_PERIOD);
     }

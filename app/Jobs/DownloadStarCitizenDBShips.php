@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Traits\ProfilesMethodsTrait;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,7 +21,6 @@ class DownloadStarCitizenDBShips implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use ProfilesMethodsTrait;
 
     private const STAR_CITIZEN_DB_URL = 'http://starcitizendb.com/';
 
@@ -39,8 +37,6 @@ class DownloadStarCitizenDBShips implements ShouldQueue
      */
     public function handle()
     {
-        $this->startProfiling(__FUNCTION__);
-
         app('Log')::info('Starting Ship Download Job');
         $client = new Client(
             [
@@ -64,14 +60,11 @@ class DownloadStarCitizenDBShips implements ShouldQueue
                     self::STAR_CITIZEN_DB_URL.$url,
                     ['save_to' => $stream]
                 );
-                $this->addTrace("Downloading {$fileName}", __FUNCTION__);
             }
         }
         app('Log')::info('Ship Download Job Finished');
 
         app('Log')::info('Dispatching Split Files Job');
         dispatch(new SplitShipFiles());
-
-        $this->stopProfiling(__FUNCTION__);
     }
 }

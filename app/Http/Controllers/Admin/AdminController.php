@@ -7,7 +7,6 @@ use App\Models\ApiRequests;
 use App\Models\Notification;
 use App\Models\ShortUrl\ShortUrl;
 use App\Models\User;
-use App\Traits\ProfilesMethodsTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -20,8 +19,6 @@ use Jackiedo\LogReader\Facades\LogReader;
  */
 class AdminController extends Controller
 {
-    use ProfilesMethodsTrait;
-
     /**
      * AdminController constructor.
      */
@@ -111,23 +108,15 @@ class AdminController extends Controller
      */
     public function showLogsView(Request $request)
     {
-        $this->startProfiling(__FUNCTION__);
-
         app('Log')::info(make_name_readable(__FUNCTION__));
 
         if ($request->input('l')) {
-            $this->addTrace("Setting File to {$request->input('l')}", __FUNCTION__, __LINE__);
             LaravelLogViewer::setFile(base64_decode($request->input('l')));
         }
 
         if ($request->input('dl')) {
-            $this->addTrace("Downloading {$request->input('dl')}", __FUNCTION__, __LINE__);
-            $this->stopProfiling(__FUNCTION__);
-
             return response()->download(LaravelLogViewer::pathToLogFile(base64_decode($request->input('dl'))));
         }
-
-        $this->stopProfiling(__FUNCTION__);
 
         return view('admin.logs')
             ->with('logs', LaravelLogViewer::all())

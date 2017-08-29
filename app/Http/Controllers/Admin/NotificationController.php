@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
-use App\Traits\ProfilesMethodsTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -17,8 +16,6 @@ use Illuminate\View\View;
  */
 class NotificationController extends Controller
 {
-    use ProfilesMethodsTrait;
-
     /**
      * ShortUrlController constructor.
      */
@@ -48,13 +45,10 @@ class NotificationController extends Controller
      */
     public function showEditNotificationView(int $id)
     {
-        $this->startProfiling(__FUNCTION__);
         app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
 
         try {
-            $this->addTrace("Getting Notification with ID: {$id}", __FUNCTION__, __LINE__);
             $notification = Notification::withTrashed()->findOrFail($id);
-            $this->stopProfiling(__FUNCTION__);
 
             return view('admin.notifications.edit')->with(
                 'notification',
@@ -63,8 +57,6 @@ class NotificationController extends Controller
         } catch (ModelNotFoundException $e) {
             app('Log')::warning("Notification with ID: {$id} not found");
         }
-
-        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('admin_notifications_list')->withErrors([__('crud.not_found', ['type' => 'Notification'])]);
     }
@@ -123,8 +115,6 @@ class NotificationController extends Controller
         if ($request->exists('restore')) {
             return $this->restoreNotification($request, $id);
         }
-
-        $this->startProfiling(__FUNCTION__);
 
         $this->validate(
             $request,

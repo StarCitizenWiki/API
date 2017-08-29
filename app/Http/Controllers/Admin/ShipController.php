@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
-use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
@@ -16,8 +15,6 @@ use Illuminate\Support\Facades\File;
  */
 class ShipController extends Controller
 {
-    use ProfilesMethodsTrait;
-
     /**
      * ShipsController constructor.
      */
@@ -46,11 +43,7 @@ class ShipController extends Controller
      */
     public function downloadShips(): RedirectResponse
     {
-        $this->startProfiling(__FUNCTION__);
-
         $this->dispatch(new DownloadStarCitizenDBShips());
-
-        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->back()->with(
             'success',

@@ -8,7 +8,6 @@
 namespace App\Transformers;
 
 use App\Exceptions\InvalidDataException;
-use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
 use League\Fractal\TransformerAbstract;
 
@@ -18,8 +17,6 @@ use League\Fractal\TransformerAbstract;
  */
 abstract class AbstractBaseTransformer extends TransformerAbstract
 {
-    use ProfilesMethodsTrait;
-
     protected $filters = [];
     protected $requestedFields = [];
     protected $validFields = [];

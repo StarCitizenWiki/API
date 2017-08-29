@@ -4,7 +4,6 @@ namespace App\Http\Controllers\StarCitizenDB;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizenDB\ShipsRepository;
-use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Http\Request;
 
 /**
@@ -14,8 +13,6 @@ use Illuminate\Http\Request;
  */
 class ShipsApiController extends Controller
 {
-    use ProfilesMethodsTrait;
-
     /**
      * ShipsRepository
      *
@@ -26,7 +23,8 @@ class ShipsApiController extends Controller
     /**
      * ShipsAPIController constructor.
      *
-     * @param \App\Repositories\StarCitizenDB\ShipsRepository $repository ShipsRepository
+     * @param \App\Repositories\StarCitizenDB\ShipsRepository $repository
+     *
      */
     public function __construct(ShipsRepository $repository)
     {
@@ -44,12 +42,8 @@ class ShipsApiController extends Controller
      */
     public function getShip(Request $request, string $name)
     {
-        $this->startProfiling(__FUNCTION__);
-
         app('Log')::info(make_name_readable(__FUNCTION__), ['name' => $name]);
         $data = $this->repository->getShip($request, $name)->asArray();
-
-        $this->stopProfiling(__FUNCTION__);
 
         return response()->json(
             $data,
@@ -68,14 +62,10 @@ class ShipsApiController extends Controller
      */
     public function getShipList(Request $request)
     {
-        $this->startProfiling(__FUNCTION__);
-
         app('Log')::info(make_name_readable(__FUNCTION__));
         $this->repository->getShipList();
         $this->repository->transformer->addFilters($request);
         $data = $this->repository->toArray();
-
-        $this->stopProfiling(__FUNCTION__);
 
         return response()->json(
             $data,
@@ -94,8 +84,6 @@ class ShipsApiController extends Controller
      */
     public function searchShips(Request $request)
     {
-        $this->startProfiling(__FUNCTION__);
-
         app('Log')::info(make_name_readable(__FUNCTION__), ['query' => $request->get('query')]);
 
         $this->validate(
@@ -107,8 +95,6 @@ class ShipsApiController extends Controller
         $shipName = $request->input('query');
 
         $data = $this->repository->searchShips($shipName)->asArray();
-
-        $this->stopProfiling(__FUNCTION__);
 
         return response()->json(
             $data,

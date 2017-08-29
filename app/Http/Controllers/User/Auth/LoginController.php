@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\User\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +26,6 @@ class LoginController extends Controller
     */
 
     use AuthenticatesUsers;
-    use ProfilesMethodsTrait;
 
     /**
      * Create a new controller instance.

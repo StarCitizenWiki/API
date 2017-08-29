@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\ShortUrl;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShortUrl\ShortUrlWhitelist;
-use App\Traits\ProfilesMethodsTrait;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
@@ -17,8 +16,6 @@ use Illuminate\Support\Facades\Auth;
  */
 class ShortUrlWhitelistController extends Controller
 {
-    use ProfilesMethodsTrait;
-
     /**
      * Returns the ShortUrl Whitelist View
      *
@@ -56,8 +53,6 @@ class ShortUrlWhitelistController extends Controller
      */
     public function deleteWhitelistUrl(Request $request, int $id): RedirectResponse
     {
-        $this->startProfiling(__FUNCTION__);
-
         $type = 'message';
         $message = __('crud.deleted', ['type' => 'WhitelistUrl']);
 
@@ -78,8 +73,6 @@ class ShortUrlWhitelistController extends Controller
             $message = __('crud.not_found', ['type' => 'WhitelistUrl']);
         }
 
-        $this->stopProfiling(__FUNCTION__);
-
         return redirect()->route('admin_urls_whitelist_list')->with($type, $message);
     }
 
@@ -92,8 +85,6 @@ class ShortUrlWhitelistController extends Controller
      */
     public function addWhitelistUrl(Request $request)
     {
-        $this->startProfiling(__FUNCTION__);
-
         $url = parse_url($request->get('url'))['host'];
 
         $data = [
@@ -108,15 +99,12 @@ class ShortUrlWhitelistController extends Controller
 
         validate_array($data, $rules, $request);
 
-        $this->addTrace('Adding WhitelistURL', __FUNCTION__, __LINE__);
         ShortUrlWhitelist::createWhitelistUrl(
             [
                 'url'      => $url,
                 'internal' => $request->get('internal')[0],
             ]
         );
-
-        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('admin_urls_whitelist_list')->with('message', __('crud.created', ['type' => 'WhitelistUrl']));
     }

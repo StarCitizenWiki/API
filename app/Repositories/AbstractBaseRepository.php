@@ -9,8 +9,7 @@
 namespace App\Repositories;
 
 use App\Exceptions\InvalidDataException;
-use App\Traits\ProfilesMethodsTrait;
-use App\Traits\TransformesDataTrait;
+use App\Traits\TransformsDataTrait as TransformsData;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -23,8 +22,7 @@ use Illuminate\Support\Facades\App;
  */
 abstract class AbstractBaseRepository
 {
-    use TransformesDataTrait;
-    use ProfilesMethodsTrait;
+    use TransformsData;
 
     const API_URL = '';
 

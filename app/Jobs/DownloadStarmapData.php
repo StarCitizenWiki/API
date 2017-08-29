@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Models\CelestialObject;
 use App\Models\Starsystem;
 use App\Repositories\StarCitizen\ApiV1\StarmapRepository;
-use App\Traits\ProfilesMethodsTrait;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,7 +23,6 @@ class DownloadStarmapData implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use ProfilesMethodsTrait;
 
     // Requests for Celestial Subobject
     const CELESTIAL_SUBOBJECTS_REQUEST = ['PLANET'];
@@ -48,8 +46,6 @@ class DownloadStarmapData implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->startProfiling(__FUNCTION__);
-
         app('Log')::info('Starting Starmap Download Job');
         $this->guzzleClient = new Client(['timeout' => 10.0]);
 

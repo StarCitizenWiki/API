@@ -8,7 +8,6 @@ use App\Helpers\Hasher;
 use App\Http\Controllers\Controller;
 use App\Models\ShortUrl\ShortUrl;
 use App\Models\User;
-use App\Traits\ProfilesMethodsTrait;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -23,8 +22,6 @@ use Illuminate\Support\Facades\Input;
  */
 class ShortUrlController extends Controller
 {
-    use ProfilesMethodsTrait;
-
     /**
      * ShortUrlController constructor.
      */
@@ -75,19 +72,15 @@ class ShortUrlController extends Controller
      */
     public function showEditUrlView(int $id)
     {
-        $this->startProfiling(__FUNCTION__);
         app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
 
         try {
-            $this->addTrace("Getting ShortUrl for ID: {$id}", __FUNCTION__, __LINE__);
             $url = ShortUrl::withTrashed()->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             app('Log')::warning("URL with ID: {$id} not found");
-            $this->stopProfiling(__FUNCTION__);
 
             return redirect()->route('admin_urls_list')->withErrors([__('crud.not_found', ['type' => 'ShortUrl'])]);
         }
-        $this->stopProfiling(__FUNCTION__);
 
         return view('admin.shorturls.edit')->with(
             'url',
@@ -114,8 +107,6 @@ class ShortUrlController extends Controller
             return $this->restoreUrl($request, $id);
         }
 
-        $this->startProfiling(__FUNCTION__);
-
         $data = [
             'url'        => ShortUrl::sanitizeUrl($request->get('url')),
             'hash'       => $request->get('hash'),
@@ -138,16 +129,10 @@ class ShortUrlController extends Controller
         }
 
         try {
-            $this->addTrace('Updating ShortUrl', __FUNCTION__, __LINE__);
             ShortUrl::updateShortUrl($data);
         } catch (ModelNotFoundException | UrlNotWhitelistedException | HashNameAlreadyAssignedException $e) {
-            $this->addTrace(get_class($e), __FUNCTION__, __LINE__);
-            $this->stopProfiling(__FUNCTION__);
-
             return back()->withErrors($e->getMessage())->withInput(Input::all());
         }
-
-        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('admin_urls_list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
     }
@@ -164,8 +149,6 @@ class ShortUrlController extends Controller
      */
     public function deleteUrl(Request $request, int $id): RedirectResponse
     {
-        $this->startProfiling(__FUNCTION__);
-
         $type = 'message';
         $message = __('crud.deleted', ['type' => 'ShortUrl']);
 
@@ -186,8 +169,6 @@ class ShortUrlController extends Controller
             $type = 'errors';
             $message = __('crud.not_found', ['type' => 'ShortUrl']);
         }
-
-        $this->stopProfiling(__FUNCTION__);
 
         return redirect()->route('admin_urls_list')->with($type, $message);
     }

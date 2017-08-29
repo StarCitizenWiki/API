@@ -8,7 +8,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Traits\ProfilesMethodsTrait;
 use Closure;
 
 /**
@@ -18,8 +17,6 @@ use Closure;
  */
 class AddApiHeaders
 {
-    use ProfilesMethodsTrait;
-
     /**
      * Sets Header for API Requests
      *
@@ -30,8 +27,6 @@ class AddApiHeaders
      */
     public function handle($request, Closure $next)
     {
-        $this->startProfiling(__FUNCTION__);
-
         $response = $next($request);
         $response->header('Content-Type', 'application/json; charset=utf-8');
         $response->header('Cache-Control', 'no-cache,no-store, must-revalidate');
@@ -47,10 +42,6 @@ class AddApiHeaders
         $response->header('Vary', 'Accept-Encoding');
         $response->header('Connection', 'keep-alive');
         $response->header('X-SCW-API-Version', API_VERSION);
-
-        $this->addTrace("Added API Headers to Request: {$request->fullUrl()}", __FUNCTION__, __LINE__);
-
-        $this->stopProfiling(__FUNCTION__);
 
         return $response;
     }
