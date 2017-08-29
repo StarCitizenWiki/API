@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Traits\ObfuscatesIDTrait;
+use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -54,7 +54,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CelestialObject extends Model
 {
-    use ObfuscatesIDTrait;
+    use ObfuscatesID;
 
     protected $fillable = [
         'code',

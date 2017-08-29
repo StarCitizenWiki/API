@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use App\Traits\CanExpireTrait;
-use App\Traits\ObfuscatesIDTrait;
+use App\Traits\CanBePublishedTrait as CanBePublished;
+use App\Traits\CanExpireTrait as CanExpire;
+use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -14,8 +15,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Notification extends Model
 {
     use SoftDeletes;
-    use ObfuscatesIDTrait;
-    use CanExpireTrait;
+    use ObfuscatesID;
+    use CanExpire;
+    use CanBePublished;
 
     public const NOTIFICATION_LEVEL_TYPES = [
         0 => 'info',
@@ -83,5 +85,13 @@ class Notification extends Model
             default:
                 return '';
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getLevelAsText(): string
+    {
+        return static::NOTIFICATION_LEVEL_TYPES[$this->level];
     }
 }

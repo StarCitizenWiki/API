@@ -6,7 +6,8 @@ use App\Exceptions\ExpiredException;
 use App\Exceptions\HashNameAlreadyAssignedException;
 use App\Exceptions\UrlNotWhitelistedException;
 use App\Exceptions\UserBlacklistedException;
-use App\Traits\ObfuscatesIDTrait;
+use App\Traits\CanExpireTrait as CanExpire;
+use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,7 +38,8 @@ use Illuminate\Support\Str;
 class ShortUrl extends Model
 {
     use SoftDeletes;
-    use ObfuscatesIDTrait;
+    use ObfuscatesID;
+    use CanExpire;
 
     protected $table = 'short_urls';
 
