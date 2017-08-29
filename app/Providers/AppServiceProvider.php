@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Hashids\Hashids;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -19,12 +18,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $bootstrapModules = [
-            'enableCSS' => true,
-            'enableJS'  => true,
-        ];
-
-        View::share('bootstrapModules', $bootstrapModules);
     }
 
     /**
@@ -34,12 +27,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if ('production' !== $this->app->environment()) {
+        if ('local' === $this->app->environment()) {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
-            $this->app->register('Hesto\MultiAuth\MultiAuthServiceProvider');
+            $this->app->register(\Hesto\MultiAuth\MultiAuthServiceProvider::class);
         }
 
-        $this->app->bind(
+        $this->app->singleton(
             Hashids::class,
             function () {
                 return new Hashids(ADMIN_INTERNAL_PASSWORD, 8);
@@ -49,7 +42,10 @@ class AppServiceProvider extends ServiceProvider
         /**
          * Star Citizen API Interfaces
          */
-        $this->app->bind('StarCitizen\API\StatsRepository', \App\Repositories\StarCitizen\ApiV1\StatsRepository::class);
+        $this->app->bind(
+            'StarCitizen\API\StatsRepository',
+            \App\Repositories\StarCitizen\ApiV1\StatsRepository::class
+        );
 
         /**
          * Star Citizen Wiki API Interfaces
