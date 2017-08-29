@@ -20,7 +20,7 @@ class ShipsApiControllerTest extends TestCase
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsTransformer
      * @covers \App\Traits\RestTrait
-     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\TransformsDataTrait
      * @covers \App\Traits\RestExceptionHandlerTrait
      * @covers \App\Traits\FiltersDataTrait
      */
@@ -41,7 +41,7 @@ class ShipsApiControllerTest extends TestCase
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer
      * @covers \App\Traits\RestTrait
-     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\TransformsDataTrait
      * @covers \App\Traits\RestExceptionHandlerTrait
      * @covers \App\Traits\FiltersDataTrait
      */
@@ -60,7 +60,7 @@ class ShipsApiControllerTest extends TestCase
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer
      * @covers \App\Traits\RestTrait
-     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\TransformsDataTrait
      * @covers \App\Traits\RestExceptionHandlerTrait
      * @covers \App\Traits\FiltersDataTrait
      */
@@ -79,7 +79,7 @@ class ShipsApiControllerTest extends TestCase
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer
      * @covers \App\Traits\RestTrait
-     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\TransformsDataTrait
      * @covers \App\Traits\RestExceptionHandlerTrait
      * @covers \App\Traits\FiltersDataTrait
      */

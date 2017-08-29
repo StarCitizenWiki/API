@@ -20,7 +20,7 @@ class StatsApiControllerTest extends TestCase
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\StatsTransformer
      * @covers \App\Traits\RestTrait
-     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\TransformsDataTrait
      * @covers \App\Traits\RestExceptionHandlerTrait
      * @covers \App\Traits\FiltersDataTrait
      */
@@ -41,7 +41,7 @@ class StatsApiControllerTest extends TestCase
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FansTransformer
      * @covers \App\Traits\RestTrait
-     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\TransformsDataTrait
      * @covers \App\Traits\RestExceptionHandlerTrait
      * @covers \App\Traits\FiltersDataTrait
      */
@@ -62,7 +62,7 @@ class StatsApiControllerTest extends TestCase
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FundsTransformer
      * @covers \App\Traits\RestTrait
-     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\TransformsDataTrait
      * @covers \App\Traits\RestExceptionHandlerTrait
      * @covers \App\Traits\FiltersDataTrait
      */
@@ -83,7 +83,7 @@ class StatsApiControllerTest extends TestCase
      * @covers \App\Http\Middleware\UpdateTokenTimestamp
      * @covers \App\Transformers\StarCitizen\Stats\FleetTransformer
      * @covers \App\Traits\RestTrait
-     * @covers \App\Traits\TransformesDataTrait
+     * @covers \App\Traits\TransformsDataTrait
      * @covers \App\Traits\RestExceptionHandlerTrait
      * @covers \App\Traits\FiltersDataTrait
      */
