@@ -26,14 +26,8 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers, ProfilesMethodsTrait;
-
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    protected $redirectTo = AUTH_ACCOUNT;
+    use AuthenticatesUsers;
+    use ProfilesMethodsTrait;
 
     /**
      * Create a new controller instance.
@@ -51,7 +45,7 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        return view('api.auth.login');
+        return view('user.auth.login');
     }
 
     /**
@@ -94,5 +88,15 @@ class LoginController extends Controller
         app('Log')::info("User with ID: {$user->id} logged in");
 
         return null;
+    }
+
+    /**
+     * Where to redirect users after registration.
+     *
+     * @return string
+     */
+    protected function redirectTo()
+    {
+        return route('account');
     }
 }

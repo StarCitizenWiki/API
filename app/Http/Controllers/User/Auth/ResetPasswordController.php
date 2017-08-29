@@ -27,13 +27,6 @@ class ResetPasswordController extends Controller
     use ResetsPasswords;
 
     /**
-     * Where to redirect users after resetting their password.
-     *
-     * @var string
-     */
-    protected $redirectTo = AUTH_LOGIN;
-
-    /**
      * Create a new controller instance.
      */
     public function __construct()
@@ -54,8 +47,18 @@ class ResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-        return view('api.auth.passwords.reset')->with(
+        return view('user.auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email]
         );
+    }
+
+    /**
+     * Where to redirect users after resetting their password.
+     *
+     * @return string
+     */
+    protected function redirectTo()
+    {
+        return route('auth_login_form');
     }
 }

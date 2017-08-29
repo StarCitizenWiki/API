@@ -27,14 +27,8 @@ class RegisterController extends Controller
     |
     */
 
-    use RegistersUsers, ProfilesMethodsTrait;
-
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = AUTH_ACCOUNT;
+    use RegistersUsers;
+    use ProfilesMethodsTrait;
 
     /**
      * Create a new controller instance.
@@ -54,7 +48,7 @@ class RegisterController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('api.auth.register');
+        return view('user.auth.register');
     }
 
     /**
@@ -112,5 +106,15 @@ class RegisterController extends Controller
                 'password' => 'required|string|min:8|confirmed',
             ]
         );
+    }
+
+    /**
+     * Where to redirect users after registration.
+     *
+     * @return string
+     */
+    protected function redirectTo()
+    {
+        return route('account');
     }
 }

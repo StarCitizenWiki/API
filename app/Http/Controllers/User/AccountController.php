@@ -38,7 +38,7 @@ class AccountController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('api.auth.account.index')->with(
+        return view('user.account.index')->with(
             'user',
             Auth::user()
         )->with(
@@ -56,7 +56,7 @@ class AccountController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('api.auth.account.edit')->with(
+        return view('user.account.edit')->with(
             'user',
             Auth::user()
         );
@@ -71,7 +71,7 @@ class AccountController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('api.auth.account.delete');
+        return view('user.account.delete');
     }
 
     /**
@@ -90,7 +90,7 @@ class AccountController extends Controller
 
         $this->stopProfiling(__FUNCTION__);
 
-        return redirect(AUTH_HOME);
+        return redirect()->route('api_index');
     }
 
     /**
