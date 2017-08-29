@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\CanExpireTrait;
 use App\Traits\ObfuscatesIDTrait;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -15,6 +15,7 @@ class Notification extends Model
 {
     use SoftDeletes;
     use ObfuscatesIDTrait;
+    use CanExpireTrait;
 
     public const NOTIFICATION_LEVEL_TYPES = [
         0 => 'info',
@@ -41,34 +42,6 @@ class Notification extends Model
         'expired_at',
         'published_at',
     ];
-
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
-    public function scopeNotExpired($query)
-    {
-        return $query->whereDate('expired_at', '>=', Carbon::now());
-    }
-
-    /**
-     * @param $query
-     *
-     * @return mixed
-     */
-    public function scopeExpired($query)
-    {
-        return $query->whereDate('expired_at', '<=', Carbon::now());
-    }
-
-    /**
-     * @return bool
-     */
-    public function expired(): bool
-    {
-        return $this->expired_at->lte(Carbon::now());
-    }
 
     /**
      * @return string
