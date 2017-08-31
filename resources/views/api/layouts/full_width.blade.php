@@ -7,9 +7,9 @@
 @include('api.layouts.config')
 
 @section('P__content')
-<div class="row justify-content-center">
-    <div class="col-12 col-md-7 col-lg-5 col-xl-3 mt-5 mt-mb-0 mb-5">
-        @yield('content')
+    <div class="row">
+        <div class="col-12 col-sm-8 col-md-5 col-xl-3 col-xxl-2 mx-auto mt-5">
+            @yield('content')
+        </div>
     </div>
-</div>
 @endsection

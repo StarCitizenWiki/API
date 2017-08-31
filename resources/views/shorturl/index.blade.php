@@ -7,18 +7,14 @@
             <div class="w-100">
                 <img src="{{ URL::asset('/media/images/rsi_im/logo.png') }}" class="img-responsive mb-5">
                 @include('components.errors')
-                @if (session('hash'))
-                    <div class="alert alert-success text-center">
-                        {{config('app.shorturl_url')}}/{{ session('hash') }}
-                    </div>
-                @endif
-                <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_create_redirect') }}">
+
+                <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_web_create') }}">
                     {{ csrf_field() }}
                     <div class="input-group input-group-lg mb-2">
-                        <input type="url" name="url" id="url" class="form-control" placeholder="@lang('Lange Url')" required value="{{ old('url') }}">
+                        <input type="url" name="url" id="url" class="form-control @if (session('success')) text-success @endif" placeholder="@lang('Lange Url')" required value="{{ old('url') }}">
                         <span class="input-group-btn">
                             <button class="btn btn-info" type="submit">
-                                @lang('shorturl/index.shorten')
+                                @lang('Verkürzen')
                             </button>
                         </span>
                         <span class="input-group-btn">
@@ -41,7 +37,7 @@
         <div class="col-12 d-flex fixed-bottom">
             <ul class="nav justify-content-end w-100">
                 <li class="nav-item">
-                    <a class="nav-link text-info" href="{{ route('short_url_resolve_form') }}">@lang('Url auflösen')</a>
+                    <a class="nav-link text-info" href="{{ route('short_url_web_resolve_form') }}">@lang('Url auflösen')</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-info" href="#whitelist-modal" data-toggle="modal" data-target="#whitelist-modal">@lang('Erlaubte Domains')</a>

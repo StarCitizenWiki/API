@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\ShortUrl\ShortUrl;
+use App\Policies\ShortUrlPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 /**
@@ -16,7 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        'App\Model' => 'App\Policies\ModelPolicy',
+        ShortUrl::class => ShortUrlPolicy::class,
     ];
 
     /**

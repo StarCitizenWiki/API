@@ -11,7 +11,7 @@ use Tests\TestCase;
 class ShortUrlControllerTest extends TestCase
 {
     /**
-     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::showResolveView()
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlWebController::showResolveView()
      */
     public function testShortUrlResolveView()
     {
@@ -20,7 +20,7 @@ class ShortUrlControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::resolveAndDisplay()
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlWebController::resolveAndDisplay()
      */
     public function testShortUrlResolveRedirect()
     {
@@ -33,7 +33,7 @@ class ShortUrlControllerTest extends TestCase
     /**
      * Tests json resolve
      *
-     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::resolve()
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlWebController::resolve()
      * @covers \App\Transformers\ShortUrl\ShortUrlTransformer
      */
     public function testApiResolve()
@@ -46,7 +46,7 @@ class ShortUrlControllerTest extends TestCase
     /**
      * Test Repository Creation
      *
-     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::create()
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlWebController::create()
      * @covers \App\Transformers\ShortUrl\ShortUrlTransformer
      * @covers \App\Events\UrlShortened
      */
@@ -65,7 +65,7 @@ class ShortUrlControllerTest extends TestCase
     /**
      * Test Repository Creation
      *
-     * @covers \App\Http\Controllers\ShortUrl\ShortUrlController::createAndRedirect()
+     * @covers \App\Http\Controllers\ShortUrl\ShortUrlWebController::createAndRedirect()
      */
     public function testShortUrlCreationView()
     {

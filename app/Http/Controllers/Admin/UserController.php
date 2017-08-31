@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,8 +22,7 @@ class UserController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->middleware('auth');
-        $this->middleware('admin');
+        $this->middleware('auth:admin');
     }
 
     /**
@@ -45,99 +43,77 @@ class UserController extends Controller
     /**
      * Returns the ShortUrl List View
      *
-     * @param int $id UserID
+     * @param \App\Models\User $user
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return \Illuminate\View\View
      */
-    public function showUrlListView(int $id): View
+    public function showUrlListView(User $user): View
     {
-        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $user->id]);
 
         return view('admin.shorturls.index')->with(
             'urls',
-            User::find($id)->shortUrls()->simplePaginate(100)
+            $user->shortUrls()->simplePaginate(100)
         );
     }
 
     /**
      * Returns the View to Edit a User by ID
      *
-     * @param int $id The User ID
+     * @param \App\Models\User $user
      *
-     * @return \Illuminate\Contracts\View\View | \Illuminate\Routing\Redirector
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Routing\Redirector
      */
-    public function showEditUserView(int $id)
+    public function showEditUserView(User $user)
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
-        try {
-            $user = User::with(
-                [
-                    'shortUrls'   => function ($query) {
-                        $query->orderBy('created_at')->take(5);
-                    },
-                    'apiRequests' => function ($query) {
-                        $query->orderBy('created_at')->take(5);
-                    },
-                ]
-            )->withTrashed()->findOrFail($id);
 
-            return view('admin.user.edit')->with(
-                'user',
-                $user
-            );
-        } catch (ModelNotFoundException $e) {
-            app('Log')::warning("User with ID: {$id} not found");
-        }
+        $user->load(
+            [
+                'shortUrls'   => function ($query) {
+                    $query->orderBy('created_at')->take(5);
+                },
+                'apiRequests' => function ($query) {
+                    $query->orderBy('created_at')->take(5);
+                },
+            ]
+        );
 
-        return redirect()->route('admin_user_list');
+        return view('admin.user.edit')->with(
+            'user',
+            $user
+        );
     }
 
     /**
      * Returns the View with all Users listed
      *
-     * @param int $id
+     * @param \App\Models\User $user
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function showRequestView(int $id)
+    public function showRequestView(User $user)
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('admin.user.requests')->with(
             'requests',
-            User::find($id)->apiRequests()->getResults()
+            $user->apiRequests()->getResults()
         );
     }
 
     /**
      * Deletes a User by ID
      *
-     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function deleteUser(Request $request): RedirectResponse
+    public function deleteUser(User $user): RedirectResponse
     {
-        $this->validate(
-            $request,
-            [
-                'id' => 'required|exists:users|int',
-            ]
-        );
+        app('Log')::notice("Account {$user->name} ({$user->id}) deleted by ".Auth::id());
 
-        try {
-            $user = User::findOrFail($request->id);
-            app('Log')::notice(
-                'Account deleted',
-                [
-                    'account_id' => $request->get('id'),
-                    'deleted_by' => Auth::id(),
-                ]
-            );
-            $user->delete();
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_user_list')->withErrors(__('admin/users/edit.not_found'));
-        }
+        $user->delete();
 
         return redirect()->route('admin_user_list');
     }
@@ -145,26 +121,15 @@ class UserController extends Controller
     /**
      * Restores a User by ID
      *
-     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function restoreUser(Request $request): RedirectResponse
+    public function restoreUser(User $user): RedirectResponse
     {
-        $this->validate(
-            $request,
-            [
-                'id' => 'required|exists:users|int',
-            ]
-        );
+        app('Log')::notice("Restored Account with ID: {$user->id}");
 
-        try {
-            $user = User::withTrashed()->findOrFail($request->id);
-            app('Log')::notice("Restored Account with ID: {$request->id}");
-            $user->restore();
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_user_list')->withErrors(__('admin/users/edit.not_found'));
-        }
+        $user->restore();
 
         return redirect()->route('admin_user_list');
     }
@@ -173,52 +138,32 @@ class UserController extends Controller
      * Updates a User by ID
      *
      * @param \Illuminate\Http\Request $request Update Request
+     * @param \App\Models\User         $user
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateUser(Request $request, int $id): RedirectResponse
+    public function updateUser(Request $request, User $user): RedirectResponse
     {
-        $this->validate(
+        $data = $this->validate(
             $request,
             [
-                'name'                => 'present',
+                'name'                => 'present|string',
                 'requests_per_minute' => 'required|integer',
-                'api_token'           => 'required|max:60|min:60|alpha_num',
-                'email'               => 'required|min:3|email',
-                'list'                => 'nullable|alpha',
+                'api_token'           => 'required|alpha_num|max:60|min:60',
+                'email'               => 'required|email|min:3',
+                'state'               => 'required|int|between:0,2',
                 'notes'               => 'nullable|string',
-                'password'            => 'present',
+                'password'            => 'nullable|string|min:3',
             ]
         );
 
-        $data = [];
-        $data['id'] = $id;
-        $data['name'] = $request->get('name');
-        $data['requests_per_minute'] = $request->get('requests_per_minute');
-        $data['api_token'] = $request->get('api_token');
-        $data['email'] = $request->get('email');
-        $data['notes'] = $request->get('notes');
-
-        if (!is_null($request->get('password')) && !empty($request->get('password'))) {
-            $data['password'] = bcrypt($request->get('password'));
+        if (!is_null($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
         }
 
-        $data['whitelisted'] = false;
-        $data['blacklisted'] = false;
-
-        if ($request->has('list')) {
-            if ('blacklisted' === $request->list) {
-                $data['whitelisted'] = false;
-                $data['blacklisted'] = true;
-            }
-
-            if ('whitelisted' === $request->list) {
-                $data['whitelisted'] = true;
-                $data['blacklisted'] = false;
-            }
-        }
-
-        User::updateUser($data);
+        $user->update($data);
 
         return redirect()->route('admin_user_list');
     }

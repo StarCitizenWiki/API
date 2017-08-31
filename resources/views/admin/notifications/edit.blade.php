@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">@lang('Notification bearbeiten') @lang('ID'):{{ $notification->getRouteKey() }}</h4>
+        <h4 class="card-header">@lang('Notification bearbeiten')</h4>
         <div class="card-body">
             @component('components.forms.form', [
                 'method' => 'PATCH',

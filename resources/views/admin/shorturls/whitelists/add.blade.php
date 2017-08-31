@@ -9,7 +9,8 @@
                 'action' => route('admin_url_whitelist_add'),
             ])
                 @component('components.forms.form-group', [
-                    'inputType' => 'url',
+                    'inputType' => 'pattern',
+                    'inputOptions' => 'pattern=(\w+\.\w+)$',
                     'id' => 'url',
                     'value' => old('url'),
                     'required' => 1,

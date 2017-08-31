@@ -58,12 +58,13 @@ class RegisterController extends Controller
      */
     public function create(array $data)
     {
-        $apiToken = str_random(60);
-        $user = User::create(
+        $user = new User();
+
+        $user->create(
             [
                 'name'                => $data['name'],
                 'email'               => $data['email'],
-                'api_token'           => $apiToken,
+                'api_token'           => str_random(60),
                 'password'            => bcrypt($data['password']),
                 'requests_per_minute' => 60,
                 'last_login'          => date('Y-m-d H:i:s'),

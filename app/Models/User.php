@@ -92,6 +92,7 @@ class User extends Authenticatable
         'notes',
         'api_token_last_used',
         'receive_notification_level',
+        'state',
     ];
 
     /**
@@ -148,9 +149,7 @@ class User extends Authenticatable
      */
     public function isWhitelisted(): bool
     {
-        $whitelisted = $this->whitelisted == 1;
-
-        return $whitelisted;
+        return $this->state == 1;
     }
 
     /**
@@ -160,9 +159,7 @@ class User extends Authenticatable
      */
     public function isBlacklisted(): bool
     {
-        $blacklisted = $this->blacklisted == 1;
-
-        return $blacklisted;
+        return $this->state == 2;
     }
 
     /**

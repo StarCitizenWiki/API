@@ -23,9 +23,8 @@ class CreateUsersTable extends Migration
             $table->string('api_token', 60)->unique();
             $table->string('password', 60);
             $table->integer('requests_per_minute')->unsigned();
-            $table->boolean('whitelisted')->default(false);
-            $table->boolean('blacklisted')->default(false);
-            $table->tinyInteger('receive_notification_level')->default(1);
+            $table->tinyInteger('state')->default(0);
+            $table->tinyInteger('receive_notification_level')->default(0);
             $table->text('notes')->nullable();
             $table->timestamp('last_login')->default('01.01.1970 00:00:00');
             $table->timestamp('api_token_last_used')->nullable();

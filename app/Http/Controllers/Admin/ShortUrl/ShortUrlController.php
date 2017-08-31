@@ -2,19 +2,13 @@
 
 namespace App\Http\Controllers\Admin\ShortUrl;
 
-use App\Exceptions\HashNameAlreadyAssignedException;
-use App\Exceptions\UrlNotWhitelistedException;
-use App\Helpers\Hasher;
 use App\Http\Controllers\Controller;
 use App\Models\ShortUrl\ShortUrl;
-use App\Models\User;
+use App\Rules\ShortUrlWhitelisted;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
 
 /**
  * Class AdminShortUrlController
@@ -49,21 +43,13 @@ class ShortUrlController extends Controller
     /**
      * Returns the View to edit a ShortUrl
      *
-     * @param int $id The ShortUrl ID
+     * @param \App\Models\ShortUrl\ShortUrl|int $url The ShortUrl ID
      *
-     * @return \Illuminate\Contracts\View\View | RedirectResponse
+     * @return \Illuminate\Contracts\View\View
      */
-    public function showEditUrlView(int $id)
+    public function showEditUrlView(ShortUrl $url)
     {
-        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
-
-        try {
-            $url = ShortUrl::withTrashed()->findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            app('Log')::warning("URL with ID: {$id} not found");
-
-            return redirect()->route('admin_url_list')->withErrors([__('crud.not_found', ['type' => 'ShortUrl'])]);
-        }
+        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $url]);
 
         return view('admin.shorturls.edit')->with(
             'url',
@@ -74,48 +60,42 @@ class ShortUrlController extends Controller
     /**
      * Updates a ShortUrl by ID
      *
-     * @param \Illuminate\Http\Request $request The Update Request
-     *
-     * @param int                      $id
+     * @param \Illuminate\Http\Request      $request The Update Request
+     * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function updateUrl(Request $request, int $id)
+    public function updateUrl(Request $request, ShortUrl $url)
     {
-        if ($request->exists('delete')) {
-            return $this->deleteUrl($request, $id);
+        if ($request->has('delete')) {
+            return $this->deleteUrl($url);
         }
 
-        if ($request->exists('restore')) {
-            return $this->restoreUrl($request, $id);
+        if ($request->has('restore')) {
+            return $this->restoreUrl($url);
         }
 
-        $data = [
-            'url'        => ShortUrl::sanitizeUrl($request->get('url')),
-            'hash'       => $request->get('hash'),
-            'user_id'    => Hasher::decode($request->get('user_id')),
-            'expired_at' => $request->get('expired_at'),
-        ];
+        $data = $this->validate(
+            $request,
+            [
+                'url'        => [
+                    'required',
+                    'url',
+                    'max:255',
+                    'unique:short_urls,id,'.$url->id,
+                    new ShortUrlWhitelisted(),
+                ],
+                'user_id'    => 'required|exists:users,id',
+                'hash'       => 'required|alpha_dash|max:32|unique:short_urls,id,'.$url->id,
+                'expired_at' => 'nullable|date',
+            ]
+        );
 
-        $rules = [
-            'url'        => 'required|url|max:255',
-            'hash'       => 'required|alpha_dash|max:32',
-            'user_id'    => 'required|integer|exists:users,id',
-            'expired_at' => 'nullable|date',
-        ];
-
-        validate_array($data, $rules, $request);
-
-        $data['id'] = $id;
         if (!is_null($data['expired_at'])) {
             $data['expired_at'] = Carbon::parse($data['expired_at']);
         }
 
-        try {
-            ShortUrl::updateShortUrl($data);
-        } catch (ModelNotFoundException | UrlNotWhitelistedException | HashNameAlreadyAssignedException $e) {
-            return back()->withErrors($e->getMessage())->withInput(Input::all());
-        }
+        $url->update($data);
 
         return redirect()->route('admin_url_list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
     }
@@ -124,56 +104,26 @@ class ShortUrlController extends Controller
     /**
      * Deletes a ShortUrl by ID
      *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @param int                      $id
+     * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function deleteUrl(Request $request, int $id): RedirectResponse
+    public function deleteUrl(ShortUrl $url): RedirectResponse
     {
-        $type = 'message';
-        $message = __('crud.deleted', ['type' => 'ShortUrl']);
+        $url->delete();
 
-        try {
-            $url = ShortUrl::findOrFail($id);
-
-            app('Log')::notice(
-                'URL deleted',
-                [
-                    'deleted_by' => Auth::id(),
-                    'url_id'     => $url->id,
-                    'url'        => $url->url,
-                    'hash'       => $url->hash,
-                ]
-            );
-            $url->delete();
-        } catch (ModelNotFoundException $e) {
-            $type = 'errors';
-            $message = __('crud.not_found', ['type' => 'ShortUrl']);
-        }
-
-        return redirect()->route('admin_url_list')->with($type, $message);
+        return redirect()->route('admin_url_list');
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param int                      $id
+     * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function restoreUrl(Request $request, int $id)
+    public function restoreUrl(ShortUrl $url)
     {
-        $type = 'message';
-        $message = __('crud.restored', ['type' => 'ShortUrl']);
+        $url->restore();
 
-        try {
-            ShortUrl::onlyTrashed()->findOrFail($id)->restore();
-        } catch (ModelNotFoundException $e) {
-            $type = 'errors';
-            $message = __('crud.not_found', ['type' => 'ShortUrl']);
-        }
-
-        return redirect()->route('admin_url_list')->with($type, $message);
+        return redirect()->route('admin_url_list');
     }
 }

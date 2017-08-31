@@ -11,7 +11,7 @@
         "php": ">=7.1",
         "laravel/framework": "5.5.*",
         "guzzlehttp/guzzle": "^6.3",
-        "spatie/laravel-fractal": "dev-master",
+        "spatie/laravel-fractal": "^5.0.1",
         "piwik/piwik-php-tracker": "^1.2",
         "jackiedo/log-reader": "2.*",
         "hashids/hashids": "^2.0"

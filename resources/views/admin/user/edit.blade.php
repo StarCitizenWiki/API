@@ -55,9 +55,9 @@
                         'inputClass' => 'custom-select w-100',
                     ])
                         @slot('selectOptions')
-                            <option>Normal</option>
-                            <option>Unlimitiert</option>
-                            <option>Gesperrt</option>
+                            <option value="0">Normal</option>
+                            <option value="1">Unlimitiert</option>
+                            <option value="2">Gesperrt</option>
                         @endslot
                     @endcomponent
                 </div>
@@ -135,7 +135,7 @@
                     <td>{{ $shortUrl->id }}</td>
                     <td>{{ $shortUrl->hash }}</td>
                     <td>{{ $shortUrl->url }}</td>
-                    <td>{{ $shortUrl->created_at }}</td>
+                    <td title="{{ $shortUrl->created_at }}"><span class="d-block d-xxl-none">{{ $shortUrl->created_at->format('d.m.Y') }}</span><span class="d-none d-xxl-block">{{ $shortUrl->created_at }}</span></td>
                     <td class="text-center"><a href="{{ route('admin_url_edit_form', $shortUrl->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                 </tr>
             @empty
@@ -168,7 +168,7 @@
             @forelse($user->apiRequests as $api_request)
                 <tr>
                     <td>{{ $api_request->user->name }}</td>
-                    <td>{{ $api_request->created_at }}</td>
+                    <td title="{{ $api_request->created_at }}"><span class="d-block d-xxl-none">{{ $api_request->created_at->format('d.m.Y') }}</span><span class="d-none d-xxl-block">{{ $api_request->created_at }}</span></td>
                     <td>{{ $api_request->request_uri }}</td>
                 </tr>
             @empty

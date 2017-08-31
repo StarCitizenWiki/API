@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotificationEmail;
 use App\Models\Notification;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,6 +15,8 @@ use Illuminate\View\View;
  */
 class NotificationController extends Controller
 {
+    private $jobDelay = null;
+
     /**
      * ShortUrlController constructor.
      */
@@ -50,27 +50,17 @@ class NotificationController extends Controller
     }
 
     /**
-     * @param int $id
+     * @param \App\Models\Notification $notification
      *
-     * @return \Illuminate\View\View | \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\View\View
      */
-    public function showEditNotificationView(int $id)
+    public function showEditNotificationView(Notification $notification)
     {
-        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $id]);
+        app('Log')::info(make_name_readable(__FUNCTION__), ['id' => $notification->id]);
 
-        try {
-            $notification = Notification::withTrashed()->findOrFail($id);
-
-            return view('admin.notifications.edit')->with(
-                'notification',
-                $notification
-            );
-        } catch (ModelNotFoundException $e) {
-            app('Log')::warning("Notification with ID: {$id} not found");
-        }
-
-        return redirect()->route('admin_notification_list')->withErrors(
-            [__('crud.not_found', ['type' => 'Notification'])]
+        return view('admin.notifications.edit')->with(
+            'notification',
+            $notification
         );
     }
 
@@ -81,7 +71,7 @@ class NotificationController extends Controller
      */
     public function addNotification(Request $request)
     {
-        $this->validate(
+        $data = $this->validate(
             $request,
             [
                 'content'      => 'required|string|min:5',
@@ -93,21 +83,8 @@ class NotificationController extends Controller
             ]
         );
 
-        $data = $request->all();
-
-        $outputType = array_pull($data, 'output');
-
-        foreach ($outputType as $type) {
-            $data['output_'.$type] = true;
-        }
-
-        if (array_key_exists('published_at', $data) && !is_null($data['published_at'])) {
-            $data['published_at'] = Carbon::parse($data['published_at'])->toDateTimeString();
-            $delay = Carbon::parse($data['published_at']);
-        } else {
-            $data['published_at'] = Carbon::now()->toDateTimeString();
-            $delay = null;
-        }
+        $this->processOutput($data);
+        $this->processPublishedAt($data);
 
         if (!is_null($data['expired_at'])) {
             $data['expired_at'] = Carbon::parse($data['expired_at'])->toDateTimeString();
@@ -119,34 +96,28 @@ class NotificationController extends Controller
 
         $notification = Notification::create($data);
 
-        $job = (new SendNotificationEmail($notification));
-
-        if (!is_null($delay)) {
-            $job->delay($delay);
-        }
-
-        dispatch($job);
+        $this->dispatchJob($notification);
 
         return redirect()->route('admin_dashboard')->with('message', __('crud.created', ['type' => 'Notification']));
     }
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param int                      $id
+     * @param \App\Models\Notification $notification
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateNotification(Request $request, int $id)
+    public function updateNotification(Request $request, Notification $notification)
     {
-        if ($request->exists('delete')) {
-            return $this->deleteNotification($request, $id);
+        if ($request->has('delete')) {
+            return $this->deleteNotification($notification);
         }
 
-        if ($request->exists('restore')) {
-            return $this->restoreNotification($request, $id);
+        if ($request->has('restore')) {
+            return $this->restoreNotification($notification);
         }
 
-        $this->validate(
+        $data = $this->validate(
             $request,
             [
                 'content'      => 'required|string|min:5',
@@ -159,28 +130,17 @@ class NotificationController extends Controller
             ]
         );
 
-        try {
-            $notification = Notification::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin_notification_list')->withErrors(
-                __('crud.not_found', ['type' => 'Notification'])
-            );
-        }
-
-        $data = $request->all();
+        $this->processOutput($data);
 
         $data['expired_at'] = Carbon::parse($request->get('expired_at'));
-        $data['published_at'] = Carbon::parse($request->get('published_at'));
+        $this->processPublishedAt($data);
 
-        foreach (array_pull($data, 'output') as $type) {
-            $data['output_'.$type] = true;
-        }
-
-        if (array_pull($data, 'resend_email', false) === 'resend_email') {
-            event(new NotificationCreated($notification));
-        }
-
+        $resendEmail = array_pull($data, 'resend_email', false);
         $notification->update($data);
+
+        if ($resendEmail === 'resend_email' || ($notification->output_email === false && $data['output_email'] === true)) {
+            $this->dispatchJob($notification);
+        }
 
         return redirect()->route('admin_notification_list')->with(
             'message',
@@ -189,44 +149,69 @@ class NotificationController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param int                      $id
+     * @param \App\Models\Notification $notification
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function deleteNotification(Request $request, int $id)
+    public function deleteNotification(Notification $notification)
     {
         $type = 'message';
         $message = __('crud.deleted', ['type' => 'Notification']);
 
-        try {
-            Notification::findOrFail($id)->delete();
-        } catch (ModelNotFoundException $e) {
-            $type = 'errors';
-            $message = __('crud.not_found', ['type' => 'Notification']);
-        }
+        $notification->delete();
 
         return redirect()->route('admin_notification_list')->with($type, $message);
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param int                      $id
+     * @param \App\Models\Notification $notification
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function restoreNotification(Request $request, int $id)
+    public function restoreNotification(Notification $notification)
     {
         $type = 'message';
         $message = __('crud.restored', ['type' => 'Notification']);
 
-        try {
-            Notification::onlyTrashed()->findOrFail($id)->restore();
-        } catch (ModelNotFoundException $e) {
-            $type = 'errors';
-            $message = __('crud.not_found', ['type' => 'Notification']);
-        }
+        $notification->restore();
 
         return redirect()->route('admin_notification_list')->with($type, $message);
+    }
+
+    /**
+     * @param array $data
+     */
+    private function processPublishedAt(array &$data)
+    {
+        if (array_key_exists('published_at', $data) && !is_null($data['published_at'])) {
+            $data['published_at'] = Carbon::parse($data['published_at'])->toDateTimeString();
+            $this->jobDelay = Carbon::parse($data['published_at']);
+        } else {
+            $data['published_at'] = Carbon::now()->toDateTimeString();
+        }
+    }
+
+    /**
+     * @param array $data
+     */
+    private function processOutput(array &$data)
+    {
+        foreach (array_pull($data, 'output') as $type) {
+            $data['output_'.$type] = true;
+        }
+    }
+
+    /**
+     * @param \App\Models\Notification $notification
+     */
+    private function dispatchJob(Notification $notification)
+    {
+        $job = (new SendNotificationEmail($notification));
+
+        if (!is_null($this->jobDelay)) {
+            $job->delay($this->jobDelay);
+        }
+
+        $this->dispatch($job);
     }
 }

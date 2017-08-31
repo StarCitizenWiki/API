@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('account_urls_list'),
+    'route' => route('account_url_list'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('account_urls_add_form'),
+    'route' => route('account_url_add_form'),
 ])
     <div class="row">
         <div class="col-1">

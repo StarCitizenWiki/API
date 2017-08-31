@@ -50,10 +50,10 @@
                                 <td>
                                     @component('components.edit_delete_block')
                                         @slot('edit_url')
-                                            {{ route('account_urls_edit_form', $url->getRouteKey()) }}
+                                            {{ route('account_url_edit_form', $url->getRouteKey()) }}
                                         @endslot
                                         @slot('delete_url')
-                                            {{ route('account_urls_delete', $url->getRouteKey()) }}
+                                            {{ route('account_url_delete', $url->getRouteKey()) }}
                                         @endslot
                                         {{ $url->getRouteKey() }}
                                     @endcomponent

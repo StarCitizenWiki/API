@@ -10,7 +10,7 @@
 
             @component('components.forms.form', [
                 'method' => 'PATCH',
-                'action' => route('account_urls_update', $url->getRouteKey()),
+                'action' => route('account_url_update', $url->getRouteKey()),
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'url',
@@ -33,7 +33,7 @@
                 ])@endcomponent
 
                 @component('components.forms.form-group', [
-                    'inputType' => 'datetime-local',
+                    'inputType' => 'datettime-local',
                     'label' => __('Ablaufdatum'),
                     'id' => 'expired_at',
                     'tabIndex' => 3,

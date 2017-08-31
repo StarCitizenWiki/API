@@ -3,6 +3,8 @@
 {{-- Page Title --}}
 @section('title', __('Registrieren'))
 
+@section('main--class', 'mt-5')
+
 @section('content')
     @component('components.heading', [
         'class' => 'text-center mb-5',

@@ -1,27 +1,5 @@
 <?php declare(strict_types = 1);
 
-if (!function_exists('validate_array')) {
-    /**
-     * Validates an array with given rules
-     *
-     * @param array                    $data    The Data to validate
-     * @param array                    $rules   The Rules to validate against
-     * @param \Illuminate\Http\Request $request The Request, needed to throw a ValidationException
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     *
-     * @return void
-     */
-    function validate_array(array $data, array $rules, \Illuminate\Http\Request $request)
-    {
-        $validator = resolve(\Illuminate\Contracts\Validation\Factory::class)->make($data, $rules);
-
-        if ($validator->fails()) {
-            throw new \Illuminate\Validation\ValidationException($validator);
-        }
-    }
-}
-
 if (!function_exists('make_name_readable')) {
     /**
      * @param string $methodName name of view function

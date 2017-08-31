@@ -38,6 +38,7 @@ define('PIWIK_SITE_ID', 15);
 
 /** Short URL */
 define('SHORT_URL_LENGTH', 6);
+define('SHORT_URL_DEFAULT_USER_ID', 1);
 
 /** Log Break Points */
 define('LOG_ERROR_DANGER_HOUR', 10);

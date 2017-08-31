@@ -43,18 +43,18 @@ class AdminController extends Controller
 
         $users = [
             'overall'       => User::all()->count(),
-            'last'          => User::take(5)->orderBy('created_at', 'desc')->get(),
+            'last'          => User::query()->take(5)->orderBy('created_at', 'desc')->get(),
             'registrations' => [
                 'counts' => [
-                    'last_hour' => User::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
-                    'today'     => User::whereDate('created_at', '=', $today)->get()->count(),
+                    'last_hour' => User::query()->whereDate('created_at', '>', Carbon::now()->subHour())->count(),
+                    'today'     => User::query()->whereDate('created_at', '=', $today)->get()->count(),
                     'overall'   => User::all()->count(),
                 ],
             ],
             'logins'        => [
                 'counts' => [
-                    'last_hour' => User::whereDate('last_login', '>', Carbon::now()->subHour())->count(),
-                    'today'     => User::whereDate('last_login', '=', $today)->get()->count(),
+                    'last_hour' => User::query()->whereDate('last_login', '>', Carbon::now()->subHour())->count(),
+                    'today'     => User::query()->whereDate('last_login', '=', $today)->get()->count(),
                     'overall'   => User::all()->count(),
                 ],
             ],
@@ -63,8 +63,8 @@ class AdminController extends Controller
         $apiRequests = [
             'last'   => ApiRequests::with('user')->take(5)->orderBy('created_at', 'desc')->get(),
             'counts' => [
-                'last_hour' => ApiRequests::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
-                'today'     => ApiRequests::whereDate('created_at', '=', $today)->get()->count(),
+                'last_hour' => ApiRequests::query()->whereDate('created_at', '>', Carbon::now()->subHour())->count(),
+                'today'     => ApiRequests::query()->whereDate('created_at', '=', $today)->get()->count(),
                 'overall'   => ApiRequests::all()->count(),
             ],
         ];
@@ -72,14 +72,14 @@ class AdminController extends Controller
         $shortUrls = [
             'last'   => ShortUrl::with('user')->take(5)->orderBy('created_at', 'desc')->get(),
             'counts' => [
-                'last_hour' => ShortUrl::whereDate('created_at', '>', Carbon::now()->subHour())->count(),
-                'today'     => ShortUrl::whereDate('created_at', '=', $today)->get()->count(),
+                'last_hour' => ShortUrl::query()->whereDate('created_at', '>', Carbon::now()->subHour())->count(),
+                'today'     => ShortUrl::query()->whereDate('created_at', '=', $today)->get()->count(),
                 'overall'   => ShortUrl::all()->count(),
             ],
         ];
 
         $notifications = [
-            'last' => Notification::take(7)->notExpired()->orderByDesc('created_at')->get(),
+            'last' => Notification::query()->take(7)->notExpired()->orderByDesc('created_at')->get(),
         ];
 
         return view('admin.dashboard')->with(

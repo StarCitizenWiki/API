@@ -80,7 +80,7 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'icon' => 'comment',
-                'contentClass' => 'bg-white text-dark text-center p-0',
+                'contentClass' => 'bg-white text-dark text-center p-0 p-xxl-2',
             ])
                 @slot('title')
                     @lang('Aktive Benachrichtigungen')
@@ -92,11 +92,11 @@
                 @endslot
                 <table class="table table-responsive table-sm mb-0 text-left">
                     <tr>
-                        <th>@lang('Typ')</th>
-                        <th>@lang('Inhalt')</th>
-                        <th>@lang('Ablaufdatum')</th>
-                        <th>@lang('Ausgabe')</th>
-                        <th></th>
+                        <th class="border-top-0">@lang('Typ')</th>
+                        <th class="border-top-0">@lang('Inhalt')</th>
+                        <th class="border-top-0">@lang('Ablaufdatum')</th>
+                        <th class="border-top-0">@lang('Ausgabe')</th>
+                        <th class="border-top-0"></th>
                     </tr>
                     @forelse($notifications['last'] as $notification)
                         <tr>
@@ -104,7 +104,10 @@
                             <td title="{{ $notification->content }}">
                                 {{ str_limit($notification->content, 40) }}
                             </td>
-                            <td>{{ $notification->expired_at->format('d.m.Y H:i:s') }}</td>
+                            <td title="{{ $notification->expired_at->format('d.m.Y H:i:s') }}">
+                                <span class="d-none d-xl-block">{{ $notification->expired_at->format('d.m.Y') }}</span>
+                                <span class="d-block d-xl-none">{{ $notification->expired_at->format('d.m.Y H:i:s') }}</span>
+                            </td>
                             <td>
                                 @if($notification->output_status)
                                     @component('components.elements.icon', ['class' => 'mr-2'])
@@ -350,7 +353,10 @@
                     @forelse($api_requests['last'] as $api_request)
                         <tr>
                             <td>{{ $api_request->user->name }}</td>
-                            <td>{{ $api_request->created_at }}</td>
+                            <td title="{{ $api_request->created_at->format('d.m.Y H:i:s') }}">
+                                <span class="d-none d-xl-block">{{ $api_request->created_at->format('d.m.Y') }}</span>
+                                <span class="d-block d-xl-none">{{ $api_request->created_at->format('d.m.Y H:i:s') }}</span>
+                            </td>
                             <td>{{ $api_request->request_uri }}</td>
                         </tr>
                     @empty
@@ -381,7 +387,10 @@
                             <td>{{ $short_url->id }}</td>
                             <td>{{ $short_url->hash }}</td>
                             <td title="{{ $short_url->url }}"><a href="{{ $short_url->url }}" rel="noopener" target="_blank">{{ parse_url($short_url->url)['host'] }}</a></td>
-                            <td>{{ $short_url->created_at }}</td>
+                            <td title="{{ $short_url->created_at->format('d.m.Y H:i:s') }}">
+                                <span class="d-none d-xl-block">{{ $short_url->created_at->format('d.m.Y') }}</span>
+                                <span class="d-block d-xl-none">{{ $short_url->created_at->format('d.m.Y H:i:s') }}</span>
+                            </td>
                             <td class="text-center"><a href="{{ route('admin_url_edit_form', $short_url->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @endforeach

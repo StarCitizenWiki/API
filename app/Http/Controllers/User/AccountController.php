@@ -96,9 +96,8 @@ class AccountController extends Controller
     public function updateAccount(Request $request): RedirectResponse
     {
         $user = Auth::user();
-        $data = [];
 
-        $this->validate(
+        $data = $this->validate(
             $request,
             [
                 'name'                       => 'present',
@@ -109,11 +108,6 @@ class AccountController extends Controller
         );
 
         $data['id'] = $user->id;
-        $data['name'] = $request->get('name');
-        $data['email'] = $request->get('email');
-        if (!is_null($request->get('password')) && !empty($request->get('password'))) {
-            $data['password'] = $request->get('password');
-        }
 
         User::updateUser($data);
 
