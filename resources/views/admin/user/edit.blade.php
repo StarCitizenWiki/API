@@ -122,7 +122,7 @@
                 </a>
             </small>
         @endslot
-        <table class="table table-responsive table-sm mb-0">
+        <table class="table table-responsive table-sm mb-0 border-top-0">
             <tr>
                 <th>@lang('ID')</th>
                 <th>@lang('Hash')</th>
@@ -158,7 +158,7 @@
                 </a>
             </small>
         @endslot
-        <table class="table table-responsive table-sm mb-0">
+        <table class="table table-responsive table-sm mb-0 border-top-0">
             <tr>
                 <th>@lang('ID')</th>
                 <th>@lang('Url')</th>

@@ -15,7 +15,7 @@
                 'method' => 'DELETE',
                 'action' => route('account_delete'),
             ])
-                <button class="btn btn-danger btn-block-xs-only float-right">@lang('Löschen')</button>
+                <button class="btn btn-danger btn-block-xs-only">@lang('Löschen')</button>
             @endcomponent
         @endunless
     </div>
