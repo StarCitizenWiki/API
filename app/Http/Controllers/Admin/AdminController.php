@@ -110,18 +110,7 @@ class AdminController extends Controller
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        if ($request->input('l')) {
-            LaravelLogViewer::setFile(base64_decode($request->input('l')));
-        }
-
-        if ($request->input('dl')) {
-            return response()->download(LaravelLogViewer::pathToLogFile(base64_decode($request->input('dl'))));
-        }
-
-        return view('admin.logs')
-            ->with('logs', LaravelLogViewer::all())
-            ->with('files', LaravelLogViewer::getFiles(true))
-            ->with('current_file', LaravelLogViewer::getFileName());
+        return view('admin.logs')->with('logs', $this->getLogs());
     }
 
     /**
