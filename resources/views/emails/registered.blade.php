@@ -1,13 +1,16 @@
 @component('mail::message')
-    # @lang('mail/registered.hello')
-    {{ __('mail/registered.intro', ['name' => config('app.name')]) }}
+# @lang('Willkommen auf der Star Citizen Wiki Api!')
+<br>
+<br>
+## @lang('Dein Api Key lautet:')
 
-    **@lang('mail/registered.api_key'):** `{{ $user->api_token }}`
-
-    @component('mail::button', ['url' => config('app.api_url')])
-        @lang('mail/registered.documentation')
-    @endcomponent
-
-
-    {{ config('app.name') }}
+@component('mail::panel')
+    <small>`{{ $user->api_token }}`</small>
+@endcomponent
+@lang('Bitte gib deinen Schlüssel nicht an dritte Weiter.')
+<br>
+<br>
+@component('mail::button', ['url' => config('app.api_url')])
+    @lang('Zur Dokumentation')
+@endcomponent
 @endcomponent
