@@ -82,7 +82,7 @@
                         'label' => __('In der letzten Minute'),
                         'id' => 'requests_per_minute',
                         'inputOptions' => 'disabled',
-                        'value' => $user->requests_per_minute,
+                        'value' => '-',
                     ])@endcomponent
                 </div>
                 <div class="col-12 col-lg-6">

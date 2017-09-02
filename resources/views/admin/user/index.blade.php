@@ -41,21 +41,13 @@
                         </td>
                         <td class="text-center">
                             @if($user->trashed())
-                                <span class="badge badge-info">
-                                    @lang('Gelöscht')
-                                </span>
+                                <i class="far fa-trash-alt text-muted" title="@lang('Gelöscht')"></i>
                             @elseif($user->isWhitelisted())
-                                <span class="badge badge-success">
-                                    @lang('Unlimitiert')
-                                </span>
+                                <i class="far fa-circle text-success" title="@lang('Nicht limitiert')"></i>
                             @elseif($user->isBlacklisted())
-                                <span class="badge badge-danger">
-                                    @lang('Gesperrt')
-                                </span>
+                                <i class="far fa-stop-circle text-danger" title="@lang('Gesperrt')"></i>
                             @else
-                                <span class="badge badge-secondary">
-                                    @lang('Normal')
-                                </span>
+                                <i class="far fa-minus" title="@lang('Normal')"></i>
                             @endif
                         </td>
                         <td>
