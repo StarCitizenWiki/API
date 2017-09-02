@@ -90,13 +90,13 @@
                         </a>
                     </small>
                 @endslot
-                <table class="table table-responsive table-sm mb-0 text-left">
+                <table class="table table-responsive table-sm mb-0 text-left border-top-0">
                     <tr>
-                        <th class="border-top-0">@lang('Typ')</th>
-                        <th class="border-top-0">@lang('Inhalt')</th>
-                        <th class="border-top-0">@lang('Ablaufdatum')</th>
-                        <th class="border-top-0">@lang('Ausgabe')</th>
-                        <th class="border-top-0"></th>
+                        <th>@lang('Typ')</th>
+                        <th>@lang('Inhalt')</th>
+                        <th>@lang('Ablaufdatum')</th>
+                        <th>@lang('Ausgabe')</th>
+                        <th></th>
                     </tr>
                     @forelse($notifications['last'] as $notification)
                         <tr>
@@ -153,14 +153,13 @@
                     </small>
                 @endslot
 
-                <table class="table table-sm mb-2">
+                <table class="table table-sm mb-2 border-top-0">
                     <tr>
-                        <th class="border-top-0">@lang('Logs'):</th>
-                        <th class="border-top-0 text-right" title="@lang('Error')"><i class="far fa-exclamation-triangle"></i>
-                        </th>
-                        <th class="border-top-0 text-right" title="@lang('Warning')"><i class="far fa-exclamation"></i></th>
-                        <th class="border-top-0 text-right" title="@lang('Info')"><i class="far fa-info"></i></th>
-                        <th class="border-top-0 text-right" title="@lang('Debug')"><i class="far fa-bug"></i></th>
+                        <th>@lang('Logs'):</th>
+                        <th class="text-right" title="@lang('Error')"><i class="far fa-exclamation-triangle"></i></th>
+                        <th class="text-right" title="@lang('Warning')"><i class="far fa-exclamation"></i></th>
+                        <th class="text-right" title="@lang('Info')"><i class="far fa-info"></i></th>
+                        <th class="text-right" title="@lang('Debug')"><i class="far fa-bug"></i></th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -220,11 +219,11 @@
                     </small>
                 @endslot
 
-                <table class="table table-sm mb-2">
+                <table class="table table-sm mb-2 border-top-0">
                     <tr>
-                        <th class="border-top-0">@lang('Benutzer'):</th>
-                        <th class="border-top-0 text-right" title="@lang('Registrierungen')"><i class="far fa-user-plus"></i></th>
-                        <th class="border-top-0 text-right" title="@lang('Logins')"><i class="far fa-sign-in"></i></th>
+                        <th>@lang('Benutzer'):</th>
+                        <th class="text-right" title="@lang('Registrierungen')"><i class="far fa-user-plus"></i></th>
+                        <th class="text-right" title="@lang('Logins')"><i class="far fa-sign-in"></i></th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -254,10 +253,10 @@
                     </small>
                 @endslot
 
-                <table class="table table-sm mb-0">
+                <table class="table table-sm mb-0 border-top-0">
                     <tr>
-                        <th class="border-top-0">@lang('Anfragen'):</th>
-                        <th class="border-top-0 text-right"><i class="far fa-caret-square-right"></i></th>
+                        <th>@lang('Anfragen'):</th>
+                        <th class="text-right"><i class="far fa-caret-square-right"></i></th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -289,10 +288,10 @@
                     </small>
                 @endslot
 
-                <table class="table table-sm mb-0">
+                <table class="table table-sm mb-0 border-top-0">
                     <tr>
-                        <th class="border-top-0">@lang('Erstellt'):</th>
-                        <th class="border-top-0 text-right"><i class="far fa-plus-square"></i></th>
+                        <th>@lang('Erstellt'):</th>
+                        <th class="text-right"><i class="far fa-plus-square"></i></th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -319,7 +318,7 @@
                 'title' => __('Benutzerübersicht'),
                 'icon' => 'table',
             ])
-                <table class="table table-responsive table-sm mb-0">
+                <table class="table table-responsive table-sm mb-0 border-top-0">
                     <tr>
                         <th>@lang('ID')</th>
                         <th>@lang('Name')</th>
@@ -344,7 +343,7 @@
                 'title' => __('Api Request Übersicht'),
                 'icon' => 'table',
             ])
-                <table class="table table-responsive table-sm mb-0">
+                <table class="table table-responsive table-sm mb-0 border-top-0">
                     <tr>
                         <th>@lang('Benutzer')</th>
                         <th>@lang('Datum')</th>
@@ -374,7 +373,7 @@
                 'title' => __('ShortUrl Übersicht'),
                 'icon' => 'table',
             ])
-                <table class="table table-responsive table-sm mb-0">
+                <table class="table table-responsive table-sm mb-0 border-top-0">
                     <tr>
                         <th>@lang('ID')</th>
                         <th>@lang('Hash')</th>
