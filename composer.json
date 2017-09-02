@@ -17,6 +17,7 @@
         "hashids/hashids": "^2.0"
     },
     "require-dev": {
+        "filp/whoops": "~2.0",
         "hesto/multi-auth": "^1.0",
         "caouecs/laravel-lang": "^3.0",
         "laravel/tinker": "~1.0",
