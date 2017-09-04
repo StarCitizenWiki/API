@@ -2,15 +2,10 @@
 
 namespace App\Exceptions;
 
-use Carbon\Carbon;
+use App\Traits\ChecksIfRequestWantsJsonTrait as ChecksIfRequestWantsJson;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class Handler
@@ -19,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class Handler extends ExceptionHandler
 {
+    use ChecksIfRequestWantsJson;
+
     /**
      * A list of the exception types that are not reported.
      *
@@ -66,20 +63,6 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Determines if request is an api call.
-     *
-     * If the request URI contains '/api/v'.
-     *
-     * @param \Illuminate\Http\Request $request Request to check
-     *
-     * @return bool
-     */
-    protected function isApiCall(Request $request)
-    {
-        return str_contains($request->getUri(), '/api/v');
-    }
-
-    /**
      * Convert an authentication exception into an unauthenticated response.
      *
      * @param \Illuminate\Http\Request                 $request   The HTTP Request
@@ -100,88 +83,5 @@ class Handler extends ExceptionHandler
         }
 
         return redirect()->guest($path);
-    }
-
-    /**
-     * Creates a new JSON response based on exception type.
-     *
-     * @param \Illuminate\Http\Request $request   Request
-     * @param \Exception               $exception Exception to handle
-     *
-     * @return \Illuminate\Http\Response
-     */
-    protected function getJsonResponseForException(Request $request, Exception $exception)
-    {
-        /** @var Exception $exception */
-        $exception = $this->prepareException($exception);
-
-        $response = [
-            'errors' => [
-                'Something went wrong',
-            ],
-            'meta'   => [
-                'status'       => 400,
-                'processed_at' => Carbon::now(),
-            ],
-        ];
-
-        if (config('app.debug')) {
-            $response['meta'] += [
-                'message'   => $exception->getMessage(),
-                'exception' => get_class($exception),
-                'trace'     => $exception->getTrace(),
-            ];
-        }
-
-        switch (true) {
-            case $exception instanceof NotFoundHttpException:
-            case $exception instanceof ModelNotFoundException:
-                $response['meta']['status'] = 404;
-                $response['errors'] = ['Resource not found'];
-                break;
-
-            case $exception instanceof ValidationException:
-                $response['errors'] = $exception->validator->errors()->getMessages();
-                break;
-
-            case $exception instanceof AuthenticationException:
-                $response['meta']['status'] = 401;
-                $response['errors'] = ['No permission'];
-                break;
-
-            case $exception instanceof HttpException:
-                $response['meta']['status'] = 403;
-                $response['errors'] = [$exception->getMessage()];
-                break;
-
-            case $exception instanceof InvalidDataException:
-                $response['meta']['status'] = 500;
-                $response['errors'] = ['Backend returned bad data'];
-                break;
-
-            default:
-                break;
-        }
-
-        return $this->jsonResponse($response);
-    }
-
-    /**
-     * Returns json response.
-     *
-     * @param array|null $payload Payload
-     *
-     * @return \Illuminate\Http\Response
-     */
-    protected function jsonResponse(array $payload)
-    {
-        $payload = $payload ?: [];
-
-        return response()->json(
-            $payload,
-            $payload['meta']['status'],
-            [],
-            JSON_PRETTY_PRINT
-        );
     }
 }
