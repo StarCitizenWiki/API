@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models;
+namespace App\Models\Admin;
 
 use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,4 +23,12 @@ class Admin extends Authenticatable
     protected $hidden = [
         'remember_token',
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function groups()
+    {
+        return $this->belongsToMany('App\Models\Admin\Group', 'admin_groups')->withTimestamps();
+    }
 }

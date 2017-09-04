@@ -5,7 +5,7 @@ use Illuminate\Database\Seeder;
 /**
  * Class ShortUrlsTableSeeder
  */
-class ShortUrlsTableSeeder extends Seeder
+class ShortUrlTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.

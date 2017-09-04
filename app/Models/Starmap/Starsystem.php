@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models;
+namespace App\Models\Starmap;
 
 use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Illuminate\Database\Eloquent\Model;

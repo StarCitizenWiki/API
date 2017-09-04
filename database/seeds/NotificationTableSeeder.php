@@ -5,7 +5,7 @@ use Illuminate\Database\Seeder;
 /**
  * Class NotificationsSeeder
  */
-class NotificationsTableSeeder extends Seeder
+class NotificationTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.

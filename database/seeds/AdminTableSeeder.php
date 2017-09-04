@@ -5,7 +5,7 @@ use Illuminate\Database\Seeder;
 /**
  * Class AdminsTableSeeder
  */
-class AdminsTableSeeder extends Seeder
+class AdminTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -20,16 +20,16 @@ class AdminsTableSeeder extends Seeder
                 'blocked'  => false,
             ]
         );
-        DB::table('wiki_group_admin')->insert(
+        DB::table('admin_groups')->insert(
             [
-                'admin_id'      => 1,
-                'wiki_group_id' => 4,
+                'admin_id' => 1,
+                'group_id' => 4,
             ]
         );
-        DB::table('wiki_group_admin')->insert(
+        DB::table('admin_groups')->insert(
             [
-                'admin_id'      => 1,
-                'wiki_group_id' => 5,
+                'admin_id' => 1,
+                'group_id' => 5,
             ]
         );
     }
