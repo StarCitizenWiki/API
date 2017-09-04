@@ -149,7 +149,6 @@ class UserController extends Controller
             [
                 'name'                => 'present|string',
                 'requests_per_minute' => 'required|integer',
-                'api_token'           => 'required|alpha_num|max:60|min:60',
                 'email'               => 'required|email|min:3',
                 'state'               => 'required|int|between:0,2',
                 'notes'               => 'nullable|string',
