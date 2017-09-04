@@ -57,7 +57,7 @@
                     <div class="col-12 col-lg-6">
                         @component('components.forms.form-group', [
                             'inputType' => 'datetime-local',
-                            'label' => __('Erstelldatum'),
+                            'label' => __('Ausgabedatum'),
                             'id' => 'published_at',
                             'value' => old('published_at'),
                         ])@endcomponent

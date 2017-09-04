@@ -55,9 +55,9 @@
                         'inputClass' => 'custom-select w-100',
                     ])
                         @slot('selectOptions')
-                            <option value="0">Normal</option>
-                            <option value="1">Unlimitiert</option>
-                            <option value="2">Gesperrt</option>
+                            <option value="0">@lang('Normal')</option>
+                            <option value="1">@lang('Unlimitiert')</option>
+                            <option value="2">@lang('Gesperrt')</option>
                         @endslot
                     @endcomponent
                 </div>
@@ -65,6 +65,7 @@
             @component('components.forms.form-group', [
                 'label' => __('Api Key'),
                 'id' => 'api_token',
+                'inputOptions' => 'disabled',
                 'value' => $user->api_token,
             ])@endcomponent
             <div class="row">
