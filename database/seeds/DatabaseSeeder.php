@@ -14,13 +14,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(UsersTableSeeder::class);
-        $this->call(ShortUrlWhitelistsTableSeeder::class);
-        $this->call(ShortUrlsTableSeeder::class);
-        $this->call(AdminsTableSeeder::class);
-        $this->call(WikiGroupsSeeder::class);
+        $this->call(UserTableSeeder::class);
+        $this->call(ShortUrlWhitelistTableSeeder::class);
+        $this->call(ShortUrlTableSeeder::class);
+        $this->call(AdminTableSeeder::class);
+        $this->call(GroupTableSeeder::class);
         if (App::environment() === 'local') {
-            $this->call(NotificationsTableSeeder::class);
+            $this->call(NotificationTableSeeder::class);
         }
     }
 }

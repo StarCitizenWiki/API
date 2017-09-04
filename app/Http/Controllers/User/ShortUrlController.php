@@ -83,8 +83,6 @@ class ShortUrlController extends Controller
      * @param \Illuminate\Http\Request $request The Request
      *
      * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
-     *
-     * @throws \App\Exceptions\ExpiredException
      */
     public function addUrl(Request $request)
     {

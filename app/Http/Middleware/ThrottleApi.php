@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Exceptions\UserBlacklistedException;
+use App\Exceptions\AccountDisabledExceptionAbstract;
 use App\Models\User;
 use Closure;
 use Illuminate\Cache\RateLimiter;
@@ -56,7 +56,7 @@ class ThrottleApi extends ThrottleRequests
 
         try {
             $rpm = $this->determineRequestsPerMinute($user);
-        } catch (UserBlacklistedException $e) {
+        } catch (AccountDisabledExceptionAbstract $e) {
             app('Log')::notice(
                 'Request from blacklisted User',
                 [
@@ -78,7 +78,7 @@ class ThrottleApi extends ThrottleRequests
      *
      * @return int
      *
-     * @throws UserBlacklistedException
+     * @throws AccountDisabledExceptionAbstract
      */
     private function determineRequestsPerMinute($user)
     {
@@ -87,7 +87,7 @@ class ThrottleApi extends ThrottleRequests
         }
 
         if ($user->blacklisted) {
-            throw new UserBlacklistedException();
+            throw new AccountDisabledExceptionAbstract();
         }
 
         return $user->requests_per_minute;
