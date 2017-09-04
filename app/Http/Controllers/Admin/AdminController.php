@@ -10,6 +10,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Jackiedo\LogReader\Facades\LogReader;
 
 /**
@@ -102,18 +103,6 @@ class AdminController extends Controller
 
 
     /**
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
-     */
-    public function showLogsView(Request $request)
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-
-        return view('admin.logs')->with('logs', $this->getLogs());
-    }
-
-    /**
      * Returns the View to list all routes
      *
      * @return \Illuminate\Contracts\View\View
@@ -141,14 +130,14 @@ class AdminController extends Controller
             return $today->lessThanOrEqualTo(Carbon::parse($item->date));
         };
 
-        $debug = LogReader::level('debug')->get();
-        $info = LogReader::level('info')->get();
-        $notice = LogReader::level('notice')->get();
-        $warning = LogReader::level('warning')->get();
-        $error = LogReader::level('error')->get();
-        $critical = LogReader::level('critical')->get();
-        $danger = LogReader::level('danger')->get();
-        $emergency = LogReader::level('emergency')->get();
+        $debug = LogReader::withRead()->level('debug')->get();
+        $info = LogReader::withRead()->level('info')->get();
+        $notice = LogReader::withRead()->level('notice')->get();
+        $warning = LogReader::withRead()->level('warning')->get();
+        $error = LogReader::withRead()->level('error')->get();
+        $critical = LogReader::withRead()->level('critical')->get();
+        $danger = LogReader::withRead()->level('danger')->get();
+        $emergency = LogReader::withRead()->level('emergency')->get();
 
         $logs = [
             'debug'     => [

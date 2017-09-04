@@ -48,3 +48,22 @@ if (!function_exists('get_cache_key_for_current_request')) {
         return $rememberKey;
     }
 }
+
+if (!function_exists('get_bootstrap_class_from_log_level')) {
+    /**
+     * @param string $level
+     *
+     * @return string
+     */
+    function get_bootstrap_class_from_log_level(string $level)
+    {
+        switch ($level) {
+            case 'error':
+            case 'critical':
+                return 'danger';
+
+            default:
+                return $level;
+        }
+    }
+}

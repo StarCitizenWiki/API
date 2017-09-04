@@ -75,7 +75,14 @@ Route::group(
             ],
             function () {
                 Route::get('dashboard', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');
-                Route::get('logs', ['uses' => 'AdminController@showLogsView'])->name('admin_logs');
+
+                Route::group(
+                    ['prefix' => 'logs'],
+                    function () {
+                        Route::get('/', ['uses' => 'LogController@showLogsView'])->name('admin_logs');
+                        Route::patch('/', ['uses' => 'LogController@markLogAsRead'])->name('admin_mark_logs_read');
+                    }
+                );
 
                 Route::group(
                     ['prefix' => 'notifications'],
