@@ -95,6 +95,10 @@ class User extends Authenticatable
         'state',
     ];
 
+    const STATE_DEFAULT = 0;
+    const STATE_WHITELISTED = 1;
+    const STATE_BLACKLISTED = 2;
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -149,7 +153,7 @@ class User extends Authenticatable
      */
     public function isWhitelisted(): bool
     {
-        return $this->state == 1;
+        return $this->state == static::STATE_WHITELISTED;
     }
 
     /**
@@ -159,7 +163,7 @@ class User extends Authenticatable
      */
     public function isBlacklisted(): bool
     {
-        return $this->state == 2;
+        return $this->state == static::STATE_BLACKLISTED;
     }
 
     /**

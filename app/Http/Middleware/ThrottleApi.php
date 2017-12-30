@@ -47,7 +47,7 @@ class ThrottleApi extends ThrottleRequests
         $user = User::where('api_token', $key)->first();
 
         if (!is_null($user)) {
-            if ($user->whitelisted) {
+            if ($user->isWhitelisted()) {
                 return $next($request);
             }
         } elseif (!is_null($key)) {
@@ -86,7 +86,7 @@ class ThrottleApi extends ThrottleRequests
             return THROTTLE_GUEST_REQUESTS;
         }
 
-        if ($user->blacklisted) {
+        if ($user->isBlacklisted()) {
             throw new AccountDisabledExceptionAbstract();
         }
 
