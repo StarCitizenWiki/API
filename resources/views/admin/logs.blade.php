@@ -11,7 +11,7 @@
             @lang('Logs')
             <button name="mark_all" class="btn btn-outline-danger btn-sm float-right">@lang('Alle als gelesen markieren')</button>
         </h4>
-        <div class="card-body p-0">
+        <div class="card-body p-0 table-responsive">
             <table class="table table-striped border-top-0 mb-0" id="logTable">
                 <tr>
                     <th class="text-center">
@@ -36,9 +36,8 @@
                             </label>
                         </td>
                         <td>
-                            <a data-toggle="collapse" href="#collapse-{{ $log->id }}" aria-expanded="false"
-                               aria-controls="collapse-{{ $log->id }}"><i class="far fa-plus-circle"></i></a>
-                            {{ $log->id }}
+                            <nobr><a data-toggle="collapse" href="#collapse-{{ $log->id }}" aria-expanded="false"
+                               aria-controls="collapse-{{ $log->id }}"><i class="far fa-plus-circle"></i><span title="{{ $log->id }}"> {{ substr($log->id, 0, 8) }}...</span></a></nobr>
                         </td>
                         <td>{{ explode('{', $log->context->message)[0] }}</td>
 

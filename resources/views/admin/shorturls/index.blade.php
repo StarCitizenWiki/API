@@ -3,8 +3,8 @@
 @section('content')
     <div class="card mb-3">
         <h4 class="card-header">@lang('ShortUrls')</h4>
-        <div class="card-body px-0">
-            <table class="table table-striped table-responsive mb-0">
+        <div class="card-body px-0 table-responsive">
+            <table class="table table-striped mb-0">
                 <thead>
                 <tr>
                     <th>@lang('ID')</th>

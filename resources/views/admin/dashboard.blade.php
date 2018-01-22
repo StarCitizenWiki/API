@@ -80,7 +80,7 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'icon' => 'comment',
-                'contentClass' => 'bg-white text-dark text-center p-0 p-xxl-2',
+                'contentClass' => 'bg-white text-dark text-center p-2 p-xxl-2 table-responsive',
             ])
                 @slot('title')
                     @lang('Aktive Benachrichtigungen')
@@ -90,7 +90,7 @@
                         </a>
                     </small>
                 @endslot
-                <table class="table table-responsive table-sm mb-0 text-left border-top-0">
+                <table class="table table-sm mb-0 text-left border-top-0">
                     <tr>
                         <th>@lang('Typ')</th>
                         <th>@lang('Inhalt')</th>
@@ -142,7 +142,7 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'icon' => 'book',
-                'contentClass' => 'bg-white text-dark p-2',
+                'contentClass' => 'bg-white text-dark p-2 table-responsive',
             ])
                 @slot('title')
                     @lang('Logs')
@@ -208,7 +208,7 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'icon' => 'users',
-                'contentClass' => 'bg-white text-dark p-2',
+                'contentClass' => 'bg-white text-dark p-2 table-responsive',
             ])
                 @slot('title')
                     @lang('Benutzer') ({{ $users['overall'] }})
@@ -242,7 +242,7 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'icon' => 'code',
-                'contentClass' => 'bg-white text-dark p-2',
+                'contentClass' => 'bg-white text-dark p-2 table-responsive',
             ])
                 @slot('title')
                     @lang('Api Anfragen') ({{ $api_requests['counts']['overall'] }})
@@ -277,7 +277,7 @@
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'icon' => 'link',
-                'contentClass' => 'bg-white text-dark p-2',
+                'contentClass' => 'bg-white text-dark p-2 table-responsive',
             ])
                 @slot('title')
                     @lang('ShortUrls') ({{ $short_urls['counts']['overall'] }})
@@ -314,11 +314,11 @@
         <div class="col-12 col-xl-4 mb-4 mb-xl-0">
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
-                'contentClass' => 'bg-white text-dark p-2',
+                'contentClass' => 'bg-white text-dark p-2 table-responsive',
                 'title' => __('Benutzerübersicht'),
                 'icon' => 'table',
             ])
-                <table class="table table-responsive table-sm mb-0 border-top-0">
+                <table class="table table-sm mb-0 border-top-0">
                     <tr>
                         <th>@lang('ID')</th>
                         <th>@lang('Name')</th>
@@ -339,11 +339,11 @@
         <div class="col-12 col-xl-4 mb-4 mb-xl-0">
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
-                'contentClass' => 'bg-white text-dark p-2',
+                'contentClass' => 'bg-white text-dark p-2 table-responsive',
                 'title' => __('Api Request Übersicht'),
                 'icon' => 'table',
             ])
-                <table class="table table-responsive table-sm mb-0 border-top-0">
+                <table class="table table-sm mb-0 border-top-0">
                     <tr>
                         <th>@lang('Benutzer')</th>
                         <th>@lang('Datum')</th>
@@ -369,11 +369,11 @@
         <div class="col-12 col-xl-4 mb-4 mb-xl-0">
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
-                'contentClass' => 'bg-white text-dark p-2',
+                'contentClass' => 'bg-white text-dark p-2 table-responsive',
                 'title' => __('ShortUrl Übersicht'),
                 'icon' => 'table',
             ])
-                <table class="table table-responsive table-sm mb-0 border-top-0">
+                <table class="table table-sm mb-0 border-top-0">
                     <tr>
                         <th>@lang('ID')</th>
                         <th>@lang('Hash')</th>
