@@ -16,8 +16,12 @@ use App\Transformers\AbstractBaseTransformer;
  */
 class SystemTransformer extends AbstractBaseTransformer
 {
+
+    const FILTER_FIELDS = ['sourcedata', 'id', 'exclude', 'created_at', 'updated_at', 'info_url'];
+    const RENAME_KEYS = ['cig_id' => 'id', 'cig_time_modified' => 'time_modified'];
+    const SUBARRAY_NODES = ['position', 'affiliation', 'aggregated'];
+
     /**
-     * TODO
      *
      * @param mixed $system System Data
      *
@@ -25,6 +29,7 @@ class SystemTransformer extends AbstractBaseTransformer
      */
     public function transform($system)
     {
-        return $system;
+        $system = $this->moveToSubarray($system, static::SUBARRAY_NODES);
+        return $this->filterAndRenameFields($system);
     }
 }

@@ -18,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
  *
  * @package App\Jobs
  */
-class DownloadStarmapData implements ShouldQueue
+class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -31,10 +31,9 @@ class DownloadStarmapData implements ShouldQueue
     // Add Type to Starmapdata
     const CELESTIAL_SUBOBJECTS_TYPE = ['LZ'];
 
-    /**
-     * @var \GuzzleHttp\Client
-     */
-    private $guzzleClient;
+    const OVERVIEWDATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
+    const CELESTIALOBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
+    const CELESTIALSUBOBJECTS_CHECKLIST = ['data', 'resultset', 0, 'children', 0];
 
     private $starsystems;
 
@@ -60,13 +59,14 @@ class DownloadStarmapData implements ShouldQueue
 
         //TODO Mail an api@startcitizen.wiki und ins log mit Anzahl wieviel System und Celestial Objects Updated
 
-        app('Log')::info('Starmap Download Job Finished');
+        app('Log')::info("Starmap Download Job Finished (Starsystems updated:{$this->starsystemsUpdated} 
+                         CelestialObjects updated:{$this->celestialObjectsUpdated})");
     }
 
     private function setSystems(): void
     {
         $overviewData = $this->getJsonArrayFromStarmap('bootup/');
-        if ($this->checkIfOverviewDataCanBeProcessed($overviewData)) {
+        if ($this->checkIfDataCanBeProcessed($overviewData, static::OVERVIEWDATA_CHECKLIST)) {
             $this->starsystems = $overviewData['data']['systems']['resultset'];
         } else {
             app('Log')::error('Can not read Systems from RSI');
@@ -88,28 +88,13 @@ class DownloadStarmapData implements ShouldQueue
     }
 
     /**
-     * @param $data
-     *
-     * @return bool
-     */
-    private function checkIfOverviewDataCanBeProcessed($data): bool
-    {
-        return is_array($data) &&
-            $data['success'] === 1 &&
-            array_key_exists('data', $data) &&
-            array_key_exists('systems', $data['data']) &&
-            array_key_exists('resultset', $data['data']['systems']) &&
-            array_key_exists(0, $data['data']['systems']['resultset']);
-    }
-
-    /**
      * @param $system
      */
     private function writeStarmapContentToDB($system): void
     {
         $systemId = $this->writeStarsystemToDB($system);
 
-        app('Log')::info('Read Celestial Objets of '.$system['code'].' (Id: '.$systemId.')');
+        app('Log')::info("Read Celestial Objects of {$system['code']} (Id: {$systemId})");
         $celestialObjects = $this->getCelestialObjects($system['code']);
         foreach ($celestialObjects as $celestialObject) {
             $this->writeCelestialObjectToDb($celestialObject, $systemId);
@@ -165,8 +150,6 @@ class DownloadStarmapData implements ShouldQueue
         return intval($systemId);
     }
 
-    // TODO change check to variable parameter List, with recursiv check
-
     /**
      * @param $starsystemName
      *
@@ -176,35 +159,15 @@ class DownloadStarmapData implements ShouldQueue
     {
         $allCelestialObjects = [];
         $starsystemData = $this->getJsonArrayFromStarmap('star-systems/'.$starsystemName);
-        if ($this->checkIfCelestialObjectsDataCanBeProcessed($starsystemData)) {
+        if ($this->checkIfDataCanBeProcessed($starsystemData, static::CELESTIALOBJECTS_CHECKLIST)) {
             $celestialObjects = $starsystemData['data']['resultset'][0]['celestial_objects'];
             $allCelestialObjects = $this->addCelestialSubobjects($celestialObjects);
         } else {
-            app('Log')::error('Can not read System '.$starsystemName.' from RSI');
+            app('Log')::error("Can not read System {$starsystemName} from RSI");
         }
 
         return $allCelestialObjects;
     }
-
-    // TODO change check to variable parameter List, with recursiv check
-
-    /**
-     * @param $data
-     *
-     * @return bool
-     */
-    private function checkIfCelestialObjectsDataCanBeProcessed($data): bool
-    {
-        return is_array($data) &&
-            $data['success'] === 1 &&
-            array_key_exists('data', $data) &&
-            array_key_exists('resultset', $data['data']) &&
-            array_key_exists(0, $data['data']['resultset']) &&
-            array_key_exists('celestial_objects', $data['data']['resultset'][0]) &&
-            array_key_exists(0, $data['data']['resultset'][0]['celestial_objects']);
-    }
-
-    // TODO change check to variable parameter List, with recursiv check
 
     /**
      * @param $celestialObjects
@@ -231,7 +194,7 @@ class DownloadStarmapData implements ShouldQueue
     private function getCelestialSubobjects($celestialContent): array
     {
         $celestialSubobjects = [];
-        if ($this->checkIfCelestialSubobjectsDataCanBeProcessed($celestialContent)) {
+        if ($this->checkIfDataCanBeProcessed($celestialContent, static::CELESTIALSUBOBJECTS_CHECKLIST)) {
             foreach ($celestialContent['data']['resultset'][0]['children'] as $celestialChildren) {
                 if (in_array($celestialChildren['type'], self::CELESTIAL_SUBOBJECTS_TYPE)) {
                     array_push($celestialSubobjects, $celestialChildren);
@@ -240,22 +203,6 @@ class DownloadStarmapData implements ShouldQueue
         }
 
         return $celestialSubobjects;
-    }
-
-    /**
-     * @param $data
-     *
-     * @return bool
-     */
-    private function checkIfCelestialSubobjectsDataCanBeProcessed($data): bool
-    {
-        return is_array($data) &&
-            $data['success'] === 1 &&
-            array_key_exists('data', $data) &&
-            array_key_exists('resultset', $data['data']) &&
-            array_key_exists(0, $data['data']['resultset']) &&
-            array_key_exists('children', $data['data']['resultset'][0]) &&
-            array_key_exists(0, $data['data']['resultset'][0]['children']);
     }
 
     /**

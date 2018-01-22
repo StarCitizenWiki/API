@@ -25,6 +25,16 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
     protected $validFields = [];
 
     /**
+     * Override in Child, using keys that should be filtered
+     */
+    const FILTER_FIELDS = [];
+    /**
+     * Override in Child, using key as original key and value as new key name
+     * e.g. 'cig_id' => 'id' replace the key name 'cig_id' to 'id'
+     */
+    const RENAME_KEYS = [];
+
+    /**
      * Adds requested fields to the filter array
      *
      * @param \Illuminate\Http\Request $request
@@ -101,5 +111,65 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
             }
             $this->filters[] = $field;
         }
+    }
+
+    /**
+     * When $array Keys start with Element of $newNodes, Key is moved to a new Subarray
+     * e.g. $array['entry_status'] is moved to $array['entry']['status']
+     * @param $array
+     * @param $newNodes array of new search and to moved Keys
+     *
+     * @return mixed
+     */
+    protected function moveToSubarray($array, $newNodes)
+    {
+        foreach ($array as $key => $value) {
+            foreach ($newNodes as $newNode) {
+                if (substr($key, 0, strlen($newNode)) === $newNode) {
+                    $newKey = substr($key, strlen($newNode)+1, strlen($key));
+                    $array[$newNode][$newKey] = $value;
+                    unset($array[$key]);
+                }
+            }
+        }
+        return $array;
+    }
+
+    /**
+     * Filter FILTER_FIELDS from $array and Rename $array Keys from RENAME_KEYS Key to RENAME_KEYS value
+     * Recursiv call, if $array contains another array
+     * @param $array array
+     *
+     * @return array Filtered and Renamed Array
+     */
+    protected function filterAndRenameFields($array)
+    {
+        // Filter By Key
+        $filteredArray = array_filter(
+            $array,
+            function ($key) {
+                return !in_array($key, static::FILTER_FIELDS);
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+
+        // Renaming of Keys
+        $filteredAndRenamedArray = [];
+        foreach ($filteredArray as $filteredKey => $filteredValue) {
+            if (array_key_exists($filteredKey, static::RENAME_KEYS)) {
+                $filteredAndRenamedArray[static::RENAME_KEYS[$filteredKey]] = $filteredValue;
+            } else {
+                $filteredAndRenamedArray[$filteredKey] = $filteredValue;
+            }
+        }
+
+        // Recursive Call for Subarrays
+        foreach ($filteredAndRenamedArray as $filteredAndRenamedArrayKey => $filteredAndRenamedArrayValue) {
+            if (is_array($filteredAndRenamedArrayValue)) {
+                $filteredAndRenamedArray[$filteredAndRenamedArrayKey] = $this->filterAndRenameFields($filteredAndRenamedArrayValue);
+            }
+        }
+
+        return $filteredAndRenamedArray;
     }
 }
