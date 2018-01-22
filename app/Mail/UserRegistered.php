@@ -19,18 +19,15 @@ class UserRegistered extends Mailable implements ShouldQueue
     use SerializesModels;
 
     public $user;
-    private $password;
 
     /**
      * Create a new message instance.
      *
-     * @param \Illuminate\Foundation\Auth\User $user     User Object
-     * @param string                           $password User Password
+     * @param \Illuminate\Foundation\Auth\User $user User Object
      */
-    public function __construct(User $user, string $password)
+    public function __construct(User $user)
     {
         $this->user = $user;
-        $this->password = $password;
     }
 
     /**
@@ -42,6 +39,6 @@ class UserRegistered extends Mailable implements ShouldQueue
     {
         $this->subject('Star Citizen Wiki API - Account');
 
-        return $this->markdown('mail.registered')->with('password', $this->password);
+        return $this->markdown('emails.registered');
     }
 }

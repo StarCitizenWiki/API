@@ -1,37 +1,66 @@
-@extends('layouts.admin')
-@section('title')
-    @lang('admin/shorturls/edit.header')
-@endsection
+@extends('admin.layouts.default')
 
 @section('content')
-    <div class="col-12 col-md-4 mx-auto">
-        @include('components.errors')
-        <form role="form" method="POST" action="{{ route('admin_urls_update') }}">
-            {{ csrf_field() }}
-            <input name="_method" type="hidden" value="PATCH">
-            <input name="id" type="hidden" value="{{ $url->id }}">
-            <div class="form-group">
-                <label for="url" aria-label="Name">@lang('admin/shorturls/edit.url'):</label>
-                <input type="url" class="form-control" id="url" name="url" aria-labelledby="url" tabindex="1" value="{{ $url->url }}" autofocus>
-            </div>
-            <div class="form-group">
-                <label for="hash_name" aria-label="Name">@lang('admin/shorturls/edit.name'):</label>
-                <input type="text" class="form-control" id="hash_name" name="hash_name" required aria-required="true" aria-labelledby="hash_name" tabindex="2" data-minlength="3" value="{{ $url->hash_name }}">
-            </div>
-            <div class="form-group">
-                <label for="expires" aria-label="expires">@lang('admin/shorturls/edit.expired'):</label>
-                <input type="datetime-local" class="form-control" id="expires" name="expires" aria-required="true" aria-labelledby="expires" tabindex="3" value="@unless(is_null($url->expires)){{ \Carbon\Carbon::parse($url->expires)->format('Y-m-d\TH:i') }}@endunless">
-            </div>
-            <div class="form-group">
-                <label for="user_id">@lang('admin/shorturls/edit.owner'):</label>
-                <select class="form-control" id="user_id" name="user_id">
-                    @foreach($users as $user)
-                        <option value="{{ $user->id }}" @if($url->user_id == $user->id) {{ 'selected' }}@endif>[{{ $user->id }}] {{ $user->email }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <button type="submit" class="btn btn-warning my-3">@lang('admin/shorturls/edit.edit')</button>
-        </form>
+    <div class="card">
+        <h4 class="card-header">@lang('ShortUrl bearbeiten'): {{ $url->hash }}</h4>
+        <div class="card-body">
+            @include('components.errors')
+
+            @component('components.forms.form', [
+                'method' => 'PATCH',
+                'action' => route('admin_url_update', $url->getRouteKey()),
+            ])
+                @component('components.forms.form-group', [
+                    'inputType' => 'url',
+                    'label' => __('Url'),
+                    'id' => 'url',
+                    'required' => 1,
+                    'autofocus' => 1,
+                    'value' => $url->url,
+                    'tabIndex' => 1,
+                    'inputOptions' => 'spellcheck=false',
+                ])@endcomponent
+
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        @component('components.forms.form-group', [
+                            'label' => __('Hash'),
+                            'id' => 'hash',
+                            'required' => 1,
+                            'value' => $url->hash,
+                            'tabIndex' => 2,
+                            'inputOptions' => 'spellcheck=false',
+                        ])@endcomponent
+                    </div>
+                    <div class="col-12 col-md-6">
+                        @component('admin.components.user_dropdown', [
+                            'label' => __('Benutzer'),
+                            'required' => 1,
+                            'tabIndex' => 3,
+                            'selectedID' => $url->user_id,
+                        ])@endcomponent
+                    </div>
+                </div>
+                @component('components.forms.form-group', [
+                    'inputType' => 'datetime-local',
+                    'label' => __('Ablaufdatum'),
+                    'id' => 'expired_at',
+                    'tabIndex' => 4,
+                ])
+                    @unless(is_null($url->expired_at))
+                        @slot('value')
+                            {{ $url->expired_at->format("Y-m-d\TH:i") }}
+                        @endslot
+                    @endunless
+                @endcomponent
+
+                @if($url->trashed())
+                    <button class="btn btn-outline-success" name="restore">@lang('Wiederherstellen')</button>
+                @else
+                    <button class="btn btn-outline-danger" name="delete">@lang('Löschen')</button>
+                @endif
+                <button class="btn btn-outline-secondary float-right" name="save">@lang('Speichern')</button>
+            @endcomponent
+        </div>
     </div>
 @endsection
-

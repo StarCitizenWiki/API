@@ -2,14 +2,10 @@
 
 namespace App\Exceptions;
 
-use Carbon\Carbon;
+use App\Traits\ChecksIfRequestWantsJsonTrait as ChecksIfRequestWantsJson;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class Handler
@@ -18,18 +14,25 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class Handler extends ExceptionHandler
 {
+    use ChecksIfRequestWantsJson;
+
     /**
-     * A list of the exception types that should not be reported.
+     * A list of the exception types that are not reported.
      *
      * @var array
      */
     protected $dontReport = [
-        \Illuminate\Auth\AuthenticationException::class,
-        \Illuminate\Auth\Access\AuthorizationException::class,
-        \Symfony\Component\HttpKernel\Exception\HttpException::class,
-        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
-        \Illuminate\Session\TokenMismatchException::class,
-        \Illuminate\Validation\ValidationException::class,
+        //
+    ];
+
+    /**
+     * A list of the inputs that are never flashed for validation exceptions.
+     *
+     * @var array
+     */
+    protected $dontFlash = [
+        'password',
+        'password_confirmation',
     ];
 
     /**
@@ -56,25 +59,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if ($this->isApiCall($request) || $request->expectsJson()) {
-            return $this->getJsonResponseForException($request, $exception);
-        } else {
-            return parent::render($request, $exception);
-        }
-    }
-
-    /**
-     * Determines if request is an api call.
-     *
-     * If the request URI contains '/api/v'.
-     *
-     * @param \Illuminate\Http\Request $request Request to check
-     *
-     * @return bool
-     */
-    protected function isApiCall(Request $request)
-    {
-        return str_contains($request->getUri(), '/api/v');
+        return parent::render($request, $exception);
     }
 
     /**
@@ -91,84 +76,12 @@ class Handler extends ExceptionHandler
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        return redirect()->guest('login');
-    }
-
-    /**
-     * Creates a new JSON response based on exception type.
-     *
-     * @param \Illuminate\Http\Request $request   Request
-     * @param \Exception               $exception Exception to handle
-     *
-     * @return \Illuminate\Http\Response
-     */
-    protected function getJsonResponseForException(Request $request, Exception $exception)
-    {
-        /** @var Exception $exception */
-        $exception = $this->prepareException($exception);
-
-        $response = [
-            'errors' => [
-                'Something went wrong',
-            ],
-            'meta'   => [
-                'status'       => 400,
-                'processed_at' => Carbon::now(),
-            ],
-        ];
-
-        if (config('app.debug')) {
-            $response['meta'] += [
-                'message'   => $exception->getMessage(),
-                'exception' => get_class($exception),
-                'trace'     => $exception->getTrace(),
-            ];
+        if (array_search('admin', $exception->guards()) !== false) {
+            $path = 'admin/login';
+        } else {
+            $path = 'login';
         }
 
-        switch (true) {
-            case $exception instanceof NotFoundHttpException:
-            case $exception instanceof ModelNotFoundException:
-                $response['meta']['status'] = 404;
-                $response['errors'] = ['Resource not found'];
-                break;
-
-            case $exception instanceof ValidationException:
-                $response['errors'] = $exception->validator->errors()->getMessages();
-                break;
-
-            case $exception instanceof AuthenticationException:
-                $response['meta']['status'] = 401;
-                $response['errors'] = ['No permission'];
-                break;
-
-            case $exception instanceof InvalidDataException:
-                $response['meta']['status'] = 500;
-                $response['errors'] = ['Backend returned bad data'];
-                break;
-
-            default:
-                break;
-        }
-
-        return $this->jsonResponse($response);
-    }
-
-    /**
-     * Returns json response.
-     *
-     * @param array|null $payload Payload
-     *
-     * @return \Illuminate\Http\Response
-     */
-    protected function jsonResponse(array $payload)
-    {
-        $payload = $payload ?: [];
-
-        return response()->json(
-            $payload,
-            $payload['meta']['status'],
-            [],
-            JSON_PRETTY_PRINT
-        );
+        return redirect()->guest($path);
     }
 }

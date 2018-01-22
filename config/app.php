@@ -12,7 +12,7 @@ return [
     | any other location as required by the application or its packages.
     */
 
-    'name' => 'Star Citizen Wiki API',
+    'name' => 'Star Citizen Wiki Api',
 
     /*
     |--------------------------------------------------------------------------
@@ -191,7 +191,7 @@ return [
          */
         Spatie\Fractal\FractalServiceProvider::class,
 
-        Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
+        Jackiedo\LogReader\LogReaderServiceProvider::class,
     ],
 
     /*
@@ -224,6 +224,7 @@ return [
         'Hash' => Illuminate\Support\Facades\Hash::class,
         'Lang' => Illuminate\Support\Facades\Lang::class,
         'Log' => \Illuminate\Support\Facades\Log::class,
+        'LogReader' => Jackiedo\LogReader\Facades\LogReader::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
         'Password' => Illuminate\Support\Facades\Password::class,

@@ -1,0 +1,67 @@
+.nav-dark {
+  .nav-link {
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.5);
+
+    &.disabled {
+      color: $gray-700;
+      cursor: no-drop;
+
+      &:hover {
+        color: $gray-600;
+      }
+    }
+
+    &:hover,
+    &:focus,
+    &.active {
+      color: $gray-400;
+    }
+  }
+}
+
+#nav-top-menu {
+  ul.collapse {
+    display: block !important;
+  }
+
+  .nav-link i.fa-caret-down,
+  .nav-link i.fa-caret-right {
+    display: none;
+  }
+}
+
+aside .nav-link {
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+[data-toggle="collapse"] i:before{
+  content: "\f0d7";
+}
+
+[data-toggle="collapse"].collapsed i:before{
+  content: "\f0da";
+}
+
+@include media-breakpoint-down(md) {
+  #nav-top-menu {
+    .nav-link {
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+    }
+    .text-muted {
+      color: $gray-100 !important;
+    }
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  div > ul.nav {
+    width: 100%;
+  }
+}

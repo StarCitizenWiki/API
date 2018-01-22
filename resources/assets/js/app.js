@@ -6,4 +6,7 @@
  */
 
 require('./bootstrap');
-require('datatables');
+require('datatables.net-bs4');
+require('../fontawesome/js/packs/regular');
+require('../fontawesome/js/packs/brands');
+require('../fontawesome/js/fontawesome');

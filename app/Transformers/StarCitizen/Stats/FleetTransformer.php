@@ -18,7 +18,7 @@ use App\Transformers\AbstractBaseTransformer;
 class FleetTransformer extends AbstractBaseTransformer
 {
     /**
-     * Transformes Stats to only return the fleet
+     * Transforms Stats to only return the fleet
      *
      * @param mixed $stats Data
      *

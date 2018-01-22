@@ -1,8 +1,11 @@
-<?php
-Route::group(['namespace' => 'ShortURL'], function () {
-    Route::get('/', ['uses' => 'ShortURLController@showShortURLView'])->name('short_url_index');
-    Route::post('shorten', ['uses' => 'ShortURLController@createAndRedirect'])->name('short_url_create_redirect');
-    Route::get('resolve', ['uses' => 'ShortURLController@showResolveView'])->name('short_url_resolve_form');
-    Route::post('resolve', ['uses' => 'ShortURLController@resolveAndDisplay'])->name('short_url_resolve_display');
-    Route::get('{hash_name}', ['uses' => 'ShortURLController@resolveAndRedirect'])->name('short_url_resolve_redirect');
-});
+<?php declare(strict_types = 1);
+Route::group(
+    ['namespace' => 'ShortUrl'],
+    function () {
+        Route::get('/', ['uses' => 'ShortUrlWebController@showShortUrlView'])->name('short_url_index');
+        Route::post('/', ['uses' => 'ShortUrlWebController@addUrl'])->name('short_url_web_create');
+        Route::get('resolve', ['uses' => 'ShortUrlWebController@showResolveView'])->name('short_url_web_resolve_form');
+        Route::post('resolve', ['uses' => 'ShortUrlWebController@resolveUrl'])->name('short_url_web_resolve');
+        Route::get('{url_hash}', ['uses' => 'ShortUrlWebController@redirectToUrl'])->name('short_url_web_redirect');
+    }
+);

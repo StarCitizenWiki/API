@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller;
 
@@ -11,8 +11,8 @@ use Tests\TestCase;
 class FundimageControllerTest extends TestCase
 {
     /**
-     * @covers \App\Http\Controllers\Tools\FundImageController::getImage()
-     * @covers \App\Http\Controllers\Tools\FundImageController
+     * @covers \App\Http\Controllers\Tool\FundImageController::getImage()
+     * @covers \App\Http\Controllers\Tool\FundImageController
      */
     public function testFundImage()
     {
@@ -21,8 +21,8 @@ class FundimageControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Tools\FundImageController::getImage()
-     * @covers \App\Http\Controllers\Tools\FundImageController
+     * @covers \App\Http\Controllers\Tool\FundImageController::getImage()
+     * @covers \App\Http\Controllers\Tool\FundImageController
      */
     public function testFundImageColor()
     {
@@ -31,8 +31,8 @@ class FundimageControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Tools\FundImageController::getImageWithText()
-     * @covers \App\Http\Controllers\Tools\FundImageController
+     * @covers \App\Http\Controllers\Tool\FundImageController::getImageWithText()
+     * @covers \App\Http\Controllers\Tool\FundImageController
      */
     public function testFundImageWithText()
     {
@@ -41,8 +41,8 @@ class FundimageControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Tools\FundImageController::getImageWithBars()
-     * @covers \App\Http\Controllers\Tools\FundImageController
+     * @covers \App\Http\Controllers\Tool\FundImageController::getImageWithBars()
+     * @covers \App\Http\Controllers\Tool\FundImageController
      */
     public function testFundImageWithBars()
     {

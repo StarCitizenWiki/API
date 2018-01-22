@@ -1,116 +1,146 @@
-@extends('layouts.admin')
-@section('title', 'Logs')
-
-@section('header')
-    <style>
-        .display-5 {
-            font-size: 2.5rem;
-        }
-
-        .date {
-            white-space: nowrap;
-        }
-
-        .stack {
-            font-size: 0.85em;
-        }
-
-        .date {
-            min-width: 75px;
-        }
-
-        .text {
-            word-break: break-all;
-        }
-
-        a.llv-active {
-            z-index: 2;
-            background-color: #f5f5f5;
-            border-color: #777;
-        }
-    </style>
-@endsection
+@extends('admin.layouts.default_wide')
 
 @section('content')
-    <div class="row">
-        <div class="col-12 col-md-3">
-            <h4>@lang('admin/logs.header')</h4>
-            <div class="list-group mt-3 mb-5">
-                @foreach($files as $file)
-                    <a href="?l={{ base64_encode($file) }}" class="list-group-item @if ($current_file == $file) llv-active @endif">
-                        {{$file}}
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-12 mx-4 pr-4 mb-4 table-container">
-            @if ($logs === null)
-                <div>
-                    @lang('admin/logs.log_too_big')
-                </div>
-            @else
-                <table id="table-log" class="table table-striped my-4 pr-3">
-                    <thead>
+    <div class="card mb-4">
+        @component('components.forms.form', [
+            'method' => 'PATCH',
+            'action' => route('admin_mark_logs_read'),
+        ])
+        <h4 class="card-header">
+            @lang('Logs')
+            <button name="mark_all" class="btn btn-outline-danger btn-sm float-right">@lang('Alle als gelesen markieren')</button>
+        </h4>
+        <div class="card-body p-0">
+            <table class="table table-striped border-top-0 mb-0" id="logTable">
+                <tr>
+                    <th class="text-center">
+                        <label class="custom-control custom-checkbox mr-0 mb-0">
+                            <input type="checkbox" class="custom-control-input" id="mark-all">
+                            <span class="custom-control-indicator"></span>
+                        </label>
+                    </th>
+                    <th>@lang('ID')</th>
+                    <th>@lang('Message')</th>
+                    <th>@lang('Environment')</th>
+                    <th>@lang('Level')</th>
+                    <th>@lang('Datum')</th>
+                </tr>
+                @forelse($logs as $log)
                     <tr>
-                        <th>@lang('admin/logs.level')</th>
-                        <th>@lang('admin/logs.context')</th>
-                        <th>@lang('admin/logs.date')</th>
-                        <th>@lang('admin/logs.content')</th>
+                        <td class="text-center">
+                            <label class="custom-control custom-checkbox mr-0 mb-0">
+                                <input type="checkbox" class="custom-control-input" name="mark_read[]"
+                                       value="{{ $log->id }}">
+                                <span class="custom-control-indicator"></span>
+                            </label>
+                        </td>
+                        <td>
+                            <a data-toggle="collapse" href="#collapse-{{ $log->id }}" aria-expanded="false"
+                               aria-controls="collapse-{{ $log->id }}"><i class="far fa-plus-circle"></i></a>
+                            {{ $log->id }}
+                        </td>
+                        <td>{{ explode('{', $log->context->message)[0] }}</td>
+
+                        <td>
+                            @if($log->environment === 'local')
+                                <i class="far fa-desktop"></i> @lang('Local')
+                            @endif
+                            @if($log->environment === 'testing')
+                                <i class="far fa-shield-check"></i> @lang('Testing')
+                            @endif
+                        </td>
+
+                        <td class="text-{{ get_bootstrap_class_from_log_level($log->level) }}">{{ $log->level }}</td>
+
+                        <td>{{ $log->date->format('d.m.Y H:i:s') }}</td>
                     </tr>
-                    </thead>
-                    <tbody>
-
-                    @foreach($logs as $key => $log)
-                        <tr>
-                            <td class="text-{{{$log['level_class']}}}"><span class="fa fa-{{{$log['level_img']}}}-sign" aria-hidden="true"></span> &nbsp;{{$log['level']}}</td>
-                            <td class="text">{{$log['context']}}</td>
-                            <td class="date" data-order="{{{$log['date']}}}">{{ \Carbon\Carbon::parse($log['date'])->format('d.m.Y H:i:s') }}</td>
-                            <td class="text">
-                                @if ($log['stack']) <a class="pull-right expand btn btn-default btn-xs" data-display="stack{{{$key}}}"><span class="fa fa-search"></span></a>@endif
-                                {{{$log['text']}}}
-                                @if (isset($log['in_file'])) <br />{{{$log['in_file']}}}@endif
-                                @if ($log['stack']) <div class="stack" id="stack{{{$key}}}" style="display: none; white-space: pre-wrap;">{{{ trim($log['stack']) }}}</div>@endif
-                            </td>
-                        </tr>
-                    @endforeach
-
-                    </tbody>
-                </table>
-            @endif
-            <div>
-                @if($current_file)
-                    <a href="?dl={{ base64_encode($current_file) }}"><span class="fa fa-download"></span> @lang('admin/logs.download_file')</a>
-                @endif
-            </div>
+                    <tr>
+                        <td colspan="6" class="py-0">
+                            <div class="collapse collapse-log-content mt-2" id="collapse-{{ $log->id }}">
+                                <?php $traces = null; preg_match_all('/(#[0-9]{1,3})(.*)\:(.*)/', $log->context->message, $traces); unset($traces[0]); ?>
+                                <div class="row mb-2">
+                                    <div class="col-1">
+                                        <i class="far fa-check"></i> @lang('Log file'):
+                                    </div>
+                                    <div class="col-11">
+                                        {{ $log->file_path }}
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-1">
+                                        @unless(count($traces[1]) == 0)
+                                            <i class="far fa-check"></i> @lang('Stack trace'):
+                                        @else
+                                            <i class="far fa-check"></i> @lang('Content'):
+                                        @endunless
+                                    </div>
+                                    <div class="col-11">
+                                        @unless(count($traces[1]) == 0)
+                                            @for($i = 0; $i < count($traces[1]); $i++)
+                                                <div class="row">
+                                                    <div class="col" style="max-width: 55px">
+                                                        {{ str_replace('#', '', $traces[1][$i]) }}.
+                                                    </div>
+                                                    <div class="col-11">
+                                                        <div><i>@lang('Caught at'):</i> {{ $traces[3][$i] }}</div>
+                                                        <div><i>@lang('Caught in'):</i> {{ $traces[2][$i] }}</div>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                            @endfor
+                                        @else
+                                            {{ $log->context->message }}
+                                        @endunless
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5">
+                            @lang('Keine Logs')
+                        </td>
+                    </tr>
+                @endforelse
+            </table>
         </div>
+        <div class="card-footer clearfix">
+            <button class="btn btn-outline-secondary float-left" type="submit">@lang('Als gelesen markieren')</button>
+            {{ $logs->links() }}
+        </div>
+        @endcomponent
     </div>
+
+
 @endsection
 
-@section('scripts')
-    <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap4.min.js"></script>
+@section('body__after')
+    @parent
     <script>
-        $(document).ready(function(){
-            $('#table-log').DataTable({
-                "order": [ 1, 'desc' ],
-                "stateSave": true,
-                "stateSaveCallback": function (settings, data) {
-                    window.localStorage.setItem("datatable", JSON.stringify(data));
-                },
-                "stateLoadCallback": function (settings) {
-                    var data = JSON.parse(window.localStorage.getItem("datatable"));
-                    if (data) data.start = 0;
-                    return data;
-                }
-            });
-            $('.table-container').on('click', '.expand', function(){
-                $('#' + $(this).data('display')).toggle();
-            });
-            $('#delete-log, #delete-all-log').click(function(){
-                return confirm('Are you sure?');
-            });
+        window.addEventListener('load', function () {
+            let width, collapseLogContent;
+
+            width = document.getElementById('logTable').offsetWidth;
+            console.log(width);
+
+            collapseLogContent = document.getElementsByClassName('collapse-log-content');
+
+            for (let i = 0; i < collapseLogContent.length; i++) {
+                collapseLogContent[i].style.width = (width - 25) + "px";
+            }
+
+        });
+
+        document.getElementById('mark-all').addEventListener('click', function (e) {
+            let checkboxes;
+
+            checkboxes = document.getElementsByName('mark_read[]');
+
+            for (let i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = e.target.checked;
+            }
         });
     </script>
 @endsection

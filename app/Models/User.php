@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,8 +15,8 @@ use Illuminate\Support\Facades\Auth;
  * @package App\Models
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[]
  *                $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortURL\ShortURL[]
- *                    $shortURLs
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortUrl\ShortUrl[]
+ *                    $shortUrls
  * @mixin \Eloquent
  * @property int
  *               $id
@@ -62,7 +63,7 @@ use Illuminate\Support\Facades\Auth;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereRequestsPerMinute($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereWhitelisted($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\APIRequests[] $apiRequests
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ApiRequests[] $apiRequests
  * @method static bool|null forceDelete()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\User onlyTrashed()
  * @method static bool|null restore()
@@ -74,6 +75,7 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
     use CanResetPassword;
+    use ObfuscatesID;
 
     /**
      * The attributes that are mass assignable.
@@ -81,6 +83,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'name',
         'email',
         'api_token',
         'password',
@@ -88,7 +91,13 @@ class User extends Authenticatable
         'last_login',
         'notes',
         'api_token_last_used',
+        'receive_notification_level',
+        'state',
     ];
+
+    const STATE_DEFAULT = 0;
+    const STATE_WHITELISTED = 1;
+    const STATE_BLACKLISTED = 2;
 
     /**
      * The attributes that should be hidden for arrays.
@@ -138,27 +147,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Checks if the current userid is in the defined AdminID Array
-     *
-     * @return bool
-     */
-    public function isAdmin(): bool
-    {
-        $isAdmin = in_array($this->id, AUTH_ADMIN_IDS);
-
-        return $isAdmin;
-    }
-
-    /**
      * Checks if the whitelisted flag is set to true
      *
      * @return bool
      */
     public function isWhitelisted(): bool
     {
-        $whitelisted = $this->whitelisted == 1;
-
-        return $whitelisted;
+        return $this->state == static::STATE_WHITELISTED;
     }
 
     /**
@@ -168,9 +163,7 @@ class User extends Authenticatable
      */
     public function isBlacklisted(): bool
     {
-        $blacklisted = $this->blacklisted == 1;
-
-        return $blacklisted;
+        return $this->state == static::STATE_BLACKLISTED;
     }
 
     /**
@@ -178,9 +171,9 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function shortURLs()
+    public function shortUrls()
     {
-        return $this->hasMany('App\Models\ShortURL\ShortURL');
+        return $this->hasMany('App\Models\ShortUrl\ShortUrl');
     }
 
     /**
@@ -188,6 +181,6 @@ class User extends Authenticatable
      */
     public function apiRequests()
     {
-        return $this->hasMany('App\Models\APIRequests');
+        return $this->hasMany('App\Models\ApiRequests');
     }
 }

@@ -5,10 +5,10 @@
  * Time: 18:16
  */
 
-namespace App\Repositories\StarCitizenWiki\APIv1;
+namespace App\Repositories\StarCitizenWiki\ApiV1;
 
 use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
-use App\Repositories\StarCitizenWiki\Interfaces\ShipsInterface;
+use App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface;
 use App\Transformers\StarCitizenWiki\Ships\ShipsListTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsSearchTransformer;
 use App\Transformers\StarCitizenWiki\Ships\ShipsTransformer;
@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ShipsRepository
- * @package App\Repositories\StarCitizenWiki\APIv1\Ships
+ * @package App\Repositories\StarCitizenWiki\ApiV1\Ships
  */
-class ShipsRepository extends AbstractStarCitizenWikiRepository implements ShipsInterface
+class ShipsRepository extends AbstractStarCitizenWikiRepository implements ShipsRepositoryInterface
 {
     /**
      * Returns Ship data
@@ -28,7 +28,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * @param \Illuminate\Http\Request $request
      * @param string                   $shipName ShipName
      *
-     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
      */
     public function getShip(Request $request, string $shipName): ShipsRepository
     {
@@ -37,8 +37,8 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
 
         $this->getShipDataFromWiki($shipName);
         $this->resetTransform();
-        $this->transformer = resolve(ShipsTransformer::class);
-        $this->transformer->addFilters($request);
+        $this->withTransformer(ShipsTransformer::class);
+        $this->getTransformer()->addFilters($request);
         $this->getShipDataFromSCDB();
 
         return $this;
@@ -47,13 +47,12 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
     /**
      * Gets a ShipList
      *
-     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
      */
     public function getShipList(): ShipsRepository
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->collection();
-        $this->transformer = resolve(ShipsListTransformer::class);
+        $this->collection()->withTransformer(ShipsListTransformer::class);
 
         $offset = 0;
         $data = [];
@@ -80,7 +79,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      *
      * @param string $shipName ShipName
      *
-     * @return \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository
+     * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
      */
     public function searchShips(string $shipName)
     {
@@ -89,8 +88,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
          * TODO: Suche Gibt teils Mist zurück
          * Beispiel: Suche nach Aurora gibt zusätzlich Orion und Hull A zurück!?
          */
-        $this->transformer = resolve(ShipsSearchTransformer::class);
-        $this->collection()->request(
+        $this->collection()->withTransformer(ShipsSearchTransformer::class)->request(
             'GET',
             '?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName,
             []
@@ -107,8 +105,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      */
     private function getShipDataFromWiki(string $shipName): void
     {
-        $this->transformer = resolve(SMWTransformer::class);
-        $this->request(
+        $this->withTransformer(SMWTransformer::class)->request(
             'GET',
             '?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
             []
@@ -131,7 +128,6 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      */
     private function resetTransform(): void
     {
-        $this->transformer = null;
         $this->transformedResource = null;
     }
 

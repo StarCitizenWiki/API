@@ -2,9 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\APIRequests;
+use App\Models\ApiRequests;
 use App\Models\User;
-use App\Traits\ProfilesMethodsTrait;
 use Closure;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -16,8 +15,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
  */
 class UpdateTokenTimestamp
 {
-    use ProfilesMethodsTrait;
-
     /**
      * Handle an incoming request.
      *
@@ -28,9 +25,11 @@ class UpdateTokenTimestamp
      */
     public function handle($request, Closure $next)
     {
-        $this->startProfiling(__FUNCTION__);
+        $key = $request->header('Authorization', null);
 
-        $key = $request->get(AUTH_KEY_FIELD_NAME, null);
+        if (is_null($key)) {
+            $key = $request->query->get('Authorization', null);
+        }
 
         if (!is_null($key)) {
             try {
@@ -39,7 +38,7 @@ class UpdateTokenTimestamp
                 $user->save();
 
                 app('Log')::info("Updated Token Last Used Timestamp for User: {$user->id}");
-                APIRequests::create(
+                ApiRequests::create(
                     [
                         'user_id'     => $user->id,
                         'request_uri' => $request->path(),
@@ -49,8 +48,6 @@ class UpdateTokenTimestamp
                 app('Log')::notice("Provided Api Key: {$key} has no associated user");
             }
         }
-
-        $this->stopProfiling(__FUNCTION__);
 
         return $next($request);
     }

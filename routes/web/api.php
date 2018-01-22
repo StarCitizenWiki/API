@@ -1,88 +1,221 @@
-<?php
-Route::get('/', ['uses' => 'APIPageController@showAPIView'])->name('api_index');
-Route::get('/faq', ['uses' => 'APIPageController@showFAQView'])->name('api_faq');
+<?php declare(strict_types = 1);
 
-Route::group(['prefix' => 'admin', 'namespace' => 'Auth\Admin'], function () {
-    Route::get('/', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');
-    Route::get('logs', ['uses' => 'AdminController@showLogsView'])->name('admin_logs');
+Route::group(
+    ['namespace' => 'Api'],
+    function () {
+        Route::get('/', ['uses' => 'PageController@showApiView'])->name('api_index');
+        Route::get('/faq', ['uses' => 'PageController@showFaqView'])->name('api_faq');
+        Route::get('/status', ['uses' => 'PageController@showStatusView'])->name('api_status');
+    }
+);
 
-    Route::group(['prefix' => 'users'], function () {
-        Route::get('/', ['uses' => 'UserController@showUsersListView'])->name('admin_users_list');
-        Route::delete('/', ['uses' => 'UserController@deleteUser'])->name('admin_users_delete');
-        Route::patch('/', ['uses' => 'UserController@updateUser'])->name('admin_users_update');
-        Route::post('restore', ['uses' => 'UserController@restoreUser'])->name('admin_users_restore');
-        Route::get('{ID}', ['uses' => 'UserController@showEditUserView'])->name('admin_users_edit_form');
-        Route::get('{ID}/urls', ['uses' => 'ShortURLController@showURLsListForUserView'])->name('admin_users_urls_list');
-        Route::get('{ID}/requests', ['uses' => 'UserController@showRequestsView'])->name('admin_users_requests_list');
-    });
+Route::group(
+    ['namespace' => 'User'],
+    function () {
+        Route::group(
+            ['namespace' => 'Auth'],
+            function () {
+                // Authentication Routes...
+                Route::get('login', ['uses' => 'LoginController@showLoginForm'])->name('auth_login_form');
+                Route::post('login', ['uses' => 'LoginController@login'])->name('auth_login');
+                Route::post('logout', ['uses' => 'LoginController@logout'])->name('auth_logout');
 
-    Route::get('routes', ['uses' => 'AdminController@showRoutesView'])->name('admin_routes_list');
+                // Registration Routes...
+                Route::get('register', ['uses' => 'RegisterController@showRegistrationForm'])->name(
+                    'auth_register_form'
+                );
+                Route::post('register', ['uses' => 'RegisterController@register'])->name('auth_register');
 
-    Route::group(['prefix' => 'urls'], function () {
-        Route::get('/', ['uses' => 'ShortURLController@showURLsListView'])->name('admin_urls_list');
-        Route::delete('/', ['uses' => 'ShortURLController@deleteURL'])->name('admin_urls_delete');
-        Route::patch('/', ['uses' => 'ShortURLController@updateURL'])->name('admin_urls_update');
-        Route::get('whitelist', ['uses' => 'ShortURLController@showURLWhitelistView'])->name('admin_urls_whitelist_list');
-        Route::get('whitelist/add', ['uses' => 'ShortURLController@showAddURLWhitelistView'])->name('admin_urls_whitelist_add_form');
-        Route::delete('whitelist', ['uses' => 'ShortURLController@deleteWhitelistURL'])->name('admin_urls_whitelist_delete');
-        Route::post('whitelist', ['uses' => 'ShortURLController@addWhitelistURL'])->name('admin_urls_whitelist_add');
-        Route::get('{ID}', ['uses' => 'ShortURLController@showEditURLView'])->name('admin_urls_edit_form');
-    });
+                Route::get('password/reset', 'ForgotPasswordController@showLinkRequestForm')->name('password.request');
+                Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+                Route::get('password/reset/{token}', 'ResetPasswordController@showResetForm')->name('password.reset');
+                Route::post('password/reset', 'ResetPasswordController@reset');
+            }
+        );
 
-    Route::group(['prefix' => 'starmap'], function () {
-        Route::group(['prefix' => 'systems'], function () {
-            Route::get('/', ['uses' => 'StarmapController@showStarmapSystemsView'])->name('admin_starmap_systems_list');
-            Route::patch('/', ['uses' => 'StarmapController@updateStarmapSystem'])->name('admin_starmap_systems_update');
-            Route::post('/', ['uses' => 'StarmapController@addStarmapSystem'])->name('admin_starmap_systems_add');
-            Route::post('/download', ['uses' => 'StarmapController@downloadStarmap'])->name('admin_starmap_systems_download');
-            Route::post('/downloadjumppointtunnel', ['uses' => 'JumppointTunnelController@downloadJumppointTunnels'])->name('admin_starmap_jumppointtunnel_download');
-        });
-        Route::group(['prefix' => 'celestialobject'], function () {
-            Route::get('/', ['uses' => 'StarmapController@showStarmapCelestialObjectView'])->name('admin_starmap_celestialobject_list');
-            Route::patch('/', ['uses' => 'StarmapController@updateStarmapCelestialobject'])->name('admin_starmap_celestialobject_update');
-            Route::delete('/', ['uses' => 'StarmapController@deleteStarmapCelestialobject'])->name('admin_starmap_celestialobject_delete');
-            Route::post('/', ['uses' => 'StarmapController@addStarmapCelestialobject'])->name('admin_starmap_celestialobject_add');
-        });
-        Route::group(['prefix' => 'jumppointtunnel'], function () {
-            Route::get('/', ['uses' => 'JumppointTunnelController@showJumppointTunnelView'])->name('admin_starmap_jumppointtunnel_list');
-        });
-    });
+        Route::group(
+            ['prefix' => 'account'],
+            function () {
+                // Account Routes...
+                Route::get('/', ['uses' => 'AccountController@showAccountView'])->name('account');
+                Route::delete('/', ['uses' => 'AccountController@delete'])->name('account_delete');
+                Route::patch('/', ['uses' => 'AccountController@updateAccount'])->name('account_update');
+                Route::get('edit', ['uses' => 'AccountController@showEditAccountView'])->name('account_edit_form');
+                Route::get('delete', ['uses' => 'AccountController@showDeleteAccountView'])->name(
+                    'account_delete_form'
+                );
 
-    Route::group(['prefix' => 'ships'], function () {
-        Route::get('/', ['uses' => 'ShipsController@showShipsView'])->name('admin_ships_list');
-        Route::post('/download', ['uses' => 'ShipsController@downloadShips'])->name('admin_ships_download');
-    });
-});
+                Route::group(
+                    ['prefix' => 'urls'],
+                    function () {
+                        Route::get('add', ['uses' => 'ShortUrlController@showAddUrlView'])->name(
+                            'account_url_add_form'
+                        );
+                        Route::get('/', ['uses' => 'ShortUrlController@showUrlsListView'])->name('account_url_list');
+                        Route::post('/', ['uses' => 'ShortUrlController@addUrl'])->name('account_url_add');
+                        Route::delete('{url}', ['uses' => 'ShortUrlController@deleteUrl'])->name('account_url_delete');
+                        Route::patch('{url}', ['uses' => 'ShortUrlController@updateUrl'])->name('account_url_update');
+                        Route::get('{url}', ['uses' => 'ShortUrlController@showEditUrlView'])->name(
+                            'account_url_edit_form'
+                        );
+                    }
+                );
+            }
+        );
+    }
+);
 
-Route::group(['namespace' => 'Auth'], function () {
-    // Authentication Routes...
-    Route::get('login', ['uses' => 'LoginController@showLoginForm', 'name' => 'login'])->name('auth_login_form');
-    Route::post('login', ['uses' => 'LoginController@login'])->name('auth_login');
-    Route::post('logout', ['uses' => 'LoginController@logout'])->name('auth_logout');
+Route::group(
+    ['namespace' => 'Admin', 'prefix' => 'admin'],
+    function () {
+        Route::group(
+            ['namespace' => 'Auth'],
+            function () {
+                Route::get('/login', 'LoginController@showLoginForm')->name('admin_login_form');
+                Route::post('/login', 'LoginController@login')->name('admin_login');
+                Route::post('/logout', 'LoginController@logout')->name('admin_logout');
+            }
+        );
+        Route::group(
+            [
+                'middleware' => ['admin', 'auth:admin'],
+            ],
+            function () {
+                Route::get('dashboard', ['uses' => 'AdminController@showDashboardView'])->name('admin_dashboard');
 
-    // Registration Routes...
-    Route::get('register', ['uses' => 'RegisterController@showRegistrationForm'])->name('auth_register_form');
-    Route::post('register', ['uses' => 'RegisterController@register'])->name('auth_register');
+                Route::group(
+                    ['prefix' => 'logs'],
+                    function () {
+                        Route::get('/', ['uses' => 'LogController@showLogsView'])->name('admin_logs');
+                        Route::patch('/', ['uses' => 'LogController@markLogAsRead'])->name('admin_mark_logs_read');
+                    }
+                );
 
-    Route::get('password/reset', 'ForgotPasswordController@showLinkRequestForm')->name('password.request');
-    Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail')->name('password.email');
-    Route::get('password/reset/{token}', 'ResetPasswordController@showResetForm')->name('password.reset');
-    Route::post('password/reset', 'ResetPasswordController@reset');
+                Route::group(
+                    ['prefix' => 'notifications'],
+                    function () {
+                        Route::get('/', ['uses' => 'NotificationController@showNotificationListView'])->name(
+                            'admin_notification_list'
+                        );
+                        Route::get('/add', ['uses' => 'NotificationController@showAddNotificationView'])->name(
+                            'admin_notification_add_form'
+                        );
+                        Route::post('/', ['uses' => 'NotificationController@addNotification'])->name(
+                            'admin_notification_add'
+                        );
+                        Route::delete('{notification}', ['uses' => 'NotificationController@deleteNotification'])->name(
+                            'admin_notification_delete'
+                        );
+                        Route::patch('{notification}', ['uses' => 'NotificationController@updateNotification'])->name(
+                            'admin_notification_update'
+                        );
+                        Route::post(
+                            '{notification_with_trashed}/restore',
+                            ['uses' => 'NotificationController@restoreNotification']
+                        )->name('admin_notification_restore');
+                        Route::get(
+                            '{notification}',
+                            ['uses' => 'NotificationController@showEditNotificationView']
+                        )->name('admin_notification_edit_form');
+                    }
+                );
 
-    Route::group(['prefix' => 'account', 'namespace' => 'Account'], function () {
-        // Account Routes...
-        Route::get('/', ['uses' => 'AccountController@showAccountView'])->name('account');
-        Route::delete('/', ['uses' => 'AccountController@delete'])->name('account_delete');
-        Route::patch('/', ['uses' => 'AccountController@updateAccount'])->name('account_update');
-        Route::get('edit', ['uses' => 'AccountController@showEditAccountView'])->name('account_edit_form');
+                Route::group(
+                    ['prefix' => 'user'],
+                    function () {
+                        Route::get('/', ['uses' => 'UserController@showUserListView'])->name('admin_user_list');
+                        Route::delete('{user}', ['uses' => 'UserController@deleteUser'])->name('admin_user_delete');
+                        Route::patch('{user}', ['uses' => 'UserController@updateUser'])->name('admin_user_update');
+                        Route::post('{user_with_trashed}/restore', ['uses' => 'UserController@restoreUser'])->name(
+                            'admin_user_restore'
+                        );
+                        Route::get('{user_with_trashed}', ['uses' => 'UserController@showEditUserView'])->name(
+                            'admin_user_edit_form'
+                        );
+                        Route::get('{user}/urls', ['uses' => 'UserController@showUrlListView'])->name(
+                            'admin_user_url_list'
+                        );
+                        Route::get('{user}/requests', ['uses' => 'UserController@showRequestView'])->name(
+                            'admin_user_request_list'
+                        );
+                    }
+                );
 
-        Route::group(['prefix' => 'urls'], function () {
-            Route::get('/', ['uses' => 'ShortURLController@showURLsListView'])->name('account_urls_list');
-            Route::post('/', ['uses' => 'ShortURLController@addURL'])->name('account_urls_add');
-            Route::delete('/', ['uses' => 'ShortURLController@deleteURL'])->name('account_urls_delete');
-            Route::patch('/', ['uses' => 'ShortURLController@updateURL'])->name('account_urls_update');
-            Route::get('add', ['uses' => 'ShortURLController@showAddURLView'])->name('account_urls_add_form');
-            Route::get('{ID}', ['uses' => 'ShortURLController@showEditURLView'])->name('account_urls_edit_form');
-        });
-    });
-});
+                Route::get('requests', ['uses' => 'AdminController@showApiRequestListView'])->name(
+                    'admin_request_list'
+                );
+
+                Route::group(
+                    ['prefix' => 'urls', 'namespace' => 'ShortUrl'],
+                    function () {
+                        Route::group(
+                            ['prefix' => 'whitelist'],
+                            function () {
+                                Route::get('/', ['uses' => 'ShortUrlWhitelistController@showUrlWhitelistView'])->name(
+                                    'admin_url_whitelist_list'
+                                );
+                                Route::delete(
+                                    '{whitelist_url}',
+                                    ['uses' => 'ShortUrlWhitelistController@deleteWhitelistUrl']
+                                )->name('admin_url_whitelist_delete');
+                                Route::post('/', ['uses' => 'ShortUrlWhitelistController@addWhitelistUrl'])->name(
+                                    'admin_url_whitelist_add'
+                                );
+                                Route::get(
+                                    'add',
+                                    ['uses' => 'ShortUrlWhitelistController@showAddUrlWhitelistView']
+                                )->name('admin_url_whitelist_add_form');
+                            }
+                        );
+                        Route::get('/', ['uses' => 'ShortUrlController@showUrlListView'])->name('admin_url_list');
+                        Route::get('{url}', ['uses' => 'ShortUrlController@showEditUrlView'])->name(
+                            'admin_url_edit_form'
+                        );
+                        Route::delete('{url}', ['uses' => 'ShortUrlController@deleteUrl'])->name('admin_url_delete');
+                        Route::patch('{url}', ['uses' => 'ShortUrlController@updateUrl'])->name('admin_url_update');
+                        Route::post('{url}', ['uses' => 'ShortUrlController@restoreUrl'])->name('admin_url_restore');
+                    }
+                );
+
+                Route::group(
+                    ['prefix' => 'starmap'],
+                    function () {
+                        Route::group(
+                            ['prefix' => 'systems'],
+                            function () {
+                                Route::get('/', ['uses' => 'StarmapController@showStarmapSystemsView'])->name('admin_starmap_systems_list');
+                                Route::patch('/', ['uses' => 'StarmapController@updateStarmapSystem'])->name('admin_starmap_systems_update');
+                                Route::post('/', ['uses' => 'StarmapController@addStarmapSystem'])->name('admin_starmap_systems_add');
+                                Route::post('/download', ['uses' => 'StarmapController@downloadStarmap'])->name('admin_starmap_systems_download');
+                                Route::post('/downloadjumppointtunnel', ['uses' => 'JumppointTunnelController@downloadJumppointTunnels'])->name('admin_starmap_jumppointtunnel_download');
+                            }
+                        );
+                        Route::group(
+                            ['prefix' => 'celestialobject'],
+                            function () {
+                                Route::get('/', ['uses' => 'StarmapController@showStarmapCelestialObjectView'])->name('admin_starmap_celestialobject_list');
+                                Route::patch('/', ['uses' => 'StarmapController@updateStarmapCelestialobject'])->name('admin_starmap_celestialobject_update');
+                                Route::delete('/', ['uses' => 'StarmapController@deleteStarmapCelestialobject'])->name('admin_starmap_celestialobject_delete');
+                                Route::post('/', ['uses' => 'StarmapController@addStarmapCelestialobject'])->name('admin_starmap_celestialobject_add');
+                            }
+                        );
+                        Route::group(
+                            ['prefix' => 'jumppointtunnel'],
+                            function () {
+                                Route::get('/', ['uses' => 'JumppointTunnelController@showJumppointTunnelView'])->name('admin_starmap_jumppointtunnel_list');
+                            }
+                        );
+                    }
+                );
+
+                Route::group(
+                    ['prefix' => 'ships'],
+                    function () {
+                        Route::get('/', ['uses' => 'ShipsController@showShipsView'])->name('admin_ships_list');
+                        Route::post('/download', ['uses' => 'ShipsController@downloadShips'])->name('admin_ships_download');
+                    }
+                );
+            }
+        );
+    }
+);

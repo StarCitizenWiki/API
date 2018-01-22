@@ -23,7 +23,7 @@ class ShipsSearchTransformer extends AbstractBaseTransformer
     ];
 
     /**
-     * Transformes a ship search query
+     * Transforms a ship search query
      *
      * @param mixed $search Ship search data
      *

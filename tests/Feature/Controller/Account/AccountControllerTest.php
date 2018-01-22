@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Controller\Account;
 
@@ -23,7 +23,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\AccountController::showAccountView()
+     * @covers \App\Http\Controllers\User\AccountController::showAccountView()
      * @covers \App\Http\Middleware\RedirectIfAuthenticated
      */
     public function testAccountView()
@@ -33,7 +33,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\AccountController::delete()
+     * @covers \App\Http\Controllers\User\AccountController::delete()
      */
     public function testDeleteAccount()
     {
@@ -42,7 +42,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\AccountController::showEditAccountView()
+     * @covers \App\Http\Controllers\User\AccountController::showEditAccountView()
      */
     public function testAccountEditFormView()
     {
@@ -51,7 +51,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Auth\Account\AccountController::updateAccount()
+     * @covers \App\Http\Controllers\User\AccountController::updateAccount()
      * @covers \App\Http\Middleware\VerifyCsrfToken
      */
     public function testUpdateAccount()

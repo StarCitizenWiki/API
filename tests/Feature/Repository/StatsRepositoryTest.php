@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace Tests\Feature\Repository;
 
 use App\Exceptions\InvalidDataException;
-use App\Repositories\StarCitizen\APIv1\StatsRepository;
+use App\Repositories\StarCitizen\ApiV1\StatsRepository;
 use Tests\TestCase;
 
 /**
@@ -15,7 +15,7 @@ use Tests\TestCase;
 class StatsRepositoryTest extends TestCase
 {
 
-    /** @var  \App\Repositories\StarCitizen\APIv1\StatsRepository */
+    /** @var  \App\Repositories\StarCitizen\ApiV1\StatsRepository */
     private $repository;
 
     /**
@@ -30,7 +30,7 @@ class StatsRepositoryTest extends TestCase
     /**
      * Tests the retrieval of all stats from the repository
      *
-     * @covers \App\Repositories\StarCitizen\APIv1\StatsRepository::getAll()
+     * @covers \App\Repositories\StarCitizen\ApiV1\StatsRepository::getAll()
      */
     public function testAllRepository()
     {
@@ -40,7 +40,7 @@ class StatsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers \App\Repositories\StarCitizen\APIv1\StatsRepository::getFans()
+     * @covers \App\Repositories\StarCitizen\ApiV1\StatsRepository::getFans()
      */
     public function testFansRepository()
     {
@@ -50,7 +50,7 @@ class StatsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers \App\Repositories\StarCitizen\APIv1\StatsRepository::getFleet()
+     * @covers \App\Repositories\StarCitizen\ApiV1\StatsRepository::getFleet()
      */
     public function testFleetRepository()
     {
@@ -60,7 +60,7 @@ class StatsRepositoryTest extends TestCase
     }
 
     /**
-     * @covers \App\Repositories\StarCitizen\APIv1\StatsRepository::getFunds()
+     * @covers \App\Repositories\StarCitizen\ApiV1\StatsRepository::getFunds()
      */
     public function testFundsRepository()
     {

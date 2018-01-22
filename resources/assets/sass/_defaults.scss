@@ -1,0 +1,17 @@
+html {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body,
+.mvh-100 {
+  min-height: 100vh;
+}
+
+.mvh-100c {
+  min-height: calc(100vh - 56px);
+}
+
+.invert {
+  filter: invert(100%);
+}

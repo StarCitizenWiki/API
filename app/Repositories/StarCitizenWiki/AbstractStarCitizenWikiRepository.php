@@ -13,7 +13,7 @@ use App\Repositories\AbstractBaseRepository;
 /**
  * Class BaseStarCitizenWikiAPI
  *
- * @package App\Repositories\StarCitizenWiki\APIv1
+ * @package App\Repositories\StarCitizenWiki\ApiV1
  */
 abstract class AbstractStarCitizenWikiRepository extends AbstractBaseRepository
 {

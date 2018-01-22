@@ -16,14 +16,14 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\UserRegistered'    => [
-            'App\Listeners\SendUserCredentials',
+        'Illuminate\Auth\Events\Registered' => [
+            'App\Listeners\SendUserWelcomeMail',
         ],
-        'Illuminate\Auth\Events\Login' => [
+        'Illuminate\Auth\Events\Login'      => [
             'App\Listeners\LogSuccessfulLogin',
         ],
-        'App\Events\URLShortened'      => [
-            'App\Listeners\SendURLShortenedNotification',
+        'App\Events\UrlShortened'           => [
+            'App\Listeners\SendUrlShortenedNotification',
         ],
     ];
 

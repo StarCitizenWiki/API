@@ -18,7 +18,7 @@ use App\Transformers\AbstractBaseTransformer;
 class FansTransformer extends AbstractBaseTransformer
 {
     /**
-     * Transformes Stats to only return the fans
+     * Transforms Stats to only return the fans
      *
      * @param mixed $stats Data
      *

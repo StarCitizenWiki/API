@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\File;
 class ShipsListTransformer extends AbstractBaseTransformer
 {
     /**
-     * Transformes the whole ship list
+     * Transforms the whole ship list
      *
      * @param mixed $ship Data
      *

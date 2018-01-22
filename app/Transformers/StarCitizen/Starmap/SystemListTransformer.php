@@ -22,7 +22,7 @@ class SystemListTransformer extends AbstractBaseTransformer
     ];
 
     /**
-     * Transformes the whole ship list
+     * Transforms the whole ship list
      *
      * @param \App\Models\Starsystem $system
      *

@@ -1,7 +1,10 @@
-<?php
+<?php declare(strict_types = 1);
 
 use Illuminate\Database\Seeder;
 
+/**
+ * Class DatabaseSeeder
+ */
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -11,8 +14,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(UsersTableSeeder::class);
-        $this->call(ShortUrlWhitelistsTableSeeder::class);
-        $this->call(ShortURLsTableSeeder::class);
+        $this->call(UserTableSeeder::class);
+        $this->call(ShortUrlWhitelistTableSeeder::class);
+        $this->call(ShortUrlTableSeeder::class);
+        $this->call(AdminTableSeeder::class);
+        $this->call(GroupTableSeeder::class);
+        if (App::environment() === 'local') {
+            $this->call(NotificationTableSeeder::class);
+        }
     }
 }

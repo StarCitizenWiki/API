@@ -23,7 +23,7 @@ class ShipsTransformer extends AbstractBaseTransformer
     ];
 
     /**
-     * Transformes a given Ship
+     * Transforms a given Ship
      *
      * @param mixed $ship Ship to transform
      *

@@ -18,7 +18,7 @@ use App\Transformers\AbstractBaseTransformer;
 class FundsTransformer extends AbstractBaseTransformer
 {
     /**
-     * Transformes Stats to only return the funds
+     * Transforms Stats to only return the funds
      *
      * @param mixed $stats Data
      *

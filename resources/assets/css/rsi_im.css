@@ -8,16 +8,3 @@ body {
     background-color: transparent;
     min-height: 100%;
 }
-
-.form-container {
-    margin-bottom: 10rem;
-}
-
-.form-control {
-    border-color: #fefefe;
-}
-
-.btn-secondary:focus,
-.btn-secondary.focus {
-    box-shadow: none;
-}

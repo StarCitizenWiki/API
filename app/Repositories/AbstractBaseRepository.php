@@ -9,8 +9,8 @@
 namespace App\Repositories;
 
 use App\Exceptions\InvalidDataException;
-use App\Traits\ProfilesMethodsTrait;
-use App\Traits\TransformesDataTrait;
+use App\Interfaces\TransformableInterface;
+use App\Traits\TransformsDataTrait as TransformsData;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -21,10 +21,9 @@ use Illuminate\Support\Facades\App;
  *
  * @package App\Repositories
  */
-abstract class AbstractBaseRepository
+abstract class AbstractBaseRepository implements TransformableInterface
 {
-    use TransformesDataTrait;
-    use ProfilesMethodsTrait;
+    use TransformsData;
 
     const API_URL = '';
 
@@ -91,7 +90,7 @@ abstract class AbstractBaseRepository
             $metaData['request_status_code'] = $this->response->getStatusCode();
         }
 
-        $metaData['filterable_fields'] = $this->transformer->getAvailableFields();
+        $metaData['filterable_fields'] = $this->getTransformer()->getAvailableFields();
 
         $this->transformedResource->addMeta($metaData);
 
