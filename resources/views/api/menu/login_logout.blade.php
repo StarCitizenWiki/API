@@ -1,5 +1,5 @@
 @if (Auth::guest())
-    @component('components.navs.nav_element', ['route' => route('auth_login')])
+    @component('components.navs.nav_element', ['route' => route('auth.login')])
         @component('components.elements.icon')
             sign-in
         @endcomponent
@@ -16,14 +16,14 @@
         @lang('Account')
     @endcomponent
 
-    @component('components.navs.nav_element', ['route' => route('auth_logout')])
+    @component('components.navs.nav_element', ['route' => route('auth.logout')])
         @slot('options')
             onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
         @endslot
 
         @component('components.forms.form', [
             'id' => 'logout-form',
-            'action' => route('auth_logout'),
+            'action' => route('auth.logout'),
             'class' => 'd-none',
         ])
         @endcomponent

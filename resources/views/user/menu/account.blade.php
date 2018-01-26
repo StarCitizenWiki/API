@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('account_edit_form'),
+    'route' => route('account.edit_form'),
 ])
     <div class="row">
         <div class="col-1">
@@ -30,7 +30,7 @@
 
 @unless(Auth::user()->isBlacklisted())
     @component('components.navs.nav_element', [
-        'route' => route('account_delete_form'),
+        'route' => route('account.delete_form'),
     ])
         <div class="row">
             <div class="col-1">

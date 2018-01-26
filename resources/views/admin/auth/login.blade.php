@@ -12,7 +12,7 @@
 @section('content')
     @component('components.heading', [
         'class' => 'text-center mb-5',
-        'route' => route('api_index'),
+        'route' => url('/'),
     ])@endcomponent
 
     @include('components.errors')
@@ -21,7 +21,7 @@
         <h4 class="card-header">@lang('Admin Login')</h4>
         <div class="card-body">
 
-            @component('components.forms.form', ['action' => route('admin_login')])
+            @component('components.forms.form', ['action' => route('admin.login')])
                 @component('components.forms.form-group', [
                     'label' => __('Benutzername'),
                     'id' => 'username',

@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('admin_starmap_systems_list'),
+    'route' => route('admin.starmap.systems.list'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_starmap_celestialobject_list'),
+    'route' => route('admin.starmap.celestialobject.list'),
 ])
     <div class="row">
         <div class="col-1">
@@ -37,7 +37,7 @@
 
     @component('components.forms.form', [
         'id' => 'download-starmap',
-        'action' => route('admin_starmap_systems_download'),
+        'action' => route('admin.starmap.systems.download'),
         'method' => 'POST',
         'class' => 'd-none',
     ])

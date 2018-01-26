@@ -115,7 +115,7 @@ class UserController extends Controller
 
         $user->delete();
 
-        return redirect()->route('admin_user_list');
+        return redirect()->route('admin.user.list');
     }
 
     /**
@@ -131,7 +131,7 @@ class UserController extends Controller
 
         $user->restore();
 
-        return redirect()->route('admin_user_list');
+        return redirect()->route('admin.user.list');
     }
 
     /**
@@ -164,6 +164,6 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin_user_list');
+        return redirect()->route('admin.user.list');
     }
 }

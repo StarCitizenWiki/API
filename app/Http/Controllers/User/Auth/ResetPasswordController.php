@@ -59,6 +59,6 @@ class ResetPasswordController extends Controller
      */
     protected function redirectTo()
     {
-        return route('auth_login_form');
+        return route('auth.login_form');
     }
 }

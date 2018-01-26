@@ -21,7 +21,7 @@
                 <a href="ts3server://ts.star-citizen.wiki" class="text-italic">@lang('api/index.teamspeak_server')</a>
             </div>
             @if (Auth::guest())
-                <a href="{{ route('auth_register_form') }}" class="mt-4 btn btn-outline-primary">@lang('Registrieren')</a>
+                <a href="{{ route('auth.register_form') }}" class="mt-4 btn btn-outline-primary">@lang('Registrieren')</a>
             @endif
         </div>
     </div>

@@ -6,7 +6,7 @@
         <div class="card-body">
             @include('components.errors')
             @component('components.forms.form', [
-                'action' => route('admin_notification_add'),
+                'action' => route('admin.notification.add'),
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'textarea',

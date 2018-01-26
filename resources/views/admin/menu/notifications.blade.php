@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('admin_notification_list'),
+    'route' => route('admin.notification.list'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_notification_add_form'),
+    'route' => route('admin.notification.add_form'),
 ])
     <div class="row">
         <div class="col-1">

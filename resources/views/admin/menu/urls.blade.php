@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_url_whitelist_list'),
+    'route' => route('admin.url.whitelist.list'),
 ])
     <div class="row">
         <div class="col-1">
@@ -29,7 +29,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_url_whitelist_add_form'),
+    'route' => route('admin.url.whitelist.add_form'),
 ])
     <div class="row">
         <div class="col-1">

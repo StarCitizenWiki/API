@@ -53,15 +53,15 @@
                         <td>
                             @component('components.edit_delete_block')
                                 @slot('edit_url')
-                                    {{ route('admin_user_edit_form', $user->getRouteKey()) }}
+                                    {{ route('admin.user.edit_form', $user->getRouteKey()) }}
                                 @endslot
                                 @if($user->trashed())
                                     @slot('restore_url')
-                                        {{ route('admin_user_restore', $user->getRouteKey()) }}
+                                        {{ route('admin.user.restore', $user->getRouteKey()) }}
                                     @endslot
                                 @else
                                     @slot('delete_url')
-                                        {{ route('admin_user_delete', $user->getRouteKey()) }}
+                                        {{ route('admin.user.delete', $user->getRouteKey()) }}
                                     @endslot
                                 @endif
                                 {{ $user->getRouteKey() }}

@@ -10,7 +10,7 @@
 
             @component('components.forms.form', [
                 'method' => 'PATCH',
-                'action' => route('account_url_update', $url->getRouteKey()),
+                'action' => route('account.url.update', $url->getRouteKey()),
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'url',

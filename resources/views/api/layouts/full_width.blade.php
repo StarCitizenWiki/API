@@ -2,7 +2,7 @@
 
 @section('body--class', 'bg-dark')
 @section('topNav--class', 'bg-blue-grey')
-@section('topNav__titleLink', route('api_index'))
+@section('topNav__titleLink', url('/'))
 
 @include('api.layouts.config')
 

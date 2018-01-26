@@ -63,7 +63,7 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('api_index');
+        return redirect('/');
     }
 
     /**
@@ -80,7 +80,7 @@ class LoginController extends Controller
             app('Log')::notice("Blacklisted User with ID: {$user->id} tried to login");
             Auth::logout();
 
-            return redirect()->route('auth_login_form')->withErrors('Account is blacklisted');
+            return redirect()->route('auth.login_form')->withErrors('Account is blacklisted');
         }
 
         app('Log')::info("User with ID: {$user->id} logged in");

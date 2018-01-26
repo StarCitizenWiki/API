@@ -98,7 +98,7 @@ class NotificationController extends Controller
 
         $this->dispatchJob($notification);
 
-        return redirect()->route('admin_dashboard')->with('message', __('crud.created', ['type' => 'Notification']));
+        return redirect()->route('admin.dashboard')->with('message', __('crud.created', ['type' => 'Notification']));
     }
 
     /**
@@ -142,7 +142,7 @@ class NotificationController extends Controller
             $this->dispatchJob($notification);
         }
 
-        return redirect()->route('admin_notification_list')->with(
+        return redirect()->route('admin.notification.list')->with(
             'message',
             __('crud.updated', ['type' => 'Notification'])
         );
@@ -160,7 +160,7 @@ class NotificationController extends Controller
 
         $notification->delete();
 
-        return redirect()->route('admin_notification_list')->with($type, $message);
+        return redirect()->route('admin.notification.list')->with($type, $message);
     }
 
     /**
@@ -175,7 +175,7 @@ class NotificationController extends Controller
 
         $notification->restore();
 
-        return redirect()->route('admin_notification_list')->with($type, $message);
+        return redirect()->route('admin.notification.list')->with($type, $message);
     }
 
     /**

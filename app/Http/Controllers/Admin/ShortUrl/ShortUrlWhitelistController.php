@@ -52,7 +52,7 @@ class ShortUrlWhitelistController extends Controller
     {
         $url->delete();
 
-        return redirect()->route('admin_url_whitelist_list');
+        return redirect()->route('admin.url.whitelist.list');
     }
 
     /**
@@ -80,7 +80,7 @@ class ShortUrlWhitelistController extends Controller
 
         ShortUrlWhitelist::create($data);
 
-        return redirect()->route('admin_url_whitelist_list')->with(
+        return redirect()->route('admin.url.whitelist.list')->with(
             'message',
             __('crud.created', ['type' => 'WhitelistUrl'])
         );

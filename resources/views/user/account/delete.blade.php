@@ -13,7 +13,7 @@
         @unless(Auth::user()->isBlacklisted())
             @component('components.forms.form', [
                 'method' => 'DELETE',
-                'action' => route('account_delete'),
+                'action' => route('account.delete'),
             ])
                 <button class="btn btn-danger btn-block-xs-only">@lang('Löschen')</button>
             @endcomponent

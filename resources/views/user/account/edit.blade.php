@@ -12,7 +12,7 @@
         <h6 class="card-title">@lang('Stammdaten'):</h6>
         @component('components.forms.form', [
             'method' => 'PATCH',
-            'action' => route('account_update'),
+            'action' => route('account.update'),
         ])
             @component('components.forms.form-group', [
                 'id' => 'name',

@@ -83,7 +83,7 @@ class AccountController extends Controller
         $user->delete();
         app('Log')::notice('User Account deleted');
 
-        return redirect()->route('api_index');
+        return redirect('/');
     }
 
     /**
@@ -114,7 +114,7 @@ class AccountController extends Controller
         if (array_key_exists('password', $data)) {
             Auth::logout();
 
-            return redirect()->route('auth_login_form');
+            return redirect()->route('auth.login_form');
         }
 
         return redirect()->route('account');

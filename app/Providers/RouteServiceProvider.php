@@ -120,35 +120,6 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Define the "web" routes for the application.
-     *
-     * These routes all receive session state, CSRF protection, etc.
-     *
-     * @return void
-     */
-    protected function mapWebRoutes()
-    {
-        Route::group(
-            [
-                'middleware' => 'web',
-                'namespace'  => $this->namespace,
-            ],
-            function ($router) {
-                $files = File::allFiles(base_path('routes/web'));
-                sort($files);
-                foreach ($files as $route) {
-                    Route::group(
-                        ['domain' => $this->getDomainForRoute((string) $route)],
-                        function ($router) use ($route) {
-                            require $route;
-                        }
-                    );
-                }
-            }
-        );
-    }
-
-    /**
      * Define the "api" routes for the application.
      *
      * These routes are typically stateless.
@@ -157,29 +128,40 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::group(
-            [
-                'middleware' => 'api',
-                'namespace'  => $this->namespace,
-                'prefix'     => 'api',
-            ],
-            function ($router) {
-                $apiVersions = glob(base_path('routes/api/*'), GLOB_ONLYDIR);
+        $apiVersions = glob(base_path('routes/api/*'), GLOB_ONLYDIR);
+
+        Route::prefix('api')->middleware('api')->namespace($this->namespace)->group(
+            function () use ($apiVersions) {
                 foreach ($apiVersions as $version) {
                     $versionRoutePrefix = str_replace([base_path('routes/api'), '/'], '', $version);
-                    Route::group(
-                        ['prefix' => $versionRoutePrefix],
-                        function ($router) use ($version) {
-                            foreach (File::allFiles($version) as $route) {
-                                Route::group(
-                                    ['domain' => $this->getDomainForRoute((string) $route)],
-                                    function ($router) use ($route) {
-                                        require $route;
-                                    }
-                                );
+                    Route::prefix($versionRoutePrefix)->group(
+                        function () use ($version) {
+                            foreach (File::allFiles($version) as $routeFile) {
+                                Route::domain($this->getDomainForRoute((string) $routeFile))->group($routeFile);
                             }
                         }
                     );
+                }
+            }
+        );
+    }
+
+    /**
+     * Define the "web" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapWebRoutes()
+    {
+        $files = File::allFiles(base_path('routes/web'));
+        sort($files);
+
+        Route::middleware('web')->namespace($this->namespace)->group(
+            function () use ($files) {
+                foreach ($files as $routeFile) {
+                    Route::domain($this->getDomainForRoute((string) $routeFile))->group($routeFile);
                 }
             }
         );
@@ -208,6 +190,6 @@ class RouteServiceProvider extends ServiceProvider
 
         $key = preg_replace('/v[0-9]/', '', $key);
 
-        return config('app.'.$key.'_url');
+        return (string) config('app.'.$key.'_url');
     }
 }

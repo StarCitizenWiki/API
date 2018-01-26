@@ -10,7 +10,7 @@
         @endslot
         @include('components.errors')
         @component('components.forms.form', [
-            'action' => route('admin_user_update', $user->getRouteKey()),
+            'action' => route('admin.user.update', $user->getRouteKey()),
             'method' => 'PATCH',
         ])
             <div class="row">
@@ -118,7 +118,7 @@
         @slot('title')
             @lang('ShortUrls')
             <small class="float-right mt-1">
-                <a href="{{ route('admin_user_url_list', $user->getRouteKey()) }}">
+                <a href="{{ route('admin.user.url.list', $user->getRouteKey()) }}">
                     <i class="far fa-external-link"></i>
                 </a>
             </small>
@@ -137,7 +137,7 @@
                     <td>{{ $shortUrl->hash }}</td>
                     <td>{{ $shortUrl->url }}</td>
                     <td title="{{ $shortUrl->created_at }}"><span class="d-block d-xxl-none">{{ $shortUrl->created_at->format('d.m.Y') }}</span><span class="d-none d-xxl-block">{{ $shortUrl->created_at }}</span></td>
-                    <td class="text-center"><a href="{{ route('admin_url_edit_form', $shortUrl->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
+                    <td class="text-center"><a href="{{ route('admin.url.edit_form', $shortUrl->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                 </tr>
             @empty
                 <tr>
@@ -154,7 +154,7 @@
         @slot('title')
             @lang('ApiRequests')
             <small class="float-right mt-1">
-                <a href="{{ route('admin_user_request_list', $user->getRouteKey()) }}">
+                <a href="{{ route('admin.user.request.list', $user->getRouteKey()) }}">
                     <i class="far fa-external-link"></i>
                 </a>
             </small>

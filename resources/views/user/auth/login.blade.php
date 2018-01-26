@@ -8,7 +8,7 @@
 @section('content')
     @component('components.heading', [
         'class' => 'text-center mb-5',
-        'route' => route('api_index'),
+        'route' => url('/'),
     ])@endcomponent
 
     @include('components.errors')
@@ -17,7 +17,7 @@
         <h4 class="card-header">@lang('Api Login')</h4>
         <div class="card-body">
 
-            @component('components.forms.form', ['action' => route('auth_login')])
+            @component('components.forms.form', ['action' => route('auth.login')])
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
                     'label' => __('E-Mail'),

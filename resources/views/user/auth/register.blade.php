@@ -8,7 +8,7 @@
 @section('content')
     @component('components.heading', [
         'class' => 'text-center mb-5',
-        'route' => route('api_index'),
+        'route' => url('/'),
     ])@endcomponent
 
     @include('components.errors')
@@ -17,7 +17,7 @@
         <h4 class="card-header">@lang('Registrieren')</h4>
         <div class="card-body">
 
-            @component('components.forms.form', ['action' => route('auth_register')])
+            @component('components.forms.form', ['action' => route('auth.register')])
                 @component('components.forms.form-group', [
                     'label' => __('Projekt / Organisation / Name'),
                     'id' => 'name',

@@ -104,7 +104,7 @@ class ShortUrlController extends Controller
         $url = ShortUrl::create($data);
         event(new UrlShortened($url));
 
-        return redirect()->route('account_url_list')->with(
+        return redirect()->route('account.url.list')->with(
             'hash',
             $url->hash
         );
@@ -148,7 +148,7 @@ class ShortUrlController extends Controller
 
         $url->update($data);
 
-        return redirect()->route('account_url_list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
+        return redirect()->route('account.url.list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
     }
 
     /**
@@ -164,6 +164,6 @@ class ShortUrlController extends Controller
 
         $url->delete();
 
-        return redirect()->route('account_url_list')->with('message', __('crud.deleted', ['type' => 'ShortUrl']));
+        return redirect()->route('account.url.list')->with('message', __('crud.deleted', ['type' => 'ShortUrl']));
     }
 }

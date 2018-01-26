@@ -71,15 +71,15 @@
                             <td>
                                 @component('components.edit_delete_block')
                                     @slot('edit_url')
-                                        {{ route('admin_notification_edit_form', $notification->getRouteKey()) }}
+                                        {{ route('admin.notification.edit_form', $notification->getRouteKey()) }}
                                     @endslot
                                     @if($notification->trashed())
                                         @slot('restore_url')
-                                            {{ route('admin_notification_restore', $notification->getRouteKey()) }}
+                                            {{ route('admin.notification.restore', $notification->getRouteKey()) }}
                                         @endslot
                                     @else
                                         @slot('delete_url')
-                                            {{ route('admin_notification_delete', $notification->getRouteKey()) }}
+                                            {{ route('admin.notification.delete', $notification->getRouteKey()) }}
                                         @endslot
                                     @endif
                                     {{ $notification->getRouteKey() }}

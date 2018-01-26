@@ -9,7 +9,7 @@
 <div class="card">
     <h4 class="card-header">@lang('ShortUrl hinzufügen')</h4>
     <div class="card-body">
-        @component('components.forms.form', ['action' => route('account_url_add')])
+        @component('components.forms.form', ['action' => route('account.url.add')])
             @component('components.forms.form-group', [
                 'id' => 'url',
                 'label' => __('Url'),

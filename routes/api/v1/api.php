@@ -112,7 +112,6 @@ Route::group(
         Route::group(
             ['prefix' => 'leaderboards'],
             function () {
-
             }
         );
     }

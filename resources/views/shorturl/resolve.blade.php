@@ -8,7 +8,7 @@
                     <img src="{{ URL::asset('/media/images/rsi_im/logo.png') }}" class="img-responsive mb-5">
                     @include('components.errors')
 
-                    <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('short_url_web_resolve') }}">
+                    <form id="shorten-form" class="w-100" role="form" method="POST" action="{{ route('shorturl.web.resolve') }}">
                         {{ csrf_field() }}
                         <div class="input-group input-group-lg mb-2">
                             <input type="url" name="url" id="url" class="form-control @if (session('url')) text-success @endif" placeholder="@lang('gekürzte Url oder Name')" required value="{{ old('url') }}">
@@ -24,7 +24,7 @@
             <div class="col-12 d-flex fixed-bottom">
                 <ul class="nav justify-content-end w-100">
                     <li class="nav-item">
-                        <a class="nav-link text-info" href="{{ route('short_url_index') }}">
+                        <a class="nav-link text-info" href="{{ route('shorturl.index') }}">
                             @lang('Verkürzen')
                         </a>
                     </li>

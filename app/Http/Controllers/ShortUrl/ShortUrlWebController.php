@@ -76,7 +76,7 @@ class ShortUrlWebController extends Controller
     {
         $url = ShortUrl::query()->where('url', $request->get('url'))->first();
         if (!is_null($url)) {
-            return redirect()->route('short_url_index')->withInput(
+            return redirect()->route('shorturl.index')->withInput(
                 [
                     'url' => config('app.shorturl_url').'/'.$url->hash,
                 ]
@@ -112,7 +112,7 @@ class ShortUrlWebController extends Controller
 
         event(new UrlShortened($url));
 
-        return redirect()->route('short_url_index')->withInput(
+        return redirect()->route('shorturl.index')->withInput(
             [
                 'url' => config('app.shorturl_url').'/'.$url->hash,
             ]
@@ -134,7 +134,7 @@ class ShortUrlWebController extends Controller
             return back()->withErrors(__('Url nicht gefunden'.$b));
         }
 
-        return redirect()->route('short_url_web_resolve_form')->withInput(['url' => $url->url]);
+        return redirect()->route('shorturl.web.resolve_form')->withInput(['url' => $url->url]);
     }
 
     /**

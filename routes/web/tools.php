@@ -1,5 +1,5 @@
 <?php declare(strict_types = 1);
-Route::get('/', ['uses' => 'ApiPageController@showApiView'])->name('tools_index');
+Route::get('/', ['uses' => 'ApiPageController@showApiView'])->name('tools.index');
 
 Route::group(
     ['namespace' => 'Tool'],
@@ -8,7 +8,7 @@ Route::group(
             ['prefix' => 'tools'],
             function () {
                 Route::get('imageresizer', ['uses' => 'ImageResizeController@showImageResizeView'])->name(
-                    'tools_imageresizer'
+                    'tools.imageresizer'
                 );
             }
         );

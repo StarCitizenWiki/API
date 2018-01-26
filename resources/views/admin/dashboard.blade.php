@@ -14,7 +14,7 @@
                 @include('components.errors')
                 @component('components.forms.form', [
                     'class' => 'row',
-                    'action' => route('admin_notification_add'),
+                    'action' => route('admin.notification.add'),
                 ])
                     <div class="col-12 col-md-7 order-2 order-lg-1">
                         @component('components.forms.form-group', [
@@ -85,7 +85,7 @@
                 @slot('title')
                     @lang('Aktive Benachrichtigungen')
                     <small class="float-right mt-1">
-                        <a href="{{ route('admin_notification_list') }}" class="text-light">
+                        <a href="{{ route('admin.notification.list') }}" class="text-light">
                             <i class="far fa-external-link"></i>
                         </a>
                     </small>
@@ -125,7 +125,7 @@
                                     @endcomponent
                                 @endif
                             </td>
-                            <td class="text-center"><a href="{{ route('admin_notification_edit_form', $notification->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
+                            <td class="text-center"><a href="{{ route('admin.notification.edit_form', $notification->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @empty
                         <tr>
@@ -213,7 +213,7 @@
                 @slot('title')
                     @lang('Benutzer') ({{ $users['overall'] }})
                     <small class="float-right mt-1">
-                        <a href="{{ route('admin_user_list') }}" class="text-light">
+                        <a href="{{ route('admin.user.list') }}" class="text-light">
                             <i class="far fa-external-link"></i>
                         </a>
                     </small>
@@ -247,7 +247,7 @@
                 @slot('title')
                     @lang('Api Anfragen') ({{ $api_requests['counts']['overall'] }})
                     <small class="float-right mt-1">
-                        <a href="{{ route('admin_request_list') }}" class="text-light">
+                        <a href="{{ route('admin.request.list') }}" class="text-light">
                             <i class="far fa-external-link"></i>
                         </a>
                     </small>
@@ -330,7 +330,7 @@
                             <td>{{ $user->getRouteKey() }}</td>
                             <td title="{{ $user->email }}">{{ $user->name }}</td>
                             <td>{{ $user->created_at }}</td>
-                            <td class="text-center"><a href="{{ route('admin_user_edit_form', $user->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
+                            <td class="text-center"><a href="{{ route('admin.user.edit_form', $user->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @endforeach
                 </table>
@@ -390,7 +390,7 @@
                                 <span class="d-none d-xl-block">{{ $short_url->created_at->format('d.m.Y') }}</span>
                                 <span class="d-block d-xl-none">{{ $short_url->created_at->format('d.m.Y H:i:s') }}</span>
                             </td>
-                            <td class="text-center"><a href="{{ route('admin_url_edit_form', $short_url->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
+                            <td class="text-center"><a href="{{ route('admin.url.edit_form', $short_url->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @endforeach
                 </table>

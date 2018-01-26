@@ -6,7 +6,7 @@
 @section('content')
     @component('components.heading', [
         'class' => 'text-center mb-5',
-        'route' => route('auth_login'),
+        'route' => route('auth.login'),
     ])@endcomponent
 
     @if (session('status'))

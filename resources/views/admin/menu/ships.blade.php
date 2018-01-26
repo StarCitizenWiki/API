@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('admin_ships_list'),
+    'route' => route('admin.ships.list'),
 ])
     <div class="row">
         <div class="col-1">
@@ -22,7 +22,7 @@
 
     @component('components.forms.form', [
         'id' => 'download-ships',
-        'action' => route('admin_ships_download'),
+        'action' => route('admin.ships.download'),
         'method' => 'POST',
         'class' => 'd-none',
     ])

@@ -5,7 +5,7 @@
     <div class="card mb-4">
         @component('components.forms.form', [
             'method' => 'PATCH',
-            'action' => route('admin_mark_logs_read'),
+            'action' => route('admin.logs.mark_read'),
         ])
         <h4 class="card-header">
             @lang('Logs')

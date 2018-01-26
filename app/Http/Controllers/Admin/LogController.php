@@ -54,7 +54,7 @@ class LogController extends Controller
             LogReader::find($id)->markAsRead();
         }
 
-        return redirect()->route('admin_logs');
+        return redirect()->route('admin.logs');
     }
 
     /**
@@ -64,6 +64,6 @@ class LogController extends Controller
     {
         LogReader::markAsRead();
 
-        return redirect()->route('admin_logs');
+        return redirect()->route('admin.logs');
     }
 }

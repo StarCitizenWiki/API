@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('admin_dashboard'),
+    'route' => route('admin.dashboard'),
 ])
     <div class="row">
         <div class="col-1">
@@ -15,7 +15,7 @@
 
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_logs'),
+    'route' => route('admin.logs'),
 ])
     <div class="row">
         <div class="col-1">
@@ -31,7 +31,7 @@
 
 
 @component('components.navs.nav_element', [
-    'route' => route('admin_user_list'),
+    'route' => route('admin.user.list'),
 ])
     <div class="row">
         <div class="col-1">
