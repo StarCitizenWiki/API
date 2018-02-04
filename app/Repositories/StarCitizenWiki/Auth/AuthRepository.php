@@ -9,8 +9,6 @@ namespace App\Repositories\StarCitizenWiki\Auth;
 
 use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
 use App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
 
 /**
  * Class ShipsRepository
@@ -18,34 +16,31 @@ use GuzzleHttp\Exception\RequestException;
  */
 class AuthRepository extends AbstractStarCitizenWikiRepository implements AuthRepositoryInterface
 {
-    const API_URI = 'api.php?action=usercheck&format=json';
+    const API_URI = 'api.php?action=verifyuser&format=json';
 
     /**
      * @param string $username
      * @param string $password
      *
      * @return bool
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function authenticateUsingCredentials($username, $password): bool
     {
-        try {
-            $response = $this->request(
-                'POST',
-                self::API_URI,
-                [
-                    'form_params' => [
-                        'username' => $username,
-                        'password' => $password,
-                    ],
-                ]
-            );
-        } catch (ConnectException | RequestException $e) {
-            return false;
-        }
+        $response = $this->request(
+            'POST',
+            self::API_URI,
+            [
+                'form_params' => [
+                    'username' => $username,
+                    'password' => $password,
+                ],
+            ]
+        );
 
-        $response = json_decode($response->getBody()->getContents(), true);
+        $response = json_decode((string) $this->response->getBody(), true);
 
-        if (!is_null($response) && array_key_exists('usercheck', $response) && 'ok' === $response['usercheck']['status']) {
+        if (!is_null($response) && array_key_exists('status', $response) && 200 == $response['status']) {
             return true;
         }
 

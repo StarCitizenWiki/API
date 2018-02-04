@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use Hesto\MultiAuth\Traits\LogsoutGuard;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -105,10 +107,18 @@ class LoginController extends Controller
      */
     protected function attemptLogin(Request $request)
     {
-        if ($this->authRepository->authenticateUsingCredentials(
-            $request->get($this->username()),
-            $request->get('password')
-        )) {
+        try {
+            $passwordValid = $this->authRepository->authenticateUsingCredentials(
+                $request->get($this->username()),
+                $request->get('password')
+            );
+        } catch (ConnectException | RequestException $e) {
+            $this->backendError = true;
+
+            return false;
+        }
+
+        if ($passwordValid) {
             return $this->guard()->attempt(
                 [
                     'username' => $request->get('username'),
@@ -116,8 +126,6 @@ class LoginController extends Controller
                 ],
                 false
             );
-        } else {
-            $this->backendError = true;
         }
 
         return false;
@@ -138,8 +146,6 @@ class LoginController extends Controller
             $errors = [$this->username() => trans('auth.failed')];
         }
 
-        return redirect()->back()
-            ->withInput($request->only($this->username()))
-            ->withErrors($errors);
+        return redirect()->back()->withInput($request->only($this->username()))->withErrors($errors);
     }
 }
