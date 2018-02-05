@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 03.08.2017 16:49
@@ -6,7 +6,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Jumppoint;
+use App\Models\Starmap\Jumppoint;
 use App\Repositories\StarCitizen\APIv1\StarmapRepository;
 use App\Traits\ProfilesMethodsTrait;
 use GuzzleHttp\Client;
@@ -28,10 +28,9 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
     use SerializesModels;
     use ProfilesMethodsTrait;
 
-    private $jumppointtunnels;
-    private $jumppointtunnels_updated = 0;
-
     const OVERVIEWDATA_CHECKLIST = ['data', 'tunnels', 'resultset', 0];
+    private $jumppointtunnels;
+    private $jumppointtunnelsUpdated = 0;
 
     /**
      * Execute the job.
@@ -49,7 +48,7 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
         foreach ($this->jumppointtunnels as $jumppointtunnel) {
             $this->writeJumppointtunnelToDB($jumppointtunnel);
         }
-        app('Log')::info("Jumppoint Tunnel Download Job Finished (updated:{$this->jumppointtunnels_updated})");
+        app('Log')::info("Jumppoint Tunnel Download Job Finished (updated:{$this->jumppointtunnelsUpdated})");
     }
 
     private function setJumppointtunnels()
@@ -57,8 +56,7 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
         $overviewData = $this->getJsonArrayFromStarmap('bootup/');
         if ($this->checkIfDataCanBeProcessed($overviewData, static::OVERVIEWDATA_CHECKLIST)) {
             $this->jumppointtunnels = $overviewData['data']['tunnels']['resultset'];
-        }
-        else {
+        } else {
             app('Log')::error('Can not read Jumppoint Tunnels from RSI');
         }
     }
@@ -72,7 +70,7 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
      */
     private function getJsonArrayFromStarmap(string $uri): array
     {
-        $response = $this->guzzleClient->request('POST', StarmapRepository::API_URL.'starmap/'.$uri);
+        $response = $this->guzzleClient->request('POST', config('api.rsi_url').'/starmap/'.$uri);
 
         return json_decode($response->getBody()->getContents(), true);
     }
@@ -93,29 +91,33 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
         }
         $jumppointtunnelSourceData = json_encode($jumppointtunnel);
 
-        if (is_null($lastJumppointtunnelSource)
-        || strcmp($jumppointtunnelSourceData, $lastJumppointtunnelSource) != 0) {
+        if (is_null($lastJumppointtunnelSource) ||
+            strcmp(
+                $jumppointtunnelSourceData,
+                $lastJumppointtunnelSource
+            ) != 0) {
             app('Log')::info("Write to Database Jumppointtunnel {$jumppointtunnel['id']}");
 
-            $jumppointModel = new Jumppoint();
-            $jumppointModel->cig_id = $jumppointtunnel['id'];
-            $jumppointModel->size = $jumppointtunnel['size'];
-            $jumppointModel->direction = $jumppointtunnel['direction'];
-            $jumppointModel->entry_cig_id = $jumppointtunnel['entry']['id'];
-            $jumppointModel->entry_cig_system_id = $jumppointtunnel['entry']['star_system_id'];
-            $jumppointModel->entry_code = $jumppointtunnel['entry']['code'];
-            $jumppointModel->entry_designation = $jumppointtunnel['entry']['designation'];
-            $jumppointModel->entry_status = $jumppointtunnel['entry']['status'];
-            $jumppointModel->exit_cig_id = $jumppointtunnel['exit']['id'];
-            $jumppointModel->exit_cig_system_id = $jumppointtunnel['exit']['star_system_id'];
-            $jumppointModel->exit_code = $jumppointtunnel['exit']['code'];
-            $jumppointModel->exit_designation = $jumppointtunnel['exit']['designation'];
-            $jumppointModel->exit_status = $jumppointtunnel['exit']['status'];
+            Jumppoint::create(
+                [
+                    'cig_id'              => $jumppointtunnel['id'],
+                    'size'                => $jumppointtunnel['size'],
+                    'direction'           => $jumppointtunnel['direction'],
+                    'entry_cig_id'        => $jumppointtunnel['entry']['id'],
+                    'entry_cig_system_id' => $jumppointtunnel['entry']['star_system_id'],
+                    'entry_code'          => $jumppointtunnel['entry']['code'],
+                    'entry_designation'   => $jumppointtunnel['entry']['designation'],
+                    'entry_status'        => $jumppointtunnel['entry']['status'],
+                    'exit_cig_id'         => $jumppointtunnel['exit']['id'],
+                    'exit_cig_system_id'  => $jumppointtunnel['exit']['star_system_id'],
+                    'exit_code'           => $jumppointtunnel['exit']['code'],
+                    'exit_designation'    => $jumppointtunnel['exit']['designation'],
+                    'exit_status'         => $jumppointtunnel['exit']['status'],
+                    'sourcedata'          => $jumppointtunnelSourceData,
+                ]
+            );
 
-            $jumppointModel->sourcedata = $jumppointtunnelSourceData;
-            $jumppointModel->save();
-
-            $this->jumppointtunnels_updated++;
+            $this->jumppointtunnelsUpdated++;
         }
     }
 }

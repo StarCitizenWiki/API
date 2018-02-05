@@ -6,7 +6,7 @@
 
 namespace App\Repositories\StarCitizen\APIv1;
 
-use App\Models\Jumppoint;
+use App\Models\Starmap\Jumppoint;
 use App\Repositories\StarCitizen\BaseStarCitizenRepository;
 use App\Repositories\StarCitizen\Interfaces\JumppointTunnelInterface;
 use App\Transformers\StarCitizen\Starmap\JumppointTunnelTransformer;

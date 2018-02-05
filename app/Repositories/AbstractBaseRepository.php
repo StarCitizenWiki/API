@@ -25,8 +25,6 @@ abstract class AbstractBaseRepository implements TransformableInterface
 {
     use TransformsData;
 
-    const API_URL = '';
-
     /**
      * Guzzle Response
      *
@@ -41,21 +39,19 @@ abstract class AbstractBaseRepository implements TransformableInterface
      */
     protected $guzzleClient;
 
+    protected $apiUrl = '';
+
     /**
      * BaseAPI constructor.
      */
     public function __construct()
     {
-        $this->guzzleClient = new Client(
-            [
-                'base_uri' => $this::API_URL,
-                'timeout'  => 3.0,
-            ]
-        );
+        $this->initGuzzle();
     }
 
     /**
      * Wrapper for Guzzle Request Function
+     * Saves the Response to $this->response
      *
      * @param string     $requestMethod Request Method
      * @param string     $uri           Request URL
@@ -72,6 +68,16 @@ abstract class AbstractBaseRepository implements TransformableInterface
         $this->validateAndSaveResponseBody();
 
         return $this->response;
+    }
+
+    protected function initGuzzle()
+    {
+        $this->guzzleClient = new Client(
+            [
+                'base_uri' => $this->apiUrl,
+                'timeout'  => 3.0,
+            ]
+        );
     }
 
     /**

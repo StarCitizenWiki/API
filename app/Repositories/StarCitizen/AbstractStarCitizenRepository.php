@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\App;
  */
 abstract class AbstractStarCitizenRepository extends AbstractBaseRepository
 {
-    const API_URL = 'https://robertsspaceindustries.com/api/';
-
     private static $rsiToken = null;
 
     /**
@@ -27,11 +25,11 @@ abstract class AbstractStarCitizenRepository extends AbstractBaseRepository
      */
     public function __construct()
     {
-        parent::__construct();
+        $this->apiUrl = config('api.rsi_url');
 
         $this->guzzleClient = new Client(
             [
-                'base_uri' => $this::API_URL,
+                'base_uri' => $this->apiUrl,
                 'timeout'  => 3.0,
                 'headers'  => ['X-Rsi-Token' => self::$rsiToken],
             ]

@@ -4,7 +4,7 @@
  * Date: 02.08.2017 17:33
  */
 
-namespace App\Models;
+namespace App\Models\Starmap;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,10 +28,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string     $exit_code
  * @property string     $exit_designation
  * @property string     $sourcedata
- * @method static \Illuminate\Database\Query\Builder|\App\Models\Jumppoint whereCode($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\Jumppoint whereCreatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\Jumppoint whereId($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\Jumppoint whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Starmap\Jumppoint whereCode($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Starmap\Jumppoint whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Starmap\Jumppoint whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Starmap\Jumppoint whereUpdatedAt($value)
  */
 class Jumppoint extends Model
 {

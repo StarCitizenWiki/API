@@ -30,6 +30,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * Requests only funds
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function getFunds(): StatsRepository
     {
@@ -46,6 +48,7 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function getCrowdfundStats(): StatsRepository
     {
@@ -66,6 +69,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * Requests only fans
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getFans(): StatsRepository
     {
@@ -81,6 +86,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * Requests only fleet
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getFleet(): StatsRepository
     {
@@ -96,6 +103,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * Sets the Chart Type to 'hour'
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function lastHours(): StatsRepository
     {
@@ -109,6 +118,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * Requests all stats
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getAll(): StatsRepository
     {
@@ -122,6 +133,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * Sets the Chart Type to 'day'
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function lastDays(): StatsRepository
     {
@@ -135,6 +148,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * Sets the Chart Type to 'week'
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function lastWeeks(): StatsRepository
     {
@@ -148,6 +163,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
      * Sets the Chart Type to 'month'
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function lastMonths(): StatsRepository
     {
@@ -195,10 +212,8 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
             );
         }
 
-        $requestBody = [
+        return [
             'json' => $requestContent,
         ];
-
-        return $requestBody;
     }
 }

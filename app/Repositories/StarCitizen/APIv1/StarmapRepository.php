@@ -7,6 +7,7 @@
 
 namespace App\Repositories\StarCitizen\ApiV1;
 
+use App\Models\Starmap\Jumppoint;
 use App\Models\Starmap\CelestialObject;
 use App\Models\Starmap\Starsystem;
 use App\Repositories\StarCitizen\AbstractStarCitizenRepository;
@@ -22,7 +23,6 @@ use App\Transformers\StarCitizen\Starmap\StarsTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemListTransformer;
 use App\Transformers\StarCitizen\Starmap\SystemTransformer;
 use InvalidArgumentException;
-
 
 /**
  * Class StarmapRepository
@@ -40,14 +40,13 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getSystem(string $systemName)
     {
         app('Log')::info(make_name_readable(__FUNCTION__), ['system' => $systemName]);
 
-        $systemQueryData = Starsystem::where('code', $systemName)
-            ->orderBy(self::TIME_GROUP_FIELD, 'DESC')
-            ->firstOrFail();
+        $systemQueryData = Starsystem::where('code', $systemName)->orderBy(self::TIME_GROUP_FIELD, 'DESC')->firstOrFail();
 
         return $this->withTransformer(SystemTransformer::class)->transform($systemQueryData->toArray());
     }
@@ -57,6 +56,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getAsteroidbelts(string $systemName)
     {
@@ -76,6 +76,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getSpacestations(string $systemName)
     {
@@ -91,6 +92,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return $this
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppoints(string $systemName)
     {
@@ -99,32 +101,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
         $celestialObjectQueryData = $this->getQueryData($systemName, 'JUMPPOINT');
 
         $celestialObjectQueryData = $this->addJumppointSize($celestialObjectQueryData);
+
         return $this->withTransformer(JumppointsTransformer::class)->transform($celestialObjectQueryData);
-    }
-
-    private function addJumppointSize($celestialObjects)
-    {
-        if (is_array($celestialObjects)
-            && array_key_exists(0, $celestialObjects)) {
-            $cig_system_id = $celestialObjects[0]['cig_system_id'];
-
-            $jumppointtunnelQueryData = Jumppoint::where('entry_cig_system_id', $cig_system_id)
-                ->orWhere('exit_cig_system_id', $cig_system_id)
-                ->groupBy('cig_id')
-                ->havingRaw(self::JUMPPOINTTUNNEL_TIME_GROUP_FIELD.' = max('.self::JUMPPOINTTUNNEL_TIME_GROUP_FIELD.')')
-                ->get()
-                ->toArray();
-
-            foreach ($celestialObjects as &$celestialObject) {
-                foreach ($jumppointtunnelQueryData as $jumppointtunnel) {
-                    if ($celestialObject['cig_id'] == $jumppointtunnel['entry_cig_id']
-                        || $celestialObject['cig_id'] == $jumppointtunnel['exit_cig_id']) {
-                        $celestialObject['jumppoint_size'] = $jumppointtunnel['size'];
-                    }
-                }
-            }
-        }
-        return $celestialObjects;
     }
 
     /**
@@ -132,6 +110,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getPlanets(string $systemName)
     {
@@ -147,6 +126,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getMoons(string $systemName)
     {
@@ -162,6 +142,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getLandingzones(string $systemName)
     {
@@ -177,6 +158,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getStars(string $systemName)
     {
@@ -193,14 +175,16 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $objectName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getCelestialObject(string $objectName)
     {
         app('Log')::info(make_name_readable(__FUNCTION__), ['objectName' => $objectName]);
 
-        $celestialObjectQueryData = CelestialObject::where('CODE', $objectName)
-            ->orderBy(self::TIME_GROUP_FIELD, 'DESC')
-            ->firstOrFail();
+        $celestialObjectQueryData = CelestialObject::where('CODE', $objectName)->orderBy(
+            self::TIME_GROUP_FIELD,
+            'DESC'
+        )->firstOrFail();
 
         return $this->withTransformer(CelestialObjectTransformer::class)->transform(
             $celestialObjectQueryData->toArray()
@@ -214,15 +198,15 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $searchString
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function search(string $searchString)
     {
         app('Log')::info(make_name_readable(__FUNCTION__), ['searchString' => $searchString]);
 
-        $celestialObjectQueryData = CelestialObject::where('code', 'LIKE', '%'.$searchString.'%')
-            ->groupBy('code')
-            ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
-            ->get();
+        $celestialObjectQueryData = CelestialObject::where('code', 'LIKE', '%'.$searchString.'%')->groupBy(
+            'code'
+        )->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')->get();
 
         return $this->withTransformer(CelestialObjectTransformer::class)->transform(
             $celestialObjectQueryData->toArray()
@@ -231,6 +215,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
 
     /**
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getSystemList()
     {
@@ -242,6 +227,7 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
 
     /**
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getCelestialObjectList()
     {
@@ -252,22 +238,49 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
     }
 
     /**
+     * @param $celestialObjects
+     *
+     * @return mixed
+     */
+    private function addJumppointSize($celestialObjects)
+    {
+        if (is_array($celestialObjects) && array_key_exists(0, $celestialObjects)) {
+            $cig_system_id = $celestialObjects[0]['cig_system_id'];
+
+            $jumppointtunnelQueryData = Jumppoint::where('entry_cig_system_id', $cig_system_id)->orWhere(
+                'exit_cig_system_id',
+                $cig_system_id
+            )->groupBy('cig_id')->havingRaw(
+                self::JUMPPOINTTUNNEL_TIME_GROUP_FIELD.' = max('.self::JUMPPOINTTUNNEL_TIME_GROUP_FIELD.')'
+            )->get()->toArray();
+
+            foreach ($celestialObjects as &$celestialObject) {
+                foreach ($jumppointtunnelQueryData as $jumppointtunnel) {
+                    if ($celestialObject['cig_id'] == $jumppointtunnel['entry_cig_id'] || $celestialObject['cig_id'] == $jumppointtunnel['exit_cig_id']) {
+                        $celestialObject['jumppoint_size'] = $jumppointtunnel['size'];
+                    }
+                }
+            }
+        }
+
+        return $celestialObjects;
+    }
+
+    /**
      * @param string $systemName
      *
      * @return int cig_id for SystemName
      */
     private function getCigSystemId(string $systemName): int
     {
-        $systemQueryData = Starsystem::where('code', $systemName)
-            ->orderBy(self::TIME_GROUP_FIELD, 'DESC')
-            ->firstOrFail();
+        $systemQueryData = Starsystem::where('code', $systemName)->orderBy(self::TIME_GROUP_FIELD, 'DESC')->firstOrFail();
         $system = $systemQueryData->toArray();
 
         return (int) $system['cig_id'];
     }
 
     /**
-     * @param string            $systemName
+     * @param string $systemName
      * @param \Closure | string $where
      *
      * @return array

@@ -18,18 +18,9 @@ use Illuminate\Support\Facades\Storage;
  */
 class ShipsRepository extends AbstractBaseRepository implements ShipsRepositoryInterface
 {
-    const API_URL = '';
-
-    /**
-     * ShipsRepository constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * @return \App\Repositories\StarCitizenDB\ShipsRepository
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getShipList(): ShipsRepository
     {
@@ -47,6 +38,9 @@ class ShipsRepository extends AbstractBaseRepository implements ShipsRepositoryI
      * @param string                   $shipName ShipName
      *
      * @return ShipsRepositoryInterface
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function getShip(Request $request, string $shipName)
     {
@@ -75,7 +69,7 @@ class ShipsRepository extends AbstractBaseRepository implements ShipsRepositoryI
      *
      * @param string $shipName ShipName
      *
-     * @return \App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface
+     * @return void
      *
      * @throws \App\Exceptions\MethodNotImplementedException
      */

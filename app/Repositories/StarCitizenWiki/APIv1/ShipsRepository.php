@@ -29,6 +29,9 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * @param string                   $shipName ShipName
      *
      * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function getShip(Request $request, string $shipName): ShipsRepository
     {
@@ -48,6 +51,8 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * Gets a ShipList
      *
      * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getShipList(): ShipsRepository
     {
@@ -80,6 +85,8 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * @param string $shipName ShipName
      *
      * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function searchShips(string $shipName)
     {
@@ -102,6 +109,8 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * Loads SMW Data by ship name
      *
      * @param string $shipName
+     *
+     * @throws \App\Exceptions\InvalidDataException
      */
     private function getShipDataFromWiki(string $shipName): void
     {
@@ -133,6 +142,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
 
     /**
      * Loads SCDB Data from file
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     private function getShipDataFromSCDB(): void
     {
