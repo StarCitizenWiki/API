@@ -20,9 +20,9 @@ class CreateAdminsTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('username');
-                $table->string('password')->default(bcrypt(ADMIN_INTERNAL_PASSWORD));
+                $table->string('password')->default(bcrypt(config('api.admin_password')));
                 $table->boolean('blocked')->default(false);
-                $table->timestamp('last_login')->default('01.01.1970 00:00:00');
+                $table->timestamp('last_login')->default('1970-01-01 00:00:00');
                 $table->rememberToken();
                 $table->timestamps();
             }
