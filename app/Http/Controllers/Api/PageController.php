@@ -18,6 +18,7 @@ class PageController extends Controller
      * Returns the API Index View
      *
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showApiView(): View
     {
@@ -30,6 +31,7 @@ class PageController extends Controller
      * Returns the API FAQ View
      *
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showFaqView(): View
     {
@@ -40,6 +42,7 @@ class PageController extends Controller
 
     /**
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showStatusView(): View
     {
@@ -54,7 +57,7 @@ class PageController extends Controller
                 ->orderByDesc('published_at')
                 ->orderBy('expired_at')
                 ->simplePaginate(4),
-            CACHE_TIME
+            config('cache.duration')
         );
 
         return view('api.pages.status')->with('notifications', Cache::get(get_cache_key_for_current_request()));

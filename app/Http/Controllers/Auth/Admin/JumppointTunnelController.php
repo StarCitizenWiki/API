@@ -7,7 +7,7 @@
 namespace App\Http\Controllers\Auth\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Jumppoint;
+use App\Models\Starmap\Jumppoint;
 use Illuminate\Contracts\View\View;
 use App\Jobs\DownloadJumppointTunnel;
 use Illuminate\Http\RedirectResponse;

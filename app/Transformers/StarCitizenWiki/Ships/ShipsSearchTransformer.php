@@ -40,8 +40,8 @@ class ShipsSearchTransformer extends AbstractBaseTransformer
 
             $data = [
                 $shipName => [
-                    'api_url'  => '//'.config('app.api_url').'/api/v1/ships/'.$shipName,
-                    'wiki_url' => '//star-citizen.wiki/'.$search['title'],
+                    'api_url'  => config('app.api_url').'/api/v1/ships/'.$shipName,
+                    'wiki_url' => config('api.wiki_url').'/'.$search['title'],
                 ],
             ];
 

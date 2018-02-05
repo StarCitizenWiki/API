@@ -163,16 +163,16 @@
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
-                        <td class="text-right @if(count($logs['error']['last_hour']) > LOG_ERROR_DANGER_HOUR) {{--
+                        <td class="text-right @if(count($logs['error']['last_hour']) > config('api.log.error.danger_hour')) {{--
                     --}}text-danger{{--
-                --}} @elseif(count($logs['error']['last_hour']) > LOG_ERROR_WARNING_HOUR) {{--
+                --}} @elseif(count($logs['error']['last_hour']) > config('api.log.error.warning_hour')) {{--
                     --}}text-warning{{--
                 --}} @else {{--
                     --}}text-success{{--
                 --}} @endif">{{ count($logs['error']['last_hour']) }}</td>
-                        <td class="text-right @if(count($logs['warning']['last_hour']) > LOG_WARNING_DANGER_HOUR) {{--
+                        <td class="text-right @if(count($logs['warning']['last_hour']) > config('api.log.warning.danger_hour')) {{--
                     --}}text-danger{{--
-                --}} @elseif(count($logs['warning']['last_hour']) > LOG_WARNING_WARNING_HOUR) {{--
+                --}} @elseif(count($logs['warning']['last_hour']) > config('api.log.warning.warning_hour')) {{--
                     --}}text-warning{{--
                 --}} @else {{--
                     --}}text-success{{--
@@ -183,16 +183,16 @@
                     </tr>
                     <tr>
                         <td>@lang('Heute')</td>
-                        <td class="text-right @if(count($logs['error']['today']) > LOG_ERROR_DANGER_DAY) {{--
+                        <td class="text-right @if(count($logs['error']['today']) > config('api.log.error.danger_day')) {{--
                     --}}text-danger{{--
-                --}} @elseif(count($logs['error']['today']) > LOG_ERROR_WARNING_DAY) {{--
+                --}} @elseif(count($logs['error']['today']) > config('api.log.error.warning_day')) {{--
                     --}}text-warning{{--
                 --}} @else {{--
                     --}}text-success{{--
                 --}} @endif">{{ count($logs['error']['today']) }}</td>
-                        <td class="text-right @if(count($logs['warning']['today']) > LOG_WARNING_DANGER_DAY) {{--
+                        <td class="text-right @if(count($logs['warning']['today']) > config('api.log.warning.danger_day')) {{--
                     --}}text-danger{{--
-                --}} @elseif(count($logs['warning']['today']) > LOG_WARNING_WARNING_DAY) {{--
+                --}} @elseif(count($logs['warning']['today']) > config('api.log.warning.warning_day')) {{--
                     --}}text-warning{{--
                 --}} @else {{--
                     --}}text-success{{--

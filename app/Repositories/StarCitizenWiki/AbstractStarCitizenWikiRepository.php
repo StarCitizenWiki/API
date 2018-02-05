@@ -17,14 +17,13 @@ use App\Repositories\AbstractBaseRepository;
  */
 abstract class AbstractStarCitizenWikiRepository extends AbstractBaseRepository
 {
-    const URL = 'https://star-citizen.wiki/';
-    const API_URL = AbstractStarCitizenWikiRepository::URL.'api.php';
-
     /**
      * BaseStarCitizenWikiAPI constructor.
      */
     public function __construct()
     {
+        $this->apiUrl = config('api.wiki_url');
+
         parent::__construct();
     }
 

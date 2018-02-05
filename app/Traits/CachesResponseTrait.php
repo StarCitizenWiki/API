@@ -54,10 +54,14 @@ trait CachesResponseTrait
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function jsonResponse($data, $key = null, $cacheTime = CACHE_TIME): JsonResponse
+    protected function jsonResponse($data, $key = null, $cacheTime = null): JsonResponse
     {
         if (is_null($key)) {
             $key = get_cache_key_for_current_request();
+        }
+
+        if (is_null($cacheTime)) {
+            $cacheTime = config('cache.duration');
         }
 
         return Cache::remember(

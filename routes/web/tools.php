@@ -21,7 +21,10 @@ Route::group(
                     function () {
                         Route::get(
                             'funds',
-                            ['uses' => 'FundImageController@getImage', 'type' => FUNDIMAGE_FUNDING_ONLY]
+                            [
+                                'uses' => 'FundImageController@getImage',
+                                'type' => config('tools.fundimage.type.funding'),
+                            ]
                         );
                         Route::group(
                             ['prefix' => 'funds'],
@@ -30,14 +33,14 @@ Route::group(
                                     'text',
                                     [
                                         'uses' => 'FundImageController@getImage',
-                                        'type' => FUNDIMAGE_FUNDING_AND_TEXT,
+                                        'type' => config('tools.fundimage.type.text'),
                                     ]
                                 );
                                 Route::get(
                                     'bar',
                                     [
                                         'uses' => 'FundImageController@getImage',
-                                        'type' => FUNDIMAGE_FUNDING_AND_BARS,
+                                        'type' => config('tools.fundimage.type.bars'),
                                     ]
                                 );
                             }

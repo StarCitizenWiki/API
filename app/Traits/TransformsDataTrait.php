@@ -21,6 +21,28 @@ use Spatie\Fractal\Fractal;
 trait TransformsDataTrait
 {
     /**
+     * Fractal Manager Instance
+     *
+     * @var \Spatie\Fractal\Fractal
+     */
+    protected $fractalManager;
+    /**
+     * Data to transform
+     *
+     * @var array
+     */
+    protected $dataToTransform;
+    /**
+     * Transformation Type
+     */
+    protected $transformationType;
+    /**
+     * Transformed Fractal Object
+     *
+     * @var \Spatie\Fractal\Fractal
+     */
+    protected $transformedResource;
+    /**
      * Transformer
      *
      * @var \App\Transformers\AbstractBaseTransformer
@@ -28,50 +50,13 @@ trait TransformsDataTrait
     private $transformer;
 
     /**
-     * Fractal Manager Instance
-     *
-     * @var \Spatie\Fractal\Fractal
-     */
-    protected $fractalManager;
-
-    /**
-     * Data to transform
-     *
-     * @var array
-     */
-    protected $dataToTransform;
-
-    /**
-     * Allowed transformation types
-     *
-     * @var array
-     */
-    protected $allowedTransformations = [
-        TRANSFORM_COLLECTION,
-        TRANSFORM_ITEM,
-        TRANSFORM_NULL,
-    ];
-
-    /**
-     * Transformation Type
-     */
-    protected $transformationType = TRANSFORM_ITEM;
-
-    /**
-     * Transformed Fractal Object
-     *
-     * @var \Spatie\Fractal\Fractal
-     */
-    protected $transformedResource;
-
-    /**
-     * Sets the transformaion type to Item
+     * Sets the transformation type to Item
      *
      * @return $this
      */
     public function item()
     {
-        $this->transformationType = TRANSFORM_ITEM;
+        $this->transformationType = config('api.transform_types.item');
 
         return $this;
     }
@@ -83,7 +68,7 @@ trait TransformsDataTrait
      */
     public function collection()
     {
-        $this->transformationType = TRANSFORM_COLLECTION;
+        $this->transformationType = config('api.transform_types.collection');
 
         return $this;
     }
@@ -95,7 +80,7 @@ trait TransformsDataTrait
      */
     public function null()
     {
-        $this->transformationType = TRANSFORM_NULL;
+        $this->transformationType = config('api.transform_types.null');
 
         return $this;
     }
@@ -126,6 +111,8 @@ trait TransformsDataTrait
      * Returns the transformed Resource as JSON
      *
      * @return string
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function toJson(): String
     {
@@ -142,11 +129,17 @@ trait TransformsDataTrait
      * @param null $data used to transform if not null
      *
      * @return $this
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function transform($data = null)
     {
         if (!is_null($data)) {
             $this->dataToTransform = $data;
+        }
+
+        if (is_null($this->transformationType)) {
+            $this->transformationType = config('api.transform_types.item');
         }
 
         $this->createFractalInstance();
@@ -164,6 +157,22 @@ trait TransformsDataTrait
         $this->addMetadataToTransformation();
 
         return $this;
+    }
+
+    /**
+     * Returns the transformed Resource as Array
+     *
+     * @return array
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
+     */
+    public function toArray(): array
+    {
+        if (is_null($this->transformedResource)) {
+            $this->transform();
+        }
+
+        return $this->transformedResource->toArray();
     }
 
     /**
@@ -187,7 +196,7 @@ trait TransformsDataTrait
      */
     protected function checkIfDataIsValid(): void
     {
-        if (is_null($this->dataToTransform) && TRANSFORM_NULL !== $this->transformationType) {
+        if (is_null($this->dataToTransform) && config('api.transform_types.null') !== $this->transformationType) {
             throw new InvalidDataException('Data to transform is empty');
         }
     }
@@ -215,7 +224,7 @@ trait TransformsDataTrait
     protected function checkNullTransformation(): void
     {
         if (is_null($this->dataToTransform) || empty($this->dataToTransform)) {
-            $this->transformationType = TRANSFORM_NULL;
+            $this->transformationType = config('api.transform_types.null');
         }
     }
 
@@ -226,20 +235,6 @@ trait TransformsDataTrait
      */
     protected function checkIfReadyToTransform(): void
     {
-    }
-
-    /**
-     * Returns the transformed Resource as Array
-     *
-     * @return array
-     */
-    public function toArray(): array
-    {
-        if (is_null($this->transformedResource)) {
-            $this->transform();
-        }
-
-        return $this->transformedResource->toArray();
     }
 
     /**

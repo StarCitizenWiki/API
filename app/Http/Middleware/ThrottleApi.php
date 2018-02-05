@@ -17,16 +17,6 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 class ThrottleApi extends ThrottleRequests
 {
     /**
-     * ThrottleApi constructor.
-     *
-     * @param RateLimiter $limiter Limiter
-     */
-    public function __construct(RateLimiter $limiter)
-    {
-        parent::__construct($limiter);
-    }
-
-    /**
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request      Request
@@ -68,7 +58,7 @@ class ThrottleApi extends ThrottleRequests
             abort(403, __('Benutzer ist gesperrt'));
         }
 
-        return parent::handle($request, $next, $rpm, THROTTLE_PERIOD);
+        return parent::handle($request, $next, $rpm, config('api.throttle.period'));
     }
 
     /**
@@ -83,7 +73,7 @@ class ThrottleApi extends ThrottleRequests
     private function determineRequestsPerMinute($user)
     {
         if (is_null($user)) {
-            return THROTTLE_GUEST_REQUESTS;
+            return config('api.throttle.guest_requests');
         }
 
         if ($user->isBlacklisted()) {

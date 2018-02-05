@@ -38,6 +38,7 @@ class ShortUrlWebController extends Controller
      * Returns the ShortUrl Index View
      *
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showShortUrlView(): View
     {
@@ -46,7 +47,7 @@ class ShortUrlWebController extends Controller
         Cache::put(
             'short_url_whitelisted_domains',
             ShortUrlWhitelist::all()->sortBy('url')->where('internal', false),
-            CACHE_TIME * 6
+            config('cache.duration') * 6
         );
 
         return view('shorturl.index')->with(
@@ -59,6 +60,7 @@ class ShortUrlWebController extends Controller
      * Returns the ShortUrl resolve Web View
      *
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showResolveView(): View
     {
@@ -106,7 +108,7 @@ class ShortUrlWebController extends Controller
             $data['hash'] = ShortUrl::generateShortUrlHash();
         }
 
-        $data['user_id'] = SHORT_URL_DEFAULT_USER_ID;
+        $data['user_id'] = config('shorturl.default_user_id');
 
         $url = ShortUrl::create($data);
 

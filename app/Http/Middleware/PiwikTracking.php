@@ -21,6 +21,7 @@ class PiwikTracking
      * @param \Closure                 $next    Next
      *
      * @return mixed
+     * @throws \Exception
      */
     public function handle($request, Closure $next)
     {
@@ -33,8 +34,8 @@ class PiwikTracking
              *
              * @var PiwikTracker $piwikClient
              */
-            $piwikClient = new PiwikTracker(PIWIK_SITE_ID);
-            $piwikClient::$URL = PIWIK_URL;
+            $piwikClient = new PiwikTracker(config('api.piwik.site_id'));
+            $piwikClient::$URL = config('api.piwik.url');
 
             $piwikClient->setUrl($request->fullUrl());
             $piwikClient->setGenerationTime(microtime(true) - LARAVEL_START);

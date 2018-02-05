@@ -63,7 +63,7 @@ class ShortUrl extends Model
     public static function generateShortUrlHash(): String
     {
         do {
-            $hashName = Str::random(SHORT_URL_LENGTH);
+            $hashName = Str::random(config('shorturl.length'));
         } while (ShortUrl::where('hash', '=', $hashName)->count() > 0);
 
         app('Log')::info("Generated Hash: {$hashName}");

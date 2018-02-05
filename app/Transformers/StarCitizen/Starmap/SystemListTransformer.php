@@ -24,16 +24,17 @@ class SystemListTransformer extends AbstractBaseTransformer
     /**
      * Transforms the whole ship list
      *
-     * @param \App\Models\Starsystem $system
+     * @param \App\Models\Starmap\Starsystem $system
      *
      * @return array
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function transform($system)
     {
         $transformed = [
             $system['code'] => [
                 'api_url'  => config('app.api_url').'/api/v1/starmap/systems/'.$system['code'],
-                'wiki_url' => '//star-citizen.wiki/'.ucfirst(strtolower($system['code'])),
+                'wiki_url' => config('api.wiki_url').'/'.ucfirst(strtolower($system['code'])),
             ],
         ];
 

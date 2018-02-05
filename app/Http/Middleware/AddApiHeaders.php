@@ -41,7 +41,7 @@ class AddApiHeaders
         $response->header('Content-Length', $contentLength);
         $response->header('Vary', 'Accept-Encoding');
         $response->header('Connection', 'keep-alive');
-        $response->header('X-SCW-API-Version', API_VERSION);
+        $response->header('X-SCW-API-Version', config('api.version'));
 
         return $response;
     }

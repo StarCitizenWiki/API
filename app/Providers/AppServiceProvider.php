@@ -55,7 +55,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(
             Hashids::class,
             function () {
-                return new Hashids(ADMIN_INTERNAL_PASSWORD, 8);
+                return new Hashids(config('api.admin_password'), 8);
             }
         );
 

@@ -25,9 +25,9 @@ class FundImageController extends Controller
         'black'    => [51, 51, 51],
     ];
 
-    const FUNDING_ONLY = FUNDIMAGE_FUNDING_ONLY;
-    const FUNDING_AND_TEXT = FUNDIMAGE_FUNDING_AND_TEXT;
-    const FUNDING_AND_BARS = FUNDIMAGE_FUNDING_AND_BARS;
+    const FUNDING_ONLY = 'funding_only';
+    const FUNDING_AND_TEXT = 'funding_and_text';
+    const FUNDING_AND_BARS = 'funding_and_bars';
 
     const SUPPORTED_FUNDS = [
         FundImageController::FUNDING_ONLY,
@@ -76,8 +76,10 @@ class FundImageController extends Controller
     /**
      * FundImageController constructor.
      *
-     * @param \Illuminate\Http\Request                                          $request    HTTP Request
+     * @param \Illuminate\Http\Request                                          $request HTTP Request
      * @param \App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface $repository
+     *
+     * @throws \App\Exceptions\MissingExtensionException
      */
     public function __construct(Request $request, StatsRepositoryInterface $repository)
     {
@@ -97,6 +99,7 @@ class FundImageController extends Controller
      * Sets the Image Type to FUNDING_AND_TEXT
      *
      * @return mixed
+     * @throws \Exception
      */
     public function getImageWithText()
     {
@@ -109,6 +112,7 @@ class FundImageController extends Controller
      * Sets the Image Type to FUNDING_AND_BARS
      *
      * @return mixed
+     * @throws \Exception
      */
     public function getImageWithBars()
     {
@@ -273,9 +277,11 @@ class FundImageController extends Controller
      */
     private function checkIfImageCanBeLoadedFromCache(): bool
     {
-        if (Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->exists($this->image['name'])) {
-            $imageCreationTime = Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->lastModified($this->image['name']);
-            $cacheDuration = time() - (CACHE_TIME * 60);
+        $disk = Storage::disk(config('tools.fundimage.save_path.key'));
+
+        if ($disk->exists($this->image['name'])) {
+            $imageCreationTime = $disk->lastModified($this->image['name']);
+            $cacheDuration = time() - (config('cache.duration') * 60);
             if ($imageCreationTime > $cacheDuration) {
                 return true;
             }
@@ -288,13 +294,14 @@ class FundImageController extends Controller
      * Retrieves the image from disk
      *
      * @return mixed
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     private function loadImageFromDisk()
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
         return response()->file(
-            storage_path(FUNDIMAGE_RELATIVE_SAVE_PATH.$this->image['name'])
+            storage_path(config('tools.fundimage.save_path.relative').$this->image['name'])
         );
     }
 
@@ -305,8 +312,8 @@ class FundImageController extends Controller
      */
     private function getFundsFromApi(): void
     {
-        $funds = $this->repository->getFunds()->toArray();
-        $this->funds['current'] = (int) substr(strval($funds['data']['funds']), 0, -2);
+        $liveFunds = $this->repository->getFunds()->toArray();
+        $this->funds['current'] = (int) substr(strval($liveFunds['data']['funds']), 0, -2);
     }
 
     /**
@@ -403,6 +410,7 @@ class FundImageController extends Controller
      * Adds Text and Funds to the Image
      *
      * @return void
+     * @throws \App\Exceptions\InvalidDataException
      */
     private function addDataToImage(): void
     {
@@ -479,6 +487,7 @@ class FundImageController extends Controller
      * Initializes the old 'bar-style' image
      *
      * @return void
+     * @throws \App\Exceptions\InvalidDataException
      */
     private function initBarImage(): void
     {
@@ -564,6 +573,6 @@ class FundImageController extends Controller
      */
     private function saveImageToDisk(): void
     {
-        Storage::disk(FUNDIMAGE_DISK_SAVE_PATH)->put($this->image['name'], $this->image['data']);
+        Storage::disk(config('tools.fundimage.save_path.key'))->put($this->image['name'], $this->image['data']);
     }
 }

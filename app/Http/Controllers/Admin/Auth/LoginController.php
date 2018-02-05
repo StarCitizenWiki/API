@@ -122,7 +122,7 @@ class LoginController extends Controller
             return $this->guard()->attempt(
                 [
                     'username' => $request->get('username'),
-                    'password' => ADMIN_INTERNAL_PASSWORD,
+                    'password' => config('api.admin_password'),
                 ],
                 false
             );
