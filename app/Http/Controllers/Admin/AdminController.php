@@ -33,6 +33,7 @@ class AdminController extends Controller
      * Returns the Dashboard View
      *
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showDashboardView(): View
     {
@@ -106,6 +107,7 @@ class AdminController extends Controller
      * Returns the View to list all routes
      *
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showRoutesView(): View
     {
@@ -139,7 +141,7 @@ class AdminController extends Controller
         $danger = LogReader::withRead()->level('danger')->get();
         $emergency = LogReader::withRead()->level('emergency')->get();
 
-        $logs = [
+        return [
             'debug'     => [
                 'last_hour' => $debug->filter($filterLastHour),
                 'today'     => $debug->filter($filterLastDay),
@@ -181,7 +183,5 @@ class AdminController extends Controller
                 'all'       => $emergency,
             ],
         ];
-
-        return $logs;
     }
 }
