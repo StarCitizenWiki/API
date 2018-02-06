@@ -26,7 +26,7 @@ class CreateUsersTable extends Migration
             $table->tinyInteger('state')->default(0);
             $table->tinyInteger('receive_notification_level')->default(0);
             $table->text('notes')->nullable();
-            $table->timestamp('last_login')->default('1970-01-01 00:00:00');
+            $table->timestamp('last_login')->default('1970-01-01 00:00:01');
             $table->timestamp('api_token_last_used')->nullable();
             $table->rememberToken();
             $table->softDeletes();
