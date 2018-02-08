@@ -5,7 +5,7 @@
  * Time: 16:54
  */
 
-namespace App\Processors;
+namespace App\Logging\Processors;
 
 /**
  * Class UserProcessor

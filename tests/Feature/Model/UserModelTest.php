@@ -28,38 +28,38 @@ class UserModelTest extends TestCase
     }
 
     /**
-     * @covers \App\Models\User::isWhitelisted()
+     * @covers \App\Models\User::isUnthrottled()
      */
-    public function testIsWhitelisted()
+    public function testisUnthrottled()
     {
         $user = User::find(3);
-        $this->assertTrue($user->isWhitelisted());
+        $this->assertTrue($user->isUnthrottled());
     }
 
     /**
-     * @covers \App\Models\User::isWhitelisted()
+     * @covers \App\Models\User::isUnthrottled()
      */
     public function testIsNotWhitelisted()
     {
         $user = User::find(4);
-        $this->assertFalse($user->isWhitelisted());
+        $this->assertFalse($user->isUnthrottled());
     }
 
     /**
-     * @covers \App\Models\User::isBlacklisted()
+     * @covers \App\Models\User::isBlocked()
      */
-    public function testIsBlacklisted()
+    public function testisBlocked()
     {
         $user = User::find(4);
-        $this->assertTrue($user->isBlacklisted());
+        $this->assertTrue($user->isBlocked());
     }
 
     /**
-     * @covers \App\Models\User::isBlacklisted()
+     * @covers \App\Models\User::isBlocked()
      */
     public function testIsNotBlacklisted()
     {
         $user = User::find(2);
-        $this->assertFalse($user->isBlacklisted());
+        $this->assertFalse($user->isBlocked());
     }
 }

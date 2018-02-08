@@ -17,16 +17,6 @@ use App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface;
 class AuthRepository extends AbstractStarCitizenWikiRepository implements AuthRepositoryInterface
 {
     /**
-     * AuthRepository constructor.
-     */
-    public function __construct()
-    {
-        $this->apiUrl = config('api.wiki_url').'?action=verifyuser&format=json';
-
-        parent::__construct();
-    }
-
-    /**
      * @param string $username
      * @param string $password
      *
@@ -37,7 +27,7 @@ class AuthRepository extends AbstractStarCitizenWikiRepository implements AuthRe
     {
         $this->request(
             'POST',
-            '',
+            '/api.php?action=verifyuser&format=json',
             [
                 'form_params' => [
                     'username' => $username,

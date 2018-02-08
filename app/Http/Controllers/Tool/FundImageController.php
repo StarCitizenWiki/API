@@ -85,7 +85,7 @@ class FundImageController extends Controller
     {
         parent::__construct();
         $this->middleware('throttle');
-        $this->middleware('token_usage');
+        $this->middleware('update_token_timestamp');
         $this->checkIfImageCanBeCreated();
         $this->request = $request;
         $this->repository = $repository;

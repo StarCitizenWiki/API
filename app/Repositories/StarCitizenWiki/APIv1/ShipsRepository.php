@@ -32,6 +32,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * @throws \App\Exceptions\InvalidDataException
      * @throws \App\Exceptions\WrongMethodNameException
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getShip(Request $request, string $shipName): ShipsRepository
     {
@@ -64,7 +65,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
         do {
             $response = (string) $this->request(
                 'GET',
-                '?action=askargs&format=json&conditions=Kategorie%3ARaumschiff%7CHersteller%3A%3A%2B&parameters=offset%3D'.$offset,
+                '/api.php?action=askargs&format=json&conditions=Kategorie%3ARaumschiff%7CHersteller%3A%3A%2B&parameters=offset%3D'.$offset,
                 []
             )->getBody();
             $response = json_decode($response, true);
@@ -97,7 +98,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
          */
         $this->collection()->withTransformer(ShipsSearchTransformer::class)->request(
             'GET',
-            '?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName,
+            '/api.php?action=query&format=json&list=search&continue=-%7C%7Ccategories%7Ccategoryinfo&srnamespace=0&srprop=&srsearch=-intitle:Hersteller+incategory%3ARaumschiff+'.$shipName,
             []
         );
         $this->dataToTransform = $this->dataToTransform['query']['search'];
@@ -111,12 +112,13 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * @param string $shipName
      *
      * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      */
     private function getShipDataFromWiki(string $shipName): void
     {
         $this->withTransformer(SMWTransformer::class)->request(
             'GET',
-            '?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
+            '/api.php?action=browsebysubject&format=json&utf8=1&subject='.$shipName,
             []
         );
         $smwData = $this->toArray()['data'];

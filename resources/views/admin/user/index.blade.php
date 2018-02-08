@@ -42,9 +42,9 @@
                         <td class="text-center">
                             @if($user->trashed())
                                 <i class="far fa-trash-alt text-muted" title="@lang('Gelöscht')"></i>
-                            @elseif($user->isWhitelisted())
+                            @elseif($user->isUnthrottled())
                                 <i class="far fa-circle text-success" title="@lang('Nicht limitiert')"></i>
-                            @elseif($user->isBlacklisted())
+                            @elseif($user->isBlocked())
                                 <i class="far fa-stop-circle text-danger" title="@lang('Gesperrt')"></i>
                             @else
                                 <i class="far fa-minus" title="@lang('Normal')"></i>

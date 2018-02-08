@@ -66,7 +66,7 @@ abstract class AbstractStarCitizenRepository extends AbstractBaseRepository
         try {
             $response = $this->guzzleClient->request(
                 'POST',
-                'stats/getCrowdfundStats'
+                '/api/stats/getCrowdfundStats'
             );
             $token = $response->getHeader('Set-Cookie');
 

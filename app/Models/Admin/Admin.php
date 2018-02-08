@@ -25,6 +25,14 @@ class Admin extends Authenticatable
     ];
 
     /**
+     * @return bool
+     */
+    public function isBlocked(): bool
+    {
+        return $this->blocked == true;
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function groups()

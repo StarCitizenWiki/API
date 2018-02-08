@@ -71,16 +71,14 @@ class ShortUrlControllerTest extends TestCase
      */
     public function testDeleteUrl()
     {
-        $url = ShortUrl::createShortUrl([
+        $url = ShortUrl::create([
             'user_id' => $this->user->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
             'hash' => str_random(5),
             'expires' => null,
         ]);
 
-        $response = $this->actingAs($this->user)->delete('account/urls', [
-            'id' => $url->id,
-        ]);
+        $response = $this->actingAs($this->user)->delete("account/urls/{$url->getRouteKey()}");
         $response->assertStatus(302);
     }
 
@@ -90,18 +88,19 @@ class ShortUrlControllerTest extends TestCase
     public function testEditUrlViewNotExist()
     {
         $response = $this->actingAs($this->user)->get('account/urls/-1');
-        $response->assertStatus(302);
+        $response->assertStatus(400);
     }
 
     /**
      * @covers \App\Http\Controllers\User\ShortUrlController::updateUrl()
      * @covers \App\Models\ShortUrl\ShortUrl::createShortUrl()
      * @covers \App\Http\Middleware\VerifyCsrfToken
+     * @throws \Exception
      */
     public function testUpdateUrl()
     {
         $hash = str_random(5);
-        $url = ShortUrl::createShortUrl([
+        $url = ShortUrl::create([
             'user_id' => $this->user->id,
             'url' => 'https://star-citizen.wiki/'.str_random(4),
             'hash' => $hash,
@@ -110,8 +109,7 @@ class ShortUrlControllerTest extends TestCase
 
         $this->assertEquals($hash, $url->hash);
 
-        $response = $this->actingAs($this->user)->patch('account/urls', [
-            'id' => $url->id,
+        $response = $this->actingAs($this->user)->patch("account/urls/{$url->getRouteKey()}", [
             'url' => 'https://star-citizen.wiki/'.str_random(4),
             'hash' => str_random(5),
         ]);

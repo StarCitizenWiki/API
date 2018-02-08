@@ -28,7 +28,7 @@
     </div>
 @endcomponent
 
-@unless(Auth::user()->isBlacklisted())
+@unless(Auth::user()->isBlocked())
     @component('components.navs.nav_element', [
         'route' => route('account.delete_form'),
     ])

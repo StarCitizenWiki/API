@@ -4,7 +4,6 @@ namespace Tests\Feature\Model;
 
 use App\Exceptions\UrlNotWhitelistedException;
 use App\Models\ShortUrl\ShortUrl;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -28,23 +27,12 @@ class ShortUrlModelTest extends TestCase
     public function testNotWhitelistedException()
     {
         $this->expectException(UrlNotWhitelistedException::class);
-        ShortUrl::createShortUrl(
+        ShortUrl::create(
             [
-                'url' => 'https://notwhitelisted.com',
+                'url'     => 'https://notwhitelisted.com',
+                'user_id' => 1,
             ]
         );
-    }
-
-    /**
-     * Test NotFound Exception
-     *
-     * @covers \App\Models\ShortUrl\ShortUrl::resolve()
-     * @covers \Illuminate\Database\Eloquent\ModelNotFoundException
-     */
-    public function testHashNotExistsException()
-    {
-        $this->expectException(ModelNotFoundException::class);
-        ShortUrl::resolve('Does_Not_Exist');
     }
 
     /**
@@ -54,7 +42,7 @@ class ShortUrlModelTest extends TestCase
      */
     public function testShortUrlCreation()
     {
-        $url = ShortUrl::createShortUrl(
+        $url = ShortUrl::create(
             [
                 'url'        => $this->url,
                 'hash'       => $this->hashName,
@@ -64,17 +52,6 @@ class ShortUrlModelTest extends TestCase
         );
 
         $this->assertEquals($this->hashName, $url->hash);
-    }
-
-    /**
-     * @covers \App\Models\ShortUrl\ShortUrl::sanitizeUrl()
-     */
-    public function testUrlSanitization()
-    {
-        $url = 'https://star-citizen.wiki';
-        $urlSanitized = ShortUrl::sanitizeUrl($url);
-
-        $this->assertEquals($url.'/', $urlSanitized);
     }
 
     protected function setUp()

@@ -8,7 +8,7 @@ use Tests\TestCase;
  * Class ShortUrlTest
  * @package Tests\Feature
  */
-class ShortUrlControllerTest extends TestCase
+class ShortUrlWebControllerTest extends TestCase
 {
     /**
      * @covers \App\Http\Controllers\ShortUrl\ShortUrlWebController::showResolveView()

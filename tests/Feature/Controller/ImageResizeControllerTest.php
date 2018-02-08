@@ -16,6 +16,6 @@ class ImageResizeControllerTest extends TestCase
     public function testView()
     {
         $response = $this->get('tools/imageresizer');
-        $response->assertSee('Star Citizen Wiki');
+        $response->assertSee(__('Imageresizer'));
     }
 }

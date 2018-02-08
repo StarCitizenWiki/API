@@ -58,7 +58,7 @@ class StatsRepository extends AbstractStarCitizenRepository implements StatsRepo
 
         $this->request(
             'POST',
-            'stats/getCrowdfundStats',
+            '/api/stats/getCrowdfundStats',
             $requestBody
         );
 

@@ -21,7 +21,7 @@ class UserTableSeeder extends Seeder
                 'api_token'           => 'LdDZZynGTIwn39wRK2ZF2iZtWLPJT9hZAjndvAwG8QM7boKmyxPOmLtXqHl6',
                 'password'            => bcrypt('starcitizenwiki'),
                 'requests_per_minute' => 60,
-                'state'               => \App\Models\User::STATE_WHITELISTED,
+                'state'               => \App\Models\User::STATE_UNTHROTTLED,
                 'last_login'          => '01.01.1970 00:00:00',
                 'created_at'          => \Carbon\Carbon::now(),
             ]
@@ -48,7 +48,7 @@ class UserTableSeeder extends Seeder
                     'api_token'           => str_random(60),
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
-                    'state'               => \App\Models\User::STATE_WHITELISTED,
+                    'state'               => \App\Models\User::STATE_UNTHROTTLED,
                     'last_login'          => '01.01.1970 00:00:00',
                     'created_at'          => \Carbon\Carbon::now(),
                 ]
@@ -61,7 +61,7 @@ class UserTableSeeder extends Seeder
                     'api_token'           => str_random(60),
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
-                    'state'               => \App\Models\User::STATE_BLACKLISTED,
+                    'state'               => \App\Models\User::STATE_BLOCKED,
                     'last_login'          => '01.01.1970 00:00:00',
                     'created_at'          => \Carbon\Carbon::now(),
                 ]

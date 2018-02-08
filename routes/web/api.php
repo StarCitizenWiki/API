@@ -167,7 +167,7 @@ Route::group(
                                 )->name('admin.url.whitelist.add_form');
                             }
                         );
-                        Route::get('/', ['uses' => 'ShortUrlController@showUrlListView'])->name('admin_url_list');
+                        Route::get('/', ['uses' => 'ShortUrlController@showUrlListView'])->name('admin.url.list');
                         Route::get('{url}', ['uses' => 'ShortUrlController@showEditUrlView'])->name(
                             'admin.url.edit_form'
                         );

@@ -76,7 +76,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        if ($user->isBlacklisted()) {
+        if ($user->isBlocked()) {
             app('Log')::notice("Blacklisted User with ID: {$user->id} tried to login");
             Auth::logout();
 

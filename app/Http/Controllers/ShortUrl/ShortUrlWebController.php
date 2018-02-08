@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Class ShortUrlController
+ * Class ShortUrlWebController
  *
  * @package App\Http\Controllers\ShortUrl
  */
@@ -25,7 +25,7 @@ class ShortUrlWebController extends Controller
     use TransformsData;
 
     /**
-     * ShortUrlController constructor.
+     * ShortUrlWebController constructor.
      */
     public function __construct()
     {
@@ -85,13 +85,12 @@ class ShortUrlWebController extends Controller
             )->with('success', true);
         }
 
-        $data = $this->validate(
-            $request,
+        $data = $request->validate(
             [
                 'url'        => [
                     'required',
-                    'url',
                     'max:255',
+                    'url',
                     'unique:short_urls',
                     new ShortUrlWhitelisted(),
                 ],
@@ -100,11 +99,11 @@ class ShortUrlWebController extends Controller
             ]
         );
 
-        if (!is_null($data['expired_at'])) {
+        if (isset($data['expired_at'])) {
             $data['expired_at'] = Carbon::parse($data['expired_at']);
         }
 
-        if (is_null($data['hash'])) {
+        if (!isset($data['hash'])) {
             $data['hash'] = ShortUrl::generateShortUrlHash();
         }
 
@@ -146,7 +145,7 @@ class ShortUrlWebController extends Controller
      */
     public function redirectToUrl(ShortUrl $url)
     {
-        if ($url->user()->isBlacklisted()) {
+        if ($url->user()->isBlocked()) {
             return back()->withErrors(__('Ersteller der Url ist gesperrt'));
         }
 

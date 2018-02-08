@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarmapData;
-use App\Models\CelestialObject;
-use App\Models\Starsystem;
+use App\Models\Starmap\CelestialObject;
+use App\Models\Starmap\Starsystem;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -18,12 +18,13 @@ class StarmapController extends Controller
 {
     /**
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showStarmapSystemsView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('admin.starmap.systems.index')->with(
+        return view('admin.starmap.systems.list')->with(
             'systems',
             Starsystem::orderBy('code')->get()
         );
@@ -31,12 +32,13 @@ class StarmapController extends Controller
 
     /**
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showStarmapCelestialObjectView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('admin.starmap.celestialobjects.index')->with(
+        return view('admin.starmap.celestialobjects.list')->with(
             'celestialobjects',
             CelestialObject::orderBy('code')->get()
         );

@@ -24,7 +24,7 @@
             <div class="col-12 d-flex fixed-bottom">
                 <ul class="nav justify-content-end w-100">
                     <li class="nav-item">
-                        <a class="nav-link text-info" href="{{ route('shorturl.index') }}">
+                        <a class="nav-link text-info" href="{{ url('/') }}">
                             @lang('Verkürzen')
                         </a>
                     </li>

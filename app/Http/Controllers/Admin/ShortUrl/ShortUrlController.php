@@ -29,6 +29,7 @@ class ShortUrlController extends Controller
      * Returns the ShortUrl List View
      *
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showUrlListView(): View
     {
@@ -46,6 +47,7 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl|int $url The ShortUrl ID
      *
      * @return \Illuminate\Contracts\View\View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showEditUrlView(ShortUrl $url)
     {
@@ -64,6 +66,7 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Exception
      */
     public function updateUrl(Request $request, ShortUrl $url)
     {
@@ -97,7 +100,7 @@ class ShortUrlController extends Controller
 
         $url->update($data);
 
-        return redirect()->route('admin_url_list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
+        return redirect()->route('admin.url.list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
     }
 
 
@@ -107,12 +110,13 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse
+     * @throws \Exception
      */
     public function deleteUrl(ShortUrl $url): RedirectResponse
     {
         $url->delete();
 
-        return redirect()->route('admin_url_list');
+        return redirect()->route('admin.url.list');
     }
 
     /**
@@ -124,6 +128,6 @@ class ShortUrlController extends Controller
     {
         $url->restore();
 
-        return redirect()->route('admin_url_list');
+        return redirect()->route('admin.url.list');
     }
 }

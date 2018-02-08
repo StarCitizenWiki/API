@@ -96,8 +96,8 @@ class User extends Authenticatable
     ];
 
     const STATE_DEFAULT = 0;
-    const STATE_WHITELISTED = 1;
-    const STATE_BLACKLISTED = 2;
+    const STATE_UNTHROTTLED = 1;
+    const STATE_BLOCKED = 2;
 
     /**
      * The attributes that should be hidden for arrays.
@@ -151,9 +151,9 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isWhitelisted(): bool
+    public function isUnthrottled(): bool
     {
-        return $this->state == static::STATE_WHITELISTED;
+        return $this->state == static::STATE_UNTHROTTLED;
     }
 
     /**
@@ -161,9 +161,9 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isBlacklisted(): bool
+    public function isBlocked(): bool
     {
-        return $this->state == static::STATE_BLACKLISTED;
+        return $this->state == static::STATE_BLOCKED;
     }
 
     /**

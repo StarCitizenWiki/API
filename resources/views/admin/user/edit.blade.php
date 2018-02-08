@@ -55,9 +55,9 @@
                         'inputClass' => 'custom-select w-100',
                     ])
                         @slot('selectOptions')
-                            <option value="0">@lang('Normal')</option>
-                            <option value="1">@lang('Unlimitiert')</option>
-                            <option value="2">@lang('Gesperrt')</option>
+                            <option value="{{ \App\Models\User::STATE_DEFAULT }}">@lang('Normal')</option>
+                            <option value="{{ \App\Models\User::STATE_UNTHROTTLED }}">@lang('Unlimitiert')</option>
+                            <option value="{{ \App\Models\User::STATE_BLOCKED }}">@lang('Gesperrt')</option>
                         @endslot
                     @endcomponent
                 </div>

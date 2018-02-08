@@ -10,7 +10,7 @@
     <div class="card-body">
         <h6 class="card-title">@lang('Danger Zone'):</h6>
 
-        @unless(Auth::user()->isBlacklisted())
+        @unless(Auth::user()->isBlocked())
             @component('components.forms.form', [
                 'method' => 'DELETE',
                 'action' => route('account.delete'),

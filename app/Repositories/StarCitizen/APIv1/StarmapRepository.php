@@ -40,6 +40,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getSystem(string $systemName)
@@ -56,6 +58,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getAsteroidbelts(string $systemName)
@@ -76,6 +80,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getSpacestations(string $systemName)
@@ -92,6 +98,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return $this
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppoints(string $systemName)
@@ -110,6 +118,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getPlanets(string $systemName)
@@ -126,6 +136,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getMoons(string $systemName)
@@ -142,6 +154,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getLandingzones(string $systemName)
@@ -158,6 +172,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getStars(string $systemName)
@@ -175,6 +191,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $objectName
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getCelestialObject(string $objectName)
@@ -198,6 +216,8 @@ class StarmapRepository extends AbstractStarCitizenRepository implements Starmap
      * @param string $searchString
      *
      * @return \App\Repositories\StarCitizen\ApiV1\StarmapRepository
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function search(string $searchString)

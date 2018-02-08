@@ -282,7 +282,7 @@
                 @slot('title')
                     @lang('ShortUrls') ({{ $short_urls['counts']['overall'] }})
                     <small class="float-right mt-1">
-                        <a href="{{ route('admin_url_list') }}" class="text-light">
+                        <a href="{{ route('admin.url.list') }}" class="text-light">
                             <i class="far fa-external-link"></i>
                         </a>
                     </small>

@@ -28,6 +28,7 @@ class ShipsTransformer extends AbstractBaseTransformer
      * @param mixed $ship Ship to transform
      *
      * @return mixed
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function transform($ship)
     {
@@ -51,14 +52,14 @@ class ShipsTransformer extends AbstractBaseTransformer
             last(explode('/', $wiki['subject'])) ?? $wiki['subject'] => [
                 'ship'             => [
                     'name'     => last(explode('/', $wiki['subject'])) ?? $wiki['subject'],
-                    'wiki_url' => AbstractStarCitizenWikiRepository::URL.$wiki['subject'],
+                    'wiki_url' => config('api.wiki_url').$wiki['subject'],
                 ],
                 'manufacturer'     => [
                     'name'     => last(explode('/', $wiki['data']['Hersteller'][0] ?? '')) ?? $scdb['manufacturer'] ?? '',
                     'id'       => isset($wiki['subject']) && str_contains($wiki['subject'], '/') ?
                                     explode('/', $wiki['subject'])[1]
                                     : '',
-                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? AbstractStarCitizenWikiRepository::URL.$wiki['data']['Hersteller'][0] : '',
+                    'wiki_url' => isset($wiki['data']['Hersteller'][0]) ? config('api.wiki_url').$wiki['data']['Hersteller'][0] : '',
                 ],
                 'description'      => [
                     'wiki'      => $wiki['data']['Beschreibung'][0] ?? '',

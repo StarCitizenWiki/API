@@ -41,6 +41,7 @@ class RegisterController extends Controller
      * Show the application registration form.
      *
      * @return View
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showRegistrationForm(): View
     {
@@ -58,9 +59,7 @@ class RegisterController extends Controller
      */
     public function create(array $data)
     {
-        $user = new User();
-
-        $user->create(
+        $user = User::create(
             [
                 'name'                => $data['name'],
                 'email'               => $data['email'],

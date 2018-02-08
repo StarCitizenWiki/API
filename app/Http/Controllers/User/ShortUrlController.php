@@ -83,23 +83,31 @@ class ShortUrlController extends Controller
      * @param \Illuminate\Http\Request $request The Request
      *
      * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function addUrl(Request $request)
     {
         $this->authorize('create', ShortUrl::class);
 
-        $data = $this->validate(
-            $request,
+        $data = $request->validate(
             [
-                'url'        => ['required|url|max:255|unique:short_urls', new ShortUrlWhitelisted()],
+                'url'        => [
+                    'required',
+                    'max:255',
+                    'url',
+                    'unique:short_urls',
+                    new ShortUrlWhitelisted(),
+                ],
                 'hash'       => 'nullable|alpha_dash|max:32|unique:short_urls',
                 'expired_at' => 'nullable|date|after:'.Carbon::now(),
             ]
         );
 
-        if (!is_null($data['expired_at'])) {
+        if (isset($data['expired_at'])) {
             $data['expired_at'] = Carbon::parse($data['expired_at']);
         }
+
+        $data['user_id'] = Auth::id();
 
         $url = ShortUrl::create($data);
         event(new UrlShortened($url));
@@ -118,6 +126,7 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function updateUrl(Request $request, ShortUrl $url): RedirectResponse
     {
@@ -142,7 +151,7 @@ class ShortUrlController extends Controller
             ]
         );
 
-        if (!is_null($data['expired_at'])) {
+        if (isset($data['expired_at'])) {
             $data['expired_at'] = Carbon::parse($data['expired_at']);
         }
 

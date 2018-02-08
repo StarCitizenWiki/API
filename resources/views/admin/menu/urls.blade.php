@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('admin_url_list'),
+    'route' => route('admin.url.list'),
 ])
     <div class="row">
         <div class="col-1">
