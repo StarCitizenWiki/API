@@ -19,10 +19,10 @@ class CreateAdminGroupsTable extends Migration
         Schema::create(
             'admin_groups',
             function (Blueprint $table) {
-                $table->unsignedInteger('admin_id');
+                $table->unsignedInteger('admin_id')->nullable();
                 $table->foreign('admin_id')->references('id')->on('admins');
 
-                $table->unsignedInteger('group_id');
+                $table->unsignedInteger('group_id')->nullable();
                 $table->foreign('group_id')->references('id')->on('groups');
 
                 $table->timestamps();
