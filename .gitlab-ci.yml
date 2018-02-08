@@ -37,7 +37,7 @@ before_script:
   - docker-php-ext-install mbstring pdo_mysql curl json intl xml zip bz2 opcache bcmath gmp
 
   # PHP GD
-  - apt-get install libfreetype6-dev libjpeg62-turbo-dev libpng12-dev -yqq
+  - apt-get install libfreetype6-dev libjpeg62-turbo-dev libpng-dev -yqq
   - docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
   - docker-php-ext-install -j$(nproc) gd
 
