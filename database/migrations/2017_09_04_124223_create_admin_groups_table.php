@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class CreateAdminGroupsTable extends Migration
 {
+    const TABLE = 'admin_groups';
+
     /**
      * Run the migrations.
      *
@@ -17,15 +19,20 @@ class CreateAdminGroupsTable extends Migration
     public function up()
     {
         Schema::create(
-            'admin_groups',
+            self::TABLE,
             function (Blueprint $table) {
-                $table->unsignedInteger('admin_id')->nullable();
-                $table->foreign('admin_id')->references('id')->on('admins');
-
-                $table->unsignedInteger('group_id')->nullable();
-                $table->foreign('group_id')->references('id')->on('groups');
+                $table->unsignedInteger('admin_id');
+                $table->unsignedInteger('group_id');
 
                 $table->timestamps();
+            }
+        );
+
+        Schema::table(
+            self::TABLE,
+            function (Blueprint $table) {
+                $table->foreign('admin_id')->references('id')->on('admins');
+                $table->foreign('group_id')->references('id')->on('groups');
             }
         );
     }
@@ -37,6 +44,6 @@ class CreateAdminGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('admin_groups');
+        Schema::dropIfExists(self::TABLE);
     }
 }
