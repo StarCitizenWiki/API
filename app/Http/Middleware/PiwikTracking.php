@@ -40,10 +40,11 @@ class PiwikTracking
             $piwikClient->setUrl($request->fullUrl());
             $piwikClient->setGenerationTime(microtime(true) - LARAVEL_START);
 
-            $key = $request->header('Authorization', null);
+            $user = $request->user();
 
-            if (is_null($key)) {
-                $key = $request->query->get('Authorization', null);
+            $key = false;
+            if (!is_null($user)) {
+                $key = $user->id;
             }
 
             $piwikClient->setUserId($key);

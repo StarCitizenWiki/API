@@ -2,10 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Exceptions\AccountDisabledExceptionAbstract;
-use App\Models\User;
 use Closure;
-use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -28,58 +25,12 @@ class ThrottleApi extends ThrottleRequests
      */
     public function handle($request, Closure $next, $maxAttempts = 60, $decayMinutes = 1)
     {
-        $key = $request->header('Authorization', null);
+        $user = $request->user();
 
-        if (is_null($key)) {
-            $key = $request->query->get('Authorization', null);
+        if (!is_null($user) && $user->isUnthrottled()) {
+            return $next($request);
         }
 
-        $user = User::where('api_token', $key)->first();
-
-        if (!is_null($user)) {
-            if ($user->isWhitelisted()) {
-                return $next($request);
-            }
-        } elseif (!is_null($key)) {
-            app('Log')::notice("No User for key: {$key} found");
-        }
-
-        try {
-            $rpm = $this->determineRequestsPerMinute($user);
-        } catch (AccountDisabledExceptionAbstract $e) {
-            app('Log')::notice(
-                'Request from blacklisted User',
-                [
-                    'user_id'     => $user->id,
-                    'request_url' => $request->getUri(),
-                ]
-            );
-
-            abort(403, __('Benutzer ist gesperrt'));
-        }
-
-        return parent::handle($request, $next, $rpm, config('api.throttle.period'));
-    }
-
-    /**
-     * Determines the RPM based on the User
-     *
-     * @param User | null $user User Object
-     *
-     * @return int
-     *
-     * @throws AccountDisabledExceptionAbstract
-     */
-    private function determineRequestsPerMinute($user)
-    {
-        if (is_null($user)) {
-            return config('api.throttle.guest_requests');
-        }
-
-        if ($user->isBlacklisted()) {
-            throw new AccountDisabledExceptionAbstract();
-        }
-
-        return $user->requests_per_minute;
+        return parent::handle($request, $next, config('api.throttle.guest_requests'), config('api.throttle.period'));
     }
 }

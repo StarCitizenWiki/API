@@ -19,7 +19,12 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\TrustProxies::class,
         \App\Http\Middleware\PiwikTracking::class,
+        \App\Http\Middleware\CheckUserState::class,
     ];
 
     /**
@@ -35,15 +40,14 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
-            \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         ],
 
         'api' => [
-            'throttle:60,1',
-            'bindings',
-            'token_usage',
             'add_api_headers',
+            'bindings',
+            'log_api_request',
+            'throttle:requests_per_minute,1',
+            'update_token_timestamp',
         ],
     ];
 
@@ -55,16 +59,18 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'admin'           => \App\Http\Middleware\RedirectIfNotAdmin::class,
-        'admin.guest'     => \App\Http\Middleware\RedirectIfAdmin::class,
-        'auth'            => \Illuminate\Auth\Middleware\Authenticate::class,
-        'auth.basic'      => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'bindings'        => \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        'can'             => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest'           => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle'        => \App\Http\Middleware\ThrottleApi::class,
-        'token_usage'     => \App\Http\Middleware\UpdateTokenTimestamp::class,
-        'add_api_headers' => \App\Http\Middleware\AddApiHeaders::class,
-        'piwik_tracking'  => \App\Http\Middleware\PiwikTracking::class,
+        'admin'                  => \App\Http\Middleware\RedirectIfNotAdmin::class,
+        'admin.guest'            => \App\Http\Middleware\RedirectIfAdmin::class,
+        'auth'                   => \Illuminate\Auth\Middleware\Authenticate::class,
+        'auth.basic'             => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings'               => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'can'                    => \Illuminate\Auth\Middleware\Authorize::class,
+        'check_user_state'       => \App\Http\Middleware\CheckUserState::class,
+        'guest'                  => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'log_api_request'        => \App\Http\Middleware\LogApiRequest::class,
+        'throttle'               => \App\Http\Middleware\ThrottleApi::class,
+        'update_token_timestamp' => \App\Http\Middleware\UpdateTokenTimestamp::class,
+        'add_api_headers'        => \App\Http\Middleware\AddApiHeaders::class,
+        'piwik_tracking'         => \App\Http\Middleware\PiwikTracking::class,
     ];
 }
