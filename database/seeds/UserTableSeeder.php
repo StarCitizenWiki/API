@@ -22,7 +22,7 @@ class UserTableSeeder extends Seeder
                 'password'            => bcrypt('starcitizenwiki'),
                 'requests_per_minute' => 60,
                 'state'               => \App\Models\User::STATE_UNTHROTTLED,
-                'last_login'          => '01.01.1970 00:00:00',
+                'last_login'          => '1970-01-01 00:00:01',
                 'created_at'          => \Carbon\Carbon::now(),
             ]
         );
@@ -35,7 +35,7 @@ class UserTableSeeder extends Seeder
                 'password'            => bcrypt('starcitizenbase'),
                 'requests_per_minute' => 10,
                 'state'               => \App\Models\User::STATE_DEFAULT,
-                'last_login'          => '01.01.1970 00:00:00',
+                'last_login'          => '1970-01-01 00:00:01',
                 'created_at'          => \Carbon\Carbon::now(),
             ]
         );
@@ -49,7 +49,7 @@ class UserTableSeeder extends Seeder
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
                     'state'               => \App\Models\User::STATE_UNTHROTTLED,
-                    'last_login'          => '01.01.1970 00:00:00',
+                    'last_login'          => '1970-01-01 00:00:01',
                     'created_at'          => \Carbon\Carbon::now(),
                 ]
             );
@@ -62,7 +62,7 @@ class UserTableSeeder extends Seeder
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
                     'state'               => \App\Models\User::STATE_BLOCKED,
-                    'last_login'          => '01.01.1970 00:00:00',
+                    'last_login'          => '1970-01-01 00:00:01',
                     'created_at'          => \Carbon\Carbon::now(),
                 ]
             );
@@ -75,7 +75,7 @@ class UserTableSeeder extends Seeder
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
                     'state'               => \App\Models\User::STATE_DEFAULT,
-                    'last_login'          => '01.01.1970 00:00:00',
+                    'last_login'          => '1970-01-01 00:00:01',
                     'created_at'          => \Carbon\Carbon::now(),
                 ]
             );
