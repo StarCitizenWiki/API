@@ -27,14 +27,6 @@ class CreateAdminGroupsTable extends Migration
                 $table->timestamps();
             }
         );
-
-        Schema::table(
-            self::TABLE,
-            function (Blueprint $table) {
-                $table->foreign('admin_id')->references('id')->on('admins');
-                $table->foreign('group_id')->references('id')->on('groups');
-            }
-        );
     }
 
     /**
