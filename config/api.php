@@ -3,8 +3,8 @@
 return [
     'version' => '1.0',
 
-    'wiki_url' => env('WIKI_URL', 'http://localhost/api.php'),
-    'rsi_url' => env('RSI_URL', 'https://robertsspaceindustries.com/api'),
+    'wiki_url' => env('WIKI_URL', 'http://localhost'),
+    'rsi_url' => env('RSI_URL', 'https://robertsspaceindustries.com'),
 
     'admin_password' => env('ADMIN_PASSWORD', config('app.key')),
 

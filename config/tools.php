@@ -3,9 +3,9 @@
 return [
     'fundimage' => [
         'type' => [
-            'funding' => 1,
-            'text' => 2,
-            'bars' => 3,
+            'funding' => 'funding_only',
+            'text' => 'funding_and_text',
+            'bars' => 'funding_and_bars',
         ],
         'save_path' => [
             'key' => 'tools_media_images',
