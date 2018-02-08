@@ -29,8 +29,10 @@ class ShortUrlModelTest extends TestCase
         $this->expectException(UrlNotWhitelistedException::class);
         ShortUrl::create(
             [
-                'url'     => 'https://notwhitelisted.com',
-                'user_id' => 1,
+                'url'        => 'https://notwhitelisted.com',
+                'hash'       => $this->hashName,
+                'user_id'    => 1,
+                'expired_at' => null,
             ]
         );
     }
