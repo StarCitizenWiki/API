@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 03.08.2017 16:42
@@ -10,7 +10,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class JumppointTunnelTransformer
- * @package App\Transformers\StarCitizen\Starmap
  */
 class JumppointTunnelTransformer extends AbstractBaseTransformer
 {
@@ -19,7 +18,7 @@ class JumppointTunnelTransformer extends AbstractBaseTransformer
     const SUBARRAY_NODES = ['entry', 'exit'];
 
     /**
-     * @param $jumppointTunnel
+     * @param array $jumppointTunnelInput
      *
      * @return mixed
      */
@@ -38,6 +37,7 @@ class JumppointTunnelTransformer extends AbstractBaseTransformer
             $jumppointTunnel = $this->moveToSubarray($jumppointTunnel, static::SUBARRAY_NODES);
             $jumppointTunnel = $this->filterAndRenameFields($jumppointTunnel);
         }
+
         return $jumppointTunnels;
     }
 }

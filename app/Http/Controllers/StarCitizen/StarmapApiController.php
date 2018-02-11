@@ -15,8 +15,6 @@ use InvalidArgumentException;
 
 /**
  * Class StarmapAPIController
- *
- * @package App\Http\Controllers\StarCitizen
  */
 class StarmapApiController extends Controller
 {
@@ -44,6 +42,8 @@ class StarmapApiController extends Controller
      * @param string $name SystemName
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getSystem(string $name)
     {
@@ -96,6 +96,8 @@ class StarmapApiController extends Controller
      * @param string $name SystemName
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getAsteroidbelts(string $name)
     {
@@ -130,7 +132,7 @@ class StarmapApiController extends Controller
             'Starmap System Spacestations requested',
             [
                 'method' => __METHOD__,
-                'name'   => $name,
+                'name' => $name,
             ]
         );
 
@@ -159,7 +161,7 @@ class StarmapApiController extends Controller
             'Starmap System Jumppoints requested',
             [
                 'method' => __METHOD__,
-                'name'   => $name,
+                'name' => $name,
             ]
         );
 
@@ -188,7 +190,7 @@ class StarmapApiController extends Controller
             'Starmap System Planets requested',
             [
                 'method' => __METHOD__,
-                'name'   => $name,
+                'name' => $name,
             ]
         );
 
@@ -217,7 +219,7 @@ class StarmapApiController extends Controller
             'Starmap System Moons requested',
             [
                 'method' => __METHOD__,
-                'name'   => $name,
+                'name' => $name,
             ]
         );
 
@@ -246,7 +248,7 @@ class StarmapApiController extends Controller
             'Starmap System Suns requested',
             [
                 'method' => __METHOD__,
-                'name'   => $name,
+                'name' => $name,
             ]
         );
 
@@ -275,7 +277,7 @@ class StarmapApiController extends Controller
             'Starmap System Landingzones requested',
             [
                 'method' => __METHOD__,
-                'name'   => $name,
+                'name' => $name,
             ]
         );
 
@@ -304,13 +306,13 @@ class StarmapApiController extends Controller
             'Starmap System Object requested',
             [
                 'method' => __METHOD__,
-                'name'   => $name,
+                'name' => $name,
             ]
         );
 
         try {
             $objectNames = explode('.', $name);
-            if (is_null($objectNames) || count($objectNames) != 3) {
+            if (is_null($objectNames) || count($objectNames) !== 3) {
                 throw new InvalidArgumentException(
                     "Objectname not like SYSTEM.TYPE.NAME (e.g. STANTON.PLANETS.STANTONIIIARCCORP). Input was {$name}"
                 );
@@ -328,25 +330,25 @@ class StarmapApiController extends Controller
     }
 
     /**
-     * @param string $searchstring
+     * @param string $searchString
      *
      * @return \Illuminate\Http\JsonResponse | string
      */
-    public function searchStarmap(string $searchstring)
+    public function searchStarmap(string $searchString)
     {
-        $searchstring = strtoupper($searchstring);
+        $searchString = strtoupper($searchString);
 
         app('Log')::debug(
             'Searching Starmap requested',
             [
-                'method'       => __METHOD__,
-                'searchstring' => $searchstring,
+                'method' => __METHOD__,
+                'searchstring' => $searchString,
             ]
         );
 
         try {
             return response()->json(
-                $this->repository->search($searchstring)->toArray(),
+                $this->repository->search($searchString)->toArray(),
                 200,
                 [],
                 JSON_PRETTY_PRINT

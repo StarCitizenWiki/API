@@ -11,7 +11,6 @@ use Illuminate\View\View;
 
 /**
  * Class NotificationController
- * @package App\Http\Controllers\Admin
  */
 class NotificationController extends Controller
 {
@@ -28,6 +27,8 @@ class NotificationController extends Controller
 
     /**
      * @return \Illuminate\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showNotificationListView(): View
     {
@@ -41,6 +42,8 @@ class NotificationController extends Controller
 
     /**
      * @return \Illuminate\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showAddNotificationView(): View
     {
@@ -53,6 +56,8 @@ class NotificationController extends Controller
      * @param \App\Models\Notification $notification
      *
      * @return \Illuminate\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showEditNotificationView(Notification $notification)
     {
@@ -74,12 +79,12 @@ class NotificationController extends Controller
         $data = $this->validate(
             $request,
             [
-                'content'      => 'required|string|min:5',
-                'level'        => 'required|int|between:0,3',
-                'expired_at'   => 'required|date|after:'.Carbon::now(),
+                'content' => 'required|string|min:5',
+                'level' => 'required|int|between:0,3',
+                'expired_at' => 'required|date|after:'.Carbon::now(),
                 'published_at' => 'nullable|date',
-                'order'        => 'nullable|int',
-                'output'       => 'required|array|in:status,email,index',
+                'order' => 'nullable|int',
+                'output' => 'required|array|in:status,email,index',
             ]
         );
 
@@ -106,6 +111,8 @@ class NotificationController extends Controller
      * @param \App\Models\Notification $notification
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Exception
      */
     public function updateNotification(Request $request, Notification $notification)
     {
@@ -120,13 +127,13 @@ class NotificationController extends Controller
         $data = $this->validate(
             $request,
             [
-                'content'      => 'required|string|min:5',
-                'level'        => 'required|int|between:0,3',
-                'expired_at'   => 'required|date',
-                'output'       => 'required|array|in:status,email,index',
-                'order'        => 'required|int|between:0,5',
+                'content' => 'required|string|min:5',
+                'level' => 'required|int|between:0,3',
+                'expired_at' => 'required|date',
+                'output' => 'required|array|in:status,email,index',
+                'order' => 'required|int|between:0,5',
                 'published_at' => 'required|date',
-                'resend_mail'  => 'nullable',
+                'resend_mail' => 'nullable',
             ]
         );
 
@@ -138,7 +145,7 @@ class NotificationController extends Controller
         $resendEmail = array_pull($data, 'resend_email', false);
         $notification->update($data);
 
-        if ($resendEmail === 'resend_email' || ($notification->output_email === false && $data['output_email'] === true)) {
+        if ('resend_email' === $resendEmail || ($notification->output_email === false && $data['output_email'] === true)) {
             $this->dispatchJob($notification);
         }
 
@@ -152,6 +159,8 @@ class NotificationController extends Controller
      * @param \App\Models\Notification $notification
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Exception
      */
     public function deleteNotification(Notification $notification)
     {

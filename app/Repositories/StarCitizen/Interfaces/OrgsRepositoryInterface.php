@@ -9,8 +9,6 @@ namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface OrgsInterface
- *
- * @package App\Repositories\StarCitizen\ApiV1\Orgs
  */
 interface OrgsRepositoryInterface
 {

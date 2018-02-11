@@ -13,13 +13,12 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ShipsRepository
- *
- * @package App\Repositories\StarCitizenDB
  */
 class ShipsRepository extends AbstractBaseRepository implements ShipsRepositoryInterface
 {
     /**
      * @return \App\Repositories\StarCitizenDB\ShipsRepository
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getShipList(): ShipsRepository
@@ -38,6 +37,7 @@ class ShipsRepository extends AbstractBaseRepository implements ShipsRepositoryI
      * @param string                   $shipName ShipName
      *
      * @return ShipsRepositoryInterface
+     *
      * @throws \App\Exceptions\InvalidDataException
      * @throws \App\Exceptions\WrongMethodNameException
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException

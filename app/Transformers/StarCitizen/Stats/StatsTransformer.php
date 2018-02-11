@@ -12,8 +12,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class StatsTransformer
- *
- * @package App\Transformers\StarCitizen\Stats
  */
 class StatsTransformer extends AbstractBaseTransformer
 {
@@ -30,12 +28,14 @@ class StatsTransformer extends AbstractBaseTransformer
      * @param mixed $stats Data
      *
      * @return mixed
+     *
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function transform($stats)
     {
         $stats = $stats['data'];
         $data = [
-            'fans'  => (string) $stats['fans'],
+            'fans' => (string) $stats['fans'],
             'fleet' => (string) $stats['fleet'],
             'funds' => (string) $stats['funds'],
             'chart' => $stats['chart'],

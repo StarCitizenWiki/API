@@ -11,64 +11,6 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class User
- *
- * @package App\Models
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[]
- *                $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ShortUrl\ShortUrl[]
- *                    $shortUrls
- * @mixin \Eloquent
- * @property int
- *               $id
- * @property string
- *               $name
- * @property string
- *               $email
- * @property string
- *               $api_token
- * @property string
- *               $password
- * @property int
- *               $requests_per_minute
- * @property bool
- *               $whitelisted
- * @property bool
- *               $blacklisted
- * @property string
- *               $notes
- * @property string
- *               $last_login
- * @property string
- *               $api_token_last_used
- * @property string
- *               $remember_token
- * @property string
- *               $deleted_at
- * @property \Carbon\Carbon
- *               $created_at
- * @property \Carbon\Carbon
- *               $updated_at
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereApiToken($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereApiTokenLastUsed($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereBlacklisted($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereCreatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereDeletedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereEmail($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereId($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereLastLogin($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereName($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereNotes($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User wherePassword($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereRememberToken($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereRequestsPerMinute($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User whereWhitelisted($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ApiRequests[] $apiRequests
- * @method static bool|null forceDelete()
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User onlyTrashed()
- * @method static bool|null restore()
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User withTrashed()
- * @method static \Illuminate\Database\Query\Builder|\App\Models\User withoutTrashed()
  */
 class User extends Authenticatable
 {
@@ -153,7 +95,7 @@ class User extends Authenticatable
      */
     public function isUnthrottled(): bool
     {
-        return $this->state == static::STATE_UNTHROTTLED;
+        return (int) $this->state === static::STATE_UNTHROTTLED;
     }
 
     /**
@@ -163,7 +105,7 @@ class User extends Authenticatable
      */
     public function isBlocked(): bool
     {
-        return $this->state == static::STATE_BLOCKED;
+        return (int) $this->state === static::STATE_BLOCKED;
     }
 
     /**

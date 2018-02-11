@@ -9,15 +9,14 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ShortUrlPolicy
- * @package App\Policies
  */
 class ShortUrlPolicy
 {
     use HandlesAuthorization;
 
     /**
-     * @param $user
-     * @param $ability
+     * @param \App\Models\User $user
+     * @param mixed            $ability
      *
      * @return bool
      */
@@ -87,6 +86,6 @@ class ShortUrlPolicy
      */
     private function idsMatch(User $user, ShortUrl $shortUrl): bool
     {
-        return $user->id === (int)$shortUrl->user_id;
+        return $user->id === (int) $shortUrl->user_id;
     }
 }

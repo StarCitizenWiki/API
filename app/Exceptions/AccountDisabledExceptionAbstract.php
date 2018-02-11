@@ -10,8 +10,6 @@ namespace App\Exceptions;
 /**
  * Class UserBlacklistedException
  * Exception to throw if a request is made by an blacklisted user
- *
- * @package App\Exceptions
  */
 class AccountDisabledExceptionAbstract extends AbstractBaseException
 {

@@ -13,7 +13,6 @@ use League\Fractal\TransformerAbstract;
 
 /**
  * Class AbstractBaseTransformer
- * @package App\Transformers
  */
 abstract class AbstractBaseTransformer extends TransformerAbstract
 {
@@ -25,6 +24,7 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
      * Override in Child, using keys that should be filtered
      */
     const FILTER_FIELDS = [];
+
     /**
      * Override in Child, using key as original key and value as new key name
      * e.g. 'cig_id' => 'id' replace the key name 'cig_id' to 'id'
@@ -49,6 +49,8 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
 
     /**
      * @param array $data
+     *
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function addFilterArray(array $data): void
     {
@@ -62,6 +64,7 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
      * @param array $data
      *
      * @return array
+     *
      * @throws \App\Exceptions\InvalidDataException
      */
     public function filterData(array &$data)
@@ -98,6 +101,9 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
         return [];
     }
 
+    /**
+     * @throws \App\Exceptions\InvalidDataException
+     */
     protected function validateRequestedFields()
     {
         foreach ($this->requestedFields as $field) {
@@ -113,8 +119,9 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
     /**
      * When $array Keys start with Element of $newNodes, Key is moved to a new Subarray
      * e.g. $array['entry_status'] is moved to $array['entry']['status']
-     * @param $array
-     * @param $newNodes array of new search and to moved Keys
+     *
+     * @param array $array
+     * @param array $newNodes array of new search and to moved Keys
      *
      * @return mixed
      */
@@ -123,19 +130,21 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
         foreach ($array as $key => $value) {
             foreach ($newNodes as $newNode) {
                 if (substr($key, 0, strlen($newNode)) === $newNode) {
-                    $newKey = substr($key, strlen($newNode)+1, strlen($key));
+                    $newKey = substr($key, strlen($newNode) + 1, strlen($key));
                     $array[$newNode][$newKey] = $value;
                     unset($array[$key]);
                 }
             }
         }
+
         return $array;
     }
 
     /**
      * Filter FILTER_FIELDS from $array and Rename $array Keys from RENAME_KEYS Key to RENAME_KEYS value
-     * Recursiv call, if $array contains another array
-     * @param $array array
+     * Recursive call, if $array contains another array
+     *
+     * @param array $array
      *
      * @return array Filtered and Renamed Array
      */
@@ -163,7 +172,9 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
         // Recursive Call for Subarrays
         foreach ($filteredAndRenamedArray as $filteredAndRenamedArrayKey => $filteredAndRenamedArrayValue) {
             if (is_array($filteredAndRenamedArrayValue)) {
-                $filteredAndRenamedArray[$filteredAndRenamedArrayKey] = $this->filterAndRenameFields($filteredAndRenamedArrayValue);
+                $filteredAndRenamedArray[$filteredAndRenamedArrayKey] = $this->filterAndRenameFields(
+                    $filteredAndRenamedArrayValue
+                );
             }
         }
 

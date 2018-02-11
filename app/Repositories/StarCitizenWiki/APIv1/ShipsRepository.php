@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Class ShipsRepository
- * @package App\Repositories\StarCitizenWiki\ApiV1\Ships
  */
 class ShipsRepository extends AbstractStarCitizenWikiRepository implements ShipsRepositoryInterface
 {
@@ -29,6 +28,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * @param string                   $shipName ShipName
      *
      * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
+     *
      * @throws \App\Exceptions\InvalidDataException
      * @throws \App\Exceptions\WrongMethodNameException
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
@@ -52,6 +52,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * Gets a ShipList
      *
      * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
+     *
      * @throws \App\Exceptions\InvalidDataException
      * @throws \App\Exceptions\WrongMethodNameException
      */
@@ -86,6 +87,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
      * @param string $shipName ShipName
      *
      * @return \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository
+     *
      * @throws \App\Exceptions\InvalidDataException
      * @throws \App\Exceptions\WrongMethodNameException
      */
@@ -129,7 +131,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
         $this->dataToTransform = [
             'wiki' => [
                 'subject' => $smwData['subject'],
-                'data'    => $smwData[$smwData['subject']] ?? $smwData[$altIndex],
+                'data' => $smwData[$smwData['subject']] ?? $smwData[$altIndex],
             ],
         ];
     }
@@ -144,6 +146,7 @@ class ShipsRepository extends AbstractStarCitizenWikiRepository implements Ships
 
     /**
      * Loads SCDB Data from file
+     *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     private function getShipDataFromSCDB(): void

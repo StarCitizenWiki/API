@@ -8,7 +8,6 @@ namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface JumppointTunnelInterface
- * @package App\Repositories\StarCitizen\Interfaces
  */
 interface JumppointTunnelInterface
 {

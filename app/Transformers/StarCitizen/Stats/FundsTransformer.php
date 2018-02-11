@@ -12,8 +12,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class FundsTransformer
- *
- * @package App\Transformers\StarCitizen\Stats
  */
 class FundsTransformer extends AbstractBaseTransformer
 {

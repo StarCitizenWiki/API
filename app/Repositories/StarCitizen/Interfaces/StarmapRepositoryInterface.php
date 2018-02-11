@@ -4,7 +4,6 @@ namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface StarmapInterface
- * @package App\Repositories\StarCitizen\Interfaces
  */
 interface StarmapRepositoryInterface
 {
@@ -19,6 +18,7 @@ interface StarmapRepositoryInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/asteroidbelts
+     *
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface
@@ -27,6 +27,7 @@ interface StarmapRepositoryInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/spacestations
+     *
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface
@@ -35,6 +36,7 @@ interface StarmapRepositoryInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/jumppoints
+     *
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface
@@ -43,6 +45,7 @@ interface StarmapRepositoryInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/planets
+     *
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface
@@ -51,6 +54,7 @@ interface StarmapRepositoryInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/moons
+     *
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface
@@ -59,6 +63,7 @@ interface StarmapRepositoryInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/landingzones
+     *
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface
@@ -67,6 +72,7 @@ interface StarmapRepositoryInterface
 
     /**
      * https://robertsspaceindustries.com/api/starmap/star-systems/{SYSTEM}/stars
+     *
      * @param string $systemName
      *
      * @return \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface

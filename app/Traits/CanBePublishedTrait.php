@@ -12,12 +12,11 @@ use Carbon\Carbon;
 
 /**
  * Trait CanBePulishedTrait
- * @package App\Traits
  */
 trait CanBePublishedTrait
 {
     /**
-     * @param $query
+     * @param \Doctrine\DBAL\Query\QueryBuilder $query
      *
      * @return mixed
      */
@@ -27,7 +26,7 @@ trait CanBePublishedTrait
     }
 
     /**
-     * @param $query
+     * @param \Doctrine\DBAL\Query\QueryBuilder $query
      *
      * @return mixed
      */

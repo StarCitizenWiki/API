@@ -9,8 +9,6 @@ namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface StoreInterface
- *
- * @package App\Repositories\StarCitizen\ApiV1\Store
  */
 interface StoreRepositoryInterface
 {
@@ -42,8 +40,8 @@ interface StoreRepositoryInterface
      * ship_id : 100
      * storefront : "pledge"
      *
-     * @param Integer $shipID
-     * @param string  $storeFront
+     * @param int    $shipID
+     * @param string $storeFront
      *
      * @return string json
      */

@@ -11,7 +11,6 @@ use Exception;
 
 /**
  * Class UrlNotWhitelistedException
- * @package App\Exceptions
  */
 class UrlNotWhitelistedException extends Exception
 {

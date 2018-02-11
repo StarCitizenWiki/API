@@ -12,7 +12,6 @@ use App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface;
 
 /**
  * Class ShipsRepository
- * @package App\Repositories\StarCitizenWiki\ApiV1\Ships
  */
 class AuthRepository extends AbstractStarCitizenWikiRepository implements AuthRepositoryInterface
 {
@@ -21,6 +20,7 @@ class AuthRepository extends AbstractStarCitizenWikiRepository implements AuthRe
      * @param string $password
      *
      * @return bool
+     *
      * @throws \App\Exceptions\InvalidDataException
      */
     public function authenticateUsingCredentials($username, $password): bool
@@ -38,7 +38,7 @@ class AuthRepository extends AbstractStarCitizenWikiRepository implements AuthRe
 
         $response = json_decode((string) $this->response->getBody(), true);
 
-        if (!is_null($response) && array_key_exists('status', $response) && 200 == $response['status']) {
+        if (!is_null($response) && array_key_exists('status', $response) && 200 === (int) $response['status']) {
             return true;
         }
 

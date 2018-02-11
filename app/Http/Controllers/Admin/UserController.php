@@ -11,8 +11,6 @@ use Illuminate\View\View;
 
 /**
  * Class AdminUserController
- *
- * @package App\Http\Controllers\Admin
  */
 class UserController extends Controller
 {
@@ -29,6 +27,8 @@ class UserController extends Controller
      * Returns the View with all Users listed
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showUserListView()
     {
@@ -46,6 +46,8 @@ class UserController extends Controller
      * @param \App\Models\User $user
      *
      * @return \Illuminate\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showUrlListView(User $user): View
     {
@@ -63,6 +65,8 @@ class UserController extends Controller
      * @param \App\Models\User $user
      *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Routing\Redirector
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showEditUserView(User $user)
     {
@@ -70,7 +74,7 @@ class UserController extends Controller
 
         $user->load(
             [
-                'shortUrls'   => function ($query) {
+                'shortUrls' => function ($query) {
                     $query->orderBy('created_at')->take(5);
                 },
                 'apiRequests' => function ($query) {
@@ -91,6 +95,8 @@ class UserController extends Controller
      * @param \App\Models\User $user
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showRequestView(User $user)
     {
@@ -108,6 +114,8 @@ class UserController extends Controller
      * @param \App\Models\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Exception
      */
     public function deleteUser(User $user): RedirectResponse
     {
@@ -147,12 +155,12 @@ class UserController extends Controller
         $data = $this->validate(
             $request,
             [
-                'name'                => 'present|string',
+                'name' => 'present|string',
                 'requests_per_minute' => 'required|integer',
-                'email'               => 'required|email|min:3',
-                'state'               => 'required|int|between:0,2',
-                'notes'               => 'nullable|string',
-                'password'            => 'nullable|string|min:3',
+                'email' => 'required|email|min:3',
+                'state' => 'required|int|between:0,2',
+                'notes' => 'nullable|string',
+                'password' => 'nullable|string|min:3',
             ]
         );
 

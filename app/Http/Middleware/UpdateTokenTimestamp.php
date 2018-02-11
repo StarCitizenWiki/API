@@ -7,8 +7,6 @@ use Closure;
 /**
  * Class UpdateTokenTimestamp
  * If a API Key is present update the last_used field of the User model
- *
- * @package App\Http\Middleware
  */
 class UpdateTokenTimestamp
 {

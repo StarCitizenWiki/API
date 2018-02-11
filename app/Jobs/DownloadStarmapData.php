@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\Starmap\CelestialObject;
 use App\Models\Starmap\Starsystem;
-use App\Repositories\StarCitizen\ApiV1\StarmapRepository;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,8 +13,6 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Class DownloadStarmapData
- *
- * @package App\Jobs
  */
 class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueue
 {
@@ -61,6 +58,9 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
         );
     }
 
+    /**
+     * Sets the systems
+     */
     private function setSystems(): void
     {
         $overviewData = $this->getJsonArrayFromStarmap('bootup/');
@@ -86,7 +86,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     }
 
     /**
-     * @param $system
+     * @param string $system
      */
     private function writeStarmapContentToDB($system): void
     {
@@ -100,7 +100,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     }
 
     /**
-     * @param $system
+     * @param string $system
      *
      * @return int
      */
@@ -113,32 +113,32 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
             $lastStarsystem = $starsystemQueryData->toArray();
         }
 
-        if (is_null($lastStarsystem) || strcmp($lastStarsystem['cig_time_modified'], $system['time_modified']) != 0) {
+        if (is_null($lastStarsystem) || strcmp($lastStarsystem['cig_time_modified'], $system['time_modified']) !== 0) {
             app('Log')::info('Write to Database System '.$system['code']);
 
             Starsystem::create(
                 [
-                    'code'                      => $system['code'],
-                    'cig_id'                    => $system['id'],
-                    'status'                    => $system['status'],
-                    'cig_time_modified'         => $system['time_modified'],
-                    'type'                      => $system['type'],
-                    'name'                      => $system['name'],
-                    'position_x'                => $system['position_x'],
-                    'position_y'                => $system['position_y'],
-                    'position_z'                => $system['position_z'],
-                    'info_url'                  => $system['info_url'],
-                    'description'               => $system['description'],
-                    'affiliation_id'            => $system['affiliation'][0]['id'],
-                    'affiliation_name'          => $system['affiliation'][0]['name'],
-                    'affiliation_code'          => $system['affiliation'][0]['code'],
-                    'affiliation_color'         => $system['affiliation'][0]['color'],
+                    'code' => $system['code'],
+                    'cig_id' => $system['id'],
+                    'status' => $system['status'],
+                    'cig_time_modified' => $system['time_modified'],
+                    'type' => $system['type'],
+                    'name' => $system['name'],
+                    'position_x' => $system['position_x'],
+                    'position_y' => $system['position_y'],
+                    'position_z' => $system['position_z'],
+                    'info_url' => $system['info_url'],
+                    'description' => $system['description'],
+                    'affiliation_id' => $system['affiliation'][0]['id'],
+                    'affiliation_name' => $system['affiliation'][0]['name'],
+                    'affiliation_code' => $system['affiliation'][0]['code'],
+                    'affiliation_color' => $system['affiliation'][0]['color'],
                     'affiliation_membership_id' => $system['affiliation'][0]['membership.id'],
-                    'aggregated_size'           => $system['aggregated_size'],
-                    'aggregated_population'     => $system['aggregated_population'],
-                    'aggregated_economy'        => $system['aggregated_economy'],
-                    'aggregated_danger'         => $system['aggregated_danger'],
-                    'sourcedata'                => json_encode($system),
+                    'aggregated_size' => $system['aggregated_size'],
+                    'aggregated_population' => $system['aggregated_population'],
+                    'aggregated_economy' => $system['aggregated_economy'],
+                    'aggregated_danger' => $system['aggregated_danger'],
+                    'sourcedata' => json_encode($system),
                 ]
             );
 
@@ -152,7 +152,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     }
 
     /**
-     * @param $starsystemName
+     * @param string $starsystemName
      *
      * @return array
      */
@@ -171,7 +171,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     }
 
     /**
-     * @param $celestialObjects
+     * @param array $celestialObjects
      *
      * @return array
      */
@@ -188,7 +188,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     }
 
     /**
-     * @param $celestialContent
+     * @param array $celestialContent
      *
      * @return array
      */
@@ -207,8 +207,8 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     }
 
     /**
-     * @param $celestialObject
-     * @param $systemId
+     * @param array $celestialObject
+     * @param int   $systemId
      */
     private function writeCelestialObjectToDb($celestialObject, $systemId): void
     {
@@ -222,36 +222,36 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
         }
 
         if (is_null($lastCelestialObject) || strcmp(
-            $lastCelestialObject['cig_time_modified'],
-            $celestialObject['time_modified']
-        ) != 0) {
+                $lastCelestialObject['cig_time_modified'],
+                $celestialObject['time_modified']
+            ) !== 0) {
             app('Log')::info('Write to Database CelestialObject '.$celestialObject['code']);
 
             $celestialObjectModel = CelestialObject::create(
                 [
-                    'code'              => $celestialObject['code'],
-                    'cig_id'            => $celestialObject['id'],
-                    'cig_system_id'     => $systemId,
+                    'code' => $celestialObject['code'],
+                    'cig_id' => $celestialObject['id'],
+                    'cig_system_id' => $systemId,
                     'cig_time_modified' => $celestialObject['time_modified'],
-                    'type'              => $celestialObject['type'],
-                    'designation'       => $celestialObject['designation'],
-                    'name'              => $celestialObject['name'],
-                    'age'               => $celestialObject['age'],
-                    'distance'          => $celestialObject['distance'],
-                    'latitude'          => $celestialObject['latitude'],
-                    'longitude'         => $celestialObject['longitude'],
-                    'axial_tilt'        => $celestialObject['axial_tilt'],
-                    'orbit_period'      => $celestialObject['orbit_period'],
-                    'description'       => $celestialObject['description'],
-                    'info_url'          => $celestialObject['info_url'],
-                    'habitable'         => $celestialObject['habitable'],
-                    'fairchanceact'     => $celestialObject['fairchanceact'],
-                    'show_orbitlines'   => $celestialObject['show_orbitlines'],
-                    'show_label'        => $celestialObject['show_label'],
-                    'appearance'        => $celestialObject['appearance'],
+                    'type' => $celestialObject['type'],
+                    'designation' => $celestialObject['designation'],
+                    'name' => $celestialObject['name'],
+                    'age' => $celestialObject['age'],
+                    'distance' => $celestialObject['distance'],
+                    'latitude' => $celestialObject['latitude'],
+                    'longitude' => $celestialObject['longitude'],
+                    'axial_tilt' => $celestialObject['axial_tilt'],
+                    'orbit_period' => $celestialObject['orbit_period'],
+                    'description' => $celestialObject['description'],
+                    'info_url' => $celestialObject['info_url'],
+                    'habitable' => $celestialObject['habitable'],
+                    'fairchanceact' => $celestialObject['fairchanceact'],
+                    'show_orbitlines' => $celestialObject['show_orbitlines'],
+                    'show_label' => $celestialObject['show_label'],
+                    'appearance' => $celestialObject['appearance'],
                     'sensor_population' => $celestialObject['sensor_population'],
-                    'sensor_economy'    => $celestialObject['sensor_economy'],
-                    'sensor_danger'     => $celestialObject['sensor_danger'],
+                    'sensor_economy' => $celestialObject['sensor_economy'],
+                    'sensor_danger' => $celestialObject['sensor_danger'],
                 ]
             );
 

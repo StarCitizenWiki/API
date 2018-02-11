@@ -12,9 +12,7 @@ use Exception;
 
 /**
  * Class MissingTransformerException
- * Exteption to throw if a transformer is not set but used
- *
- * @package App\Exceptions
+ * Exception to throw if a transformer is not set but used
  */
 class MissingTransformerException extends Exception
 {

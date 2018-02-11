@@ -9,8 +9,6 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 /**
  * Class Handler
- *
- * @package App\Exceptions
  */
 class Handler extends ExceptionHandler
 {
@@ -37,12 +35,13 @@ class Handler extends ExceptionHandler
 
     /**
      * Report or log an exception.
-     *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
      * @param \Exception $exception The thrown Exception
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function report(Exception $exception): void
     {

@@ -7,7 +7,6 @@ use Illuminate\Contracts\Validation\Rule;
 
 /**
  * Class ShortUrl
- * @package App\Rules
  */
 class ShortUrlWhitelisted implements Rule
 {

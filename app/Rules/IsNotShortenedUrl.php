@@ -6,7 +6,6 @@ use Illuminate\Contracts\Validation\Rule;
 
 /**
  * Class IsNotShortenedUrl
- * @package App\Rules
  */
 class IsNotShortenedUrl implements Rule
 {

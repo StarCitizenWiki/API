@@ -11,8 +11,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipsListTransformer
- *
- * @package App\Transformers\StarCitizenWiki\Ships
  */
 class ShipsListTransformer extends AbstractBaseTransformer
 {
@@ -27,6 +25,8 @@ class ShipsListTransformer extends AbstractBaseTransformer
      * @param mixed $ship Data
      *
      * @return array
+     *
+     * @throws \App\Exceptions\InvalidDataException
      */
     public function transform($ship)
     {
@@ -34,7 +34,7 @@ class ShipsListTransformer extends AbstractBaseTransformer
 
         $transformed = [
             $ship['displaytitle'] => [
-                'api_url'  => config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
+                'api_url' => config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
                 'wiki_url' => $ship['fullurl'],
             ],
         ];

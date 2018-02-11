@@ -8,8 +8,6 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 /**
  * Class ThrottleApi
  * Throttles Request based on User
- *
- * @package App\Http\Middleware
  */
 class ThrottleApi extends ThrottleRequests
 {

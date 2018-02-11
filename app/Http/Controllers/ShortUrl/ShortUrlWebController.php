@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\ShortUrl;
 
@@ -7,8 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ShortUrl\ShortUrl;
 use App\Models\ShortUrl\ShortUrlWhitelist;
 use App\Rules\ShortUrlWhitelisted;
-use App\Traits\TransformsDataTrait as TransformsData;
-use App\Transformers\ShortUrl\ShortUrlTransformer;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -17,20 +15,15 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ShortUrlWebController
- *
- * @package App\Http\Controllers\ShortUrl
  */
 class ShortUrlWebController extends Controller
 {
-    use TransformsData;
-
     /**
      * ShortUrlWebController constructor.
      */
     public function __construct()
     {
         parent::__construct();
-        $this->transformer = new ShortUrlTransformer();
         $this->middleware('throttle', ['except' => ['showShortUrlView', 'showResolveView']]);
     }
 
@@ -38,6 +31,7 @@ class ShortUrlWebController extends Controller
      * Returns the ShortUrl Index View
      *
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showShortUrlView(): View
@@ -60,6 +54,7 @@ class ShortUrlWebController extends Controller
      * Returns the ShortUrl resolve Web View
      *
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showResolveView(): View
@@ -87,14 +82,14 @@ class ShortUrlWebController extends Controller
 
         $data = $request->validate(
             [
-                'url'        => [
+                'url' => [
                     'required',
                     'max:255',
                     'url',
                     'unique:short_urls',
                     new ShortUrlWhitelisted(),
                 ],
-                'hash'       => 'nullable|alpha_dash|max:32|unique:short_urls',
+                'hash' => 'nullable|alpha_dash|max:32|unique:short_urls',
                 'expired_at' => 'nullable|date|after:'.Carbon::now(),
             ]
         );

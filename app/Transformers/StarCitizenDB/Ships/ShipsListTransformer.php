@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\File;
 
 /**
  * Class ShipsListTransformer
- *
- * @package App\Transformers\StarCitizenWiki\Ships
  */
 class ShipsListTransformer extends AbstractBaseTransformer
 {
@@ -23,6 +21,9 @@ class ShipsListTransformer extends AbstractBaseTransformer
      * @param mixed $ship Data
      *
      * @return array
+     *
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function transform($ship)
     {

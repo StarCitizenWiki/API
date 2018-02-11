@@ -7,7 +7,6 @@
 namespace App\Jobs;
 
 use App\Models\Starmap\Jumppoint;
-use App\Repositories\StarCitizen\APIv1\StarmapRepository;
 use App\Traits\ProfilesMethodsTrait;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
@@ -18,7 +17,6 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Class DownloadJumppointTunnel
- * @package App\Jobs
  */
 class DownloadJumppointTunnel extends AbstractBaseDownloadData implements ShouldQueue
 {
@@ -51,6 +49,9 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
         app('Log')::info("Jumppoint Tunnel Download Job Finished (updated:{$this->jumppointtunnelsUpdated})");
     }
 
+    /**
+     * Sets JumpPoints
+     */
     private function setJumppointtunnels()
     {
         $overviewData = $this->getJsonArrayFromStarmap('bootup/');
@@ -76,7 +77,7 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
     }
 
     /**
-     * @param $jumppointtunnel
+     * @param string $jumppointtunnel
      */
     private function writeJumppointtunnelToDB($jumppointtunnel): void
     {
@@ -95,25 +96,25 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
             strcmp(
                 $jumppointtunnelSourceData,
                 $lastJumppointtunnelSource
-            ) != 0) {
+            ) !== 0) {
             app('Log')::info("Write to Database Jumppointtunnel {$jumppointtunnel['id']}");
 
             Jumppoint::create(
                 [
-                    'cig_id'              => $jumppointtunnel['id'],
-                    'size'                => $jumppointtunnel['size'],
-                    'direction'           => $jumppointtunnel['direction'],
-                    'entry_cig_id'        => $jumppointtunnel['entry']['id'],
+                    'cig_id' => $jumppointtunnel['id'],
+                    'size' => $jumppointtunnel['size'],
+                    'direction' => $jumppointtunnel['direction'],
+                    'entry_cig_id' => $jumppointtunnel['entry']['id'],
                     'entry_cig_system_id' => $jumppointtunnel['entry']['star_system_id'],
-                    'entry_code'          => $jumppointtunnel['entry']['code'],
-                    'entry_designation'   => $jumppointtunnel['entry']['designation'],
-                    'entry_status'        => $jumppointtunnel['entry']['status'],
-                    'exit_cig_id'         => $jumppointtunnel['exit']['id'],
-                    'exit_cig_system_id'  => $jumppointtunnel['exit']['star_system_id'],
-                    'exit_code'           => $jumppointtunnel['exit']['code'],
-                    'exit_designation'    => $jumppointtunnel['exit']['designation'],
-                    'exit_status'         => $jumppointtunnel['exit']['status'],
-                    'sourcedata'          => $jumppointtunnelSourceData,
+                    'entry_code' => $jumppointtunnel['entry']['code'],
+                    'entry_designation' => $jumppointtunnel['entry']['designation'],
+                    'entry_status' => $jumppointtunnel['entry']['status'],
+                    'exit_cig_id' => $jumppointtunnel['exit']['id'],
+                    'exit_cig_system_id' => $jumppointtunnel['exit']['star_system_id'],
+                    'exit_code' => $jumppointtunnel['exit']['code'],
+                    'exit_designation' => $jumppointtunnel['exit']['designation'],
+                    'exit_status' => $jumppointtunnel['exit']['status'],
+                    'sourcedata' => $jumppointtunnelSourceData,
                 ]
             );
 

@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class LoginController
- *
- * @package App\Http\Controllers\Admin\Auth
  */
 class LoginController extends Controller
 {

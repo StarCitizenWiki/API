@@ -9,8 +9,6 @@ use App\Traits\CachesResponseTrait as CachesResponse;
 
 /**
  * Class StatsAPIController
- *
- * @package App\Http\Controllers\StarCitizen
  */
 class StatsApiController extends Controller
 {
@@ -38,6 +36,9 @@ class StatsApiController extends Controller
      * Returns just the Funds
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getFunds()
     {
@@ -50,6 +51,9 @@ class StatsApiController extends Controller
      * Returns just the Fleet
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getFleet()
     {
@@ -62,6 +66,9 @@ class StatsApiController extends Controller
      * Returns just the Fans
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getFans()
     {
@@ -72,7 +79,11 @@ class StatsApiController extends Controller
 
     /**
      * Returns all
+     *
      * @return \Illuminate\Http\JsonResponse|string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getAll()
     {
@@ -85,6 +96,8 @@ class StatsApiController extends Controller
      * Returns just Funds from last hours
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getLastHoursFunds()
     {
@@ -95,6 +108,8 @@ class StatsApiController extends Controller
      * Returns just Funds from last days
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getLastDaysFunds()
     {
@@ -105,6 +120,8 @@ class StatsApiController extends Controller
      * Returns just Funds from last weeks
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getLastWeeksFunds()
     {
@@ -115,6 +132,8 @@ class StatsApiController extends Controller
      * Returns just Funds from last months
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getLastMonthsFunds()
     {
@@ -127,6 +146,8 @@ class StatsApiController extends Controller
      * @param \Closure | string $func Function to call
      *
      * @return \Illuminate\Http\JsonResponse | string
+     *
+     * @throws \App\Exceptions\MissingTransformerException
      */
     private function getJsonPrettyPrintResponse($func)
     {

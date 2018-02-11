@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class LoginController
- *
- * @package App\Http\Controllers\User\Auth
  */
 class LoginController extends Controller
 {

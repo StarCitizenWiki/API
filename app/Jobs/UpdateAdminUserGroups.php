@@ -13,7 +13,6 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Class UpdateAdminUserGroups
- * @package App\Jobs
  */
 class UpdateAdminUserGroups implements ShouldQueue
 {

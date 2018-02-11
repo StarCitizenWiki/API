@@ -14,15 +14,13 @@ use InvalidArgumentException;
 
 /**
  * Class FundImageController
- *
- * @package App\Http\Controllers\Tools
  */
 class FundImageController extends Controller
 {
     const COLORS = [
-        'blue'     => [0, 231, 255],
+        'blue' => [0, 231, 255],
         'darkblue' => [69, 117, 129],
-        'black'    => [51, 51, 51],
+        'black' => [51, 51, 51],
     ];
 
     const FUNDING_ONLY = 'funding_only';
@@ -50,34 +48,34 @@ class FundImageController extends Controller
     private $repository;
 
     private $funds = [
-        'current'                 => null,
-        'currentFormatted'        => null,
-        'nextMillion'             => null,
-        'nextMillionFormatted'    => null,
+        'current' => null,
+        'currentFormatted' => null,
+        'nextMillion' => null,
+        'nextMillionFormatted' => null,
         'percentageToNextMillion' => null,
-        'substractor'             => null,
+        'substractor' => null,
     ];
 
     private $image = [
         'pointer' => null,
-        'width'   => null,
-        'height'  => null,
-        'data'    => null,
-        'type'    => null,
-        'text'    => 'Crowdfunding:',
-        'name'    => null,
+        'width' => null,
+        'height' => null,
+        'data' => null,
+        'type' => null,
+        'text' => 'Crowdfunding:',
+        'name' => null,
     ];
 
     private $font = [
-        'path'  => null,
+        'path' => null,
         'color' => null,
     ];
 
     /**
      * FundImageController constructor.
      *
-     * @param \Illuminate\Http\Request                                          $request HTTP Request
-     * @param \App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface $repository
+     * @param \Illuminate\Http\Request                                          $request    HTTP Request
+     * @param \App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface $repository Repository
      *
      * @throws \App\Exceptions\MissingExtensionException
      */
@@ -99,6 +97,7 @@ class FundImageController extends Controller
      * Sets the Image Type to FUNDING_AND_TEXT
      *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function getImageWithText()
@@ -112,6 +111,7 @@ class FundImageController extends Controller
      * Sets the Image Type to FUNDING_AND_BARS
      *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function getImageWithBars()
@@ -156,9 +156,9 @@ class FundImageController extends Controller
             app('Log')::warning(
                 'Fund Image generation failed',
                 [
-                    'type'      => $this->image['type'],
+                    'type' => $this->image['type'],
                     'requester' => $this->request->getHost(),
-                    'message'   => $e,
+                    'message' => $e,
                 ]
             );
 
@@ -168,8 +168,8 @@ class FundImageController extends Controller
         app('Log')::info(
             'Fund Image Requested',
             [
-                'type'      => $this->image['type'],
-                'name'      => $this->image['name'],
+                'type' => $this->image['type'],
+                'name' => $this->image['name'],
                 'requester' => $this->request->getHost(),
             ]
         );
@@ -243,12 +243,12 @@ class FundImageController extends Controller
     {
         $hexStr = preg_replace('/[^0-9A-Fa-f]/', '', $hexStr); // Gets a proper hex string
         $rgbArray = [];
-        if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
+        if (strlen($hexStr) === 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
             $colorVal = hexdec($hexStr);
             $rgbArray[] = 0xFF & ($colorVal >> 0x10);
             $rgbArray[] = 0xFF & ($colorVal >> 0x8);
             $rgbArray[] = 0xFF & $colorVal;
-        } elseif (strlen($hexStr) == 3) { //if shorthand notation, need some string manipulations
+        } elseif (strlen($hexStr) === 3) { //if shorthand notation, need some string manipulations
             $rgbArray[] = hexdec(str_repeat(substr($hexStr, 0, 1), 2));
             $rgbArray[] = hexdec(str_repeat(substr($hexStr, 1, 1), 2));
             $rgbArray[] = hexdec(str_repeat(substr($hexStr, 2, 1), 2));
@@ -294,6 +294,7 @@ class FundImageController extends Controller
      * Retrieves the image from disk
      *
      * @return mixed
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     private function loadImageFromDisk()
@@ -410,6 +411,7 @@ class FundImageController extends Controller
      * Adds Text and Funds to the Image
      *
      * @return void
+     *
      * @throws \App\Exceptions\InvalidDataException
      */
     private function addDataToImage(): void
@@ -487,6 +489,7 @@ class FundImageController extends Controller
      * Initializes the old 'bar-style' image
      *
      * @return void
+     *
      * @throws \App\Exceptions\InvalidDataException
      */
     private function initBarImage(): void

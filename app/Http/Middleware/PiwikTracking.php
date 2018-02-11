@@ -9,8 +9,6 @@ use PiwikTracker;
 /**
  * Class PiwikTracking
  * Passes the RequestData to Piwik
- *
- * @package App\Http\Middleware
  */
 class PiwikTracking
 {
@@ -21,6 +19,7 @@ class PiwikTracking
      * @param \Closure                 $next    Next
      *
      * @return mixed
+     *
      * @throws \Exception
      */
     public function handle($request, Closure $next)

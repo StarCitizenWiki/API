@@ -8,7 +8,6 @@ use Illuminate\Notifications\Notifiable;
 
 /**
  * Class Admin
- * @package App\Models
  */
 class Admin extends Authenticatable
 {
@@ -29,7 +28,7 @@ class Admin extends Authenticatable
      */
     public function isBlocked(): bool
     {
-        return $this->blocked == true;
+        return (bool) $this->blocked;
     }
 
     /**

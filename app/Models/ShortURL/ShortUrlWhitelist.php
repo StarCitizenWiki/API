@@ -7,19 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class ShortUrlWhitelist
- *
- * @package App\Models\ShortUrl
- * @mixin \Eloquent
- * @property int            $id
- * @property string         $url
- * @property bool           $internal
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereCreatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereId($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereInternal($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\App\Models\ShortUrl\ShortUrlWhitelist whereUrl($value)
  */
 class ShortUrlWhitelist extends Model
 {

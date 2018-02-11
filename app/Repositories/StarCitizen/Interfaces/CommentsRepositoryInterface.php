@@ -9,8 +9,6 @@ namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface CommentsInterface
- *
- * @package App\Repositories\StarCitizen\ApiV1\Comments
  */
 interface CommentsRepositoryInterface
 {

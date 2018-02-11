@@ -5,6 +5,7 @@ if (!function_exists('make_name_readable')) {
      * @param string $methodName name of view function
      *
      * @return string
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     function make_name_readable(string $methodName): String

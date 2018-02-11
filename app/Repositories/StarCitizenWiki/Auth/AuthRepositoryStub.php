@@ -12,8 +12,6 @@ use App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface;
 /**
  * Class ShipsRepository
  * Stub that allows Login by Username instead of querying the wiki itself
- *
- * @package App\Repositories\StarCitizenWiki\ApiV1\Ships
  */
 class AuthRepositoryStub implements AuthRepositoryInterface
 {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 03.08.2017 16:44
@@ -7,20 +7,21 @@
 namespace App\Http\Controllers\Auth\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\DownloadJumppointTunnel;
 use App\Models\Starmap\Jumppoint;
 use Illuminate\Contracts\View\View;
-use App\Jobs\DownloadJumppointTunnel;
 use Illuminate\Http\RedirectResponse;
 
 /**
  * Class JumppointTunnelController
- * @package App\Http\Controllers\Auth\Admin
  */
 class JumppointTunnelController extends Controller
 {
 
     /**
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showJumppointTunnelView(): View
     {

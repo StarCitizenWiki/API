@@ -6,7 +6,6 @@ use Closure;
 
 /**
  * Aborts the current request if the user is blacklisted
- * @package App\Http\Middleware
  */
 class CheckUserState
 {
@@ -27,7 +26,7 @@ class CheckUserState
             app('Log')::notice(
                 'Request from blacklisted User',
                 [
-                    'user_id'     => $user->id,
+                    'user_id' => $user->id,
                     'request_url' => $request->getUri(),
                 ]
             );

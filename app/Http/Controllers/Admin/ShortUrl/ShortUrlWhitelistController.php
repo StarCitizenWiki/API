@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 /**
  * Class ShortUrlWhitelistController
- * @package App\Http\Controllers\Admin\ShortUrl
  */
 class ShortUrlWhitelistController extends Controller
 {
@@ -18,6 +17,8 @@ class ShortUrlWhitelistController extends Controller
      * Returns the ShortUrl Whitelist View
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showUrlWhitelistView(): View
     {
@@ -33,6 +34,8 @@ class ShortUrlWhitelistController extends Controller
      * Returns the View to add a ShortUrl Whitelist URL
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showAddUrlWhitelistView(): View
     {
@@ -47,6 +50,8 @@ class ShortUrlWhitelistController extends Controller
      * @param \App\Models\ShortUrl\ShortUrlWhitelist $url
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Exception
      */
     public function deleteWhitelistUrl(ShortUrlWhitelist $url): RedirectResponse
     {
@@ -67,7 +72,7 @@ class ShortUrlWhitelistController extends Controller
         $data = $this->validate(
             $request,
             [
-                'url'      => 'required|string|max:255|unique:short_url_whitelists|regex:/(\w+\.\w+)$/',
+                'url' => 'required|string|max:255|unique:short_url_whitelists|regex:/(\w+\.\w+)$/',
                 'internal' => 'nullable',
             ]
         );

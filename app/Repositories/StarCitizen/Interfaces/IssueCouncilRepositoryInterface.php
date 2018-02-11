@@ -9,8 +9,6 @@ namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface IssueCouncilInterface
- *
- * @package App\Repositories\StarCitizen\ApiV1\IssueCouncil
  */
 interface IssueCouncilRepositoryInterface
 {

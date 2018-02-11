@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\File;
 
 /**
  * Class ShipsController
- *
- * @package App\Http\Controllers\Admin
  */
 class ShipController extends Controller
 {
@@ -27,6 +25,8 @@ class ShipController extends Controller
 
     /**
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showShipsView(): View
     {

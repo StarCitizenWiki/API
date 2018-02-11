@@ -6,8 +6,6 @@ use Illuminate\Auth\Events\Login;
 
 /**
  * Class LogSuccessfulLogin
- *
- * @package App\Listeners
  */
 class LogSuccessfulLogin
 {

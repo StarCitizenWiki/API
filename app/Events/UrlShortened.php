@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Events;
 
@@ -10,8 +10,6 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Class UrlShortened
- *
- * @package App\Events
  */
 class UrlShortened implements ShouldQueue
 {

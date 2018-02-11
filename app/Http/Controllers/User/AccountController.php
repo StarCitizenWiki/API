@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class AccountController
- *
- * @package App\Http\Controllers\User
  */
 class AccountController extends Controller
 {
@@ -30,6 +28,8 @@ class AccountController extends Controller
      * Returns the Account Dashboard View
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showAccountView(): View
     {
@@ -48,6 +48,8 @@ class AccountController extends Controller
      * Returns the Account Edit View
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showEditAccountView(): View
     {
@@ -63,6 +65,8 @@ class AccountController extends Controller
      * Returns the Account Deletion View
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showDeleteAccountView(): View
     {
@@ -75,6 +79,8 @@ class AccountController extends Controller
      * Function to delete the associated User Account
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Exception
      */
     public function delete(): RedirectResponse
     {
@@ -100,9 +106,9 @@ class AccountController extends Controller
         $data = $this->validate(
             $request,
             [
-                'name'                       => 'present',
-                'email'                      => 'required|string|email|max:255|unique:users,email,'.$user->id,
-                'password'                   => 'nullable|string|min:8|confirmed',
+                'name' => 'present',
+                'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
+                'password' => 'nullable|string|min:8|confirmed',
                 'receive_notification_level' => 'required|int|between:-1,3',
             ]
         );

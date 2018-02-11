@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Class SendNotificationEmail
- * @package App\Jobs
  */
 class SendNotificationEmail implements ShouldQueue
 {

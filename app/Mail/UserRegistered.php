@@ -10,8 +10,6 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Class UserRegistered
- *
- * @package App\Mail
  */
 class UserRegistered extends Mailable implements ShouldQueue
 {

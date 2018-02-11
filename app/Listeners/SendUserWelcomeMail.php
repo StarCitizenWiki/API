@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Mail;
 /**
  * Class SendUserCredentials
  * Sends out User Credentials
- *
- * @package App\Listeners
  */
 class SendUserWelcomeMail implements ShouldQueue
 {

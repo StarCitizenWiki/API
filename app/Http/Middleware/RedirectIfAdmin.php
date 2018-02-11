@@ -6,9 +6,6 @@ use Closure;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Class RedirectIfAdmin
- *
- * @package App\Http\Middleware
  */
 class RedirectIfAdmin
 {

@@ -12,8 +12,6 @@ use Exception;
 /**
  * Class WrongMethodNameException
  * Thrown if Method-Name does not meet naming convention
- *
- * @package App\Exceptions
  */
 class WrongMethodNameException extends Exception
 {

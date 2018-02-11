@@ -12,12 +12,11 @@ use Carbon\Carbon;
 
 /**
  * Trait CanExpireTrait
- * @package App\Traits
  */
 trait CanExpireTrait
 {
     /**
-     * @param $query
+     * @param \Doctrine\DBAL\Query\QueryBuilder $query
      *
      * @return mixed
      */
@@ -27,7 +26,7 @@ trait CanExpireTrait
     }
 
     /**
-     * @param $query
+     * @param \Doctrine\DBAL\Query\QueryBuilder $query
      *
      * @return mixed
      */

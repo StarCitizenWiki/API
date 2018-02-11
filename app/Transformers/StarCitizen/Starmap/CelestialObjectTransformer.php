@@ -11,8 +11,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class SystemTransformer
- *
- * @package App\Transformers\StarCitizen\Starmap
  */
 class CelestialObjectTransformer extends AbstractBaseTransformer
 {
@@ -40,6 +38,7 @@ class CelestialObjectTransformer extends AbstractBaseTransformer
             $celestialObject = $this->moveToSubarray($celestialObject, static::SUBARRAY_NODES);
             $celestialObject = $this->filterAndRenameFields($celestialObject);
         }
+
         return $celestialObjects;
     }
 }

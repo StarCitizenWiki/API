@@ -9,8 +9,6 @@ namespace App\Repositories\StarCitizen\Interfaces;
 
 /**
  * Interface StatsInterface
- *
- * @package App\Repositories\StarCitizen\ApiV1\Stats
  */
 interface StatsRepositoryInterface
 {

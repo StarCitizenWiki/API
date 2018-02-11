@@ -13,8 +13,6 @@ use Exception;
 /**
  * Class MethodNotImplementedException
  * Exception to throw if a called Method is not implemented or not overridden
- *
- * @package App\Exceptions
  */
 class MethodNotImplementedException extends Exception
 {

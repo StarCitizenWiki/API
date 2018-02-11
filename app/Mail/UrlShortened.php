@@ -10,8 +10,6 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Class UrlShortened
- *
- * @package App\Mail
  */
 class UrlShortened extends Mailable implements ShouldQueue
 {

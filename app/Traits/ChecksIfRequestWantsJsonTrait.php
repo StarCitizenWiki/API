@@ -9,7 +9,6 @@ namespace App\Traits;
 
 /**
  * Trait ChecksIfRequestWantsJsonTrait
- * @package App\Traits
  */
 trait ChecksIfRequestWantsJsonTrait
 {

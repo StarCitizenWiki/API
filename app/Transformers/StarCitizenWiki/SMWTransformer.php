@@ -6,7 +6,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class SMWTransformer
- * @package App\Transformers\StarCitizenWiki
  */
 class SMWTransformer extends AbstractBaseTransformer
 {

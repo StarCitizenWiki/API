@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ShortUrlController
- *
- * @package App\Http\Controllers\User
  */
 class ShortUrlController extends Controller
 {
@@ -32,6 +30,8 @@ class ShortUrlController extends Controller
      * Returns the View which lists all associated ShortUrls
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showUrlsListView(): View
     {
@@ -47,6 +47,9 @@ class ShortUrlController extends Controller
      * Returns the add short url view
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function showAddUrlView(): View
     {
@@ -65,6 +68,9 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl $url The ShortUrl to edit
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function showEditUrlView(ShortUrl $url): View
     {
@@ -83,6 +89,7 @@ class ShortUrlController extends Controller
      * @param \Illuminate\Http\Request $request The Request
      *
      * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function addUrl(Request $request)
@@ -91,14 +98,14 @@ class ShortUrlController extends Controller
 
         $data = $request->validate(
             [
-                'url'        => [
+                'url' => [
                     'required',
                     'max:255',
                     'url',
                     'unique:short_urls',
                     new ShortUrlWhitelisted(),
                 ],
-                'hash'       => 'nullable|alpha_dash|max:32|unique:short_urls',
+                'hash' => 'nullable|alpha_dash|max:32|unique:short_urls',
                 'expired_at' => 'nullable|date|after:'.Carbon::now(),
             ]
         );
@@ -122,11 +129,12 @@ class ShortUrlController extends Controller
      * Updates a ShortUrl by its ID
      *
      * @param \Illuminate\Http\Request      $request The Update Request
-     *
-     * @param \App\Models\ShortUrl\ShortUrl $url
+     * @param \App\Models\ShortUrl\ShortUrl $url     Url
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
      */
     public function updateUrl(Request $request, ShortUrl $url): RedirectResponse
     {
@@ -139,14 +147,14 @@ class ShortUrlController extends Controller
         $data = $this->validate(
             $request,
             [
-                'url'        => [
+                'url' => [
                     'required',
                     'url',
                     'max:255',
                     'unique:short_urls,id,'.$url->id,
                     new ShortUrlWhitelisted(),
                 ],
-                'hash'       => 'required|alpha_dash|max:32|unique:short_urls,id,'.$url->id,
+                'hash' => 'required|alpha_dash|max:32|unique:short_urls,id,'.$url->id,
                 'expired_at' => 'nullable|date',
             ]
         );
@@ -166,6 +174,9 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Exception
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function deleteUrl(ShortUrl $url): RedirectResponse
     {

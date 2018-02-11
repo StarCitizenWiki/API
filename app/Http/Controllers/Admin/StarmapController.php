@@ -11,13 +11,12 @@ use Illuminate\Http\RedirectResponse;
 
 /**
  * Class AdminStarmapController
- *
- * @package App\Http\Controllers\Admin
  */
 class StarmapController extends Controller
 {
     /**
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showStarmapSystemsView(): View
@@ -32,6 +31,7 @@ class StarmapController extends Controller
 
     /**
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showStarmapCelestialObjectView(): View

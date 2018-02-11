@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Mail;
 /**
  * Class SendUrlShortenedNotification
  * Sends an Admin Email containing the shortened URL
- *
- * @package App\Listeners
  */
 class SendUrlShortenedNotification implements ShouldQueue
 {

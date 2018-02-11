@@ -9,8 +9,6 @@ namespace App\Logging\Processors;
 
 /**
  * Class UserProcessor
- *
- * @package App\Processors
  */
 class UserInfoProcessor
 {

@@ -9,8 +9,6 @@ namespace App\Transformers;
 
 /**
  * Class NullTransformer returns data as is
- *
- * @package App\Transformers\StarCitizenDB\Ships
  */
 class NullTransformer extends AbstractBaseTransformer
 {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 06.08.2017 17:41
@@ -8,27 +8,26 @@ namespace App\Http\Controllers\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\APIv1\JumppointTunnelRepository;
+use App\Repositories\StarCitizen\ApiV1\JumppointTunnelRepository;
 use App\Traits\ProfilesMethodsTrait;
 use InvalidArgumentException;
 
 /**
  * Class JumppointTunnelAPIController
- * @package App\Http\Controllers\StarCitizen
  */
 class JumppointTunnelAPIController extends Controller
 {
     use ProfilesMethodsTrait;
 
     /**
-     * @var \App\Repositories\StarCitizen\APIv1\JumppointTunnelRepository
+     * @var \App\Repositories\StarCitizen\ApiV1\JumppointTunnelRepository
      */
     private $repository;
 
     /**
      * JumppointTunnelAPIController constructor.
      *
-     * @param \App\Repositories\StarCitizen\APIv1\JumppointTunnelRepository $repository
+     * @param \App\Repositories\StarCitizen\ApiV1\JumppointTunnelRepository $repository
      */
     public function __construct(JumppointTunnelRepository $repository)
     {
@@ -38,7 +37,10 @@ class JumppointTunnelAPIController extends Controller
 
     /**
      * Get List of all Jumppoint Tunnels
+     *
      * @return \Illuminate\Http\JsonResponse|string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppointtunnels()
     {
@@ -58,7 +60,11 @@ class JumppointTunnelAPIController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException $e) {
-            $this->addTrace("Getting Jumppointtunnel List failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->addTrace(
+                "Getting Jumppointtunnel List failed with Message {$e->getMessage()}",
+                __FUNCTION__,
+                __LINE__
+            );
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();
@@ -67,9 +73,12 @@ class JumppointTunnelAPIController extends Controller
 
     /**
      * Get one Jumppoint Tunnel by Id
-     * @param $id
+     *
+     * @param int $id
      *
      * @return \Illuminate\Http\JsonResponse|string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppointTunnelById($id)
     {
@@ -90,7 +99,11 @@ class JumppointTunnelAPIController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException | InvalidArgumentException  $e) {
-            $this->addTrace("Getting JumppointtunnelById failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->addTrace(
+                "Getting JumppointtunnelById failed with Message {$e->getMessage()}",
+                __FUNCTION__,
+                __LINE__
+            );
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();
@@ -99,9 +112,12 @@ class JumppointTunnelAPIController extends Controller
 
     /**
      * Get Jumppoint Tunnel by System Name
-     * @param $name
+     *
+     * @param string $name
      *
      * @return \Illuminate\Http\JsonResponse|string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppointTunnelBySystem($name)
     {
@@ -121,7 +137,11 @@ class JumppointTunnelAPIController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException | InvalidArgumentException  $e) {
-            $this->addTrace("Getting JumppointtunnelBySystem failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->addTrace(
+                "Getting JumppointtunnelBySystem failed with Message {$e->getMessage()}",
+                __FUNCTION__,
+                __LINE__
+            );
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();
@@ -130,9 +150,12 @@ class JumppointTunnelAPIController extends Controller
 
     /**
      * Get all Jumppointtunnels by size
-     * @param $size
+     *
+     * @param string $size
      *
      * @return \Illuminate\Http\JsonResponse|string
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppointTunnelBySize($size)
     {
@@ -152,7 +175,11 @@ class JumppointTunnelAPIController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (InvalidDataException | InvalidArgumentException  $e) {
-            $this->addTrace("Getting JumppointtunnelBySize failed with Message {$e->getMessage()}", __FUNCTION__, __LINE__);
+            $this->addTrace(
+                "Getting JumppointtunnelBySize failed with Message {$e->getMessage()}",
+                __FUNCTION__,
+                __LINE__
+            );
             $this->stopProfiling(__FUNCTION__);
 
             return $e->getMessage();

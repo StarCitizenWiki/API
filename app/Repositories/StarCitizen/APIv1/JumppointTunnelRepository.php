@@ -1,30 +1,32 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 02.08.2017 17:25
  */
 
-namespace App\Repositories\StarCitizen\APIv1;
+namespace App\Repositories\StarCitizen\ApiV1;
 
 use App\Models\Starmap\Jumppoint;
-use App\Repositories\StarCitizen\BaseStarCitizenRepository;
+use App\Models\Starmap\Starsystem;
+use App\Repositories\StarCitizen\AbstractStarCitizenRepository;
 use App\Repositories\StarCitizen\Interfaces\JumppointTunnelInterface;
 use App\Transformers\StarCitizen\Starmap\JumppointTunnelTransformer;
 use InvalidArgumentException;
-use App\Models\Starsystem;
 
 /**
  * Class JumppointRepository
- * @package App\Repositories\StarCitizen\APIv1
  */
-class JumppointTunnelRepository extends BaseStarCitizenRepository implements JumppointTunnelInterface
+class JumppointTunnelRepository extends AbstractStarCitizenRepository implements JumppointTunnelInterface
 {
 
     const TIME_GROUP_FIELD = 'created_at';
 
     /**
      * Get a List of all Jumpoint Tunnels
+     *
      * @return $this List of JumpointTunnels
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppointTunnelList()
     {
@@ -34,14 +36,18 @@ class JumppointTunnelRepository extends BaseStarCitizenRepository implements Jum
             ->havingRaw(self::TIME_GROUP_FIELD.' = max('.self::TIME_GROUP_FIELD.')')
             ->get()
             ->toArray();
+
         return $this->collection()->withTransformer(JumppointTunnelTransformer::class);
     }
 
     /**
      * Get a Jumpoint Tunnel
+     *
      * @param $cig_id
      *
      * @return $this one Jummpointtunnel
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppointTunnelById($cig_id)
     {
@@ -63,9 +69,12 @@ class JumppointTunnelRepository extends BaseStarCitizenRepository implements Jum
 
     /**
      * Get a List of Jumpointtunnels for the System
-     * @param $systemName string Name (Code) of System
+     *
+     * @param string $systemName Name (Code) of System
      *
      * @return $this List of JumpointTunnels
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppointTunnelBySystem($systemName)
     {
@@ -91,9 +100,12 @@ class JumppointTunnelRepository extends BaseStarCitizenRepository implements Jum
 
     /**
      * Get a List of Jumppointtunnels for size
+     *
      * @param $size
      *
      * @return $this
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getJumppointTunnelForBySize($size)
     {
@@ -108,6 +120,7 @@ class JumppointTunnelRepository extends BaseStarCitizenRepository implements Jum
         if (is_null($jumppointTunnelQueryData)) {
             throw new InvalidArgumentException("No Jumppoint for size {$size} found!");
         }
+
         return $this->withTransformer(JumppointTunnelTransformer::class)->transform($jumppointTunnelQueryData);
     }
 }

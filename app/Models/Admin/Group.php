@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Groups
- * @package App\Models\Admin
  */
 class Group extends Model
 {

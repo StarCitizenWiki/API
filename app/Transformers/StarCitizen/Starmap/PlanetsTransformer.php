@@ -9,8 +9,6 @@ namespace App\Transformers\StarCitizen\Starmap;
 
 /**
  * Class PlanetsTransformer
- *
- * @package App\Transformers\StarCitizen\Starmap
  */
 class PlanetsTransformer extends CelestialObjectTransformer
 {

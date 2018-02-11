@@ -13,8 +13,6 @@ use Exception;
  * Class InvalidTransformerException
  * Exception to throw if a Repository should transform data
  * with an invalid Transformer (mostly thrown if transformer is null)
- *
- * @package App\Exceptions
  */
 class InvalidTransformerException extends Exception
 {

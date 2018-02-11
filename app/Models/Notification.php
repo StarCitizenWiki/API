@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Notification
- * @package App\Mo
  */
 class Notification extends Model
 {

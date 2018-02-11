@@ -26,8 +26,6 @@ use InvalidArgumentException;
 
 /**
  * Class StarmapRepository
- *
- * @package App\Repositories\StarCitizen\ApiV1\Starmap
  */
 class StarmapRepository extends AbstractStarCitizenRepository implements StarmapRepositoryInterface
 {

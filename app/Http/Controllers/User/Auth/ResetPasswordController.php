@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 
 /**
  * Class ResetPasswordController
- *
- * @package App\Http\Controllers\User\Auth
  */
 class ResetPasswordController extends Controller
 {

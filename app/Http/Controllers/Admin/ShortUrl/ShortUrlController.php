@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 
 /**
  * Class AdminShortUrlController
- * @package App\Http\Controllers\Admin
  */
 class ShortUrlController extends Controller
 {
@@ -29,6 +28,7 @@ class ShortUrlController extends Controller
      * Returns the ShortUrl List View
      *
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showUrlListView(): View
@@ -47,6 +47,7 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl|int $url The ShortUrl ID
      *
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showEditUrlView(ShortUrl $url)
@@ -66,6 +67,7 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     *
      * @throws \Exception
      */
     public function updateUrl(Request $request, ShortUrl $url)
@@ -81,15 +83,15 @@ class ShortUrlController extends Controller
         $data = $this->validate(
             $request,
             [
-                'url'        => [
+                'url' => [
                     'required',
                     'url',
                     'max:255',
                     'unique:short_urls,id,'.$url->id,
                     new ShortUrlWhitelisted(),
                 ],
-                'user_id'    => 'required|exists:users,id',
-                'hash'       => 'required|alpha_dash|max:32|unique:short_urls,id,'.$url->id,
+                'user_id' => 'required|exists:users,id',
+                'hash' => 'required|alpha_dash|max:32|unique:short_urls,id,'.$url->id,
                 'expired_at' => 'nullable|date',
             ]
         );
@@ -110,6 +112,7 @@ class ShortUrlController extends Controller
      * @param \App\Models\ShortUrl\ShortUrl $url
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws \Exception
      */
     public function deleteUrl(ShortUrl $url): RedirectResponse

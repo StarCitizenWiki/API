@@ -12,8 +12,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class FansTransformer
- *
- * @package App\Transformers\StarCitizen\Stats
  */
 class FansTransformer extends AbstractBaseTransformer
 {

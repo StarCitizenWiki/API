@@ -10,7 +10,6 @@ namespace App\Repositories\StarCitizenWiki\Interfaces;
 
 /**
  * Interface AuthRepositoryInterface
- * @package App\Repositories\StarCitizenWiki\Interfaces
  */
 interface AuthRepositoryInterface
 {

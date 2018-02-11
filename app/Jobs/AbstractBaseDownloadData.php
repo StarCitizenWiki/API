@@ -9,7 +9,6 @@ namespace App\Jobs;
 /**
  * Base Class for Download Data Jobs
  * Class AbstractBaseDownloadData
- * @package App\Jobs
  */
 abstract class AbstractBaseDownloadData
 {
@@ -24,8 +23,8 @@ abstract class AbstractBaseDownloadData
      * e.g. for check ['data, 'resultset'], data have to contain the key 'data' with an array value,
      * which contains a key with 'resultset'
      *
-     * @param $data  array Checked Array
-     * @param $check array List of Keys that are checked
+     * @param array $data  Checked Array
+     * @param array $check List of Keys that are checked
      *
      * @return bool true when all Elements of $check in $data and success = 1, otherwise false
      */
@@ -41,8 +40,8 @@ abstract class AbstractBaseDownloadData
     /**
      * Recursive Check of Array Structure
      *
-     * @param $data  array Checked Array
-     * @param $check array List of Keys that are checked
+     * @param array $data  Checked Array
+     * @param array $check List of Keys that are checked
      *
      * @return bool true when all Elements of $check in $data, otherwise false
      */

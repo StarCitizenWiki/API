@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\App;
 
 /**
  * Class BaseAPITrait
- *
- * @package App\Repositories
  */
 abstract class AbstractBaseRepository implements TransformableInterface
 {

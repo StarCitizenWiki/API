@@ -10,8 +10,6 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Class NotificationCreated
- *
- * @package App\Mail
  */
 class NotificationEmail extends Mailable implements ShouldQueue
 {

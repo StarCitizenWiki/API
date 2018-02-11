@@ -12,8 +12,6 @@ use Closure;
 
 /**
  * Class AfterApiRequest
- *
- * @package App\Http\Middleware
  */
 class AddApiHeaders
 {

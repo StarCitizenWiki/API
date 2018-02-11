@@ -12,7 +12,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Interface TransformableInterface
- * @package App\Interfaces
  */
 interface TransformableInterface
 {

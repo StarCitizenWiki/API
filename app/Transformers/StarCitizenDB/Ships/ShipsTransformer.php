@@ -6,7 +6,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipTransformer
- * @package App\Transformers\StarCitizenDB
  */
 class ShipsTransformer extends AbstractBaseTransformer
 {
@@ -156,7 +155,7 @@ class ShipsTransformer extends AbstractBaseTransformer
         array_walk_recursive(
             $data,
             function ($value, $key) {
-                if ($key == '@damageMax') {
+                if ('@damageMax' === $key) {
                     $this->totalHitPoints += $value;
                 }
             }

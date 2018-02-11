@@ -7,7 +7,6 @@ use Closure;
 
 /**
  * If a user is present in the request, the Api request will be logged to DB
- * @package App\Http\Middleware
  */
 class LogApiRequest
 {
@@ -26,7 +25,7 @@ class LogApiRequest
         if (!is_null($user)) {
             ApiRequests::create(
                 [
-                    'user_id'     => $user->id,
+                    'user_id' => $user->id,
                     'request_uri' => $request->path(),
                 ]
             );

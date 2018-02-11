@@ -4,8 +4,6 @@ namespace App\Transformers\StarCitizen\Starmap;
 
 /**
  * Class JumppointsTransformer
- *
- * @package App\Transformers\StarCitizen\Starmap
  */
 class JumppointsTransformer extends CelestialObjectTransformer
 {

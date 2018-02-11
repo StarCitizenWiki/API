@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 
 /**
  * Class ShipsAPIController
- *
- * @package App\Http\Controllers\StarCitizenDB
  */
 class ShipsApiController extends Controller
 {
@@ -39,6 +37,10 @@ class ShipsApiController extends Controller
      * @param string                   $name    ShipName
      *
      * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\WrongMethodNameException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function getShip(Request $request, string $name)
     {
@@ -59,6 +61,10 @@ class ShipsApiController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \App\Exceptions\InvalidDataException
+     * @throws \App\Exceptions\MissingTransformerException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function getShipList(Request $request)
     {
@@ -81,6 +87,9 @@ class ShipsApiController extends Controller
      * @param \Illuminate\Http\Request $request Search Request
      *
      * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \App\Exceptions\MethodNotImplementedException
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function searchShips(Request $request)
     {

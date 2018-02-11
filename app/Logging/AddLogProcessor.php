@@ -12,7 +12,6 @@ use Monolog\Processor\WebProcessor;
 
 /**
  * Class AddLogProcessor
- * @package App\Logging
  */
 class AddLogProcessor
 {

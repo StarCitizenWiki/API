@@ -9,8 +9,6 @@ namespace App\Transformers\StarCitizen\Starmap;
 
 /**
  * Class SystemTransformer
- *
- * @package App\Transformers\StarCitizen\Starmap
  */
 class AsteroidbeltsTransformer extends CelestialObjectTransformer
 {

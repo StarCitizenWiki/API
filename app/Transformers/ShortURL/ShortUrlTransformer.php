@@ -13,8 +13,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShortUrlTransformer
- *
- * @package App\Transformers\Tools
  */
 class ShortUrlTransformer extends AbstractBaseTransformer
 {

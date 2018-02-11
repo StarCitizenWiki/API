@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * User: Hannes
  * Date: 23.03.2017
@@ -15,8 +15,6 @@ use Spatie\Fractal\Fractal;
 
 /**
  * Class TransformsDataTrait
- *
- * @package App\Traits
  */
 trait TransformsDataTrait
 {
@@ -111,6 +109,7 @@ trait TransformsDataTrait
      * Returns the transformed Resource as JSON
      *
      * @return string
+     *
      * @throws \App\Exceptions\InvalidDataException
      * @throws \App\Exceptions\MissingTransformerException
      */
@@ -129,6 +128,7 @@ trait TransformsDataTrait
      * @param null $data used to transform if not null
      *
      * @return $this
+     *
      * @throws \App\Exceptions\InvalidDataException
      * @throws \App\Exceptions\MissingTransformerException
      */
@@ -163,6 +163,7 @@ trait TransformsDataTrait
      * Returns the transformed Resource as Array
      *
      * @return array
+     *
      * @throws \App\Exceptions\InvalidDataException
      * @throws \App\Exceptions\MissingTransformerException
      */

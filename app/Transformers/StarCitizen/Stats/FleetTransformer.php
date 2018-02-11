@@ -12,8 +12,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class FleetTransformer
- *
- * @package App\Transformers\StarCitizen\Stats
  */
 class FleetTransformer extends AbstractBaseTransformer
 {

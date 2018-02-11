@@ -15,7 +15,6 @@ use Spatie\Fractal\Fractal;
 
 /**
  * Class SplitShipFiles
- * @package App\Jobs
  */
 class SplitShipFiles implements ShouldQueue
 {
@@ -291,7 +290,7 @@ class SplitShipFiles implements ShouldQueue
     /**
      * Entfernen leerer Keys
      *
-     * @param $array
+     * @param array $array
      *
      * @return array
      */

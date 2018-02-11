@@ -11,8 +11,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class SystemTransformer
- *
- * @package App\Transformers\StarCitizen\Starmap
  */
 class SystemTransformer extends AbstractBaseTransformer
 {
@@ -30,6 +28,7 @@ class SystemTransformer extends AbstractBaseTransformer
     public function transform($system)
     {
         $system = $this->moveToSubarray($system, static::SUBARRAY_NODES);
+
         return $this->filterAndRenameFields($system);
     }
 }

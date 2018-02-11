@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Class APIPageController
- *
- * @package App\Http\Api
  */
 class PageController extends Controller
 {
@@ -18,6 +16,7 @@ class PageController extends Controller
      * Returns the API Index View
      *
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showApiView(): View
@@ -31,6 +30,7 @@ class PageController extends Controller
      * Returns the API FAQ View
      *
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showFaqView(): View
@@ -42,6 +42,7 @@ class PageController extends Controller
 
     /**
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showStatusView(): View

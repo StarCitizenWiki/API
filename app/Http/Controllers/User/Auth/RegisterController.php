@@ -10,8 +10,6 @@ use Illuminate\View\View;
 
 /**
  * Class RegisterController
- *
- * @package App\Http\Controllers\User\Auth
  */
 class RegisterController extends Controller
 {
@@ -41,6 +39,7 @@ class RegisterController extends Controller
      * Show the application registration form.
      *
      * @return View
+     *
      * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showRegistrationForm(): View
@@ -61,19 +60,19 @@ class RegisterController extends Controller
     {
         $user = User::create(
             [
-                'name'                => $data['name'],
-                'email'               => $data['email'],
-                'api_token'           => str_random(60),
-                'password'            => bcrypt($data['password']),
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'api_token' => str_random(60),
+                'password' => bcrypt($data['password']),
                 'requests_per_minute' => 60,
-                'last_login'          => date('Y-m-d H:i:s'),
+                'last_login' => date('Y-m-d H:i:s'),
             ]
         );
 
         app('Log')::notice(
             'Account created',
             [
-                'id'    => $user->id,
+                'id' => $user->id,
                 'email' => $user->email,
             ]
         );
@@ -93,8 +92,8 @@ class RegisterController extends Controller
         return Validator::make(
             $data,
             [
-                'name'     => 'required|string|max:255',
-                'email'    => 'required|string|email|max:255|unique:users',
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8|confirmed',
             ]
         );

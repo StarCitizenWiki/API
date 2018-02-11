@@ -11,7 +11,6 @@ use App\Helpers\Hasher;
 
 /**
  * Trait ObfuscateModelID
- * @package App\Traits
  */
 trait ObfuscatesIDTrait
 {

@@ -12,8 +12,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipsSearchTransformer
- *
- * @package App\Transformers\StarCitizenWiki\Ships
  */
 class ShipsSearchTransformer extends AbstractBaseTransformer
 {

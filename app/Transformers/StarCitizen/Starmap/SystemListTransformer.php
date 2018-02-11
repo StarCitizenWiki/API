@@ -11,8 +11,6 @@ use App\Transformers\AbstractBaseTransformer;
 
 /**
  * Class ShipsListTransformer
- *
- * @package App\Transformers\StarCitizenWiki\Ships
  */
 class SystemListTransformer extends AbstractBaseTransformer
 {
@@ -27,6 +25,7 @@ class SystemListTransformer extends AbstractBaseTransformer
      * @param \App\Models\Starmap\Starsystem $system
      *
      * @return array
+     *
      * @throws \App\Exceptions\InvalidDataException
      */
     public function transform($system)

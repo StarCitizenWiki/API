@@ -12,7 +12,6 @@ use Exception;
 
 /**
  * Class BaseException
- * @package App\Exceptions
  */
 abstract class AbstractBaseException extends Exception
 {

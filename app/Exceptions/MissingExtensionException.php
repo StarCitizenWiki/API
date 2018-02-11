@@ -12,8 +12,6 @@ use Exception;
 /**
  * Class MissingExtensionException
  * Exception to throw if a required PHP Extension is missing
- *
- * @package App\Exceptions
  */
 class MissingExtensionException extends Exception
 {

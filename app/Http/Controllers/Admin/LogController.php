@@ -13,7 +13,6 @@ use Jackiedo\LogReader\Facades\LogReader;
 
 /**
  * Class LogController
- * @package App\Http\Controllers\Admin
  */
 class LogController extends Controller
 {
@@ -21,6 +20,8 @@ class LogController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     *
+     * @throws \App\Exceptions\WrongMethodNameException
      */
     public function showLogsView(Request $request)
     {

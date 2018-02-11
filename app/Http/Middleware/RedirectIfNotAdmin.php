@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class RedirectIfNotAdmin
- *
- * @package App\Http\Middleware
  */
 class RedirectIfNotAdmin
 {

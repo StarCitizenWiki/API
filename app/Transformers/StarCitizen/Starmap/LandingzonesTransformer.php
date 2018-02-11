@@ -9,8 +9,6 @@ namespace App\Transformers\StarCitizen\Starmap;
 
 /**
  * Class LandingzonesTransformer
- *
- * @package App\Transformers\StarCitizen\Starmap
  */
 class LandingzonesTransformer extends CelestialObjectTransformer
 {

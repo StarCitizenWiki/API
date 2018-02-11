@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Class CachesResponsesTrait
- * @package App\Traits
  */
 trait CachesResponseTrait
 {

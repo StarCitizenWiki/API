@@ -13,8 +13,6 @@ use Hashids\HashidsException;
 /**
  * Class Hasher
  * Einfacher Wrapper für HashIds
- *
- * @package App\Helpers
  */
 class Hasher
 {
