@@ -8,8 +8,9 @@
 
 namespace App\Repositories;
 
-use GuzzleHttp\Psr7\Response;
-use League\Fractal\Manager;
+use Carbon\Carbon;
+use Psr\Http\Message\ResponseInterface;
+use Spatie\Fractal\Fractal;
 
 /**
  * Class BaseAPITrait
@@ -33,15 +34,20 @@ abstract class AbstractBaseRepository
      */
     public function __construct()
     {
-        $this->manager = new Manager();
+        $this->manager = Fractal::create();
+        $this->manager->addMeta(
+            [
+                'Processed at' => Carbon::now(),
+            ]
+        );
     }
 
     /**
      * Checks if the Response Data is valid, must be overridden
      *
-     * @param \GuzzleHttp\Psr7\Response $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      *
      * @return bool
      */
-    abstract protected function checkIfResponseDataIsValid(Response $response): bool;
+    abstract protected function checkIfResponseDataIsValid(ResponseInterface $response): bool;
 }

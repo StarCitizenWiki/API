@@ -9,7 +9,7 @@ namespace App\Repositories\StarCitizen;
 
 use App\Repositories\AbstractBaseRepository as BaseRepository;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class BaseStarCitizenAPI
@@ -37,11 +37,11 @@ abstract class AbstractStarCitizenRepository extends BaseRepository
     /**
      * JSON aus Interfaces enthält (bis jetzt) immer ein success field
      *
-     * @param \GuzzleHttp\Psr7\Response $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      *
      * @return bool
      */
-    protected function checkIfResponseDataIsValid(Response $response): bool
+    protected function checkIfResponseDataIsValid(ResponseInterface $response): bool
     {
         return str_contains((string) $response->getBody(), 'success');
     }

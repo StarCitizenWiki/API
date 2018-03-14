@@ -7,7 +7,7 @@
 
 namespace App\Repositories\StarCitizen\ApiV1;
 
-use App\Repositories\AbstractBaseRepository;
+use App\Exceptions\InvalidDataException;
 use App\Repositories\StarCitizen\AbstractStarCitizenRepository as StarCitizenRepository;
 use App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface;
 use App\Transformers\StarCitizen\Stats\FansTransformer;
@@ -29,78 +29,81 @@ class StatsRepository extends StarCitizenRepository implements StatsRepositoryIn
     /**
      * Requests only funds
      *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @return \Spatie\Fractal\Fractal
      *
-     * @throws \App\Exceptions\WrongMethodNameException
      * @throws \App\Exceptions\InvalidDataException
      */
-    public function getFunds(): StatsRepository
+    public function getFunds(): Fractal
     {
-        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->getFans = false;
         $this->getFleet = false;
-        $this->withTransformer(FundsTransformer::class);
+        $this->manager->transformWith(FundsTransformer::class);
 
-        return $this->getCrowdfundStats();
+        $data = $this->getCrowdfundStats();
+
+        return $this->manager->item($data);
     }
 
     /**
      * Reads the Crowdfunding Stats from RSI
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @return array
      *
      * @throws \App\Exceptions\InvalidDataException
      */
-    public function getCrowdfundStats(): StatsRepository
+    private function getCrowdfundStats(): array
     {
         $requestBody = $this->getRequestBody();
 
         app('Log')::info('Requesting CrowdfundStats', ['request_body' => $requestBody]);
 
-        $this->request(
-            'POST',
+        $data = $this->client->post(
             '/api/stats/getCrowdfundStats',
             $requestBody
         );
 
-        return $this;
+        if (!$this->checkIfResponseDataIsValid($data)) {
+            throw new InvalidDataException("Response does not meet validity check");
+        }
+
+        return json_decode((string) $data->getBody(), true);
     }
 
     /**
      * Requests only fans
      *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @return \Spatie\Fractal\Fractal
      *
      * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
      */
-    public function getFans(): StatsRepository
+    public function getFans(): Fractal
     {
-        app('Log')::info(make_name_readable(__FUNCTION__));
         $this->getFleet = false;
         $this->getFunds = false;
-        $this->withTransformer(FansTransformer::class);
+        $this->manager->transformWith(FansTransformer::class);
 
-        return $this->getCrowdfundStats();
+        $data = $this->getCrowdfundStats();
+
+        return $this->manager->item($data);
     }
 
     /**
      * Requests only fleet
      *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @return \Spatie\Fractal\Fractal
      *
      * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
      */
-    public function getFleet(): StatsRepository
+    public function getFleet(): Fractal
     {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->getFans = false;
+        $this->getFleet = false;
         $this->getFunds = false;
-        $this->withTransformer(FleetTransformer::class);
+        $this->manager->transformWith(FleetTransformer::class);
 
-        return $this->getCrowdfundStats();
+        $data = $this->getCrowdfundStats();
+
+        return $this->manager->item($data);
     }
 
     /**
@@ -122,17 +125,17 @@ class StatsRepository extends StarCitizenRepository implements StatsRepositoryIn
     /**
      * Requests all stats
      *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @return \Spatie\Fractal\Fractal
      *
      * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
      */
-    public function getAll(): StatsRepository
+    public function getAll(): Fractal
     {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->withTransformer(StatsTransformer::class);
+        $this->manager->transformWith(StatsTransformer::class);
 
-        return $this->getCrowdfundStats();
+        $data = $this->getCrowdfundStats();
+
+        return $this->manager->item($data);
     }
 
     /**

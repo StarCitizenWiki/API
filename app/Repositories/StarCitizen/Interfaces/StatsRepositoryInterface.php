@@ -13,10 +13,10 @@ namespace App\Repositories\StarCitizen\Interfaces;
 interface StatsRepositoryInterface
 {
     /**
-     * Returns the Crowdfund Stats
+     * Returns all Crowdfund Stats
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      */
-    public function getCrowdfundStats();
+    public function getAll();
 
     public function getFans();
 
