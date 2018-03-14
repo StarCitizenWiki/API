@@ -7,17 +7,19 @@
 
 namespace App\Repositories\StarCitizen\ApiV1;
 
-use App\Repositories\StarCitizen\AbstractStarCitizenRepository;
+use App\Repositories\AbstractBaseRepository;
+use App\Repositories\StarCitizen\AbstractStarCitizenRepository as StarCitizenRepository;
 use App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface;
 use App\Transformers\StarCitizen\Stats\FansTransformer;
 use App\Transformers\StarCitizen\Stats\FleetTransformer;
 use App\Transformers\StarCitizen\Stats\FundsTransformer;
 use App\Transformers\StarCitizen\Stats\StatsTransformer;
+use Spatie\Fractal\Fractal;
 
 /**
  * Class StatsRepository
  */
-class StatsRepository extends AbstractStarCitizenRepository implements StatsRepositoryInterface
+class StatsRepository extends StarCitizenRepository implements StatsRepositoryInterface
 {
     private $getFans = true;
     private $getFleet = true;

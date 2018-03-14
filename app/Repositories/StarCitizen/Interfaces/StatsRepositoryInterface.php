@@ -17,4 +17,10 @@ interface StatsRepositoryInterface
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      */
     public function getCrowdfundStats();
+
+    public function getFans();
+
+    public function getFleet();
+
+    public function getFunds();
 }
