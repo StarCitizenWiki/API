@@ -19,7 +19,6 @@ class StatsTransformer extends AbstractBaseTransformer
         'fans',
         'funds',
         'fleet',
-        'chart',
     ];
 
     /**
@@ -38,7 +37,6 @@ class StatsTransformer extends AbstractBaseTransformer
             'fans' => (string) $stats['fans'],
             'fleet' => (string) $stats['fleet'],
             'funds' => (string) $stats['funds'],
-            'chart' => $stats['chart'],
         ];
 
         return $this->filterData($data);

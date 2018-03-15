@@ -37,7 +37,7 @@ abstract class AbstractBaseRepository
         $this->manager = Fractal::create();
         $this->manager->addMeta(
             [
-                'Processed at' => Carbon::now(),
+                'processed_at' => Carbon::now(),
             ]
         );
     }

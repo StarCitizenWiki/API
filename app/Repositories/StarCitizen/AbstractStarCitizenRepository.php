@@ -16,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
  */
 abstract class AbstractStarCitizenRepository extends BaseRepository
 {
-    public const RSI_TOKEN = 'STAR-CITIZEN.WIKI_DE';
+    public const RSI_TOKEN = 'STAR-CITIZEN.WIKI_DE_API_REQUEST';
 
     /**
      * BaseStarCitizenAPI constructor.
@@ -29,7 +29,7 @@ abstract class AbstractStarCitizenRepository extends BaseRepository
             [
                 'base_uri' => config('api.rsi_url'),
                 'timeout' => 3.0,
-                'headers' => ['X-Rsi-Token' => self::RSI_TOKEN],
+                'headers' => ['X-RSI-Token' => self::RSI_TOKEN],
             ]
         );
     }
@@ -43,6 +43,6 @@ abstract class AbstractStarCitizenRepository extends BaseRepository
      */
     protected function checkIfResponseDataIsValid(ResponseInterface $response): bool
     {
-        return str_contains((string) $response->getBody(), 'success');
+        return str_contains(strtolower((string) $response->getBody()), ['success', 'ok']);
     }
 }

@@ -40,9 +40,9 @@ abstract class AbstractBaseTransformer extends TransformerAbstract
      */
     public function addFilters(Request $request)
     {
-        $filters = $request->get('fields', null);
-        if (!is_null($filters) && !empty($filters)) {
-            $this->requestedFields = explode(',', $filters);
+        $requestFilters = $request->get('fields', null);
+        if (!is_null($requestFilters) && !empty($requestFilters)) {
+            $this->requestedFields = explode(',', $requestFilters);
             $this->validateRequestedFields();
         }
     }

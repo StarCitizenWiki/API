@@ -5,7 +5,7 @@
  * Time: 12:47
  */
 
-namespace App\Repositories\StarCitizen\Interfaces;
+namespace App\Repositories\StarCitizen\Interfaces\Stats;
 
 /**
  * Interface StatsInterface
