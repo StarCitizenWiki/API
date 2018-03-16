@@ -4,7 +4,7 @@
  * Date: 02.08.2017 17:33
  */
 
-namespace App\Models\Starmap;
+namespace App\Models\StarCitizen\Starmap;
 
 use Illuminate\Database\Eloquent\Model;
 

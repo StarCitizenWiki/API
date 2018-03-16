@@ -18,13 +18,6 @@ use Spatie\Fractal\Fractal;
 abstract class AbstractBaseRepository
 {
     /**
-     * Guzzle Client
-     *
-     * @var  \GuzzleHttp\Client
-     */
-    protected $client;
-
-    /**
      * @var \Spatie\Fractal\Fractal
      */
     protected $manager;
@@ -41,13 +34,4 @@ abstract class AbstractBaseRepository
             ]
         );
     }
-
-    /**
-     * Checks if the Response Data is valid, must be overridden
-     *
-     * @param \Psr\Http\Message\ResponseInterface $response
-     *
-     * @return bool
-     */
-    abstract protected function checkIfResponseDataIsValid(ResponseInterface $response): bool;
 }

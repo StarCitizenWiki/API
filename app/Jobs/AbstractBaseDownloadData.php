@@ -6,21 +6,38 @@
 
 namespace App\Jobs;
 
+use GuzzleHttp\Client;
+
 /**
  * Base Class for Download Data Jobs
  * Class AbstractBaseDownloadData
  */
 abstract class AbstractBaseDownloadData
 {
+    public const RSI_TOKEN = 'STAR-CITIZEN.WIKI_DE_API_REQUEST';
 
     /**
      * @var \GuzzleHttp\Client
      */
-    protected $guzzleClient;
+    protected $client;
 
     /**
-     * Check if Data is successfull, and if Data contains the check Array values in is structure
-     * e.g. for check ['data, 'resultset'], data have to contain the key 'data' with an array value,
+     * Inits the Guzzle Client
+     */
+    protected function initClient(): void
+    {
+        $this->client = new Client(
+            [
+                'base_uri' => config('api.rsi_url'),
+                'timeout' => 3.0,
+                'headers' => ['X-RSI-Token' => self::RSI_TOKEN],
+            ]
+        );
+    }
+
+    /**
+     * Check if Data is successful, and if Data contains the check Array values in is structure
+     * e.g. for check ['data, 'resultset'], data hs to contain the key 'data' with an array value,
      * which contains a key with 'resultset'
      *
      * @param array $data  Checked Array

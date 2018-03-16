@@ -7,8 +7,8 @@
 
 namespace App\Repositories\StarCitizen\ApiV1;
 
-use App\Exceptions\InvalidDataException;
-use App\Repositories\StarCitizen\AbstractStarCitizenRepository as StarCitizenRepository;
+use App\Models\StarCitizen\Stats;
+use App\Repositories\AbstractBaseRepository as BaseRepository;
 use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
 use App\Transformers\StarCitizen\Stats\FansTransformer;
 use App\Transformers\StarCitizen\Stats\FleetTransformer;
@@ -19,109 +19,40 @@ use Spatie\Fractal\Fractal;
 /**
  * Class StatsRepository
  */
-class StatsRepository extends StarCitizenRepository implements StatsRepositoryInterface
+class StatsRepository extends BaseRepository implements StatsRepositoryInterface
 {
-    /**
-     * @var array Request Body
-     */
-    private $requestBody = [];
-
-    /**
-     * Requests only funds
-     *
-     * @return \Spatie\Fractal\Fractal
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     */
-    public function getFunds(): Fractal
-    {
-        $this->manager->transformWith(FundsTransformer::class);
-        $this->requestBody = [
-            'funds' => true,
-        ];
-
-        return $this->requestStats();
-    }
-
-    /**
-     * Requests only fans
-     *
-     * @return \Spatie\Fractal\Fractal
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     */
-    public function getFans(): Fractal
-    {
-        $this->manager->transformWith(FansTransformer::class);
-        $this->requestBody = [
-            'fans' => true,
-        ];
-
-        return $this->requestStats();
-    }
-
-    /**
-     * Requests only fleet
-     *
-     * @return \Spatie\Fractal\Fractal
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     */
-    public function getFleet(): Fractal
-    {
-        $this->manager->transformWith(FleetTransformer::class);
-        $this->requestBody = [
-            'fleet' => true,
-        ];
-
-        return $this->requestStats();
-    }
 
     /**
      * Returns all Crowdfund Stats
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
-     * @return \Spatie\Fractal\Fractal
-     *
-     * @throws \App\Exceptions\InvalidDataException
+     * @return Fractal
      */
-    public function getAll()
+    public function getAll(): Fractal
     {
-        $this->manager->transformWith(StatsTransformer::class);
-        $this->requestBody = [
-            'fleet' => true,
-            'funds' => true,
-            'fans' => true,
-        ];
+        $stats = Stats::orderByDesc('created_at')->first();
 
-        return $this->requestStats();
+        return $this->manager->item($stats, StatsTransformer::class);
     }
 
-    /**
-     * Reads the Crowdfunding Stats from RSI
-     * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
-     *
-     * @return \Spatie\Fractal\Fractal
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     */
-    private function requestStats(): Fractal
+    public function getFans()
     {
-        app('Log')::info('Requesting CrowdfundStats', ['request_body' => $this->requestBody]);
+        $stats = Stats::select('fans')->orderByDesc('created_at')->first();
 
-        $data = $this->client->post(
-            '/api/stats/getCrowdfundStats',
-            [
-                'json' => $this->requestBody,
-            ]
-        );
+        return $this->manager->item($stats, FansTransformer::class);
+    }
 
-        if (!$this->checkIfResponseDataIsValid($data)) {
-            throw new InvalidDataException("Response data does not meet validity check");
-        }
+    public function getFleet()
+    {
+        $stats = Stats::select('fleet')->orderByDesc('created_at')->first();
 
-        $data = json_decode((string) $data->getBody(), true);
+        return $this->manager->item($stats, FleetTransformer::class);
+    }
 
-        return $this->manager->item($data);
+    public function getFunds()
+    {
+        $stats = Stats::select('funds')->orderByDesc('created_at')->first();
+
+        return $this->manager->item($stats, FundsTransformer::class);
     }
 }

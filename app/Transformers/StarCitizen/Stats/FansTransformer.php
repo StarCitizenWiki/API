@@ -8,6 +8,7 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
+use App\Models\StarCitizen\Stats;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -22,10 +23,10 @@ class FansTransformer extends AbstractBaseTransformer
      *
      * @return array
      */
-    public function transform($stats)
+    public function transform(Stats $stats)
     {
         return [
-            'fans' => (string) $stats['data']['fans'],
+            'fans' => (string) $stats->fans,
         ];
     }
 }

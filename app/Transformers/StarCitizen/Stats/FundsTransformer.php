@@ -8,6 +8,7 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
+use App\Models\StarCitizen\Stats;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -18,14 +19,21 @@ class FundsTransformer extends AbstractBaseTransformer
     /**
      * Transforms Stats to only return the funds
      *
-     * @param mixed $stats Data
+     * @param \App\Models\StarCitizen\Stats $stats Data
      *
      * @return array
      */
-    public function transform($stats)
+    public function transform(Stats $stats)
     {
+
+        setlocale(LC_MONETARY, 'de_DE');
+        $formattedDE = number_format($stats->funds)
+
         return [
-            'funds' => (string) $stats['data']['funds'],
+            'funds' => (string) $stats->funds,
+            'formatted' => [
+                'USD' => '',
+            ]
         ];
     }
 }
