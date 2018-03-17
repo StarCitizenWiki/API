@@ -25,8 +25,6 @@ class ShipsTransformer extends AbstractBaseTransformer
      * @param mixed $ship Ship to transform
      *
      * @return mixed
-     *
-     * @throws \App\Exceptions\InvalidDataException
      */
     public function transform($ship)
     {
@@ -46,7 +44,7 @@ class ShipsTransformer extends AbstractBaseTransformer
             }
         }
 
-        $transformed = [
+        return [
             last(explode('/', $wiki['subject'])) ?? $wiki['subject'] => [
                 'ship' => [
                     'name' => last(explode('/', $wiki['subject'])) ?? $wiki['subject'],
@@ -111,7 +109,5 @@ class ShipsTransformer extends AbstractBaseTransformer
                 ],
             ],
         ];
-
-        return $this->filterData($transformed);
     }
 }

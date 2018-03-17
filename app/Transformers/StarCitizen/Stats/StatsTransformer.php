@@ -25,20 +25,16 @@ class StatsTransformer extends AbstractBaseTransformer
     /**
      * Returns all stats
      *
-     * @param mixed $stats Data
+     * @param \App\Models\StarCitizen\Stat $stats Data
      *
-     * @return mixed
-     *
-     * @throws \App\Exceptions\InvalidDataException
+     * @return array
      */
     public function transform(Stat $stats)
     {
-        $data = [
+        return [
             'fans' => (string) $stats->fans,
             'fleet' => (string) $stats->fleet,
             'funds' => (string) $stats->funds,
         ];
-
-        return $this->filterData($data);
     }
 }

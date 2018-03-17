@@ -7,6 +7,7 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
+use App\Models\StarCitizen\Starmap\Starsystem;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -22,21 +23,17 @@ class SystemListTransformer extends AbstractBaseTransformer
     /**
      * Transforms the whole ship list
      *
-     * @param \App\Models\Starmap\Starsystem $system
+     * @param \App\Models\StarCitizen\Starmap\Starsystem $system
      *
      * @return array
-     *
-     * @throws \App\Exceptions\InvalidDataException
      */
-    public function transform($system)
+    public function transform(Starsystem $system)
     {
-        $transformed = [
+        return [
             $system['code'] => [
-                'api_url'  => config('app.api_url').'/api/v1/starmap/systems/'.$system['code'],
+                'api_url' => config('app.api_url').'/api/v1/starmap/systems/'.$system['code'],
                 'wiki_url' => config('api.wiki_url').'/'.ucfirst(strtolower($system['code'])),
             ],
         ];
-
-        return $this->filterData($transformed);
     }
 }
