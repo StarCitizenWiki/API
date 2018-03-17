@@ -19,25 +19,6 @@ class ShortUrlModelTest extends TestCase
     private $hashName;
 
     /**
-     * Test not WhitelistedException
-     *
-     * @covers \App\Models\ShortUrl\ShortUrl::createShortUrl()
-     * @covers \App\Exceptions\UrlNotWhitelistedException
-     */
-    public function testNotWhitelistedException()
-    {
-        $this->expectException(UrlNotWhitelistedException::class);
-        ShortUrl::create(
-            [
-                'url'        => 'https://notwhitelisted.com',
-                'hash'       => $this->hashName,
-                'user_id'    => 1,
-                'expired_at' => null,
-            ]
-        );
-    }
-
-    /**
      * Test Repository Creation
      *
      * @covers \App\Models\ShortUrl\ShortUrl::createShortUrl()
