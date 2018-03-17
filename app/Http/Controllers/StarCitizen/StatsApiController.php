@@ -4,15 +4,13 @@ namespace App\Http\Controllers\StarCitizen;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
-use App\Traits\CachesResponseTrait as CachesResponse;
+use InvalidArgumentException;
 
 /**
  * Class StatsAPIController
  */
 class StatsApiController extends Controller
 {
-    use CachesResponse;
-
     /**
      * StatsRepository
      *
@@ -32,116 +30,20 @@ class StatsApiController extends Controller
     }
 
     /**
-     * Returns just the Funds
+     * @param string $method
+     * @param array  $parameters
      *
-     * @return \Illuminate\Http\JsonResponse | string
-     *
-     * @throws \App\Exceptions\WrongMethodNameException
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function getFunds()
+    public function __call($method, $parameters)
     {
-        app('Log')::info(make_name_readable(__FUNCTION__));
+        if (method_exists($this->repository, $method) && is_callable([$this->repository, $method])) {
+            /** @var \Spatie\Fractal\Fractal $return */
+            $return = call_user_func_array([$this->repository, $method], []);
 
-        return $this->getJsonPrettyPrintResponse(__FUNCTION__);
-    }
-
-    /**
-     * Wrapper for all get Calls
-     *
-     * @param \Closure | string $func Function to call
-     *
-     * @return \Illuminate\Http\JsonResponse | string
-     */
-    private function getJsonPrettyPrintResponse($func)
-    {
-        if ($this->isCached()) {
-            return $this->getCachedResponse();
+            return $return->respond(200, [], JSON_PRETTY_PRINT);
         }
 
-        $data = $this->repository->$func();
-
-        return $this->jsonResponse($data->toArray());
-    }
-
-    /**
-     * Returns just the Fleet
-     *
-     * @return \Illuminate\Http\JsonResponse | string
-     *
-     * @throws \App\Exceptions\WrongMethodNameException
-     */
-    public function getFleet()
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-
-        return $this->getJsonPrettyPrintResponse(__FUNCTION__);
-    }
-
-    /**
-     * Returns just the Fans
-     *
-     * @return \Illuminate\Http\JsonResponse | string
-     *
-     * @throws \App\Exceptions\WrongMethodNameException
-     */
-    public function getFans()
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-
-        return $this->getJsonPrettyPrintResponse(__FUNCTION__);
-    }
-
-    /**
-     * Returns all
-     *
-     * @return \Illuminate\Http\JsonResponse|string
-     *
-     * @throws \App\Exceptions\WrongMethodNameException
-     */
-    public function getAll()
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-
-        return $this->getJsonPrettyPrintResponse(__FUNCTION__);
-    }
-
-    /**
-     * Returns just Funds from last hours
-     *
-     * @return \Illuminate\Http\JsonResponse | string
-     */
-    public function getLastHoursFunds()
-    {
-        return $this->getJsonPrettyPrintResponse("lastHours");
-    }
-
-    /**
-     * Returns just Funds from last days
-     *
-     * @return \Illuminate\Http\JsonResponse | string
-     */
-    public function getLastDaysFunds()
-    {
-        return $this->getJsonPrettyPrintResponse("lastDays");
-    }
-
-    /**
-     * Returns just Funds from last weeks
-     *
-     * @return \Illuminate\Http\JsonResponse | string
-     */
-    public function getLastWeeksFunds()
-    {
-        return $this->getJsonPrettyPrintResponse("lastWeeks");
-    }
-
-    /**
-     * Returns just Funds from last months
-     *
-     * @return \Illuminate\Http\JsonResponse | string
-     */
-    public function getLastMonthsFunds()
-    {
-        return $this->getJsonPrettyPrintResponse("lastMonths");
+        throw new InvalidArgumentException("Method {$method} does not exist in Repository!");
     }
 }
