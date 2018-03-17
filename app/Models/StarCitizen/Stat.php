@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Stats
  */
-class Stats extends Model
+class Stat extends Model
 {
     protected $fillable = [
         'funds',

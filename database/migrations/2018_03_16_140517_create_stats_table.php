@@ -17,7 +17,7 @@ class CreateStatsTable extends Migration
     public function up()
     {
         Schema::create(
-            'Stats',
+            'stats',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string("funds");

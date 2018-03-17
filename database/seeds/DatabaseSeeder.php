@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ShortUrlTableSeeder::class);
         $this->call(AdminTableSeeder::class);
         $this->call(GroupTableSeeder::class);
+        $this->call(StatsTableSeeder::class);
         if (App::environment() === 'local') {
             $this->call(NotificationTableSeeder::class);
         }

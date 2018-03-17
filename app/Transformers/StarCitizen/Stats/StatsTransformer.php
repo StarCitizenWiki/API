@@ -8,7 +8,7 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Models\StarCitizen\Stats;
+use App\Models\StarCitizen\Stat;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -31,7 +31,7 @@ class StatsTransformer extends AbstractBaseTransformer
      *
      * @throws \App\Exceptions\InvalidDataException
      */
-    public function transform(Stats $stats)
+    public function transform(Stat $stats)
     {
         $data = [
             'fans' => (string) $stats->fans,

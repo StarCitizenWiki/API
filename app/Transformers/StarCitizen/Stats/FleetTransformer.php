@@ -8,7 +8,7 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Models\StarCitizen\Stats;
+use App\Models\StarCitizen\Stat;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -19,11 +19,11 @@ class FleetTransformer extends AbstractBaseTransformer
     /**
      * Transforms Stats to only return the fleet
      *
-     * @param \App\Models\StarCitizen\Stats $stats Data
+     * @param \App\Models\StarCitizen\Stat $stats Data
      *
      * @return array
      */
-    public function transform(Stats $stats)
+    public function transform(Stat $stats)
     {
         return [
             'fleet' => (string) $stats->fleet,

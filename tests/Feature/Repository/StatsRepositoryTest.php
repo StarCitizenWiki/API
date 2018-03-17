@@ -2,15 +2,12 @@
 
 namespace Tests\Feature\Repository;
 
-use App\Exceptions\InvalidDataException;
 use App\Repositories\StarCitizen\ApiV1\StatsRepository;
 use Tests\TestCase;
 
 /**
  * Class StatsRepositoryTest
- * @package Tests\Feature\Repository
  * @covers \App\Repositories\AbstractBaseRepository
- * @covers \App\Repositories\StarCitizen\AbstractStarCitizenRepository
  */
 class StatsRepositoryTest extends TestCase
 {
@@ -67,15 +64,5 @@ class StatsRepositoryTest extends TestCase
         $content = $this->repository->getFunds()->toJson();
         $this->assertNotEmpty($content);
         $this->assertContains('funds', $content);
-    }
-
-    /**
-     * Tests the MissingTransformerException
-     * @covers \App\Exceptions\InvalidDataException
-     */
-    public function testEmptyResponseException()
-    {
-        $this->expectException(InvalidDataException::class);
-        $this->repository->toJson();
     }
 }

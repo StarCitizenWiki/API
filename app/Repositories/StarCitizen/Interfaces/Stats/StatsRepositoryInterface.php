@@ -7,6 +7,8 @@
 
 namespace App\Repositories\StarCitizen\Interfaces\Stats;
 
+use Spatie\Fractal\Fractal;
+
 /**
  * Interface StatsInterface
  */
@@ -15,12 +17,23 @@ interface StatsRepositoryInterface
     /**
      * Returns all Crowdfund Stats
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
+     *
+     * @return \Spatie\Fractal\Fractal
      */
-    public function getAll();
+    public function getAll(): Fractal;
 
-    public function getFans();
+    /**
+     * @return \Spatie\Fractal\Fractal
+     */
+    public function getFans(): Fractal;
 
-    public function getFleet();
+    /**
+     * @return \Spatie\Fractal\Fractal
+     */
+    public function getFleet(): Fractal;
 
-    public function getFunds();
+    /**
+     * @return \Spatie\Fractal\Fractal
+     */
+    public function getFunds(): Fractal;
 }

@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\StarCitizen;
 
-use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface;
+use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
 use App\Traits\CachesResponseTrait as CachesResponse;
 
 /**
@@ -24,7 +23,7 @@ class StatsApiController extends Controller
     /**
      * StatsAPIController constructor.
      *
-     * @param \App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface $repository
+     * @param \App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface $repository
      */
     public function __construct(StatsRepositoryInterface $repository)
     {
@@ -38,7 +37,6 @@ class StatsApiController extends Controller
      * @return \Illuminate\Http\JsonResponse | string
      *
      * @throws \App\Exceptions\WrongMethodNameException
-     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getFunds()
     {
@@ -48,12 +46,29 @@ class StatsApiController extends Controller
     }
 
     /**
+     * Wrapper for all get Calls
+     *
+     * @param \Closure | string $func Function to call
+     *
+     * @return \Illuminate\Http\JsonResponse | string
+     */
+    private function getJsonPrettyPrintResponse($func)
+    {
+        if ($this->isCached()) {
+            return $this->getCachedResponse();
+        }
+
+        $data = $this->repository->$func();
+
+        return $this->jsonResponse($data->toArray());
+    }
+
+    /**
      * Returns just the Fleet
      *
      * @return \Illuminate\Http\JsonResponse | string
      *
      * @throws \App\Exceptions\WrongMethodNameException
-     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getFleet()
     {
@@ -68,7 +83,6 @@ class StatsApiController extends Controller
      * @return \Illuminate\Http\JsonResponse | string
      *
      * @throws \App\Exceptions\WrongMethodNameException
-     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getFans()
     {
@@ -83,7 +97,6 @@ class StatsApiController extends Controller
      * @return \Illuminate\Http\JsonResponse|string
      *
      * @throws \App\Exceptions\WrongMethodNameException
-     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getAll()
     {
@@ -96,8 +109,6 @@ class StatsApiController extends Controller
      * Returns just Funds from last hours
      *
      * @return \Illuminate\Http\JsonResponse | string
-     *
-     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getLastHoursFunds()
     {
@@ -108,8 +119,6 @@ class StatsApiController extends Controller
      * Returns just Funds from last days
      *
      * @return \Illuminate\Http\JsonResponse | string
-     *
-     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getLastDaysFunds()
     {
@@ -120,8 +129,6 @@ class StatsApiController extends Controller
      * Returns just Funds from last weeks
      *
      * @return \Illuminate\Http\JsonResponse | string
-     *
-     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getLastWeeksFunds()
     {
@@ -132,36 +139,9 @@ class StatsApiController extends Controller
      * Returns just Funds from last months
      *
      * @return \Illuminate\Http\JsonResponse | string
-     *
-     * @throws \App\Exceptions\MissingTransformerException
      */
     public function getLastMonthsFunds()
     {
         return $this->getJsonPrettyPrintResponse("lastMonths");
-    }
-
-    /**
-     * Wrapper for all get Calls
-     *
-     * @param \Closure | string $func Function to call
-     *
-     * @return \Illuminate\Http\JsonResponse | string
-     *
-     * @throws \App\Exceptions\MissingTransformerException
-     */
-    private function getJsonPrettyPrintResponse($func)
-    {
-        if ($this->isCached()) {
-            return $this->getCachedResponse();
-        }
-
-        try {
-            $this->repository->$func();
-            $data = $this->repository->toArray();
-
-            return $this->jsonResponse($data);
-        } catch (InvalidDataException $e) {
-            return $e->getMessage();
-        }
     }
 }

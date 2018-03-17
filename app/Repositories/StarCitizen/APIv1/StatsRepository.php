@@ -7,7 +7,7 @@
 
 namespace App\Repositories\StarCitizen\ApiV1;
 
-use App\Models\StarCitizen\Stats;
+use App\Models\StarCitizen\Stat;
 use App\Repositories\AbstractBaseRepository as BaseRepository;
 use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
 use App\Transformers\StarCitizen\Stats\FansTransformer;
@@ -30,28 +30,37 @@ class StatsRepository extends BaseRepository implements StatsRepositoryInterface
      */
     public function getAll(): Fractal
     {
-        $stats = Stats::orderByDesc('created_at')->first();
+        $stats = Stat::orderByDesc('created_at')->first();
 
         return $this->manager->item($stats, StatsTransformer::class);
     }
 
-    public function getFans()
+    /**
+     * @return \Spatie\Fractal\Fractal
+     */
+    public function getFans(): Fractal
     {
-        $stats = Stats::select('fans')->orderByDesc('created_at')->first();
+        $stats = Stat::select('fans')->orderByDesc('created_at')->first();
 
         return $this->manager->item($stats, FansTransformer::class);
     }
 
-    public function getFleet()
+    /**
+     * @return \Spatie\Fractal\Fractal
+     */
+    public function getFleet(): Fractal
     {
-        $stats = Stats::select('fleet')->orderByDesc('created_at')->first();
+        $stats = Stat::select('fleet')->orderByDesc('created_at')->first();
 
         return $this->manager->item($stats, FleetTransformer::class);
     }
 
-    public function getFunds()
+    /**
+     * @return \Spatie\Fractal\Fractal
+     */
+    public function getFunds(): Fractal
     {
-        $stats = Stats::select('funds')->orderByDesc('created_at')->first();
+        $stats = Stat::select('funds')->orderByDesc('created_at')->first();
 
         return $this->manager->item($stats, FundsTransformer::class);
     }

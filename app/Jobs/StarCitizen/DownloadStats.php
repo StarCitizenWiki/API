@@ -4,7 +4,7 @@ namespace App\Jobs\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Jobs\AbstractBaseDownloadData;
-use App\Models\StarCitizen\Stats;
+use App\Models\StarCitizen\Stat;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
@@ -29,16 +29,9 @@ class DownloadStats extends AbstractBaseDownloadData implements ShouldQueue
     use SerializesModels;
 
     const STATS_ENDPOINT = '/api/stats/getCrowdfundStats';
-
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
+    private const FIELD_FUNDS = 'funds';
+    private const FIELD_FLEET = 'fleet';
+    private const FIELD_FANS = 'fans';
 
     /**
      * Execute the job.
@@ -72,11 +65,11 @@ class DownloadStats extends AbstractBaseDownloadData implements ShouldQueue
             return;
         }
 
-        Stats::create(
+        Stat::create(
             [
-                'funds' => $data['data']['funds'],
-                'fleet' => $data['data']['fleet'],
-                'fans' => $data['data']['fans'],
+                self::FIELD_FUNDS => substr($data['data'][self::FIELD_FUNDS], 0, -2),
+                self::FIELD_FLEET => $data['data'][self::FIELD_FLEET],
+                self::FIELD_FANS => $data['data'][self::FIELD_FANS],
             ]
         );
 
@@ -90,18 +83,16 @@ class DownloadStats extends AbstractBaseDownloadData implements ShouldQueue
      */
     private function makeRequest(): ResponseInterface
     {
-        $response = $this->client->post(
+        return $this->client->post(
             self::STATS_ENDPOINT,
             [
                 'json' => [
-                    'fans' => true,
-                    'fleet' => true,
-                    'funds' => true,
+                    self::FIELD_FANS => true,
+                    self::FIELD_FLEET => true,
+                    self::FIELD_FUNDS => true,
                 ],
             ]
         );
-
-        return $response;
     }
 
     /**
@@ -129,7 +120,7 @@ class DownloadStats extends AbstractBaseDownloadData implements ShouldQueue
             );
         }
 
-        if (array_diff_key(array_flip(['funds', 'fans', 'fleet']), $data['data'])) {
+        if (array_diff_key(array_flip([self::FIELD_FUNDS, self::FIELD_FANS, self::FIELD_FLEET]), $data['data'])) {
             throw new InvalidDataException();
         }
 
