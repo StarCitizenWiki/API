@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin\ShortUrl;
 
-use App\Events\UrlShortened;
 use App\Http\Controllers\Controller;
 use App\Models\ShortUrl\ShortUrl;
 use App\Rules\ShortUrlWhitelisted;
@@ -10,7 +9,6 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class AdminShortUrlController
@@ -39,7 +37,7 @@ class ShortUrlController extends Controller
 
         return view('admin.shorturls.index')->with(
             'urls',
-            ShortUrl::with('user')->withTrashed()->orderBy('deleted_at')->simplePaginate(100)
+            ShortUrl::withTrashed()->orderBy('deleted_at')->simplePaginate(100)
         );
     }
 
@@ -73,10 +71,7 @@ class ShortUrlController extends Controller
     {
         $this->authorize('create', ShortUrl::class);
 
-        return view('admin.shorturls.add')->with(
-            'user',
-            Auth::user()
-        );
+        return view('admin.shorturls.add');
     }
 
     /**
@@ -120,7 +115,56 @@ class ShortUrlController extends Controller
 
         $url->update($data);
 
-        return redirect()->route('admin.url.list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
+        return redirect()->route('admin.url.list')->with(
+            'messages',
+            [
+                __('crud.updated', ['type' => 'ShortUrl']),
+            ]
+        );
+    }
+
+    /**
+     * Deletes a ShortUrl by ID
+     *
+     * @param \App\Models\ShortUrl\ShortUrl $url
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Exception
+     */
+    public function deleteUrl(ShortUrl $url): RedirectResponse
+    {
+        $url->delete();
+
+        return redirect()->route('admin.url.list')->with(
+            'messages',
+            [
+                [
+                    'danger',
+                    __('crud.deleted', ['type' => 'ShortUrl']),
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @param \App\Models\ShortUrl\ShortUrl $url
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function restoreUrl(ShortUrl $url)
+    {
+        $url->restore();
+
+        return redirect()->route('admin.url.list')->with(
+            'messages',
+            [
+                [
+                    'success',
+                    __('crud.restored', ['type' => 'ShortUrl']),
+                ],
+            ]
+        );
     }
 
     /**
@@ -154,40 +198,21 @@ class ShortUrlController extends Controller
             $data['expired_at'] = Carbon::parse($data['expired_at']);
         }
 
+        if (!isset($data['hash'])) {
+            $data['hash'] = ShortUrl::generateShortUrlHash();
+        }
+
         $url = ShortUrl::create($data);
-        event(new UrlShortened($url));
 
-        return redirect()->route('account.url.list')->with(
-            'hash',
-            $url->hash
+        return redirect()->route('admin.url.list')->with(
+            'messages',
+            [
+                __('crud.created', ['type' => 'ShortUrl']),
+                [
+                    'success',
+                    $url->getFullShortUrl(),
+                ],
+            ]
         );
-    }
-
-    /**
-     * Deletes a ShortUrl by ID
-     *
-     * @param \App\Models\ShortUrl\ShortUrl $url
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Exception
-     */
-    public function deleteUrl(ShortUrl $url): RedirectResponse
-    {
-        $url->delete();
-
-        return redirect()->route('admin.url.list');
-    }
-
-    /**
-     * @param \App\Models\ShortUrl\ShortUrl $url
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function restoreUrl(ShortUrl $url)
-    {
-        $url->restore();
-
-        return redirect()->route('admin.url.list');
     }
 }

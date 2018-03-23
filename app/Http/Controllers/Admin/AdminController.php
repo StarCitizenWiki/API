@@ -70,7 +70,7 @@ class AdminController extends Controller
         ];
 
         $shortUrls = [
-            'last' => ShortUrl::with('user')->take(5)->orderBy('created_at', 'desc')->get(),
+            'last' => ShortUrl::take(5)->orderBy('created_at', 'desc')->get(),
             'counts' => [
                 'last_hour' => ShortUrl::query()->whereDate('created_at', '>', Carbon::now()->subHour())->count(),
                 'today' => ShortUrl::query()->whereDate('created_at', '=', $today)->get()->count(),

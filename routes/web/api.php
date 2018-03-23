@@ -168,12 +168,14 @@ Route::group(
                             }
                         );
                         Route::get('/', ['uses' => 'ShortUrlController@showUrlListView'])->name('admin.url.list');
-                        Route::get('{url}', ['uses' => 'ShortUrlController@showEditUrlView'])->name(
+                        Route::post('/', ['uses' => 'ShortUrlController@addUrl'])->name('admin.url.add');
+                        Route::get('/add', ['uses' => 'ShortUrlController@showAddUrlView'])->name('admin.url.add_form');
+                        Route::get('{url_with_trashed}', ['uses' => 'ShortUrlController@showEditUrlView'])->name(
                             'admin.url.edit_form'
                         );
                         Route::delete('{url}', ['uses' => 'ShortUrlController@deleteUrl'])->name('admin.url.delete');
                         Route::patch('{url}', ['uses' => 'ShortUrlController@updateUrl'])->name('admin.url.update');
-                        Route::post('{url}', ['uses' => 'ShortUrlController@restoreUrl'])->name('admin.url.restore');
+                        Route::post('{url_with_trashed}', ['uses' => 'ShortUrlController@restoreUrl'])->name('admin.url.restore');
                     }
                 );
 

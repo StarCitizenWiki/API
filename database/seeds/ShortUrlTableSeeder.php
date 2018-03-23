@@ -35,5 +35,12 @@ class ShortUrlTableSeeder extends Seeder
                 'url' => 'http://starcitizenbase.de/angrybot-deutsche-uebersetzung-des-issue-councils-samt-leitfaden/',
             ]
         );
+        DB::table('short_urls')->insert(
+            [
+                'created_at' => '2015-04-23 02:53:21',
+                'hash' => 'PO2Wo',
+                'url' => 'http://hunter.thecomic.ninja/?comic=issue-1-cover',
+            ]
+        );
     }
 }

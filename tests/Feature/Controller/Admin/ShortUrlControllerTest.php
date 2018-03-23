@@ -130,6 +130,41 @@ class ShortUrlControllerTest extends TestCase
     }
 
     /**
+     * @covers \App\Http\Controllers\User\ShortUrlController::showAddUrlView()
+     */
+    public function testUrlAddView()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->get('admin/urls/add');
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\User\ShortUrlController::addUrl()
+     */
+    public function testAddUrl()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->post('admin/urls', [
+            'url' => 'https://star-citizen.wiki/'.str_random(4),
+            'hash' => str_random(4),
+        ]);
+        $response->assertStatus(302);
+        $response->assertRedirect('admin/urls');
+    }
+
+    /**
+     * @covers \App\Http\Controllers\User\ShortUrlController::addUrl()
+     */
+    public function testAddUrlException()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->post('admin/urls', [
+            'url' => 'https://notwhitelisted.wiki/'.str_random(4),
+            'hash' => str_random(4),
+        ]);
+        $response->assertStatus(302);
+    }
+
+
+    /**
      * @covers \App\Http\Controllers\Admin\\ShortUrlController::updateUrl()
      * @covers \App\Models\ShortUrl\ShortUrl::updateShortUrl()
      */
