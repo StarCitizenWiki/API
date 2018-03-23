@@ -27,7 +27,6 @@ class ShortUrl extends Model
     protected $fillable = [
         'url',
         'hash',
-        'user_id',
     ];
 
     protected $dates = [
@@ -51,15 +50,5 @@ class ShortUrl extends Model
         app('Log')::info("Generated Hash: {$hashName}");
 
         return $hashName;
-    }
-
-    /**
-     * Sets the User Relation
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|\App\Models\User
-     */
-    public function user()
-    {
-        return $this->belongsTo('App\Models\User');
     }
 }

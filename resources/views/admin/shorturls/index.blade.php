@@ -9,7 +9,6 @@
                 <tr>
                     <th>@lang('ID')</th>
                     <th>@lang('Hash ID')</th>
-                    <th>@lang('Benutzer')</th>
                     <th>@lang('Erstelldatum')</th>
                     <th>@lang('Hash')</th>
                     <th>@lang('Url')</th>
@@ -26,9 +25,6 @@
                         </td>
                         <td>
                             {{ $url->getRouteKey() }}
-                        </td>
-                        <td>
-                            {{ $url->user->name }}
                         </td>
                         <td title="{{ $url->created_at->format('d.m.Y H:i:s') }}">
                             {{ $url->created_at->format('d.m.Y') }}

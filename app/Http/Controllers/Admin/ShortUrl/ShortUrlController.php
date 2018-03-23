@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\ShortUrl;
 
+use App\Events\UrlShortened;
 use App\Http\Controllers\Controller;
 use App\Models\ShortUrl\ShortUrl;
 use App\Rules\ShortUrlWhitelisted;
@@ -9,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class AdminShortUrlController
@@ -61,6 +63,23 @@ class ShortUrlController extends Controller
     }
 
     /**
+     * Returns the add short url view
+     *
+     * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function showAddUrlView(): View
+    {
+        $this->authorize('create', ShortUrl::class);
+
+        return view('admin.shorturls.add')->with(
+            'user',
+            Auth::user()
+        );
+    }
+
+    /**
      * Updates a ShortUrl by ID
      *
      * @param \Illuminate\Http\Request      $request The Update Request
@@ -90,7 +109,6 @@ class ShortUrlController extends Controller
                     'unique:short_urls,id,'.$url->id,
                     new ShortUrlWhitelisted(),
                 ],
-                'user_id' => 'required|exists:users,id',
                 'hash' => 'required|alpha_dash|max:32|unique:short_urls,id,'.$url->id,
                 'expired_at' => 'nullable|date',
             ]
@@ -105,6 +123,45 @@ class ShortUrlController extends Controller
         return redirect()->route('admin.url.list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
     }
 
+    /**
+     * Validates the url add Request and creates a new ShortUrl
+     *
+     * @param \Illuminate\Http\Request $request The Request
+     *
+     * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function addUrl(Request $request)
+    {
+        $this->authorize('create', ShortUrl::class);
+
+        $data = $request->validate(
+            [
+                'url' => [
+                    'required',
+                    'max:255',
+                    'url',
+                    'unique:short_urls',
+                    new ShortUrlWhitelisted(),
+                ],
+                'hash' => 'nullable|alpha_dash|max:32|unique:short_urls',
+                'expired_at' => 'nullable|date|after:'.Carbon::now(),
+            ]
+        );
+
+        if (isset($data['expired_at'])) {
+            $data['expired_at'] = Carbon::parse($data['expired_at']);
+        }
+
+        $url = ShortUrl::create($data);
+        event(new UrlShortened($url));
+
+        return redirect()->route('account.url.list')->with(
+            'hash',
+            $url->hash
+        );
+    }
 
     /**
      * Deletes a ShortUrl by ID
