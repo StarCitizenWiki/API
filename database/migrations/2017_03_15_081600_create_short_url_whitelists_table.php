@@ -16,7 +16,6 @@ class CreateShortUrlWhitelistsTable extends Migration
         Schema::create('short_url_whitelists', function (Blueprint $table) {
             $table->increments('id');
             $table->string('url')->unique();
-            $table->boolean('internal')->default(0);
             $table->timestamps();
         });
     }

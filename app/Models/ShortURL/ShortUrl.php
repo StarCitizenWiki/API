@@ -27,7 +27,6 @@ class ShortUrl extends Model
     protected $fillable = [
         'url',
         'hash',
-        'user_id',
     ];
 
     protected $dates = [
@@ -42,7 +41,7 @@ class ShortUrl extends Model
      *
      * @return string
      */
-    public static function generateShortUrlHash(): String
+    public static function generateShortUrlHash(): string
     {
         do {
             $hashName = Str::random(config('shorturl.length'));
@@ -54,12 +53,14 @@ class ShortUrl extends Model
     }
 
     /**
-     * Sets the User Relation
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|\App\Models\User
+     * @return string
      */
-    public function user()
+    public function getFullShortUrl(): string
     {
-        return $this->belongsTo('App\Models\User');
+        if (!is_null($this->hash)) {
+            return config('app.shorturl_url').'/'.$this->hash;
+        }
+
+        return config('app.shorturl_url').'/';
     }
 }

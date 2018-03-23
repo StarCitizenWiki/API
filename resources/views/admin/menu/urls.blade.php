@@ -14,6 +14,21 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
+    'route' => route('admin.url.add_form'),
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                plus-circle
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('URL hinzufügen')
+        </div>
+    </div>
+@endcomponent
+
+@component('components.navs.nav_element', [
     'route' => route('admin.url.whitelist.list'),
 ])
     <div class="row">

@@ -5,15 +5,14 @@
         <div class="col-12 col-md-8 mx-auto">
             <div class="card mb-3">
                 <h4 class="card-header">@lang('ShortUrls')</h4>
-                <div class="card-body px-0">
-                    <table class="table table-striped table-responsive mb-0">
+                <div class="card-body px-0 table-responsive">
+                    <table class="table table-striped mb-0">
                         <thead>
                         <tr>
                             <th>@lang('ID')</th>
                             <th>@lang('Hash ID')</th>
                             <th>@lang('Erstelldatum')</th>
                             <th>@lang('Url')</th>
-                            <th>@lang('Intern')</th>
                             <th>&nbsp;</th>
                         </tr>
                         </thead>
@@ -32,15 +31,6 @@
                                 </td>
                                 <td>
                                     {{ $url->url }}
-                                </td>
-                                <td class="text-center" data-sort="{{ $url->internal }}">
-                                    @component('components.elements.icon')
-                                        @if($url->internal)
-                                            check
-                                        @else
-                                            times
-                                        @endif
-                                    @endcomponent
                                 </td>
                                 <td class="text-center">
                                     @component('components.edit_delete_block')

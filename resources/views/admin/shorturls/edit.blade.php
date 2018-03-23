@@ -33,26 +33,20 @@
                         ])@endcomponent
                     </div>
                     <div class="col-12 col-md-6">
-                        @component('admin.components.user_dropdown', [
-                            'label' => __('Benutzer'),
-                            'required' => 1,
-                            'tabIndex' => 3,
-                            'selectedID' => $url->user_id,
-                        ])@endcomponent
+                        @component('components.forms.form-group', [
+                            'inputType' => 'datetime-local',
+                            'label' => __('Ablaufdatum'),
+                            'id' => 'expired_at',
+                            'tabIndex' => 4,
+                        ])
+                            @unless(is_null($url->expired_at))
+                                @slot('value')
+                                    {{ $url->expired_at->format("Y-m-d\TH:i") }}
+                                @endslot
+                            @endunless
+                        @endcomponent
                     </div>
                 </div>
-                @component('components.forms.form-group', [
-                    'inputType' => 'datetime-local',
-                    'label' => __('Ablaufdatum'),
-                    'id' => 'expired_at',
-                    'tabIndex' => 4,
-                ])
-                    @unless(is_null($url->expired_at))
-                        @slot('value')
-                            {{ $url->expired_at->format("Y-m-d\TH:i") }}
-                        @endslot
-                    @endunless
-                @endcomponent
 
                 @if($url->trashed())
                     <button class="btn btn-outline-success" name="restore">@lang('Wiederherstellen')</button>

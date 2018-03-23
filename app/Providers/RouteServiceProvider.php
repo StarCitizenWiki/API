@@ -78,7 +78,7 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind(
             'url_hash',
-            function ($value) use ($idResolver) {
+            function ($value) {
                 return ShortUrl::query()->where('hash', $value)->firstOrFail();
             }
         );

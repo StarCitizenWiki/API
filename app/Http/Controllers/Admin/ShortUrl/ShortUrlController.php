@@ -37,7 +37,7 @@ class ShortUrlController extends Controller
 
         return view('admin.shorturls.index')->with(
             'urls',
-            ShortUrl::with('user')->withTrashed()->orderBy('deleted_at')->simplePaginate(100)
+            ShortUrl::withTrashed()->orderBy('deleted_at')->simplePaginate(100)
         );
     }
 
@@ -58,6 +58,20 @@ class ShortUrlController extends Controller
             'url',
             $url
         );
+    }
+
+    /**
+     * Returns the add short url view
+     *
+     * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function showAddUrlView(): View
+    {
+        $this->authorize('create', ShortUrl::class);
+
+        return view('admin.shorturls.add');
     }
 
     /**
@@ -90,7 +104,6 @@ class ShortUrlController extends Controller
                     'unique:short_urls,id,'.$url->id,
                     new ShortUrlWhitelisted(),
                 ],
-                'user_id' => 'required|exists:users,id',
                 'hash' => 'required|alpha_dash|max:32|unique:short_urls,id,'.$url->id,
                 'expired_at' => 'nullable|date',
             ]
@@ -102,9 +115,13 @@ class ShortUrlController extends Controller
 
         $url->update($data);
 
-        return redirect()->route('admin.url.list')->with('message', __('crud.updated', ['type' => 'ShortUrl']));
+        return redirect()->route('admin.url.list')->with(
+            'messages',
+            [
+                __('crud.updated', ['type' => 'ShortUrl']),
+            ]
+        );
     }
-
 
     /**
      * Deletes a ShortUrl by ID
@@ -119,7 +136,15 @@ class ShortUrlController extends Controller
     {
         $url->delete();
 
-        return redirect()->route('admin.url.list');
+        return redirect()->route('admin.url.list')->with(
+            'messages',
+            [
+                [
+                    'danger',
+                    __('crud.deleted', ['type' => 'ShortUrl']),
+                ],
+            ]
+        );
     }
 
     /**
@@ -131,6 +156,63 @@ class ShortUrlController extends Controller
     {
         $url->restore();
 
-        return redirect()->route('admin.url.list');
+        return redirect()->route('admin.url.list')->with(
+            'messages',
+            [
+                [
+                    'success',
+                    __('crud.restored', ['type' => 'ShortUrl']),
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Validates the url add Request and creates a new ShortUrl
+     *
+     * @param \Illuminate\Http\Request $request The Request
+     *
+     * @return \Illuminate\Http\RedirectResponse | \Illuminate\Routing\Redirector
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function addUrl(Request $request)
+    {
+        $this->authorize('create', ShortUrl::class);
+
+        $data = $request->validate(
+            [
+                'url' => [
+                    'required',
+                    'max:255',
+                    'url',
+                    'unique:short_urls',
+                    new ShortUrlWhitelisted(),
+                ],
+                'hash' => 'nullable|alpha_dash|max:32|unique:short_urls',
+                'expired_at' => 'nullable|date|after:'.Carbon::now(),
+            ]
+        );
+
+        if (isset($data['expired_at'])) {
+            $data['expired_at'] = Carbon::parse($data['expired_at']);
+        }
+
+        if (!isset($data['hash'])) {
+            $data['hash'] = ShortUrl::generateShortUrlHash();
+        }
+
+        $url = ShortUrl::create($data);
+
+        return redirect()->route('admin.url.list')->with(
+            'messages',
+            [
+                __('crud.created', ['type' => 'ShortUrl']),
+                [
+                    'success',
+                    $url->getFullShortUrl(),
+                ],
+            ]
+        );
     }
 }

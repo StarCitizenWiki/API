@@ -22,7 +22,6 @@ class CreateShortUrlsTable extends Migration
                 $table->increments('id');
                 $table->string('url')->unique();
                 $table->string('hash')->unique();
-                $table->integer('user_id');
                 $table->dateTime('expired_at')->nullable();
                 $table->softDeletes();
                 $table->timestamps();

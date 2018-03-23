@@ -109,16 +109,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Sets the shorturl relation
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function shortUrls()
-    {
-        return $this->hasMany('App\Models\ShortUrl\ShortUrl');
-    }
-
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function apiRequests()
