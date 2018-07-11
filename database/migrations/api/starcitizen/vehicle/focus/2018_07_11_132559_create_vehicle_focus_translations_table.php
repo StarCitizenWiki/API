@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateShipFocusTable extends Migration
+class CreateVehicleFocusTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,16 @@ class CreateShipFocusTable extends Migration
      */
     public function up()
     {
-        Schema::table(
-            'ship_focus',
+        Schema::create(
+            'vehicle_focus_translations',
             function (Blueprint $table) {
-                $table->unsignedInteger('ship_id')->unsigned();
-                $table->unsignedInteger('focus_id')->unsigned();
+                $table->unsignedInteger('language_id');
+                $table->unsignedInteger('focus_id');
+                $table->string('focus');
                 $table->timestamps();
 
-                $table->primary(['ship_id', 'focus_id']);
-                $table->foreign('ship_id')->references('id')->on('ships')->onDelete('cascade');
+                $table->primary(['language_id', 'focus_id']);
+                $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
                 $table->foreign('focus_id')->references('id')->on('foci')->onDelete('cascade');
             }
         );
@@ -34,11 +35,6 @@ class CreateShipFocusTable extends Migration
      */
     public function down()
     {
-        Schema::table(
-            'ship_focus',
-            function (Blueprint $table) {
-                //
-            }
-        );
+        Schema::dropIfExists('vehicle_focus_translations');
     }
 }
