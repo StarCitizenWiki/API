@@ -10,11 +10,12 @@ namespace App\Repositories\StarCitizen\Interfaces;
 /**
  * Interface StatsInterface
  */
-interface StatsRepositoryInterface
+interface FundsRepositoryInterface
 {
     /**
-     * Returns the Crowdfund Stats
-     * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
+     * Returns current RSI Funds
+     *
+     * @return \Spatie\Fractal\Fractal
      */
-    public function getCrowdfundStats();
+    public function getFunds();
 }

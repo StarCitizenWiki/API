@@ -8,6 +8,7 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
+use App\Models\StarCitizen\Stat;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -19,28 +20,21 @@ class StatsTransformer extends AbstractBaseTransformer
         'fans',
         'funds',
         'fleet',
-        'chart',
     ];
 
     /**
      * Returns all stats
      *
-     * @param mixed $stats Data
+     * @param \App\Models\StarCitizen\Stat $stats Data
      *
-     * @return mixed
-     *
-     * @throws \App\Exceptions\InvalidDataException
+     * @return array
      */
-    public function transform($stats)
+    public function transform(Stat $stats)
     {
-        $stats = $stats['data'];
-        $data = [
-            'fans' => (string) $stats['fans'],
-            'fleet' => (string) $stats['fleet'],
-            'funds' => (string) $stats['funds'],
-            'chart' => $stats['chart'],
+        return [
+            'fans' => (string) $stats->fans,
+            'fleet' => (string) $stats->fleet,
+            'funds' => (string) $stats->funds,
         ];
-
-        return $this->filterData($data);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
+use GuzzleHttp\Client;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 
@@ -21,6 +22,10 @@ class PageController extends Controller
      */
     public function showApiView(): View
     {
+        $client = new Client();
+        $res = $client->get('https://robertsspaceindustries.com/ship-matrix/index');
+        dd(json_decode((string) $res->getBody(), true)['data'][0]);
+
         app('Log')::info(make_name_readable(__FUNCTION__));
 
         return view('api.pages.index');

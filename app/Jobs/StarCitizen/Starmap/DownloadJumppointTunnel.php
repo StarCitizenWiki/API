@@ -4,10 +4,10 @@
  * Date: 03.08.2017 16:49
  */
 
-namespace App\Jobs;
+namespace App\Jobs\StarCitizen\Starmap;
 
-use App\Models\Starmap\Jumppoint;
-use App\Traits\ProfilesMethodsTrait;
+use App\Jobs\AbstractBaseDownloadData;
+use App\Models\StarCitizen\Starmap\Jumppoint;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,7 +24,6 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use ProfilesMethodsTrait;
 
     const OVERVIEWDATA_CHECKLIST = ['data', 'tunnels', 'resultset', 0];
     private $jumppointtunnels;
@@ -37,10 +36,8 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
      */
     public function handle(): void
     {
-        $this->startProfiling(__FUNCTION__);
-
         app('Log')::info('Starting Jumppoint Tunnel Download Job');
-        $this->guzzleClient = new Client(['timeout' => 10.0]);
+        $this->client = new Client(['timeout' => 10.0]);
 
         $this->setJumppointtunnels();
         foreach ($this->jumppointtunnels as $jumppointtunnel) {
@@ -71,7 +68,7 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
      */
     private function getJsonArrayFromStarmap(string $uri): array
     {
-        $response = $this->guzzleClient->request('POST', config('api.rsi_url').'/starmap/'.$uri);
+        $response = $this->client->request('POST', config('api.rsi_url').'/starmap/'.$uri);
 
         return json_decode($response->getBody()->getContents(), true);
     }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Tool;
 use App\Exceptions\InvalidDataException;
 use App\Exceptions\MissingExtensionException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface;
+use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -43,7 +43,7 @@ class FundImageController extends Controller
     /**
      * StatsRepository
      *
-     * @var \App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface
+     * @var \App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface
      */
     private $repository;
 
@@ -74,8 +74,8 @@ class FundImageController extends Controller
     /**
      * FundImageController constructor.
      *
-     * @param \Illuminate\Http\Request                                          $request    HTTP Request
-     * @param \App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface $repository Repository
+     * @param \Illuminate\Http\Request                                                $request    HTTP Request
+     * @param \App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface $repository Repository
      *
      * @throws \App\Exceptions\MissingExtensionException
      */
@@ -314,7 +314,7 @@ class FundImageController extends Controller
     private function getFundsFromApi(): void
     {
         $liveFunds = $this->repository->getFunds()->toArray();
-        $this->funds['current'] = (int) substr(strval($liveFunds['data']['funds']), 0, -2);
+        $this->funds['current'] = (int) $liveFunds['data']['funds'];
     }
 
     /**

@@ -36,15 +36,14 @@ class ShipsSearchTransformer extends AbstractBaseTransformer
         if (3 === count($result)) {
             $shipName = $result[2];
 
-            $data = [
+            return [
                 $shipName => [
                     'api_url'  => config('app.api_url').'/api/v1/ships/'.$shipName,
                     'wiki_url' => config('api.wiki_url').'/'.$search['title'],
                 ],
             ];
-
-            return $this->filterData($data);
         }
+
         throw new InvalidDataException('result size should be 3, is '.count($result));
     }
 }

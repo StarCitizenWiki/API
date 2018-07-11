@@ -25,20 +25,16 @@ class ShipsListTransformer extends AbstractBaseTransformer
      * @param mixed $ship Data
      *
      * @return array
-     *
-     * @throws \App\Exceptions\InvalidDataException
      */
     public function transform($ship)
     {
         $ship['displaytitle'] = str_replace(' ', '_', $ship['displaytitle']);
 
-        $transformed = [
+        return [
             $ship['displaytitle'] => [
                 'api_url' => config('app.api_url').'/api/v1/ships/'.$ship['displaytitle'],
                 'wiki_url' => $ship['fullurl'],
             ],
         ];
-
-        return $this->filterData($transformed);
     }
 }

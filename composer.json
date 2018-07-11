@@ -12,7 +12,7 @@
     "laravel/framework": "5.6.*",
     "laravel/tinker": "~1.0",
     "guzzlehttp/guzzle": "^6.3",
-    "spatie/laravel-fractal": "^5.0.1",
+    "spatie/laravel-fractal": "5.*",
     "piwik/piwik-php-tracker": "^1.2",
     "jackiedo/log-reader": "2.*",
     "hashids/hashids": "^2.0",

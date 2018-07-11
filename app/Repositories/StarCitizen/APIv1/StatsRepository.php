@@ -7,220 +7,61 @@
 
 namespace App\Repositories\StarCitizen\ApiV1;
 
-use App\Repositories\StarCitizen\AbstractStarCitizenRepository;
-use App\Repositories\StarCitizen\Interfaces\StatsRepositoryInterface;
+use App\Models\StarCitizen\Stat;
+use App\Repositories\AbstractBaseRepository as BaseRepository;
+use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
 use App\Transformers\StarCitizen\Stats\FansTransformer;
 use App\Transformers\StarCitizen\Stats\FleetTransformer;
 use App\Transformers\StarCitizen\Stats\FundsTransformer;
 use App\Transformers\StarCitizen\Stats\StatsTransformer;
+use Spatie\Fractal\Fractal;
 
 /**
  * Class StatsRepository
  */
-class StatsRepository extends AbstractStarCitizenRepository implements StatsRepositoryInterface
+class StatsRepository extends BaseRepository implements StatsRepositoryInterface
 {
-    private $getFans = true;
-    private $getFleet = true;
-    private $getFunds = true;
-    private $chartType = 'hour';
 
     /**
-     * Requests only funds
-     *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\WrongMethodNameException
-     * @throws \App\Exceptions\InvalidDataException
-     */
-    public function getFunds(): StatsRepository
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->getFans = false;
-        $this->getFleet = false;
-        $this->withTransformer(FundsTransformer::class);
-
-        return $this->getCrowdfundStats();
-    }
-
-    /**
-     * Reads the Crowdfunding Stats from RSI
+     * Returns all Crowdfund Stats
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\InvalidDataException
+     * @return Fractal
      */
-    public function getCrowdfundStats(): StatsRepository
+    public function getAll(): Fractal
     {
-        $requestBody = $this->getRequestBody();
+        $stats = Stat::orderByDesc('created_at')->first();
 
-        app('Log')::info('Requesting CrowdfundStats', ['request_body' => $requestBody]);
-
-        $this->request(
-            'POST',
-            '/api/stats/getCrowdfundStats',
-            $requestBody
-        );
-
-        return $this;
+        return $this->manager->item($stats, StatsTransformer::class);
     }
 
     /**
-     * Requests only fans
-     *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
+     * @return \Spatie\Fractal\Fractal
      */
-    public function getFans(): StatsRepository
+    public function getFans(): Fractal
     {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->getFleet = false;
-        $this->getFunds = false;
-        $this->withTransformer(FansTransformer::class);
+        $stats = Stat::select('fans')->orderByDesc('created_at')->first();
 
-        return $this->getCrowdfundStats();
+        return $this->manager->item($stats, FansTransformer::class);
     }
 
     /**
-     * Requests only fleet
-     *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
+     * @return \Spatie\Fractal\Fractal
      */
-    public function getFleet(): StatsRepository
+    public function getFleet(): Fractal
     {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->getFans = false;
-        $this->getFunds = false;
-        $this->withTransformer(FleetTransformer::class);
+        $stats = Stat::select('fleet')->orderByDesc('created_at')->first();
 
-        return $this->getCrowdfundStats();
+        return $this->manager->item($stats, FleetTransformer::class);
     }
 
     /**
-     * Sets the Chart Type to 'hour'
-     *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\WrongMethodNameException
-     * @throws \App\Exceptions\InvalidDataException
+     * @return \Spatie\Fractal\Fractal
      */
-    public function lastHours(): StatsRepository
+    public function getFunds(): Fractal
     {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->chartType = 'hour';
+        $stats = Stat::select('funds')->orderByDesc('created_at')->first();
 
-        return $this->getAll();
-    }
-
-    /**
-     * Requests all stats
-     *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
-     */
-    public function getAll(): StatsRepository
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->withTransformer(StatsTransformer::class);
-
-        return $this->getCrowdfundStats();
-    }
-
-    /**
-     * Sets the Chart Type to 'day'
-     *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
-     */
-    public function lastDays(): StatsRepository
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->chartType = 'day';
-
-        return $this->getAll();
-    }
-
-    /**
-     * Sets the Chart Type to 'week'
-     *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
-     */
-    public function lastWeeks(): StatsRepository
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->chartType = 'week';
-
-        return $this->getAll();
-    }
-
-    /**
-     * Sets the Chart Type to 'month'
-     *
-     * @return \App\Repositories\StarCitizen\ApiV1\StatsRepository
-     *
-     * @throws \App\Exceptions\InvalidDataException
-     * @throws \App\Exceptions\WrongMethodNameException
-     */
-    public function lastMonths(): StatsRepository
-    {
-        app('Log')::info(make_name_readable(__FUNCTION__));
-        $this->chartType = 'month';
-
-        return $this->getAll();
-    }
-
-    /**
-     * Prepares the request body
-     *
-     * @return array
-     */
-    private function getRequestBody(): array
-    {
-        $requestContent = [
-            'chart' => $this->chartType,
-        ];
-
-        if ($this->getFans) {
-            $requestContent = array_merge(
-                $requestContent,
-                [
-                    'fans' => $this->getFans,
-                ]
-            );
-        }
-
-        if ($this->getFleet) {
-            $requestContent = array_merge(
-                $requestContent,
-                [
-                    'fleet' => $this->getFleet,
-                ]
-            );
-        }
-
-        if ($this->getFunds) {
-            $requestContent = array_merge(
-                $requestContent,
-                [
-                    'funds' => $this->getFunds,
-                ]
-            );
-        }
-
-        return [
-            'json' => $requestContent,
-        ];
+        return $this->manager->item($stats, FundsTransformer::class);
     }
 }

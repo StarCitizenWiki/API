@@ -1,9 +1,10 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs;
+namespace App\Jobs\StarCitizen\Starmap;
 
-use App\Models\Starmap\CelestialObject;
-use App\Models\Starmap\Starsystem;
+use App\Jobs\AbstractBaseDownloadData;
+use App\Models\StarCitizen\Starmap\CelestialObject;
+use App\Models\StarCitizen\Starmap\Starsystem;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,7 +44,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
     public function handle(): void
     {
         app('Log')::info('Starting Starmap Download Job');
-        $this->guzzleClient = new Client(['timeout' => 10.0]);
+        $this->client = new Client(['timeout' => 10.0]);
 
         $this->setSystems();
         foreach ($this->starsystems as $system) {
@@ -80,7 +81,7 @@ class DownloadStarmapData extends AbstractBaseDownloadData implements ShouldQueu
      */
     private function getJsonArrayFromStarmap(string $uri): array
     {
-        $response = $this->guzzleClient->request('POST', config('api.rsi_url').'/starmap/'.$uri);
+        $response = $this->client->request('POST', config('api.rsi_url').'/starmap/'.$uri);
 
         return json_decode($response->getBody()->getContents(), true);
     }

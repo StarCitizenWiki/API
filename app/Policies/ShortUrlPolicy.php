@@ -49,7 +49,7 @@ class ShortUrlPolicy
      */
     public function create(User $user)
     {
-        return $user->state !== 2;
+        return $user->state !== User::STATE_BLOCKED;
     }
 
     /**
