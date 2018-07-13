@@ -5,7 +5,7 @@ use Illuminate\Database\Seeder;
 /**
  * Class StatsTableSeeder
  */
-class StatsTableSeeder extends Seeder
+class StatTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.

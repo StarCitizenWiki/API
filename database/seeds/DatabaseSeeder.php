@@ -14,12 +14,44 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->seedSystemTables();
+        $this->seedAccountTables();
+        $this->seedApiTables();
+    }
+
+    /**
+     * System Tables
+     */
+    private function seedSystemTables()
+    {
+        $this->call(LanguageTableSeeder::class);
+    }
+
+    /**
+     * Account Tables: Groups, Admin, Users
+     */
+    private function seedAccountTables()
+    {
+        $this->call(GroupTableSeeder::class);
+        $this->call(AdminTableSeeder::class);
         $this->call(UserTableSeeder::class);
+    }
+
+    /**
+     * API Tables
+     */
+    private function seedApiTables()
+    {
+        /** ShortUrl */
         $this->call(ShortUrlWhitelistTableSeeder::class);
         $this->call(ShortUrlTableSeeder::class);
-        $this->call(AdminTableSeeder::class);
-        $this->call(GroupTableSeeder::class);
-        $this->call(StatsTableSeeder::class);
+
+        /** Stats */
+        $this->call(StatTableSeeder::class);
+
+        /** Ships */
+        $this->call(ProductionStatusTableSeeder::class);
+
         if (App::environment() === 'local') {
             $this->call(NotificationTableSeeder::class);
         }
