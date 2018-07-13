@@ -2,15 +2,18 @@
 
 namespace App\Jobs\StarCitizen;
 
-use App\Exceptions\InvalidDataException;
 use App\Jobs\AbstractBaseDownloadData;
+use App\Jobs\StarCitizen\Ships\ParseShipsDownload;
 use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use function GuzzleHttp\json_decode;
+use function GuzzleHttp\json_encode;
 
 /**
  * Class DownloadShips
@@ -31,7 +34,10 @@ class DownloadShips extends AbstractBaseDownloadData implements ShouldQueue
      */
     public function handle()
     {
+        $timestamp = now()->format("YYYY-MM-DD");
+        $fileName = "shipmatrix_{$timestamp}.json";
         $this->initClient();
+
         try {
             $response = $this->client->get(self::SHIPS_ENDPOINT);
         } catch (ConnectException $e) {
@@ -42,7 +48,7 @@ class DownloadShips extends AbstractBaseDownloadData implements ShouldQueue
 
         try {
             $response = json_decode($response->getBody()->getContents(), true);
-        } catch (InvalidDataException $e) {
+        } catch (InvalidArgumentException $e) {
             app('Log')::error('Ship Matrix data is not valid json');
 
             return;
@@ -54,13 +60,8 @@ class DownloadShips extends AbstractBaseDownloadData implements ShouldQueue
             return;
         }
 
-        $this->processShips($response);
-    }
+        Storage::disk('ships')->put($fileName, json_encode($response['data']));
 
-    private function processShips(array $ships)
-    {
-        foreach ($ships as $ship) {
-
-        }
+        dispatch(new ParseShipsDownload($fileName));
     }
 }

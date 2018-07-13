@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e0c942420c2bd0be574a9d0c2d6e091d",
+    "content-hash": "0b49481d19072b0eff251024003c07c5",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1103,6 +1103,52 @@
             "time": "2017-06-12T11:04:56+00:00"
         },
         {
+            "name": "maxakawizard/json-collection-parser",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MAXakaWIZARD/JsonCollectionParser.git",
+                "reference": "5138540970090e654f2c15edc9d54bd07f14eff7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MAXakaWIZARD/JsonCollectionParser/zipball/5138540970090e654f2c15edc9d54bd07f14eff7",
+                "reference": "5138540970090e654f2c15edc9d54bd07f14eff7",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.6 | ^7.0",
+                "salsify/json-streaming-parser": "~6.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~5.0",
+                "satooshi/php-coveralls": "~1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JsonCollectionParser\\": "src/",
+                    "JsonCollectionParser\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Max Grigorian",
+                    "email": "maxakawizard@gmail.com"
+                }
+            ],
+            "description": "Streaming parser for large JSON files containing array of objects",
+            "homepage": "https://github.com/MAXakaWIZARD/JsonCollectionParser",
+            "keywords": [
+                "json"
+            ],
+            "time": "2018-06-19T14:39:07+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "1.23.0",
             "source": {
@@ -1718,6 +1764,116 @@
                 "uuid"
             ],
             "time": "2018-01-20T00:28:24+00:00"
+        },
+        {
+            "name": "rodenastyle/stream-parser",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Rodenastyle/stream-parser.git",
+                "reference": "9ca869edc07b56ab2d806291a6d8011961c5f5a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Rodenastyle/stream-parser/zipball/9ca869edc07b56ab2d806291a6d8011961c5f5a1",
+                "reference": "9ca869edc07b56ab2d806291a6d8011961c5f5a1",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "5.5.*|5.6.*",
+                "maxakawizard/json-collection-parser": "^1.1",
+                "php": "^7.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.9.9",
+                "phpunit/phpunit": "^6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Rodenastyle\\StreamParser\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sergio Ródenas",
+                    "homepage": "https://rodenastyle.com",
+                    "role": "developer"
+                }
+            ],
+            "description": "PHP Multiformat Streaming Parser",
+            "keywords": [
+                "PHP7",
+                "csv",
+                "json",
+                "laravel",
+                "parser",
+                "pull",
+                "stream",
+                "xml"
+            ],
+            "time": "2018-06-03T18:44:49+00:00"
+        },
+        {
+            "name": "salsify/json-streaming-parser",
+            "version": "v6.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/salsify/jsonstreamingparser.git",
+                "reference": "0b6403c8a2b1fc4c5af77b5c0174c11bd958a9d2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/salsify/jsonstreamingparser/zipball/0b6403c8a2b1fc4c5af77b5c0174c11bd958a9d2",
+                "reference": "0b6403c8a2b1fc4c5af77b5c0174c11bd958a9d2",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^5.4 | ^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JsonStreamingParser\\": "src",
+                    "JsonStreamingParser\\Test\\": "tests"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maxim Gnatenko",
+                    "email": "mgnatenko@gmail.com"
+                },
+                {
+                    "name": "Rob Gonzalez",
+                    "email": "rob@salsify.com",
+                    "homepage": "http://salsify.com/"
+                },
+                {
+                    "name": "Max Grigorian",
+                    "email": "maxakawizard@gmail.com",
+                    "homepage": "http://wizardcat.com/"
+                }
+            ],
+            "description": "A streaming parser for JSON in PHP.",
+            "homepage": "https://github.com/salsify/jsonstreamingparser",
+            "keywords": [
+                "json",
+                "parser",
+                "streaming"
+            ],
+            "time": "2017-09-02T14:02:01+00:00"
         },
         {
             "name": "spatie/fractalistic",
