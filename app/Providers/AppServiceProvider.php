@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use FilesystemIterator;
 use Hashids\Hashids;
 use Illuminate\Support\ServiceProvider;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Class AppServiceProvider
@@ -17,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->loadMigrations();
     }
 
     /**
@@ -77,5 +81,23 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface::class,
             \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository::class
         );
+    }
+
+    /**
+     * Loads migrations in Sub-folders
+     */
+    private function loadMigrations()
+    {
+        $dirs = [];
+        $directoryIterator = new RecursiveDirectoryIterator(database_path('migrations'), FilesystemIterator::SKIP_DOTS);
+        $iteratorIterator = new RecursiveIteratorIterator($directoryIterator, RecursiveIteratorIterator::SELF_FIRST);
+
+        foreach ($iteratorIterator as $filename) {
+            if ($filename->isDir()) {
+                $dirs[] = $filename;
+            }
+        }
+
+        $this->loadMigrationsFrom($dirs);
     }
 }
