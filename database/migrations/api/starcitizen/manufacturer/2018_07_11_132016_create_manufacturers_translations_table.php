@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVehicleProductionStatusTranslationsTable extends Migration
+class CreateManufacturersTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,16 +14,17 @@ class CreateVehicleProductionStatusTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'vehicle_production_status_translations',
+            'manufacturers_translations',
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
-                $table->unsignedInteger('production_status_id');
-                $table->string('status');
+                $table->unsignedInteger('manufacturer_id');
+                $table->string('known_for');
+                $table->text('description');
                 $table->timestamps();
 
-                $table->primary(['language_id', 'production_status_id']);
+                $table->primary(['language_id', 'manufacturer_id']);
                 $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
-                $table->foreign('production_status_id')->references('id')->on('production_status')->onDelete('cascade');
+                $table->foreign('manufacturer_id')->references('id')->on('manufacturers')->onDelete('cascade');
             }
         );
     }
@@ -35,6 +36,6 @@ class CreateVehicleProductionStatusTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vehicle_production_status_translations');
+        Schema::dropIfExists('manufacturers_translations');
     }
 }

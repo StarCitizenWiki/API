@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVehicleSizeTranslationsTable extends Migration
+class CreateVehicleFociTranslationTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,16 +14,16 @@ class CreateVehicleSizeTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'vehicle_size_translations',
+            'vehicle_foci_translation',
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
-                $table->unsignedInteger('vehicle_size_id');
-                $table->string('size');
+                $table->unsignedInteger('vehicle_focus_id');
+                $table->string('focus');
                 $table->timestamps();
 
-                $table->primary(['language_id', 'vehicle_size_id']);
+                $table->primary(['language_id', 'vehicle_focus_id']);
                 $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
-                $table->foreign('vehicle_size_id')->references('id')->on('vehicle_size')->onDelete('cascade');
+                $table->foreign('vehicle_focus_id')->references('id')->on('vehicle_foci')->onDelete('cascade');
             }
         );
     }
@@ -35,6 +35,6 @@ class CreateVehicleSizeTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vehicle_size_translations');
+        Schema::dropIfExists('vehicle_foci_translation');
     }
 }

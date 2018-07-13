@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Jumppoint extends Model
 {
-
     protected $fillable = [
         'exclude',
         'cig_id',

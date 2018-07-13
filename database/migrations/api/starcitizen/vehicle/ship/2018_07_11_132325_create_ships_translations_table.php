@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateShipTranslationsTable extends Migration
+class CreateShipsTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateShipTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'ship_translations',
+            'ships_translations',
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('ship_id');
@@ -36,6 +36,6 @@ class CreateShipTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ship_translations');
+        Schema::dropIfExists('ships_translations');
     }
 }
