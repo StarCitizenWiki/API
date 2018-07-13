@@ -13,14 +13,14 @@ class CreateShipFocusTable extends Migration
      */
     public function up()
     {
-        Schema::table(
+        Schema::create(
             'ship_focus',
             function (Blueprint $table) {
                 $table->unsignedInteger('ship_id');
                 $table->unsignedInteger('vehicle_focus_id');
                 $table->timestamps();
 
-                $table->primary(['ship_id', 'focus_id']);
+                $table->primary(['ship_id', 'vehicle_focus_id']);
                 $table->foreign('ship_id')->references('id')->on('ships')->onDelete('cascade');
                 $table->foreign('vehicle_focus_id')->references('id')->on('vehicle_foci')->onDelete('cascade');
             }

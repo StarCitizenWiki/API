@@ -21,7 +21,7 @@ class CreateProductionStatusesTranslationsTable extends Migration
                 $table->string('status');
                 $table->timestamps();
 
-                $table->primary(['language_id', 'vehicle_production_status_id']);
+                $table->primary(['language_id', 'production_status_id']);
                 $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
                 $table->foreign('production_status_id')->references('id')->on('production_statuses')->onDelete('cascade');
             }
