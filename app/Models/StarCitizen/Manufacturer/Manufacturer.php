@@ -9,6 +9,12 @@ class Manufacturer extends Model
 {
     use HasTranslations;
 
+    protected $fillable = [
+        'cig_id',
+        'name',
+        'name_short',
+    ];
+
     protected $with = [
         'manufacturers_translations',
     ];

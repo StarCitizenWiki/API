@@ -17,28 +17,37 @@ class CreateShipsTable extends Migration
             'ships',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->bigInteger('cig_id');
+                $table->unsignedInteger('cig_id');
                 $table->string('name');
-                $table->integer('production_status_id');
+                $table->unsignedInteger('manufacturer_id');
+                $table->unsignedInteger('production_status_id');
+                $table->unsignedInteger('vehicle_size_id');
+                $table->unsignedInteger('vehicle_type_id');
                 $table->float('length');
                 $table->float('beam');
                 $table->float('height');
-                $table->integer('size_id');
                 $table->string('mass');
-                $table->integer('type_id');
                 $table->string('cargo_capacity')->nullable();
-                $table->integer('min_crew');
-                $table->integer('max_crew');
-                $table->integer('scm_speed');
-                $table->integer('afterburner_speed');
+                $table->unsignedInteger('min_crew');
+                $table->unsignedInteger('max_crew');
+                $table->unsignedInteger('scm_speed');
+                $table->float('afterburner_speed');
                 $table->float('pitch_max');
                 $table->float('yaw_max');
                 $table->float('roll_max');
                 $table->float('xaxis_acceleration');
                 $table->float('yaxis_acceleration');
                 $table->float('zaxis_acceleration');
-                $table->integer('manufacturer_id');
+                $table->unsignedInteger('chassis_id');
                 $table->timestamps();
+
+                $table->unique('cig_id');
+                $table->foreign('manufacturer_id')->references('cig_id')->on('manufacturers')->onDelete('cascade');
+                $table->foreign('production_status_id')->references('id')->on('production_statuses')->onDelete(
+                    'cascade'
+                );
+                $table->foreign('vehicle_size_id')->references('id')->on('vehicle_sizes')->onDelete('cascade');
+                $table->foreign('vehicle_type_id')->references('id')->on('vehicle_types')->onDelete('cascade');
             }
         );
     }

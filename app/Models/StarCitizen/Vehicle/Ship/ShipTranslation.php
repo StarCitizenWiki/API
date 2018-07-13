@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShipTranslation extends Model
 {
+    protected $fillable = [
+        'language_id',
+        'ship_id',
+        'description',
+        'production_note',
+    ];
+
     public function ship()
     {
         return $this->belongsTo('App\Models\StarCitizen\Vehicle\Ship\Ship');

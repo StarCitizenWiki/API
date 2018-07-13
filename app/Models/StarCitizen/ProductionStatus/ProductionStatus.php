@@ -1,16 +1,16 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\StarCitizen\Vehicle;
+namespace App\Models\StarCitizen\ProductionStatus;
 
 use App\Traits\HasModelTranslationsTrait as HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
-class VehicleProductionStatus extends Model
+class ProductionStatus extends Model
 {
     use HasTranslations;
 
     protected $with = [
-        'vehicle_production_statuses_translations',
+        'production_statuses_translations',
     ];
 
     public function ships()

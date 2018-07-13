@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class VehicleFocusTranslation extends Model
 {
+    protected $fillable = [
+        'language_id',
+        'vehicle_focus_id',
+        'focus',
+    ];
+
     public function focus()
     {
         return $this->belongsTo('App\Models\StarCitizen\Vehicle\Focus\VehicleFocus');

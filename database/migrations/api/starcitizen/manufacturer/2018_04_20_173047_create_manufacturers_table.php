@@ -21,6 +21,8 @@ class CreateManufacturersTable extends Migration
                 $table->string('name');
                 $table->string('name_short');
                 $table->timestamps();
+
+                $table->unique('cig_id');
             }
         );
     }
