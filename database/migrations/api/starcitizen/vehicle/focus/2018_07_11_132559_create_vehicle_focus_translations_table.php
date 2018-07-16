@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVehicleFociTranslationTable extends Migration
+class CreateVehicleFocusTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateVehicleFociTranslationTable extends Migration
     public function up()
     {
         Schema::create(
-            'vehicle_foci_translation',
+            'vehicle_focus_translations',
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('vehicle_focus_id');
@@ -35,6 +35,6 @@ class CreateVehicleFociTranslationTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vehicle_foci_translation');
+        Schema::dropIfExists('vehicle_focus_translations');
     }
 }

@@ -80,9 +80,9 @@ return [
             'root' => storage_path('app/api/starmap'),
         ],
 
-        'ships' => [
+        'vehicles' => [
             'driver' => 'local',
-            'root' => storage_path('app/api/ships'),
+            'root' => storage_path('app/api/vehicles'),
         ],
 
     ],

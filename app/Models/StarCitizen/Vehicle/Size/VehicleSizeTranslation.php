@@ -4,6 +4,9 @@ namespace App\Models\StarCitizen\Vehicle\Size;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Vehicle Size Translations Model
+ */
 class VehicleSizeTranslation extends Model
 {
     protected $fillable = [
@@ -12,8 +15,11 @@ class VehicleSizeTranslation extends Model
         'size',
     ];
 
-    public function size()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function vehicleSize()
     {
-        return $this->belongsTo('App\Models\StarCitizen\Vehicle\Size\Size');
+        return $this->belongsTo('App\Models\StarCitizen\Vehicle\Size\VehicleSize');
     }
 }

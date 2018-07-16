@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateVehicleTypesTranslationsTable extends Migration
+class CreateVehicleTypeTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateVehicleTypesTranslationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('vehicle_types_translations', function (Blueprint $table) {
+        Schema::create('vehicle_type_translations', function (Blueprint $table) {
             $table->unsignedInteger('language_id');
             $table->unsignedInteger('vehicle_type_id');
             $table->string('type');
@@ -32,6 +32,6 @@ class CreateVehicleTypesTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vehicle_types_translations');
+        Schema::dropIfExists('vehicle_type_translations');
     }
 }

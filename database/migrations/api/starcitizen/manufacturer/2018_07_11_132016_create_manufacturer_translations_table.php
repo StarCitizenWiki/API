@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateManufacturersTranslationsTable extends Migration
+class CreateManufacturerTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +14,12 @@ class CreateManufacturersTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'manufacturers_translations',
+            'manufacturer_translations',
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('manufacturer_id');
-                $table->string('known_for');
-                $table->text('description');
+                $table->string('known_for')->nullable();
+                $table->text('description')->nullable();
                 $table->timestamps();
 
                 $table->primary(['language_id', 'manufacturer_id']);
@@ -36,6 +36,6 @@ class CreateManufacturersTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('manufacturers_translations');
+        Schema::dropIfExists('manufacturer_translations');
     }
 }

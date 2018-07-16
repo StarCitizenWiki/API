@@ -2,16 +2,13 @@
 
 namespace App\Models\StarCitizen\Vehicle\Ship;
 
-use App\Traits\HasModelTranslationsTrait as HasTranslations;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\StarCitizen\Vehicle\AbstractVehicle as Vehicle;
 
 /**
- * Class Ship
+ * Ship Model
  */
-class Ship extends Model
+class Ship extends Vehicle
 {
-    use HasTranslations;
-
     protected $fillable = [
         'cig_id',
         'name',
@@ -37,42 +34,11 @@ class Ship extends Model
         'chassis_id',
     ];
 
-    protected $with = [
-        'manufacturer',
-        'vehicle_focus',
-        'production_status',
-        'vehicle_size',
-        'vehicle_type',
-        'ships_translations',
-    ];
-
-    public function foci()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function translations()
     {
-        return $this->belongsToMany(
-            'App\Models\StarCitizen\Vehicle\Focus\VehicleFocus',
-            'ship_focus',
-            'ship_id',
-            'vehicle_focus_id'
-        );
-    }
-
-    public function manufacturer()
-    {
-        return $this->hasOne('App\Models\StarCitizen\Manufacturer\Manufacturer');
-    }
-
-    public function productionStatus()
-    {
-        return $this->hasOne('App\Models\StarCitizen\ProductionStatus\ProductionStatus');
-    }
-
-    public function type()
-    {
-        return $this->hasOne('App\Models\StarCitizen\Vehicle\Type\VehicleType');
-    }
-
-    public function size()
-    {
-        return $this->hasOne('App\Models\StarCitizen\Vehicle\VehicleSize');
+        return $this->hasMany('App\Models\StarCitizen\Vehicle\Ship\ShipTranslation');
     }
 }

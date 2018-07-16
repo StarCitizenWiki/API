@@ -4,6 +4,9 @@ namespace App\Models\StarCitizen\ProductionStatus;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Production Status Translations
+ */
 class ProductionStatusTranslation extends Model
 {
     protected $fillable = [
@@ -12,6 +15,9 @@ class ProductionStatusTranslation extends Model
         'status',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function productionStatus()
     {
         return $this->belongsTo('App\Models\StarCitizen\ProductionStatus\ProductionStatus');

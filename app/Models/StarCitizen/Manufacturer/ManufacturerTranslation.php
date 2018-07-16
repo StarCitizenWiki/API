@@ -4,6 +4,9 @@ namespace App\Models\StarCitizen\Manufacturer;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Manufacturer Translations
+ */
 class ManufacturerTranslation extends Model
 {
     protected $fillable = [
@@ -13,6 +16,9 @@ class ManufacturerTranslation extends Model
         'description',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function manufacturer()
     {
         return $this->belongsTo('App\Models\StarCitizen\Manufacturer\Manufacturer');

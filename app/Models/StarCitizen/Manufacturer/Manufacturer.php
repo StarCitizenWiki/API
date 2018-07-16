@@ -1,13 +1,16 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\StarCitizen;
+namespace App\Models\StarCitizen\Manufacturer;
 
-use App\Traits\HasModelTranslationsTrait as HasTranslations;
+use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Manufacturer Model
+ */
 class Manufacturer extends Model
 {
-    use HasTranslations;
+    use VehicleRelations;
 
     protected $fillable = [
         'cig_id',
@@ -16,6 +19,14 @@ class Manufacturer extends Model
     ];
 
     protected $with = [
-        'manufacturers_translations',
+        'translations',
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function translations()
+    {
+        return $this->hasMany('App\Models\StarCitizen\Manufacturer\ManufacturerTranslation');
+    }
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class LanguageTableSeeder extends Seeder
+class ProductionStatusTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -13,18 +13,18 @@ class LanguageTableSeeder extends Seeder
     {
         $now = \Carbon\Carbon::now();
 
-        DB::table('languages')->insert(
+        DB::table('production_statuses')->insert(
             [
                 'id' => 1,
-                'locale_code' => 'en_EN',
                 'created_at' => $now,
                 'updated_at' => $now,
             ]
         );
-        DB::table('languages')->insert(
+        DB::table('production_status_translations')->insert(
             [
-                'id' => 2,
-                'locale_code' => 'de_DE',
+                'language_id' => 1,
+                'production_status_id' => 1,
+                'status' => 'undefined',
                 'created_at' => $now,
                 'updated_at' => $now,
             ]

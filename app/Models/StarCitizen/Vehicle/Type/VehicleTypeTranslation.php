@@ -4,6 +4,9 @@ namespace App\Models\StarCitizen\Vehicle\Type;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Vehicle Type Translations Model
+ */
 class VehicleTypeTranslation extends Model
 {
     protected $fillable = [
@@ -12,8 +15,11 @@ class VehicleTypeTranslation extends Model
         'type',
     ];
 
-    public function type()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function vehicleType()
     {
-        return $this->belongsTo('App\Models\StarCitizen\Vehicle\Type\Type');
+        return $this->belongsTo('App\Models\StarCitizen\Vehicle\Type\VehicleType');
     }
 }

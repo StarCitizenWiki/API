@@ -2,19 +2,25 @@
 
 namespace App\Models\StarCitizen\ProductionStatus;
 
-use App\Traits\HasModelTranslationsTrait as HasTranslations;
+use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Production Status Model
+ */
 class ProductionStatus extends Model
 {
-    use HasTranslations;
+    use VehicleRelations;
 
     protected $with = [
-        'production_statuses_translations',
+        'translations',
     ];
 
-    public function ships()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function translations()
     {
-        return $this->hasMany('App\Models\StarCitizen\Vehicle\Ship\Ship');
+        return $this->hasMany('App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation');
     }
 }

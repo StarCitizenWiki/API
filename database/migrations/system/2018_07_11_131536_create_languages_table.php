@@ -17,7 +17,7 @@ class CreateLanguagesTable extends Migration
             'languages',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('locale_code', 5);
+                $table->char('locale_code', 5);
                 $table->timestamps();
             }
         );

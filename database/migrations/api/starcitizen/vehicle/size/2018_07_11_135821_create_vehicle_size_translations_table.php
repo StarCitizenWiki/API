@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVehicleSizesTranslationsTable extends Migration
+class CreateVehicleSizeTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateVehicleSizesTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'vehicle_sizes_translations',
+            'vehicle_size_translations',
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('vehicle_size_id');
@@ -35,6 +35,6 @@ class CreateVehicleSizesTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vehicle_sizes_translations');
+        Schema::dropIfExists('vehicle_size_translations');
     }
 }

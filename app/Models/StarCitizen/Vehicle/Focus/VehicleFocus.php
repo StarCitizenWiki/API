@@ -1,25 +1,26 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\StarCitizen\Vehicle;
+namespace App\Models\StarCitizen\Vehicle\Focus;
 
-use App\Traits\HasModelTranslationsTrait as HasTranslations;
+use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Vehicle Focus Model
+ */
 class VehicleFocus extends Model
 {
-    use HasTranslations;
+    use VehicleRelations;
 
     protected $with = [
-        'vehicle_foci_translations',
+        'translations',
     ];
 
-    public function ships()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function translations()
     {
-        return $this->belongsToMany(
-            'App\Models\StarCitizen\Vehicle\Ship\Ship',
-            'ship_focus',
-            'vehicle_focus_id',
-            'ship_id'
-        );
+        return $this->hasMany('App\Models\StarCitizen\Vehicle\Focus\VehicleFocusTranslation');
     }
 }

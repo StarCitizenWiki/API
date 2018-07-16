@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateShipsTable extends Migration
+class CreateGroundVehiclesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateShipsTable extends Migration
     public function up()
     {
         Schema::create(
-            'ships',
+            'ground_vehicles',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->unsignedInteger('cig_id');
@@ -32,12 +32,6 @@ class CreateShipsTable extends Migration
                 $table->unsignedInteger('max_crew')->nullable();
                 $table->unsignedInteger('scm_speed')->nullable();
                 $table->unsignedInteger('afterburner_speed')->nullable();
-                $table->float('pitch_max')->nullable();
-                $table->float('yaw_max')->nullable();
-                $table->float('roll_max')->nullable();
-                $table->float('x_axis_acceleration')->nullable();
-                $table->float('y_axis_acceleration')->nullable();
-                $table->float('z_axis_acceleration')->nullable();
                 $table->unsignedInteger('chassis_id');
                 $table->timestamps();
 
@@ -59,6 +53,6 @@ class CreateShipsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ships');
+        Schema::dropIfExists('ground_vehicles');
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateShipFocusTable extends Migration
+class CreateGroundVehicleVehicleFocusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,14 +14,13 @@ class CreateShipFocusTable extends Migration
     public function up()
     {
         Schema::create(
-            'ship_focus',
+            'ground_vehicle_vehicle_focus',
             function (Blueprint $table) {
-                $table->unsignedInteger('ship_id');
+                $table->unsignedInteger('ground_vehicle_id');
                 $table->unsignedInteger('vehicle_focus_id');
-                $table->timestamps();
 
-                $table->primary(['ship_id', 'vehicle_focus_id']);
-                $table->foreign('ship_id')->references('id')->on('ships')->onDelete('cascade');
+                $table->primary(['ground_vehicle_id', 'vehicle_focus_id']);
+                $table->foreign('ground_vehicle_id')->references('id')->on('ground_vehicles')->onDelete('cascade');
                 $table->foreign('vehicle_focus_id')->references('id')->on('vehicle_foci')->onDelete('cascade');
             }
         );
@@ -34,6 +33,6 @@ class CreateShipFocusTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ship_focus');
+        Schema::dropIfExists('ground_vehicle_vehicle_focus');
     }
 }

@@ -1,20 +1,26 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\StarCitizen\Vehicle;
+namespace App\Models\StarCitizen\Vehicle\Size;
 
-use App\Traits\HasModelTranslationsTrait as HasTranslations;
+use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Vehicle Size Model
+ */
 class VehicleSize extends Model
 {
-    use HasTranslations;
+    use VehicleRelations;
 
     protected $with = [
-        'vehicle_size_translations',
+        'translations',
     ];
 
-    public function ships()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function translations()
     {
-        return $this->hasMany('App\Models\StarCitizen\Vehicle\Ship\Ship');
+        return $this->hasMany('App\Models\StarCitizen\Vehicle\Size\VehicleSizeTranslation');
     }
 }
