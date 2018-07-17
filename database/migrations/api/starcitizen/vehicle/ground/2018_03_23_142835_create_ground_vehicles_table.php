@@ -21,6 +21,7 @@ class CreateGroundVehiclesTable extends Migration
                 $table->string('name');
                 $table->unsignedInteger('manufacturer_id');
                 $table->unsignedInteger('production_status_id');
+                $table->unsignedInteger('production_note_id')->nullable();
                 $table->unsignedInteger('vehicle_size_id');
                 $table->unsignedInteger('vehicle_type_id');
                 $table->float('length')->nullable();
@@ -38,6 +39,9 @@ class CreateGroundVehiclesTable extends Migration
                 $table->unique('cig_id');
                 $table->foreign('manufacturer_id')->references('cig_id')->on('manufacturers')->onDelete('cascade');
                 $table->foreign('production_status_id')->references('id')->on('production_statuses')->onDelete(
+                    'cascade'
+                );
+                $table->foreign('production_note_id')->references('id')->on('production_notes')->onDelete(
                     'cascade'
                 );
                 $table->foreign('vehicle_size_id')->references('id')->on('vehicle_sizes')->onDelete('cascade');

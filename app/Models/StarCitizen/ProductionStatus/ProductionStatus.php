@@ -16,6 +16,8 @@ class ProductionStatus extends Model
         'translations',
     ];
 
+    public $timestamps = false;
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

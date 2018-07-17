@@ -15,7 +15,6 @@ class CreateVehicleTypesTable extends Migration
     {
         Schema::create('vehicle_types', function (Blueprint $table) {
             $table->increments('id');
-            $table->timestamps();
         });
     }
 

@@ -3,6 +3,8 @@
 namespace App\Jobs\StarCitizen\Vehicle\Parser;
 
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation;
 use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation;
 use App\Models\StarCitizen\Vehicle\Focus\VehicleFocus;
@@ -31,10 +33,11 @@ abstract class AbstractParseVehicle implements ShouldQueue
 
     protected const LANGUAGE_EN = 1;
     protected const PRODUCTION_STATUS = 'production_status';
-    protected const VEHICLE_TYPE = 'type';
-    protected const VEHICLE_SIZE = 'size';
+    protected const PRODUCTION_NOTE = 'production_note';
 
     protected const VEHICLE_NAME = 'name';
+    protected const VEHICLE_TYPE = 'type';
+    protected const VEHICLE_SIZE = 'size';
     protected const VEHICLE_ID = 'id';
     protected const VEHICLE_LENGTH = 'length';
     protected const VEHICLE_BEAM = 'beam';
@@ -47,7 +50,6 @@ abstract class AbstractParseVehicle implements ShouldQueue
     protected const VEHICLE_AFTERBURNER_SPEED = 'afterburner_speed';
     protected const VEHICLE_CHASSIS_ID = 'chassis_id';
     protected const VEHICLE_DESCRIPTION = 'description';
-    protected const VEHICLE_PRODUCTION_NOTE = 'production_note';
 
     protected const MANUFACTURER = 'manufacturer';
     protected const MANUFACTURER_ID = 'manufacturer_id';
@@ -98,36 +100,6 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\Manufacturer\Manufacturer
-     */
-    protected function createNewManufacturer(): Manufacturer
-    {
-        app('Log')::debug('Creating new Manufacturer');
-
-        $manufacturerData = $this->rawData->get(self::MANUFACTURER);
-        /** @var \App\Models\StarCitizen\Manufacturer\Manufacturer $manufacturer */
-        $manufacturer = Manufacturer::create(
-            [
-                'cig_id' => $this->rawData->get(self::MANUFACTURER_ID),
-                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
-                'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
-            ]
-        );
-
-        $manufacturer->translations()->create(
-            [
-                'language_id' => self::LANGUAGE_EN,
-                'known_for' => $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR),
-                'description' => $manufacturerData->get(self::MANUFACTURER_DESCRIPTION),
-            ]
-        );
-
-        app('Log')::debug('Manufacturer created');
-
-        return $manufacturer;
-    }
-
-    /**
      * @return \App\Models\StarCitizen\ProductionStatus\ProductionStatus
      */
     protected function getProductionStatus(): ProductionStatus
@@ -157,23 +129,32 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\ProductionStatus\ProductionStatus
+     * @return \App\Models\StarCitizen\ProductionNote\ProductionNote
      */
-    protected function createNewProductionStatus(): ProductionStatus
+    protected function getProductionNote(): ?ProductionNote
     {
-        app('Log')::debug('Creating new Production Status');
+        app('Log')::debug('Getting Production Note');
 
-        $productionStatus = ProductionStatus::create();
-        $productionStatus->translations()->create(
-            [
-                'language_id' => self::LANGUAGE_EN,
-                'status' => $this->rawData->get(self::PRODUCTION_STATUS),
-            ]
-        );
+        $note = $this->rawData->get(self::PRODUCTION_NOTE);
+        if (null === $note) {
+            app('Log')::debug('Production Note not set in Matrix');
 
-        app('Log')::debug('Production Status created');
+            return null;
+        }
 
-        return $productionStatus;
+        try {
+            /** @var \App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation $productionNoteTranslation */
+            $note = ProductionNoteTranslation::where(
+                'production_note',
+                $note
+            )->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            app('Log')::debug('Production Note not found in DB');
+
+            return $this->createNewProductionNote();
+        }
+
+        return $note->productionNote;
     }
 
     /**
@@ -206,26 +187,6 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\Vehicle\Size\VehicleSize
-     */
-    protected function createNewVehicleSize(): VehicleSize
-    {
-        app('Log')::debug('Creating new Vehicle Size');
-
-        $vehicleSize = VehicleSize::create();
-        $vehicleSize->translations()->create(
-            [
-                'language_id' => self::LANGUAGE_EN,
-                'size' => $this->rawData->get(self::VEHICLE_SIZE),
-            ]
-        );
-
-        app('Log')::debug('Vehicle Size created');
-
-        return $vehicleSize;
-    }
-
-    /**
      * @return \App\Models\StarCitizen\Vehicle\Type\VehicleType
      */
     protected function getVehicleType(): VehicleType
@@ -245,26 +206,6 @@ abstract class AbstractParseVehicle implements ShouldQueue
         }
 
         return $typeTranslation->vehicleType;
-    }
-
-    /**
-     * @return \App\Models\StarCitizen\Vehicle\Type\VehicleType
-     */
-    protected function createNewVehicleType(): VehicleType
-    {
-        app('Log')::debug('Creating new Vehicle Type');
-
-        $vehicleType = VehicleType::create();
-        $vehicleType->translations()->create(
-            [
-                'language_id' => self::LANGUAGE_EN,
-                'type' => $this->rawData->get(self::VEHICLE_TYPE),
-            ]
-        );
-
-        app('Log')::debug('Vehicle Type created');
-
-        return $vehicleType;
     }
 
     /**
@@ -305,13 +246,125 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
+     * @return \App\Models\StarCitizen\ProductionStatus\ProductionStatus
+     */
+    private function createNewProductionStatus(): ProductionStatus
+    {
+        app('Log')::debug('Creating new Production Status');
+
+        /** @var \App\Models\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
+        $productionStatus = ProductionStatus::create();
+        $productionStatus->translations()->create(
+            [
+                'language_id' => self::LANGUAGE_EN,
+                'status' => $this->rawData->get(self::PRODUCTION_STATUS),
+            ]
+        );
+
+        app('Log')::debug('Production Status created');
+
+        return $productionStatus;
+    }
+
+    /**
+     * @return \App\Models\StarCitizen\Manufacturer\Manufacturer
+     */
+    private function createNewManufacturer(): Manufacturer
+    {
+        app('Log')::debug('Creating new Manufacturer');
+
+        $manufacturerData = $this->rawData->get(self::MANUFACTURER);
+        /** @var \App\Models\StarCitizen\Manufacturer\Manufacturer $manufacturer */
+        $manufacturer = Manufacturer::create(
+            [
+                'cig_id' => $this->rawData->get(self::MANUFACTURER_ID),
+                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
+                'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
+            ]
+        );
+
+        $manufacturer->translations()->create(
+            [
+                'language_id' => self::LANGUAGE_EN,
+                'known_for' => $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR),
+                'description' => $manufacturerData->get(self::MANUFACTURER_DESCRIPTION),
+            ]
+        );
+
+        app('Log')::debug('Manufacturer created');
+
+        return $manufacturer;
+    }
+
+    /**
+     * @return \App\Models\StarCitizen\ProductionNote\ProductionNote
+     */
+    private function createNewProductionNote(): ProductionNote
+    {
+        app('Log')::debug('Creating new Production Note');
+
+        /** @var \App\Models\StarCitizen\ProductionNote\ProductionNote $productionNote */
+        $productionNote = ProductionNote::create();
+        $productionNote->translations()->create(
+            [
+                'language_id' => self::LANGUAGE_EN,
+                'production_note' => $this->rawData->get(self::PRODUCTION_NOTE),
+            ]
+        );
+
+        app('Log')::debug('Production Note created');
+
+        return $productionNote;
+    }
+
+    /**
+     * @return \App\Models\StarCitizen\Vehicle\Size\VehicleSize
+     */
+    private function createNewVehicleSize(): VehicleSize
+    {
+        app('Log')::debug('Creating new Vehicle Size');
+
+        $vehicleSize = VehicleSize::create();
+        $vehicleSize->translations()->create(
+            [
+                'language_id' => self::LANGUAGE_EN,
+                'size' => $this->rawData->get(self::VEHICLE_SIZE),
+            ]
+        );
+
+        app('Log')::debug('Vehicle Size created');
+
+        return $vehicleSize;
+    }
+
+    /**
+     * @return \App\Models\StarCitizen\Vehicle\Type\VehicleType
+     */
+    private function createNewVehicleType(): VehicleType
+    {
+        app('Log')::debug('Creating new Vehicle Type');
+
+        $vehicleType = VehicleType::create();
+        $vehicleType->translations()->create(
+            [
+                'language_id' => self::LANGUAGE_EN,
+                'type' => $this->rawData->get(self::VEHICLE_TYPE),
+            ]
+        );
+
+        app('Log')::debug('Vehicle Type created');
+
+        return $vehicleType;
+    }
+
+    /**
      * Creates a new Vehicle Focus
      *
      * @param string $focus English Focus Translation
      *
      * @return \App\Models\StarCitizen\Vehicle\Focus\VehicleFocus
      */
-    protected function createNewVehicleFocus(string $focus): VehicleFocus
+    private function createNewVehicleFocus(string $focus): VehicleFocus
     {
         app('Log')::debug('Creating new Vehicle Focus');
 

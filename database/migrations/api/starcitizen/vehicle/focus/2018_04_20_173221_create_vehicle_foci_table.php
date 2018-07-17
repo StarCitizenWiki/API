@@ -17,7 +17,6 @@ class CreateVehicleFociTable extends Migration
             'vehicle_foci',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->timestamps();
             }
         );
     }

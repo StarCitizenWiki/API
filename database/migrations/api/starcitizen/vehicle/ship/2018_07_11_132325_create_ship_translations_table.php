@@ -19,7 +19,6 @@ class CreateShipTranslationsTable extends Migration
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('ship_id');
                 $table->text('description');
-                $table->string('production_note')->nullable();
                 $table->timestamps();
 
                 $table->primary(['language_id', 'ship_id']);

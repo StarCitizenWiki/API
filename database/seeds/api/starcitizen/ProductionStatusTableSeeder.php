@@ -16,8 +16,6 @@ class ProductionStatusTableSeeder extends Seeder
         DB::table('production_statuses')->insert(
             [
                 'id' => 1,
-                'created_at' => $now,
-                'updated_at' => $now,
             ]
         );
         DB::table('production_status_translations')->insert(

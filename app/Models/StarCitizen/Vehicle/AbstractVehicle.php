@@ -14,6 +14,7 @@ abstract class AbstractVehicle extends Model
         'foci',
         'manufacturer',
         'productionStatus',
+        'productionNote',
         'size',
         'type',
     ];
@@ -51,6 +52,16 @@ abstract class AbstractVehicle extends Model
     public function productionStatus()
     {
         return $this->belongsTo('App\Models\StarCitizen\ProductionStatus\ProductionStatus');
+    }
+
+    /**
+     * The Vehicle Production Note
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function productionNote()
+    {
+        return $this->belongsTo('App\Models\StarCitizen\ProductionNote\ProductionNote');
     }
 
     /**

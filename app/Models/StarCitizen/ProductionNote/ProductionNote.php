@@ -1,14 +1,14 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\StarCitizen\Vehicle\Size;
+namespace App\Models\StarCitizen\ProductionNote;
 
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Vehicle Size Model
+ * Production Note Model
  */
-class VehicleSize extends Model
+class ProductionNote extends Model
 {
     use VehicleRelations;
 
@@ -23,6 +23,6 @@ class VehicleSize extends Model
      */
     public function translations()
     {
-        return $this->hasMany('App\Models\StarCitizen\Vehicle\Size\VehicleSizeTranslation');
+        return $this->hasMany('App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation');
     }
 }
