@@ -18,7 +18,7 @@ class CreateGroundVehicleTranslationsTable extends Migration
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('ground_vehicle_id');
-                $table->text('description');
+                $table->text('translation');
                 $table->timestamps();
 
                 $table->primary(['language_id', 'ground_vehicle_id']);

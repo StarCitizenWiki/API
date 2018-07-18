@@ -18,7 +18,7 @@ class CreateVehicleFocusTranslationsTable extends Migration
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('vehicle_focus_id');
-                $table->string('focus');
+                $table->string('translation');
                 $table->timestamps();
 
                 $table->primary(['language_id', 'vehicle_focus_id']);

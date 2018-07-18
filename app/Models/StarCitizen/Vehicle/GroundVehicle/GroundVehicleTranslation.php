@@ -2,18 +2,17 @@
 
 namespace App\Models\StarCitizen\Vehicle\GroundVehicle;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\AbstractTranslation as Translation;
 
 /**
  * Ground Vehicle Translation Model
  */
-class GroundVehicleTranslation extends Model
+class GroundVehicleTranslation extends Translation
 {
     protected $fillable = [
         'language_id',
         'ground_vehicle_id',
-        'description',
-        'production_note',
+        'translation',
     ];
 
     /**

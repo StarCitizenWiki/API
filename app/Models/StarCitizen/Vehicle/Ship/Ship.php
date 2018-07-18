@@ -14,6 +14,7 @@ class Ship extends Vehicle
         'name',
         'manufacturer_id',
         'production_status_id',
+        'production_note_id',
         'vehicle_size_id',
         'vehicle_type_id',
         'length',
@@ -37,7 +38,7 @@ class Ship extends Vehicle
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function translations()
+    public function description()
     {
         return $this->hasMany('App\Models\StarCitizen\Vehicle\Ship\ShipTranslation');
     }

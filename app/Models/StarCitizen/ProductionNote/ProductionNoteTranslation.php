@@ -2,17 +2,17 @@
 
 namespace App\Models\StarCitizen\ProductionNote;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\AbstractTranslation as Translation;
 
 /**
  * Production Note Translations
  */
-class ProductionNoteTranslation extends Model
+class ProductionNoteTranslation extends Translation
 {
     protected $fillable = [
         'language_id',
         'production_note_id',
-        'production_note',
+        'translation',
     ];
 
     /**

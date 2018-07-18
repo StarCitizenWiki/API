@@ -55,3 +55,13 @@
 ])
     @include('admin.menu.ships')
 @endcomponent
+
+@component('components.navs.sidebar_section', [
+    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_manufacturer',
+    'title' => __('Manufacturer'),
+])
+    @include('admin.menu.manufacturer')
+@endcomponent

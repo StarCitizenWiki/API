@@ -22,7 +22,7 @@ class ProductionStatusTableSeeder extends Seeder
             [
                 'language_id' => 1,
                 'production_status_id' => 1,
-                'status' => 'undefined',
+                'translation' => 'undefined',
                 'created_at' => $now,
                 'updated_at' => $now,
             ]

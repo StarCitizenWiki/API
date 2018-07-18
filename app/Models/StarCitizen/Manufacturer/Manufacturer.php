@@ -2,6 +2,7 @@
 
 namespace App\Models\StarCitizen\Manufacturer;
 
+use App\Traits\HasTranslationsTrait as Translations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class Manufacturer extends Model
 {
     use VehicleRelations;
+    use Translations;
 
     protected $fillable = [
         'cig_id',

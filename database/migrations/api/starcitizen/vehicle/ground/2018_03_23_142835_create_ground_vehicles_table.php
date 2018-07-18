@@ -21,7 +21,7 @@ class CreateGroundVehiclesTable extends Migration
                 $table->string('name');
                 $table->unsignedInteger('manufacturer_id');
                 $table->unsignedInteger('production_status_id');
-                $table->unsignedInteger('production_note_id')->nullable();
+                $table->unsignedInteger('production_note_id');
                 $table->unsignedInteger('vehicle_size_id');
                 $table->unsignedInteger('vehicle_type_id');
                 $table->float('length')->nullable();

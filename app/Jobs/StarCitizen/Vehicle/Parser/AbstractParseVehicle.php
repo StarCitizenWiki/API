@@ -116,7 +116,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         try {
             /** @var \App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation $productionStatusTranslation */
             $productionStatusTranslation = ProductionStatusTranslation::where(
-                'status',
+                'translation',
                 $status
             )->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -131,21 +131,21 @@ abstract class AbstractParseVehicle implements ShouldQueue
     /**
      * @return \App\Models\StarCitizen\ProductionNote\ProductionNote
      */
-    protected function getProductionNote(): ?ProductionNote
+    protected function getProductionNote(): ProductionNote
     {
         app('Log')::debug('Getting Production Note');
 
         $note = $this->rawData->get(self::PRODUCTION_NOTE);
         if (null === $note) {
-            app('Log')::debug('Production Note not set in Matrix');
+            app('Log')::debug('Production Note not set in Matrix, returning default (None)');
 
-            return null;
+            return ProductionNote::find(1);
         }
 
         try {
             /** @var \App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation $productionNoteTranslation */
-            $note = ProductionNoteTranslation::where(
-                'production_note',
+            $productionNoteTranslation = ProductionNoteTranslation::where(
+                'translation',
                 $note
             )->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -154,7 +154,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
             return $this->createNewProductionNote();
         }
 
-        return $note->productionNote;
+        return $productionNoteTranslation->productionNote;
     }
 
     /**
@@ -174,7 +174,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         try {
             /** @var \App\Models\StarCitizen\Vehicle\Size\VehicleSizeTranslation $sizeTranslation */
             $sizeTranslation = VehicleSizeTranslation::where(
-                'size',
+                'translation',
                 $size
             )->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -196,7 +196,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         try {
             /** @var \App\Models\StarCitizen\Vehicle\Type\VehicleTypeTranslation $typeTranslation */
             $typeTranslation = VehicleTypeTranslation::where(
-                'type',
+                'translation',
                 $this->rawData->get(self::VEHICLE_TYPE)
             )->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -257,7 +257,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $productionStatus->translations()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'status' => $this->rawData->get(self::PRODUCTION_STATUS),
+                'translation' => $this->rawData->get(self::PRODUCTION_STATUS),
             ]
         );
 
@@ -308,7 +308,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $productionNote->translations()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'production_note' => $this->rawData->get(self::PRODUCTION_NOTE),
+                'translation' => $this->rawData->get(self::PRODUCTION_NOTE),
             ]
         );
 
@@ -328,7 +328,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $vehicleSize->translations()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'size' => $this->rawData->get(self::VEHICLE_SIZE),
+                'translation' => $this->rawData->get(self::VEHICLE_SIZE),
             ]
         );
 
@@ -348,7 +348,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $vehicleType->translations()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'type' => $this->rawData->get(self::VEHICLE_TYPE),
+                'translation' => $this->rawData->get(self::VEHICLE_TYPE),
             ]
         );
 
@@ -373,7 +373,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $vehicleFocus->translations()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'focus' => $focus,
+                'translation' => $focus,
             ]
         );
 

@@ -2,6 +2,7 @@
 
 namespace App\Models\StarCitizen\Vehicle\Focus;
 
+use App\Traits\HasTranslationsTrait as Translations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,12 +12,12 @@ use Illuminate\Database\Eloquent\Model;
 class VehicleFocus extends Model
 {
     use VehicleRelations;
+    use Translations;
 
+    public $timestamps = false;
     protected $with = [
         'translations',
     ];
-
-    public $timestamps = false;
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

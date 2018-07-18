@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DownloadStarCitizenDBShips;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
 
 /**
- * Class ShipsController
+ * Class ManufacturerController
  */
-class ShipController extends Controller
+class ManufacturerController extends Controller
 {
     /**
      * ShipsController constructor.
@@ -29,26 +30,13 @@ class ShipController extends Controller
      *
      * @throws \App\Exceptions\WrongMethodNameException
      */
-    public function showShipsView(): View
+    public function showManufacturersView(): View
     {
         app('Log')::info(make_name_readable(__FUNCTION__));
 
-        return view('admin.ships.index')->with(
-            'ships',
-            Ship::all()
-        );
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function downloadShips(): RedirectResponse
-    {
-        $this->dispatch(new DownloadStarCitizenDBShips());
-
-        return redirect()->back()->with(
-            'success',
-            ['Ships Download Queued']
+        return view('admin.manufacturers.index')->with(
+            'manufacturers',
+            Manufacturer::all()
         );
     }
 }

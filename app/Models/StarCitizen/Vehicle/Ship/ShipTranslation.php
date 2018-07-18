@@ -2,18 +2,17 @@
 
 namespace App\Models\StarCitizen\Vehicle\Ship;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\AbstractTranslation as Translation;
 
 /**
  * Ship Translations Model
  */
-class ShipTranslation extends Model
+class ShipTranslation extends Translation
 {
     protected $fillable = [
         'language_id',
         'ship_id',
-        'description',
-        'production_note',
+        'translation',
     ];
 
     /**

@@ -2,17 +2,17 @@
 
 namespace App\Models\StarCitizen\ProductionStatus;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\AbstractTranslation as Translation;
 
 /**
  * Production Status Translations
  */
-class ProductionStatusTranslation extends Model
+class ProductionStatusTranslation extends Translation
 {
     protected $fillable = [
         'language_id',
         'production_status_id',
-        'status',
+        'translation',
     ];
 
     /**

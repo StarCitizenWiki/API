@@ -18,7 +18,7 @@ class CreateProductionStatusTranslationsTable extends Migration
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('production_status_id');
-                $table->string('status');
+                $table->string('translation');
                 $table->timestamps();
 
                 $table->primary(['language_id', 'production_status_id']);

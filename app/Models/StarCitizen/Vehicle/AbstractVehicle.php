@@ -2,6 +2,7 @@
 
 namespace App\Models\StarCitizen\Vehicle;
 
+use App\Traits\HasTranslationsTrait as Translations;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -9,8 +10,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 abstract class AbstractVehicle extends Model
 {
+    use Translations;
+
     protected $with = [
-        'translations',
+        'description',
         'foci',
         'manufacturer',
         'productionStatus',
@@ -22,7 +25,7 @@ abstract class AbstractVehicle extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    abstract public function translations();
+    abstract public function description();
 
     /**
      * The Vehicle Foci
@@ -41,7 +44,7 @@ abstract class AbstractVehicle extends Model
      */
     public function manufacturer()
     {
-        return $this->belongsTo('App\Models\StarCitizen\Manufacturer\Manufacturer');
+        return $this->belongsTo('App\Models\StarCitizen\Manufacturer\Manufacturer', 'manufacturer_id');
     }
 
     /**
@@ -51,7 +54,7 @@ abstract class AbstractVehicle extends Model
      */
     public function productionStatus()
     {
-        return $this->belongsTo('App\Models\StarCitizen\ProductionStatus\ProductionStatus');
+        return $this->belongsTo('App\Models\StarCitizen\ProductionStatus\ProductionStatus', 'production_status_id');
     }
 
     /**
@@ -61,7 +64,7 @@ abstract class AbstractVehicle extends Model
      */
     public function productionNote()
     {
-        return $this->belongsTo('App\Models\StarCitizen\ProductionNote\ProductionNote');
+        return $this->belongsTo('App\Models\StarCitizen\ProductionNote\ProductionNote', 'production_note_id');
     }
 
     /**
@@ -71,7 +74,7 @@ abstract class AbstractVehicle extends Model
      */
     public function type()
     {
-        return $this->belongsTo('App\Models\StarCitizen\Vehicle\Type\VehicleType');
+        return $this->belongsTo('App\Models\StarCitizen\Vehicle\Type\VehicleType', 'vehicle_type_id');
     }
 
     /**
@@ -81,6 +84,6 @@ abstract class AbstractVehicle extends Model
      */
     public function size()
     {
-        return $this->belongsTo('App\Models\StarCitizen\Vehicle\Size\VehicleSize');
+        return $this->belongsTo('App\Models\StarCitizen\Vehicle\Size\VehicleSize', 'vehicle_size_id');
     }
 }

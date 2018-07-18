@@ -18,7 +18,7 @@ class CreateVehicleSizeTranslationsTable extends Migration
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
                 $table->unsignedInteger('vehicle_size_id');
-                $table->string('size');
+                $table->string('translation');
                 $table->timestamps();
 
                 $table->primary(['language_id', 'vehicle_size_id']);

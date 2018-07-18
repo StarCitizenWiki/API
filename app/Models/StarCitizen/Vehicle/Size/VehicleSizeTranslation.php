@@ -2,17 +2,17 @@
 
 namespace App\Models\StarCitizen\Vehicle\Size;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\AbstractTranslation as Translation;
 
 /**
  * Vehicle Size Translations Model
  */
-class VehicleSizeTranslation extends Model
+class VehicleSizeTranslation extends Translation
 {
     protected $fillable = [
         'language_id',
         'vehicle_size_id',
-        'size',
+        'translation',
     ];
 
     /**

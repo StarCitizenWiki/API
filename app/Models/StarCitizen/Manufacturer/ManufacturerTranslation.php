@@ -2,12 +2,12 @@
 
 namespace App\Models\StarCitizen\Manufacturer;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\AbstractTranslation as Translation;
 
 /**
  * Manufacturer Translations
  */
-class ManufacturerTranslation extends Model
+class ManufacturerTranslation extends Translation
 {
     protected $fillable = [
         'language_id',

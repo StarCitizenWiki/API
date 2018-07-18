@@ -213,8 +213,15 @@ Route::group(
                 Route::group(
                     ['prefix' => 'ships'],
                     function () {
-                        Route::get('/', ['uses' => 'ShipsController@showShipsView'])->name('admin.ships.list');
-                        Route::post('/download', ['uses' => 'ShipsController@downloadShips'])->name('admin.ships.download');
+                        Route::get('/', ['uses' => 'ShipController@showShipsView'])->name('admin.ships.list');
+                        Route::post('/download', ['uses' => 'ShipController@downloadShips'])->name('admin.ships.download');
+                    }
+                );
+
+                Route::group(
+                    ['prefix' => 'manufacturer'],
+                    function () {
+                        Route::get('/', ['uses' => 'ManufacturerController@showManufacturersView'])->name('admin.manufacturers.list');
                     }
                 );
             }

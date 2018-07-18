@@ -107,6 +107,51 @@ class NotificationController extends Controller
     }
 
     /**
+     * @param array $data
+     */
+    private function processOutput(array &$data)
+    {
+        $outputs = [
+            'output_status' => false,
+            'output_mail' => false,
+            'output_index' => false,
+        ];
+
+        foreach (array_pull($data, 'output') as $type) {
+            $data['output_'.$type] = true;
+        }
+
+        $data = array_merge($outputs, $data);
+    }
+
+    /**
+     * @param array $data
+     */
+    private function processPublishedAt(array &$data)
+    {
+        if (array_key_exists('published_at', $data) && !is_null($data['published_at'])) {
+            $data['published_at'] = Carbon::parse($data['published_at'])->toDateTimeString();
+            $this->jobDelay = Carbon::parse($data['published_at']);
+        } else {
+            $data['published_at'] = Carbon::now()->toDateTimeString();
+        }
+    }
+
+    /**
+     * @param \App\Models\Notification $notification
+     */
+    private function dispatchJob(Notification $notification)
+    {
+        $job = (new SendNotificationEmail($notification));
+
+        if (!is_null($this->jobDelay)) {
+            $job->delay($this->jobDelay);
+        }
+
+        $this->dispatch($job);
+    }
+
+    /**
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Notification $notification
      *
@@ -185,42 +230,5 @@ class NotificationController extends Controller
         $notification->restore();
 
         return redirect()->route('admin.notification.list')->with($type, $message);
-    }
-
-    /**
-     * @param array $data
-     */
-    private function processPublishedAt(array &$data)
-    {
-        if (array_key_exists('published_at', $data) && !is_null($data['published_at'])) {
-            $data['published_at'] = Carbon::parse($data['published_at'])->toDateTimeString();
-            $this->jobDelay = Carbon::parse($data['published_at']);
-        } else {
-            $data['published_at'] = Carbon::now()->toDateTimeString();
-        }
-    }
-
-    /**
-     * @param array $data
-     */
-    private function processOutput(array &$data)
-    {
-        foreach (array_pull($data, 'output') as $type) {
-            $data['output_'.$type] = true;
-        }
-    }
-
-    /**
-     * @param \App\Models\Notification $notification
-     */
-    private function dispatchJob(Notification $notification)
-    {
-        $job = (new SendNotificationEmail($notification));
-
-        if (!is_null($this->jobDelay)) {
-            $job->delay($this->jobDelay);
-        }
-
-        $this->dispatch($job);
     }
 }

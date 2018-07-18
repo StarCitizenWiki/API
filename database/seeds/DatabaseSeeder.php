@@ -51,6 +51,7 @@ class DatabaseSeeder extends Seeder
 
         /** Ships */
         $this->call(ProductionStatusTableSeeder::class);
+        $this->call(ProductionNoteTableSeeder::class);
 
         if (App::environment() === 'local') {
             $this->call(NotificationTableSeeder::class);

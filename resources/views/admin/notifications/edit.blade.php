@@ -92,12 +92,12 @@
                     @endif
                 </div>
 
+                <button class="btn btn-outline-secondary" name="save">@lang('Speichern')</button>
                 @if($notification->trashed())
-                    <button class="btn btn-outline-success" name="restore">@lang('Wiederherstellen')</button>
+                    <button class="btn btn-outline-success float-right" name="restore">@lang('Wiederherstellen')</button>
                 @else
-                    <button class="btn btn-outline-danger" name="delete">@lang('Löschen')</button>
+                    <button class="btn btn-outline-danger float-right" name="delete">@lang('Löschen')</button>
                 @endif
-                <button class="btn btn-outline-secondary float-right" name="save">@lang('Speichern')</button>
             @endcomponent
         </div>
     </div>

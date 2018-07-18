@@ -58,7 +58,7 @@ class ParseGroundVehicle extends AbstractParseVehicle
                 'name' => $this->rawData->get(self::VEHICLE_NAME),
                 'manufacturer_id' => $this->getManufacturer()->id,
                 'production_status_id' => $this->getProductionStatus()->id,
-                'production_note_id' => optional($this->getProductionNote())->id,
+                'production_note_id' => $this->getProductionNote()->id,
                 'vehicle_size_id' => $this->getVehicleSize()->id,
                 'vehicle_type_id' => $this->getVehicleType()->id,
                 'length' => $this->rawData->get(self::VEHICLE_LENGTH),
@@ -74,10 +74,10 @@ class ParseGroundVehicle extends AbstractParseVehicle
             ]
         );
 
-        $groundVehicle->translations()->create(
+        $groundVehicle->description()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'description' => $this->rawData->get(self::VEHICLE_DESCRIPTION),
+                'translation' => $this->rawData->get(self::VEHICLE_DESCRIPTION),
             ]
         );
 

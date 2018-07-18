@@ -2,17 +2,17 @@
 
 namespace App\Models\StarCitizen\Vehicle\Focus;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\AbstractTranslation as Translation;
 
 /**
  * Vehicle Focus Translation Model
  */
-class VehicleFocusTranslation extends Model
+class VehicleFocusTranslation extends Translation
 {
     protected $fillable = [
         'language_id',
         'vehicle_focus_id',
-        'focus',
+        'translation',
     ];
 
     /**

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class VehicleSizeTableSeeder extends Seeder
+class ProductionNoteTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -13,16 +13,16 @@ class VehicleSizeTableSeeder extends Seeder
     {
         $now = \Carbon\Carbon::now();
 
-        DB::table('vehicle_sizes')->insert(
+        DB::table('production_notes')->insert(
             [
                 'id' => 1,
             ]
         );
-        DB::table('vehicle_size_translations')->insert(
+        DB::table('production_note_translations')->insert(
             [
                 'language_id' => 1,
-                'vehicle_size_id' => 1,
-                'translation' => 'undefined',
+                'production_note_id' => 1,
+                'translation' => 'None',
                 'created_at' => $now,
                 'updated_at' => $now,
             ]

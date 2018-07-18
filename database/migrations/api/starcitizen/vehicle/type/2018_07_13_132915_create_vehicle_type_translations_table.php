@@ -16,7 +16,7 @@ class CreateVehicleTypeTranslationsTable extends Migration
         Schema::create('vehicle_type_translations', function (Blueprint $table) {
             $table->unsignedInteger('language_id');
             $table->unsignedInteger('vehicle_type_id');
-            $table->string('type');
+            $table->string('translation');
             $table->timestamps();
 
             $table->primary(['language_id', 'vehicle_type_id']);
