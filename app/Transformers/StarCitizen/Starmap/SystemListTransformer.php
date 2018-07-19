@@ -7,7 +7,7 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Models\StarCitizen\Starmap\Starsystem;
+use App\Models\Api\StarCitizen\Starmap\Starsystem;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -23,7 +23,7 @@ class SystemListTransformer extends AbstractBaseTransformer
     /**
      * Transforms the whole ship list
      *
-     * @param \App\Models\StarCitizen\Starmap\Starsystem $system
+     * @param \App\Models\Api\StarCitizen\Starmap\Starsystem $system
      *
      * @return array
      */

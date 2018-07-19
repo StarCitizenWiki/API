@@ -9,7 +9,6 @@
 namespace App\Repositories;
 
 use Carbon\Carbon;
-use Psr\Http\Message\ResponseInterface;
 use Spatie\Fractal\Fractal;
 
 /**

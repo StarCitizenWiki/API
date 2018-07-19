@@ -21,7 +21,7 @@
         <h4 class="card-header">@lang('Admin Login')</h4>
         <div class="card-body">
 
-            @component('components.forms.form', ['action' => route('admin.login')])
+            @component('components.forms.form', ['action' => route('web.admin.auth.login')])
                 @component('components.forms.form-group', [
                     'label' => __('Benutzername'),
                     'id' => 'username',

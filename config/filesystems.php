@@ -54,22 +54,6 @@ return [
             'visibility' => 'public',
         ],
 
-        'tools' => [
-            'driver' => 'local',
-            'root' => storage_path('app/tools'),
-        ],
-
-        'tools_media' => [
-            'driver' => 'local',
-            'root' => storage_path('app/tools/media'),
-        ],
-
-        'tools_media_images' => [
-            'driver' => 'local',
-            'root' => storage_path('app/tools/media/images'),
-            'visibility' => 'public',
-        ],
-
         'api' => [
             'driver' => 'local',
             'root' => storage_path('app/api'),

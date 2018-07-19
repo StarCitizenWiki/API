@@ -13,7 +13,7 @@
         @unless(Auth::user()->isBlocked())
             @component('components.forms.form', [
                 'method' => 'DELETE',
-                'action' => route('account.delete'),
+                'action' => route('web.user.account.delete'),
             ])
                 <button class="btn btn-danger btn-block-xs-only">@lang('Löschen')</button>
             @endcomponent

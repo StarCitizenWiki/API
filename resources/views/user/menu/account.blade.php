@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('account'),
+    'route' => route('web.user.account.index'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('account.edit_form'),
+    'route' => route('web.user.account.edit'),
 ])
     <div class="row">
         <div class="col-1">
@@ -30,7 +30,7 @@
 
 @unless(Auth::user()->isBlocked())
     @component('components.navs.nav_element', [
-        'route' => route('account.delete_form'),
+        'route' => route('web.user.account.delete'),
     ])
         <div class="row">
             <div class="col-1">

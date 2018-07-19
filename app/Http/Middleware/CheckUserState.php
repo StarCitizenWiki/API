@@ -19,7 +19,7 @@ class CheckUserState
      */
     public function handle($request, Closure $next)
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\Account\User $user */
         $user = $request->user();
 
         if (!is_null($user) && $user->isBlocked()) {

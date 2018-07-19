@@ -8,7 +8,7 @@
 @section('content')
     @component('components.heading', [
         'class' => 'text-center mb-5',
-        'route' => route('auth.login'),
+        'route' => route('web.user.auth.login'),
     ])@endcomponent
 
     @if (session('status'))
@@ -22,7 +22,7 @@
     <div class="card bg-dark text-light-grey">
         <h4 class="card-header">@lang('Passwort zurücksetzen')</h4>
         <div class="card-body">
-            @component('components.forms.form', ['action' => route('password.email')])
+            @component('components.forms.form', ['action' => route('web.user.auth.password.email')])
 
                 @component('components.forms.form-group', [
                     'inputType' => 'email',

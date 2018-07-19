@@ -4,7 +4,7 @@ namespace App\Jobs\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Jobs\AbstractBaseDownloadData;
-use App\Models\StarCitizen\Stat;
+use App\Models\Api\StarCitizen\Stat;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;

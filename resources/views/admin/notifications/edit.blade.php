@@ -6,7 +6,7 @@
         <div class="card-body">
             @component('components.forms.form', [
                 'method' => 'PATCH',
-                'action' => route('admin.notification.update', $notification->getRouteKey()),
+                'action' => route('web.admin.notifications.update', $notification->getRouteKey()),
             ])
                 @component('components.forms.form-group', [
                     'inputType' => 'textarea',

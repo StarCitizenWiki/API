@@ -8,7 +8,7 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Models\StarCitizen\Stat;
+use App\Models\Api\StarCitizen\Stat;
 use App\Transformers\AbstractBaseTransformer;
 
 /**
@@ -19,7 +19,7 @@ class FleetTransformer extends AbstractBaseTransformer
     /**
      * Transforms Stats to only return the fleet
      *
-     * @param \App\Models\StarCitizen\Stat $stats Data
+     * @param \App\Models\Api\StarCitizen\Stat $stats Data
      *
      * @return array
      */

@@ -42,10 +42,6 @@ class DatabaseSeeder extends Seeder
      */
     private function seedApiTables()
     {
-        /** ShortUrl */
-        $this->call(ShortUrlWhitelistTableSeeder::class);
-        $this->call(ShortUrlTableSeeder::class);
-
         /** Stats */
         $this->call(StatTableSeeder::class);
 

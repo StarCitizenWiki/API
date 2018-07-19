@@ -2,7 +2,7 @@
 
 namespace App\Jobs\StarCitizen\Vehicle\Parser;
 
-use App\Models\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -57,7 +57,7 @@ class ParseShip extends AbstractParseVehicle
     {
         app('Log')::debug('Creating new Ship');
 
-        /** @var \App\Models\StarCitizen\Vehicle\Ship\Ship $ship */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
         $ship = Ship::create(
             [
                 'cig_id' => $this->rawData->get(self::VEHICLE_ID),
@@ -103,7 +103,7 @@ class ParseShip extends AbstractParseVehicle
     /**
      * Updates a given Ship Model
      *
-     * @param \App\Models\StarCitizen\Vehicle\Ship\Ship $ship
+     * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
      */
     private function updateShip(Ship $ship)
     {

@@ -17,7 +17,7 @@
         <h4 class="card-header">@lang('Registrieren')</h4>
         <div class="card-body">
 
-            @component('components.forms.form', ['action' => route('auth.register')])
+            @component('components.forms.form', ['action' => route('web.user.auth.register')])
                 @component('components.forms.form-group', [
                     'label' => __('Projekt / Organisation / Name'),
                     'id' => 'name',

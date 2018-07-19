@@ -14,7 +14,7 @@
                 @include('components.errors')
                 @component('components.forms.form', [
                     'class' => 'row',
-                    'action' => route('admin.notification.add'),
+                    'action' => route('web.admin.notifications.create'),
                 ])
                     <div class="col-12 col-md-7 order-2 order-lg-1">
                         @component('components.forms.form-group', [
@@ -85,7 +85,7 @@
                 @slot('title')
                     @lang('Aktive Benachrichtigungen')
                     <small class="float-right mt-1">
-                        <a href="{{ route('admin.notification.list') }}" class="text-light">
+                        <a href="{{ route('web.admin.notifications.index') }}" class="text-light">
                             <i class="far fa-external-link"></i>
                         </a>
                     </small>
@@ -100,7 +100,7 @@
                     </tr>
                     @forelse($notifications['last'] as $notification)
                         <tr>
-                            <td class="text-{{ $notification->getBootstrapClass() }}">@lang(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
+                            <td class="text-{{ $notification->getBootstrapClass() }}">@lang(\App\Models\Api\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
                             <td title="{{ $notification->content }}">
                                 {{ str_limit($notification->content, 40) }}
                             </td>
@@ -125,7 +125,7 @@
                                     @endcomponent
                                 @endif
                             </td>
-                            <td class="text-center"><a href="{{ route('admin.notification.edit_form', $notification->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
+                            <td class="text-center"><a href="{{ route('web.admin.notifications.edit', $notification->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @empty
                         <tr>
@@ -213,7 +213,7 @@
                 @slot('title')
                     @lang('Benutzer') ({{ $users['overall'] }})
                     <small class="float-right mt-1">
-                        <a href="{{ route('admin.user.list') }}" class="text-light">
+                        <a href="{{ route('web.admin.users.index') }}" class="text-light">
                             <i class="far fa-external-link"></i>
                         </a>
                     </small>
@@ -238,87 +238,15 @@
                 </table>
             @endcomponent
         </div>
-        <div class="col-12 col-md-6 col-xl-3 mb-4">
-            @component('admin.components.card', [
-                'class' => 'bg-dark text-light',
-                'icon' => 'code',
-                'contentClass' => 'bg-white text-dark p-2 table-responsive',
-            ])
-                @slot('title')
-                    @lang('Api Anfragen') ({{ $api_requests['counts']['overall'] }})
-                    <small class="float-right mt-1">
-                        <a href="{{ route('admin.request.list') }}" class="text-light">
-                            <i class="far fa-external-link"></i>
-                        </a>
-                    </small>
-                @endslot
 
-                <table class="table table-sm mb-0 border-top-0">
-                    <tr>
-                        <th>@lang('Anfragen'):</th>
-                        <th class="text-right"><i class="far fa-caret-square-right"></i></th>
-                    </tr>
-                    <tr>
-                        <td>@lang('In der letzten Stunde')</td>
-                        <td class="text-right">{{ $api_requests['counts']['last_hour'] }}</td>
-                    </tr>
-                    <tr>
-                        <td>@lang('Heute')</td>
-                        <td class="text-right">{{ $api_requests['counts']['today'] }}</td>
-                    </tr>
-                    <tr>
-                        <td>@lang('Insgesamt')</td>
-                        <td class="text-right">{{ $api_requests['counts']['overall'] }}</td>
-                    </tr>
-                </table>
-            @endcomponent
-        </div>
-        <div class="col-12 col-md-6 col-xl-3 mb-4">
-            @component('admin.components.card', [
-                'class' => 'bg-dark text-light',
-                'icon' => 'link',
-                'contentClass' => 'bg-white text-dark p-2 table-responsive',
-            ])
-                @slot('title')
-                    @lang('ShortUrls') ({{ $short_urls['counts']['overall'] }})
-                    <small class="float-right mt-1">
-                        <a href="{{ route('admin.url.list') }}" class="text-light">
-                            <i class="far fa-external-link"></i>
-                        </a>
-                    </small>
-                @endslot
-
-                <table class="table table-sm mb-0 border-top-0">
-                    <tr>
-                        <th>@lang('Erstellt'):</th>
-                        <th class="text-right"><i class="far fa-plus-square"></i></th>
-                    </tr>
-                    <tr>
-                        <td>@lang('In der letzten Stunde')</td>
-                        <td class="text-right">{{ $short_urls['counts']['last_hour'] }}</td>
-                    </tr>
-                    <tr>
-                        <td>@lang('Heute')</td>
-                        <td class="text-right">{{ $short_urls['counts']['today'] }}</td>
-                    </tr>
-                    <tr>
-                        <td>@lang('Insgesamt')</td>
-                        <td class="text-right">{{ $short_urls['counts']['overall'] }}</td>
-                    </tr>
-                </table>
-            @endcomponent
-        </div>
-    </section>
-
-    <div class="row equal-height">
-        <div class="col-12 col-xl-4 mb-4 mb-xl-0">
+        <div class="col-12 col-md-6 col-xl-6 mb-4">
             @component('admin.components.card', [
                 'class' => 'bg-dark text-light',
                 'contentClass' => 'bg-white text-dark p-2 table-responsive',
                 'title' => __('Benutzerübersicht'),
                 'icon' => 'table',
             ])
-                <table class="table table-sm mb-0 border-top-0">
+                <table class="table table-sm mb-2 border-top-0">
                     <tr>
                         <th>@lang('ID')</th>
                         <th>@lang('Name')</th>
@@ -330,71 +258,11 @@
                             <td>{{ $user->getRouteKey() }}</td>
                             <td title="{{ $user->email }}">{{ $user->name }}</td>
                             <td>{{ $user->created_at }}</td>
-                            <td class="text-center"><a href="{{ route('admin.user.edit_form', $user->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
+                            <td class="text-center"><a href="{{ route('web.admin.users.edit', $user->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
                         </tr>
                     @endforeach
                 </table>
             @endcomponent
         </div>
-        <div class="col-12 col-xl-4 mb-4 mb-xl-0">
-            @component('admin.components.card', [
-                'class' => 'bg-dark text-light',
-                'contentClass' => 'bg-white text-dark p-2 table-responsive',
-                'title' => __('Api Request Übersicht'),
-                'icon' => 'table',
-            ])
-                <table class="table table-sm mb-0 border-top-0">
-                    <tr>
-                        <th>@lang('Benutzer')</th>
-                        <th>@lang('Datum')</th>
-                        <th>@lang('Pfad')</th>
-                    </tr>
-                    @forelse($api_requests['last'] as $api_request)
-                        <tr>
-                            <td>{{ $api_request->user->name }}</td>
-                            <td title="{{ $api_request->created_at->format('d.m.Y H:i:s') }}">
-                                <span class="d-none d-xl-block">{{ $api_request->created_at->format('d.m.Y') }}</span>
-                                <span class="d-block d-xl-none">{{ $api_request->created_at->format('d.m.Y H:i:s') }}</span>
-                            </td>
-                            <td>{{ $api_request->request_uri }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3">@lang('Keine Anfragen vorhanden')</td>
-                        </tr>
-                    @endforelse
-                </table>
-            @endcomponent
-        </div>
-        <div class="col-12 col-xl-4 mb-4 mb-xl-0">
-            @component('admin.components.card', [
-                'class' => 'bg-dark text-light',
-                'contentClass' => 'bg-white text-dark p-2 table-responsive',
-                'title' => __('ShortUrl Übersicht'),
-                'icon' => 'table',
-            ])
-                <table class="table table-sm mb-0 border-top-0">
-                    <tr>
-                        <th>@lang('ID')</th>
-                        <th>@lang('Hash')</th>
-                        <th>@lang('Url')</th>
-                        <th>@lang('Erstelldatum')</th>
-                        <th></th>
-                    </tr>
-                    @foreach($short_urls['last'] as $short_url)
-                        <tr>
-                            <td>{{ $short_url->id }}</td>
-                            <td>{{ $short_url->hash }}</td>
-                            <td title="{{ $short_url->url }}"><a href="{{ $short_url->url }}" rel="noopener" target="_blank">{{ parse_url($short_url->url)['host'] }}</a></td>
-                            <td title="{{ $short_url->created_at->format('d.m.Y H:i:s') }}">
-                                <span class="d-none d-xl-block">{{ $short_url->created_at->format('d.m.Y') }}</span>
-                                <span class="d-block d-xl-none">{{ $short_url->created_at->format('d.m.Y H:i:s') }}</span>
-                            </td>
-                            <td class="text-center"><a href="{{ route('admin.url.edit_form', $short_url->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
-                        </tr>
-                    @endforeach
-                </table>
-            @endcomponent
-        </div>
-    </div>
+    </section>
 @endsection

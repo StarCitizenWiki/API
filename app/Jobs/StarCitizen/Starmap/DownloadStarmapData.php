@@ -3,8 +3,8 @@
 namespace App\Jobs\StarCitizen\Starmap;
 
 use App\Jobs\AbstractBaseDownloadData;
-use App\Models\StarCitizen\Starmap\CelestialObject;
-use App\Models\StarCitizen\Starmap\Starsystem;
+use App\Models\Api\StarCitizen\Starmap\CelestialObject;
+use App\Models\Api\StarCitizen\Starmap\Starsystem;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

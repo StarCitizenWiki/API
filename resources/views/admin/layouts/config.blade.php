@@ -27,7 +27,7 @@
 
 @section('sidebar__pre')
     @parent
-    <a href="{{ route('admin.dashboard') }}">
+    <a href="{{ route('web.admin.dashboard') }}">
         <img src="{{ asset('media/images/Star_Citizen_Wiki_Logo_White.png') }}"
              class="d-block mx-auto my-5 img-fluid"
              style="max-width: 100px;">
@@ -49,14 +49,14 @@
 
 @section('topNav__content')
     @unless(Auth::guest())
-        @component('components.navs.nav_element', ['route' => route('admin.logout')])
+        @component('components.navs.nav_element', ['route' => route('web.admin.auth.logout')])
             @slot('options')
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
             @endslot
 
             @component('components.forms.form', [
                 'id' => 'logout-form',
-                'action' => route('admin.logout'),
+                'action' => route('web.admin.auth.logout'),
                 'class' => 'd-none',
             ])
             @endcomponent

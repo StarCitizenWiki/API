@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\Notification;
+use App\Models\Api\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -21,7 +21,7 @@ class NotificationEmail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      *
-     * @param \App\Models\Notification $notification
+     * @param \App\Models\Api\Notification $notification
      */
     public function __construct(Notification $notification)
     {

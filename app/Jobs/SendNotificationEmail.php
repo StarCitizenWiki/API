@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Mail\NotificationEmail;
-use App\Models\Notification;
-use App\Models\User;
+use App\Models\Account\User;
+use App\Models\Api\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -28,7 +28,7 @@ class SendNotificationEmail implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param \App\Models\Notification $notification
+     * @param \App\Models\Api\Notification $notification
      */
     public function __construct(Notification $notification)
     {

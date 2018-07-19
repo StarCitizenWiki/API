@@ -6,7 +6,13 @@
 {{-- Page Content --}}
 @section('content')
     <div class="mb-3 mb-lg-5">
-        @include('components.notifications')
+        @foreach($notifications as $notification)
+            <div class="alert alert-{{ $notification->getBootstrapClass() }}">
+                <span class="mr-1">{{ $notification->created_at->format('d.m.Y H:i') }}</span>
+                &mdash;
+                <span class="ml-1">{{ $notification->content }}</span>
+            </div>
+        @endforeach
     </div>
 
     <div class="card">
@@ -21,7 +27,7 @@
                 <a href="ts3server://ts.star-citizen.wiki" class="text-italic">@lang('api/index.teamspeak_server')</a>
             </div>
             @if (Auth::guest())
-                <a href="{{ route('auth.register_form') }}" class="mt-4 btn btn-outline-primary">@lang('Registrieren')</a>
+                <a href="{{ route('web.user.auth.register_form') }}" class="mt-4 btn btn-outline-primary">@lang('Registrieren')</a>
             @endif
         </div>
     </div>

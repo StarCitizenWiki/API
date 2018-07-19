@@ -17,7 +17,7 @@
         <h4 class="card-header">@lang('Api Login')</h4>
         <div class="card-body">
 
-            @component('components.forms.form', ['action' => route('auth.login')])
+            @component('components.forms.form', ['action' => route('web.user.auth.login')])
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
                     'label' => __('E-Mail'),
@@ -38,7 +38,7 @@
                 ])@endcomponent
 
                 <button class="btn btn-outline-secondary">@lang('Login')</button>
-                <a href="{{ route('password.request') }}" class="btn btn-link float-right text-light-grey">@lang('Passwort vergessen')</a>
+                <a href="{{ route('web.user.auth.password.request') }}" class="btn btn-link float-right text-light-grey">@lang('Passwort vergessen')</a>
             @endcomponent
         </div>
     </div>

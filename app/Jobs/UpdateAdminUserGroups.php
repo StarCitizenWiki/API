@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Admin\Admin;
-use App\Models\Admin\Group;
+use App\Models\Admin\AdminGroup;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -35,7 +35,7 @@ class UpdateAdminUserGroups implements ShouldQueue
     {
         app('Log')::info(__CLASS__." Starting Job");
 
-        $groups = Group::all()->keyBy('name')->all();
+        $groups = AdminGroup::all()->keyBy('name')->all();
 
         $this->initClient();
         $users = Admin::with('groups')->take(50)->get()->keyBy('username');

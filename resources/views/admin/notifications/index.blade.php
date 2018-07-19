@@ -29,7 +29,7 @@
                                 {{ $notification->getRouteKey() }}
                             </td>
                             <td class="@unless($notification->expired()) text-{{ $notification->getBootstrapClass() }} @else text-muted @endunless">
-                                {{ \App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level] }}
+                                {{ $notification->getLevelAsText() }}
                             </td>
                             <td title="{{ $notification->published_at->format('d.m.Y H:i:s') }}">
                                 {{ $notification->published_at->format('d.m.Y') }}
@@ -71,15 +71,15 @@
                             <td>
                                 @component('components.edit_delete_block')
                                     @slot('edit_url')
-                                        {{ route('admin.notification.edit_form', $notification->getRouteKey()) }}
+                                        {{ route('web.admin.notifications.edit', $notification->getRouteKey()) }}
                                     @endslot
                                     @if($notification->trashed())
                                         @slot('restore_url')
-                                            {{ route('admin.notification.restore', $notification->getRouteKey()) }}
+                                            {{ route('web.admin.notifications.edit', $notification->getRouteKey()) }}
                                         @endslot
                                     @else
                                         @slot('delete_url')
-                                            {{ route('admin.notification.delete', $notification->getRouteKey()) }}
+                                            {{ route('web.admin.notifications.destroy', $notification->getRouteKey()) }}
                                         @endslot
                                     @endif
                                     {{ $notification->getRouteKey() }}

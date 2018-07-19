@@ -3,13 +3,10 @@
 namespace App\Providers;
 
 use App\Helpers\Hasher;
-use App\Models\Notification;
-use App\Models\ShortUrl\ShortUrl;
-use App\Models\ShortUrl\ShortUrlWhitelist;
-use App\Models\User;
+use App\Models\Account\User;
+use App\Models\Api\Notification;
 use Hashids\HashidsException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -70,34 +67,6 @@ class RouteServiceProvider extends ServiceProvider
         );
 
         Route::bind(
-            'url',
-            function ($value) use ($idResolver) {
-                return ShortUrl::query()->where('id', $idResolver($value))->firstOrFail();
-            }
-        );
-
-        Route::bind(
-            'url_hash',
-            function ($value) {
-                return ShortUrl::query()->where('hash', $value)->firstOrFail();
-            }
-        );
-
-        Route::bind(
-            'url_with_trashed',
-            function ($value) use ($idResolver) {
-                return ShortUrl::query()->withTrashed()->where('id', $idResolver($value))->firstOrFail();
-            }
-        );
-
-        Route::bind(
-            'whitelist_url',
-            function ($value) use ($idResolver) {
-                return ShortUrlWhitelist::query()->where('id', $idResolver($value))->firstOrFail();
-            }
-        );
-
-        Route::bind(
             'id',
             $idResolver
         );
@@ -125,22 +94,23 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        $apiVersions = glob(base_path('routes/api/*'), GLOB_ONLYDIR);
-
-        Route::prefix('api')->middleware('api')->namespace($this->namespace)->group(
-            function () use ($apiVersions) {
-                foreach ($apiVersions as $version) {
-                    $versionRoutePrefix = str_replace([base_path('routes/api'), '/'], '', $version);
-                    Route::prefix($versionRoutePrefix)->group(
-                        function () use ($version) {
-                            foreach (File::allFiles($version) as $routeFile) {
-                                Route::domain($this->getDomainForRoute((string) $routeFile))->group($routeFile);
+        Route::middleware('api')
+            ->name('api.')
+            ->namespace($this->namespace)
+            ->prefix('api')
+            ->group(
+                function () {
+                    Route::namespace('Api')
+                        ->group(
+                            function () {
+                                Route::name('v1.')
+                                    ->namespace('Api')
+                                    ->prefix('v1')
+                                    ->group(base_path('routes/api/api_v1.php'));
                             }
-                        }
-                    );
+                        );
                 }
-            }
-        );
+            );
     }
 
     /**
@@ -151,41 +121,29 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes()
     {
-        $files = File::allFiles(base_path('routes/web'));
-        sort($files);
+        Route::middleware('web')
+            ->name('web.')
+            ->namespace($this->namespace)
+            ->group(
+                function () {
+                    Route::namespace('Web')
+                        ->group(
+                            function () {
+                                Route::name('api.')
+                                    ->namespace('Api')
+                                    ->group(base_path('routes/web/api.php'));
 
-        Route::middleware('web')->namespace($this->namespace)->group(
-            function () use ($files) {
-                foreach ($files as $routeFile) {
-                    Route::domain($this->getDomainForRoute((string) $routeFile))->group($routeFile);
+                                Route::name('admin.')
+                                    ->namespace('Admin')
+                                    ->prefix('admin')
+                                    ->group(base_path('routes/web/admin.php'));
+
+                                Route::name('user.')
+                                    ->namespace('User')
+                                    ->group(base_path('routes/web/user.php'));
+                            }
+                        );
                 }
-            }
-        );
-    }
-
-    /**
-     * Returns the Config for app.<filename>_url
-     *
-     * @param string $route
-     *
-     * @return string
-     */
-    private function getDomainForRoute(string $route): string
-    {
-        $key = str_replace(
-            [
-                base_path('routes/api'),
-                base_path('routes/web'),
-                '.php',
-                '\\',
-                '/',
-            ],
-            '',
-            $route
-        );
-
-        $key = preg_replace('/v[0-9]/', '', $key);
-
-        return (string) config('app.'.$key.'_url');
+            );
     }
 }

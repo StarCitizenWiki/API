@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('api.faq'),
+    'route' => route('web.api.faq'),
 ])
     <div class="row">
         <div class="col-1">
@@ -43,23 +43,6 @@
         </div>
         <div class="col">
             @lang('Wiki Api')
-        </div>
-    </div>
-@endcomponent
-
-
-@component('components.navs.nav_element', [
-    'contentClass' => 'disabled',
-    'route' => '-'
-])
-    <div class="row">
-        <div class="col-1">
-            @component('components.elements.icon')
-                link
-            @endcomponent
-        </div>
-        <div class="col">
-            @lang('ShortUrl Api')
         </div>
     </div>
 @endcomponent

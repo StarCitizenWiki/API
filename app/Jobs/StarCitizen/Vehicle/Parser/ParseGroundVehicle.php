@@ -2,8 +2,8 @@
 
 namespace App\Jobs\StarCitizen\Vehicle\Parser;
 
-use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
-use App\Models\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
+use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -51,7 +51,7 @@ class ParseGroundVehicle extends AbstractParseVehicle
     {
         app('Log')::debug('Creating new Ground Vehicle');
 
-        /** @var \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
         $groundVehicle = GroundVehicle::create(
             [
                 'cig_id' => $this->rawData->get(self::VEHICLE_ID),
@@ -91,7 +91,7 @@ class ParseGroundVehicle extends AbstractParseVehicle
     /**
      * Updates a given Ground Vehicle Model
      *
-     * @param \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
      */
     private function updateGroundVehicle(GroundVehicle $groundVehicle)
     {

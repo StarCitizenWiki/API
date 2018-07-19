@@ -31,7 +31,7 @@ class PiwikTracking
             /**
              * Piwik Tracker Class
              *
-             * @var PiwikTracker $piwikClient
+             * @var \PiwikTracker $piwikClient
              */
             $piwikClient = new PiwikTracker(config('api.piwik.site_id'));
             $piwikClient::$URL = config('api.piwik.url');

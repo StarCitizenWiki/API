@@ -22,7 +22,7 @@ class RedirectIfNotAdmin
     public function handle($request, Closure $next, $guard = 'admin')
     {
         if (!Auth::guard($guard)->check()) {
-            return redirect()->route('admin.login_form');
+            return redirect()->route('web.admin.auth.login_form');
         }
 
         return $next($request);

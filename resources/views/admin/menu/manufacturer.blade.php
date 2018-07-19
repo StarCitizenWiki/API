@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('admin.manufacturers.list'),
+    'route' => route('web.admin.starcitizen.manufacturers.index'),
 ])
     <div class="row">
         <div class="col-1">

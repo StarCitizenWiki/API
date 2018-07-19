@@ -8,7 +8,7 @@
 
 namespace App\Transformers\StarCitizen\Stats;
 
-use App\Models\StarCitizen\Stat;
+use App\Models\Api\StarCitizen\Stat;
 use App\Transformers\AbstractBaseTransformer;
 
 /**

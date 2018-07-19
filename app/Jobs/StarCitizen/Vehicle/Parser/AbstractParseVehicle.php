@@ -2,17 +2,17 @@
 
 namespace App\Jobs\StarCitizen\Vehicle\Parser;
 
-use App\Models\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation;
-use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation;
-use App\Models\StarCitizen\Vehicle\Focus\VehicleFocus;
-use App\Models\StarCitizen\Vehicle\Focus\VehicleFocusTranslation;
-use App\Models\StarCitizen\Vehicle\Size\VehicleSize;
-use App\Models\StarCitizen\Vehicle\Size\VehicleSizeTranslation;
-use App\Models\StarCitizen\Vehicle\Type\VehicleType;
-use App\Models\StarCitizen\Vehicle\Type\VehicleTypeTranslation;
+use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation;
+use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
+use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
+use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
+use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSizeTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
+use App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -76,14 +76,14 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\Manufacturer\Manufacturer
+     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
      */
     protected function getManufacturer(): Manufacturer
     {
         app('Log')::debug('Getting Manufacturer');
 
         try {
-            /** @var \App\Models\StarCitizen\Manufacturer\Manufacturer $manufacturer */
+            /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
             $manufacturer = Manufacturer::where(
                 'cig_id',
                 $this->rawData->get(self::MANUFACTURER_ID)
@@ -100,7 +100,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\ProductionStatus\ProductionStatus
+     * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
      */
     protected function getProductionStatus(): ProductionStatus
     {
@@ -114,7 +114,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         }
 
         try {
-            /** @var \App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation $productionStatusTranslation */
+            /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation $productionStatusTranslation */
             $productionStatusTranslation = ProductionStatusTranslation::where(
                 'translation',
                 $status
@@ -129,7 +129,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\ProductionNote\ProductionNote
+     * @return \App\Models\Api\StarCitizen\ProductionNote\ProductionNote
      */
     protected function getProductionNote(): ProductionNote
     {
@@ -143,7 +143,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         }
 
         try {
-            /** @var \App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation $productionNoteTranslation */
+            /** @var \App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation $productionNoteTranslation */
             $productionNoteTranslation = ProductionNoteTranslation::where(
                 'translation',
                 $note
@@ -158,7 +158,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\Vehicle\Size\VehicleSize
+     * @return \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize
      */
     protected function getVehicleSize(): VehicleSize
     {
@@ -172,7 +172,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         }
 
         try {
-            /** @var \App\Models\StarCitizen\Vehicle\Size\VehicleSizeTranslation $sizeTranslation */
+            /** @var \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSizeTranslation $sizeTranslation */
             $sizeTranslation = VehicleSizeTranslation::where(
                 'translation',
                 $size
@@ -187,14 +187,14 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\Vehicle\Type\VehicleType
+     * @return \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType
      */
     protected function getVehicleType(): VehicleType
     {
         app('Log')::debug('Getting Vehicle Type');
 
         try {
-            /** @var \App\Models\StarCitizen\Vehicle\Type\VehicleTypeTranslation $typeTranslation */
+            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation $typeTranslation */
             $typeTranslation = VehicleTypeTranslation::where(
                 'translation',
                 $this->rawData->get(self::VEHICLE_TYPE)
@@ -232,7 +232,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
 
         foreach ($vehicleFoci as $vehicleFocus) {
             try {
-                /** @var \App\Models\StarCitizen\Vehicle\Focus\VehicleFocusTranslation $focus */
+                /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation $focus */
                 $focus = VehicleFocusTranslation::where('focus', $vehicleFocus)->firstOrFail();
                 $focus = $focus->vehicleFocus;
             } catch (ModelNotFoundException $e) {
@@ -246,13 +246,13 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\ProductionStatus\ProductionStatus
+     * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
      */
     private function createNewProductionStatus(): ProductionStatus
     {
         app('Log')::debug('Creating new Production Status');
 
-        /** @var \App\Models\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
+        /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
         $productionStatus = ProductionStatus::create();
         $productionStatus->translations()->create(
             [
@@ -267,14 +267,14 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\Manufacturer\Manufacturer
+     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
      */
     private function createNewManufacturer(): Manufacturer
     {
         app('Log')::debug('Creating new Manufacturer');
 
         $manufacturerData = $this->rawData->get(self::MANUFACTURER);
-        /** @var \App\Models\StarCitizen\Manufacturer\Manufacturer $manufacturer */
+        /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
         $manufacturer = Manufacturer::create(
             [
                 'cig_id' => $this->rawData->get(self::MANUFACTURER_ID),
@@ -297,13 +297,13 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\ProductionNote\ProductionNote
+     * @return \App\Models\Api\StarCitizen\ProductionNote\ProductionNote
      */
     private function createNewProductionNote(): ProductionNote
     {
         app('Log')::debug('Creating new Production Note');
 
-        /** @var \App\Models\StarCitizen\ProductionNote\ProductionNote $productionNote */
+        /** @var \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $productionNote */
         $productionNote = ProductionNote::create();
         $productionNote->translations()->create(
             [
@@ -318,7 +318,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\Vehicle\Size\VehicleSize
+     * @return \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize
      */
     private function createNewVehicleSize(): VehicleSize
     {
@@ -338,7 +338,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\StarCitizen\Vehicle\Type\VehicleType
+     * @return \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType
      */
     private function createNewVehicleType(): VehicleType
     {
@@ -362,13 +362,13 @@ abstract class AbstractParseVehicle implements ShouldQueue
      *
      * @param string $focus English Focus Translation
      *
-     * @return \App\Models\StarCitizen\Vehicle\Focus\VehicleFocus
+     * @return \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus
      */
     private function createNewVehicleFocus(string $focus): VehicleFocus
     {
         app('Log')::debug('Creating new Vehicle Focus');
 
-        /** @var \App\Models\StarCitizen\Vehicle\Focus\VehicleFocus $vehicleFocus */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $vehicleFocus */
         $vehicleFocus = VehicleFocus::create();
         $vehicleFocus->translations()->create(
             [

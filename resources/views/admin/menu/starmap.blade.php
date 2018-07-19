@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('admin.starmap.systems.list'),
+    'route' => route('web.admin.starcitizen.starmap.systems.index'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('admin.starmap.celestialobject.list'),
+    'route' => route('web.admin.starcitizen.starmap.celestialobjects.index'),
 ])
     <div class="row">
         <div class="col-1">
@@ -24,37 +24,6 @@
         </div>
         <div class="col">
             @lang('Celestial Objects')
-        </div>
-    </div>
-@endcomponent
-
-@component('components.navs.nav_element', [
-    'route' => '#',
-])
-    @slot('options')
-        onclick="event.preventDefault(); document.getElementById('download-starmap').submit();"
-    @endslot
-
-    @component('components.forms.form', [
-        'id' => 'download-starmap',
-        'action' => route('admin.starmap.systems.download'),
-        'method' => 'POST',
-        'class' => 'd-none',
-    ])
-        @component('components.elements.element', ['type' => 'input'])
-            @slot('options')
-                name="_method" type="hidden" value="POST"
-            @endslot
-        @endcomponent
-    @endcomponent
-    <div class="row">
-        <div class="col-1">
-            @component('components.elements.icon')
-                repeat
-            @endcomponent
-        </div>
-        <div class="col">
-            @lang('Starmapdaten laden')
         </div>
     </div>
 @endcomponent

@@ -9,14 +9,15 @@
 
         <div class="card-body">
             <h6 class="card-title">@lang('Stammdaten'):</h6>
-            @component('components.forms.form-group', [
-                'id' => '',
-                'inputOptions' => 'readonly',
-                'value' => $user->name,
-                'label' => __('Projekt / Organisation / Name'),
-            ])@endcomponent
-
             <div class="row">
+                <div class="col-12 col-lg-6">
+                    @component('components.forms.form-group', [
+                        'id' => '',
+                        'inputOptions' => 'readonly',
+                        'value' => $user->name,
+                        'label' => __('Projekt / Organisation / Name'),
+                    ])@endcomponent
+                </div>
                 <div class="col-12 col-lg-6">
                     @component('components.forms.form-group', [
                         'id' => '',
@@ -25,15 +26,8 @@
                         'label' => __('E-Mail'),
                     ])@endcomponent
                 </div>
-                <div class="col-12 col-lg-6">
-                    @component('components.forms.form-group', [
-                        'id' => '',
-                        'inputOptions' => 'readonly',
-                        'value' => __(\App\Models\Notification::NOTIFICATION_LEVEL_TYPES[$user->receive_notification_level]),
-                        'label' => __('Benachrichtigungslevel'),
-                    ])@endcomponent
-                </div>
             </div>
+
             <h6 class="card-title mt-5">API-Daten:</h6>
             @component('components.forms.form-group', [
                 'id' => '',
@@ -41,8 +35,15 @@
                 'value' => $user->api_token,
                 'label' => __('Api Key'),
             ])@endcomponent
-
             <div class="row">
+                <div class="col-12 col-lg-6">
+                    @component('components.forms.form-group', [
+                        'id' => '',
+                        'inputOptions' => 'readonly',
+                        'value' => __($notification_level_text),
+                        'label' => __('Benachrichtigungslevel'),
+                    ])@endcomponent
+                </div>
                 <div class="col-12 col-lg-6">
                     @component('components.forms.form-group', [
                         'id' => '',
@@ -50,25 +51,6 @@
                         'value' => $user->requests_per_minute,
                         'label' => __('Anfragen pro Minute'),
                     ])@endcomponent
-                </div>
-                <div class="col-12 col-lg-6">
-                    @component('components.forms.form-group', [
-                        'id' => '',
-                        'inputOptions' => 'readonly',
-                        'value' => $request_count,
-                        'label' => __('Anfragen in der letzten Minute'),
-                    ])
-                        @slot('inputClass')
-                            <?php $perc = round(($request_count / $user->requests_per_minute) * 100); ?>
-                            @if($perc > 80)
-                                form-control border-danger text-danger
-                            @elseif($perc >= 50)
-                                form-control border-warning text-warning
-                            @else
-                                form-control border-success text-success
-                            @endif
-                        @endslot
-                    @endcomponent
                 </div>
             </div>
         </div>

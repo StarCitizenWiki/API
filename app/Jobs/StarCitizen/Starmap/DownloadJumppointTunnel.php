@@ -7,7 +7,7 @@
 namespace App\Jobs\StarCitizen\Starmap;
 
 use App\Jobs\AbstractBaseDownloadData;
-use App\Models\StarCitizen\Starmap\Jumppoint;
+use App\Models\Api\StarCitizen\Starmap\Jumppoint;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

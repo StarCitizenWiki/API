@@ -52,9 +52,6 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
-    'api_url' => env('APP_API_URL', 'http://localhost'),
-    'tools_url' => env('APP_TOOLS_URL', 'http://localhost'),
-    'shorturl_url' => env('APP_SHORTURL_URL', 'http://localhost'),
 
     /*
     |--------------------------------------------------------------------------

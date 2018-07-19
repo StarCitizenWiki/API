@@ -44,7 +44,6 @@ class Kernel extends HttpKernel
         'api' => [
             'add_api_headers',
             'bindings',
-            'log_api_request',
             'throttle:requests_per_minute,1',
             'update_token_timestamp',
         ],
@@ -66,10 +65,9 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'check_user_state' => \App\Http\Middleware\CheckUserState::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'log_api_request' => \App\Http\Middleware\LogApiRequest::class,
-        'throttle' => \App\Http\Middleware\ThrottleApi::class,
-        'update_token_timestamp' => \App\Http\Middleware\UpdateTokenTimestamp::class,
-        'add_api_headers' => \App\Http\Middleware\AddApiHeaders::class,
+        'throttle' => \App\Http\Middleware\Api\ThrottleApi::class,
+        'update_token_timestamp' => \App\Http\Middleware\Api\UpdateTokenTimestamp::class,
+        'add_api_headers' => \App\Http\Middleware\Api\AddApiHeaders::class,
         'piwik_tracking' => \App\Http\Middleware\PiwikTracking::class,
     ];
 }

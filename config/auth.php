@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 return [
 
@@ -72,12 +72,12 @@ return [
     'providers' => [
         'admins' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin\Admin::class,
+            'model' => App\Models\Account\Admin\Admin::class,
         ],
 
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\Models\Account\User::class,
         ],
 
         // 'users' => [

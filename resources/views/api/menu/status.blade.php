@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('api.status'),
+    'route' => route('web.api.status'),
 ])
     <div class="row">
         <div class="col-1">
