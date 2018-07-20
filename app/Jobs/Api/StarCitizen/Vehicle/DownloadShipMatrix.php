@@ -1,9 +1,9 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\StarCitizen\Vehicle;
+namespace App\Jobs\Api\StarCitizen\Vehicle;
 
 use App\Jobs\AbstractBaseDownloadData;
-use App\Jobs\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
+use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
 use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

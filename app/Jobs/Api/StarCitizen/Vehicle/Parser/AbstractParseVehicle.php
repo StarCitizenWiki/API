@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\StarCitizen\Vehicle\Parser;
+namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
@@ -60,6 +60,14 @@ abstract class AbstractParseVehicle implements ShouldQueue
 
     protected const TIME_MODIFIED_UNFILTERED = 'time_modified.unfiltered';
 
+    private const PRODUCTION_STATUSES = [
+        'Update Pass Scheduled',
+        'Update pass scheduled',
+        'Update pass scheduled.',
+    ];
+
+    private const PRODUCTION_STATUS_NORMALIZED = 'Update Pass Scheduled';
+
     /**
      * @var \Illuminate\Support\Collection
      */
@@ -86,7 +94,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
             /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
             $manufacturer = Manufacturer::where(
                 'cig_id',
-                $this->rawData->get(self::MANUFACTURER_ID)
+                $this->rawDataGet(self::MANUFACTURER_ID)
             )->firstOrFail();
         } catch (ModelNotFoundException $e) {
             app('Log')::debug('Manufacturer not found in DB');
@@ -106,7 +114,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     {
         app('Log')::debug('Getting Production Status');
 
-        $status = $this->rawData->get(self::PRODUCTION_STATUS);
+        $status = $this->rawDataGet(self::PRODUCTION_STATUS);
         if (null === $status) {
             app('Log')::debug('Status not set in Matrix, returning default (undefined)');
 
@@ -135,7 +143,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     {
         app('Log')::debug('Getting Production Note');
 
-        $note = $this->rawData->get(self::PRODUCTION_NOTE);
+        $note = $this->rawDataGet(self::PRODUCTION_NOTE);
         if (null === $note) {
             app('Log')::debug('Production Note not set in Matrix, returning default (None)');
 
@@ -164,7 +172,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     {
         app('Log')::debug('Getting Vehicle Size');
 
-        $size = $this->rawData->get(self::VEHICLE_SIZE);
+        $size = $this->rawDataGet(self::VEHICLE_SIZE);
         if (null === $size) {
             app('Log')::debug('Vehicle Size not set in Matrix, returning default (undefined)');
 
@@ -197,7 +205,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
             /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation $typeTranslation */
             $typeTranslation = VehicleTypeTranslation::where(
                 'translation',
-                $this->rawData->get(self::VEHICLE_TYPE)
+                $this->rawDataGet(self::VEHICLE_TYPE)
             )->firstOrFail();
         } catch (ModelNotFoundException $e) {
             app('Log')::debug('Vehicle Type not found in DB');
@@ -217,7 +225,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     {
         app('Log')::debug('Getting Vehicle Foci IDs');
 
-        $rawFocus = $this->rawData->get('focus');
+        $rawFocus = $this->rawDataGet('focus');
 
         if (null === $rawFocus) {
             app('Log')::debug('Vehicle Focus not set in Matrix');
@@ -246,38 +254,17 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
-     */
-    private function createNewProductionStatus(): ProductionStatus
-    {
-        app('Log')::debug('Creating new Production Status');
-
-        /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
-        $productionStatus = ProductionStatus::create();
-        $productionStatus->translations()->create(
-            [
-                'language_id' => self::LANGUAGE_EN,
-                'translation' => $this->rawData->get(self::PRODUCTION_STATUS),
-            ]
-        );
-
-        app('Log')::debug('Production Status created');
-
-        return $productionStatus;
-    }
-
-    /**
      * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
      */
     private function createNewManufacturer(): Manufacturer
     {
         app('Log')::debug('Creating new Manufacturer');
 
-        $manufacturerData = $this->rawData->get(self::MANUFACTURER);
+        $manufacturerData = $this->rawDataGet(self::MANUFACTURER);
         /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
         $manufacturer = Manufacturer::create(
             [
-                'cig_id' => $this->rawData->get(self::MANUFACTURER_ID),
+                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
                 'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
                 'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
             ]
@@ -297,6 +284,27 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
+     * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
+     */
+    private function createNewProductionStatus(): ProductionStatus
+    {
+        app('Log')::debug('Creating new Production Status');
+
+        /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
+        $productionStatus = ProductionStatus::create();
+        $productionStatus->translations()->create(
+            [
+                'language_id' => self::LANGUAGE_EN,
+                'translation' => $this->rawDataGet(self::PRODUCTION_STATUS),
+            ]
+        );
+
+        app('Log')::debug('Production Status created');
+
+        return $productionStatus;
+    }
+
+    /**
      * @return \App\Models\Api\StarCitizen\ProductionNote\ProductionNote
      */
     private function createNewProductionNote(): ProductionNote
@@ -308,7 +316,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $productionNote->translations()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'translation' => $this->rawData->get(self::PRODUCTION_NOTE),
+                'translation' => $this->rawDataGet(self::PRODUCTION_NOTE),
             ]
         );
 
@@ -328,7 +336,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $vehicleSize->translations()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'translation' => $this->rawData->get(self::VEHICLE_SIZE),
+                'translation' => $this->rawDataGet(self::VEHICLE_SIZE),
             ]
         );
 
@@ -348,7 +356,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $vehicleType->translations()->create(
             [
                 'language_id' => self::LANGUAGE_EN,
-                'translation' => $this->rawData->get(self::VEHICLE_TYPE),
+                'translation' => $this->rawDataGet(self::VEHICLE_TYPE),
             ]
         );
 
@@ -378,5 +386,28 @@ abstract class AbstractParseVehicle implements ShouldQueue
         );
 
         return $vehicleFocus;
+    }
+
+    /**
+     * Simple Collection get Wrapper that normalizes the raw data
+     *
+     * @param mixed $key Key to Search for
+     *
+     * @return string|mixed
+     */
+    private function rawDataGet($key)
+    {
+        $data = $this->rawData->get($key);
+
+        if (null !== $data && is_string($data)) {
+            $data = rtrim($data, '.');
+
+            if (in_array($data, self::PRODUCTION_STATUSES)) {
+                $data = self::PRODUCTION_STATUS_NORMALIZED;
+            }
+        }
+
+
+        return $data;
     }
 }

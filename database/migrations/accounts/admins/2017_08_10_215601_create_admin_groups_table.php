@@ -5,9 +5,9 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Class CreateGroupsTable
+ * Class CreateAdminGroupsTable
  */
-class CreateGroupsTable extends Migration
+class CreateAdminGroupsTable extends Migration
 {
     /**
      * Run the migrations.

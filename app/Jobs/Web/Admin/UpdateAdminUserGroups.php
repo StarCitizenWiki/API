@@ -1,9 +1,9 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs;
+namespace App\Jobs\Web\Admin;
 
-use App\Models\Admin\Admin;
-use App\Models\Admin\AdminGroup;
+use App\Models\Account\Admin\Admin;
+use App\Models\Account\Admin\AdminGroup;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -56,7 +56,7 @@ class UpdateAdminUserGroups implements ShouldQueue
                     return;
                 }
 
-                /** @var \App\Models\Admin\Admin $currentUser */
+                /** @var \App\Models\Account\Admin\Admin $currentUser */
                 $currentUser = $users[$user['name']];
 
                 $user['groups'] = array_flip($user['groups']);

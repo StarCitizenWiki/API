@@ -20,13 +20,13 @@ class AdminTableSeeder extends Seeder
                 'blocked'  => false,
             ]
         );
-        DB::table('admin_groups')->insert(
+        DB::table('admin_admin_groups')->insert(
             [
                 'admin_id' => 1,
                 'group_id' => 4,
             ]
         );
-        DB::table('admin_groups')->insert(
+        DB::table('admin_admin_groups')->insert(
             [
                 'admin_id' => 1,
                 'group_id' => 5,

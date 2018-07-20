@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs;
+namespace App\Jobs\Web;
 
 use App\Mail\NotificationEmail;
 use App\Models\Account\User;

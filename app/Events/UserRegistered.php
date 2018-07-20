@@ -1,8 +1,8 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace App\Events;
 
-use App\Models\User;
+use App\Models\Account\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -17,15 +17,14 @@ class UserRegistered implements ShouldQueue
     use InteractsWithSockets;
     use SerializesModels;
 
-
     public $user;
     public $password;
 
     /**
      * Create a new event instance.
      *
-     * @param \App\Models\User $user The newly registered User
-     * @param string $password The users randomly generated plaintext Password
+     * @param \App\Models\Account\User $user     The newly registered User
+     * @param string                   $password The users randomly generated plaintext Password
      */
     public function __construct(User $user, string $password)
     {

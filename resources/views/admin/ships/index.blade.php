@@ -15,6 +15,7 @@
                     <th>@lang('Typ')</th>
                     <th>@lang('Status')</th>
                     <th>@lang('Notiz')</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -46,6 +47,14 @@
                         </td>
                         <td>
                             {{ optional($ship->productionNote)->english()->translation ?? 'None' }}
+                        </td>
+                        <td>
+                            @component('components.edit_delete_block')
+                                @slot('edit_url')
+                                    {{ route('web.admin.starcitizen.vehicles.ships.show', $ship->id) }}
+                                @endslot
+                                {{ $ship->id }}
+                            @endcomponent
                         </td>
                     </tr>
                 @empty

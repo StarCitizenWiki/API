@@ -29,9 +29,9 @@ class Ship extends Vehicle
         'pitch_max',
         'yaw_max',
         'roll_max',
-        'xaxis_acceleration',
-        'yaxis_acceleration',
-        'zaxis_acceleration',
+        'x_axis_acceleration',
+        'y_axis_acceleration',
+        'z_axis_acceleration',
         'chassis_id',
     ];
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\StarCitizen\Vehicle\Parser;
+namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -5,11 +5,11 @@ use Illuminate\Database\Seeder;
 /**
  * Class GroupsTableSeeder
  */
-class GroupTableSeeder extends Seeder
+class AdminGroupTableSeeder extends Seeder
 {
     const ATTR_PERMISSION_LEVEL = 'permission_level';
     const ATTR_NAME = 'name';
-    const TBL_GROUPS = 'groups';
+    const TBL_GROUPS = 'admin_groups';
 
     /**
      * Run the database seeds.

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\StarCitizen;
+namespace App\Jobs\Api\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Jobs\AbstractBaseDownloadData;

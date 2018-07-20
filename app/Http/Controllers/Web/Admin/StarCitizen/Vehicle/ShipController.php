@@ -33,4 +33,44 @@ class ShipController extends Controller
             Ship::all()
         );
     }
+
+    /**
+     * Display Ship data, edit Translations
+     *
+     * @param  \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Ship $ship)
+    {
+        return view('admin.ships.edit')->with('ship', $ship);
+    }
+
+    /**
+     * Not implemented
+     */
+    public function create()
+    {
+        abort(404);
+    }
+
+    /**
+     * Not implemented
+     *
+     * @param  int $id
+     */
+    public function edit($id)
+    {
+        abort(404);
+    }
+
+    /**
+     * Not implemented
+     *
+     * @param  int $id
+     */
+    public function destroy($id)
+    {
+        abort(404);
+    }
 }

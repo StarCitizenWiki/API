@@ -27,6 +27,11 @@ abstract class AbstractVehicle extends Model
      */
     abstract public function description();
 
+    public function translations()
+    {
+        return $this->description();
+    }
+
     /**
      * The Vehicle Foci
      *

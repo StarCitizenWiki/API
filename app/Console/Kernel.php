@@ -2,13 +2,13 @@
 
 namespace App\Console;
 
-use App\Jobs\StarCitizen\DownloadStats;
+use App\Jobs\Api\StarCitizen\DownloadStats;
+use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 /**
  * Class Kernel
- * @package App\Console
  */
 class Kernel extends ConsoleKernel
 {
@@ -30,6 +30,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->job(new DownloadStats())->everyTenMinutes();
+
+        $schedule->job(new DownloadShipMatrix())->daily();
     }
 
     /**

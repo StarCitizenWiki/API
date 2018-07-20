@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
      */
     private function seedAccountTables()
     {
-        $this->call(GroupTableSeeder::class);
+        $this->call(AdminGroupTableSeeder::class);
         $this->call(AdminTableSeeder::class);
         $this->call(UserTableSeeder::class);
     }
