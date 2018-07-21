@@ -45,9 +45,12 @@ class DatabaseSeeder extends Seeder
         /** Stats */
         $this->call(StatTableSeeder::class);
 
-        /** Ships */
+        /** Star Citizen General */
         $this->call(ProductionStatusTableSeeder::class);
         $this->call(ProductionNoteTableSeeder::class);
+
+        /** Vehicles */
+        $this->call(VehicleSizeTableSeeder::class);
 
         if (App::environment() === 'local') {
             $this->call(NotificationTableSeeder::class);

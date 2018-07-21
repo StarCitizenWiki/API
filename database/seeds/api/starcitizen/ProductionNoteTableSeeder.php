@@ -27,5 +27,14 @@ class ProductionNoteTableSeeder extends Seeder
                 'updated_at' => $now,
             ]
         );
+        DB::table('production_note_translations')->insert(
+            [
+                'language_id' => 2,
+                'production_note_id' => 1,
+                'translation' => 'Keine',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]
+        );
     }
 }

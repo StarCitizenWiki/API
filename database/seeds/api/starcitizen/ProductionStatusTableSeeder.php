@@ -27,5 +27,14 @@ class ProductionStatusTableSeeder extends Seeder
                 'updated_at' => $now,
             ]
         );
+        DB::table('production_status_translations')->insert(
+            [
+                'language_id' => 2,
+                'production_status_id' => 1,
+                'translation' => 'Undefiniert',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]
+        );
     }
 }
