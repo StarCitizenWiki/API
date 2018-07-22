@@ -20,6 +20,6 @@ class ShipTranslation extends Translation
      */
     public function ship()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Vehicle\Ship\Ship');
+        return $this->belongsTo(Ship::class);
     }
 }

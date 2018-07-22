@@ -22,6 +22,7 @@ Route::group(
 
                 Route::namespace('StarCitizen')
                     ->name('starcitizen.')
+                    ->prefix('starcitizen')
                     ->group(
                         function () {
                             Route::prefix('starmap')
@@ -46,8 +47,11 @@ Route::group(
                                     function () {
                                         Route::resources(
                                             [
-                                                'ships' => 'ShipController',
-                                                'ground_vehicles' => 'GroundVehicleController',
+                                                'ships' => 'Ship\ShipController',
+                                                'ground_vehicles' => 'GroundVehicle\GroundVehicleController',
+                                                'sizes' => 'Size\VehicleSizeController',
+                                                'foci' => 'Focus\VehicleFocusController',
+                                                'types' => 'Type\VehicleTypeController',
                                             ]
                                         );
                                     }
@@ -56,6 +60,8 @@ Route::group(
                             Route::resources(
                                 [
                                     'manufacturers' => 'Manufacturer\ManufacturerController',
+                                    'production_statuses' => 'ProductionStatus\ProductionStatusController',
+                                    'production_notes' => 'ProductionNote\ProductionNoteController',
                                 ]
                             );
                         }

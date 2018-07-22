@@ -13,7 +13,6 @@ abstract class AbstractVehicle extends Model
     use Translations;
 
     protected $with = [
-        'description',
         'foci',
         'manufacturer',
         'productionStatus',
@@ -49,7 +48,7 @@ abstract class AbstractVehicle extends Model
      */
     public function manufacturer()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Manufacturer\Manufacturer', 'manufacturer_id');
+        return $this->belongsTo('App\Models\Api\StarCitizen\Manufacturer\Manufacturer', 'cig_id');
     }
 
     /**

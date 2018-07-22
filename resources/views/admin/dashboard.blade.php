@@ -21,7 +21,7 @@
                             'inputType' => 'textarea',
                             'label' => __('Notification'),
                             'id' => 'content',
-                            'rows' => 6,
+                            'rows' => 5,
                         ])@endcomponent
                         <button class="btn btn-outline-secondary">@lang('Erstellen')</button>
                     </div>
@@ -52,24 +52,21 @@
 
                         <div class="form-group">
                             <span class="d-block">@lang('Ausgabetyp'):</span>
-                            <label class="custom-control custom-checkbox">
+                            <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="status" name="output[]"
                                        value="status" checked>
-                                <span class="custom-control-indicator"></span>
-                                <span class="custom-control-description">@lang('Statusseite')</span>
-                            </label>
-                            <label class="custom-control custom-checkbox">
+                                <label class="custom-control-label" for="status">@lang('Statusseite')</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="index" name="output[]"
                                        value="index">
-                                <span class="custom-control-indicator"></span>
-                                <span class="custom-control-description">@lang('Startseite')</span>
-                            </label>
-                            <label class="custom-control custom-checkbox">
+                                <label class="custom-control-label" for="index">@lang('Startseite')</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="email" name="output[]"
                                        value="email">
-                                <span class="custom-control-indicator"></span>
-                                <span class="custom-control-description">@lang('E-Mail')</span>
-                            </label>
+                                <label class="custom-control-label" for="email">@lang('E-Mail')</label>
+                            </div>
                         </div>
                     </div>
                 @endcomponent

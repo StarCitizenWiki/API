@@ -22,7 +22,7 @@ class CreateAdminsTable extends Migration
                 $table->string('username');
                 $table->string('password')->default(bcrypt(config('api.admin_password')));
                 $table->boolean('blocked')->default(false);
-                $table->timestamp('last_login')->default('1970-01-01 00:00:01');
+                $table->timestamp('last_login')->nullable();
                 $table->rememberToken();
                 $table->timestamps();
             }

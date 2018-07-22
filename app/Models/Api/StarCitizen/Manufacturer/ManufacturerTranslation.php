@@ -21,6 +21,6 @@ class ManufacturerTranslation extends Translation
      */
     public function manufacturer()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Manufacturer\Manufacturer');
+        return $this->belongsTo(Manufacturer::class);
     }
 }

@@ -20,6 +20,6 @@ class VehicleSizeTranslation extends Translation
      */
     public function vehicleSize()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize');
+        return $this->belongsTo(VehicleSize::class);
     }
 }

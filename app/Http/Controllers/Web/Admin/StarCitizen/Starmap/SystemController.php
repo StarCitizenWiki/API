@@ -1,11 +1,11 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Web\Admin;
+namespace App\Http\Controllers\Web\Admin\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\DownloadStarmapData;
-use App\Models\Starmap\CelestialObject;
-use App\Models\Starmap\Starsystem;
+use App\Jobs\StarCitizen\Starmap\DownloadStarmapData;
+use App\Models\Api\StarCitizen\Starmap\CelestialObject;
+use App\Models\Api\StarCitizen\Starmap\Starsystem;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -17,7 +17,7 @@ class SystemController extends Controller
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    public function showStarmapSystemsView(): View
+    public function index(): View
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 

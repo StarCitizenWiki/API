@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use FilesystemIterator;
 use Hashids\Hashids;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -21,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadMigrations();
+
+        DB::listen(function ($query) {
+           app('Log')::debug($query->sql);
+        });
     }
 
     /**
@@ -97,6 +102,8 @@ class AppServiceProvider extends ServiceProvider
                 $dirs[] = $filename;
             }
         }
+
+        $dirs = array_sort($dirs);
 
         $this->loadMigrationsFrom($dirs);
     }

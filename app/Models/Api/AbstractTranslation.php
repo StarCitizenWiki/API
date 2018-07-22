@@ -29,7 +29,7 @@ abstract class AbstractTranslation extends Model
      */
     public function scopeEnglish(Builder $query)
     {
-        return $query->where('language_id', config('language.english'));
+        return $query->join('languages as lngs', $this->getTable().'.language_id', '=', 'lngs.id')->where('lngs.locale_code', config('language.english'));
     }
 
     /**
@@ -41,6 +41,6 @@ abstract class AbstractTranslation extends Model
      */
     public function scopeGerman(Builder $query)
     {
-        return $query->where('language_id', config('language.german'));
+        return $query->join('languages as lngs', $this->getTable().'.language_id', '=', 'lngs.id')->where('lngs.locale_code', config('language.german'));
     }
 }

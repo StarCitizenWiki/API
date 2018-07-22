@@ -14,6 +14,8 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
+        $now = \Carbon\Carbon::now();
+
         DB::table('users')->insert(
             [
                 'name'                => 'Star Citizen Wiki',
@@ -22,8 +24,8 @@ class UserTableSeeder extends Seeder
                 'password'            => bcrypt('starcitizenwiki'),
                 'requests_per_minute' => 60,
                 'state'               => \App\Models\Account\User::STATE_UNTHROTTLED,
-                'last_login'          => '1970-01-01 00:00:01',
-                'created_at'          => \Carbon\Carbon::now(),
+                'last_login'          => $now,
+                'created_at'          => $now,
             ]
         );
 
@@ -35,8 +37,8 @@ class UserTableSeeder extends Seeder
                 'password'            => bcrypt('starcitizenbase'),
                 'requests_per_minute' => 10,
                 'state'               => \App\Models\Account\User::STATE_DEFAULT,
-                'last_login'          => '1970-01-01 00:00:01',
-                'created_at'          => \Carbon\Carbon::now(),
+                'last_login'          => $now,
+                'created_at'          => $now,
             ]
         );
 
@@ -49,8 +51,8 @@ class UserTableSeeder extends Seeder
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
                     'state'               => \App\Models\Account\User::STATE_UNTHROTTLED,
-                    'last_login'          => '1970-01-01 00:00:01',
-                    'created_at'          => \Carbon\Carbon::now(),
+                    'last_login'          => $now,
+                    'created_at'          => $now,
                 ]
             );
 
@@ -62,8 +64,8 @@ class UserTableSeeder extends Seeder
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
                     'state'               => \App\Models\Account\User::STATE_BLOCKED,
-                    'last_login'          => '1970-01-01 00:00:01',
-                    'created_at'          => \Carbon\Carbon::now(),
+                    'last_login'          => $now,
+                    'created_at'          => $now,
                 ]
             );
 
@@ -75,8 +77,8 @@ class UserTableSeeder extends Seeder
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
                     'state'               => \App\Models\Account\User::STATE_DEFAULT,
-                    'last_login'          => '1970-01-01 00:00:01',
-                    'created_at'          => \Carbon\Carbon::now(),
+                    'last_login'          => $now,
+                    'created_at'          => $now,
                 ]
             );
         }

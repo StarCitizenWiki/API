@@ -20,6 +20,6 @@ class GroundVehicleTranslation extends Translation
      */
     public function groundVehicle()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle');
+        return $this->belongsTo(GroundVehicle::class);
     }
 }

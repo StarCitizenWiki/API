@@ -1,28 +1,12 @@
-@component('components.elements.element', ['type' => 'li'])
-    @slot('class')
-        nav-item {{ $class or '' }}
-    @endslot
-
+<li class="nav-item {{ $class ?? '' }}">
     @if(empty($route) || '-' === $route)
-        @component('components.elements.element', ['type' => 'span'])
-            @slot('class')
-                nav-link {{ $contentClass or '' }}
-            @endslot
-            @slot('options')
-                {{ $options or '' }}
-            @endslot
+        <span class="nav-link {{ $contentClass ?? '' }}" {{ $options ?? '' }}>
             {{ $slot }}
-        @endcomponent
+        </span>
     @else
-        @component('components.elements.element', ['type' => 'a'])
-            @slot('class')
-                nav-link @if(Request::fullUrl() == $route) active @endif {{ $contentClass or '' }}
-            @endslot
-            @slot('options')
-                href="{{ $route }}" {{ $options or '' }}
-            @endslot
+        <a class="nav-link @if(Request::fullUrl() == $route) active @endif {{ $contentClass or '' }}" href="{{ $route }}" {{ $options ?? '' }}>
             {{ $slot }}
-        @endcomponent
+        </a>
     @endif
     {{ $body or '' }}
-@endcomponent
+</li>

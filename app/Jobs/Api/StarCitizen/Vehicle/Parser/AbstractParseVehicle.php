@@ -241,7 +241,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         foreach ($vehicleFoci as $vehicleFocus) {
             try {
                 /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation $focus */
-                $focus = VehicleFocusTranslation::where('focus', $vehicleFocus)->firstOrFail();
+                $focus = VehicleFocusTranslation::where('translation', $vehicleFocus)->firstOrFail();
                 $focus = $focus->vehicleFocus;
             } catch (ModelNotFoundException $e) {
                 $focus = $this->createNewVehicleFocus($vehicleFocus);

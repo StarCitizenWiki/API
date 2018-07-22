@@ -8,7 +8,7 @@
             @endcomponent
         </div>
         <div class="col">
-            @lang('Manufacturer')
+            @lang('Manufacturers')
         </div>
     </div>
 @endcomponent

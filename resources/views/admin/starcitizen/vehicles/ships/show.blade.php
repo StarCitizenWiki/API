@@ -231,7 +231,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('X-Axis Acceleration'),
                                 'id' => 'x_axis_accel',
-                                'value' => ($ship->x_axis_acceleration ?? '-').' m/s',
+                                'value' => ($ship->x_axis_acceleration ?? '-').' m/s²',
                             ])@endcomponent
                         </div>
                         <div class="col-12 col-lg-3">
@@ -240,7 +240,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Y-Axis Acceleration'),
                                 'id' => 'y_axis_accel',
-                                'value' => ($ship->y_axis_acceleration ?? '-').' m/s',
+                                'value' => ($ship->y_axis_acceleration ?? '-').' m/s²',
                             ])@endcomponent
                         </div>
                         <div class="col-12 col-lg-3">
@@ -249,7 +249,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Z-Axis Acceleration'),
                                 'id' => 'z_axis_accel',
-                                'value' => ($ship->z_axis_acceleration ?? '-').' m/s',
+                                'value' => ($ship->z_axis_acceleration ?? '-').' m/s²',
                             ])@endcomponent
                         </div>
                     </div>
@@ -257,33 +257,35 @@
                 @endcomponent
             </div>
         </div>
-
-        <div class="card">
-            <h4 class="card-header">@lang('Übersetzungen')</h4>
-            <div class="card-body">
-                @component('components.forms.form')
-                    @component('components.forms.form-group', [
-                        'inputType' => 'textarea',
-                        'inputOptions' => 'readonly',
-                        'label' => __('Beschreibung Englisch'),
-                        'id' => 'description_en',
-                        'rows' => 6,
-                        'value' => $ship->english()->translation,
-                    ])@endcomponent
-                @endcomponent
-                @component('components.forms.form')
-                    @component('components.forms.form-group', [
-                        'inputType' => 'textarea',
-                        'label' => __('Beschreibung Deutsch'),
-                        'id' => 'description_de',
-                        'rows' => 6,
-                        'value' => optional($ship->german())->translation,
-                    ])@endcomponent
-                @endcomponent
+        @component('components.forms.form', [
+            'action' => route('web.admin.starcitizen.vehicles.ships.update', $size->id),
+            'method' => 'PATCH',
+        ])
+            <div class="card">
+                <h4 class="card-header">@lang('Übersetzungen')</h4>
+                <div class="card-body">
+                    @foreach($ship->descriptionsCollection() as $key => $translation)
+                        @component('components.forms.form')
+                            @component('components.forms.form-group', [
+                                'inputType' => 'textarea',
+                                'label' => __('Beschreibung ').$key,
+                                'id' => 'translation_'.$key,
+                                'rows' => 6,
+                                'value' => $translation->translation,
+                            ])
+                                @slot('inputOptions')
+                                    @if($key === config('language.english'))
+                                        readonly
+                                    @endif
+                                @endslot
+                            @endcomponent
+                        @endcomponent
+                    @endforeach
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-outline-success" name="save">@lang('Speichern')</button>
+                </div>
             </div>
-            <div class="card-footer">
-                <button class="btn btn-outline-success" name="save">@lang('Speichern')</button>
-            </div>
-        </div>
+        @endcomponent
     </div>
 @endsection

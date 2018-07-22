@@ -20,6 +20,6 @@ class ProductionNoteTranslation extends Translation
      */
     public function productionNote()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\ProductionNote\ProductionNote');
+        return $this->belongsTo(ProductionNote::class);
     }
 }

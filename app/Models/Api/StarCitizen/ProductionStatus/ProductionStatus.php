@@ -24,6 +24,11 @@ class ProductionStatus extends Model
      */
     public function translations()
     {
-        return $this->hasMany('App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation');
+        return $this->hasMany(ProductionStatusTranslation::class)->join(
+            'languages',
+            'production_status_translations.language_id',
+            '=',
+            'languages.id'
+        );
     }
 }

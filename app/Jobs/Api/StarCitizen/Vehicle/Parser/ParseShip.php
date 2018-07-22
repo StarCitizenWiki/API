@@ -62,7 +62,7 @@ class ParseShip extends AbstractParseVehicle
             [
                 'cig_id' => $this->rawData->get(self::VEHICLE_ID),
                 'name' => $this->rawData->get(self::VEHICLE_NAME),
-                'manufacturer_id' => $this->getManufacturer()->id,
+                'manufacturer_id' => $this->getManufacturer()->cig_id,
                 'production_status_id' => $this->getProductionStatus()->id,
                 'production_note_id' => $this->getProductionNote()->id,
                 'vehicle_size_id' => $this->getVehicleSize()->id,

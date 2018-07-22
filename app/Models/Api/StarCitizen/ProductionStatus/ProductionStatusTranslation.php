@@ -20,6 +20,6 @@ class ProductionStatusTranslation extends Translation
      */
     public function productionStatus()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus');
+        return $this->belongsTo(ProductionStatus::class);
     }
 }

@@ -6,6 +6,6 @@
  */
 
 return [
-    'english' => 1,
-    'german' => 2,
+    'english' => 'en_EN',
+    'german' => 'de_DE',
 ];

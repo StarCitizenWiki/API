@@ -1,7 +1,10 @@
 <div class="btn-group btn-group-sm" role="group" aria-label="">
     @unless(empty($edit_url))
-        <a href="{{ $edit_url or '' }}" class="btn btn-outline-secondary">
+        <a href="{{ $edit_url or '' }}" class="btn btn-outline-secondary" role="button">
             @component('components.elements.icon')
+                @slot('options')
+                    data-fa-transform="up-2"
+                @endslot
                 pencil
             @endcomponent
         </a>
@@ -15,6 +18,9 @@
                 'method' => 'DELETE',
             ])@endcomponent
             @component('components.elements.icon')
+                @slot('options')
+                    data-fa-transform="up-2"
+                @endslot
                 trash
             @endcomponent
         </a>
@@ -29,6 +35,9 @@
             @component('components.elements.icon', [
                 'class' => 'fa-flip-horizontal',
             ])
+                @slot('options')
+                    data-fa-transform="up-2"
+                @endslot
                 repeat
             @endcomponent
         </a>

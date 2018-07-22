@@ -1,10 +1,11 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle;
+namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Controller;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Request;
 
 /**
  * Class ShipsController
@@ -28,7 +29,7 @@ class ShipController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.ships.index')->with(
+        return view('admin.starcitizen.vehicles.ships.index')->with(
             'ships',
             Ship::all()
         );
@@ -43,34 +44,14 @@ class ShipController extends Controller
      */
     public function show(Ship $ship)
     {
-        return view('admin.ships.edit')->with('ship', $ship);
+        return view('admin.starcitizen.vehicles.ships.show')->with(
+            'ship',
+            $ship
+        );
     }
 
-    /**
-     * Not implemented
-     */
-    public function create()
+    public function update(Request $request, Ship $ship)
     {
-        abort(404);
-    }
 
-    /**
-     * Not implemented
-     *
-     * @param  int $id
-     */
-    public function edit($id)
-    {
-        abort(404);
-    }
-
-    /**
-     * Not implemented
-     *
-     * @param  int $id
-     */
-    public function destroy($id)
-    {
-        abort(404);
     }
 }

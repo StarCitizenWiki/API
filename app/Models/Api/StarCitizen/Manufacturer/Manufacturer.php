@@ -29,6 +29,11 @@ class Manufacturer extends Model
      */
     public function translations()
     {
-        return $this->hasMany('App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation');
+        return $this->hasMany(ManufacturerTranslation::class)->join(
+            'languages',
+            'manufacturer_translations.language_id',
+            '=',
+            'languages.id'
+        );
     }
 }

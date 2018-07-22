@@ -15,6 +15,7 @@
                     <th>@lang('Typ')</th>
                     <th>@lang('Status')</th>
                     <th>@lang('Notiz')</th>
+                    <th>@lang('Update')</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -32,7 +33,7 @@
                             {{ $ship->name }}
                         </td>
                         <td>
-                            {{ $ship->manufacturer->name_short }}
+                            {{ optional($ship->manufacturer)->name_short }}
                         </td>
                         <td>
                             @foreach($ship->foci as $focus)
@@ -49,6 +50,9 @@
                             {{ optional($ship->productionNote)->english()->translation ?? 'None' }}
                         </td>
                         <td>
+                            {{ $ship->updated_at->diffForHumans() }}
+                        </td>
+                        <td>
                             @component('components.edit_delete_block')
                                 @slot('edit_url')
                                     {{ route('web.admin.starcitizen.vehicles.ships.show', $ship->id) }}
@@ -59,7 +63,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">@lang('Keine Benutzer vorhanden')</td>
+                        <td colspan="7">@lang('Keine Schiffe vorhanden')</td>
                     </tr>
                 @endforelse
                 </tbody>

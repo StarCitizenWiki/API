@@ -20,6 +20,6 @@ class VehicleFocusTranslation extends Translation
      */
     public function vehicleFocus()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus');
+        return $this->belongsTo(VehicleFocus::class);
     }
 }

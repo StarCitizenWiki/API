@@ -27,4 +27,17 @@ trait HasTranslationsTrait
     {
         return $this->translations()->german()->first();
     }
+
+    /**
+     * Group Translations by Locale Code
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getTranslationsAttribute()
+    {
+        /** @var \Illuminate\Support\Collection $col */
+        $col = $this->getRelationValue('translations');
+
+        return $col->keyBy('locale_code');
+    }
 }

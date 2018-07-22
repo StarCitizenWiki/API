@@ -24,6 +24,11 @@ class ProductionNote extends Model
      */
     public function translations()
     {
-        return $this->hasMany('App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation');
+        return $this->hasMany(ProductionNoteTranslation::class)->join(
+            'languages',
+            'production_note_translations.language_id',
+            '=',
+            'languages.id'
+        );
     }
 }
