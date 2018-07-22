@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGroundVehicleTranslationsTable extends Migration
+class CreateGroundVehicleVehicleFocusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,16 +14,14 @@ class CreateGroundVehicleTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'ground_vehicle_translations',
+            'ground_vehicle_vehicle_focus',
             function (Blueprint $table) {
-                $table->unsignedInteger('language_id');
                 $table->unsignedInteger('ground_vehicle_id');
-                $table->text('translation');
-                $table->timestamps();
+                $table->unsignedInteger('vehicle_focus_id');
 
-                $table->primary(['language_id', 'ground_vehicle_id']);
-                $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
+                $table->primary(['ground_vehicle_id', 'vehicle_focus_id'], 'ground_vehicle_focus_primary');
                 $table->foreign('ground_vehicle_id')->references('id')->on('ground_vehicles')->onDelete('cascade');
+                $table->foreign('vehicle_focus_id')->references('id')->on('vehicle_foci')->onDelete('cascade');
             }
         );
     }
@@ -35,6 +33,6 @@ class CreateGroundVehicleTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ground_vehicle_translations');
+        Schema::dropIfExists('ground_vehicle_vehicle_focus');
     }
 }

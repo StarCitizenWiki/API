@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateShipTranslationsTable extends Migration
+class CreateProductionStatusTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,16 +14,16 @@ class CreateShipTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'ship_translations',
+            'production_status_translations',
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
-                $table->unsignedInteger('ship_id');
-                $table->text('translation');
+                $table->unsignedInteger('production_status_id');
+                $table->string('translation');
                 $table->timestamps();
 
-                $table->primary(['language_id', 'ship_id']);
+                $table->primary(['language_id', 'production_status_id'], 'production_status_translations_primary');
                 $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
-                $table->foreign('ship_id')->references('id')->on('ships')->onDelete('cascade');
+                $table->foreign('production_status_id')->references('id')->on('production_statuses')->onDelete('cascade');
             }
         );
     }
@@ -35,6 +35,6 @@ class CreateShipTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ship_translations');
+        Schema::dropIfExists('production_status_translations');
     }
 }

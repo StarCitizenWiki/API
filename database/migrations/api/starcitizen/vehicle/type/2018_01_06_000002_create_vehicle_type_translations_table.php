@@ -19,7 +19,7 @@ class CreateVehicleTypeTranslationsTable extends Migration
             $table->string('translation');
             $table->timestamps();
 
-            $table->primary(['language_id', 'vehicle_type_id']);
+            $table->primary(['language_id', 'vehicle_type_id'], 'vehicle_type_translations_primary');
             $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
             $table->foreign('vehicle_type_id')->references('id')->on('vehicle_types')->onDelete('cascade');
         });

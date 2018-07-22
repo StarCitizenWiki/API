@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProductionNoteTranslationsTable extends Migration
+class CreateGroundVehicleTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,16 +14,16 @@ class CreateProductionNoteTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'production_note_translations',
+            'ground_vehicle_translations',
             function (Blueprint $table) {
                 $table->unsignedInteger('language_id');
-                $table->unsignedInteger('production_note_id');
-                $table->string('translation');
+                $table->unsignedInteger('ground_vehicle_id');
+                $table->text('translation');
                 $table->timestamps();
 
-                $table->primary(['language_id', 'production_note_id']);
+                $table->primary(['language_id', 'ground_vehicle_id'], 'ground_vehicle_translations_primary');
                 $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
-                $table->foreign('production_note_id')->references('id')->on('production_notes')->onDelete('cascade');
+                $table->foreign('ground_vehicle_id')->references('id')->on('ground_vehicles')->onDelete('cascade');
             }
         );
     }
@@ -35,6 +35,6 @@ class CreateProductionNoteTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('production_note_translations');
+        Schema::dropIfExists('ground_vehicle_translations');
     }
 }
