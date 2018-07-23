@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use FilesystemIterator;
-use Hashids\Hashids;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use RecursiveDirectoryIterator;
@@ -23,9 +22,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->loadMigrations();
 
-        DB::listen(function ($query) {
-           app('Log')::debug($query->sql);
-        });
+        DB::listen(
+            function ($query) {
+                app('Log')::debug($query->sql);
+            }
+        );
     }
 
     /**
@@ -60,23 +61,16 @@ class AppServiceProvider extends ServiceProvider
             $adminAuthImpl
         );
 
-        $this->app->singleton(
-            Hashids::class,
-            function () {
-                return new Hashids(config('api.admin_password'), 8);
-            }
-        );
-
         /**
          * Star Citizen Api Interfaces
          */
         $this->app->bind(
             \App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface::class,
-            \App\Repositories\StarCitizen\ApiV1\StatsRepository::class
+            \App\Repositories\StarCitizen\Api\v1\Stats\StatsRepository::class
         );
         $this->app->bind(
             \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface::class,
-            \App\Repositories\StarCitizen\ApiV1\StarmapRepository::class
+            \App\Repositories\StarCitizen\Api\v1\Starmap\StarmapRepository::class
         );
 
         /**
@@ -84,7 +78,7 @@ class AppServiceProvider extends ServiceProvider
          */
         $this->app->bind(
             \App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface::class,
-            \App\Repositories\StarCitizenWiki\ApiV1\ShipsRepository::class
+            \App\Repositories\StarCitizenWiki\Api\v1\Ships\ShipsRepository::class
         );
     }
 

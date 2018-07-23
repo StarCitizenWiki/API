@@ -5,7 +5,7 @@
  * Time: 20:07
  */
 
-namespace App\Http\Controllers\StarCitizen;
+namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;

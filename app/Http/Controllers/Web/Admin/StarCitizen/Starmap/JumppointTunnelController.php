@@ -4,7 +4,7 @@
  * Date: 03.08.2017 16:44
  */
 
-namespace App\Http\Controllers\Auth\Admin\StarCitizen\Starmap;
+namespace App\Http\Controllers\Web\Admin\StarCitizen\Starmap;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\StarCitizen\Starmap\DownloadJumppointTunnel;

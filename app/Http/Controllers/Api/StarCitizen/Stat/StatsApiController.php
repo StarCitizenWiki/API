@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\StarCitizen;
+namespace App\Http\Controllers\Api\StarCitizen\Stat;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;

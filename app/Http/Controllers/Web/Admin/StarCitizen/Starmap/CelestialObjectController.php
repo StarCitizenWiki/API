@@ -1,11 +1,11 @@
 <?php declare(strict_types = 1);
 
-namespace App\Controllers\Api\StarCitizen\Starmap;
+namespace App\Http\Controllers\Web\Admin\StarCitizen\Starmap;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class CelesitalObjectController extends Controller
+class CelestialObjectController extends Controller
 {
     /**
      * Display a listing of the resource.

@@ -25,6 +25,14 @@ Route::group(
                     ->prefix('starcitizen')
                     ->group(
                         function () {
+                            Route::resources(
+                                [
+                                    'manufacturers' => 'Manufacturer\ManufacturerController',
+                                    'production_statuses' => 'ProductionStatus\ProductionStatusController',
+                                    'production_notes' => 'ProductionNote\ProductionNoteController',
+                                ]
+                            );
+
                             Route::prefix('starmap')
                                 ->name('starmap.')
                                 ->namespace('Starmap')
@@ -56,14 +64,6 @@ Route::group(
                                         );
                                     }
                                 );
-
-                            Route::resources(
-                                [
-                                    'manufacturers' => 'Manufacturer\ManufacturerController',
-                                    'production_statuses' => 'ProductionStatus\ProductionStatusController',
-                                    'production_notes' => 'ProductionNote\ProductionNoteController',
-                                ]
-                            );
                         }
                     );
             }

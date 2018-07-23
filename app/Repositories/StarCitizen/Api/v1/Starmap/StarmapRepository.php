@@ -5,11 +5,12 @@
  * Time: 20:04
  */
 
-namespace App\Repositories\StarCitizen\Api\v1;
+namespace App\Repositories\StarCitizen\Api\v1\Starmap;
 
 use App\Models\Api\StarCitizen\Starmap\CelestialObject;
 use App\Models\Api\StarCitizen\Starmap\Jumppoint;
 use App\Models\Api\StarCitizen\Starmap\Starsystem;
+use App\Repositories\AbstractBaseRepository;
 use App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface;
 use App\Transformers\StarCitizen\Starmap\AsteroidbeltsTransformer;
 use App\Transformers\StarCitizen\Starmap\CelestialObjectTransformer;
@@ -26,7 +27,7 @@ use InvalidArgumentException;
 /**
  * Class StarmapRepository
  */
-class StarmapRepository extends AbstractStarCitizenRepository implements StarmapRepositoryInterface
+class StarmapRepository extends AbstractBaseRepository implements StarmapRepositoryInterface
 {
     const TIME_GROUP_FIELD = 'cig_time_modified';
     const JUMPPOINTTUNNEL_TIME_GROUP_FIELD = 'created_at';

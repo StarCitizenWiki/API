@@ -5,7 +5,7 @@
  * Time: 13:35
  */
 
-namespace App\Repositories\StarCitizen\ApiV1;
+namespace App\Repositories\StarCitizen\Api\v1\Stats;
 
 use App\Models\Api\StarCitizen\Stat;
 use App\Repositories\AbstractBaseRepository as BaseRepository;

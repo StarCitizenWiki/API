@@ -59,7 +59,7 @@ Route::namespace('StarCitizen')->group(
 
                     Route::prefix('objects')->group(
                         function () {
-                            Route::get('{objectname}', 'StarmapAPIController@getObjectList');
+                            Route::get('{objectname}', 'StarmapController@getObjectList');
                         }
                     );
                 }
@@ -117,14 +117,14 @@ Route::namespace('StarCitizen')->group(
         );
     }
 );
-
+/*
 Route::namespace('StarCitizenWiki')->group(
     function () {
         Route::prefix('ships')->group(
             function () {
-                Route::post('search', 'ShipsApiController@searchShips');
-                Route::get('list', 'ShipsApiController@getShipList');
-                Route::get('{name}', 'ShipsApiController@getShip');
+                Route::post('search', 'ShipsController@searchShips');
+                Route::get('list', 'ShipsController@getShipList');
+                Route::get('{name}', 'ShipsController@getShip');
             }
         );
 
@@ -149,4 +149,4 @@ Route::namespace('StarCitizenWiki')->group(
             }
         );
     }
-);
+);*/

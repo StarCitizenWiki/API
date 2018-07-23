@@ -4,10 +4,11 @@
  * Date: 02.08.2017 17:25
  */
 
-namespace App\Repositories\StarCitizen\Api\v1;
+namespace App\Repositories\StarCitizen\Api\v1\Starmap;
 
 use App\Models\Api\StarCitizen\Starmap\Jumppoint;
 use App\Models\Api\StarCitizen\Starmap\Starsystem;
+use App\Repositories\AbstractBaseRepository;
 use App\Repositories\StarCitizen\Interfaces\JumppointTunnelInterface;
 use App\Transformers\StarCitizen\Starmap\JumppointTunnelTransformer;
 use InvalidArgumentException;
@@ -15,7 +16,7 @@ use InvalidArgumentException;
 /**
  * Class JumppointRepository
  */
-class JumppointTunnelRepository extends AbstractStarCitizenRepository implements JumppointTunnelInterface
+class JumppointTunnelRepository extends AbstractBaseRepository implements JumppointTunnelInterface
 {
 
     const TIME_GROUP_FIELD = 'created_at';

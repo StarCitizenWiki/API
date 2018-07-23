@@ -4,11 +4,12 @@
  * Date: 06.08.2017 17:41
  */
 
-namespace App\Http\Controllers\StarCitizen;
+namespace App\Http\Controllers\Api\StarCitizen\Starmap;
 
 use App\Exceptions\InvalidDataException;
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\ApiV1\JumppointTunnelRepository;
+
+use App\Repositories\StarCitizen\Api\v1\Starmap\JumppointTunnelRepository;
 use InvalidArgumentException;
 
 /**

@@ -5,7 +5,7 @@
  * Time: 18:16
  */
 
-namespace App\Repositories\StarCitizenWiki\Api\v1;
+namespace App\Repositories\StarCitizenWiki\Api\v1\Ships;
 
 use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
 use App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface;
