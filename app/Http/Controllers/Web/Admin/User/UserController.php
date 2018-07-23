@@ -34,9 +34,11 @@ class UserController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.users.index')->with(
-            'users',
-            User::withTrashed()->orderBy('deleted_at')->simplePaginate(100)
+        return view(
+            'admin.users.index',
+            [
+                'users' => User::withTrashed()->orderBy('deleted_at')->simplePaginate(100),
+            ]
         );
     }
 
@@ -51,9 +53,11 @@ class UserController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.users.edit')->with(
-            'user',
-            $user
+        return view(
+            'admin.users.edit',
+            [
+                'user' => $user,
+            ]
         );
     }
 

@@ -25,9 +25,11 @@ class JumppointTunnelController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.starmap.jumppointtunnels.index')->with(
-            'jumppointtunnels',
-            Jumppoint::orderBy('cig_id')->get()
+        return view(
+            'admin.starmap.jumppointtunnels.index',
+            [
+                'jumppointtunnels' => Jumppoint::orderBy('cig_id')->get(),
+            ]
         );
     }
 

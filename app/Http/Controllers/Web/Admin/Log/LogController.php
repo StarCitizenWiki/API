@@ -28,7 +28,12 @@ class LogController extends Controller
         $logs = LogReader::level(['notice', 'warning', 'error', 'critical', 'danger', 'emergency'])->paginate(25);
         $logs->withPath('logs');
 
-        return view('admin.logs.index')->with('logs', $logs);
+        return view(
+            'admin.logs.index',
+            [
+                'logs' => $logs,
+            ]
+        );
     }
 
     /**

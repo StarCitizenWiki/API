@@ -29,9 +29,11 @@ class ShipController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.starcitizen.vehicles.ships.index')->with(
-            'ships',
-            Ship::all()
+        return view(
+            'admin.starcitizen.vehicles.ships.index',
+            [
+                'ships' => Ship::all(),
+            ]
         );
     }
 
@@ -44,9 +46,11 @@ class ShipController extends Controller
      */
     public function edit(Ship $ship)
     {
-        return view('admin.starcitizen.vehicles.ships.edit')->with(
-            'ship',
-            $ship
+        return view(
+            'admin.starcitizen.vehicles.ships.edit',
+            [
+                'ship' => $ship,
+            ]
         );
     }
 

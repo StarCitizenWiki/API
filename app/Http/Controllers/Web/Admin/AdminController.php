@@ -61,19 +61,26 @@ class AdminController extends Controller
             'last' => Notification::notExpired()->take(7)->orderByDesc('created_at')->get(),
         ];
 
-        return view('admin.dashboard')
-            ->with(
-                'users',
-                $users
-            )
-            ->with(
-                'notifications',
-                $notifications
-            )
-            ->with(
-                'logs',
-                $logs
-            );
+        return view(
+            'admin.dashboard',
+            [
+                'users' => $users,
+                'notifications' => $notifications,
+                'logs' => $logs,
+            ]
+        );
+    }
+
+    /**
+     * Returns the View to list all routes
+     *
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function showRoutesView(): View
+    {
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        return view('admin.routes.index');
     }
 
     /**
@@ -145,17 +152,5 @@ class AdminController extends Controller
                 'all' => $emergency,
             ],
         ];
-    }
-
-    /**
-     * Returns the View to list all routes
-     *
-     * @return \Illuminate\Contracts\View\View
-     */
-    public function showRoutesView(): View
-    {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        return view('admin.routes.index');
     }
 }

@@ -29,7 +29,12 @@ class PageController extends Controller
             ->take(3)
             ->get();
 
-        return view('api.pages.index')->with('notifications', $notifications);
+        return view(
+            'api.pages.index',
+            [
+                'notifications' => $notifications,
+            ]
+        );
     }
 
     /**
@@ -58,6 +63,11 @@ class PageController extends Controller
             ->simplePaginate(4);
 
 
-        return view('api.pages.status')->with('notifications', $notifications);
+        return view(
+            'api.pages.status',
+            [
+                'notifications' => $notifications,
+            ]
+        );
     }
 }

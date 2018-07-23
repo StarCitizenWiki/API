@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Api\Notification;
-use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,15 +36,13 @@ class AccountController extends Controller
 
         $user = Auth::user();
 
-        return view('user.account.index')
-            ->with(
-                'user',
-                $user
-            )
-            ->with(
-                'notification_level_text',
-                Notification::NOTIFICATION_LEVEL_TYPES[$user->receive_notification_level]
-            );
+        return view(
+            'user.account.index',
+            [
+                'user' => $user,
+                'notification_level_text' => Notification::NOTIFICATION_LEVEL_TYPES[$user->receive_notification_level],
+            ]
+        );
     }
 
     /**
@@ -57,9 +54,11 @@ class AccountController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('user.account.edit')->with(
-            'user',
-            Auth::user()
+        return view(
+            'user.account.edit',
+            [
+                'user' => Auth::user(),
+            ]
         );
     }
 

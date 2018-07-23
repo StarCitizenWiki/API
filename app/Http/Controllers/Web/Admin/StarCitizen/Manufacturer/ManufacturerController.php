@@ -28,9 +28,11 @@ class ManufacturerController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.starcitizen.manufacturers.index')->with(
-            'manufacturers',
-            Manufacturer::all()
+        return view(
+            'admin.starcitizen.manufacturers.index',
+            [
+                'manufacturers' => Manufacturer::all(),
+            ]
         );
     }
 }

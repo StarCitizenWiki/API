@@ -21,9 +21,11 @@ class SystemController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.starmap.systems.list')->with(
-            'systems',
-            Starsystem::orderBy('code')->get()
+        return view(
+            'admin.starmap.systems.list',
+            [
+                'systems' => Starsystem::orderBy('code')->get(),
+            ]
         );
     }
 
@@ -34,9 +36,11 @@ class SystemController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.starmap.celestialobjects.list')->with(
-            'celestialobjects',
-            CelestialObject::orderBy('code')->get()
+        return view(
+            'admin.starmap.celestialobjects.list',
+            [
+                'celestialobjects' => CelestialObject::orderBy('code')->get(),
+            ]
         );
     }
 
