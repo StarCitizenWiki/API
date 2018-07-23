@@ -7,9 +7,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Rodenastyle\StreamParser\StreamParser;
+use Tightenco\Collect\Support\Collection;
 
 /**
  * Class ParseShipsDownload

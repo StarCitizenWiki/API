@@ -5,7 +5,7 @@ namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
+use Tightenco\Collect\Support\Collection;
 
 /**
  * Class ParseShip
