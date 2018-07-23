@@ -3,7 +3,7 @@
 @section('content')
     <div class="card-deck">
         <div class="card">
-            <h4 class="card-header">@lang('Schiffsdaten')</h4>
+            <h4 class="card-header">@lang('Schiffsdaten') <small class="float-right mt-1">Letztes Update: {{ $ship->updated_at->diffForHumans() }}</small></h4>
             <div class="card-body">
                 @component('components.forms.form')
                     <div class="row">

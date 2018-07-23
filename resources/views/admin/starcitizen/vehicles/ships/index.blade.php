@@ -55,7 +55,7 @@
                         <td>
                             @component('components.edit_delete_block')
                                 @slot('edit_url')
-                                    {{ route('web.admin.starcitizen.vehicles.ships.show', $ship->id) }}
+                                    {{ route('web.admin.starcitizen.vehicles.ships.edit', $ship->id) }}
                                 @endslot
                                 {{ $ship->id }}
                             @endcomponent
