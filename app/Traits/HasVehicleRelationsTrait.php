@@ -17,7 +17,7 @@ trait HasVehicleRelationsTrait
      */
     public function ships()
     {
-        return $this->hasMany('App\Models\Api\StarCitizen\Vehicle\Ship\Ship');
+        return $this->hasMany('App\Models\Api\StarCitizen\Vehicle\Ship\Ship', 'manufacturer_id', 'cig_id');
     }
 
     /**
@@ -25,6 +25,6 @@ trait HasVehicleRelationsTrait
      */
     public function groundVehicles()
     {
-        return $this->hasMany('App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle');
+        return $this->hasMany('App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle', 'manufacturer_id', 'cig_id');
     }
 }
