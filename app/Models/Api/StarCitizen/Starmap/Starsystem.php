@@ -2,7 +2,6 @@
 
 namespace App\Models\Api\StarCitizen\Starmap;
 
-use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -10,8 +9,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Starsystem extends Model
 {
-    use ObfuscatesID;
-
     protected $fillable = [
         'code',
         'cig_id',

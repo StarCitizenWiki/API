@@ -2,13 +2,10 @@
 
 namespace App\Providers;
 
-use App\Helpers\Hasher;
-use App\Models\Account\User;
-use App\Models\Api\Notification;
-use Hashids\HashidsException;
+use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class RouteServiceProvider
@@ -30,48 +27,10 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $idResolver = function ($id) {
-            try {
-                return Hasher::decode($id);
-            } catch (HashidsException $e) {
-                throw new BadRequestHttpException();
-            }
-        };
-
-        Route::bind(
-            'user',
-            function ($value) use ($idResolver) {
-                return User::query()->where('id', $idResolver($value))->firstOrFail();
-            }
-        );
-
-        Route::bind(
-            'user_with_trashed',
-            function ($value) use ($idResolver) {
-                return User::query()->withTrashed()->where('id', $idResolver($value))->firstOrFail();
-            }
-        );
-
-        Route::bind(
-            'notification',
-            function ($value) use ($idResolver) {
-                return Notification::query()->where('id', $idResolver($value))->firstOrFail();
-            }
-        );
-
-        Route::bind(
-            'notification_with_trashed',
-            function ($value) use ($idResolver) {
-                return Notification::query()->withTrashed()->where('id', $idResolver($value))->firstOrFail();
-            }
-        );
-
-        Route::bind(
-            'id',
-            $idResolver
-        );
-
         parent::boot();
+
+        Route::model('production_status', ProductionStatus::class);
+        Route::model('production_note', ProductionNote::class);
     }
 
     /**
@@ -104,7 +63,6 @@ class RouteServiceProvider extends ServiceProvider
                         ->group(
                             function () {
                                 Route::name('v1.')
-                                    ->namespace('Api')
                                     ->prefix('v1')
                                     ->group(base_path('routes/api/api_v1.php'));
                             }

@@ -2,7 +2,6 @@
 
 namespace App\Models\Account\Admin;
 
-use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -12,7 +11,6 @@ use Illuminate\Notifications\Notifiable;
 class Admin extends Authenticatable
 {
     use Notifiable;
-    use ObfuscatesID;
 
     /**
      * The attributes that should be hidden for arrays.

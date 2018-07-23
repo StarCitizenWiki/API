@@ -2,7 +2,6 @@
 
 namespace App\Models\Api;
 
-use App\Traits\ObfuscatesIDTrait as ObfuscatesID;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +13,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Notification extends Model
 {
     use SoftDeletes;
-    use ObfuscatesID;
 
     public const NOTIFICATION_LEVEL_TYPES = [
         -1 => 'no notifications',
