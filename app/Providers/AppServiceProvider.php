@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Carbon\Carbon;
 use FilesystemIterator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -21,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadMigrations();
+
+        Carbon::setLocale(config('app.locale'));
 
         DB::listen(
             function ($query) {
