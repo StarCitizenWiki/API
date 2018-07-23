@@ -41,7 +41,7 @@
                         <td>
                             @component('components.edit_delete_block')
                                 @slot('edit_url')
-                                    {{ route('web.admin.starcitizen.manufacturers.show', $manufacturer->id) }}
+                                    {{ route('web.admin.starcitizen.manufacturers.edit', $manufacturer->id) }}
                                 @endslot
                                 {{ $manufacturer->id }}
                             @endcomponent
