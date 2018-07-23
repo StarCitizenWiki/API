@@ -9,6 +9,11 @@ use App\Models\Api\AbstractTranslation as Translation;
  */
 class ManufacturerTranslation extends Translation
 {
+    protected $primaryKey = [
+        'locale_code',
+        'manufacturer_id',
+    ];
+
     protected $fillable = [
         'locale_code',
         'manufacturer_id',

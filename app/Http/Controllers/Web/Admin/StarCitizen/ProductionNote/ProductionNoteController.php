@@ -65,10 +65,8 @@ class ProductionNoteController extends Controller
 
         foreach ($data as $localeCode => $translation) {
             $note->translations()->updateOrCreate(
-                [
-                    'locale_code' => $localeCode,
-                    'translation' => $translation,
-                ]
+                ['locale_code' => $localeCode],
+                ['translation' => $translation]
             );
         }
 

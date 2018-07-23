@@ -65,10 +65,8 @@ class ProductionStatusController extends Controller
 
         foreach ($data as $localeCode => $translation) {
             $status->translations()->updateOrCreate(
-                [
-                    'locale_code' => $localeCode,
-                    'translation' => $translation,
-                ]
+                ['locale_code' => $localeCode],
+                ['translation' => $translation]
             );
         }
 

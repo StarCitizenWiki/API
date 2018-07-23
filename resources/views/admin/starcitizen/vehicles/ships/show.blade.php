@@ -266,20 +266,18 @@
                 <h4 class="card-header">@lang('Übersetzungen')</h4>
                 <div class="card-body">
                     @foreach($ship->descriptionsCollection() as $key => $translation)
-                        @component('components.forms.form')
-                            @component('components.forms.form-group', [
-                                'inputType' => 'textarea',
-                                'label' => __('Beschreibung ').$key,
-                                'id' => 'translation_'.$key,
-                                'rows' => 6,
-                                'value' => $translation->translation,
-                            ])
-                                @slot('inputOptions')
-                                    @if($key === config('language.english'))
-                                        readonly
-                                    @endif
-                                @endslot
-                            @endcomponent
+                        @component('components.forms.form-group', [
+                            'inputType' => 'textarea',
+                            'label' => __('Beschreibung ').$key,
+                            'id' => $key,
+                            'rows' => 6,
+                            'value' => $translation->translation,
+                        ])
+                            @slot('inputOptions')
+                                @if($key === config('language.english'))
+                                    readonly
+                                @endif
+                            @endslot
                         @endcomponent
                     @endforeach
                 </div>

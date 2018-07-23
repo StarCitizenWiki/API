@@ -65,10 +65,8 @@ class VehicleTypeController extends Controller
 
         foreach ($data as $localeCode => $translation) {
             $type->translations()->updateOrCreate(
-                [
-                    'locale_code' => $localeCode,
-                    'translation' => $translation,
-                ]
+                ['locale_code' => $localeCode],
+                ['translation' => $translation]
             );
         }
 

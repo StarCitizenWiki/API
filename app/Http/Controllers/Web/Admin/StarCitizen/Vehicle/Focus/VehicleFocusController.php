@@ -54,7 +54,7 @@ class VehicleFocusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request                               $request
+     * @param \App\Http\Requests\TranslationRequest                  $request
      * @param \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $focus
      *
      * @return \Illuminate\Http\RedirectResponse
@@ -65,10 +65,8 @@ class VehicleFocusController extends Controller
 
         foreach ($data as $localeCode => $translation) {
             $focus->translations()->updateOrCreate(
-                [
-                    'locale_code' => $localeCode,
-                    'translation' => $translation,
-                ]
+                ['locale_code' => $localeCode],
+                ['translation' => $translation]
             );
         }
 

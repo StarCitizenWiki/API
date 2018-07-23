@@ -17,6 +17,7 @@ class VehicleType extends Model
     use Translations;
 
     public $timestamps = false;
+
     protected $with = [
         'translations',
     ];

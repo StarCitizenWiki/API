@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Request;
 
 /**
  * Class ShipsController
@@ -50,8 +50,25 @@ class ShipController extends Controller
         );
     }
 
-    public function update(Request $request, Ship $ship)
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param \App\Http\Requests\TranslationRequest         $request
+     * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(TranslationRequest $request, Ship $ship)
     {
+        $data = $request->validated();
 
+        foreach ($data as $localeCode => $translation) {
+            $ship->translations()->updateOrCreate(
+                ['locale_code' => $localeCode],
+                ['translation' => $translation]
+            );
+        }
+
+        return redirect()->route('web.admin.starcitizen.vehicles.ships.show', $ship->getRouteKey());
     }
 }

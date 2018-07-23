@@ -1,4 +1,4 @@
-@extends('admin.layouts.default_wide')
+@extends('admin.layouts.default')
 
 @section('content')
     <div class="card">
@@ -11,10 +11,9 @@
                     <th>@lang('CIG ID')</th>
                     <th>@lang('Name')</th>
                     <th>@lang('Code')</th>
-                    <th>@lang('Known For')</th>
-                    <th>@lang('Description')</th>
                     <th>@lang('Ships')</th>
                     <th>@lang('Vehicles')</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -34,16 +33,18 @@
                             {{ $manufacturer->name_short }}
                         </td>
                         <td>
-                            {{ $manufacturer->english()->known_for }}
-                        </td>
-                        <td>
-                            {{ $manufacturer->english()->description }}
-                        </td>
-                        <td>
                             {{ count($manufacturer->ships) }}
                         </td>
                         <td>
                             {{ count($manufacturer->groundVehicles) }}
+                        </td>
+                        <td>
+                            @component('components.edit_delete_block')
+                                @slot('edit_url')
+                                    {{ route('web.admin.starcitizen.manufacturers.show', $manufacturer->id) }}
+                                @endslot
+                                {{ $manufacturer->id }}
+                            @endcomponent
                         </td>
                     </tr>
                 @empty

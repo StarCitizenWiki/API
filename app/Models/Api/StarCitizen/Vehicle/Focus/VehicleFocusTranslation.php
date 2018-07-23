@@ -9,6 +9,11 @@ use App\Models\Api\AbstractTranslation as Translation;
  */
 class VehicleFocusTranslation extends Translation
 {
+    protected $primaryKey = [
+        'locale_code',
+        'vehicle_focus_id',
+
+    ];
     protected $fillable = [
         'locale_code',
         'vehicle_focus_id',

@@ -2,6 +2,7 @@
 
 namespace App\Models\Api;
 
+use App\Traits\HasCompositePrimaryKeyTrait as CompositePrimaryKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,6 +11,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 abstract class AbstractTranslation extends Model
 {
+    use CompositePrimaryKey;
+
+    public $incrementing = false;
+
     /**
      * Language Relation
      *
