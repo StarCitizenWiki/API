@@ -144,6 +144,6 @@ class LoginController extends Controller
             $errors = [$this->username() => trans('auth.failed')];
         }
 
-        return redirect()->back()->withInput($request->only($this->username()))->withErrors($errors);
+        return redirect()->route('web.admin.auth.login')->withInput($request->only($this->username()))->withErrors($errors);
     }
 }
