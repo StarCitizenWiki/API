@@ -64,31 +64,27 @@
                 </div>
                 <div class="form-group">
                     <span class="d-block">@lang('Ausgabetyp'):</span>
-                    <label class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="status" name="output[]" value="status"
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="status" name="output[]"
                                @if($notification->output_status) checked @endif>
-                        <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">@lang('Statusseite')</span>
-                    </label>
-                    <label class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="index" name="output[]" value="index"
+                        <label class="custom-control-label" for="status">@lang('Statusseite')</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="index" name="output[]"
                                @if($notification->output_index) checked @endif>
-                        <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">@lang('Startseite')</span>
-                    </label>
-                    <label class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="email" name="output[]" value="email"
+                        <label class="custom-control-label" for="index">@lang('Startseite')</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="email" name="output[]"
                                @if($notification->output_email) checked disabled @endif>
-                        <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">@lang('E-Mail')</span>
-                    </label>
+                        <label class="custom-control-label" for="email">@lang('E-Mail')</label>
+                    </div>
                     @if($notification->output_email)
-                        <label class="custom-control custom-checkbox text-danger">
+                        <div class="custom-control custom-checkbox text-danger">
                             <input type="checkbox" class="custom-control-input" id="resend_mail" name="resend_mail"
                                    value="resend_mail">
-                            <span class="custom-control-indicator"></span>
-                            <span class="custom-control-description">@lang('E-Mail erneut versenden')</span>
-                        </label>
+                            <label class="custom-control-label" for="resend_mail">@lang('E-Mail erneut versenden')</label>
+                        </div>
                     @endif
                 </div>
 
