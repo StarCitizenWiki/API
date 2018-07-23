@@ -41,13 +41,39 @@
                         </td>
                         <td class="text-center">
                             @if($user->trashed())
-                                <i class="far fa-trash-alt text-muted" title="@lang('Gelöscht')"></i>
+                                @component('components.elements.icon', [
+                                    'class' => 'text-muted'
+                                ])
+                                    @slot('options')
+                                        title="@lang('Gelöscht')"
+                                    @endslot
+                                    trash-alt
+                                @endcomponent
                             @elseif($user->isUnthrottled())
-                                <i class="far fa-circle text-success" title="@lang('Nicht limitiert')"></i>
+                                @component('components.elements.icon', [
+                                    'class' => 'text-success'
+                                ])
+                                    @slot('options')
+                                        title="@lang('Nicht limitiert')"
+                                    @endslot
+                                    circle
+                                @endcomponent
                             @elseif($user->isBlocked())
-                                <i class="far fa-stop-circle text-danger" title="@lang('Gesperrt')"></i>
+                                @component('components.elements.icon', [
+                                    'class' => 'text-danger'
+                                ])
+                                    @slot('options')
+                                        title="@lang('Gesperrt')"
+                                    @endslot
+                                    stop-circle
+                                @endcomponent
                             @else
-                                <i class="far fa-minus" title="@lang('Normal')"></i>
+                                @component('components.elements.icon')
+                                    @slot('options')
+                                        title="@lang('Normal')"
+                                    @endslot
+                                    minus
+                                @endcomponent
                             @endif
                         </td>
                         <td>

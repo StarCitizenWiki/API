@@ -16,7 +16,7 @@
     </div>
 
     <div class="card">
-        <img src="https://cdn.star-citizen.wiki/images/thumb/f/f1/BANU_Banu_Merchantman_auf_Landeplattform_Mya_Markt.jpg/800px-BANU_Banu_Merchantman_auf_Landeplattform_Mya_Markt.jpg" class="card-img-top">
+        <img src="https://cdn.star-citizen.wiki/images/thumb/4/4f/BANU_Merchantman_auf_Landeplattform_Mya_Markt.jpg/800px-BANU_Merchantman_auf_Landeplattform_Mya_Markt.jpg" class="card-img-top">
         <div class="card-body">
             <h4 class="card-title">@lang('Das Projekt')</h4>
             <div class="card-text">

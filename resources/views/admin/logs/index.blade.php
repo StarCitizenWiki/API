@@ -15,10 +15,10 @@
             <table class="table table-striped border-top-0 mb-0" id="logTable">
                 <tr>
                     <th class="text-center">
-                        <label class="custom-control custom-checkbox mr-0 mb-0">
+                        <div class="custom-control custom-checkbox mr-0 mb-0">
                             <input type="checkbox" class="custom-control-input" id="mark-all">
-                            <span class="custom-control-indicator"></span>
-                        </label>
+                            <label class="custom-control-label" for="mark-all"></label>
+                        </div>
                     </th>
                     <th>@lang('ID')</th>
                     <th>@lang('Message')</th>
@@ -29,24 +29,36 @@
                 @forelse($logs as $log)
                     <tr>
                         <td class="text-center">
-                            <label class="custom-control custom-checkbox mr-0 mb-0">
-                                <input type="checkbox" class="custom-control-input" name="mark_read[]"
+                            <div class="custom-control custom-checkbox mr-0 mb-0">
+                                <input type="checkbox" class="custom-control-input" name="mark_read[]" id="mark-read-{{$log->id}}"
                                        value="{{ $log->id }}">
-                                <span class="custom-control-indicator"></span>
-                            </label>
+                                <label class="custom-control-label" for="mark-read-{{$log->id}}"></label>
+                            </div>
                         </td>
                         <td>
-                            <nobr><a data-toggle="collapse" href="#collapse-{{ $log->id }}" aria-expanded="false"
-                               aria-controls="collapse-{{ $log->id }}"><i class="far fa-plus-circle"></i><span title="{{ $log->id }}"> {{ substr($log->id, 0, 8) }}...</span></a></nobr>
+                            <nobr>
+                                <a data-toggle="collapse" href="#collapse-{{ $log->id }}" aria-expanded="false" aria-controls="collapse-{{ $log->id }}">
+                                    @component('components.elements.icon')
+                                        plus-circle
+                                    @endcomponent
+                                        <span title="{{ $log->id }}"> {{ substr($log->id, 0, 8) }}...</span>
+                                </a>
+                            </nobr>
                         </td>
                         <td>{{ explode('{', $log->context->message)[0] }}</td>
 
                         <td>
                             @if($log->environment === 'local')
-                                <i class="far fa-desktop"></i> @lang('Local')
+                                @component('components.elements.icon')
+                                    desktop
+                                @endcomponent
+                                @lang('Local')
                             @endif
                             @if($log->environment === 'testing')
-                                <i class="far fa-shield-check"></i> @lang('Testing')
+                                @component('components.elements.icon')
+                                    shield-check
+                                @endcomponent
+                                @lang('Testing')
                             @endif
                         </td>
 
@@ -60,7 +72,10 @@
                                 <?php $traces = null; preg_match_all('/(#[0-9]{1,3})(.*)\:(.*)/', $log->context->message, $traces); unset($traces[0]); ?>
                                 <div class="row mb-2">
                                     <div class="col-1">
-                                        <i class="far fa-check"></i> @lang('Log file'):
+                                        @component('components.elements.icon')
+                                            check
+                                        @endcomponent
+                                        @lang('Log file'):
                                     </div>
                                     <div class="col-11">
                                         {{ $log->file_path }}
@@ -69,9 +84,13 @@
                                 <div class="row mb-2">
                                     <div class="col-1">
                                         @unless(count($traces[1]) == 0)
-                                            <i class="far fa-check"></i> @lang('Stack trace'):
+                                            @component('components.elements.icon')
+                                                check
+                                            @endcomponent @lang('Stack trace'):
                                         @else
-                                            <i class="far fa-check"></i> @lang('Content'):
+                                            @component('components.elements.icon')
+                                                check
+                                            @endcomponent @lang('Content'):
                                         @endunless
                                     </div>
                                     <div class="col-11">

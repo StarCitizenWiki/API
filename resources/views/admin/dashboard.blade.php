@@ -83,7 +83,9 @@
                     @lang('Aktive Benachrichtigungen')
                     <small class="float-right mt-1">
                         <a href="{{ route('web.admin.notifications.index') }}" class="text-light">
-                            <i class="far fa-external-link"></i>
+                            @component('components.elements.icon')
+                                external-link
+                            @endcomponent
                         </a>
                     </small>
                 @endslot
@@ -122,7 +124,13 @@
                                     @endcomponent
                                 @endif
                             </td>
-                            <td class="text-center"><a href="{{ route('web.admin.notifications.edit', $notification->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
+                            <td class="text-center">
+                                <a href="{{ route('web.admin.notifications.edit', $notification->getRouteKey()) }}">
+                                    @component('components.elements.icon')
+                                        pencil
+                                    @endcomponent
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -145,7 +153,9 @@
                     @lang('Logs')
                     <small class="float-right mt-1">
                         <a href="" class="text-light">
-                            <i class="far fa-external-link"></i>
+                            @component('components.elements.icon')
+                                external-link
+                            @endcomponent
                         </a>
                     </small>
                 @endslot
@@ -153,10 +163,26 @@
                 <table class="table table-sm mb-2 border-top-0">
                     <tr>
                         <th>@lang('Logs'):</th>
-                        <th class="text-right" title="@lang('Error')"><i class="far fa-exclamation-triangle"></i></th>
-                        <th class="text-right" title="@lang('Warning')"><i class="far fa-exclamation"></i></th>
-                        <th class="text-right" title="@lang('Info')"><i class="far fa-info"></i></th>
-                        <th class="text-right" title="@lang('Debug')"><i class="far fa-bug"></i></th>
+                        <th class="text-right" title="@lang('Error')">
+                            @component('components.elements.icon')
+                                exclamation-triangle
+                            @endcomponent
+                        </th>
+                        <th class="text-right" title="@lang('Warning')">
+                            @component('components.elements.icon')
+                                exclamation
+                            @endcomponent
+                        </th>
+                        <th class="text-right" title="@lang('Info')">
+                            @component('components.elements.icon')
+                                info
+                            @endcomponent
+                        </th>
+                        <th class="text-right" title="@lang('Debug')">
+                            @component('components.elements.icon')
+                                bug
+                            @endcomponent
+                        </th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -211,7 +237,9 @@
                     @lang('Benutzer') ({{ $users['overall'] }})
                     <small class="float-right mt-1">
                         <a href="{{ route('web.admin.users.index') }}" class="text-light">
-                            <i class="far fa-external-link"></i>
+                            @component('components.elements.icon')
+                                external-link
+                            @endcomponent
                         </a>
                     </small>
                 @endslot
@@ -219,8 +247,16 @@
                 <table class="table table-sm mb-2 border-top-0">
                     <tr>
                         <th>@lang('Benutzer'):</th>
-                        <th class="text-right" title="@lang('Registrierungen')"><i class="far fa-user-plus"></i></th>
-                        <th class="text-right" title="@lang('Logins')"><i class="far fa-sign-in"></i></th>
+                        <th class="text-right" title="@lang('Registrierungen')">
+                            @component('components.elements.icon')
+                                user-plus
+                            @endcomponent
+                        </th>
+                        <th class="text-right" title="@lang('Logins')">
+                            @component('components.elements.icon')
+                                sign-in
+                            @endcomponent
+                        </th>
                     </tr>
                     <tr>
                         <td>@lang('In der letzten Stunde')</td>
@@ -255,7 +291,13 @@
                             <td>{{ $user->getRouteKey() }}</td>
                             <td title="{{ $user->email }}">{{ $user->name }}</td>
                             <td>{{ $user->created_at }}</td>
-                            <td class="text-center"><a href="{{ route('web.admin.users.edit', $user->getRouteKey()) }}"><i class="far fa-pencil"></i></a></td>
+                            <td class="text-center">
+                                <a href="{{ route('web.admin.users.edit', $user->getRouteKey()) }}">
+                                    @component('components.elements.icon')
+                                        pencil
+                                    @endcomponent
+                                </a>
+                            </td>
                         </tr>
                     @endforeach
                 </table>
