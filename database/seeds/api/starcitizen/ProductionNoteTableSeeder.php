@@ -20,7 +20,7 @@ class ProductionNoteTableSeeder extends Seeder
         );
         DB::table('production_note_translations')->insert(
             [
-                'language_id' => 1,
+                'locale_code' => 'en_EN',
                 'production_note_id' => 1,
                 'translation' => 'None',
                 'created_at' => $now,
@@ -29,7 +29,7 @@ class ProductionNoteTableSeeder extends Seeder
         );
         DB::table('production_note_translations')->insert(
             [
-                'language_id' => 2,
+                'locale_code' => 'de_DE',
                 'production_note_id' => 1,
                 'translation' => 'Keine',
                 'created_at' => $now,

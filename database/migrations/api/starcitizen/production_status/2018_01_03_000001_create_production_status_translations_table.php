@@ -16,13 +16,13 @@ class CreateProductionStatusTranslationsTable extends Migration
         Schema::create(
             'production_status_translations',
             function (Blueprint $table) {
-                $table->unsignedInteger('language_id');
+                $table->char('locale_code', 5);
                 $table->unsignedInteger('production_status_id');
                 $table->string('translation');
                 $table->timestamps();
 
-                $table->primary(['language_id', 'production_status_id'], 'production_status_translations_primary');
-                $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
+                $table->primary(['locale_code', 'production_status_id'], 'production_status_translations_primary');
+                $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
                 $table->foreign('production_status_id')->references('id')->on('production_statuses')->onDelete('cascade');
             }
         );

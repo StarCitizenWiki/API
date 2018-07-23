@@ -16,13 +16,13 @@ class CreateShipTranslationsTable extends Migration
         Schema::create(
             'ship_translations',
             function (Blueprint $table) {
-                $table->unsignedInteger('language_id');
+                $table->char('locale_code', 5);
                 $table->unsignedInteger('ship_id');
                 $table->text('translation');
                 $table->timestamps();
 
-                $table->primary(['language_id', 'ship_id'], 'ship_translations_primary');
-                $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
+                $table->primary(['locale_code', 'ship_id'], 'ship_translations_primary');
+                $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
                 $table->foreign('ship_id')->references('id')->on('ships')->onDelete('cascade');
             }
         );

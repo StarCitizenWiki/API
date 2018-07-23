@@ -15,7 +15,6 @@ class LanguageTableSeeder extends Seeder
 
         DB::table('languages')->insert(
             [
-                'id' => 1,
                 'locale_code' => 'en_EN',
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -23,7 +22,6 @@ class LanguageTableSeeder extends Seeder
         );
         DB::table('languages')->insert(
             [
-                'id' => 2,
                 'locale_code' => 'de_DE',
                 'created_at' => $now,
                 'updated_at' => $now,

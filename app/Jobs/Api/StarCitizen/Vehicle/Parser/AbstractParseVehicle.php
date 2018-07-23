@@ -31,7 +31,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    protected const LANGUAGE_EN = 1;
+    protected const LANGUAGE_EN = 'en_EN';
     protected const PRODUCTION_STATUS = 'production_status';
     protected const PRODUCTION_NOTE = 'production_note';
 
@@ -272,7 +272,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
 
         $manufacturer->translations()->create(
             [
-                'language_id' => self::LANGUAGE_EN,
+                'locale_code' => self::LANGUAGE_EN,
                 'known_for' => $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR),
                 'description' => $manufacturerData->get(self::MANUFACTURER_DESCRIPTION),
             ]
@@ -294,7 +294,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $productionStatus = ProductionStatus::create();
         $productionStatus->translations()->create(
             [
-                'language_id' => self::LANGUAGE_EN,
+                'locale_code' => self::LANGUAGE_EN,
                 'translation' => $this->rawDataGet(self::PRODUCTION_STATUS),
             ]
         );
@@ -315,7 +315,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $productionNote = ProductionNote::create();
         $productionNote->translations()->create(
             [
-                'language_id' => self::LANGUAGE_EN,
+                'locale_code' => self::LANGUAGE_EN,
                 'translation' => $this->rawDataGet(self::PRODUCTION_NOTE),
             ]
         );
@@ -335,7 +335,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $vehicleSize = VehicleSize::create();
         $vehicleSize->translations()->create(
             [
-                'language_id' => self::LANGUAGE_EN,
+                'locale_code' => self::LANGUAGE_EN,
                 'translation' => $this->rawDataGet(self::VEHICLE_SIZE),
             ]
         );
@@ -355,7 +355,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $vehicleType = VehicleType::create();
         $vehicleType->translations()->create(
             [
-                'language_id' => self::LANGUAGE_EN,
+                'locale_code' => self::LANGUAGE_EN,
                 'translation' => $this->rawDataGet(self::VEHICLE_TYPE),
             ]
         );
@@ -380,7 +380,7 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $vehicleFocus = VehicleFocus::create();
         $vehicleFocus->translations()->create(
             [
-                'language_id' => self::LANGUAGE_EN,
+                'locale_code' => self::LANGUAGE_EN,
                 'translation' => $focus,
             ]
         );

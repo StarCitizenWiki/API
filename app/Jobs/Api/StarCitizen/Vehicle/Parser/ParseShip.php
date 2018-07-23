@@ -88,7 +88,7 @@ class ParseShip extends AbstractParseVehicle
 
         $ship->description()->create(
             [
-                'language_id' => self::LANGUAGE_EN,
+                'locale_code' => self::LANGUAGE_EN,
                 'translation' => $this->rawData->get(self::VEHICLE_DESCRIPTION),
             ]
         );

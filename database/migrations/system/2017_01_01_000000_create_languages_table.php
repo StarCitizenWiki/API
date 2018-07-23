@@ -16,9 +16,10 @@ class CreateLanguagesTable extends Migration
         Schema::create(
             'languages',
             function (Blueprint $table) {
-                $table->increments('id');
                 $table->char('locale_code', 5);
                 $table->timestamps();
+
+                $table->primary('locale_code');
             }
         );
     }

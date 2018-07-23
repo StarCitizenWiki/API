@@ -20,7 +20,7 @@ class VehicleSizeTableSeeder extends Seeder
         );
         DB::table('vehicle_size_translations')->insert(
             [
-                'language_id' => 1,
+                'locale_code' => 'en_EN',
                 'vehicle_size_id' => 1,
                 'translation' => 'undefined',
                 'created_at' => $now,
@@ -29,7 +29,7 @@ class VehicleSizeTableSeeder extends Seeder
         );
         DB::table('vehicle_size_translations')->insert(
             [
-                'language_id' => 2,
+                'locale_code' => 'de_DE',
                 'vehicle_size_id' => 1,
                 'translation' => 'Undefiniert',
                 'created_at' => $now,

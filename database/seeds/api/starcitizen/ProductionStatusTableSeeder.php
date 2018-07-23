@@ -20,7 +20,7 @@ class ProductionStatusTableSeeder extends Seeder
         );
         DB::table('production_status_translations')->insert(
             [
-                'language_id' => 1,
+                'locale_code' => 'en_EN',
                 'production_status_id' => 1,
                 'translation' => 'undefined',
                 'created_at' => $now,
@@ -29,7 +29,7 @@ class ProductionStatusTableSeeder extends Seeder
         );
         DB::table('production_status_translations')->insert(
             [
-                'language_id' => 2,
+                'locale_code' => 'de_DE',
                 'production_status_id' => 1,
                 'translation' => 'Undefiniert',
                 'created_at' => $now,
