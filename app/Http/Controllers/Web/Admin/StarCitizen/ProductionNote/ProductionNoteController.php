@@ -26,7 +26,7 @@ class ProductionNoteController extends Controller
             [
                 'translations' => ProductionNote::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.production_notes.show',
+                'editRoute' => 'web.admin.starcitizen.production_notes.edit',
             ]
         );
     }
@@ -38,12 +38,12 @@ class ProductionNoteController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(ProductionNote $note)
+    public function edit(ProductionNote $note)
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.production_notes.show',
+            'admin.starcitizen.production_notes.edit',
             [
                 'translation' => $note,
                 'updateRoute' => 'web.admin.starcitizen.production_notes.update',

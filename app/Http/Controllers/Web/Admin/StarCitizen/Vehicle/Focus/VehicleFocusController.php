@@ -26,7 +26,7 @@ class VehicleFocusController extends Controller
             [
                 'translations' => VehicleFocus::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.vehicles.foci.show',
+                'editRoute' => 'web.admin.starcitizen.vehicles.foci.edit',
             ]
         );
     }
@@ -38,12 +38,12 @@ class VehicleFocusController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(VehicleFocus $focus)
+    public function edit(VehicleFocus $focus)
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.foci.show',
+            'admin.starcitizen.vehicles.foci.edit',
             [
                 'translation' => $focus,
                 'updateRoute' => 'web.admin.starcitizen.vehicles.foci.update',

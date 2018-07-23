@@ -26,7 +26,7 @@ class VehicleTypeController extends Controller
             [
                 'translations' => VehicleType::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.vehicles.types.show',
+                'editRoute' => 'web.admin.starcitizen.vehicles.types.edit',
             ]
         );
     }
@@ -38,12 +38,12 @@ class VehicleTypeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(VehicleType $type)
+    public function edit(VehicleType $type)
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.types.show',
+            'admin.starcitizen.vehicles.types.edit',
             [
                 'translation' => $type,
                 'updateRoute' => 'web.admin.starcitizen.vehicles.types.update',

@@ -42,9 +42,9 @@ class ShipController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Ship $ship)
+    public function edit(Ship $ship)
     {
-        return view('admin.starcitizen.vehicles.ships.show')->with(
+        return view('admin.starcitizen.vehicles.ships.edit')->with(
             'ship',
             $ship
         );
@@ -69,6 +69,6 @@ class ShipController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.ships.show', $ship->getRouteKey());
+        return redirect()->route('web.admin.starcitizen.vehicles.ships.edit', $ship->getRouteKey());
     }
 }

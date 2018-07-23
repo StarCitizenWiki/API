@@ -26,7 +26,7 @@ class VehicleSizeController extends Controller
             [
                 'translations' => VehicleSize::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.vehicles.sizes.show',
+                'editRoute' => 'web.admin.starcitizen.vehicles.sizes.edit',
             ]
         );
     }
@@ -38,12 +38,12 @@ class VehicleSizeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(VehicleSize $size)
+    public function edit(VehicleSize $size)
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.sizes.show',
+            'admin.starcitizen.vehicles.sizes.edit',
             [
                 'translation' => $size,
                 'updateRoute' => 'web.admin.starcitizen.vehicles.sizes.update',

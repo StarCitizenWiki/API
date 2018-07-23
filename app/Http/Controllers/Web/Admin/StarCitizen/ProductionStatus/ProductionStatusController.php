@@ -26,7 +26,7 @@ class ProductionStatusController extends Controller
             [
                 'translations' => ProductionStatus::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.production_statuses.show',
+                'editRoute' => 'web.admin.starcitizen.production_statuses.edit',
             ]
         );
     }
@@ -38,12 +38,12 @@ class ProductionStatusController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(ProductionStatus $status)
+    public function edit(ProductionStatus $status)
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.production_statuses.show',
+            'admin.starcitizen.production_statuses.edit',
             [
                 'translation' => $status,
                 'updateRoute' => 'web.admin.starcitizen.production_statuses.update',
