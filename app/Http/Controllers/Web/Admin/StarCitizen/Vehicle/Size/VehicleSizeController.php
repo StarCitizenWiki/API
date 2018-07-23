@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\System\Language;
-use Illuminate\Http\Request;
 
 /**
  * Class VehicleSizeController
@@ -21,15 +21,14 @@ class VehicleSizeController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.starcitizen.vehicles.sizes.index')
-            ->with(
-                'sizes',
-                VehicleSize::all()
-            )
-            ->with(
-                'languages',
-                Language::all()
-            );
+        return view(
+            'admin.starcitizen.vehicles.sizes.index',
+            [
+                'translations' => VehicleSize::all(),
+                'languages' => Language::all(),
+                'editRoute' => 'web.admin.starcitizen.vehicles.sizes.show',
+            ]
+        );
     }
 
     /**
@@ -43,22 +42,36 @@ class VehicleSizeController extends Controller
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        return view('admin.starcitizen.vehicles.sizes.show')->with(
-            'size',
-            $size
+        return view(
+            'admin.starcitizen.vehicles.sizes.show',
+            [
+                'translation' => $size,
+                'updateRoute' => 'web.admin.starcitizen.vehicles.sizes.update',
+            ]
         );
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int                      $id
+     * @param \App\Http\Requests\TranslationRequest                $request
+     * @param \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize $size
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, VehicleSize $size)
+    public function update(TranslationRequest $request, VehicleSize $size)
     {
-        //
+        $data = $request->validated();
+
+        foreach ($data as $localeCode => $translation) {
+            $size->translations()->updateOrCreate(
+                [
+                    'locale_code' => $localeCode,
+                    'translation' => $translation,
+                ]
+            );
+        }
+
+        return redirect()->route('web.admin.starcitizen.vehicles.sizes.index');
     }
 }

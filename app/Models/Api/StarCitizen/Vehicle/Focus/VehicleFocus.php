@@ -26,12 +26,7 @@ class VehicleFocus extends Model
      */
     public function translations()
     {
-        return $this->hasMany(VehicleFocusTranslation::class)->join(
-            'languages',
-            'vehicle_focus_translations.language_id',
-            '=',
-            'languages.id'
-        );
+        return $this->hasMany(VehicleFocusTranslation::class);
     }
 
     /**
@@ -46,9 +41,9 @@ class VehicleFocus extends Model
             function ($join) {
                 /** @var $join \Illuminate\Database\Query\JoinClause */
                 $join->on(
-                    'vehicle_focus_translations.language_id',
+                    'vehicle_focus_translations.locale_code',
                     '=',
-                    'languages.id'
+                    'languages.locale_code'
                 )->where('vehicle_focus_translations.vehicle_focus_id', '=', $this->getKey());
             }
         )->get();

@@ -258,10 +258,11 @@
             </div>
         </div>
         @component('components.forms.form', [
-            'action' => route('web.admin.starcitizen.vehicles.ships.update', $size->id),
+            'action' => route('web.admin.starcitizen.vehicles.ships.update', $ship->id),
             'method' => 'PATCH',
+            'class' => 'card h-100 d-flex flex-column justify-content-between'
         ])
-            <div class="card">
+            <div class="wrapper">
                 <h4 class="card-header">@lang('Übersetzungen')</h4>
                 <div class="card-body">
                     @foreach($ship->descriptionsCollection() as $key => $translation)

@@ -36,12 +36,7 @@ class GroundVehicle extends Vehicle
      */
     public function description()
     {
-        return $this->hasMany(GroundVehicleTranslation::class)->join(
-            'languages',
-            'ground_vehicle_translations.language_id',
-            '=',
-            'languages.id'
-        );
+        return $this->hasMany(GroundVehicleTranslation::class);
     }
 
     /**
@@ -56,9 +51,9 @@ class GroundVehicle extends Vehicle
             function ($join) {
                 /** @var $join \Illuminate\Database\Query\JoinClause */
                 $join->on(
-                    'ground_vehicle_translations.language_id',
+                    'ground_vehicle_translations.locale_code',
                     '=',
-                    'languages.id'
+                    'languages.locale_code'
                 )->where('ground_vehicle_translations.vehicle_id', '=', $this->getKey());
             }
         )->get();

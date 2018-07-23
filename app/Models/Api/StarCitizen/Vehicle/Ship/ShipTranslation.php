@@ -10,7 +10,7 @@ use App\Models\Api\AbstractTranslation as Translation;
 class ShipTranslation extends Translation
 {
     protected $fillable = [
-        'language_id',
+        'locale_code',
         'ship_id',
         'translation',
     ];

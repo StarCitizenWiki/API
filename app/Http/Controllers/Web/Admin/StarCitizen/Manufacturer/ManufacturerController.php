@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Contracts\View\View;
 
 /**
@@ -28,8 +27,6 @@ class ManufacturerController extends Controller
     public function index(): View
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
-
-
 
         return view('admin.starcitizen.manufacturers.index')->with(
             'manufacturers',

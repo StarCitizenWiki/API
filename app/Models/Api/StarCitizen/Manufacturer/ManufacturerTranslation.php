@@ -10,7 +10,7 @@ use App\Models\Api\AbstractTranslation as Translation;
 class ManufacturerTranslation extends Translation
 {
     protected $fillable = [
-        'language_id',
+        'locale_code',
         'manufacturer_id',
         'known_for',
         'description',

@@ -1,16 +1,16 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus;
+namespace App\Http\Controllers\Web\Admin\StarCitizen\ProductionNote;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
+use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\System\Language;
 
 /**
- * Class VehicleFocusController
+ * Class ProductionNote
  */
-class VehicleFocusController extends Controller
+class ProductionNoteController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,11 +22,11 @@ class VehicleFocusController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.foci.index',
+            'admin.starcitizen.production_notes.index',
             [
-                'translations' => VehicleFocus::all(),
+                'translations' => ProductionNote::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.vehicles.foci.show',
+                'editRoute' => 'web.admin.starcitizen.production_notes.show',
             ]
         );
     }
@@ -34,19 +34,19 @@ class VehicleFocusController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $focus
+     * @param \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $note
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(VehicleFocus $focus)
+    public function show(ProductionNote $note)
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.foci.show',
+            'admin.starcitizen.production_notes.show',
             [
-                'translation' => $focus,
-                'updateRoute' => 'web.admin.starcitizen.vehicles.foci.update',
+                'translation' => $note,
+                'updateRoute' => 'web.admin.starcitizen.production_notes.update',
             ]
         );
     }
@@ -54,17 +54,17 @@ class VehicleFocusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request                               $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $focus
+     * @param \App\Http\Requests\TranslationRequest                     $request
+     * @param \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $note
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(TranslationRequest $request, VehicleFocus $focus)
+    public function update(TranslationRequest $request, ProductionNote $note)
     {
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {
-            $focus->translations()->updateOrCreate(
+            $note->translations()->updateOrCreate(
                 [
                     'locale_code' => $localeCode,
                     'translation' => $translation,
@@ -72,6 +72,6 @@ class VehicleFocusController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.foci.index');
+        return redirect()->route('web.admin.starcitizen.production_notes.index');
     }
 }

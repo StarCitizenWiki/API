@@ -10,7 +10,7 @@ use App\Models\Api\AbstractTranslation as Translation;
 class GroundVehicleTranslation extends Translation
 {
     protected $fillable = [
-        'language_id',
+        'locale_code',
         'ground_vehicle_id',
         'translation',
     ];

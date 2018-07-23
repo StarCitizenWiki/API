@@ -42,12 +42,7 @@ class Ship extends Vehicle
      */
     public function description()
     {
-        return $this->hasMany(ShipTranslation::class)->rightJoin(
-            'languages',
-            'ship_translations.language_id',
-            '=',
-            'languages.id'
-        );
+        return $this->hasMany(ShipTranslation::class);
     }
 
     /**
@@ -62,9 +57,9 @@ class Ship extends Vehicle
             function ($join) {
                 /** @var $join \Illuminate\Database\Query\JoinClause */
                 $join->on(
-                    'ship_translations.language_id',
+                    'ship_translations.locale_code',
                     '=',
-                    'languages.id'
+                    'languages.locale_code'
                 )->where('ship_translations.ship_id', '=', $this->getKey());
             }
         )->get();
