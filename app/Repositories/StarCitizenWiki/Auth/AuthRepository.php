@@ -20,18 +20,16 @@ class AuthRepository extends AbstractStarCitizenWikiRepository implements AuthRe
      * @param string $password
      *
      * @return bool
-     *
-     * @throws \App\Exceptions\InvalidDataException
      */
     public function authenticateUsingCredentials($username, $password): bool
     {
-        $this->request(
-            'POST',
+        $this->response = $this->client->post(
             '/api.php?action=verifyuser&format=json',
             [
                 'form_params' => [
                     'username' => $username,
                     'password' => $password,
+                    'token' => config('api.wiki_query_token'),
                 ],
             ]
         );
