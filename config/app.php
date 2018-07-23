@@ -162,10 +162,6 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        /*
-         * Fractal service
-         */
-        Spatie\Fractal\FractalServiceProvider::class,
 
         Jackiedo\LogReader\LogReaderServiceProvider::class,
     ],
@@ -199,7 +195,7 @@ return [
         'Gate' => Illuminate\Support\Facades\Gate::class,
         'Hash' => Illuminate\Support\Facades\Hash::class,
         'Lang' => Illuminate\Support\Facades\Lang::class,
-        'Log' => \Illuminate\Support\Facades\Log::class,
+        'Log' => Illuminate\Support\Facades\Log::class,
         'LogReader' => Jackiedo\LogReader\Facades\LogReader::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,

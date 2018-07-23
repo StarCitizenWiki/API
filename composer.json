@@ -16,11 +16,10 @@
     "laravel/tinker": "~1.0",
     "piwik/piwik-php-tracker": "^1.2",
     "rodenastyle/stream-parser": "^1.0",
-    "spatie/laravel-fractal": "5.*"
+    "hesto/multi-auth": "^1.0"
   },
   "require-dev": {
     "filp/whoops": "~2.0",
-    "hesto/multi-auth": "^1.0",
     "caouecs/laravel-lang": "^3.0",
     "fzaninotto/faker": "~1.4",
     "mockery/mockery": "~1.0",
