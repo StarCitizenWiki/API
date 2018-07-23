@@ -27,7 +27,7 @@ class PiwikTracking
         /**
          * Local nicht tracken
          */
-        if (App::environment('production')) {
+        if (App::environment('production') && config('api.piwik.enabled')) {
             /**
              * Piwik Tracker Class
              *
