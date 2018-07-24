@@ -8,13 +8,12 @@
 
 namespace App\Repositories\StarCitizenWiki;
 
-use App\Repositories\AbstractBaseRepository;
 use GuzzleHttp\Client;
 
 /**
  * Class BaseStarCitizenWikiAPI
  */
-abstract class AbstractStarCitizenWikiRepository extends AbstractBaseRepository
+abstract class AbstractStarCitizenWikiRepository
 {
     /** @var \GuzzleHttp\Client */
     protected $client;
@@ -33,23 +32,5 @@ abstract class AbstractStarCitizenWikiRepository extends AbstractBaseRepository
                 'timeout' => '2',
             ]
         );
-
-        parent::__construct();
-    }
-
-    /**
-     * JSON aus Interfaces enthält (bis jetzt) immer ein success field
-     *
-     * @return bool
-     */
-    protected function checkIfResponseDataIsValid(): bool
-    {
-        if (!empty($this->response->getHeader('MediaWiki-Interfaces-Error'))) {
-            app('Log')::warning('Response Data is not valid', ['response' => (string) $this->response->getBody()]);
-
-            return false;
-        }
-
-        return true;
     }
 }

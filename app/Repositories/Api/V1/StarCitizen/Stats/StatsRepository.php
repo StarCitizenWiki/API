@@ -5,21 +5,17 @@
  * Time: 13:35
  */
 
-namespace App\Repositories\StarCitizen\Api\v1\Stats;
+namespace App\Repositories\Api\V1\StarCitizen\Stats;
 
 use App\Models\Api\StarCitizen\Stat;
+use App\Http\Resources\Api\V1\StarCitizen\Stat\Stat as StatResource;
 use App\Repositories\AbstractBaseRepository as BaseRepository;
-use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
-use App\Transformers\StarCitizen\Stats\FansTransformer;
-use App\Transformers\StarCitizen\Stats\FleetTransformer;
-use App\Transformers\StarCitizen\Stats\FundsTransformer;
-use App\Transformers\StarCitizen\Stats\StatsTransformer;
-use Spatie\Fractal\Fractal;
+use App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
 
 /**
  * Class StatsRepository
  */
-class StatsRepository extends BaseRepository implements StatsRepositoryInterface
+class StatsRepository implements StatsRepositoryInterface
 {
 
     /**
@@ -28,17 +24,19 @@ class StatsRepository extends BaseRepository implements StatsRepositoryInterface
      *
      * @return Fractal
      */
-    public function getAll(): Fractal
+    public function getAll()
     {
-        $stats = Stat::orderByDesc('created_at')->first();
+        $stats = Stat::orderByDesc('created_at')->paginate();
 
-        return $this->manager->item($stats, StatsTransformer::class);
+        return new StatResource(Stat::find(1111111));
+
+        return StatResource::collection($stats);
     }
 
     /**
      * @return \Spatie\Fractal\Fractal
      */
-    public function getFans(): Fractal
+    public function getFans(): StatResource
     {
         $stats = Stat::select('fans')->orderByDesc('created_at')->first();
 
@@ -48,7 +46,7 @@ class StatsRepository extends BaseRepository implements StatsRepositoryInterface
     /**
      * @return \Spatie\Fractal\Fractal
      */
-    public function getFleet(): Fractal
+    public function getFleet(): StatResource
     {
         $stats = Stat::select('fleet')->orderByDesc('created_at')->first();
 
@@ -58,7 +56,7 @@ class StatsRepository extends BaseRepository implements StatsRepositoryInterface
     /**
      * @return \Spatie\Fractal\Fractal
      */
-    public function getFunds(): Fractal
+    public function getFunds(): StatResource
     {
         $stats = Stat::select('funds')->orderByDesc('created_at')->first();
 

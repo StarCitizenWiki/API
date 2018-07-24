@@ -1,27 +1,27 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Api\StarCitizen\Stat;
+namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
+use App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
 use InvalidArgumentException;
 
 /**
  * Class StatsAPIController
  */
-class StatsApiController extends Controller
+class StatController extends Controller
 {
     /**
      * StatsRepository
      *
-     * @var \App\Repositories\StarCitizen\ApiV1\StatsRepository
+     * @var \App\Repositories\StarCitizen\Api\v1\Stats\StatsRepository
      */
     private $repository;
 
     /**
      * StatsAPIController constructor.
      *
-     * @param \App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface $repository
+     * @param \App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface $repository
      */
     public function __construct(StatsRepositoryInterface $repository)
     {
@@ -38,10 +38,10 @@ class StatsApiController extends Controller
     public function __call($method, $parameters)
     {
         if (method_exists($this->repository, $method) && is_callable([$this->repository, $method])) {
-            /** @var \Spatie\Fractal\Fractal $return */
+            /** @var \App\Http\Resources\Api\V1\StarCitizen\Stat\Stat $return */
             $return = call_user_func_array([$this->repository, $method], []);
 
-            return $return->respond(200, [], JSON_PRETTY_PRINT);
+            return $return;
         }
 
         throw new InvalidArgumentException("Method {$method} does not exist in Repository!");

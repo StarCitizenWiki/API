@@ -68,8 +68,8 @@ class AppServiceProvider extends ServiceProvider
          * Star Citizen Api Interfaces
          */
         $this->app->bind(
-            \App\Repositories\StarCitizen\Interfaces\Stats\StatsRepositoryInterface::class,
-            \App\Repositories\StarCitizen\Api\v1\Stats\StatsRepository::class
+            \App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface::class,
+            \App\Repositories\Api\V1\StarCitizen\Stats\StatsRepository::class
         );
         $this->app->bind(
             \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface::class,

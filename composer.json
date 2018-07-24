@@ -11,12 +11,12 @@
     "php": ">=7.2",
     "fideloper/proxy": "~4.0",
     "guzzlehttp/guzzle": "^6.3",
+    "hesto/multi-auth": "^1.0",
     "jackiedo/log-reader": "2.*",
     "laravel/framework": "5.6.*",
     "laravel/tinker": "~1.0",
     "piwik/piwik-php-tracker": "^1.2",
-    "rodenastyle/stream-parser": "^1.0",
-    "hesto/multi-auth": "^1.0"
+    "rodenastyle/stream-parser": "^1.0"
   },
   "require-dev": {
     "filp/whoops": "~2.0",

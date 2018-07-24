@@ -6,10 +6,10 @@ Route::namespace('StarCitizen')->group(
             ->namespace('Stat')
             ->group(
                 function () {
-                    Route::get('funds', 'StatsApiController@getFunds');
+                    Route::get('funds', 'StatsController@getFunds');
                     Route::get('fleet', 'StatsApiController@getFleet');
                     Route::get('fans', 'StatsApiController@getFans');
-                    Route::get('all', 'StatsApiController@getAll');
+                    Route::get('all', 'StatController@getAll');
 
                     Route::prefix('funds')->group(
                         function () {

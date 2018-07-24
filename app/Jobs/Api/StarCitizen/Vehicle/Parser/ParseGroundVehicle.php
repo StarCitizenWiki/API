@@ -16,7 +16,7 @@ class ParseGroundVehicle extends AbstractParseVehicle
     /**
      * Create a new job instance.
      *
-     * @param \Illuminate\Support\Collection $ship
+     * @param \Tightenco\Collect\Support\Collection $ship
      */
     public function __construct(Collection $ship)
     {

@@ -7,13 +7,13 @@
 
 namespace App\Repositories\StarCitizenWiki\Auth;
 
-use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository;
+use App\Repositories\StarCitizenWiki\AbstractStarCitizenWikiRepository as StarCitizenWikiRepository;
 use App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface;
 
 /**
  * Class ShipsRepository
  */
-class AuthRepository extends AbstractStarCitizenWikiRepository implements AuthRepositoryInterface
+class AuthRepository extends StarCitizenWikiRepository implements AuthRepositoryInterface
 {
     /**
      * @param string $username
