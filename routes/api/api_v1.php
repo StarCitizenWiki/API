@@ -16,6 +16,24 @@ $api->group(
             }
         );
 
+        $api->group(
+            [
+                'namespace' => 'Vehicle',
+                'prefix' => 'vehicles',
+            ],
+            function ($api) {
+                $api->group(
+                    [
+                        'namespace' => 'Ship',
+                        'prefix' => 'ships',
+                    ],
+                    function ($api) {
+                        $api->get('all', ['as' => 'api.v1.vehicles.ships.all', 'uses' => 'ShipController@getAll']);
+                        $api->get('{ship}', ['as' => 'api.v1.vehicles.ships.show', 'uses' => 'ShipController@show']);
+                    }
+                );
+            }
+        );
         /*
                 Route::prefix('starmap')
                     ->namespace('Starmap')

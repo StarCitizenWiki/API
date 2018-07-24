@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Abstract Vehicle Class
  */
-abstract class AbstractVehicle extends Model
+abstract class AbstractVehicle extends Model implements VehicleInterface
 {
     use Translations;
 
@@ -19,6 +19,10 @@ abstract class AbstractVehicle extends Model
         'productionNote',
         'size',
         'type',
+    ];
+
+    protected $hidden = [
+        'pivot',
     ];
 
     /**

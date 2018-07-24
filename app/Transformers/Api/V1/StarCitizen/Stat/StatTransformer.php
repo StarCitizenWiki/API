@@ -5,7 +5,7 @@
  * Time: 13:59
  */
 
-namespace App\Transformers\Api\V1\StarCitizen\Stats;
+namespace App\Transformers\Api\V1\StarCitizen\Stat;
 
 use App\Models\Api\StarCitizen\Stat;
 use League\Fractal\TransformerAbstract;
@@ -13,7 +13,7 @@ use League\Fractal\TransformerAbstract;
 /**
  * Class StatsTransformer
  */
-class StatsTransformer extends TransformerAbstract
+class StatTransformer extends TransformerAbstract
 {
     /**
      * @param \App\Models\Api\StarCitizen\Stat $stat

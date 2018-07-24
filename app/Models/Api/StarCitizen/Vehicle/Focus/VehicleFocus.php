@@ -17,8 +17,14 @@ class VehicleFocus extends Model
     use Translations;
 
     public $timestamps = false;
+
     protected $with = [
         'translations',
+    ];
+
+    protected $hidden = [
+        'pivot',
+        'id',
     ];
 
     /**

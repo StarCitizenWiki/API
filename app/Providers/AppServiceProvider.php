@@ -68,20 +68,16 @@ class AppServiceProvider extends ServiceProvider
          * Star Citizen Api Interfaces
          */
         $this->app->bind(
-            \App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface::class,
-            \App\Repositories\Api\V1\StarCitizen\Stats\StatsRepository::class
+            \App\Repositories\Api\V1\StarCitizen\Interfaces\Stat\StatRepositoryInterface::class,
+            \App\Repositories\Api\V1\StarCitizen\Stat\StatRepository::class
         );
         $this->app->bind(
             \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface::class,
             \App\Repositories\StarCitizen\Api\v1\Starmap\StarmapRepository::class
         );
-
-        /**
-         * Star Citizen Wiki Api Interfaces
-         */
         $this->app->bind(
-            \App\Repositories\StarCitizenWiki\Interfaces\ShipsRepositoryInterface::class,
-            \App\Repositories\StarCitizenWiki\Api\v1\Ships\ShipsRepository::class
+            \App\Repositories\Api\V1\StarCitizen\Interfaces\Vehicle\Ship\ShipRepositoryInterface::class,
+            \App\Repositories\Api\V1\StarCitizen\Vehicle\Ship\ShipRepository::class
         );
     }
 

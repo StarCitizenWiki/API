@@ -5,20 +5,21 @@
  * Time: 13:35
  */
 
-namespace App\Repositories\Api\V1\StarCitizen\Stats;
+namespace App\Repositories\Api\V1\StarCitizen\Stat;
 
 use App\Models\Api\StarCitizen\Stat;
-use App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
-use App\Transformers\Api\V1\StarCitizen\Stats\StatsTransformer;
-use Dingo\Api\Routing\Helpers;
+use App\Repositories\AbstractBaseRepository as BaseRepository;
+use App\Repositories\Api\V1\StarCitizen\Interfaces\Stat\StatRepositoryInterface;
+use App\Transformers\Api\V1\StarCitizen\Stat\ShipTransformer;
 
 /**
  * Class StatsRepository
  */
-class StatsRepository implements StatsRepositoryInterface
+class StatRepository extends BaseRepository implements StatRepositoryInterface
 {
-    use Helpers;
-
+    /**
+     * @var \App\Transformers\Api\V1\StarCitizen\Stat\ShipTransformer
+     */
     private $transformer;
 
     /**
@@ -26,7 +27,7 @@ class StatsRepository implements StatsRepositoryInterface
      */
     public function __construct()
     {
-        $this->transformer = new StatsTransformer();
+        $this->transformer = new ShipTransformer();
     }
 
     /**

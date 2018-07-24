@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
+use App\Repositories\Api\V1\StarCitizen\Interfaces\Stat\StatRepositoryInterface;
 
 /**
  * @Resource("Stats", uri="/stats")
@@ -13,16 +13,16 @@ class StatController extends Controller
     /**
      * StatsRepository
      *
-     * @var \App\Repositories\Api\V1\StarCitizen\Stats\StatsRepository
+     * @var \App\Repositories\Api\V1\StarCitizen\Stat\StatRepository
      */
     private $repository;
 
     /**
      * StatsAPIController constructor.
      *
-     * @param \App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface $repository
+     * @param \App\Repositories\Api\V1\StarCitizen\Interfaces\Stat\StatRepositoryInterface $repository
      */
-    public function __construct(StatsRepositoryInterface $repository)
+    public function __construct(StatRepositoryInterface $repository)
     {
         parent::__construct();
         $this->repository = $repository;

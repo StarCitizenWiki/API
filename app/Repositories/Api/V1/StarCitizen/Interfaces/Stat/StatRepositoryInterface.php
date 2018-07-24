@@ -5,12 +5,12 @@
  * Time: 12:47
  */
 
-namespace App\Repositories\Api\V1\StarCitizen\Interfaces\Stats;
+namespace App\Repositories\Api\V1\StarCitizen\Interfaces\Stat;
 
 /**
  * Interface StatsInterface
  */
-interface StatsRepositoryInterface
+interface StatRepositoryInterface
 {
     /**
      * Returns all Crowdfund Stats

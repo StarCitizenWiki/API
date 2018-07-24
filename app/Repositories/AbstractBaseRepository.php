@@ -8,29 +8,12 @@
 
 namespace App\Repositories;
 
-use Carbon\Carbon;
-use Spatie\Fractal\Fractal;
+use Dingo\Api\Routing\Helpers;
 
 /**
  * Class BaseAPITrait
  */
 abstract class AbstractBaseRepository
 {
-    /**
-     * @var \Spatie\Fractal\Fractal
-     */
-    protected $manager;
-
-    /**
-     * AbstractBaseRepository constructor.
-     */
-    public function __construct()
-    {
-        $this->manager = Fractal::create();
-        $this->manager->addMeta(
-            [
-                'processed_at' => Carbon::now(),
-            ]
-        );
-    }
+    use Helpers;
 }
