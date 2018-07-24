@@ -7,8 +7,6 @@
 
 namespace App\Repositories\Api\V1\StarCitizen\Interfaces\Stats;
 
-use App\Http\Resources\Api\V1\StarCitizen\Stat\Stat;
-
 /**
  * Interface StatsInterface
  */
@@ -18,22 +16,15 @@ interface StatsRepositoryInterface
      * Returns all Crowdfund Stats
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
-     * @return \Illuminate\Http\Resources\Json\Resource
+     * @return \Dingo\Api\Http\Response
      */
     public function getAll();
 
     /**
-     * @return \Illuminate\Http\Resources\Json\Resource
+     * Returns latest Crowdfund Stats
+     * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
+     *
+     * @return \Dingo\Api\Http\Response
      */
-    public function getFans(): Stat;
-
-    /**
-     * @return \Illuminate\Http\Resources\Json\Resource
-     */
-    public function getFleet(): Stat;
-
-    /**
-     * @return \Illuminate\Http\Resources\Json\Resource
-     */
-    public function getFunds(): Stat;
+    public function getLatest();
 }

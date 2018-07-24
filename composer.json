@@ -9,6 +9,7 @@
   "type": "project",
   "require": {
     "php": ">=7.2",
+    "dingo/api": "2.0.0-alpha2",
     "fideloper/proxy": "~4.0",
     "guzzlehttp/guzzle": "^6.3",
     "hesto/multi-auth": "^1.0",

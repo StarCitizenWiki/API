@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
+use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -53,23 +54,24 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes()
     {
-        Route::middleware('api')
-            ->name('api.')
-            ->namespace($this->namespace)
-            ->prefix('api')
-            ->group(
-                function () {
-                    Route::namespace('Api')
-                        ->group(
-                            function () {
-                                Route::name('v1.')
-                                    ->prefix('v1')
-                                    ->namespace('V1')
-                                    ->group(base_path('routes/api/api_v1.php'));
-                            }
-                        );
-                }
-            );
+        /** @var \Dingo\Api\Routing\Router $api */
+        $api = app('Dingo\Api\Routing\Router');
+
+        $api->version(
+            'v1',
+            [
+                'namespace' => $this->namespace.'\API\V1',
+                'middleware' => 'api',
+            ],
+            function (ApiRouter $api) {
+                $api->group(
+                    [],
+                    function (ApiRouter $api) {
+                        require_once base_path('routes/api/api_v1.php');
+                    }
+                );
+            }
+        );
     }
 
     /**

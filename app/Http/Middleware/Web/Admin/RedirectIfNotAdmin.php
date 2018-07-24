@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Middleware;
+namespace App\Http\Middleware\Web\Admin;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;

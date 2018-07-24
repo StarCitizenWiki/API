@@ -42,7 +42,6 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'add_api_headers',
             'bindings',
             'throttle:requests_per_minute,1',
             'update_token_timestamp',
@@ -57,8 +56,8 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'admin' => \App\Http\Middleware\RedirectIfNotAdmin::class,
-        'admin.guest' => \App\Http\Middleware\RedirectIfAdmin::class,
+        'admin' => \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin::class,
+        'admin.guest' => \App\Http\Middleware\Web\Admin\RedirectIfAdmin::class,
         'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,

@@ -27,14 +27,14 @@ class PiwikTracking
         /**
          * Local nicht tracken
          */
-        if (App::environment('production') && config('api.piwik.enabled')) {
+        if (App::environment('production') && config('tracking.enabled')) {
             /**
              * Piwik Tracker Class
              *
              * @var \PiwikTracker $piwikClient
              */
-            $piwikClient = new PiwikTracker(config('api.piwik.site_id'));
-            $piwikClient::$URL = config('api.piwik.url');
+            $piwikClient = new PiwikTracker(config('tracking.site_id'));
+            $piwikClient::$URL = config('tracking.url');
 
             $piwikClient->setUrl($request->fullUrl());
             $piwikClient->setGenerationTime(microtime(true) - LARAVEL_START);

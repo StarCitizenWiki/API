@@ -4,17 +4,16 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
-use InvalidArgumentException;
 
 /**
- * Class StatsAPIController
+ * @Resource("Stats", uri="/stats")
  */
 class StatController extends Controller
 {
     /**
      * StatsRepository
      *
-     * @var \App\Repositories\StarCitizen\Api\v1\Stats\StatsRepository
+     * @var \App\Repositories\Api\V1\StarCitizen\Stats\StatsRepository
      */
     private $repository;
 
@@ -30,20 +29,34 @@ class StatController extends Controller
     }
 
     /**
-     * @param string $method
-     * @param array  $parameters
+     * Get Latest Crowdfund Stats
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @Get("/latest")
+     *
+     * @Versions({"v1"})
+     *
+     * @return \Dingo\Api\Http\Response
      */
-    public function __call($method, $parameters)
+    public function getLatest()
     {
-        if (method_exists($this->repository, $method) && is_callable([$this->repository, $method])) {
-            /** @var \App\Http\Resources\Api\V1\StarCitizen\Stat\Stat $return */
-            $return = call_user_func_array([$this->repository, $method], []);
+        return $this->repository->getLatest();
+    }
 
-            return $return;
-        }
-
-        throw new InvalidArgumentException("Method {$method} does not exist in Repository!");
+    /**
+     * Get All Crowdfund Stats paginated
+     *
+     * @Get("/all")
+     *
+     * @Versions({"v1"})
+     *
+     * @Parameters({
+     *      @Parameter("page", description="The page of results to view.", default=1)
+     * })
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function getAll()
+    {
+        return $this->repository->getAll();
     }
 }

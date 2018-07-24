@@ -8,58 +8,65 @@
 namespace App\Repositories\Api\V1\StarCitizen\Stats;
 
 use App\Models\Api\StarCitizen\Stat;
-use App\Http\Resources\Api\V1\StarCitizen\Stat\Stat as StatResource;
-use App\Repositories\AbstractBaseRepository as BaseRepository;
 use App\Repositories\Api\V1\StarCitizen\Interfaces\Stats\StatsRepositoryInterface;
+use App\Transformers\Api\V1\StarCitizen\Stats\StatsTransformer;
+use Dingo\Api\Routing\Helpers;
 
 /**
  * Class StatsRepository
  */
 class StatsRepository implements StatsRepositoryInterface
 {
+    use Helpers;
+
+    private $transformer;
+
+    /**
+     * StatsRepository constructor.
+     */
+    public function __construct()
+    {
+        $this->transformer = new StatsTransformer();
+    }
 
     /**
      * Returns all Crowdfund Stats
      * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
-     * @return Fractal
+     * @return \Dingo\Api\Http\Response
      */
     public function getAll()
     {
         $stats = Stat::orderByDesc('created_at')->paginate();
 
-        return new StatResource(Stat::find(1111111));
+        if (null === $stats) {
+            return $this->emptyStat();
+        }
 
-        return StatResource::collection($stats);
+        return $this->response->paginator($stats, $this->transformer);
     }
 
     /**
-     * @return \Spatie\Fractal\Fractal
+     * @return \Dingo\Api\Http\Response
      */
-    public function getFans(): StatResource
+    public function getLatest()
     {
-        $stats = Stat::select('fans')->orderByDesc('created_at')->first();
+        $stat = Stat::orderByDesc('created_at')->first();
 
-        return $this->manager->item($stats, FansTransformer::class);
+        if (null === $stat) {
+            return $this->emptyStat();
+        }
+
+        return $this->response->item($stat, $this->transformer);
     }
 
     /**
-     * @return \Spatie\Fractal\Fractal
+     * Empty Model
+     *
+     * @return \Dingo\Api\Http\Response
      */
-    public function getFleet(): StatResource
+    private function emptyStat()
     {
-        $stats = Stat::select('fleet')->orderByDesc('created_at')->first();
-
-        return $this->manager->item($stats, FleetTransformer::class);
-    }
-
-    /**
-     * @return \Spatie\Fractal\Fractal
-     */
-    public function getFunds(): StatResource
-    {
-        $stats = Stat::select('funds')->orderByDesc('created_at')->first();
-
-        return $this->manager->item($stats, FundsTransformer::class);
+        return $this->response->item(new Stat(), $this->transformer);
     }
 }
