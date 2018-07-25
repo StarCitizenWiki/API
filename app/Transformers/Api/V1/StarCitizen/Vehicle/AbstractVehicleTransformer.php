@@ -16,6 +16,11 @@ use League\Fractal\TransformerAbstract;
  */
 abstract class AbstractVehicleTransformer extends TransformerAbstract
 {
+    /**
+     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     *
+     * @return array
+     */
     protected function getFociTranslations(Vehicle $vehicle)
     {
         /** @var \Illuminate\Support\Collection $foci */
@@ -37,31 +42,61 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
         return $fociTranslations;
     }
 
+    /**
+     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     *
+     * @return array
+     */
     protected function getProductionStatusTranslations(Vehicle $vehicle)
     {
         return $this->extractFromCollection($vehicle->productionStatus->translations);
     }
 
+    /**
+     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     *
+     * @return array
+     */
     protected function getProductionNoteTranslations(Vehicle $vehicle)
     {
         return $this->extractFromCollection($vehicle->productionNote->translations);
     }
 
+    /**
+     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     *
+     * @return array
+     */
     protected function getDescriptionTranslations(Vehicle $vehicle)
     {
         return $this->extractFromCollection($vehicle->description);
     }
 
+    /**
+     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     *
+     * @return array
+     */
     protected function getTypeTranslations(Vehicle $vehicle)
     {
         return $this->extractFromCollection($vehicle->type->translations);
     }
 
+    /**
+     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     *
+     * @return array
+     */
     protected function getSizeTranslations(Vehicle $vehicle)
     {
         return $this->extractFromCollection($vehicle->size->translations);
     }
 
+    /**
+     * @param \Illuminate\Support\Collection $collection
+     *
+     * @return array
+     */
     private function extractFromCollection(Collection $collection): array
     {
         $translations = [];

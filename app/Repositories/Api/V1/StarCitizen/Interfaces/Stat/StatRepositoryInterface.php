@@ -14,17 +14,15 @@ interface StatRepositoryInterface
 {
     /**
      * Returns all Crowdfund Stats
-     * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
      * @return \Dingo\Api\Http\Response
      */
-    public function getAll();
+    public function all();
 
     /**
      * Returns latest Crowdfund Stats
-     * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
      * @return \Dingo\Api\Http\Response
      */
-    public function getLatest();
+    public function latest();
 }

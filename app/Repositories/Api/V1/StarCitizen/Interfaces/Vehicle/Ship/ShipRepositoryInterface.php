@@ -12,7 +12,19 @@ namespace App\Repositories\Api\V1\StarCitizen\Interfaces\Vehicle\Ship;
  */
 interface ShipRepositoryInterface
 {
-    public function get(string $name);
+    /**
+     * Return all Ships paginated
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function all();
 
-    public function getAll();
+    /**
+     * Display a Ship by Name
+     *
+     * @param string $shipName The Ship Name
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function show(string $shipName);
 }

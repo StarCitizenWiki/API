@@ -35,17 +35,26 @@ class StatController extends Controller
      *
      * @Versions({"v1"})
      *
+     * @Response(200, body={
+     *     "data": {
+     *          "funds": "180000000",
+     *          "fans": "2000000",
+     *          "fleet": "1500000",
+     *          "timestamp": "2018-01-02 20:00:00"
+     *      }
+     * })
+     *
      * @return \Dingo\Api\Http\Response
      */
-    public function getLatest()
+    public function latest()
     {
-        return $this->repository->getLatest();
+        return $this->repository->latest();
     }
 
     /**
      * Get All Crowdfund Stats paginated
      *
-     * @Get("/all")
+     * @Get("/")
      *
      * @Versions({"v1"})
      *
@@ -53,10 +62,40 @@ class StatController extends Controller
      *      @Parameter("page", description="The page of results to view.", default=1)
      * })
      *
+     * @Response(200, body={
+     *     "data": {
+     *          {
+     *              "funds": "180000000",
+     *              "fans": "2000000",
+     *              "fleet": "1500000",
+     *              "timestamp": "2018-01-02 20:00:00"
+     *          },
+     *          {
+     *              "funds": "...",
+     *              "fans": "...",
+     *              "fleet": "...",
+     *              "timestamp": "2018-01-01 20:00:00"
+     *          }
+     *     },
+     *     "meta": {
+     *          "pagination": {
+     *              "total": 1000,
+     *              "count": 15,
+     *              "per_page": 15,
+     *              "current_page": 1,
+     *              "total_pages": 100,
+     *              "links": {
+     *                  "next": "Link",
+     *                  "prev": "Link"
+     *              }
+     *          }
+     *     }
+     * })
+     *
      * @return \Dingo\Api\Http\Response
      */
-    public function getAll()
+    public function index()
     {
-        return $this->repository->getAll();
+        return $this->repository->all();
     }
 }

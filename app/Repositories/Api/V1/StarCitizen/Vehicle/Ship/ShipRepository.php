@@ -19,14 +19,40 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ShipRepository extends BaseRepository implements ShipRepositoryInterface
 {
-    public function getAll()
-    {
-        $ships = Ship::paginate(5);
+    /**
+     * @var \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer
+     */
+    private $transformer;
 
-        return $this->response->paginator($ships, new ShipTransformer());
+    /**
+     * ShipRepository constructor.
+     * @param \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer $transformer
+     */
+    public function __construct(ShipTransformer $transformer)
+    {
+        $this->transformer = $transformer;
     }
 
-    public function get(string $shipName)
+    /**
+     * Return all Ships paginated
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function all()
+    {
+        $ships = Ship::paginate();
+
+        return $this->response->paginator($ships, $this->transformer);
+    }
+
+    /**
+     * Display a Ship by Name
+     *
+     * @param string $shipName The Ship Name
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function show(string $shipName)
     {
         $shipName = str_replace('_', ' ', $shipName);
         try {
@@ -35,6 +61,6 @@ class ShipRepository extends BaseRepository implements ShipRepositoryInterface
             throw new NotFoundHttpException(sprintf('No Ship found for Query: %s', $shipName));
         }
 
-        return $this->response->item($ship, new ShipTransformer());
+        return $this->response->item($ship, $this->transformer);
     }
 }

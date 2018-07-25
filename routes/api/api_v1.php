@@ -11,8 +11,8 @@ $api->group(
                 'prefix' => 'stats',
             ],
             function ($api) {
-                $api->get('latest', ['as' => 'api.v1.stats.latest', 'uses' => 'StatController@getLatest']);
-                $api->get('all', ['as' => 'api.v1.stats.all', 'uses' => 'StatController@getAll']);
+                $api->get('latest', ['as' => 'api.v1.stats.latest', 'uses' => 'StatController@latest']);
+                $api->get('/', ['as' => 'api.v1.stats.all', 'uses' => 'StatController@index']);
             }
         );
 
@@ -28,7 +28,7 @@ $api->group(
                         'prefix' => 'ships',
                     ],
                     function ($api) {
-                        $api->get('all', ['as' => 'api.v1.vehicles.ships.all', 'uses' => 'ShipController@getAll']);
+                        $api->get('/', ['as' => 'api.v1.vehicles.ships.all', 'uses' => 'ShipController@index']);
                         $api->get('{ship}', ['as' => 'api.v1.vehicles.ships.show', 'uses' => 'ShipController@show']);
                     }
                 );

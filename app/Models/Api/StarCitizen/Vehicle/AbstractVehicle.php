@@ -25,11 +25,16 @@ abstract class AbstractVehicle extends Model implements VehicleInterface
         'pivot',
     ];
 
+    protected $perPage = 5;
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     abstract public function description();
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function translations()
     {
         return $this->description();
@@ -52,7 +57,7 @@ abstract class AbstractVehicle extends Model implements VehicleInterface
      */
     public function manufacturer()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Manufacturer\Manufacturer', 'cig_id');
+        return $this->belongsTo('App\Models\Api\StarCitizen\Manufacturer\Manufacturer', 'manufacturer_id', 'cig_id');
     }
 
     /**

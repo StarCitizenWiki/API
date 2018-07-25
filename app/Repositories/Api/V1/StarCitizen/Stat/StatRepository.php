@@ -10,7 +10,7 @@ namespace App\Repositories\Api\V1\StarCitizen\Stat;
 use App\Models\Api\StarCitizen\Stat;
 use App\Repositories\AbstractBaseRepository as BaseRepository;
 use App\Repositories\Api\V1\StarCitizen\Interfaces\Stat\StatRepositoryInterface;
-use App\Transformers\Api\V1\StarCitizen\Stat\ShipTransformer;
+use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
 
 /**
  * Class StatsRepository
@@ -18,25 +18,25 @@ use App\Transformers\Api\V1\StarCitizen\Stat\ShipTransformer;
 class StatRepository extends BaseRepository implements StatRepositoryInterface
 {
     /**
-     * @var \App\Transformers\Api\V1\StarCitizen\Stat\ShipTransformer
+     * @var \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer
      */
     private $transformer;
 
     /**
      * StatsRepository constructor.
+     * @param \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer $transformer
      */
-    public function __construct()
+    public function __construct(StatTransformer $transformer)
     {
-        $this->transformer = new ShipTransformer();
+        $this->transformer = $transformer;
     }
 
     /**
      * Returns all Crowdfund Stats
-     * https://robertsspaceindustries.com/api/stats/getCrowdfundStats
      *
      * @return \Dingo\Api\Http\Response
      */
-    public function getAll()
+    public function all()
     {
         $stats = Stat::orderByDesc('created_at')->paginate();
 
@@ -50,7 +50,7 @@ class StatRepository extends BaseRepository implements StatRepositoryInterface
     /**
      * @return \Dingo\Api\Http\Response
      */
-    public function getLatest()
+    public function latest()
     {
         $stat = Stat::orderByDesc('created_at')->first();
 
