@@ -8,11 +8,11 @@
 namespace App\Repositories\Api\V1\StarCitizen\Vehicle\Ship;
 
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\System\Language;
 use App\Repositories\AbstractBaseRepository as BaseRepository;
 use App\Repositories\Api\V1\StarCitizen\Interfaces\Vehicle\Ship\ShipRepositoryInterface;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class ShipsRepository
@@ -31,6 +31,17 @@ class ShipRepository extends BaseRepository implements ShipRepositoryInterface
     public function __construct(ShipTransformer $transformer)
     {
         $this->transformer = $transformer;
+    }
+
+    public function setLocale(string $locale)
+    {
+        try {
+            Language::where('locale_code', $locale)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            $this->response->errorBadRequest(sprintf("Locale Code %s is not valid!", $locale));
+        }
+
+        $this->transformer->setLocale($locale);
     }
 
     /**
@@ -58,7 +69,7 @@ class ShipRepository extends BaseRepository implements ShipRepositoryInterface
         try {
             $ship = Ship::where('name', $shipName)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            throw new NotFoundHttpException(sprintf('No Ship found for Query: %s', $shipName));
+            $this->response->errorNotFound(sprintf('No Ship found for Query: %s', $shipName));
         }
 
         return $this->response->item($ship, $this->transformer);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\Api\V1\StarCitizen\Interfaces\Vehicle\Ship\ShipRepositoryInterface;
+use Illuminate\Http\Request;
 
 /**
  * @Resource("Ships", uri="/vehicles/ships")
@@ -94,8 +95,12 @@ class ShipController extends Controller
      * })
      * @Response(404, body={"message": "No Ship found for Query: Ship Name", "status_code": 404})
      */
-    public function show(string $shipName)
+    public function show(string $shipName, Request $request)
     {
+        if ($request->has('locale')) {
+            $this->repository->setLocale($request->get('locale'));
+        }
+
         return $this->repository->show($shipName);
     }
 

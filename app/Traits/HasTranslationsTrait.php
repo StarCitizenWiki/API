@@ -28,6 +28,11 @@ trait HasTranslationsTrait
         return $this->translations()->german()->first();
     }
 
+    public function ofLanguage(string $localeCode)
+    {
+        return $this->translations()->ofLanguage($localeCode)->first();
+    }
+
     /**
      * Group Translations by Locale Code
      *

@@ -16,6 +16,18 @@ use League\Fractal\TransformerAbstract;
  */
 abstract class AbstractVehicleTransformer extends TransformerAbstract
 {
+    private $localeCode;
+
+    /**
+     * Set the Locale
+     *
+     * @param string $localeCode
+     */
+    public function setLocale(string $localeCode)
+    {
+        $this->localeCode = $localeCode;
+    }
+
     /**
      * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
      *
@@ -29,13 +41,18 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
 
         $foci->each(
             function ($vehicleFocus) use (&$fociTranslations) {
-                $translationsArray = [];
-                $vehicleFocus->translations->each(
-                    function ($translation) use (&$translationsArray) {
-                        $translationsArray[$translation->locale_code] = $translation->translation;
-                    }
-                );
-                $fociTranslations[] = $translationsArray;
+                if (null !== $this->localeCode) {
+                    $fociTranslations[] = optional($vehicleFocus->ofLanguage($this->localeCode))->translation;
+                } else {
+                    $translationsArray = [];
+
+                    $vehicleFocus->translations->each(
+                        function ($translation) use (&$translationsArray) {
+                            $translationsArray[$translation->locale_code] = $translation->translation;
+                        }
+                    );
+                    $fociTranslations[] = $translationsArray;
+                }
             }
         );
 
@@ -49,6 +66,10 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
      */
     protected function getProductionStatusTranslations(Vehicle $vehicle)
     {
+        if (null !== $this->localeCode) {
+            return optional($vehicle->productionStatus->ofLanguage($this->localeCode))->translation;
+        }
+
         return $this->extractFromCollection($vehicle->productionStatus->translations);
     }
 
@@ -59,6 +80,10 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
      */
     protected function getProductionNoteTranslations(Vehicle $vehicle)
     {
+        if (null !== $this->localeCode) {
+            return optional($vehicle->productionNote->ofLanguage($this->localeCode))->translation;
+        }
+
         return $this->extractFromCollection($vehicle->productionNote->translations);
     }
 
@@ -69,6 +94,10 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
      */
     protected function getDescriptionTranslations(Vehicle $vehicle)
     {
+        if (null !== $this->localeCode) {
+            return optional($vehicle->ofLanguage($this->localeCode))->translation;
+        }
+
         return $this->extractFromCollection($vehicle->description);
     }
 
@@ -79,6 +108,10 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
      */
     protected function getTypeTranslations(Vehicle $vehicle)
     {
+        if (null !== $this->localeCode) {
+            return optional($vehicle->type->ofLanguage($this->localeCode))->translation;
+        }
+
         return $this->extractFromCollection($vehicle->type->translations);
     }
 
@@ -89,6 +122,10 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
      */
     protected function getSizeTranslations(Vehicle $vehicle)
     {
+        if (null !== $this->localeCode) {
+            return optional($vehicle->size->ofLanguage($this->localeCode))->translation;
+        }
+
         return $this->extractFromCollection($vehicle->size->translations);
     }
 
@@ -102,8 +139,8 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
         $translations = [];
 
         $collection->each(
-            function ($vehicleFocusTranslation) use (&$translations) {
-                $translations[$vehicleFocusTranslation->locale_code] = $vehicleFocusTranslation->translation;
+            function ($translation) use (&$translations) {
+                $translations[$translation->locale_code] = $translation->translation;
             }
         );
 

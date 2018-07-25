@@ -48,4 +48,9 @@ abstract class AbstractTranslation extends Model
     {
         return $query->where($this->getTable().'.locale_code', config('language.german'));
     }
+
+    public function scopeOfLanguage(Builder $query, string $localeCode)
+    {
+        return $query->where($this->getTable().'.locale_code', $localeCode);
+    }
 }

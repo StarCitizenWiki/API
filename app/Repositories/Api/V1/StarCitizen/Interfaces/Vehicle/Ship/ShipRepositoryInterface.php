@@ -27,4 +27,6 @@ interface ShipRepositoryInterface
      * @return \Dingo\Api\Http\Response
      */
     public function show(string $shipName);
+
+    public function setLocale(string $locale);
 }
