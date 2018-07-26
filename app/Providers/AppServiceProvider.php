@@ -75,10 +75,6 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface::class,
             \App\Repositories\StarCitizen\Api\v1\Starmap\StarmapRepository::class
         );
-        $this->app->bind(
-            \App\Repositories\Api\V1\StarCitizen\Interfaces\Vehicle\Ship\ShipRepositoryInterface::class,
-            \App\Repositories\Api\V1\StarCitizen\Vehicle\Ship\ShipRepository::class
-        );
     }
 
     /**

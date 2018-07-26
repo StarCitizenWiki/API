@@ -2,16 +2,13 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle;
 
-use App\Traits\HasTranslationsTrait as Translations;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
 
 /**
  * Abstract Vehicle Class
  */
-abstract class AbstractVehicle extends Model implements VehicleInterface
+abstract class AbstractVehicle extends HasTranslations
 {
-    use Translations;
-
     protected $with = [
         'foci',
         'manufacturer',
@@ -19,6 +16,7 @@ abstract class AbstractVehicle extends Model implements VehicleInterface
         'productionNote',
         'size',
         'type',
+        'translations',
     ];
 
     protected $hidden = [
@@ -30,15 +28,7 @@ abstract class AbstractVehicle extends Model implements VehicleInterface
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    abstract public function description();
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function translations()
-    {
-        return $this->description();
-    }
+    abstract public function translations();
 
     /**
      * The Vehicle Foci
