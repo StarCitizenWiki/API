@@ -1,21 +1,18 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 13.07.2018
- * Time: 13:34
- */
 
-namespace App\Traits;
+namespace App\Models\Api\Translation;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
- * Trait HasTranslationsTrait
+ * Base Translation Class which holds Language Query Scopes
  */
-trait HasTranslationsTrait
+abstract class AbstractHasTranslations extends Model
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function english()
     {
@@ -23,13 +20,20 @@ trait HasTranslationsTrait
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function german()
     {
         return $this->translations()->german()->first();
     }
 
+    /**
+     * Get a Translation of a given locale
+     *
+     * @param string $localeCode
+     *
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
     public function ofLanguage(string $localeCode)
     {
         return $this->translations()->ofLanguage($localeCode)->first();
@@ -49,7 +53,7 @@ trait HasTranslationsTrait
     }
 
     /**
-     * Translations Joined with Languages
+     * Translations Right Joined with Languages
      *
      * @return \Illuminate\Support\Collection
      */

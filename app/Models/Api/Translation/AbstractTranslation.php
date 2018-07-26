@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api;
+namespace App\Models\Api\Translation;
 
 use App\Traits\HasCompositePrimaryKeyTrait as CompositePrimaryKey;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +13,7 @@ abstract class AbstractTranslation extends Model
 {
     use CompositePrimaryKey;
 
+    const ATTR_LOCALE_CODE = '.locale_code';
     public $incrementing = false;
 
     /**
@@ -34,7 +35,7 @@ abstract class AbstractTranslation extends Model
      */
     public function scopeEnglish(Builder $query)
     {
-        return $query->where($this->getTable().'.locale_code', config('language.english'));
+        return $query->where($this->getTable().self::ATTR_LOCALE_CODE, config('language.english'));
     }
 
     /**
@@ -46,11 +47,17 @@ abstract class AbstractTranslation extends Model
      */
     public function scopeGerman(Builder $query)
     {
-        return $query->where($this->getTable().'.locale_code', config('language.german'));
+        return $query->where($this->getTable().self::ATTR_LOCALE_CODE, config('language.german'));
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string                                $localeCode
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeOfLanguage(Builder $query, string $localeCode)
     {
-        return $query->where($this->getTable().'.locale_code', $localeCode);
+        return $query->where($this->getTable().self::ATTR_LOCALE_CODE, $localeCode);
     }
 }

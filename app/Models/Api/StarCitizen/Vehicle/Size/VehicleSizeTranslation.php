@@ -2,7 +2,7 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle\Size;
 
-use App\Models\Api\AbstractTranslation as Translation;
+use App\Models\Api\Translation\AbstractTranslation as Translation;
 
 /**
  * Vehicle Size Translations Model

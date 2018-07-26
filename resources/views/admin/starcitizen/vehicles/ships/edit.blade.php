@@ -265,7 +265,7 @@
             <div class="wrapper">
                 <h4 class="card-header">@lang('Übersetzungen')</h4>
                 <div class="card-body">
-                    @foreach($ship->descriptionsCollection() as $key => $translation)
+                    @foreach($ship->translationsCollection() as $key => $translation)
                         @component('components.forms.form-group', [
                             'inputType' => 'textarea',
                             'label' => __('Beschreibung ').$key,

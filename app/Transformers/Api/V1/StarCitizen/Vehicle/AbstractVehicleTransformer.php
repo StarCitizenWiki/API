@@ -7,14 +7,16 @@
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\VehicleInterface as Vehicle;
-use Illuminate\Support\Collection;
+use App\Models\Api\StarCitizen\Vehicle\AbstractVehicle as Vehicle;
+use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Transformers\Api\LocaleAwareTransformerInterface as LocaleAwareTransformer;
 use League\Fractal\TransformerAbstract;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class AbstractVehicleTransformer
  */
-abstract class AbstractVehicleTransformer extends TransformerAbstract
+abstract class AbstractVehicleTransformer extends TransformerAbstract implements LocaleAwareTransformer
 {
     private $localeCode;
 
@@ -25,11 +27,15 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
      */
     public function setLocale(string $localeCode)
     {
+        if (!in_array($localeCode, config('language.codes'))) {
+            throw new BadRequestHttpException(sprintf("Locale Code %s is not valid", $localeCode));
+        }
+
         $this->localeCode = $localeCode;
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
      *
      * @return array
      */
@@ -41,18 +47,7 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
 
         $foci->each(
             function ($vehicleFocus) use (&$fociTranslations) {
-                if (null !== $this->localeCode) {
-                    $fociTranslations[] = optional($vehicleFocus->ofLanguage($this->localeCode))->translation;
-                } else {
-                    $translationsArray = [];
-
-                    $vehicleFocus->translations->each(
-                        function ($translation) use (&$translationsArray) {
-                            $translationsArray[$translation->locale_code] = $translation->translation;
-                        }
-                    );
-                    $fociTranslations[] = $translationsArray;
-                }
+                $fociTranslations[] = $this->getTranslation($vehicleFocus);
             }
         );
 
@@ -60,87 +55,86 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
      *
      * @return array
      */
     protected function getProductionStatusTranslations(Vehicle $vehicle)
     {
-        if (null !== $this->localeCode) {
-            return optional($vehicle->productionStatus->ofLanguage($this->localeCode))->translation;
-        }
-
-        return $this->extractFromCollection($vehicle->productionStatus->translations);
+        return $this->getTranslation($vehicle->productionStatus);
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
      *
      * @return array
      */
     protected function getProductionNoteTranslations(Vehicle $vehicle)
     {
-        if (null !== $this->localeCode) {
-            return optional($vehicle->productionNote->ofLanguage($this->localeCode))->translation;
-        }
-
-        return $this->extractFromCollection($vehicle->productionNote->translations);
+        return $this->getTranslation($vehicle->productionNote);
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
      *
      * @return array
      */
     protected function getDescriptionTranslations(Vehicle $vehicle)
     {
-        if (null !== $this->localeCode) {
-            return optional($vehicle->ofLanguage($this->localeCode))->translation;
-        }
-
-        return $this->extractFromCollection($vehicle->description);
+        return $this->getTranslation($vehicle);
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
      *
      * @return array
      */
     protected function getTypeTranslations(Vehicle $vehicle)
     {
-        if (null !== $this->localeCode) {
-            return optional($vehicle->type->ofLanguage($this->localeCode))->translation;
-        }
-
-        return $this->extractFromCollection($vehicle->type->translations);
+        return $this->getTranslation($vehicle->type);
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\VehicleInterface $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
      *
      * @return array
      */
     protected function getSizeTranslations(Vehicle $vehicle)
     {
-        if (null !== $this->localeCode) {
-            return optional($vehicle->size->ofLanguage($this->localeCode))->translation;
-        }
-
-        return $this->extractFromCollection($vehicle->size->translations);
+        return $this->getTranslation($vehicle->size);
     }
 
     /**
-     * @param \Illuminate\Support\Collection $collection
+     * If a valid locale code is set this function will return the corresponding translation or use english as a fallback
+     * @Todo Generate Array with translations that used the english fallback
      *
-     * @return array
+     * @param \App\Models\Api\Translation\AbstractHasTranslations $model
+     *
+     * @return array|string the Translation
      */
-    private function extractFromCollection(Collection $collection): array
+    private function getTranslation(HasTranslations $model)
     {
+        app('Log')::debug(
+            "Relation translations for Model ".get_class($model)." is loaded: {$model->relationLoaded('translations')}"
+        );
+
         $translations = [];
 
-        $collection->each(
+        $model->translations->each(
             function ($translation) use (&$translations) {
-                $translations[$translation->locale_code] = $translation->translation;
+                if (null !== $this->localeCode) {
+                    if ($translation->locale_code === $this->localeCode ||
+                        (empty($translations) && $translation->locale_code === config('language.english'))) {
+                        $translations = $translation->translation;
+                    } else {
+                        // Translation already found, exit loop
+                        return false;
+                    }
+
+                    return $translation;
+                } else {
+                    $translations[$translation->locale_code] = $translation->translation;
+                }
             }
         );
 

@@ -3,8 +3,6 @@
 namespace App\Models\Api\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Models\Api\StarCitizen\Vehicle\AbstractVehicle as Vehicle;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Ground Vehicle Class
@@ -34,30 +32,8 @@ class GroundVehicle extends Vehicle
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function description()
+    public function translations()
     {
         return $this->hasMany(GroundVehicleTranslation::class);
-    }
-
-    /**
-     * Translations Joined with Languages
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function descriptionsCollection(): Collection
-    {
-        $collection = DB::table('ground_vehicle_translations')->select('*')->rightJoin(
-            'languages',
-            function ($join) {
-                /** @var $join \Illuminate\Database\Query\JoinClause */
-                $join->on(
-                    'ground_vehicle_translations.locale_code',
-                    '=',
-                    'languages.locale_code'
-                )->where('ground_vehicle_translations.vehicle_id', '=', $this->getKey());
-            }
-        )->get();
-
-        return $collection->keyBy('locale_code');
     }
 }

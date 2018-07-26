@@ -3,8 +3,6 @@
 namespace App\Models\Api\StarCitizen\Vehicle\Ship;
 
 use App\Models\Api\StarCitizen\Vehicle\AbstractVehicle as Vehicle;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Ship Model
@@ -40,30 +38,8 @@ class Ship extends Vehicle
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function description()
+    public function translations()
     {
         return $this->hasMany(ShipTranslation::class);
-    }
-
-    /**
-     * Translations Joined with Languages
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function descriptionsCollection(): Collection
-    {
-        $collection = DB::table('ship_translations')->select('*')->rightJoin(
-            'languages',
-            function ($join) {
-                /** @var $join \Illuminate\Database\Query\JoinClause */
-                $join->on(
-                    'ship_translations.locale_code',
-                    '=',
-                    'languages.locale_code'
-                )->where('ship_translations.ship_id', '=', $this->getKey());
-            }
-        )->get();
-
-        return $collection->keyBy('locale_code');
     }
 }
