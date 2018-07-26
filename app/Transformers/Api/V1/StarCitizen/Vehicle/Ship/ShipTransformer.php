@@ -41,15 +41,15 @@ class ShipTransformer extends VehicleTransformer
                 'scm' => $ship->scm_speed,
                 'afterburner' => $ship->afterburner_speed,
             ],
-            'rotation' => [
+            'agility' => [
                 'pitch' => $ship->pitch_max,
                 'yaw' => $ship->yaw_max,
                 'roll' => $ship->roll_max,
-            ],
-            'acceleration' => [
-                'x_axis' => $ship->x_axis_acceleration,
-                'y_axis' => $ship->y_axis_acceleration,
-                'z_axis' => $ship->z_axis_acceleration,
+                'acceleration' => [
+                    'x_axis' => $ship->x_axis_acceleration,
+                    'y_axis' => $ship->y_axis_acceleration,
+                    'z_axis' => $ship->z_axis_acceleration,
+                ],
             ],
             'foci' => $this->getFociTranslations($ship),
             'production_status' => $this->getProductionStatusTranslations($ship),
