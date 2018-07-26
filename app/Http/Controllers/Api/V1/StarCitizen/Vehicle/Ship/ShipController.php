@@ -214,7 +214,7 @@ class ShipController extends ApiController
      *                      "de_DE": "Reisen",
      *                      "en_EN": "Touring"
      *                  }
-     *              ],
+     *              },
      *              "production_status": {
      *                  "de_DE": "Flugbereit",
      *                  "en_EN": "flight-ready"
