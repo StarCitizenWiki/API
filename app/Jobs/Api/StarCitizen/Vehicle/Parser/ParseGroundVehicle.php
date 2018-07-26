@@ -74,7 +74,7 @@ class ParseGroundVehicle extends AbstractParseVehicle
             ]
         );
 
-        $groundVehicle->description()->create(
+        $groundVehicle->translations()->create(
             [
                 'locale_code' => self::LANGUAGE_EN,
                 'translation' => $this->rawData->get(self::VEHICLE_DESCRIPTION),
