@@ -4,7 +4,6 @@ namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Carbon;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -50,6 +49,35 @@ class ParseShip extends AbstractParseVehicle
         $this->updateShip($ship);
     }
 
+    protected function getModelContent(): array
+    {
+        return [
+            'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
+            'name' => (string) $this->rawData->get(self::VEHICLE_NAME),
+            'manufacturer_id' => (int) $this->getManufacturer()->cig_id,
+            'production_status_id' => (int) $this->getProductionStatus()->id,
+            'production_note_id' => (int) $this->getProductionNote()->id,
+            'vehicle_size_id' => (int) $this->getVehicleSize()->id,
+            'vehicle_type_id' => (int) $this->getVehicleType()->id,
+            'length' => (float) $this->rawData->get(self::VEHICLE_LENGTH),
+            'beam' => (float) $this->rawData->get(self::VEHICLE_BEAM),
+            'height' => (float) $this->rawData->get(self::VEHICLE_HEIGHT),
+            'mass' => (int) $this->rawData->get(self::VEHICLE_MASS),
+            'cargo_capacity' => (int) $this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
+            'min_crew' => (int) $this->rawData->get(self::VEHICLE_MIN_CREW),
+            'max_crew' => (int) $this->rawData->get(self::VEHICLE_MAX_CREW),
+            'scm_speed' => (int) $this->rawData->get(self::VEHICLE_SCM_SPEED),
+            'afterburner_speed' => (int) $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
+            'pitch_max' => (float) $this->rawData->get(self::SHIP_PITCH_MAX),
+            'yaw_max' => (float) $this->rawData->get(self::SHIP_YAW_MAX),
+            'roll_max' => (float) $this->rawData->get(self::SHIP_ROLL_MAX),
+            'x_axis_acceleration' => (float) $this->rawData->get(self::SHIP_X_AXIS_ACCELERATION),
+            'y_axis_acceleration' => (float) $this->rawData->get(self::SHIP_Y_AXIS_ACCELERATION),
+            'z_axis_acceleration' => (float) $this->rawData->get(self::SHIP_Z_AXIS_ACCELERATION),
+            'chassis_id' => (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID),
+        ];
+    }
+
     /**
      * Creates a new Ship Model
      */
@@ -58,33 +86,7 @@ class ParseShip extends AbstractParseVehicle
         app('Log')::debug('Creating new Ship');
 
         /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
-        $ship = Ship::create(
-            [
-                'cig_id' => $this->rawData->get(self::VEHICLE_ID),
-                'name' => $this->rawData->get(self::VEHICLE_NAME),
-                'manufacturer_id' => $this->getManufacturer()->cig_id,
-                'production_status_id' => $this->getProductionStatus()->id,
-                'production_note_id' => $this->getProductionNote()->id,
-                'vehicle_size_id' => $this->getVehicleSize()->id,
-                'vehicle_type_id' => $this->getVehicleType()->id,
-                'length' => $this->rawData->get(self::VEHICLE_LENGTH),
-                'beam' => $this->rawData->get(self::VEHICLE_BEAM),
-                'height' => $this->rawData->get(self::VEHICLE_HEIGHT),
-                'mass' => $this->rawData->get(self::VEHICLE_MASS),
-                'cargo_capacity' => $this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
-                'min_crew' => $this->rawData->get(self::VEHICLE_MIN_CREW),
-                'max_crew' => $this->rawData->get(self::VEHICLE_MAX_CREW),
-                'scm_speed' => $this->rawData->get(self::VEHICLE_SCM_SPEED),
-                'afterburner_speed' => $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
-                'pitch_max' => $this->rawData->get(self::SHIP_PITCH_MAX),
-                'yaw_max' => $this->rawData->get(self::SHIP_YAW_MAX),
-                'roll_max' => $this->rawData->get(self::SHIP_ROLL_MAX),
-                'x_axis_acceleration' => $this->rawData->get(self::SHIP_X_AXIS_ACCELERATION),
-                'y_axis_acceleration' => $this->rawData->get(self::SHIP_Y_AXIS_ACCELERATION),
-                'z_axis_acceleration' => $this->rawData->get(self::SHIP_Z_AXIS_ACCELERATION),
-                'chassis_id' => $this->rawData->get(self::VEHICLE_CHASSIS_ID),
-            ]
-        );
+        $ship = Ship::create($this->getModelContent());
 
         $ship->translations()->create(
             [
@@ -108,13 +110,26 @@ class ParseShip extends AbstractParseVehicle
     private function updateShip(Ship $ship)
     {
         app('Log')::debug('Updating Ship');
-        /** @var \Carbon\Carbon $updated */
-        $updatedAt = Carbon::createFromTimeString($this->rawData->get(self::TIME_MODIFIED_UNFILTERED));
 
-        if ($updatedAt->equalTo($ship->updated_at)) {
-            app('Log')::debug('Ship modified timestamp not changed, not updating');
+        $diff = array_diff($this->getModelContent(), $ship->attributesToArray());
+        if (!empty($diff)) {
+            $currentData = array_intersect_key($ship->attributesToArray(), $diff);
+            $changelog = [
+                'old' => $currentData,
+                'new' => $diff,
+            ];
 
-            return;
+            app('Log')::debug('Ship Attributes Changed:', $changelog);
+
+            $ship->changelogs()->create(
+                [
+                    'changelog' => json_encode($changelog),
+                ]
+            );
+
+            $ship->update($diff);
+        } else {
+            app('Log')::debug('No Changes detected');
         }
     }
 }
