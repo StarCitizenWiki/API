@@ -3,12 +3,15 @@
 namespace App\Models\Api\StarCitizen\Vehicle;
 
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasMultipleVersionsTrait as MultipleVersions;
 
 /**
  * Abstract Vehicle Class
  */
 abstract class AbstractVehicle extends HasTranslations
 {
+    use MultipleVersions;
+
     protected $with = [
         'foci',
         'manufacturer',

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 return [
 
@@ -64,6 +64,17 @@ return [
             'prefix' => '',
             'strict' => true,
             'engine' => null,
+
+            // Siehe https://github.com/laravel/framework/issues/14997#issuecomment-242129087
+            'modes' => [
+                // 'ONLY_FULL_GROUP_BY',
+                'STRICT_TRANS_TABLES',
+                'NO_ZERO_IN_DATE',
+                'NO_ZERO_DATE',
+                'ERROR_FOR_DIVISION_BY_ZERO',
+                'NO_AUTO_CREATE_USER',
+                'NO_ENGINE_SUBSTITUTION',
+            ],
         ],
 
         'pgsql' => [
