@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 
-use App\Http\Controllers\Controller;
-use App\Repositories\Api\V1\StarCitizen\Interfaces\Stat\StatRepositoryInterface;
+use App\Http\Controllers\Api\AbstractApiController as ApiController;
+use App\Models\Api\StarCitizen\Stat;
+use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
 
 /**
  * @Resource("Stats", uri="/stats")
  */
-class StatController extends Controller
+class StatController extends ApiController
 {
     /**
      * StatsRepository
      *
-     * @var \App\Repositories\Api\V1\StarCitizen\Stat\StatRepository
+     * @var \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer
      */
-    private $repository;
+    private $transformer;
 
     /**
      * StatsAPIController constructor.
      *
-     * @param \App\Repositories\Api\V1\StarCitizen\Interfaces\Stat\StatRepositoryInterface $repository
+     * @param \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer $transformer
      */
-    public function __construct(StatRepositoryInterface $repository)
+    public function __construct(StatTransformer $transformer)
     {
-        parent::__construct();
-        $this->repository = $repository;
+        $this->transformer = $transformer;
     }
 
     /**
@@ -48,7 +48,13 @@ class StatController extends Controller
      */
     public function latest()
     {
-        return $this->repository->latest();
+        $stat = Stat::orderByDesc('created_at')->first();
+
+        if (null === $stat) {
+            return $this->emptyStat();
+        }
+
+        return $this->response->item($stat, $this->transformer);
     }
 
     /**
@@ -96,6 +102,22 @@ class StatController extends Controller
      */
     public function index()
     {
-        return $this->repository->all();
+        $stats = Stat::orderByDesc('created_at')->paginate();
+
+        if (null === $stats) {
+            return $this->emptyStat();
+        }
+
+        return $this->response->paginator($stats, $this->transformer);
+    }
+
+    /**
+     * Empty Model
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    private function emptyStat()
+    {
+        return $this->response->item(new Stat(), $this->transformer);
     }
 }
