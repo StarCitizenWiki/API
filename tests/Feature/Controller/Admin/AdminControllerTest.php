@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Controller\Admin;
 
-use App\Models\Admin\Admin;
+use App\Models\Account\Admin\Admin;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -17,7 +17,7 @@ class AdminControllerTest extends TestCase
     private $admin;
 
     /**
-     * @covers \App\Http\Controllers\Admin\\AdminController::showRoutesView()
+     * @covers \App\Http\Controllers\Web\Admin\AdminController::showRoutesView()
      */
     public function testDashboardView()
     {

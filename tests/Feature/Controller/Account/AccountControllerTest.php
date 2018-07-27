@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Controller\Account;
 
-use App\Models\User;
+use App\Models\Account\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -23,7 +23,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\User\AccountController::showAccountView()
+     * @covers \App\Http\Controllers\Web\User\AccountController::showAccountView()
      * @covers \App\Http\Middleware\RedirectIfAuthenticated
      */
     public function testAccountView()
@@ -33,7 +33,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\User\AccountController::delete()
+     * @covers \App\Http\Controllers\Web\User\AccountController::delete()
      */
     public function testDeleteAccount()
     {
@@ -42,7 +42,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\User\AccountController::showEditAccountView()
+     * @covers \App\Http\Controllers\Web\User\AccountController::showEditAccountView()
      */
     public function testAccountEditFormView()
     {
@@ -51,7 +51,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\User\AccountController::updateAccount()
+     * @covers \App\Http\Controllers\Web\User\AccountController::updateAccount()
      * @covers \App\Http\Middleware\VerifyCsrfToken
      */
     public function testUpdateAccount()

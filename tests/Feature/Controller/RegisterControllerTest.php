@@ -2,13 +2,12 @@
 
 namespace Tests\Feature\Controller;
 
-use App\Http\Controllers\User\Auth\RegisterController;
+use App\Http\Controllers\Web\User\Auth\RegisterController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
  * Class RegisterControllerTest
- * @package Tests\Feature\Controller
  */
 class RegisterControllerTest extends TestCase
 {
@@ -27,7 +26,7 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\User\Auth\RegisterController::register()
+     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::register()
      * @covers \App\Events\UserRegistered
      */
     public function testRegistration()
@@ -37,9 +36,9 @@ class RegisterControllerTest extends TestCase
         $response = $this->post(
             'register',
             [
-                'email'                 => str_random(5).'@'.str_random(5).'.de',
-                'name'                  => str_random(5),
-                'password'              => $password,
+                'email' => str_random(5).'@'.str_random(5).'.de',
+                'name' => str_random(5),
+                'password' => $password,
                 'password_confirmation' => $password,
             ]
         );
@@ -49,7 +48,8 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\User\Auth\RegisterController::create()
+     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::create()
+     *
      * @throws \Exception
      */
     public function testCreate()
@@ -58,8 +58,8 @@ class RegisterControllerTest extends TestCase
         $email = strtolower($name).'@'.strtolower($name).'.de';
         $user = $this->controller->create(
             [
-                'name'     => $name,
-                'email'    => $email,
+                'name' => $name,
+                'email' => $email,
                 'password' => bcrypt($name),
             ]
         );
@@ -68,7 +68,7 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\User\Auth\RegisterController::showRegistrationForm()
+     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::showRegistrationForm()
      */
     public function testRegistrationFormView()
     {

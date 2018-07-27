@@ -60,14 +60,14 @@ class RouteServiceProvider extends ServiceProvider
         $api->version(
             'v1',
             [
-                'namespace' => $this->namespace.'\API\V1',
+                'namespace' => $this->namespace.'\Api\V1',
                 'middleware' => 'api',
             ],
             function (ApiRouter $api) {
                 $api->group(
                     [],
                     function (ApiRouter $api) {
-                        require_once base_path('routes/api/api_v1.php');
+                        require base_path('routes/api/api_v1.php');
                     }
                 );
             }

@@ -42,7 +42,7 @@ class UserTableSeeder extends Seeder
             ]
         );
 
-        if (App::environment() === 'local') {
+        if (App::environment() === 'local' || App::environment() === 'testing') {
             DB::table('users')->insert(
                 [
                     'name'                => 'Whitelisted',

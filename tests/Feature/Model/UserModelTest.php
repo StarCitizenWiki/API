@@ -2,24 +2,24 @@
 
 namespace Tests\Feature\Model;
 
-use App\Models\User;
+use App\Models\Account\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
  * Class UserModelTest
- * @package Tests\Feature\Model
  */
 class UserModelTest extends TestCase
 {
     use DatabaseTransactions;
 
     /**
-     * @covers \App\Models\User::updateUser()
+     * @covers \App\Models\Account\User::updateUser()
      */
     public function testUpdate()
     {
-        $updated = User::updateUser([
+        $user = User::find(1);
+        $updated = $user->update([
             'id' => 1,
             'name' => 'Updated',
         ]);
@@ -28,7 +28,7 @@ class UserModelTest extends TestCase
     }
 
     /**
-     * @covers \App\Models\User::isUnthrottled()
+     * @covers \App\Models\Account\User::isUnthrottled()
      */
     public function testisUnthrottled()
     {
@@ -37,7 +37,7 @@ class UserModelTest extends TestCase
     }
 
     /**
-     * @covers \App\Models\User::isUnthrottled()
+     * @covers \App\Models\Account\User::isUnthrottled()
      */
     public function testIsNotWhitelisted()
     {
@@ -46,7 +46,7 @@ class UserModelTest extends TestCase
     }
 
     /**
-     * @covers \App\Models\User::isBlocked()
+     * @covers \App\Models\Account\User::isBlocked()
      */
     public function testisBlocked()
     {
@@ -55,7 +55,7 @@ class UserModelTest extends TestCase
     }
 
     /**
-     * @covers \App\Models\User::isBlocked()
+     * @covers \App\Models\Account\User::isBlocked()
      */
     public function testIsNotBlacklisted()
     {

@@ -13,7 +13,7 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(
-    App\Models\User::class,
+    \App\Models\Account\User::class,
     function (Faker\Generator $faker) {
         static $password;
 
@@ -23,7 +23,7 @@ $factory->define(
             'api_token'                  => str_random(60),
             'password'                   => $password ?: $password = bcrypt('secret'),
             'requests_per_minute'        => 60,
-            'state'                      => \App\Models\User::STATE_DEFAULT,
+            'state'                      => \App\Models\Account\User::STATE_DEFAULT,
             'receive_notification_level' => 1,
             'notes'                      => '',
             'last_login'                 => date('Y-m-d H:i:s'),
