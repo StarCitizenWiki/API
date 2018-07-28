@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Controller\Api;
 
+use App\Models\Api\StarCitizen\Stat;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -9,6 +11,8 @@ use Tests\TestCase;
  */
 class StatControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * Tests Stats from Interfaces
      *
@@ -19,9 +23,14 @@ class StatControllerTest extends TestCase
     public function testAllApiView()
     {
         $response = $this->get('/api/stats');
-        $response->assertStatus(200);
-        $response->assertSee('data');
-        $response->assertSee('meta');
+        $response->assertStatus(200)
+            ->assertSee('data')
+            ->assertJsonCount(10, 'data')
+            ->assertSee('funds')
+            ->assertSee('fleet')
+            ->assertSee('fans')
+            ->assertSee('timestamp')
+            ->assertSee('meta');
     }
 
     /**
@@ -34,8 +43,21 @@ class StatControllerTest extends TestCase
     public function testLatestApiView()
     {
         $response = $this->get('/api/stats/latest');
-        $response->assertStatus(200);
-        $response->assertSee('funds');
+        $response->assertStatus(200)
+            ->assertSee('funds')
+            ->assertSee('fleet')
+            ->assertSee('fans')
+            ->assertSee('timestamp')
+            ->assertJsonCount(4, 'data');
     }
 
+    /**
+     * Creates Faked Stats in DB
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        factory(Stat::class, 10)->create();
+    }
 }
