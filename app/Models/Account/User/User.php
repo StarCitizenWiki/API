@@ -22,7 +22,7 @@ class User extends Authenticatable
     const STATE_BLOCKED = 2;
 
     protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class
+        'updating' => ModelUpdating::class,
     ];
 
     /**

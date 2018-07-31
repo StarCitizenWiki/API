@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\ModelUpdating;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 /**
@@ -20,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         'Illuminate\Auth\Events\Login' => [
             'App\Listeners\LogSuccessfulLogin',
+        ],
+        ModelUpdating::class => [
+            \App\Listeners\ModelUpdating::class,
         ],
     ];
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Api;
 
+use App\Events\ModelUpdating;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,16 @@ class Notification extends Model
         'deleted_at',
         'expired_at',
         'published_at',
+    ];
+
+    protected $casts = [
+        'output_status' => 'boolean',
+        'output_index' => 'boolean',
+        'output_email' => 'boolean',
+    ];
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
     ];
 
     /**
