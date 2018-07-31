@@ -3,9 +3,9 @@
 @section('title', '400 - Bad Request')
 
 @section('content')
-    @unless(empty($exception->getMessage()))
+    @unless(empty($exception->getMessage()) && config('app.debug') === true)
         😒 {{ $exception->getMessage() }}
     @else
-        😒 @lang('Bad Request')
     @endunless
+    😒 @lang('Bad Request')
 @endsection
