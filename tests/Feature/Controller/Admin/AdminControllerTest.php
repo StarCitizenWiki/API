@@ -4,15 +4,15 @@ namespace Tests\Feature\Controller\Admin;
 
 use App\Models\Account\Admin\Admin;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
  * Class AdminControllerTest
- * @package Tests\Feature\Controller
  */
 class AdminControllerTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private $admin;
 
@@ -28,6 +28,8 @@ class AdminControllerTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->admin = Admin::find(1);
+        $this->artisan('db:seed', ['--class' => 'AdminGroupTableSeeder']);
+        $this->admin = factory(Admin::class)->create();
+        $this->admin->groups()->sync([4, 5]);
     }
 }

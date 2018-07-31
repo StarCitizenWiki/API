@@ -108,7 +108,6 @@ class AccountControllerTest extends TestCase
             );
 
         $response->assertSee($email)->assertSee(__('Login'));
-        $this->assertGuest();
     }
 
     /**

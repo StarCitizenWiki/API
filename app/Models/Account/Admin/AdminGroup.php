@@ -14,6 +14,6 @@ class AdminGroup extends Model
      */
     public function admins()
     {
-        return $this->belongsToMany('App\Models\Admin\Admin')->withTimestamps();
+        return $this->belongsToMany(Admin::class)->withTimestamps();
     }
 }

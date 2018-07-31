@@ -3,6 +3,7 @@
 namespace App\Models\Account\User;
 
 use App\Events\ModelUpdating;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,6 +17,7 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
     use CanResetPassword;
+    use ModelChangelog;
 
     const STATE_DEFAULT = 0;
     const STATE_UNTHROTTLED = 1;
