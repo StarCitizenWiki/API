@@ -4,7 +4,7 @@ namespace Tests\Feature\Controller\Admin;
 
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\User\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -12,7 +12,7 @@ use Tests\TestCase;
  */
 class UserControllerTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     /**
      * @var \App\Models\Account\Admin\Admin
@@ -103,7 +103,9 @@ class UserControllerTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->admin = Admin::find(1);
-        $this->user = User::find(1);
+        $this->artisan('db:seed', ['--class' => 'AdminGroupTableSeeder']);
+        $this->admin = factory(Admin::class)->create();
+        $this->admin->groups()->sync([4, 5]);
+        $this->user = factory(User::class)->create();
     }
 }

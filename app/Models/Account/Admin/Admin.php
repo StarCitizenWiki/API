@@ -34,6 +34,6 @@ class Admin extends Authenticatable
      */
     public function groups()
     {
-        return $this->belongsToMany('App\Models\Admin\AdminGroup')->withTimestamps();
+        return $this->belongsToMany(AdminGroup::class)->withTimestamps();
     }
 }

@@ -23,13 +23,13 @@ class AdminTableSeeder extends Seeder
         DB::table('admin_admin_groups')->insert(
             [
                 'admin_id' => 1,
-                'group_id' => 4,
+                'admin_group_id' => 4,
             ]
         );
         DB::table('admin_admin_groups')->insert(
             [
                 'admin_id' => 1,
-                'group_id' => 5,
+                'admin_group_id' => 5,
             ]
         );
 
@@ -42,7 +42,7 @@ class AdminTableSeeder extends Seeder
         DB::table('admin_admin_groups')->insert(
             [
                 'admin_id' => 2,
-                'group_id' => 4,
+                'admin_group_id' => 4,
             ]
         );
 
@@ -56,7 +56,7 @@ class AdminTableSeeder extends Seeder
         DB::table('admin_admin_groups')->insert(
             [
                 'admin_id' => 3,
-                'group_id' => 2,
+                'admin_group_id' => 2,
             ]
         );
     }

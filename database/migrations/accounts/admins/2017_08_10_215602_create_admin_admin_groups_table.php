@@ -17,10 +17,10 @@ class CreateAdminAdminGroupsTable extends Migration
     public function up()
     {
         Schema::create(
-            'admin_admin_groups',
+            'admin_admin_group',
             function (Blueprint $table) {
                 $table->unsignedInteger('admin_id');
-                $table->unsignedInteger('group_id');
+                $table->unsignedInteger('admin_group_id');
 
                 $table->timestamps();
             }
@@ -34,6 +34,6 @@ class CreateAdminAdminGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('admin_admin_groups');
+        Schema::dropIfExists('admin_admin_group');
     }
 }
