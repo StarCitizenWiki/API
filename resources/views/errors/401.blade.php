@@ -3,9 +3,9 @@
 @section('title', '401 - Unauthorized')
 
 @section('content')
-    @unless(empty($exception->getMessage()))
+    @unless(empty($exception->getMessage()) && config('app.debug') === true)
         🚨 {{ $exception->getMessage() }}
     @else
-        🚨 @lang('Unauthorized')
     @endunless
+    🚨 @lang('Unauthorized')
 @endsection
