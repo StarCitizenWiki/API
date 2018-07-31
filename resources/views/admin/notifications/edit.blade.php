@@ -90,11 +90,9 @@
                 </div>
 
                 <button class="btn btn-outline-secondary" name="save">@lang('Speichern')</button>
-                @if($notification->trashed())
-                    <button class="btn btn-outline-success float-right" name="restore">@lang('Wiederherstellen')</button>
-                @else
+                @unless($notification->trashed())
                     <button class="btn btn-outline-danger float-right" name="delete">@lang('Löschen')</button>
-                @endif
+                @endunless
             @endcomponent
         </div>
     </div>

@@ -73,15 +73,11 @@
                                     @slot('edit_url')
                                         {{ route('web.admin.notifications.edit', $notification->getRouteKey()) }}
                                     @endslot
-                                    @if($notification->trashed())
-                                        @slot('restore_url')
-                                            {{ route('web.admin.notifications.edit', $notification->getRouteKey()) }}
-                                        @endslot
-                                    @else
+                                    @unless($notification->trashed())
                                         @slot('delete_url')
                                             {{ route('web.admin.notifications.destroy', $notification->getRouteKey()) }}
                                         @endslot
-                                    @endif
+                                    @endunless
                                     {{ $notification->getRouteKey() }}
                                 @endcomponent
                             </td>

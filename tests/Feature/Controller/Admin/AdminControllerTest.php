@@ -17,7 +17,7 @@ class AdminControllerTest extends TestCase
     private $admin;
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\AdminController::showRoutesView()
+     * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
      */
     public function testDashboardView()
     {

@@ -25,7 +25,7 @@ class UserControllerTest extends TestCase
     private $user;
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::showEditUserView()
+     * @covers \App\Http\Controllers\Web\Admin\UserController::showEditUserView
      * @covers \App\Http\Middleware\CheckIfAdmin
      */
     public function testEditUserView()
@@ -35,7 +35,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::showEditUserView()
+     * @covers \App\Http\Controllers\Web\Admin\UserController::showEditUserView
      */
     public function testShowUserViewException()
     {
@@ -44,7 +44,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::showEditUserView()
+     * @covers \App\Http\Controllers\Web\Admin\UserController::showEditUserView
      */
     public function testEditUserViewNotFound()
     {
@@ -53,7 +53,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::showUsersListView()
+     * @covers \App\Http\Controllers\Web\Admin\UserController::showUsersListView
      */
     public function testUsersView()
     {
@@ -62,7 +62,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::deleteUser()
+     * @covers \App\Http\Controllers\Web\Admin\UserController::deleteUser
      */
     public function testDeleteUser()
     {
@@ -71,7 +71,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::deleteUser()
+     * @covers \App\Http\Controllers\Web\Admin\UserController::deleteUser
      */
     public function testDeleteUserNotFound()
     {
@@ -80,7 +80,7 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::updateUser()
+     * @covers \App\Http\Controllers\Web\Admin\UserController::updateUser
      */
     public function testUpdateUser()
     {

@@ -127,10 +127,6 @@ class NotificationController extends Controller
             return $this->destroy($notification);
         }
 
-        if ($request->has('restore')) {
-            return $this->restore($notification);
-        }
-
         $data = $this->validate(
             $request,
             [
@@ -179,23 +175,6 @@ class NotificationController extends Controller
             self::ADMIN_NOTIFICATION_INDEX,
             [
                 self::MESSAGE => __('crud.deleted', ['type' => self::NOTIFICATION]),
-            ]
-        );
-    }
-
-    /**
-     * @param \App\Models\Api\Notification $notification
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function restore(Notification $notification)
-    {
-        $notification->restore();
-
-        return redirect()->route(
-            self::ADMIN_NOTIFICATION_INDEX,
-            [
-                self::MESSAGE => __('crud.restored', ['type' => self::NOTIFICATION]),
             ]
         );
     }
