@@ -83,11 +83,12 @@ class AccountController extends Controller
      */
     public function destroy(): RedirectResponse
     {
-        Auth::user()->delete();
+        $user = Auth::user();
+        app('Log')::notice("User Account ({$user->name}:{$user->id}) deleted");
+        $user->delete();
         Auth::logout();
-        app('Log')::notice('User Account deleted');
 
-        return redirect('/');
+        return redirect()->route('web.api.index');
     }
 
     /**
@@ -100,17 +101,17 @@ class AccountController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $shouldLogout = false;
+        /** @var \App\Models\Account\User $user */
         $user = Auth::user();
 
         $data = $request->validate(
             [
                 'name' => 'required|string|min:3|max:200',
                 'email' => 'required|string|email|max:200|unique:users,email,'.$user->id,
-                self::PASSWORD => 'nullable|string|min:8|confirmed',
+                'password' => 'nullable|string|min:8|confirmed',
                 'receive_notification_level' => 'required|int|between:-1,3',
             ]
         );
-
 
         if (isset($data[self::PASSWORD]) && null !== $data[self::PASSWORD]) {
             $shouldLogout = true;
@@ -124,9 +125,18 @@ class AccountController extends Controller
         if ($shouldLogout) {
             Auth::logout();
 
-            return redirect()->route('web.user.auth.login_form');
+            return redirect()->route('web.user.auth.login_form')->withInput(
+                [
+                    'email' => $user->email,
+                ]
+            );
         }
 
-        return redirect()->route('web.user.account.index');
+        return redirect()->route(
+            'web.user.account.index',
+            [
+                'message' => __('crud.updated', ['type' => 'Account']),
+            ]
+        );
     }
 }
