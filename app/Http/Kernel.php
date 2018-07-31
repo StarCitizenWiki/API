@@ -22,8 +22,6 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
-        \App\Http\Middleware\PiwikTracking::class,
-        \App\Http\Middleware\CheckUserState::class,
     ];
 
     /**
@@ -39,12 +37,16 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\CheckUserState::class,
+            \App\Http\Middleware\PiwikTracking::class,
         ],
 
         'api' => [
             'bindings',
             'throttle:requests_per_minute,1',
             'update_token_timestamp',
+            'check_user_state',
+            'piwik_tracking',
         ],
     ];
 
@@ -66,7 +68,6 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \App\Http\Middleware\Api\ThrottleApi::class,
         'update_token_timestamp' => \App\Http\Middleware\Api\UpdateTokenTimestamp::class,
-        'add_api_headers' => \App\Http\Middleware\Api\AddApiHeaders::class,
         'piwik_tracking' => \App\Http\Middleware\PiwikTracking::class,
     ];
 }

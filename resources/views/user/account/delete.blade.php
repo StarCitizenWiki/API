@@ -10,14 +10,12 @@
     <div class="card-body">
         <h6 class="card-title">@lang('Danger Zone'):</h6>
 
-        @unless(Auth::user()->isBlocked())
-            @component('components.forms.form', [
-                'method' => 'DELETE',
-                'action' => route('web.user.account.delete'),
-            ])
-                <button class="btn btn-danger btn-block-xs-only">@lang('Löschen')</button>
-            @endcomponent
-        @endunless
+        @component('components.forms.form', [
+            'method' => 'DELETE',
+            'action' => route('web.user.account.delete'),
+        ])
+            <button class="btn btn-danger btn-block-xs-only">@lang('Löschen')</button>
+        @endcomponent
     </div>
 </div>
 @endsection
