@@ -9,11 +9,6 @@ use App\Models\Api\Translation\AbstractTranslation as Translation;
  */
 class GroundVehicleTranslation extends Translation
 {
-    protected $primaryKey = [
-        'locale_code',
-        'ground_vehicle_id',
-    ];
-
     protected $fillable = [
         'locale_code',
         'ground_vehicle_id',

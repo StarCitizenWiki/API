@@ -2,13 +2,21 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle;
 
+use App\Events\ModelUpdating;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
  * Abstract Vehicle Class
  */
 abstract class AbstractVehicle extends HasTranslations
 {
+    use ModelChangelog;
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
+    ];
+
     protected $with = [
         'foci',
         'manufacturer',
@@ -29,11 +37,6 @@ abstract class AbstractVehicle extends HasTranslations
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     abstract public function translations();
-
-    public function changelogs()
-    {
-        return $this->morphMany('App\Models\Api\ModelChangelog', 'changelog');
-    }
 
     /**
      * The Vehicle Foci

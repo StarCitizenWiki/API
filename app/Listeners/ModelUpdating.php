@@ -28,6 +28,13 @@ class ModelUpdating
                 'new' => $value,
             ];
         }
+
+        $item->changelogs()->create(
+            [
+                'changelog' => json_encode($changes),
+            ]
+        );
+
         app('Log')::debug('Updated '.($item->getTable()), $changes);
     }
 }

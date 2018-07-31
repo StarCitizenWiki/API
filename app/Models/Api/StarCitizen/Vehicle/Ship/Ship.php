@@ -33,6 +33,7 @@ class Ship extends Vehicle
         'y_axis_acceleration',
         'z_axis_acceleration',
         'chassis_id',
+        'updated_at',
     ];
 
     protected $casts = [

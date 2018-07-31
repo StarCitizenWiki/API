@@ -9,11 +9,6 @@ use App\Models\Api\Translation\AbstractTranslation as Translation;
  */
 class ShipTranslation extends Translation
 {
-    protected $primaryKey = [
-        'locale_code',
-        'ship_id',
-    ];
-
     protected $fillable = [
         'locale_code',
         'ship_id',

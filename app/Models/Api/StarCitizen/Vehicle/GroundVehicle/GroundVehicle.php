@@ -27,6 +27,7 @@ class GroundVehicle extends Vehicle
         'scm_speed',
         'afterburner_speed',
         'chassis_id',
+        'updated_at',
     ];
 
     /**

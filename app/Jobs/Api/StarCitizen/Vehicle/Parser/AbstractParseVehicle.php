@@ -83,8 +83,6 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $this->rawData = $rawData;
     }
 
-    abstract protected function getModelContent(): array;
-
     /**
      * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
      */
@@ -92,19 +90,28 @@ abstract class AbstractParseVehicle implements ShouldQueue
     {
         app('Log')::debug('Getting Manufacturer');
 
-        try {
-            /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
-            $manufacturer = Manufacturer::where(
-                'cig_id',
-                $this->rawDataGet(self::MANUFACTURER_ID)
-            )->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            app('Log')::debug('Manufacturer not found in DB');
+        $manufacturerData = $this->rawDataGet(self::MANUFACTURER);
+        /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
+        $manufacturer = Manufacturer::updateOrCreate(
+            [
+                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
+            ],
+            [
+                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
+                'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
+            ]
+        );
 
-            return $this->createNewManufacturer();
-        }
-
-        app('Log')::debug('Manufacturer already in DB');
+        $manufacturer->translations()->updateOrCreate(
+            [
+                'manufacturer_id' => $manufacturer->id,
+                'locale_code' => self::LANGUAGE_EN,
+            ],
+            [
+                'known_for' => $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR),
+                'description' => $manufacturerData->get(self::MANUFACTURER_DESCRIPTION),
+            ]
+        );
 
         return $manufacturer;
     }
@@ -253,36 +260,6 @@ abstract class AbstractParseVehicle implements ShouldQueue
         }
 
         return $vehicleFociIDs;
-    }
-
-    /**
-     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
-     */
-    private function createNewManufacturer(): Manufacturer
-    {
-        app('Log')::debug('Creating new Manufacturer');
-
-        $manufacturerData = $this->rawDataGet(self::MANUFACTURER);
-        /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
-        $manufacturer = Manufacturer::create(
-            [
-                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
-                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
-                'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
-            ]
-        );
-
-        $manufacturer->translations()->create(
-            [
-                'locale_code' => self::LANGUAGE_EN,
-                'known_for' => $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR),
-                'description' => $manufacturerData->get(self::MANUFACTURER_DESCRIPTION),
-            ]
-        );
-
-        app('Log')::debug('Manufacturer created');
-
-        return $manufacturer;
     }
 
     /**

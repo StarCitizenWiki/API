@@ -3,9 +3,6 @@
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Carbon;
 use Tightenco\Collect\Support\Collection;
 
 /**
@@ -16,11 +13,11 @@ class ParseGroundVehicle extends AbstractParseVehicle
     /**
      * Create a new job instance.
      *
-     * @param \Tightenco\Collect\Support\Collection $ship
+     * @param \Tightenco\Collect\Support\Collection $groundVehicle
      */
-    public function __construct(Collection $ship)
+    public function __construct(Collection $groundVehicle)
     {
-        $this->rawData = $ship;
+        $this->rawData = $groundVehicle;
     }
 
     /**
@@ -31,28 +28,11 @@ class ParseGroundVehicle extends AbstractParseVehicle
     public function handle()
     {
         app('Log')::info("Parsing Ground Vehicle {$this->rawData->get(self::VEHICLE_NAME)}");
-        try {
-            $ship = Ship::where('name', $this->rawData->get(self::VEHICLE_NAME))->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            app('Log')::debug('Ground Vehicle not found in DB');
-            $this->createNewGroundVehicle();
 
-            return;
-        }
-
-        app('Log')::debug('Ground Vehicle found in DB');
-        $this->updateGroundVehicle($ship);
-    }
-
-    /**
-     * Creates a new Ground Vehicle Model
-     */
-    private function createNewGroundVehicle()
-    {
-        app('Log')::debug('Creating new Ground Vehicle');
-
-        /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
-        $groundVehicle = GroundVehicle::create(
+        $groundVehicle = GroundVehicle::updateOrCreate(
+            [
+                'cig_id' => $this->rawData->get(self::VEHICLE_ID),
+            ],
             [
                 'cig_id' => $this->rawData->get(self::VEHICLE_ID),
                 'name' => $this->rawData->get(self::VEHICLE_NAME),
@@ -71,38 +51,48 @@ class ParseGroundVehicle extends AbstractParseVehicle
                 'scm_speed' => $this->rawData->get(self::VEHICLE_SCM_SPEED),
                 'afterburner_speed' => $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
                 'chassis_id' => $this->rawData->get(self::VEHICLE_CHASSIS_ID),
+                'updated_at' => $this->rawData->get(self::TIME_MODIFIED_UNFILTERED),
             ]
         );
 
-        $groundVehicle->translations()->create(
+        $groundVehicle->translations()->updateOrCreate(
             [
+                'ground_vehicle_id' => $groundVehicle->id,
                 'locale_code' => self::LANGUAGE_EN,
+            ],
+            [
                 'translation' => $this->rawData->get(self::VEHICLE_DESCRIPTION),
             ]
         );
 
-        $groundVehicle->foci()->sync($this->getVehicleFociIDs());
+        $fociIDsOld = [];
+        $fociIDs = $this->getVehicleFociIDs();
 
-        $groundVehicle->setUpdatedAt($this->rawData->get(self::TIME_MODIFIED_UNFILTERED))->save();
+        foreach ($groundVehicle->foci as $focus) {
+            $fociIDsOld[] = $focus->id;
+        }
 
-        app('Log')::debug('Ground Vehicle created in DB');
-    }
+        $fociIDsOld = array_values(array_sort($fociIDsOld));
+        $fociIDs = array_values(array_sort($fociIDs));
 
-    /**
-     * Updates a given Ground Vehicle Model
-     *
-     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
-     */
-    private function updateGroundVehicle(GroundVehicle $groundVehicle)
-    {
-        app('Log')::debug('Updating Ground Vehicle');
-        /** @var \Carbon\Carbon $updated */
-        $updatedAt = Carbon::createFromTimeString($this->rawData->get(self::TIME_MODIFIED_UNFILTERED));
 
-        if ($updatedAt->equalTo($groundVehicle->updated_at)) {
-            app('Log')::debug('Ground Vehicle modified timestamp not changed, not updating');
+        if ($fociIDsOld !== $fociIDs) {
+            $changes = [
+                'foci' => [
+                    'old' => $fociIDsOld,
+                    'new' => $fociIDs,
+                ],
+            ];
 
-            return;
+            $groundVehicle->changelogs()->create(
+                [
+                    'changelog' => json_encode($changes),
+                ]
+            );
+
+            app('Log')::debug('Updated ground_vehicle_vehicle_focus', $changes);
+
+            $groundVehicle->foci()->sync($this->getVehicleFociIDs());
         }
     }
 }
