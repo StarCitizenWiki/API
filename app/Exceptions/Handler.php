@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Traits\ChecksIfRequestWantsJsonTrait as ChecksIfRequestWantsJson;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -12,8 +11,6 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
  */
 class Handler extends ExceptionHandler
 {
-    use ChecksIfRequestWantsJson;
-
     /**
      * A list of the exception types that are not reported.
      *
@@ -82,5 +79,15 @@ class Handler extends ExceptionHandler
         }
 
         return redirect()->guest($path);
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return bool
+     */
+    protected function wantsJson($request): bool
+    {
+        return $request->wantsJson() || $request->query('format', null) === 'json';
     }
 }
