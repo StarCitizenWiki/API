@@ -1,7 +1,8 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Account;
+namespace App\Models\Account\User;
 
+use App\Events\ModelUpdating;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -19,6 +20,11 @@ class User extends Authenticatable
     const STATE_DEFAULT = 0;
     const STATE_UNTHROTTLED = 1;
     const STATE_BLOCKED = 2;
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

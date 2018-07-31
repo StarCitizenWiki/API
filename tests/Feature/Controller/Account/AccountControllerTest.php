@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Controller\Account;
 
-use App\Models\Account\User;
+use App\Models\Account\User\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

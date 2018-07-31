@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Account\User;
+use App\Models\Account\User\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -23,7 +23,7 @@ class UserRegistered implements ShouldQueue
     /**
      * Create a new event instance.
      *
-     * @param \App\Models\Account\User $user     The newly registered User
+     * @param \App\Models\Account\User\User $user     The newly registered User
      * @param string                   $password The users randomly generated plaintext Password
      */
     public function __construct(User $user, string $password)

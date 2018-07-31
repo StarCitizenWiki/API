@@ -101,7 +101,7 @@ class AccountController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $shouldLogout = false;
-        /** @var \App\Models\Account\User $user */
+        /** @var \App\Models\Account\User\User $user */
         $user = Auth::user();
 
         $data = $request->validate(

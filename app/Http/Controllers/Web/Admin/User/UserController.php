@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\Admin\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Account\User;
+use App\Models\Account\User\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,7 +45,7 @@ class UserController extends Controller
     /**
      * Returns the View to Edit a User by ID
      *
-     * @param \App\Models\Account\User $user
+     * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Routing\Redirector
      */
@@ -64,7 +64,7 @@ class UserController extends Controller
     /**
      * Deletes a User by ID
      *
-     * @param \App\Models\Account\User $user
+     * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
      *
@@ -82,7 +82,7 @@ class UserController extends Controller
     /**
      * Restores a User by ID
      *
-     * @param \App\Models\Account\User $user
+     * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -99,7 +99,7 @@ class UserController extends Controller
      * Updates a User by ID
      *
      * @param \Illuminate\Http\Request $request Update Request
-     * @param \App\Models\Account\User $user
+     * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
      */

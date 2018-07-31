@@ -3,7 +3,7 @@
 namespace Tests\Feature\Controller\Admin;
 
 use App\Models\Account\Admin\Admin;
-use App\Models\Account\User;
+use App\Models\Account\User\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -20,7 +20,7 @@ class UserControllerTest extends TestCase
     private $admin;
 
     /**
-     * @var \App\Models\Account\User
+     * @var \App\Models\Account\User\User
      */
     private $user;
 

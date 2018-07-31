@@ -23,7 +23,7 @@ class UserTableSeeder extends Seeder
                 'api_token'           => 'LdDZZynGTIwn39wRK2ZF2iZtWLPJT9hZAjndvAwG8QM7boKmyxPOmLtXqHl6',
                 'password'            => bcrypt('starcitizenwiki'),
                 'requests_per_minute' => 60,
-                'state'               => \App\Models\Account\User::STATE_UNTHROTTLED,
+                'state'               => \App\Models\Account\User\User::STATE_UNTHROTTLED,
                 'last_login'          => $now,
                 'created_at'          => $now,
             ]
@@ -36,7 +36,7 @@ class UserTableSeeder extends Seeder
                 'api_token'           => str_random(60),
                 'password'            => bcrypt('starcitizenbase'),
                 'requests_per_minute' => 10,
-                'state'               => \App\Models\Account\User::STATE_DEFAULT,
+                'state'               => \App\Models\Account\User\User::STATE_DEFAULT,
                 'last_login'          => $now,
                 'created_at'          => $now,
             ]
@@ -50,7 +50,7 @@ class UserTableSeeder extends Seeder
                     'api_token'           => str_random(60),
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
-                    'state'               => \App\Models\Account\User::STATE_UNTHROTTLED,
+                    'state'               => \App\Models\Account\User\User::STATE_UNTHROTTLED,
                     'last_login'          => $now,
                     'created_at'          => $now,
                 ]
@@ -63,7 +63,7 @@ class UserTableSeeder extends Seeder
                     'api_token'           => str_random(60),
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
-                    'state'               => \App\Models\Account\User::STATE_BLOCKED,
+                    'state'               => \App\Models\Account\User\User::STATE_BLOCKED,
                     'last_login'          => $now,
                     'created_at'          => $now,
                 ]
@@ -76,7 +76,7 @@ class UserTableSeeder extends Seeder
                     'api_token'           => str_random(60),
                     'password'            => bcrypt('starcitizenwiki'),
                     'requests_per_minute' => 60,
-                    'state'               => \App\Models\Account\User::STATE_DEFAULT,
+                    'state'               => \App\Models\Account\User\User::STATE_DEFAULT,
                     'last_login'          => $now,
                     'created_at'          => $now,
                 ]

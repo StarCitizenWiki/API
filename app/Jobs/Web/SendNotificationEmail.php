@@ -3,7 +3,7 @@
 namespace App\Jobs\Web;
 
 use App\Mail\NotificationEmail;
-use App\Models\Account\User;
+use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

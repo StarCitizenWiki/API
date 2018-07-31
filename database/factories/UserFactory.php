@@ -3,7 +3,7 @@
 use Faker\Generator as Faker;
 
 $factory->define(
-    App\Models\Account\User::class,
+    App\Models\Account\User\User::class,
     function (Faker $faker) {
         return [
             'name' => $faker->name,
@@ -12,7 +12,7 @@ $factory->define(
             'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
             'remember_token' => str_random(10),
             'requests_per_minute' => 60,
-            'state' => \App\Models\Account\User::STATE_DEFAULT,
+            'state' => \App\Models\Account\User\User::STATE_DEFAULT,
             'receive_notification_level' => 1,
             'notes' => '',
             'last_login' => date('Y-m-d H:i:s'),
@@ -23,9 +23,9 @@ $factory->define(
 );
 
 $factory->state(
-    \App\Models\Account\User::class,
+    \App\Models\Account\User\User::class,
     'blocked',
     [
-        'state' => \App\Models\Account\User::STATE_BLOCKED,
+        'state' => \App\Models\Account\User\User::STATE_BLOCKED,
     ]
 );
