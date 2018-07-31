@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\User\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Account\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -72,7 +73,7 @@ class LoginController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    protected function authenticated(Request $request, $user)
+    protected function authenticated(Request $request, User $user)
     {
         if ($user->isBlocked()) {
             app('Log')::notice("Blacklisted User with ID: {$user->id} tried to login");
