@@ -21,3 +21,11 @@ $factory->define(
         ];
     }
 );
+
+$factory->state(
+    \App\Models\Account\User::class,
+    'blocked',
+    [
+        'state' => \App\Models\Account\User::STATE_BLOCKED,
+    ]
+);
