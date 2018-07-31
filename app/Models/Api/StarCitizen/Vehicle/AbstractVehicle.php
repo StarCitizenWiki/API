@@ -30,6 +30,11 @@ abstract class AbstractVehicle extends HasTranslations
      */
     abstract public function translations();
 
+    public function changelogs()
+    {
+        return $this->morphMany('App\Models\Api\ModelChangelog', 'changelog');
+    }
+
     /**
      * The Vehicle Foci
      *

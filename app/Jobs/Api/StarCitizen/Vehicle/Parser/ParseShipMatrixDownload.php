@@ -46,7 +46,7 @@ class ParseShipMatrixDownload implements ShouldQueue
                 $type = $vehicle->get('type');
                 switch (strtolower($type)) {
                     case 'ground':
-                        dispatch(new ParseGroundVehicle($vehicle));
+                        //dispatch(new ParseGroundVehicle($vehicle));
                         break;
 
                     case 'multi':
@@ -60,7 +60,7 @@ class ParseShipMatrixDownload implements ShouldQueue
                         break;
 
                     default:
-                        app('Log')::error("Vehicle Type '{$type}'' not found");
+                        app('Log')::error("Vehicle Type '{$type}' not found");
                         break;
                 }
             }

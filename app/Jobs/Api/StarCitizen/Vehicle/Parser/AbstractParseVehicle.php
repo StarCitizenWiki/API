@@ -83,6 +83,8 @@ abstract class AbstractParseVehicle implements ShouldQueue
         $this->rawData = $rawData;
     }
 
+    abstract protected function getModelContent(): array;
+
     /**
      * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
      */
