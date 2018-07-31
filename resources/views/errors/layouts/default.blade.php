@@ -3,9 +3,11 @@
 <head>
     <title>@yield('title')</title>
 
-    <link href="https://fonts.googleapis.com/css?family=Work+Sans:100" rel="stylesheet">
-
     <style>
+        :root {
+            --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+
         html, body {
             height: 100%;
         }
@@ -14,7 +16,7 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            color: #B0BEC5;
+            color: #212529;
             display: table;
             font-weight: 100;
             font-family: 'Work Sans', sans-serif;
