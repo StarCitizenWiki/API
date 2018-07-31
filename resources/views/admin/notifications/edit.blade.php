@@ -4,6 +4,7 @@
     <div class="card">
         <h4 class="card-header">@lang('Notification bearbeiten')</h4>
         <div class="card-body">
+            @include('components.errors')
             @component('components.forms.form', [
                 'method' => 'PATCH',
                 'action' => route('web.admin.notifications.update', $notification->getRouteKey()),
@@ -65,17 +66,17 @@
                 <div class="form-group">
                     <span class="d-block">@lang('Ausgabetyp'):</span>
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="status" name="output[]"
+                        <input type="checkbox" class="custom-control-input" id="status" name="output[]" value="status"
                                @if($notification->output_status) checked @endif>
                         <label class="custom-control-label" for="status">@lang('Statusseite')</label>
                     </div>
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="index" name="output[]"
+                        <input type="checkbox" class="custom-control-input" id="index" name="output[]" value="index"
                                @if($notification->output_index) checked @endif>
                         <label class="custom-control-label" for="index">@lang('Startseite')</label>
                     </div>
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="email" name="output[]"
+                        <input type="checkbox" class="custom-control-input" id="email" name="output[]" value="email"
                                @if($notification->output_email) checked disabled @endif>
                         <label class="custom-control-label" for="email">@lang('E-Mail')</label>
                     </div>

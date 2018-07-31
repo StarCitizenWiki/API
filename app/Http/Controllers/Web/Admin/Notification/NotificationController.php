@@ -207,7 +207,7 @@ class NotificationController extends Controller
     {
         $outputs = [
             'output_status' => false,
-            'output_mail' => false,
+            'output_email' => false,
             'output_index' => false,
         ];
 

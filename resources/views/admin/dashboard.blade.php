@@ -14,7 +14,8 @@
                 @include('components.errors')
                 @component('components.forms.form', [
                     'class' => 'row',
-                    'action' => route('web.admin.notifications.create'),
+                    'method' => 'POST',
+                    'action' => route('web.admin.notifications.store'),
                 ])
                     <div class="col-12 col-md-7 order-2 order-lg-1">
                         @component('components.forms.form-group', [
