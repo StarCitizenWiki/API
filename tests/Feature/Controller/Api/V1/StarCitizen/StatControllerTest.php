@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Feature\Controller\Api;
+namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
 use App\Models\Api\StarCitizen\Stat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -44,6 +44,7 @@ class StatControllerTest extends TestCase
     {
         $response = $this->get('/api/stats/latest');
         $response->assertStatus(200)
+            ->assertSee('data')
             ->assertSee('funds')
             ->assertSee('fleet')
             ->assertSee('fans')
