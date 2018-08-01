@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Throttle\ApiThrottle;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 /**
@@ -43,10 +44,10 @@ class Kernel extends HttpKernel
 
         'api' => [
             'bindings',
-            'throttle:requests_per_minute,1',
             'update_token_timestamp',
             'check_user_state',
             'piwik_tracking',
+            'api.throttle',
         ],
     ];
 
@@ -60,13 +61,13 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'admin' => \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin::class,
         'admin.guest' => \App\Http\Middleware\Web\Admin\RedirectIfAdmin::class,
+        'api.throttle' => ApiThrottle::class,
         'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'check_user_state' => \App\Http\Middleware\CheckUserState::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle' => \App\Http\Middleware\Api\ThrottleApi::class,
         'update_token_timestamp' => \App\Http\Middleware\Api\UpdateTokenTimestamp::class,
         'piwik_tracking' => \App\Http\Middleware\PiwikTracking::class,
     ];
