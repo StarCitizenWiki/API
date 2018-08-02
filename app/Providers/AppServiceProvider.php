@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Carbon\Carbon;
 use FilesystemIterator;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use RecursiveDirectoryIterator;
@@ -25,11 +26,13 @@ class AppServiceProvider extends ServiceProvider
 
         Carbon::setLocale(config('app.locale'));
 
-        DB::listen(
-            function ($query) {
-                //app('Log')::debug($query->sql);
-            }
-        );
+        if (config('app.debug')) {
+            DB::listen(
+                function (QueryExecuted $query) {
+                    app('Log')::debug($query->sql);
+                }
+            );
+        }
     }
 
     /**

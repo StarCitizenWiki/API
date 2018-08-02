@@ -7,13 +7,13 @@ use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSizeTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -36,10 +36,9 @@ class ParseVehicle implements ShouldQueue
     protected const PRODUCTION_STATUS = 'production_status';
     protected const PRODUCTION_NOTE = 'production_note';
 
-    protected const VEHICLE_NAME = 'name';
-    protected const VEHICLE_TYPE = 'type';
-    protected const VEHICLE_SIZE = 'size';
     protected const VEHICLE_ID = 'id';
+    protected const VEHICLE_CHASSIS_ID = 'chassis_id';
+    protected const VEHICLE_NAME = 'name';
     protected const VEHICLE_LENGTH = 'length';
     protected const VEHICLE_BEAM = 'beam';
     protected const VEHICLE_HEIGHT = 'height';
@@ -49,7 +48,14 @@ class ParseVehicle implements ShouldQueue
     protected const VEHICLE_MAX_CREW = 'max_crew';
     protected const VEHICLE_SCM_SPEED = 'scm_speed';
     protected const VEHICLE_AFTERBURNER_SPEED = 'afterburner_speed';
-    protected const VEHICLE_CHASSIS_ID = 'chassis_id';
+    protected const VEHICLE_PITCH_MAX = 'pitch_max';
+    protected const VEHICLE_YAW_MAX = 'yaw_max';
+    protected const VEHICLE_ROLL_MAX = 'roll_max';
+    protected const VEHICLE_X_AXIS_ACCELERATION = 'xaxis_acceleration';
+    protected const VEHICLE_Y_AXIS_ACCELERATION = 'yaxis_acceleration';
+    protected const VEHICLE_Z_AXIS_ACCELERATION = 'zaxis_acceleration';
+    protected const VEHICLE_TYPE = 'type';
+    protected const VEHICLE_SIZE = 'size';
     protected const VEHICLE_DESCRIPTION = 'description';
 
     protected const MANUFACTURER = 'manufacturer';
@@ -69,14 +75,6 @@ class ParseVehicle implements ShouldQueue
 
     private const PRODUCTION_STATUS_NORMALIZED = 'Update Pass Scheduled';
 
-    protected const SHIP_PITCH_MAX = 'pitch_max';
-    protected const SHIP_YAW_MAX = 'yaw_max';
-    protected const SHIP_ROLL_MAX = 'roll_max';
-    protected const SHIP_X_AXIS_ACCELERATION = 'xaxis_acceleration';
-    protected const SHIP_Y_AXIS_ACCELERATION = 'yaxis_acceleration';
-    protected const SHIP_Z_AXIS_ACCELERATION = 'zaxis_acceleration';
-
-
     /**
      * @var \Illuminate\Support\Collection
      */
@@ -85,11 +83,95 @@ class ParseVehicle implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param \Illuminate\Support\Collection $rawData
+     * @param \Tightenco\Collect\Support\Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
         $this->rawData = $rawData;
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        app('Log')::info("Parsing Vehicle {$this->rawData->get(self::VEHICLE_NAME)}");
+
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle */
+        $vehicle = Vehicle::updateOrCreate(
+            [
+                'name' => (string) $this->rawData->get(self::VEHICLE_NAME),
+            ],
+            [
+                'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
+                'manufacturer_id' => (int) $this->getManufacturer()->cig_id,
+                'production_status_id' => (int) $this->getProductionStatus()->id,
+                'production_note_id' => (int) $this->getProductionNote()->id,
+                'vehicle_size_id' => (int) $this->getVehicleSize()->id,
+                'vehicle_type_id' => (int) $this->getVehicleType()->id,
+                'length' => (float) $this->rawData->get(self::VEHICLE_LENGTH),
+                'beam' => (float) $this->rawData->get(self::VEHICLE_BEAM),
+                'height' => (float) $this->rawData->get(self::VEHICLE_HEIGHT),
+                'mass' => (int) $this->rawData->get(self::VEHICLE_MASS),
+                'cargo_capacity' => (int) $this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
+                'min_crew' => (int) $this->rawData->get(self::VEHICLE_MIN_CREW),
+                'max_crew' => (int) $this->rawData->get(self::VEHICLE_MAX_CREW),
+                'scm_speed' => (int) $this->rawData->get(self::VEHICLE_SCM_SPEED),
+                'afterburner_speed' => (int) $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
+                'pitch_max' => (float) $this->rawData->get(self::VEHICLE_PITCH_MAX),
+                'yaw_max' => (float) $this->rawData->get(self::VEHICLE_YAW_MAX),
+                'roll_max' => (float) $this->rawData->get(self::VEHICLE_ROLL_MAX),
+                'x_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION),
+                'y_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION),
+                'z_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION),
+                'chassis_id' => (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID),
+                'updated_at' => $this->rawData->get(self::TIME_MODIFIED_UNFILTERED),
+            ]
+        );
+
+        $vehicle->translations()->updateOrCreate(
+            [
+                'vehicle_id' => $vehicle->id,
+                'locale_code' => self::LANGUAGE_EN,
+            ],
+            [
+                'translation' => $this->rawData->get(self::VEHICLE_DESCRIPTION),
+            ]
+        );
+
+        $fociIDsOld = [];
+        $fociIDs = $this->getVehicleFociIDs();
+
+        foreach ($vehicle->foci as $focus) {
+            $fociIDsOld[] = $focus->id;
+        }
+
+        $fociIDsOld = array_values(array_sort($fociIDsOld));
+        $fociIDs = array_values(array_sort($fociIDs));
+
+
+        if ($fociIDsOld !== $fociIDs) {
+            $changes = [
+                'foci' => [
+                    'old' => $fociIDsOld,
+                    'new' => $fociIDs,
+                ],
+            ];
+
+            if (!$vehicle->wasRecentlyCreated) {
+                $vehicle->changelogs()->create(
+                    [
+                        'changelog' => json_encode($changes),
+                    ]
+                );
+
+                app('Log')::debug('Updated ship_vehicle_focus', $changes);
+            }
+
+            $vehicle->foci()->sync($this->getVehicleFociIDs());
+        }
     }
 
     /**
@@ -103,10 +185,10 @@ class ParseVehicle implements ShouldQueue
         /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
         $manufacturer = Manufacturer::updateOrCreate(
             [
-                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
+                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
             ],
             [
-                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
+                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
                 'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
             ]
         );
@@ -395,100 +477,6 @@ class ParseVehicle implements ShouldQueue
             }
         }
 
-
         return $data;
-    }
-
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle()
-    {
-        app('Log')::info("Parsing Vehicle {$this->rawData->get(self::VEHICLE_NAME)}");
-        try {
-            $vehicle = Vehicle::where('name', $this->rawData->get(self::VEHICLE_NAME))->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            app('Log')::debug('Vehicle not found in DB');
-            $this->createNewVehicle();
-
-            return;
-        }
-
-        app('Log')::debug('Vehicle found in DB');
-        $this->updateVehicle($vehicle);
-    }
-
-    protected function getModelContent(): array
-    {
-        return [
-            'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
-            'name' => (string) $this->rawData->get(self::VEHICLE_NAME),
-            'manufacturer_id' => (int) $this->getManufacturer()->cig_id,
-            'production_status_id' => (int) $this->getProductionStatus()->id,
-            'production_note_id' => (int) $this->getProductionNote()->id,
-            'vehicle_size_id' => (int) $this->getVehicleSize()->id,
-            'vehicle_type_id' => (int) $this->getVehicleType()->id,
-            'length' => (float) $this->rawData->get(self::VEHICLE_LENGTH),
-            'beam' => (float) $this->rawData->get(self::VEHICLE_BEAM),
-            'height' => (float) $this->rawData->get(self::VEHICLE_HEIGHT),
-            'mass' => (int) $this->rawData->get(self::VEHICLE_MASS),
-            'cargo_capacity' => (int) $this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
-            'min_crew' => (int) $this->rawData->get(self::VEHICLE_MIN_CREW),
-            'max_crew' => (int) $this->rawData->get(self::VEHICLE_MAX_CREW),
-            'scm_speed' => (int) $this->rawData->get(self::VEHICLE_SCM_SPEED),
-            'afterburner_speed' => (int) $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
-            'pitch_max' => (float) $this->rawData->get(self::SHIP_PITCH_MAX),
-            'yaw_max' => (float) $this->rawData->get(self::SHIP_YAW_MAX),
-            'roll_max' => (float) $this->rawData->get(self::SHIP_ROLL_MAX),
-            'x_axis_acceleration' => (float) $this->rawData->get(self::SHIP_X_AXIS_ACCELERATION),
-            'y_axis_acceleration' => (float) $this->rawData->get(self::SHIP_Y_AXIS_ACCELERATION),
-            'z_axis_acceleration' => (float) $this->rawData->get(self::SHIP_Z_AXIS_ACCELERATION),
-            'chassis_id' => (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID),
-        ];
-    }
-
-    /**
-     * Creates a new Vehicle Model
-     */
-    private function createNewVehicle()
-    {
-        app('Log')::debug('Creating new Vehicle');
-
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle */
-        $vehicle = Vehicle::create($this->getModelContent());
-
-        $vehicle->translations()->create(
-            [
-                'locale_code' => self::LANGUAGE_EN,
-                'translation' => $this->rawData->get(self::VEHICLE_DESCRIPTION),
-            ]
-        );
-
-        $vehicle->foci()->sync($this->getVehicleFociIDs());
-
-        $vehicle->setUpdatedAt($this->rawData->get(self::TIME_MODIFIED_UNFILTERED))->save();
-
-        app('Log')::debug('Vehicle created in DB');
-    }
-
-    /**
-     * Updates a given Vehicle Model
-     *
-     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
-     */
-    private function updateVehicle(Vehicle $vehicle)
-    {
-        app('Log')::debug('Updating Vehicle');
-
-        $diff = array_diff($this->getModelContent(), $vehicle->attributesToArray());
-        if (!empty($diff)) {
-
-
-            $vehicle->update($diff);
-        } else {
-            app('Log')::debug('No Changes detected');
-        }
     }
 }

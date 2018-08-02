@@ -2,6 +2,7 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
+use App\Events\ModelUpdating;
 use App\Models\Api\ModelChangelog;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
@@ -72,14 +73,25 @@ class Vehicle extends HasTranslations
 
     protected $perPage = 5;
 
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
+    ];
+
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function translations()
     {
-        return $this->hasMany(VehicleTranslation::class, 'vehicle_id');
+        return $this->hasMany(VehicleTranslation::class);
     }
 
+    /**
+     * The saved changes
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function changelogs()
     {
         return $this->morphMany(ModelChangelog::class, 'changelog');
@@ -92,7 +104,7 @@ class Vehicle extends HasTranslations
      */
     public function foci()
     {
-        return $this->belongsToMany(VehicleFocus::class, 'vehicle_vehicle_focus', 'vehicle_id', 'vehicle_focus_id');
+        return $this->belongsToMany(VehicleFocus::class, 'vehicle_vehicle_focus');
     }
 
     /**
@@ -143,5 +155,25 @@ class Vehicle extends HasTranslations
     public function size()
     {
         return $this->belongsTo(VehicleSize::class, 'vehicle_size_id');
+    }
+
+    /**
+     * Use Vehicle Class in Children
+     *
+     * @return string
+     */
+    public function getMorphClass()
+    {
+        return self::class;
+    }
+
+    /**
+     * Hardcoded to fix Child Problems
+     *
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return 'vehicle_id';
     }
 }

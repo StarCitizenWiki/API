@@ -13,13 +13,21 @@ class GroundVehicle extends Vehicle
 {
     protected $table = 'vehicles';
 
+    /**
+     * Adds the global Ground Vehicle Scope
+     */
     protected static function boot()
     {
         parent::boot();
 
-        static::addGlobalScope('type', function (Builder $builder) {
-            $type = VehicleTypeTranslation::where('translation', 'ground')->first();
-            $builder->where('vehicle_type_id', '=', $type->vehicle_type_id);
-        });
+        static::addGlobalScope(
+            'type',
+            function (Builder $builder) {
+                // TODO Refactor to eliminate DB call?
+                $type = VehicleTypeTranslation::where('translation', 'ground')->first();
+
+                $builder->where('vehicle_type_id', '=', optional($type)->vehicle_type_id);
+            }
+        );
     }
 }

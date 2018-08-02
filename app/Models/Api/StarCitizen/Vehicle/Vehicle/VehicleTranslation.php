@@ -9,11 +9,6 @@ use App\Models\Api\Translation\AbstractTranslation as Translation;
  */
 class VehicleTranslation extends Translation
 {
-    protected $primaryKey = [
-        'locale_code',
-        'vehicle_id',
-    ];
-
     protected $fillable = [
         'locale_code',
         'vehicle_id',
@@ -26,5 +21,15 @@ class VehicleTranslation extends Translation
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);
+    }
+
+    /**
+     * Associate Translations with the Vehicle
+     *
+     * @return string
+     */
+    public function getMorphClass()
+    {
+        return Vehicle::class;
     }
 }
