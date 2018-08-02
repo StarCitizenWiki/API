@@ -10,6 +10,7 @@ namespace App\Providers;
 use App\Models\Account\User\User;
 use Dingo\Api\Auth\Provider\Authorization;
 use Dingo\Api\Routing\Route;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -46,10 +47,10 @@ class DingoTokenAuthProvider extends Authorization
             $this->validateAuthorizationHeader($request);
         }
 
-        $user = User::where(self::API_TOKEN, $request->bearerToken() ?? $request->get(self::API_TOKEN))->first();
-
-        if (null === $user) {
-            throw new UnauthorizedHttpException($this->getAuthorizationMethod());
+        try {
+            $user = User::where(self::API_TOKEN, $request->bearerToken() ?? $request->get(self::API_TOKEN))->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            throw new UnauthorizedHttpException($this->getAuthorizationMethod(), 'Invalid credentials.', $e);
         }
 
         return $user;
