@@ -185,4 +185,9 @@ class Notification extends Model
     {
         return $query->where('output_email', true);
     }
+
+    public function changelogs()
+    {
+        return $this->morphMany('App\Models\Api\ModelChangelog', 'changelog');
+    }
 }

@@ -9,11 +9,6 @@ use App\Models\Api\Translation\AbstractTranslation as Translation;
  */
 class ProductionNoteTranslation extends Translation
 {
-    protected $primaryKey = [
-        'locale_code',
-        'production_note_id',
-    ];
-
     protected $fillable = [
         'locale_code',
         'production_note_id',

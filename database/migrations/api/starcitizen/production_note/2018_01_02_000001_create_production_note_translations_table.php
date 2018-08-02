@@ -16,12 +16,13 @@ class CreateProductionNoteTranslationsTable extends Migration
         Schema::create(
             'production_note_translations',
             function (Blueprint $table) {
+                $table->increments('id');
                 $table->char('locale_code', 5);
                 $table->unsignedInteger('production_note_id');
                 $table->string('translation');
                 $table->timestamps();
 
-                $table->primary(['locale_code', 'production_note_id'], 'production_note_translations_primary');
+                $table->unique(['locale_code', 'production_note_id'], 'production_note_translations_primary');
                 $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
                 $table->foreign('production_note_id')->references('id')->on('production_notes')->onDelete('cascade');
             }

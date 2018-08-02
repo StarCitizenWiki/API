@@ -16,12 +16,13 @@ class CreateVehicleSizeTranslationsTable extends Migration
         Schema::create(
             'vehicle_size_translations',
             function (Blueprint $table) {
+                $table->increments('id');
                 $table->char('locale_code', 5);
                 $table->unsignedInteger('vehicle_size_id');
                 $table->string('translation');
                 $table->timestamps();
 
-                $table->primary(['locale_code', 'vehicle_size_id'], 'vehicle_size_translations_primary');
+                $table->unique(['locale_code', 'vehicle_size_id'], 'vehicle_size_translations_primary');
                 $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
                 $table->foreign('vehicle_size_id')->references('id')->on('vehicle_sizes')->onDelete('cascade');
             }
