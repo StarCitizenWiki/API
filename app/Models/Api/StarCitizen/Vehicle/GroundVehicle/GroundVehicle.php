@@ -2,39 +2,24 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle\GroundVehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\AbstractVehicle as Vehicle;
+use App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Vehicle as Vehicle;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Ground Vehicle Class
  */
 class GroundVehicle extends Vehicle
 {
-    protected $fillable = [
-        'cig_id',
-        'name',
-        'manufacturer_id',
-        'production_status_id',
-        'production_note_id',
-        'vehicle_size_id',
-        'vehicle_type_id',
-        'length',
-        'beam',
-        'height',
-        'mass',
-        'cargo_capacity',
-        'min_crew',
-        'max_crew',
-        'scm_speed',
-        'afterburner_speed',
-        'chassis_id',
-        'updated_at',
-    ];
+    protected $table = 'vehicles';
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function translations()
+    protected static function boot()
     {
-        return $this->hasMany(GroundVehicleTranslation::class);
+        parent::boot();
+
+        static::addGlobalScope('type', function (Builder $builder) {
+            $type = VehicleTypeTranslation::where('translation', 'ground')->first();
+            $builder->where('vehicle_type_id', '=', $type->vehicle_type_id);
+        });
     }
 }

@@ -1,25 +1,30 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\StarCitizen\Vehicle\Ship;
+namespace App\Models\Api\StarCitizen\Vehicle;
 
 use App\Models\Api\Translation\AbstractTranslation as Translation;
 
 /**
  * Ship Translations Model
  */
-class ShipTranslation extends Translation
+class VehicleTranslation extends Translation
 {
+    protected $primaryKey = [
+        'locale_code',
+        'vehicle_id',
+    ];
+
     protected $fillable = [
         'locale_code',
-        'ship_id',
+        'vehicle_id',
         'translation',
     ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo Ships
      */
-    public function ship()
+    public function vehicle()
     {
-        return $this->belongsTo(Ship::class);
+        return $this->belongsTo(Vehicle::class);
     }
 }

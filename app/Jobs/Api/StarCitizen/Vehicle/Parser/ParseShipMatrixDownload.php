@@ -43,26 +43,7 @@ class ParseShipMatrixDownload implements ShouldQueue
         app('Log')::info('Parsing Download');
         StreamParser::json(Storage::disk('vehicles')->path($this->shipMatrixFileName))->each(
             function (Collection $vehicle) {
-                $type = $vehicle->get('type');
-                switch (strtolower($type)) {
-                    case 'ground':
-                        //dispatch(new ParseGroundVehicle($vehicle));
-                        break;
-
-                    case 'multi':
-                    case 'exploration':
-                    case 'transport':
-                    case 'combat':
-                    case 'competition':
-                    case 'support':
-                    case 'industrial':
-                        dispatch(new ParseShip($vehicle));
-                        break;
-
-                    default:
-                        app('Log')::error("Vehicle Type '{$type}' not found");
-                        break;
-                }
+                dispatch(new ParseVehicle($vehicle));
             }
         );
     }
