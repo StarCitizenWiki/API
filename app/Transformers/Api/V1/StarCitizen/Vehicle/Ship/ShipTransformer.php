@@ -7,7 +7,7 @@
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle\Ship;
 
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\Api\StarCitizen\Vehicle\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as VehicleTransformer;
 
 /**
@@ -16,7 +16,7 @@ use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as Ve
 class ShipTransformer extends VehicleTransformer
 {
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
+     * @param \App\Models\Api\StarCitizen\Vehicle\Ship $ship
      *
      * @return array
      */

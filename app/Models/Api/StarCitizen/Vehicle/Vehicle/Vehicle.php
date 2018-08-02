@@ -1,7 +1,14 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\StarCitizen\Vehicle;
+namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
+use App\Models\Api\ModelChangelog;
+use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
+use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
+use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
+use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
 
 /**
@@ -75,7 +82,7 @@ class Vehicle extends HasTranslations
 
     public function changelogs()
     {
-        return $this->morphMany('App\Models\Api\ModelChangelog', 'changelog');
+        return $this->morphMany(ModelChangelog::class, 'changelog');
     }
 
     /**
@@ -85,7 +92,7 @@ class Vehicle extends HasTranslations
      */
     public function foci()
     {
-        return $this->belongsToMany('App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus', 'vehicle_vehicle_focus', 'vehicle_id', 'vehicle_focus_id');
+        return $this->belongsToMany(VehicleFocus::class, 'vehicle_vehicle_focus', 'vehicle_id', 'vehicle_focus_id');
     }
 
     /**
@@ -95,7 +102,7 @@ class Vehicle extends HasTranslations
      */
     public function manufacturer()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Manufacturer\Manufacturer', 'manufacturer_id', 'cig_id');
+        return $this->belongsTo(Manufacturer::class, 'manufacturer_id', 'cig_id');
     }
 
     /**
@@ -105,7 +112,7 @@ class Vehicle extends HasTranslations
      */
     public function productionStatus()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus', 'production_status_id');
+        return $this->belongsTo(ProductionStatus::class, 'production_status_id');
     }
 
     /**
@@ -115,7 +122,7 @@ class Vehicle extends HasTranslations
      */
     public function productionNote()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\ProductionNote\ProductionNote', 'production_note_id');
+        return $this->belongsTo(ProductionNote::class, 'production_note_id');
     }
 
     /**
@@ -125,7 +132,7 @@ class Vehicle extends HasTranslations
      */
     public function type()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Vehicle\Type\VehicleType', 'vehicle_type_id');
+        return $this->belongsTo(VehicleType::class, 'vehicle_type_id');
     }
 
     /**
@@ -135,6 +142,6 @@ class Vehicle extends HasTranslations
      */
     public function size()
     {
-        return $this->belongsTo('App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize', 'vehicle_size_id');
+        return $this->belongsTo(VehicleSize::class, 'vehicle_size_id');
     }
 }

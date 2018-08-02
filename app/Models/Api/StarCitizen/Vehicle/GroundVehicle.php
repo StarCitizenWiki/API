@@ -1,9 +1,9 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\StarCitizen\Vehicle\GroundVehicle;
+namespace App\Models\Api\StarCitizen\Vehicle;
 
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle as Vehicle;
+use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Database\Eloquent\Builder;
 
 /**

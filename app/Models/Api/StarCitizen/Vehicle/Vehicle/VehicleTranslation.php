@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\StarCitizen\Vehicle;
+namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
 use App\Models\Api\Translation\AbstractTranslation as Translation;
 
