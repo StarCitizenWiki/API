@@ -2,7 +2,8 @@
 
 namespace App\Models\Api\Translation;
 
-use App\Traits\HasCompositePrimaryKeyTrait as CompositePrimaryKey;
+use App\Events\ModelUpdating;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,10 +12,13 @@ use Illuminate\Database\Eloquent\Model;
  */
 abstract class AbstractTranslation extends Model
 {
-    use CompositePrimaryKey;
+    use ModelChangelog;
 
     const ATTR_LOCALE_CODE = '.locale_code';
-    public $incrementing = false;
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
+    ];
 
     /**
      * Language Relation

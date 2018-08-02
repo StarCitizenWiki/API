@@ -25,9 +25,16 @@ class ModelUpdating
             $original = $item->getOriginal($key);
             $changes[$key] = [
                 'old' => $original,
-                'new' => $value,
+                'new' => (string) $value,
             ];
         }
+
+        $item->changelogs()->create(
+            [
+                'changelog' => json_encode($changes),
+            ]
+        );
+
         app('Log')::debug('Updated '.($item->getTable()), $changes);
     }
 }

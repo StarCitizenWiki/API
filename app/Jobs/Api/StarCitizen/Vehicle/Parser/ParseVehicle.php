@@ -13,18 +13,19 @@ use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSizeTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
+use Tightenco\Collect\Support\Collection;
 
 /**
  * Class AbstractParseVehicle
  */
-abstract class AbstractParseVehicle implements ShouldQueue
+class ParseVehicle implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -35,10 +36,9 @@ abstract class AbstractParseVehicle implements ShouldQueue
     protected const PRODUCTION_STATUS = 'production_status';
     protected const PRODUCTION_NOTE = 'production_note';
 
-    protected const VEHICLE_NAME = 'name';
-    protected const VEHICLE_TYPE = 'type';
-    protected const VEHICLE_SIZE = 'size';
     protected const VEHICLE_ID = 'id';
+    protected const VEHICLE_CHASSIS_ID = 'chassis_id';
+    protected const VEHICLE_NAME = 'name';
     protected const VEHICLE_LENGTH = 'length';
     protected const VEHICLE_BEAM = 'beam';
     protected const VEHICLE_HEIGHT = 'height';
@@ -48,7 +48,14 @@ abstract class AbstractParseVehicle implements ShouldQueue
     protected const VEHICLE_MAX_CREW = 'max_crew';
     protected const VEHICLE_SCM_SPEED = 'scm_speed';
     protected const VEHICLE_AFTERBURNER_SPEED = 'afterburner_speed';
-    protected const VEHICLE_CHASSIS_ID = 'chassis_id';
+    protected const VEHICLE_PITCH_MAX = 'pitch_max';
+    protected const VEHICLE_YAW_MAX = 'yaw_max';
+    protected const VEHICLE_ROLL_MAX = 'roll_max';
+    protected const VEHICLE_X_AXIS_ACCELERATION = 'xaxis_acceleration';
+    protected const VEHICLE_Y_AXIS_ACCELERATION = 'yaxis_acceleration';
+    protected const VEHICLE_Z_AXIS_ACCELERATION = 'zaxis_acceleration';
+    protected const VEHICLE_TYPE = 'type';
+    protected const VEHICLE_SIZE = 'size';
     protected const VEHICLE_DESCRIPTION = 'description';
 
     protected const MANUFACTURER = 'manufacturer';
@@ -76,14 +83,96 @@ abstract class AbstractParseVehicle implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param \Illuminate\Support\Collection $rawData
+     * @param \Tightenco\Collect\Support\Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
         $this->rawData = $rawData;
     }
 
-    abstract protected function getModelContent(): array;
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        app('Log')::info("Parsing Vehicle {$this->rawData->get(self::VEHICLE_NAME)}");
+
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle */
+        $vehicle = Vehicle::updateOrCreate(
+            [
+                'name' => (string) $this->rawData->get(self::VEHICLE_NAME),
+            ],
+            [
+                'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
+                'manufacturer_id' => (int) $this->getManufacturer()->cig_id,
+                'production_status_id' => (int) $this->getProductionStatus()->id,
+                'production_note_id' => (int) $this->getProductionNote()->id,
+                'vehicle_size_id' => (int) $this->getVehicleSize()->id,
+                'vehicle_type_id' => (int) $this->getVehicleType()->id,
+                'length' => (float) $this->rawData->get(self::VEHICLE_LENGTH),
+                'beam' => (float) $this->rawData->get(self::VEHICLE_BEAM),
+                'height' => (float) $this->rawData->get(self::VEHICLE_HEIGHT),
+                'mass' => (int) $this->rawData->get(self::VEHICLE_MASS),
+                'cargo_capacity' => (int) $this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
+                'min_crew' => (int) $this->rawData->get(self::VEHICLE_MIN_CREW),
+                'max_crew' => (int) $this->rawData->get(self::VEHICLE_MAX_CREW),
+                'scm_speed' => (int) $this->rawData->get(self::VEHICLE_SCM_SPEED),
+                'afterburner_speed' => (int) $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
+                'pitch_max' => (float) $this->rawData->get(self::VEHICLE_PITCH_MAX),
+                'yaw_max' => (float) $this->rawData->get(self::VEHICLE_YAW_MAX),
+                'roll_max' => (float) $this->rawData->get(self::VEHICLE_ROLL_MAX),
+                'x_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION),
+                'y_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION),
+                'z_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION),
+                'chassis_id' => (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID),
+                'updated_at' => $this->rawData->get(self::TIME_MODIFIED_UNFILTERED),
+            ]
+        );
+
+        $vehicle->translations()->updateOrCreate(
+            [
+                'vehicle_id' => $vehicle->id,
+                'locale_code' => self::LANGUAGE_EN,
+            ],
+            [
+                'translation' => $this->rawData->get(self::VEHICLE_DESCRIPTION),
+            ]
+        );
+
+        $fociIDsOld = [];
+        $fociIDs = $this->getVehicleFociIDs();
+
+        foreach ($vehicle->foci as $focus) {
+            $fociIDsOld[] = $focus->id;
+        }
+
+        $fociIDsOld = array_values(array_sort($fociIDsOld));
+        $fociIDs = array_values(array_sort($fociIDs));
+
+
+        if ($fociIDsOld !== $fociIDs) {
+            $changes = [
+                'foci' => [
+                    'old' => $fociIDsOld,
+                    'new' => $fociIDs,
+                ],
+            ];
+
+            if (!$vehicle->wasRecentlyCreated) {
+                $vehicle->changelogs()->create(
+                    [
+                        'changelog' => json_encode($changes),
+                    ]
+                );
+
+                app('Log')::debug('Updated ship_vehicle_focus', $changes);
+            }
+
+            $vehicle->foci()->sync($this->getVehicleFociIDs());
+        }
+    }
 
     /**
      * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
@@ -92,19 +181,28 @@ abstract class AbstractParseVehicle implements ShouldQueue
     {
         app('Log')::debug('Getting Manufacturer');
 
-        try {
-            /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
-            $manufacturer = Manufacturer::where(
-                'cig_id',
-                $this->rawDataGet(self::MANUFACTURER_ID)
-            )->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            app('Log')::debug('Manufacturer not found in DB');
+        $manufacturerData = $this->rawDataGet(self::MANUFACTURER);
+        /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
+        $manufacturer = Manufacturer::updateOrCreate(
+            [
+                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
+            ],
+            [
+                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
+                'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
+            ]
+        );
 
-            return $this->createNewManufacturer();
-        }
-
-        app('Log')::debug('Manufacturer already in DB');
+        $manufacturer->translations()->updateOrCreate(
+            [
+                'manufacturer_id' => $manufacturer->id,
+                'locale_code' => self::LANGUAGE_EN,
+            ],
+            [
+                'known_for' => $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR),
+                'description' => $manufacturerData->get(self::MANUFACTURER_DESCRIPTION),
+            ]
+        );
 
         return $manufacturer;
     }
@@ -256,36 +354,6 @@ abstract class AbstractParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
-     */
-    private function createNewManufacturer(): Manufacturer
-    {
-        app('Log')::debug('Creating new Manufacturer');
-
-        $manufacturerData = $this->rawDataGet(self::MANUFACTURER);
-        /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
-        $manufacturer = Manufacturer::create(
-            [
-                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
-                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
-                'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
-            ]
-        );
-
-        $manufacturer->translations()->create(
-            [
-                'locale_code' => self::LANGUAGE_EN,
-                'known_for' => $manufacturerData->get(self::MANUFACTURER_KNOWN_FOR),
-                'description' => $manufacturerData->get(self::MANUFACTURER_DESCRIPTION),
-            ]
-        );
-
-        app('Log')::debug('Manufacturer created');
-
-        return $manufacturer;
-    }
-
-    /**
      * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
      */
     private function createNewProductionStatus(): ProductionStatus
@@ -408,7 +476,6 @@ abstract class AbstractParseVehicle implements ShouldQueue
                 $data = self::PRODUCTION_STATUS_NORMALIZED;
             }
         }
-
 
         return $data;
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGroundVehicleTranslationsTable extends Migration
+class CreateVehicleTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,16 +14,17 @@ class CreateGroundVehicleTranslationsTable extends Migration
     public function up()
     {
         Schema::create(
-            'ground_vehicle_translations',
+            'vehicle_translations',
             function (Blueprint $table) {
+                $table->increments('id');
                 $table->char('locale_code', 5);
-                $table->unsignedInteger('ground_vehicle_id');
+                $table->unsignedInteger('vehicle_id');
                 $table->text('translation');
                 $table->timestamps();
 
-                $table->primary(['locale_code', 'ground_vehicle_id'], 'ground_vehicle_translations_primary');
+                $table->unique(['locale_code', 'vehicle_id'], 'vehicle_translations_primary');
                 $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
-                $table->foreign('ground_vehicle_id')->references('id')->on('ground_vehicles')->onDelete('cascade');
+                $table->foreign('vehicle_id')->references('id')->on('vehicles')->onDelete('cascade');
             }
         );
     }
@@ -35,6 +36,6 @@ class CreateGroundVehicleTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ground_vehicle_translations');
+        Schema::dropIfExists('vehicle_translations');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
+use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,15 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::model('production_status', ProductionStatus::class);
         Route::model('production_note', ProductionNote::class);
+
+        app(Handler::class)->extend(
+            new \App\Http\Throttle\ApiThrottle(
+                [
+                    'limit' => env('THROTTLE_GUEST_REQUESTS', 10),
+                    'expires' => env('THROTTLE_PERIOD', 1),
+                ]
+            )
+        );
     }
 
     /**

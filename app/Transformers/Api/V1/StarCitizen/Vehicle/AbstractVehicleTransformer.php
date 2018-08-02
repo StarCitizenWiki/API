@@ -7,7 +7,7 @@
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\AbstractVehicle as Vehicle;
+use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
 use App\Transformers\Api\LocaleAwareTransformerInterface as LocaleAwareTransformer;
 use League\Fractal\TransformerAbstract;
@@ -35,7 +35,7 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract implements
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
      *
      * @return array
      */
@@ -55,7 +55,7 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract implements
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
      *
      * @return array
      */
@@ -65,7 +65,7 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract implements
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
      *
      * @return array
      */
@@ -75,7 +75,7 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract implements
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
      *
      * @return array
      */
@@ -85,7 +85,7 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract implements
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
      *
      * @return array
      */
@@ -95,7 +95,7 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract implements
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\AbstractVehicle $vehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
      *
      * @return array
      */

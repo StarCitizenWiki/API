@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\Api\StarCitizen\Vehicle\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;

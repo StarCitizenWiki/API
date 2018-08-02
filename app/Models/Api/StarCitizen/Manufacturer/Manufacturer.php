@@ -2,7 +2,9 @@
 
 namespace App\Models\Api\StarCitizen\Manufacturer;
 
+use App\Events\ModelUpdating;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 
 /**
@@ -11,6 +13,11 @@ use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 class Manufacturer extends HasTranslations
 {
     use VehicleRelations;
+    use ModelChangelog;
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
+    ];
 
     protected $fillable = [
         'cig_id',
