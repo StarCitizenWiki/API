@@ -34,5 +34,9 @@ return [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
     ],
-
+    'starcitizenwiki' => [
+        'client_id' => 'bf603abfd6b193c2ca72e1db5becd344',
+        'client_secret' => '4823d67075aa8a894b93160a7e196debe7ff914c',
+        'redirect' => 'oob',
+    ],
 ];

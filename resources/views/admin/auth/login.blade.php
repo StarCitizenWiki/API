@@ -20,27 +20,10 @@
     <div class="card bg-dark text-light-grey">
         <h4 class="card-header">@lang('Admin Login')</h4>
         <div class="card-body">
-
-            @component('components.forms.form', ['action' => route('web.admin.auth.login')])
-                @component('components.forms.form-group', [
-                    'label' => __('Benutzername'),
-                    'id' => 'username',
-                    'required' => 1,
-                    'autofocus' => 1,
-                    'value' => old('username'),
-                    'tabIndex' => 1
-                ])@endcomponent
-
-                @component('components.forms.form-group', [
-                    'inputType' => 'password',
-                    'label' => __('Passwort'),
-                    'id' => 'password',
-                    'required' => 1,
-                    'tabIndex' => 2
-                ])@endcomponent
-
-                <button class="btn btn-outline-secondary btn-block">@lang('Login')</button>
-            @endcomponent
+            <p>
+                @lang('Login via Star Citizen Wiki OAuth')
+            </p>
+            <a href="{{ route('web.admin.auth.login.start') }}" class="btn btn-secondary btn-block">@lang('Login')</a>
         </div>
     </div>
 @endsection

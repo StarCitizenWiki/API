@@ -1,0 +1,18 @@
+{
+    "name": "socialiteproviders/starcitizenwiki",
+    "description": "StarCitizenWiki OAuth1 Provider for Laravel Socialite",
+    "license": "MIT",
+    "authors": [{
+        "name": "FoXFTW",
+        "email": "foxftw@star-citizen.wiki"
+    }],
+    "require": {
+        "php": ">=5.5.9",
+        "socialiteproviders/manager": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SocialiteProviders\\StarCitizenWiki\\": "src/"
+        }
+    }
+}
