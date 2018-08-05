@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Web\Admin\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
-use Hesto\MultiAuth\Traits\LogsoutGuard;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use SocialiteProviders\Manager\OAuth1\User;
@@ -27,9 +27,7 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers, LogsoutGuard {
-        LogsoutGuard::logout insteadof AuthenticatesUsers;
-    }
+    use AuthenticatesUsers;
 
     /**
      * Where to redirect users after login / registration.
@@ -132,6 +130,18 @@ class LoginController extends Controller
         $this->syncAdminGroups($user, $admin);
 
         return $admin;
+    }
+
+    /**
+     * Redirect to Login Form
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function loggedOut(Request $request)
+    {
+        return redirect()->route('web.admin.auth.login');
     }
 
     /**

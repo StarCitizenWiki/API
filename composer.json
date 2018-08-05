@@ -12,7 +12,6 @@
         "dingo/api": "2.0.0-alpha2",
         "fideloper/proxy": "~4.0",
         "guzzlehttp/guzzle": "^6.3",
-        "hesto/multi-auth": "^1.0",
         "jackiedo/log-reader": "2.*",
         "laravel/framework": "5.6.*",
         "laravel/socialite": "^3.0",
