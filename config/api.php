@@ -230,7 +230,6 @@ return [
     ],
 
     'wiki_url' => env('WIKI_URL', 'http://localhost'),
-    'wiki_query_token' => env('WIKI_QUERY_TOKEN', null),
     'rsi_url' => env('RSI_URL', 'https://robertsspaceindustries.com'),
 
     'admin_password' => env('ADMIN_PASSWORD', config('app.key')),
