@@ -232,8 +232,6 @@ return [
     'wiki_url' => env('WIKI_URL', 'http://localhost'),
     'rsi_url' => env('RSI_URL', 'https://robertsspaceindustries.com'),
 
-    'admin_password' => env('ADMIN_PASSWORD', config('app.key')),
-
     'log' => [
         'error' => [
             'danger_hour' => 10,
