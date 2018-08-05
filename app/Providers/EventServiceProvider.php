@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Events\ModelUpdating;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\MediaWiki\MediaWikiExtendSocialite;
 
 /**
  * Class EventServiceProvider
@@ -27,7 +28,7 @@ class EventServiceProvider extends ServiceProvider
             \App\Listeners\ModelUpdating::class,
         ],
         SocialiteWasCalled::class => [
-            'SocialiteProviders\\StarCitizenWiki\\StarCitizenWikiExtendSocialite@handle',
+            MediaWikiExtendSocialite::class,
         ],
     ];
 }

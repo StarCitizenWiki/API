@@ -16,24 +16,25 @@
         "jackiedo/log-reader": "2.*",
         "laravel/framework": "5.6.*",
         "laravel/socialite": "^3.0",
-        "laravel/tinker": "~1.0",
         "piwik/piwik-php-tracker": "^1.2",
         "rodenastyle/stream-parser": "^1.0",
-        "socialiteproviders/generators": "^4.1",
-        "socialiteproviders/manager": "^3.3"
+        "socialiteproviders/manager": "^3.3",
+        "starcitizenwiki/socialite-provider": "^1.0"
     },
     "require-dev": {
-        "filp/whoops": "~2.0",
+        "barryvdh/laravel-ide-helper": "^2.3",
         "caouecs/laravel-lang": "^3.0",
+        "doctrine/dbal": "^2.5",
+        "escapestudios/symfony2-coding-standard": "~2.0",
         "fzaninotto/faker": "~1.4",
+        "filp/whoops": "~2.0",
+        "laravel/tinker": "~1.0",
         "mockery/mockery": "~1.0",
         "phpunit/phpunit": "^7.0",
-        "symfony/css-selector": "3.1.*",
-        "symfony/dom-crawler": "3.1.*",
+        "socialiteproviders/generators": "^4.1",
         "squizlabs/php_codesniffer": "2.*",
-        "escapestudios/symfony2-coding-standard": "~2.0",
-        "barryvdh/laravel-ide-helper": "^2.3",
-        "doctrine/dbal": "^2.5"
+        "symfony/css-selector": "3.1.*",
+        "symfony/dom-crawler": "3.1.*"
     },
     "autoload": {
         "classmap": [
@@ -41,9 +42,7 @@
             "database/factories"
         ],
         "psr-4": {
-            "App\\": "app/",
-            "SocialiteProviders\\StarCitizenWIki\\": "SocialiteProviders/StarCitizenWIki/src/",
-            "SocialiteProviders\\StarCitizenWiki\\": "SocialiteProviders/StarCitizenWiki/src/"
+            "App\\": "app/"
         },
         "files": [
             "app/helpers.php"

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 return [
 
@@ -18,25 +18,10 @@ return [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),
     ],
-
-    'ses' => [
-        'key' => env('SES_KEY'),
-        'secret' => env('SES_SECRET'),
-        'region' => 'us-east-1',
-    ],
-
-    'sparkpost' => [
-        'secret' => env('SPARKPOST_SECRET'),
-    ],
-
-    'stripe' => [
-        'model' => App\User::class,
-        'key' => env('STRIPE_KEY'),
-        'secret' => env('STRIPE_SECRET'),
-    ],
-    'starcitizenwiki' => [
-        'client_id' => 'bf603abfd6b193c2ca72e1db5becd344',
-        'client_secret' => '4823d67075aa8a894b93160a7e196debe7ff914c',
+    'mediawiki' => [
+        'client_id' => env('WIKI_OAUTH_ID'),
+        'client_secret' => env('WIKI_OAUTH_SECRET'),
         'redirect' => 'oob',
+        'url' => env('WIKI_URL'),
     ],
 ];
