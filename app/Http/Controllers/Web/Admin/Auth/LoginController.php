@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Web\Admin\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account\Admin\Admin;
+use App\Models\Account\Admin\AdminGroup;
 use Hesto\MultiAuth\Traits\LogsoutGuard;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use SocialiteProviders\Manager\OAuth1\User;
 
 /**
  * Class LoginController
@@ -81,7 +83,7 @@ class LoginController extends Controller
      */
     public function redirectToProvider()
     {
-        return Socialite::with('starcitizenwiki')->stateless(false)->redirect();
+        return Socialite::with('mediawiki')->stateless(false)->redirect();
     }
 
     /**
@@ -91,9 +93,9 @@ class LoginController extends Controller
      */
     public function handleProviderCallback()
     {
-        $user = Socialite::with('starcitizenwiki')->stateless(false)->user();
+        $user = Socialite::with('mediawiki')->stateless(false)->user();
 
-        $authUser = $this->findOrCreateUser($user, 'starcitizenwiki');
+        $authUser = $this->findOrCreateAdmin($user, 'mediawiki');
         Auth::guard('admin')->login($authUser);
 
         return redirect($this->redirectTo);
@@ -107,15 +109,18 @@ class LoginController extends Controller
      *
      * @return  \App\Models\Account\Admin\Admin
      */
-    public function findOrCreateUser($user, $provider)
+    public function findOrCreateAdmin($user, $provider)
     {
         $authUser = Admin::where('provider_id', $user->id)->first();
 
         if ($authUser) {
+            $this->syncAdminGroups($user, $authUser);
+
             return $authUser;
         }
 
-        return Admin::create(
+        /** @var \App\Models\Account\Admin\Admin $admin */
+        $admin = Admin::create(
             [
                 'username' => $user->username,
                 'blocked' => $user->blocked,
@@ -123,6 +128,10 @@ class LoginController extends Controller
                 'provider' => $provider,
             ]
         );
+
+        $this->syncAdminGroups($user, $admin);
+
+        return $admin;
     }
 
     /**
@@ -133,5 +142,22 @@ class LoginController extends Controller
     protected function guard()
     {
         return Auth::guard('admin');
+    }
+
+    /**
+     * Sync provided Groups
+     *
+     * @param \SocialiteProviders\Manager\OAuth1\User $oauthUser
+     * @param \App\Models\Account\Admin\Admin         $admin
+     */
+    private function syncAdminGroups(User $oauthUser, Admin $admin): void
+    {
+        $groups = $oauthUser->user['groups'] ?? null;
+
+        if (is_array($groups)) {
+            $groupIDs = AdminGroup::select('id')->whereIn('name', $groups)->get();
+
+            $admin->groups()->sync($groupIDs);
+        }
     }
 }
