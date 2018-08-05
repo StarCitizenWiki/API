@@ -19,9 +19,10 @@ class CreateAdminsTable extends Migration
             'admins',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('username');
-                $table->string('password')->default(bcrypt(config('api.admin_password')));
-                $table->boolean('blocked')->default(false);
+                $table->string('username')->unique();
+                $table->boolean('blocked');
+                $table->string('provider');
+                $table->string('provider_id')->unique();
                 $table->timestamp('last_login')->nullable();
                 $table->rememberToken();
                 $table->timestamps();

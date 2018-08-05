@@ -12,6 +12,13 @@ class Admin extends Authenticatable
 {
     use Notifiable;
 
+    protected $fillable = [
+        'username',
+        'blocked',
+        'provider',
+        'provider_id',
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *

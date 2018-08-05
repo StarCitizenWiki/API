@@ -164,6 +164,8 @@ return [
 
 
         Jackiedo\LogReader\LogReaderServiceProvider::class,
+
+        \SocialiteProviders\Manager\ServiceProvider::class,
     ],
 
     /*

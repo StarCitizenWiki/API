@@ -36,7 +36,7 @@ class AdminController extends Controller
 
         $today = Carbon::today()->toDateString();
 
-        $logs = $this->getLogs();
+        //$logs = $this->getLogs();
 
         $users = [
             'overall' => User::all()->count(),
@@ -66,7 +66,7 @@ class AdminController extends Controller
             [
                 'users' => $users,
                 'notifications' => $notifications,
-                'logs' => $logs,
+                //'logs' => $logs,
             ]
         );
     }

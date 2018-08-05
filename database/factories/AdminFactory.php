@@ -7,8 +7,9 @@ $factory->define(
     function (Faker $faker) {
         return [
             'username' => $faker->userName,
-            'password' => bcrypt(config('api.admin_password')),
             'blocked' => false,
+            'provider' => 'starcitizenwiki',
+            'provider_id' => $faker->numberBetween(1, 100),
             'last_login' => $faker->dateTime,
             'created_at' => Carbon\Carbon::now(),
             'updated_at' => Carbon\Carbon::now(),

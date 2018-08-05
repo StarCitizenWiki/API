@@ -43,12 +43,15 @@
 {{-- Main Content --}}
 @section('topNav--class', 'bg-blue-grey')
 
-@section('topNav__title', 'API Admin')
-@section('topNav__title--class', 'd-md-none')
+@section('topNav__title')
+    @if(Auth::guard('admin')->check())
+        {{ Auth::guard('admin')->user()->username }} (ID: {{ Auth::guard('admin')->user()->provider_id }})
+    @endif
+@endsection
 
 
 @section('topNav__content')
-    @unless(Auth::guest())
+    @if(Auth::guard('admin')->check())
         @component('components.navs.nav_element', ['route' => route('web.admin.auth.logout')])
             @slot('options')
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
@@ -66,7 +69,7 @@
             @endcomponent
             @lang('Logout')
         @endcomponent
-    @endunless
+    @endif
 
     <div class="nav d-flex d-md-none flex-row flex-lg-column">
         @include('admin.menu.main')

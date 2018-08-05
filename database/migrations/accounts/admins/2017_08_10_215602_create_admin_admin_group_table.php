@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Class CreateAdminAdminGroupsTable
  */
-class CreateAdminAdminGroupsTable extends Migration
+class CreateAdminAdminGroupTable extends Migration
 {
     /**
      * Run the migrations.

@@ -1,75 +1,77 @@
 {
-  "name": "laravel/laravel",
-  "description": "The Laravel Framework.",
-  "keywords": [
-    "framework",
-    "laravel"
-  ],
-  "license": "MIT",
-  "type": "project",
-  "require": {
-    "php": ">=7.2",
-    "dingo/api": "2.0.0-alpha2",
-    "fideloper/proxy": "~4.0",
-    "guzzlehttp/guzzle": "^6.3",
-    "hesto/multi-auth": "^1.0",
-    "jackiedo/log-reader": "2.*",
-    "laravel/framework": "5.6.*",
-    "laravel/tinker": "~1.0",
-    "piwik/piwik-php-tracker": "^1.2",
-    "rodenastyle/stream-parser": "^1.0"
-  },
-  "require-dev": {
-    "filp/whoops": "~2.0",
-    "caouecs/laravel-lang": "^3.0",
-    "fzaninotto/faker": "~1.4",
-    "mockery/mockery": "~1.0",
-    "phpunit/phpunit": "^7.0",
-    "symfony/css-selector": "3.1.*",
-    "symfony/dom-crawler": "3.1.*",
-    "squizlabs/php_codesniffer": "2.*",
-    "escapestudios/symfony2-coding-standard": "~2.0",
-    "barryvdh/laravel-ide-helper": "^2.3",
-    "doctrine/dbal": "^2.5"
-  },
-  "autoload": {
-    "classmap": [
-      "database/seeds",
-      "database/factories"
+    "name": "laravel/laravel",
+    "description": "The Laravel Framework.",
+    "keywords": [
+        "framework",
+        "laravel"
     ],
-    "psr-4": {
-      "App\\": "app/"
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": ">=7.2",
+        "dingo/api": "2.0.0-alpha2",
+        "fideloper/proxy": "~4.0",
+        "guzzlehttp/guzzle": "^6.3",
+        "jackiedo/log-reader": "2.*",
+        "laravel/framework": "5.6.*",
+        "laravel/socialite": "^3.0",
+        "piwik/piwik-php-tracker": "^1.2",
+        "rodenastyle/stream-parser": "^1.0",
+        "socialiteproviders/manager": "^3.3",
+        "starcitizenwiki/socialite-provider": "^1.0"
     },
-    "files": [
-      "app/helpers.php"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Tests\\": "tests/"
+    "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.3",
+        "caouecs/laravel-lang": "^3.0",
+        "doctrine/dbal": "^2.5",
+        "escapestudios/symfony2-coding-standard": "~2.0",
+        "fzaninotto/faker": "~1.4",
+        "filp/whoops": "~2.0",
+        "laravel/tinker": "~1.0",
+        "mockery/mockery": "~1.0",
+        "phpunit/phpunit": "^7.0",
+        "socialiteproviders/generators": "^4.1",
+        "squizlabs/php_codesniffer": "2.*",
+        "symfony/css-selector": "3.1.*",
+        "symfony/dom-crawler": "3.1.*"
+    },
+    "autoload": {
+        "classmap": [
+            "database/seeds",
+            "database/factories"
+        ],
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
     }
-  },
-  "extra": {
-    "laravel": {
-      "dont-discover": [
-      ]
-    }
-  },
-  "scripts": {
-    "post-root-package-install": [
-      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
-    ],
-    "post-create-project-cmd": [
-      "@php artisan key:generate"
-    ],
-    "post-autoload-dump": [
-      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-      "@php artisan package:discover"
-    ]
-  },
-  "config": {
-    "preferred-install": "dist",
-    "sort-packages": true,
-    "optimize-autoloader": true
-  }
 }
