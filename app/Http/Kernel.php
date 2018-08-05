@@ -67,7 +67,7 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'check_user_state' => \App\Http\Middleware\CheckUserState::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'guest' => \App\Http\Middleware\Web\User\RedirectIfAuthenticated::class,
         'update_token_timestamp' => \App\Http\Middleware\Api\UpdateTokenTimestamp::class,
         'piwik_tracking' => \App\Http\Middleware\PiwikTracking::class,
     ];
