@@ -43,20 +43,6 @@ class Vehicle extends HasTranslations
         'chassis_id',
     ];
 
-    protected $casts = [
-        'length' => 'float',
-        'beam' => 'float',
-        'height' => 'float',
-
-        'pitch_max' => 'float',
-        'yaw_max' => 'float',
-        'roll_max' => 'float',
-
-        'x_axis_acceleration' => 'float',
-        'y_axis_acceleration' => 'float',
-        'z_axis_acceleration' => 'float',
-    ];
-
     protected $with = [
         'foci',
         'manufacturer',
