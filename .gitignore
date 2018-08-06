@@ -13,4 +13,4 @@ composer.phar
 /.phpstorm.meta.php
 /public/css/
 /public/js/
-
+/.phpunit.result.cache

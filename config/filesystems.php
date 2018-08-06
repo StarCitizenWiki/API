@@ -69,6 +69,11 @@ return [
             'root' => storage_path('app/api/vehicles'),
         ],
 
+        'stats' => [
+            'driver' => 'local',
+            'root' => storage_path('app/api/stats'),
+        ],
+
     ],
 
 ];
