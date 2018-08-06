@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * Class AbstractParseVehicle
@@ -83,7 +83,7 @@ class ParseVehicle implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param \Tightenco\Collect\Support\Collection $rawData
+     * @param \Illuminate\Support\Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
@@ -181,7 +181,7 @@ class ParseVehicle implements ShouldQueue
     {
         app('Log')::debug('Getting Manufacturer');
 
-        $manufacturerData = $this->rawDataGet(self::MANUFACTURER);
+        $manufacturerData = collect($this->rawDataGet(self::MANUFACTURER));
         /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
         $manufacturer = Manufacturer::updateOrCreate(
             [

@@ -8,6 +8,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
+        "ext-json": "*",
         "php": ">=7.2",
         "dingo/api": "2.0.0-alpha2",
         "fideloper/proxy": "~4.0",
@@ -16,7 +17,6 @@
         "laravel/framework": "5.6.*",
         "laravel/socialite": "^3.0",
         "piwik/piwik-php-tracker": "^1.2",
-        "rodenastyle/stream-parser": "^1.0",
         "socialiteproviders/manager": "^3.3",
         "starcitizenwiki/socialite-provider": "^1.0"
     },
