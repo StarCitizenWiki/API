@@ -19,6 +19,10 @@ class Admin extends Authenticatable
         'provider_id',
     ];
 
+    protected $with = [
+        'groups',
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -36,11 +40,19 @@ class Admin extends Authenticatable
         return (bool) $this->blocked;
     }
 
+    public function getHighestPermissionLevel(): int
+    {
+        /** @var \Illuminate\Database\Eloquent\Collection $groups */
+        $groups = $this->getRelationValue('groups');
+
+        return $groups->first()->permission_level ?? 0;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function groups()
     {
-        return $this->belongsToMany(AdminGroup::class)->withTimestamps();
+        return $this->belongsToMany(AdminGroup::class)->orderByDesc('permission_level')->withTimestamps();
     }
 }

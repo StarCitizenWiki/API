@@ -50,7 +50,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Production Status'),
+                                'label' => __('Produktionsstatus'),
                                 'id' => 'status',
                                 'value' => $ship->productionStatus->english()->translation,
                             ])@endcomponent
@@ -59,7 +59,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Production Note'),
+                                'label' => __('Produktionsnotiz'),
                                 'id' => 'note',
                                 'value' => $ship->productionNote->english()->translation,
                             ])@endcomponent
@@ -73,7 +73,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Size'),
+                                'label' => __('Größe'),
                                 'id' => 'size',
                                 'value' => $ship->size->english()->translation,
                             ])@endcomponent
@@ -82,7 +82,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Type'),
+                                'label' => __('Typ'),
                                 'id' => 'type',
                                 'value' => $ship->type->english()->translation,
                             ])@endcomponent
@@ -91,7 +91,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Length'),
+                                'label' => __('Länge'),
                                 'id' => 'length',
                                 'value' => $ship->length.' m',
                             ])@endcomponent
@@ -100,7 +100,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Beam'),
+                                'label' => __('Breite'),
                                 'id' => 'beam',
                                 'value' => $ship->beam.' m',
                             ])@endcomponent
@@ -109,7 +109,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Height'),
+                                'label' => __('Höhe'),
                                 'id' => 'height',
                                 'value' => $ship->height.' m',
                             ])@endcomponent
@@ -121,7 +121,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Cargo Capacity'),
+                                'label' => __('Frachtkapazität'),
                                 'id' => 'cargo',
                                 'value' => ($ship->cargo_capacity ?? '-').' SCU',
                             ])@endcomponent
@@ -139,7 +139,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Crew Min'),
+                                'label' => __('Min. Besatzung'),
                                 'id' => 'crew_min',
                                 'value' => $ship->min_crew,
                             ])@endcomponent
@@ -148,7 +148,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Crew Max'),
+                                'label' => __('Max. Besatzung'),
                                 'id' => 'crew_max',
                                 'value' => $ship->max_crew,
                             ])@endcomponent
@@ -181,7 +181,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('SCM Speed'),
+                                'label' => __('SCM Geschwindigkeit'),
                                 'id' => 'scm',
                                 'value' => $ship->scm_speed.' m/s',
                             ])@endcomponent
@@ -190,7 +190,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Afterburner Speed'),
+                                'label' => __('Afterburner Geschwindigkeit'),
                                 'id' => 'afterburner',
                                 'value' => $ship->afterburner_speed.' m/s',
                             ])@endcomponent
@@ -199,7 +199,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Pitch'),
+                                'label' => __('Steigung'),
                                 'id' => 'pitch',
                                 'value' => ($ship->pitch_max ?? '-').' deg/s',
                             ])@endcomponent
@@ -208,7 +208,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Yaw'),
+                                'label' => __('Gierung'),
                                 'id' => 'yaw',
                                 'value' => ($ship->yaw_max ?? '-').' deg/s',
                             ])@endcomponent
@@ -217,7 +217,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Roll'),
+                                'label' => __('Rotation'),
                                 'id' => 'roll',
                                 'value' => ($ship->roll_max ?? '-').' deg/s',
                             ])@endcomponent
@@ -229,7 +229,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('X-Axis Acceleration'),
+                                'label' => __('X-Achsen-Beschleunigung'),
                                 'id' => 'x_axis_accel',
                                 'value' => ($ship->x_axis_acceleration ?? '-').' m/s²',
                             ])@endcomponent
@@ -238,7 +238,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Y-Axis Acceleration'),
+                                'label' => __('Y-Achsen-Beschleunigung'),
                                 'id' => 'y_axis_accel',
                                 'value' => ($ship->y_axis_acceleration ?? '-').' m/s²',
                             ])@endcomponent
@@ -247,7 +247,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Z-Axis Acceleration'),
+                                'label' => __('Z-Achsen-Beschleunigung'),
                                 'id' => 'z_axis_accel',
                                 'value' => ($ship->z_axis_acceleration ?? '-').' m/s²',
                             ])@endcomponent
@@ -258,7 +258,7 @@
             </div>
         </div>
         @component('components.forms.form', [
-            'action' => route('web.admin.starcitizen.vehicles.ships.update', $ship->id),
+            'action' => route('web.admin.starcitizen.vehicles.ships.update', $ship->getRouteKey()),
             'method' => 'PATCH',
             'class' => 'card h-100 d-flex flex-column justify-content-between'
         ])

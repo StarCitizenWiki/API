@@ -13,12 +13,24 @@ use App\Models\System\Language;
 class ProductionStatusController extends Controller
 {
     /**
+     * ProductionStatusController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth:admin');
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
+        $this->authorize('web.admin.starcitizen.translations.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -37,9 +49,12 @@ class ProductionStatusController extends Controller
      * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $status
      *
      * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(ProductionStatus $status)
     {
+        $this->authorize('web.admin.starcitizen.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -58,9 +73,12 @@ class ProductionStatusController extends Controller
      * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $status
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(TranslationRequest $request, ProductionStatus $status)
     {
+        $this->authorize('web.admin.starcitizen.translations.update');
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {

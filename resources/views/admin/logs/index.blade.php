@@ -30,18 +30,18 @@
                     <tr>
                         <td class="text-center">
                             <div class="custom-control custom-checkbox mr-0 mb-0">
-                                <input type="checkbox" class="custom-control-input" name="mark_read[]" id="mark-read-{{$log->id}}"
-                                       value="{{ $log->id }}">
-                                <label class="custom-control-label" for="mark-read-{{$log->id}}"></label>
+                                <input type="checkbox" class="custom-control-input" name="mark_read[]" id="mark-read-{{$log->getRouteKey()}}"
+                                       value="{{ $log->getRouteKey() }}">
+                                <label class="custom-control-label" for="mark-read-{{$log->getRouteKey()}}"></label>
                             </div>
                         </td>
                         <td>
                             <nobr>
-                                <a data-toggle="collapse" href="#collapse-{{ $log->id }}" aria-expanded="false" aria-controls="collapse-{{ $log->id }}">
+                                <a data-toggle="collapse" href="#collapse-{{ $log->getRouteKey() }}" aria-expanded="false" aria-controls="collapse-{{ $log->getRouteKey() }}">
                                     @component('components.elements.icon')
                                         plus-circle
                                     @endcomponent
-                                        <span title="{{ $log->id }}"> {{ substr($log->id, 0, 8) }}...</span>
+                                        <span title="{{ $log->getRouteKey() }}"> {{ substr($log->getRouteKey(), 0, 8) }}...</span>
                                 </a>
                             </nobr>
                         </td>
@@ -68,7 +68,7 @@
                     </tr>
                     <tr>
                         <td colspan="6" class="py-0">
-                            <div class="collapse collapse-log-content mt-2" id="collapse-{{ $log->id }}">
+                            <div class="collapse collapse-log-content mt-2" id="collapse-{{ $log->getRouteKey() }}">
                                 <?php $traces = null; preg_match_all('/(#[0-9]{1,3})(.*)\:(.*)/', $log->context->message, $traces); unset($traces[0]); ?>
                                 <div class="row mb-2">
                                     <div class="col-1">

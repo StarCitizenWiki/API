@@ -19,18 +19,10 @@
                         'label' => __('ID'),
                         'id' => 'id',
                         'inputOptions' => 'disabled',
-                        'value' => $user->id,
-                    ])@endcomponent
-                </div>
-                <div class="col-12 col-lg-3">
-                    @component('components.forms.form-group', [
-                        'label' => __('Hash ID'),
-                        'id' => 'hash_id',
-                        'inputOptions' => 'disabled',
                         'value' => $user->getRouteKey(),
                     ])@endcomponent
                 </div>
-                <div class="col-12 col-lg-6">
+                <div class="col-12 col-lg-9">
                     @component('components.forms.form-group', [
                         'label' => __('Name'),
                         'id' => 'name',

@@ -45,7 +45,7 @@
 
 @section('topNav__title')
     @if(Auth::guard('admin')->check())
-        {{ Auth::guard('admin')->user()->username }} (ID: {{ Auth::guard('admin')->user()->provider_id }})
+        <small class="text-light-grey">@lang('Hallo') {{ Auth::guard('admin')->user()->username }}</small>
     @endif
 @endsection
 
@@ -70,10 +70,6 @@
             @lang('Logout')
         @endcomponent
     @endif
-
-    <div class="nav d-flex d-md-none flex-row flex-lg-column">
-        @include('admin.menu.main')
-    </div>
 @endsection
 
 

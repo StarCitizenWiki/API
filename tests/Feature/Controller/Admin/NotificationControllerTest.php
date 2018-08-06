@@ -16,7 +16,14 @@ class NotificationControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @var \App\Models\Account\Admin\Admin
+     */
     private $admin;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
     private $notifications;
 
     /**

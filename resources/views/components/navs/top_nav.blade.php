@@ -13,7 +13,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="{{ $navID or 'nav-top-menu' }}" class="collapse navbar-collapse justify-content-end {{ $contentClass or '' }}">
+    <div id="{{ $navID or 'nav-top-menu' }}" class="collapse navbar-collapse justify-content-end align-end{{ $contentClass or '' }}">
         <ul class="navbar-nav {{$navbarClass or ''}}">
             {{ $slot }}
         </ul>

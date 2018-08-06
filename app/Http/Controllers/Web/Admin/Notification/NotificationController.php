@@ -21,7 +21,7 @@ class NotificationController extends Controller
     private $jobDelay = null;
 
     /**
-     * ShortUrlController constructor.
+     * Notification Controller constructor.
      */
     public function __construct()
     {
@@ -31,9 +31,12 @@ class NotificationController extends Controller
 
     /**
      * @return \Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index(): View
     {
+        $this->authorize('web.admin.notifications.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -46,9 +49,12 @@ class NotificationController extends Controller
 
     /**
      * @return \Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create(): View
     {
+        $this->authorize('web.admin.notifications.create');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view('admin.notifications.create');
@@ -58,9 +64,12 @@ class NotificationController extends Controller
      * @param \App\Models\Api\Notification $notification
      *
      * @return \Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(Notification $notification)
     {
+        $this->authorize('web.admin.notifications.update');
         app('Log')::debug(make_name_readable(__FUNCTION__), ['id' => $notification->id]);
 
         return view(
@@ -75,9 +84,14 @@ class NotificationController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return $this|\Illuminate\Database\Eloquent\Model
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(Request $request)
     {
+        $this->authorize('web.admin.notifications.create');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         $data = $this->validate(
             $request,
             [
@@ -123,6 +137,9 @@ class NotificationController extends Controller
      */
     public function update(Request $request, Notification $notification)
     {
+        $this->authorize('web.admin.notifications.update');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         if ($request->has('delete')) {
             return $this->destroy($notification);
         }
@@ -169,6 +186,9 @@ class NotificationController extends Controller
      */
     public function destroy(Notification $notification)
     {
+        $this->authorize('web.admin.notifications.delete');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         $notification->delete();
 
         return redirect()->route(
