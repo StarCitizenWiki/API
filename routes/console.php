@@ -1,6 +1,7 @@
-<?php
+<?php declare(strict_types = 1);
 
-use Illuminate\Foundation\Inspiring;
+use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
+use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +13,18 @@ use Illuminate\Foundation\Inspiring;
 | simple approach to interacting with each command's IO methods.
 |
 */
+Artisan::command(
+    'download:shipmatrix',
+    function () {
+        $this->info("Dispatching Ship Matrix Download");
+        Bus::dispatchNow(new DownloadShipMatrix());
+    }
+)->describe('Starts the Ship Matrix Download Job');
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->describe('Display an inspiring quote');
+Artisan::command(
+    'download:stats',
+    function () {
+        $this->info("Dispatching Stats Download");
+        Bus::dispatchNow(new DownloadStats());
+    }
+)->describe('Starts the Stats Download Job');
