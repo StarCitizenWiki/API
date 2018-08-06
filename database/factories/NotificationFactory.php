@@ -7,7 +7,7 @@ $factory->define(
     function (Faker $faker) {
         return [
             'level' => $faker->numberBetween(0, 3),
-            'content' => $faker->realText(200),
+            'content' => $faker->realText(50),
             'order' => $faker->numberBetween(0, 4),
             'output_status' => $faker->boolean(),
             'output_email' => $faker->boolean(),

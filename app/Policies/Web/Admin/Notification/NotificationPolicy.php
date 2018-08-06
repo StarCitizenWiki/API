@@ -35,7 +35,7 @@ class NotificationPolicy extends BaseAdminPolicy
      */
     public function create(Admin $admin)
     {
-        return $admin->getHighestPermissionLevel() >= AdminGroup::SICHTER;
+        return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
     }
 
     /**

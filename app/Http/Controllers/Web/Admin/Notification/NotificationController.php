@@ -16,7 +16,7 @@ class NotificationController extends Controller
 {
     const ADMIN_NOTIFICATION_INDEX = 'web.admin.notifications.index';
     const MESSAGE = 'message';
-    const NOTIFICATION = 'Notification';
+    const NOTIFICATION = 'Benachrichtigung';
 
     private $jobDelay = null;
 

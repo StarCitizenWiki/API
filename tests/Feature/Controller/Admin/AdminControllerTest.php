@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controller\Admin;
 
 use App\Models\Account\Admin\Admin;
+use App\Models\Account\Admin\AdminGroup;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,22 +15,83 @@ class AdminControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $admin;
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
+     */
+    public function testDashboardViewBureaucrat()
+    {
+        $admin = factory(Admin::class)->create();
+        $group = factory(AdminGroup::class)->states('bureaucrat')->create();
+        $admin->groups()->sync($group->id);
+
+        $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
+        $response->assertOk();
+    }
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
      */
-    public function testDashboardView()
+    public function testDashboardViewSysop()
     {
-        $response = $this->actingAs($this->admin, 'admin')->get('admin/dashboard');
-        $response->assertStatus(200);
+        $admin = factory(Admin::class)->create();
+        $group = factory(AdminGroup::class)->states('sysop')->create();
+        $admin->groups()->sync($group->id);
+
+        $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
+        $response->assertOk();
     }
 
-    protected function setUp()
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
+     */
+    public function testDashboardViewSichter()
     {
-        parent::setUp();
-        $this->artisan('db:seed', ['--class' => 'AdminGroupTableSeeder']);
-        $this->admin = factory(Admin::class)->create();
-        $this->admin->groups()->sync([4, 5]);
+        $admin = factory(Admin::class)->create();
+        $group = factory(AdminGroup::class)->states('sichter')->create();
+        $admin->groups()->sync($group->id);
+
+        $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
+        $response->assertOk();
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
+     */
+    public function testDashboardViewMitarbeiter()
+    {
+        $admin = factory(Admin::class)->create();
+        $group = factory(AdminGroup::class)->states('mitarbeiter')->create();
+        $admin->groups()->sync($group->id);
+
+        $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
+        $response->assertOk();
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
+     */
+    public function testDashboardViewUser()
+    {
+        $admin = factory(Admin::class)->create();
+        $group = factory(AdminGroup::class)->states('user')->create();
+        $admin->groups()->sync($group->id);
+
+        $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
+        $response->assertOk();
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
+     */
+    public function testDashboardViewBlocked()
+    {
+        $admin = factory(Admin::class)->create([
+            'blocked' => true,
+        ]);
+        $group = factory(AdminGroup::class)->states('bureaucrat')->create();
+        $admin->groups()->sync($group->id);
+
+        $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
+        $response->assertStatus(403);
     }
 }

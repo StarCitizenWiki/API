@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controller\Admin;
 
 use App\Models\Account\Admin\Admin;
+use App\Models\Account\Admin\AdminGroup;
 use App\Models\Account\User\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -103,9 +104,12 @@ class UserControllerTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->artisan('db:seed', ['--class' => 'AdminGroupTableSeeder']);
+        $bureaucrat = factory(AdminGroup::class)->states('bureaucrat')->create();
+        $sysop = factory(AdminGroup::class)->states('sysop')->create();
+
         $this->admin = factory(Admin::class)->create();
-        $this->admin->groups()->sync([4, 5]);
+        $this->admin->groups()->sync([$bureaucrat->id, $sysop->id]);
+
         $this->user = factory(User::class)->create();
     }
 }

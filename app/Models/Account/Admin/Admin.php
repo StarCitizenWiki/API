@@ -42,10 +42,7 @@ class Admin extends Authenticatable
 
     public function getHighestPermissionLevel(): int
     {
-        /** @var \Illuminate\Database\Eloquent\Collection $groups */
-        $groups = $this->getRelationValue('groups');
-
-        return $groups->first()->permission_level ?? 0;
+        return $this->groups->first()->permission_level;
     }
 
     /**
@@ -53,6 +50,6 @@ class Admin extends Authenticatable
      */
     public function groups()
     {
-        return $this->belongsToMany(AdminGroup::class)->orderByDesc('permission_level')->withTimestamps();
+        return $this->belongsToMany(AdminGroup::class)->orderByDesc('permission_level');
     }
 }
