@@ -28,7 +28,7 @@ abstract class AbstractRSIDownloadData extends BaseDownloadData
     {
         $response = json_decode($rawResponseBody);
 
-        if ($response->success ?? 0 !== 1) {
+        if (($response->success ?? 0) !== 1) {
             throw new InvalidDataException(
                 sprintf('RSI data is not valid. Expected success = 1, got %i', $response->success ?? 0)
             );
