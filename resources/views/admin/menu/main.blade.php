@@ -16,15 +16,17 @@
     @include('admin.menu.admin')
 @endcomponent
 
-@component('components.navs.sidebar_section', [
-    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
-    'titleClass' => 'text-muted pb-0',
-    'contentClass' => 'pl-3 pl-md-2',
-    'id' => 'm_notifications',
-    'title' => __('Notifications'),
-])
-    @include('admin.menu.notifications')
-@endcomponent
+@can('web.admin.notifications.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_notifications',
+        'title' => __('Benachrichtigungen'),
+    ])
+        @include('admin.menu.notifications')
+    @endcomponent
+@endcan
 
 @component('components.navs.sidebar_section', [
     'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
@@ -36,32 +38,38 @@
     @include('admin.menu.starmap')
 @endcomponent
 
-@component('components.navs.sidebar_section', [
-    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
-    'titleClass' => 'text-muted pb-0',
-    'contentClass' => 'pl-3 pl-md-2',
-    'id' => 'm_vehicles',
-    'title' => __('Vehicles'),
-])
-    @include('admin.menu.vehicles')
-@endcomponent
+@can('web.admin.starcitizen.vehicles.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_vehicles',
+        'title' => __('Fahrzeuge'),
+    ])
+        @include('admin.menu.vehicles')
+    @endcomponent
+@endcan
 
-@component('components.navs.sidebar_section', [
-    'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
-    'titleClass' => 'text-muted pb-0',
-    'contentClass' => 'pl-3 pl-md-2',
-    'id' => 'm_manufacturer',
-    'title' => __('Manufacturer'),
-])
-    @include('admin.menu.manufacturer')
-@endcomponent
+@can('web.admin.starcitizen.manufacturers.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_manufacturer',
+        'title' => __('Hersteller'),
+    ])
+        @include('admin.menu.manufacturer')
+    @endcomponent
+@endcan
 
-@component('components.navs.sidebar_section', [
-    'class' => 'mr-4 mr-md-0 mb-5',
-    'titleClass' => 'text-muted pb-0',
-    'contentClass' => 'pl-3 pl-md-2',
-    'id' => 'm_translations',
-    'title' => __('Translations'),
-])
-    @include('admin.menu.translations')
-@endcomponent
+@can('web.admin.starcitizen.translations.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mr-4 mr-md-0 mb-5',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_translations',
+        'title' => __('Übersetzungen'),
+    ])
+        @include('admin.menu.translations')
+    @endcomponent
+@endcan

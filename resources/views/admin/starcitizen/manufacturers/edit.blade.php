@@ -41,7 +41,7 @@
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
-                                'label' => __('Schiffe'),
+                                'label' => __('Raumschiffe'),
                                 'id' => 'ships',
                                 'value' => count($manufacturer->ships),
                             ])@endcomponent
@@ -60,7 +60,7 @@
             </div>
         </div>
         @component('components.forms.form', [
-            'action' => route('web.admin.starcitizen.manufacturers.update', $manufacturer->id),
+            'action' => route('web.admin.starcitizen.manufacturers.update', $manufacturer->getRouteKey()),
             'method' => 'PATCH',
             'class' => 'card h-100 d-flex flex-column justify-content-between'
         ])

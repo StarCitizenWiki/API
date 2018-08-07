@@ -8,7 +8,7 @@
             @endcomponent
         </div>
         <div class="col">
-            @lang('Production Statuses')
+            @lang('Produktionsstatus')
         </div>
     </div>
 @endcomponent
@@ -23,7 +23,7 @@
             @endcomponent
         </div>
         <div class="col">
-            @lang('Production Notes')
+            @lang('Produktionsnotizen')
         </div>
     </div>
 @endcomponent

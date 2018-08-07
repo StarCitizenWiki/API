@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">@lang('Notification hinzufügen')</h4>
+        <h4 class="card-header">@lang('Benachrichtigung hinzufügen')</h4>
         <div class="card-body">
             @include('components.errors')
             @component('components.forms.form', [

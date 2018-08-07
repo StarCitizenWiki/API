@@ -13,12 +13,24 @@ use App\Models\System\Language;
 class ProductionNoteController extends Controller
 {
     /**
+     * ProductionNoteController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth:admin');
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
+        $this->authorize('web.admin.starcitizen.translations.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -37,9 +49,12 @@ class ProductionNoteController extends Controller
      * @param \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $note
      *
      * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(ProductionNote $note)
     {
+        $this->authorize('web.admin.starcitizen.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -58,9 +73,14 @@ class ProductionNoteController extends Controller
      * @param \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $note
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(TranslationRequest $request, ProductionNote $note)
     {
+        $this->authorize('web.admin.starcitizen.translations.update');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {

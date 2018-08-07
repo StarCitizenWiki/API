@@ -1,5 +1,5 @@
 @component('components.forms.form', [
-    'action' => route($updateRoute, $translation->id),
+    'action' => route($updateRoute, $translation->getRouteKey()),
     'method' => 'PATCH',
     'class' => 'card h-100 d-flex flex-column justify-content-between'
 ])

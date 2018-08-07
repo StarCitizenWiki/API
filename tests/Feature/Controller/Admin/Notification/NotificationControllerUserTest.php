@@ -1,23 +1,20 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Feature\Controller\Admin;
+namespace Tests\Feature\Controller\Admin\Notification;
 
 use App\Models\Account\Admin\Admin;
-use App\Models\Api\Notification;
+use App\Models\Account\Admin\AdminGroup;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Queue;
-use Tests\TestCase;
 
 /**
  * Class NotificationControllerTest
  */
-class NotificationControllerTest extends TestCase
+class NotificationControllerUserTest extends AbstractBaseNotificationControllerTest
 {
-    use RefreshDatabase;
-
+    /**
+     * @var \App\Models\Account\Admin\Admin
+     */
     private $admin;
-    private $notifications;
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::index
@@ -28,7 +25,7 @@ class NotificationControllerTest extends TestCase
             ->get(route('web.admin.notifications.index'));
 
         $response->assertOk()
-            ->assertSee(__('Notifications'));
+            ->assertSee(__('Benachrichtigungen'));
     }
 
     /**
@@ -39,8 +36,7 @@ class NotificationControllerTest extends TestCase
         $response = $this->actingAs($this->admin, 'admin')
             ->get(route('web.admin.notifications.create'));
 
-        $response->assertOk()
-            ->assertSee(__('Notification hinzufügen'));
+        $response->assertStatus(403);
     }
 
 
@@ -54,8 +50,7 @@ class NotificationControllerTest extends TestCase
         $response = $this->actingAs($this->admin, 'admin')
             ->get(route('web.admin.notifications.edit', $notification));
 
-        $response->assertOk()
-            ->assertSee('value="'.$notification->level.'"  selected');
+        $response->assertStatus(403);
     }
 
     /**
@@ -78,19 +73,7 @@ class NotificationControllerTest extends TestCase
                 ]
             );
 
-        $response->assertRedirect(
-            route(
-                'web.admin.dashboard',
-                [
-                    'message' => __(
-                        'crud.created',
-                        [
-                            'type' => 'Notification',
-                        ]
-                    ),
-                ]
-            )
-        );
+        $response->assertStatus(403);
     }
 
     /**
@@ -118,19 +101,7 @@ class NotificationControllerTest extends TestCase
                 ]
             );
 
-        $response->assertRedirect(
-            route(
-                'web.admin.notifications.index',
-                [
-                    'message' => __(
-                        'crud.updated',
-                        [
-                            'type' => 'Notification',
-                        ]
-                    ),
-                ]
-            )
-        );
+        $response->assertStatus(403);
     }
 
     /**
@@ -149,28 +120,17 @@ class NotificationControllerTest extends TestCase
                 ]
             );
 
-        $response->assertRedirect(
-            route(
-                'web.admin.notifications.index',
-                [
-                    'message' => __(
-                        'crud.deleted',
-                        [
-                            'type' => 'Notification',
-                        ]
-                    ),
-                ]
-            )
-        );
+        $response->assertStatus(403);
     }
 
+    /**
+     * TODO Tests for Other Permission Levels
+     */
     protected function setUp()
     {
         parent::setUp();
-        $this->artisan('db:seed', ['--class' => 'AdminGroupTableSeeder']);
-        $this->admin = factory(Admin::class)->create();
-        $this->admin->groups()->sync([4, 5]);
 
-        $this->notifications = factory(Notification::class, 5)->states('active')->create();
+        $this->admin = factory(Admin::class)->create();
+        $this->admin->groups()->sync(AdminGroup::where('name', 'user')->first()->id);
     }
 }

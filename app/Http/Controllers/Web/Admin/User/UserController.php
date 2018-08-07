@@ -18,20 +18,26 @@ class UserController extends Controller
 
     /**
      * UserController constructor.
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function __construct()
     {
         parent::__construct();
         $this->middleware('auth:admin');
+        $this->authorize('web.admin.users.view');
     }
 
     /**
      * Returns the View with all Users listed
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
+        $this->authorize('web.admin.users.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -48,9 +54,12 @@ class UserController extends Controller
      * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Routing\Redirector
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(User $user)
     {
+        $this->authorize('web.admin.users.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -72,6 +81,7 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
+        $this->authorize('web.admin.users.delete');
         app('Log')::notice("Account {$user->name} ({$user->id}) deleted by ".Auth::id());
 
         $user->delete();
@@ -85,9 +95,12 @@ class UserController extends Controller
      * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function restore(User $user): RedirectResponse
     {
+        $this->authorize('web.admin.users.update');
         app('Log')::notice("Restored Account with ID: {$user->id}");
 
         $user->restore();
@@ -98,13 +111,18 @@ class UserController extends Controller
     /**
      * Updates a User by ID
      *
-     * @param \Illuminate\Http\Request $request Update Request
+     * @param \Illuminate\Http\Request      $request Update Request
      * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(Request $request, User $user): RedirectResponse
     {
+        $this->authorize('web.admin.users.update');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         $data = $this->validate(
             $request,
             [

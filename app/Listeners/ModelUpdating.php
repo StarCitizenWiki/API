@@ -3,12 +3,15 @@
 namespace App\Listeners;
 
 use App\Events\ModelUpdating as ModelUpdateEvent;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Listener that processes Model Changes and writes them to the DB
  */
 class ModelUpdating
 {
+    private const ADMIN_GUARD = 'admin';
+
     /**
      * Handle the event.
      *
@@ -26,6 +29,13 @@ class ModelUpdating
             $changes[$key] = [
                 'old' => $original,
                 'new' => (string) $value,
+            ];
+        }
+
+        if (Auth::guard(self::ADMIN_GUARD)->check()) {
+            $changes['by'] = [
+                'id' => Auth::guard(self::ADMIN_GUARD)->user()->provider_id,
+                'name' => Auth::guard(self::ADMIN_GUARD)->user()->username,
             ];
         }
 

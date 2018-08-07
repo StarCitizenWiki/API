@@ -81,7 +81,7 @@
             <tbody>
             @foreach($jumppointtunnels as $jumppointtunnel)
                 <tr>
-                    <td>{{ $jumppointtunnel->id }}</td>
+                    <td>{{ $jumppointtunnel->getRouteKey() }}</td>
                     <td>{{ $jumppointtunnel->created_at }}</td>
                     <td>{{ $jumppointtunnel->size }}</td>
                     <td>{{ $jumppointtunnel->entry_code }}</td>
