@@ -21,7 +21,7 @@ class AdminControllerTest extends TestCase
     public function testDashboardViewBureaucrat()
     {
         $admin = factory(Admin::class)->create();
-        $group = factory(AdminGroup::class)->states('bureaucrat')->create();
+        $group = AdminGroup::where('name', 'bureaucrat')->first();
         $admin->groups()->sync($group->id);
 
         $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
@@ -34,7 +34,7 @@ class AdminControllerTest extends TestCase
     public function testDashboardViewSysop()
     {
         $admin = factory(Admin::class)->create();
-        $group = factory(AdminGroup::class)->states('sysop')->create();
+        $group = AdminGroup::where('name', 'sysop')->first();
         $admin->groups()->sync($group->id);
 
         $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
@@ -47,7 +47,7 @@ class AdminControllerTest extends TestCase
     public function testDashboardViewSichter()
     {
         $admin = factory(Admin::class)->create();
-        $group = factory(AdminGroup::class)->states('sichter')->create();
+        $group = AdminGroup::where('name', 'sichter')->first();
         $admin->groups()->sync($group->id);
 
         $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
@@ -60,7 +60,7 @@ class AdminControllerTest extends TestCase
     public function testDashboardViewMitarbeiter()
     {
         $admin = factory(Admin::class)->create();
-        $group = factory(AdminGroup::class)->states('mitarbeiter')->create();
+        $group = AdminGroup::where('name', 'mitarbeiter')->first();
         $admin->groups()->sync($group->id);
 
         $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
@@ -73,7 +73,7 @@ class AdminControllerTest extends TestCase
     public function testDashboardViewUser()
     {
         $admin = factory(Admin::class)->create();
-        $group = factory(AdminGroup::class)->states('user')->create();
+        $group = AdminGroup::where('name', 'user')->first();
         $admin->groups()->sync($group->id);
 
         $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
@@ -88,10 +88,18 @@ class AdminControllerTest extends TestCase
         $admin = factory(Admin::class)->create([
             'blocked' => true,
         ]);
-        $group = factory(AdminGroup::class)->states('bureaucrat')->create();
-        $admin->groups()->sync($group->id);
+
+        $admin->groups()->sync(AdminGroup::where('name', 'bureaucrat')->first()->id);
 
         $response = $this->actingAs($admin, 'admin')->get('admin/dashboard');
         $response->assertStatus(403);
+    }
+
+    protected function setUp()
+    {
+        parent::setUp();
+        if (AdminGroup::count() !== 5) {
+            $this->createAdminGroups();
+        }
     }
 }

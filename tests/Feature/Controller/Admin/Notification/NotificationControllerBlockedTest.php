@@ -128,13 +128,12 @@ class NotificationControllerBlockedTest extends AbstractBaseNotificationControll
     protected function setUp()
     {
         parent::setUp();
-        $group = factory(AdminGroup::class)->states('sysop')->create();
 
         $this->admin = factory(Admin::class)->create(
             [
                 'blocked' => true,
             ]
         );
-        $this->admin->groups()->sync([$group->id]);
+        $this->admin->groups()->sync(AdminGroup::where('name', 'sysop')->first()->id);
     }
 }

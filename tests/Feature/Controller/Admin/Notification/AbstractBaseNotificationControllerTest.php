@@ -8,6 +8,7 @@
 namespace Tests\Feature\Controller\Admin\Notification;
 
 
+use App\Models\Account\Admin\AdminGroup;
 use App\Models\Api\Notification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,6 +22,9 @@ abstract class AbstractBaseNotificationControllerTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
+        if (AdminGroup::count() !== 5) {
+            $this->createAdminGroups();
+        }
         $this->notifications = factory(Notification::class, 5)->states('active')->create();
     }
 

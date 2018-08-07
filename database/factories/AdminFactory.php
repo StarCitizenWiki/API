@@ -5,11 +5,13 @@ use Faker\Generator as Faker;
 $factory->define(
     App\Models\Account\Admin\Admin::class,
     function (Faker $faker) {
+        static $id = 1;
+
         return [
             'username' => $faker->userName,
             'blocked' => false,
             'provider' => 'starcitizenwiki',
-            'provider_id' => $faker->numberBetween(1, 100),
+            'provider_id' => $id++,
             'last_login' => $faker->dateTime,
             'created_at' => Carbon\Carbon::now(),
             'updated_at' => Carbon\Carbon::now(),

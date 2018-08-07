@@ -104,11 +104,9 @@ class UserControllerTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $bureaucrat = factory(AdminGroup::class)->states('bureaucrat')->create();
-        $sysop = factory(AdminGroup::class)->states('sysop')->create();
 
         $this->admin = factory(Admin::class)->create();
-        $this->admin->groups()->sync([$bureaucrat->id, $sysop->id]);
+        $this->admin->groups()->sync([AdminGroup::where('name', 'sysop')->first()->id]);
 
         $this->user = factory(User::class)->create();
     }

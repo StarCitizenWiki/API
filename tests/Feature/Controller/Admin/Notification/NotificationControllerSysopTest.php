@@ -167,9 +167,8 @@ class NotificationControllerSysopTest extends AbstractBaseNotificationController
     protected function setUp()
     {
         parent::setUp();
-        $group = factory(AdminGroup::class)->states('sysop')->create();
 
         $this->admin = factory(Admin::class)->create();
-        $this->admin->groups()->sync([$group->id]);
+        $this->admin->groups()->sync(AdminGroup::where('name', 'sysop')->first()->id);
     }
 }
