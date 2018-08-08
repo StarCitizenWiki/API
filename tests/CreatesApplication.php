@@ -19,35 +19,23 @@ trait CreatesApplication
      */
     public function createApplication()
     {
-        if (!isset(static::$application)) {
-            static::$application = require __DIR__.'/../bootstrap/app.php';
-            static::$application->make(Kernel::class)->bootstrap();
-        }
+        $app = require __DIR__.'/../bootstrap/app.php';
+        $app->make(Kernel::class)->bootstrap();
 
-        return static::$application;
-    }
-
-    protected function createAdminGroups()
-    {
-        factory(AdminGroup::class)->states('bureaucrat')->create();
-        factory(AdminGroup::class)->states('sysop')->create();
-        factory(AdminGroup::class)->states('sichter')->create();
-        factory(AdminGroup::class)->states('mitarbeiter')->create();
-        factory(AdminGroup::class)->states('user')->create();
+        return $app;
     }
 
     /**
-     * {@inheritDoc}
+     * Create all Admin Groups
      */
-    protected function tearDown()
+    protected function createAdminGroups()
     {
-        // Required if you use HTTP tests
-        $this->app['auth']->guard(null)->logout();
-        $this->app['auth']->shouldUse(null);
-        $this->flushSession();
-
-        // Always required
-        $this->app = null;
-        parent::tearDown();
+        if (AdminGroup::count() === 0) {
+            factory(AdminGroup::class)->states('bureaucrat')->create();
+            factory(AdminGroup::class)->states('sysop')->create();
+            factory(AdminGroup::class)->states('sichter')->create();
+            factory(AdminGroup::class)->states('mitarbeiter')->create();
+            factory(AdminGroup::class)->states('user')->create();
+        }
     }
 }

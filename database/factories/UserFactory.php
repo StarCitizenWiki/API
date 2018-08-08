@@ -5,7 +5,10 @@ use Faker\Generator as Faker;
 $factory->define(
     App\Models\Account\User\User::class,
     function (Faker $faker) {
+        static $id = 1;
+
         return [
+            'id' => $id++,
             'name' => $faker->name,
             'email' => $faker->unique()->safeEmail,
             'api_token' => str_random(60),

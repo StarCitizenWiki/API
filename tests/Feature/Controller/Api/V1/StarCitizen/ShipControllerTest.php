@@ -36,6 +36,6 @@ class ShipControllerTest extends TestCase
     {
         $response = $this->get('/api/vehicles/ships');
         $response->assertSee('meta');
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 }

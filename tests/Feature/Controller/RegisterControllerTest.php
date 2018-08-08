@@ -73,6 +73,6 @@ class RegisterControllerTest extends TestCase
     public function testRegistrationFormView()
     {
         $response = $this->get('register');
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 }

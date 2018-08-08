@@ -1,5 +1,4 @@
 @extends('admin.layouts.default')
-
 @section('content')
     @component('admin.components.card', [
         'class' => 'mb-4',
@@ -10,7 +9,7 @@
         @endslot
         @include('components.errors')
         @component('components.forms.form', [
-            'action' => route('web.admin.users.update', $user->getRouteKey()),
+            'action' => route('web.admin.users.update', $user),
             'method' => 'PATCH',
         ])
             <div class="row">

@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
 
         Carbon::setLocale(config('app.locale'));
 
-        if (config('app.debug')) {
+        if (config('app.debug') && config('app.env') === 'local') {
             DB::listen(
                 function (QueryExecuted $query) {
                     app('Log')::debug($query->sql);

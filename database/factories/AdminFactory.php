@@ -19,6 +19,14 @@ $factory->define(
     }
 );
 
+$factory->state(
+    \App\Models\Account\Admin\Admin::class,
+    'blocked',
+    [
+        'blocked' => true,
+    ]
+);
+
 $factory->define(
     App\Models\Account\Admin\AdminGroup::class,
     function (Faker $faker) {

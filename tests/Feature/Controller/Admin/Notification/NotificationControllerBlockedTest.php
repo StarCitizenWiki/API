@@ -4,136 +4,39 @@ namespace Tests\Feature\Controller\Admin\Notification;
 
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
-use Carbon\Carbon;
 
 /**
  * Class NotificationControllerTest
+ *
+ * @covers \App\Policies\Web\Admin\Notification\NotificationPolicy
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
+ * @covers \App\Http\Middleware\CheckUserState
  */
-class NotificationControllerBlockedTest extends AbstractBaseNotificationControllerTest
+class NotificationControllerBlockedTest extends AbstractBaseNotificationControllerTestCase
 {
-    /**
-     * @var \App\Models\Account\Admin\Admin
-     */
-    private $admin;
+    protected const RESPONSE_STATUSES = [
+        'index' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'create' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'edit' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'store' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'update' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'destroy' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+    ];
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::index
-     */
-    public function testIndex()
-    {
-        $response = $this->actingAs($this->admin, 'admin')
-            ->get(route('web.admin.notifications.index'));
-
-        $response->assertStatus(403);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::create
-     */
-    public function testCreate()
-    {
-        $response = $this->actingAs($this->admin, 'admin')
-            ->get(route('web.admin.notifications.create'));
-
-        $response->assertStatus(403);
-    }
-
-
-    /**
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::edit
-     */
-    public function testEdit()
-    {
-        $notification = $this->notifications[0];
-
-        $response = $this->actingAs($this->admin, 'admin')
-            ->get(route('web.admin.notifications.edit', $notification));
-
-        $response->assertStatus(403);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::store
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
-     */
-    public function testStore()
-    {
-        $response = $this->actingAs($this->admin, 'admin')
-            ->post(
-                route('web.admin.notifications.store'),
-                [
-                    'content' => str_random(100),
-                    'level' => rand(0, 3),
-                    'expired_at' => Carbon::now()->addDay(),
-                    'output' => [
-                        'index',
-                    ],
-                ]
-            );
-
-        $response->assertStatus(403);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::update
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
-     */
-    public function testUpdate()
-    {
-        $notification = $this->notifications[1];
-
-        $response = $this->actingAs($this->admin, 'admin')
-            ->patch(
-                route('web.admin.notifications.update', $notification->id),
-                [
-                    'content' => str_random(100),
-                    'level' => rand(0, 3),
-                    'expired_at' => Carbon::now()->addDay(),
-                    'published_at' => $notification->published_at,
-                    'order' => 0,
-                    'output' => [
-                        'index',
-                        'status',
-                    ],
-                ]
-            );
-
-        $response->assertStatus(403);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::update
-     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::destroy
-     */
-    public function testDestroy()
-    {
-        $notification = $this->notifications[2];
-
-        $response = $this->actingAs($this->admin, 'admin')
-            ->patch(
-                route('web.admin.notifications.update', $notification),
-                [
-                    'delete' => true,
-                ]
-            );
-
-        $response->assertStatus(403);
-    }
-
-    /**
-     * TODO Tests for Other Permission Levels
+     * {@inheritDoc}
      */
     protected function setUp()
     {
         parent::setUp();
 
-        $this->admin = factory(Admin::class)->create(
-            [
-                'blocked' => true,
-            ]
-        );
+        $this->admin = factory(Admin::class)->state('blocked')->create();
         $this->admin->groups()->sync(AdminGroup::where('name', 'sysop')->first()->id);
     }
 }

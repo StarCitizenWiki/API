@@ -23,7 +23,7 @@ class StatControllerTest extends TestCase
     public function testAllApiView()
     {
         $response = $this->get('/api/stats');
-        $response->assertStatus(200)
+        $response->assertOk()
             ->assertSee('data')
             ->assertJsonCount(10, 'data')
             ->assertSee('funds')
@@ -43,7 +43,7 @@ class StatControllerTest extends TestCase
     public function testLatestApiView()
     {
         $response = $this->get('/api/stats/latest');
-        $response->assertStatus(200)
+        $response->assertOk()
             ->assertSee('data')
             ->assertSee('funds')
             ->assertSee('fleet')

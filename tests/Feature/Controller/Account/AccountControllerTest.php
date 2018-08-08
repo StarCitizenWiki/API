@@ -24,7 +24,7 @@ class AccountControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->get(route('web.user.account.index'));
 
-        $response->assertStatus(200)
+        $response->assertOk()
             ->assertSee($this->user->name);
     }
 
@@ -36,7 +36,7 @@ class AccountControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->get(route('web.user.account.delete'), []);
 
-        $response->assertStatus(200)
+        $response->assertOk()
             ->assertSee(__('Löschen'));
     }
 
@@ -60,7 +60,7 @@ class AccountControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->get(route('web.user.account.edit'));
 
-        $response->assertStatus(200)
+        $response->assertOk()
             ->assertSee(__('Speichern'));
     }
 
