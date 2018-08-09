@@ -175,7 +175,8 @@ class ShipController extends ApiController
      * @Versions({"v1"})
      *
      * @Parameters({
-     *      @Parameter("page", description="The page of results to view.", default=1)
+     *      @Parameter("page", description="The page of results to view.", type="integer", default=1)
+     *      @Parameter("limit", description="The Result limit. 0 = Limit disabled", type="integer", default=5)
      * })
      *
      * @Response(200, body={
@@ -255,7 +256,15 @@ class ShipController extends ApiController
      */
     public function index()
     {
-        $ships = Ship::paginate();
+        if ($this->request->has('limit') && $this->request->get('limit') >= 0) {
+            if ($this->request->get('limit') === 0) {
+                return $this->response->collection(Ship::all(), $this->transformer);
+            } else {
+                $ships = Ship::paginate($this->request->get('limit'));
+            }
+        } else {
+            $ships = Ship::paginate();
+        }
 
         return $this->response->paginator($ships, $this->transformer);
     }

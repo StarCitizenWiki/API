@@ -126,24 +126,6 @@ class RouteServiceProvider extends ServiceProvider
                 return VehicleType::where('id', $id)->firstOrFail();
             }
         );
-
-        Route::bind(
-            'ground_vehicle',
-            function ($id) {
-                $id = $this->hasher($id, GroundVehicle::class);
-
-                return GroundVehicle::where('id', $id)->firstOrFail();
-            }
-        );
-
-        Route::bind(
-            'ship',
-            function ($id) {
-                $id = $this->hasher($id, Ship::class);
-
-                return Ship::where('id', $id)->firstOrFail();
-            }
-        );
     }
 
     /**
