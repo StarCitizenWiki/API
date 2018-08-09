@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Web\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Account\Admin\Admin;
-use App\Models\Account\Admin\AdminGroup;
+use App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
-use SocialiteProviders\Manager\OAuth1\User;
 
 /**
  * Class LoginController
@@ -37,12 +34,20 @@ class LoginController extends Controller
     public $redirectTo = '/admin/dashboard';
 
     /**
-     * Create a new controller instance.
+     * @var \App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface
      */
-    public function __construct()
+    private $authRepository;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param \App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface $authRepository
+     */
+    public function __construct(AuthRepositoryInterface $authRepository)
     {
         parent::__construct();
         $this->middleware('admin.guest', ['except' => 'logout']);
+        $this->authRepository = $authRepository;
     }
 
     /**
@@ -81,7 +86,7 @@ class LoginController extends Controller
      */
     public function redirectToProvider()
     {
-        return Socialite::with('mediawiki')->stateless(false)->redirect();
+        return $this->authRepository->startAuth();
     }
 
     /**
@@ -91,45 +96,12 @@ class LoginController extends Controller
      */
     public function handleProviderCallback()
     {
-        $user = Socialite::with('mediawiki')->stateless(false)->user();
+        $user = $this->authRepository->getUserFromProvider();
+        $authUser = $this->authRepository->getOrCreateLocalUser($user, 'mediawiki');
 
-        $authUser = $this->findOrCreateAdmin($user, 'mediawiki');
         Auth::guard('admin')->login($authUser);
 
         return redirect($this->redirectTo);
-    }
-
-    /**
-     * If a user has registered before using social auth, return the user
-     * else, create a new user object.
-     * @param  \SocialiteProviders\Manager\OAuth1\User $user     Socialite user object
-     * @param  string                                  $provider Social auth provider
-     *
-     * @return  \App\Models\Account\Admin\Admin
-     */
-    public function findOrCreateAdmin($user, $provider)
-    {
-        $authUser = Admin::where('provider_id', $user->id)->first();
-
-        if ($authUser) {
-            $this->syncAdminGroups($user, $authUser);
-
-            return $authUser;
-        }
-
-        /** @var \App\Models\Account\Admin\Admin $admin */
-        $admin = Admin::create(
-            [
-                'username' => $user->username,
-                'blocked' => $user->blocked,
-                'provider_id' => $user->id,
-                'provider' => $provider,
-            ]
-        );
-
-        $this->syncAdminGroups($user, $admin);
-
-        return $admin;
     }
 
     /**
@@ -152,22 +124,5 @@ class LoginController extends Controller
     protected function guard()
     {
         return Auth::guard('admin');
-    }
-
-    /**
-     * Sync provided Groups
-     *
-     * @param \SocialiteProviders\Manager\OAuth1\User $oauthUser
-     * @param \App\Models\Account\Admin\Admin         $admin
-     */
-    private function syncAdminGroups(User $oauthUser, Admin $admin): void
-    {
-        $groups = $oauthUser->user['groups'] ?? null;
-
-        if (is_array($groups)) {
-            $groupIDs = AdminGroup::select('id')->whereIn('name', $groups)->get();
-
-            $admin->groups()->sync($groupIDs);
-        }
     }
 }
