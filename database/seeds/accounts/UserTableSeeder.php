@@ -29,19 +29,6 @@ class UserTableSeeder extends Seeder
             ]
         );
 
-        DB::table('users')->insert(
-            [
-                'name'                => 'Starcitizen Base',
-                'email'               => 'info@starcitizenbase.de',
-                'api_token'           => str_random(60),
-                'password'            => bcrypt('starcitizenbase'),
-                'requests_per_minute' => 10,
-                'state'               => \App\Models\Account\User\User::STATE_DEFAULT,
-                'last_login'          => $now,
-                'created_at'          => $now,
-            ]
-        );
-
         if (App::environment() === 'local' || App::environment() === 'testing') {
             DB::table('users')->insert(
                 [
