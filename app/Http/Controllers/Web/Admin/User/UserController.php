@@ -18,14 +18,11 @@ class UserController extends Controller
 
     /**
      * UserController constructor.
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function __construct()
     {
         parent::__construct();
         $this->middleware('auth:admin');
-        $this->authorize('web.admin.users.view');
     }
 
     /**
