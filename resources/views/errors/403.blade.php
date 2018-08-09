@@ -3,9 +3,16 @@
 @section('title', '403 - Forbidden')
 
 @section('content')
-    @unless(empty($exception->getMessage()) && config('app.debug') === true)
-        ✋ {{ $exception->getMessage() }}
-    @else
-        ✋ @lang('Forbidden')
-    @endunless
+    ✋ @lang('Forbidden')
+@endsection
+
+@section('debug')
+    @if(config('app.debug') === true)
+        <pre style="margin: 1rem 0; text-align: left">
+Message: {{ $exception->getMessage() }}
+            <br>
+Stack: <br>
+{!! $exception->getTraceAsString() !!}
+        </pre>
+    @endif
 @endsection
