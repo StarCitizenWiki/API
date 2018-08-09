@@ -7,6 +7,8 @@
 
 namespace App\Traits;
 
+use App\Models\Api\ModelChangelog;
+
 /**
  * Trait HasModelChangelogTrait
  */
@@ -19,6 +21,6 @@ trait HasModelChangelogTrait
      */
     public function changelogs()
     {
-        return $this->morphMany('App\Models\Api\ModelChangelog', 'changelog');
+        return $this->morphMany(ModelChangelog::class, 'changelog');
     }
 }
