@@ -8,8 +8,8 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "ext-json": "*",
         "php": ">=7.2",
+        "ext-json": "*",
         "dingo/api": "2.0.0-alpha2",
         "fideloper/proxy": "~4.0",
         "guzzlehttp/guzzle": "^6.3",
@@ -18,7 +18,8 @@
         "laravel/socialite": "^3.0",
         "piwik/piwik-php-tracker": "^1.2",
         "socialiteproviders/manager": "^3.3",
-        "starcitizenwiki/socialite-provider": "^1.0"
+        "starcitizenwiki/socialite-provider": "^1.0",
+        "vinkla/hashids": "^5.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.3",

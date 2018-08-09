@@ -3,7 +3,6 @@
 namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
 use App\Events\ModelUpdating;
-use App\Models\Api\ModelChangelog;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
@@ -11,12 +10,17 @@ use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
  * Abstract Vehicle Class
  */
 class Vehicle extends HasTranslations
 {
+    use ObfuscatedRouteKey;
+    use ModelChangelog;
+
     protected $fillable = [
         'cig_id',
         'name',
@@ -71,16 +75,6 @@ class Vehicle extends HasTranslations
     public function translations()
     {
         return $this->hasMany(VehicleTranslation::class);
-    }
-
-    /**
-     * The saved changes
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function changelogs()
-    {
-        return $this->morphMany(ModelChangelog::class, 'changelog');
     }
 
     /**

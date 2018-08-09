@@ -4,6 +4,7 @@ namespace App\Models\Api\StarCitizen\ProductionStatus;
 
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 
 /**
  * Production Status Model
@@ -11,6 +12,7 @@ use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 class ProductionStatus extends HasTranslations
 {
     use VehicleRelations;
+    use ObfuscatedRouteKey;
 
     public $timestamps = false;
 

@@ -6,6 +6,7 @@ use App\Events\ModelUpdating;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 
 /**
  * Manufacturer Model
@@ -14,6 +15,7 @@ class Manufacturer extends HasTranslations
 {
     use VehicleRelations;
     use ModelChangelog;
+    use ObfuscatedRouteKey;
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,

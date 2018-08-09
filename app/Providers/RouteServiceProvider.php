@@ -2,12 +2,21 @@
 
 namespace App\Providers;
 
+use App\Models\Api\Notification;
+use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
+use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
+use App\Models\Api\StarCitizen\Vehicle\GroundVehicle;
+use App\Models\Api\StarCitizen\Vehicle\Ship;
+use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
+use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Vinkla\Hashids\Facades\Hashids;
 
 /**
  * Class RouteServiceProvider
@@ -31,8 +40,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        Route::model('production_status', ProductionStatus::class);
-        Route::model('production_note', ProductionNote::class);
+        $this->bindAdminModelRoutes();
 
         app(Handler::class)->extend(
             new \App\Http\Throttle\ApiThrottle(
@@ -41,6 +49,100 @@ class RouteServiceProvider extends ServiceProvider
                     'expires' => env('THROTTLE_PERIOD', 1),
                 ]
             )
+        );
+    }
+
+    /**
+     * Binds Model Slugs to Resolve Logic
+     * Decodes Hashed IDs
+     */
+    private function bindAdminModelRoutes()
+    {
+        Route::bind(
+            'notification',
+            function ($id) {
+                $id = $this->hasher($id, Notification::class);
+
+                return Notification::where('id', $id)->firstOrFail();
+            }
+        );
+
+        /**
+         * Star Citizen
+         */
+        Route::bind(
+            'manufacturer',
+            function ($id) {
+                $id = $this->hasher($id, Manufacturer::class);
+
+                return Manufacturer::where('id', $id)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'production_note',
+            function ($id) {
+                $id = $this->hasher($id, ProductionNote::class);
+
+                return ProductionNote::where('id', $id)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'production_status',
+            function ($id) {
+                $id = $this->hasher($id, ProductionStatus::class);
+
+                return ProductionStatus::where('id', $id)->firstOrFail();
+            }
+        );
+
+        /**
+         * Vehicles
+         */
+        Route::bind(
+            'focus',
+            function ($id) {
+                $id = $this->hasher($id, VehicleFocus::class);
+
+                return VehicleFocus::where('id', $id)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'size',
+            function ($id) {
+                $id = $this->hasher($id, VehicleSize::class);
+
+                return VehicleSize::where('id', $id)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'type',
+            function ($id) {
+                $id = $this->hasher($id, VehicleType::class);
+
+                return VehicleType::where('id', $id)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'ground_vehicle',
+            function ($id) {
+                $id = $this->hasher($id, GroundVehicle::class);
+
+                return GroundVehicle::where('id', $id)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'ship',
+            function ($id) {
+                $id = $this->hasher($id, Ship::class);
+
+                return Ship::where('id', $id)->firstOrFail();
+            }
         );
     }
 
@@ -116,5 +218,31 @@ class RouteServiceProvider extends ServiceProvider
                         );
                 }
             );
+    }
+
+    /**
+     * Tries to decode a hashid string into an id
+     *
+     * @param string $value
+     *
+     * @param string $connection
+     *
+     * @return int
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     */
+    private function hasher($value, string $connection = 'main')
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        $decoded = Hashids::connection($connection)->decode($value);
+
+        if (empty($decoded) || !is_integer($decoded[0])) {
+            throw new BadRequestHttpException();
+        }
+
+        return $decoded[0];
     }
 }
