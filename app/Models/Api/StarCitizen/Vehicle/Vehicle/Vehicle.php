@@ -91,7 +91,7 @@ class Vehicle extends HasTranslations
      */
     public function manufacturer()
     {
-        return $this->belongsTo(Manufacturer::class, 'manufacturer_id', 'cig_id');
+        return $this->belongsTo(Manufacturer::class);
     }
 
     /**
