@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Models\Account\Admin\AdminGroup;
+use App\Models\System\Language;
 use Illuminate\Contracts\Console\Kernel;
 
 trait CreatesApplication
@@ -36,6 +37,25 @@ trait CreatesApplication
             factory(AdminGroup::class)->states('sichter')->create();
             factory(AdminGroup::class)->states('mitarbeiter')->create();
             factory(AdminGroup::class)->states('user')->create();
+        }
+    }
+
+    /**
+     * Creates all System Languages
+     */
+    protected function createSystemLanguages()
+    {
+        if (Language::count() === 0) {
+            factory(Language::class)->create(
+                [
+                    'locale_code' => 'en_EN',
+                ]
+            );
+            factory(Language::class)->create(
+                [
+                    'locale_code' => 'de_DE',
+                ]
+            );
         }
     }
 }

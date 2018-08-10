@@ -45,8 +45,8 @@ class RouteServiceProvider extends ServiceProvider
         app(Handler::class)->extend(
             new \App\Http\Throttle\ApiThrottle(
                 [
-                    'limit' => env('THROTTLE_GUEST_REQUESTS', 10),
-                    'expires' => env('THROTTLE_PERIOD', 1),
+                    'limit' => config('api.throttle.limit_unauthenticated'),
+                    'expires' => config('api.throttle.period_unauthenticated'),
                 ]
             )
         );

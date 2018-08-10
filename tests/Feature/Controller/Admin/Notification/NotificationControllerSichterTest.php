@@ -8,12 +8,9 @@ use App\Models\Account\Admin\AdminGroup;
 /**
  * Class NotificationControllerTest
  *
- * @covers \App\Policies\Web\Admin\Notification\NotificationPolicy
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
- * @covers \App\Http\Middleware\CheckUserState
+ * {@inheritdoc}
  */
-class NotificationControllerSichterTest extends AbstractBaseNotificationControllerTestCase
+class NotificationControllerSichterTest extends BaseNotificationControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'index' => \Illuminate\Http\Response::HTTP_OK,
@@ -30,7 +27,7 @@ class NotificationControllerSichterTest extends AbstractBaseNotificationControll
     ];
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function setUp()
     {

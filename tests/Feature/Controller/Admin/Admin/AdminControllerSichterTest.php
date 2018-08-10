@@ -8,12 +8,9 @@ use App\Models\Account\Admin\AdminGroup;
 /**
  * Class AdminControllerTest
  *
- * @covers \App\Policies\Web\Admin\AdminPolicy
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
- * @covers \App\Http\Middleware\CheckUserState
+ * {@inheritdoc}
  */
-class AdminControllerSichterTest extends AbstractBaseAdminControllerTestCase
+class AdminControllerSichterTest extends BaseAdminControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'dashboard' => \Illuminate\Http\Response::HTTP_OK,

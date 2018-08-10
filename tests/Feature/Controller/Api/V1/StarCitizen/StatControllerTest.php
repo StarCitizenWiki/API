@@ -7,6 +7,9 @@ use Tests\Feature\Controller\Api\AbstractApiTestCase as ApiTestCase;
 
 /**
  * {@inheritdoc}
+ *
+ * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController<extended>
+ * @covers \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer<extended>
  */
 class StatControllerTest extends ApiTestCase
 {
@@ -15,7 +18,7 @@ class StatControllerTest extends ApiTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
      */
-    public function testAllApiView()
+    public function testIndexPaginatedDefault()
     {
         $response = $this->get('/api/stats');
         $response->assertOk()
@@ -26,6 +29,62 @@ class StatControllerTest extends ApiTestCase
             ->assertSee('fans')
             ->assertSee('timestamp')
             ->assertSee('meta');
+    }
+
+    /**
+     * Tests Stats from Interfaces
+     *
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
+     */
+    public function testIndexPaginatedCustom()
+    {
+        $response = $this->get('/api/stats?limit=5');
+        $response->assertOk()
+            ->assertSee('data')
+            ->assertJsonCount(5, 'data')
+            ->assertSee('funds')
+            ->assertSee('fleet')
+            ->assertSee('fans')
+            ->assertSee('timestamp')
+            ->assertSee('meta');
+    }
+
+    /**
+     * Tests Stats from Interfaces
+     *
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
+     */
+    public function testIndexAll()
+    {
+        $response = $this->get('/api/stats?limit=0');
+        $response->assertOk()
+            ->assertSee('data')
+            ->assertJsonCount(Stat::count(), 'data')
+            ->assertSee('funds')
+            ->assertSee('fleet')
+            ->assertSee('fans')
+            ->assertSee('timestamp');
+    }
+
+    /**
+     * Tests Stats from Interfaces
+     *
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
+     */
+    public function testIndexInvalidLimit()
+    {
+        $response = $this->get('/api/stats?limit=-1');
+        $response->assertOk()
+            ->assertSee('error')
+            ->assertJsonStructure(
+                [
+                    'meta' => [
+                        'errors' => [
+                            'limit',
+                        ],
+                    ],
+                ]
+            );
     }
 
     /**
@@ -52,6 +111,6 @@ class StatControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        factory(Stat::class, 10)->create();
+        factory(Stat::class, 20)->create();
     }
 }

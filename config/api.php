@@ -232,6 +232,11 @@ return [
     'wiki_url' => env('WIKI_URL', 'http://localhost'),
     'rsi_url' => env('RSI_URL', 'https://robertsspaceindustries.com'),
 
+    'throttle' => [
+        'limit_unauthenticated' => env('THROTTLE_GUEST_REQUESTS', 10),
+        'period_unauthenticated' => env('THROTTLE_PERIOD', 1),
+    ],
+
     'log' => [
         'error' => [
             'danger_hour' => 10,

@@ -14,8 +14,14 @@ use Tests\TestCase;
 
 /**
  * Class AbstractBaseNotificationControllerTest
+ *
+ * @covers \App\Policies\Web\Admin\Notification\NotificationPolicy<extended>
+ *
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
+ * @covers \App\Http\Middleware\CheckUserState
  */
-abstract class AbstractBaseNotificationControllerTestCase extends TestCase
+class BaseNotificationControllerTestCase extends TestCase
 {
     use RefreshDatabase;
 
@@ -50,7 +56,6 @@ abstract class AbstractBaseNotificationControllerTestCase extends TestCase
 
         $response->assertStatus(static::RESPONSE_STATUSES['create']);
     }
-
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::edit
@@ -135,7 +140,7 @@ abstract class AbstractBaseNotificationControllerTestCase extends TestCase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function setUp()
     {

@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 
 /**
  * @Resource("Ships", uri="/vehicles/ships")
+ *
+ * @covers \App\Http\Controllers\Api\AbstractApiController
  */
 class ShipController extends ApiController
 {
@@ -31,7 +33,7 @@ class ShipController extends ApiController
     }
 
     /**
-     * @param string $shipName
+     * @param string $ship
      *
      * @return \Dingo\Api\Http\Response
      *

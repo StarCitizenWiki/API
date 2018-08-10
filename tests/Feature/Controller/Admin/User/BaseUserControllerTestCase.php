@@ -13,8 +13,14 @@ use Tests\TestCase;
 
 /**
  * Class AbstractBaseUserControllerTestCase
+ *
+ * @covers \App\Policies\Web\Admin\User\UserPolicy<extended>
+ *
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
+ * @covers \App\Http\Middleware\CheckUserState
  */
-class AbstractBaseUserControllerTestCase extends TestCase
+class BaseUserControllerTestCase extends TestCase
 {
     use RefreshDatabase;
 
@@ -109,7 +115,9 @@ class AbstractBaseUserControllerTestCase extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($this->admin, 'admin')->delete(route('web.admin.users.destroy', $user->getRouteKey()));
+        $response = $this->actingAs($this->admin, 'admin')->delete(
+            route('web.admin.users.destroy', $user->getRouteKey())
+        );
         $response->assertStatus(static::RESPONSE_STATUSES['delete']);
     }
 
@@ -125,7 +133,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function setUp()
     {

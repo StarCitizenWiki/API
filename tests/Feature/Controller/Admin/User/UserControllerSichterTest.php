@@ -9,12 +9,9 @@ use Illuminate\Http\Response;
 /**
  * Class UserControllerTest
  *
- * @covers \App\Policies\Web\Admin\User\UserPolicy
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
- * @covers \App\Http\Middleware\CheckUserState
+ * {@inheritdoc}
  */
-class UserControllerSichterTest extends AbstractBaseUserControllerTestCase
+class UserControllerSichterTest extends BaseUserControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'index' => Response::HTTP_FORBIDDEN,
@@ -30,7 +27,7 @@ class UserControllerSichterTest extends AbstractBaseUserControllerTestCase
     ];
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function setUp()
     {

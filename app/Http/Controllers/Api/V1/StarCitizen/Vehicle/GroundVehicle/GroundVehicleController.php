@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 
 /**
  * @Resource("GroundVehicles", uri="/vehicles/ground_vehicles")
+ *
+ * @covers \App\Http\Controllers\Api\AbstractApiController
  */
 class GroundVehicleController extends ApiController
 {

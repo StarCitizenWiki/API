@@ -12,8 +12,14 @@ use Tests\TestCase;
 
 /**
  * Class AbstractBaseAdminControllerTest
+ *
+ * @covers \App\Policies\Web\Admin\AdminPolicy<extended>
+ *
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
+ * @covers \App\Http\Middleware\CheckUserState
  */
-abstract class AbstractBaseAdminControllerTestCase extends TestCase
+class BaseAdminControllerTestCase extends TestCase
 {
     use RefreshDatabase;
 
@@ -34,7 +40,7 @@ abstract class AbstractBaseAdminControllerTestCase extends TestCase
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function setUp()
     {

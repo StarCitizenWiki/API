@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Stat extends Model
 {
+    protected $perPage = 10;
+
     protected $fillable = [
         'funds',
         'fans',

@@ -171,12 +171,13 @@ abstract class AbstractApiController extends Controller
     {
         if ($this->request->has('limit')) {
             $limit = (int) $this->request->get('limit');
+
             if ($limit > 0) {
                 $this->limit = $limit;
             } elseif (0 === $limit) {
                 $this->limit = 0;
             } else {
-                $this->errors[] = 'Limit is not valid';
+                $this->errors['limit'] = 'Limit is not valid';
             }
         }
     }

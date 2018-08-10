@@ -9,12 +9,9 @@ use Illuminate\Http\Response;
 /**
  * Class UserControllerTest
  *
- * @covers \App\Policies\Web\Admin\User\UserPolicy
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
- * @covers \App\Http\Middleware\CheckUserState
+ * {@inheritdoc}
  */
-class UserControllerSysopTest extends AbstractBaseUserControllerTestCase
+class UserControllerSysopTest extends BaseUserControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'index' => Response::HTTP_OK,
@@ -30,7 +27,7 @@ class UserControllerSysopTest extends AbstractBaseUserControllerTestCase
     ];
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function setUp()
     {

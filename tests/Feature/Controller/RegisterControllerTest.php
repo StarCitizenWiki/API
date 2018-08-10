@@ -4,6 +4,7 @@ namespace Tests\Feature\Controller;
 
 use App\Http\Controllers\Web\User\Auth\RegisterController;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -11,7 +12,7 @@ use Tests\TestCase;
  */
 class RegisterControllerTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     /** @var  RegisterController */
     private $controller;
@@ -26,7 +27,7 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::register()
+     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::register
      * @covers \App\Events\UserRegistered
      */
     public function testRegistration()
@@ -48,7 +49,7 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::create()
+     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::create
      *
      * @throws \Exception
      */
@@ -68,7 +69,7 @@ class RegisterControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::showRegistrationForm()
+     * @covers \App\Http\Controllers\Web\User\Auth\RegisterController::showRegistrationForm
      */
     public function testRegistrationFormView()
     {

@@ -27,18 +27,6 @@ class UserPolicy extends BaseAdminPolicy
     }
 
     /**
-     * Create a new resource
-     *
-     * @param \App\Models\Account\Admin\Admin $admin
-     *
-     * @return bool
-     */
-    public function create(Admin $admin)
-    {
-        return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
-    }
-
-    /**
      * Update a Resource
      *
      * @param \App\Models\Account\Admin\Admin $admin
