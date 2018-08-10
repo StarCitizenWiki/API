@@ -28,7 +28,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     protected $admin;
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::index
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::index
      */
     public function testIndex()
     {
@@ -37,7 +37,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::edit
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::edit
      */
     public function testEdit()
     {
@@ -48,7 +48,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::edit
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::edit
      */
     public function testEditNotFound()
     {
@@ -59,7 +59,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::update
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::update
      */
     public function testUpdate()
     {
@@ -82,7 +82,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::update
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::update
      */
     public function testUpdateNotFound()
     {
@@ -103,7 +103,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::destroy
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::destroy
      */
     public function testDelete()
     {
@@ -114,7 +114,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\UserController::destroy
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::destroy
      */
     public function testDeleteNotFound()
     {

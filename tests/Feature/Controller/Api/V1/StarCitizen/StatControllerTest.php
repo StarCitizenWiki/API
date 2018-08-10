@@ -3,22 +3,17 @@
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
 use App\Models\Api\StarCitizen\Stat\Stat;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\Feature\Controller\Api\AbstractApiTestCase as ApiTestCase;
 
 /**
- * Class StatsApiControllerTest
+ * {@inheritdoc}
  */
-class StatControllerTest extends TestCase
+class StatControllerTest extends ApiTestCase
 {
-    use RefreshDatabase;
-
     /**
      * Tests Stats from Interfaces
      *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index()
-     * @covers \App\Http\Middleware\ThrottleApi
-     * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
      */
     public function testAllApiView()
     {
@@ -36,9 +31,7 @@ class StatControllerTest extends TestCase
     /**
      * Tests Stats from Interfaces
      *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::latest()
-     * @covers \App\Http\Middleware\ThrottleApi
-     * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::latest
      */
     public function testLatestApiView()
     {

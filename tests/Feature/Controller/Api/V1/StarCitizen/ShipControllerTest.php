@@ -2,19 +2,17 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
-use Tests\TestCase;
+use Tests\Feature\Controller\Api\AbstractApiTestCase as ApiTestCase;
 
 /**
- * Class ShipsTest
+ * {@inheritdoc}
  */
-class ShipControllerTest extends TestCase
+class ShipControllerTest extends ApiTestCase
 {
     /**
      * Get Ship from Interfaces
      *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show()
-     * @covers \App\Http\Middleware\ThrottleApi
-     * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
      *
      * @TODO   Model Factories?
      */
@@ -26,9 +24,7 @@ class ShipControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index()
-     * @covers \App\Http\Middleware\ThrottleApi
-     * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index
      *
      * @TODO   Model Factories?
      */
