@@ -27,7 +27,7 @@ before_script:
   - apt-get update -yqq
   - apt-get install gnupg -yqq
 
-  # Upgrade to Node 7
+  # Upgrade to Node 8
   - curl -sL https://deb.nodesource.com/setup_8.x | bash -
 
   # Install dependencies
@@ -42,8 +42,8 @@ before_script:
   - docker-php-ext-install -j$(nproc) gd
 
   # Install & enable Xdebug for code coverage reports
-  #- pecl install xdebug
-  #- docker-php-ext-enable xdebug
+  - pecl install xdebug
+  - docker-php-ext-enable xdebug
 
   # Install Composer and project dependencies.
   - curl -sS https://getcomposer.org/installer | php

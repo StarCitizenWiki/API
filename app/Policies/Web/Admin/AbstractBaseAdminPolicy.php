@@ -15,13 +15,14 @@ use App\Models\Account\Admin\Admin;
 class AbstractBaseAdminPolicy
 {
     /**
-     * Dont allow Access if Account is blocked
+     * Don't allow Access if Account is blocked
      *
      * @param \App\Models\Account\Admin\Admin $admin
+     * @param mixed                           $ability
      *
      * @return bool
      */
-    public function before(Admin $admin)
+    public function before(Admin $admin, $ability)
     {
         if ($admin->isBlocked()) {
             return false;

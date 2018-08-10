@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
-use App\Models\Api\StarCitizen\Stat;
+use App\Models\Api\StarCitizen\Stat\Stat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

@@ -10,15 +10,14 @@ use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 
 /**
  * Abstract Vehicle Class
  */
 class Vehicle extends HasTranslations
 {
-    use ObfuscatedRouteKey;
     use ModelChangelog;
 
     protected $fillable = [
@@ -63,11 +62,9 @@ class Vehicle extends HasTranslations
 
     protected $perPage = 5;
 
-
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
     ];
-
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -94,7 +91,7 @@ class Vehicle extends HasTranslations
      */
     public function manufacturer()
     {
-        return $this->belongsTo(Manufacturer::class, 'manufacturer_id', 'cig_id');
+        return $this->belongsTo(Manufacturer::class);
     }
 
     /**
@@ -155,5 +152,15 @@ class Vehicle extends HasTranslations
     public function getForeignKey()
     {
         return 'vehicle_id';
+    }
+
+    /**
+     * Key by which the api searches
+     *
+     * @return string
+     */
+    public function getRouteKey()
+    {
+        return urlencode($this->name);
     }
 }

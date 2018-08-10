@@ -106,7 +106,7 @@ class ParseVehicle implements ShouldQueue
             ],
             [
                 'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
-                'manufacturer_id' => (int) $this->getManufacturer()->cig_id,
+                'manufacturer_id' => (int) $this->getManufacturer()->id,
                 'production_status_id' => (int) $this->getProductionStatus()->id,
                 'production_note_id' => (int) $this->getProductionNote()->id,
                 'vehicle_size_id' => (int) $this->getVehicleSize()->id,

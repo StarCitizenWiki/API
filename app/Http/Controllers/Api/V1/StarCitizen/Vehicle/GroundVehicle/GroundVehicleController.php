@@ -1,17 +1,17 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
+namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
+use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 /**
- * @Resource("Ships", uri="/vehicles/ships")
+ * @Resource("GroundVehicles", uri="/vehicles/ground_vehicles")
  */
-class ShipController extends ApiController
+class GroundVehicleController extends ApiController
 {
     /**
      * {@inheritdoc}
@@ -21,33 +21,33 @@ class ShipController extends ApiController
     /**
      * ShipController constructor.
      *
-     * @param \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer $transformer
-     * @param \Illuminate\Http\Request                                          $request
+     * @param \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer $transformer
+     * @param \Illuminate\Http\Request                                                            $request
      */
-    public function __construct(ShipTransformer $transformer, Request $request)
+    public function __construct(GroundVehicleTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
         parent::__construct($request);
     }
 
     /**
-     * @param string $shipName
+     * @param string $groundVehicle
      *
      * @return \Dingo\Api\Http\Response
      *
-     * @GET("/{shipName}")
+     * @GET("/{groundVehicleName}")
      *
      * @Versions({"v1"})
      *
      * @Parameters({
-     *      @Parameter("locale", description="The Translation to return.")
+     *      @Parameter("locale", description="The Locale Code to return. Valid values: de_DE, en_EN. Fallback language is en_EN", type="string")
      * })
      *
      * @Response(200, body={
      *     "data": {
      *          "id": 7,
      *          "chassis_id": 2,
-     *          "name": "300i",
+     *          "name": "Cyclone",
      *          "sizes": {
      *              "length": 23,
      *              "beam": 15.5,
@@ -60,18 +60,7 @@ class ShipController extends ApiController
      *              "max": 1
      *          },
      *          "speed": {
-     *              "scm": 275,
-     *              "afterburner": 1190
-     *          },
-     *          "rotation": {
-     *              "pitch": 85,
-     *              "yaw": 85,
-     *              "roll": 120
-     *          },
-     *          "acceleration": {
-     *              "x_axis": 68,
-     *              "y_axis": 80.3,
-     *              "z_axis": 71.7
+     *              "scm": 20
      *          },
      *          "foci": {
      *              {
@@ -92,12 +81,12 @@ class ShipController extends ApiController
      *              "en_EN": "If you're going to travel the stars... [...]"
      *          },
      *          "size": {
-     *              "de_DE": "Klein",
-     *              "en_EN": "small"
+     *              "de_DE": "vehicle",
+     *              "en_EN": "Fahrzeug"
      *          },
      *          "manufacturer": {
-     *              "code": "ORIG",
-     *              "name": "Origin Jumpworks GmbH"
+     *              "code": "TMBL",
+     *              "name": "Tumbril"
      *          }
      *      }
      * })
@@ -105,7 +94,7 @@ class ShipController extends ApiController
      *     "data": {
      *          "id": 7,
      *          "chassis_id": 2,
-     *          "name": "300i",
+     *          "name": "Cyclone",
      *          "sizes": {
      *              "length": 23,
      *              "beam": 15.5,
@@ -118,18 +107,7 @@ class ShipController extends ApiController
      *              "max": 1
      *          },
      *          "speed": {
-     *              "scm": 275,
-     *              "afterburner": 1190
-     *          },
-     *          "rotation": {
-     *              "pitch": 85,
-     *              "yaw": 85,
-     *              "roll": 120
-     *          },
-     *          "acceleration": {
-     *              "x_axis": 68,
-     *              "y_axis": 80.3,
-     *              "z_axis": 71.7
+     *              "scm": 275
      *          },
      *          "foci": {
      *              "Reisen"
@@ -137,26 +115,26 @@ class ShipController extends ApiController
      *          "production_status": "Flugbereit",
      *          "type": "Erkundung",
      *          "description": "[...]",
-     *          "size": "Klein",
+     *          "size": "Fahrzeug",
      *          "manufacturer": {
-     *              "code": "ORIG",
-     *              "name": "Origin Jumpworks GmbH"
+     *              "code": "TMBL",
+     *              "name": "Tumbril"
      *          }
      *      }
      * })
-     * @Response(404, body={"message": "No Ship found for Query: Ship Name", "status_code": 404})
+     * @Response(404, body={"message": "No Ground Vehicle found for Query: Ground Vehicle Name", "status_code": 404})
      */
-    public function show(string $ship)
+    public function show(string $groundVehicle)
     {
-        $ship = urldecode($ship);
+        $groundVehicle = urldecode($groundVehicle);
 
         try {
-            $ship = Ship::where('name', $ship)->firstOrFail();
+            $groundVehicle = GroundVehicle::where('name', $groundVehicle)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $ship));
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $groundVehicle));
         }
 
-        return $this->getResponse($ship);
+        return $this->getResponse($groundVehicle);
     }
 
     /**
@@ -169,6 +147,7 @@ class ShipController extends ApiController
      * @Parameters({
      *      @Parameter("page", description="The page of results to view.", type="integer", default=1)
      *      @Parameter("limit", description="The Result limit. 0 = Limit disabled", type="integer", default=5)
+     *      @Parameter("locale", description="The Locale Code to return. Valid values: de_DE, en_EN. Fallback language is en_EN", type="string")
      * })
      *
      * @Response(200, body={
@@ -176,7 +155,7 @@ class ShipController extends ApiController
      *          {
      *              "id": 7,
      *              "chassis_id": 2,
-     *              "name": "300i",
+     *              "name": "Cyclone",
      *              "sizes": {
      *                  "length": 23,
      *                  "beam": 15.5,
@@ -189,18 +168,7 @@ class ShipController extends ApiController
      *                  "max": 1
      *              },
      *              "speed": {
-     *                  "scm": 275,
-     *                  "afterburner": 1190
-     *              },
-     *              "rotation": {
-     *                  "pitch": 85,
-     *                  "yaw": 85,
-     *                  "roll": 120
-     *              },
-     *              "acceleration": {
-     *                  "x_axis": 68,
-     *                  "y_axis": 80.3,
-     *                  "z_axis": 71.7
+     *                  "scm": 275
      *              },
      *              "foci": {
      *                  {
@@ -218,15 +186,15 @@ class ShipController extends ApiController
      *              },
      *              "description": {
      *                  "de_DE": "[...]",
-     *                  "en_EN": "If you're going to travel the stars... [...]"
+     *                  "en_EN": "[...]"
      *              },
      *              "size": {
-     *                  "de_DE": "Klein",
-     *                  "en_EN": "small"
+     *                  "de_DE": "Fahrzeug",
+     *                  "en_EN": "vehicle"
      *              },
      *              "manufacturer": {
-     *                  "code": "ORIG",
-     *                  "name": "Origin Jumpworks GmbH"
+     *                  "code": "TMBL",
+     *                  "name": "Tumbril"
      *              }
      *          },
      *          {}
@@ -248,7 +216,7 @@ class ShipController extends ApiController
      */
     public function index()
     {
-        return $this->getResponse(Ship::query());
+        return $this->getResponse(GroundVehicle::query());
     }
 
     /**
@@ -260,7 +228,7 @@ class ShipController extends ApiController
     {
         $query = $this->request->get('query');
         $query = urldecode($query);
-        $queryBuilder = Ship::where('name', 'like', "%{$query}%");
+        $queryBuilder = GroundVehicle::where('name', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));

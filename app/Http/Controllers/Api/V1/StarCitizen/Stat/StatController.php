@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\Api\StarCitizen\Stat;
+use App\Models\Api\StarCitizen\Stat\Stat;
 use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
+use Illuminate\Http\Request;
 
 /**
  * @Resource("Stats", uri="/stats")
@@ -16,16 +17,18 @@ class StatController extends ApiController
      *
      * @var \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer
      */
-    private $transformer;
+    protected $transformer;
 
     /**
      * StatsAPIController constructor.
      *
+     * @param \Illuminate\Http\Request                                  $request
      * @param \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer $transformer
      */
-    public function __construct(StatTransformer $transformer)
+    public function __construct(Request $request, StatTransformer $transformer)
     {
         $this->transformer = $transformer;
+        parent::__construct($request);
     }
 
     /**
@@ -50,11 +53,7 @@ class StatController extends ApiController
     {
         $stat = Stat::orderByDesc('created_at')->first();
 
-        if (null === $stat) {
-            return $this->emptyStat();
-        }
-
-        return $this->response->item($stat, $this->transformer);
+        return $this->getResponse($stat);
     }
 
     /**
@@ -102,22 +101,8 @@ class StatController extends ApiController
      */
     public function index()
     {
-        $stats = Stat::orderByDesc('created_at')->paginate();
+        $stats = Stat::orderByDesc('created_at');
 
-        if (null === $stats) {
-            return $this->emptyStat();
-        }
-
-        return $this->response->paginator($stats, $this->transformer);
-    }
-
-    /**
-     * Empty Model
-     *
-     * @return \Dingo\Api\Http\Response
-     */
-    private function emptyStat()
-    {
-        return $this->response->item(new Stat(), $this->transformer);
+        return $this->getResponse($stats);
     }
 }

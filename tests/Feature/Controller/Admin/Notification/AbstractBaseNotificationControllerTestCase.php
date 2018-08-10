@@ -59,7 +59,9 @@ abstract class AbstractBaseNotificationControllerTestCase extends TestCase
     {
         $notification = $this->notifications[0];
 
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.notifications.edit', $notification));
+        $response = $this->actingAs($this->admin, 'admin')->get(
+            route('web.admin.notifications.edit', $notification->getRouteKey())
+        );
 
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
     }
@@ -97,7 +99,7 @@ abstract class AbstractBaseNotificationControllerTestCase extends TestCase
         $notification = $this->notifications[1];
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.notifications.update', $notification),
+            route('web.admin.notifications.update', $notification->getRouteKey()),
             [
                 'content' => str_random(100),
                 'level' => rand(0, 3),
@@ -123,7 +125,7 @@ abstract class AbstractBaseNotificationControllerTestCase extends TestCase
         $notification = $this->notifications[2];
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.notifications.update', $notification),
+            route('web.admin.notifications.update', $notification->getRouteKey()),
             [
                 'delete' => true,
             ]

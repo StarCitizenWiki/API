@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\GroundVehicle;
+use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use Illuminate\Contracts\View\View;
 
 /**
@@ -42,7 +42,7 @@ class GroundVehicleController extends Controller
     /**
      * Display Ship data, edit Translations
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle $groundVehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
      *
      * @return \Illuminate\Http\Response
      *
@@ -65,7 +65,7 @@ class GroundVehicleController extends Controller
      * Update the specified resource in storage.
      *
      * @param \App\Http\Requests\TranslationRequest             $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle $groundVehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
      *
      * @return \Illuminate\Http\RedirectResponse
      *

@@ -20,13 +20,13 @@ class UserControllerBureaucratTest extends AbstractBaseUserControllerTestCase
         'index' => Response::HTTP_OK,
 
         'edit' => Response::HTTP_OK,
-        'edit_not_found' => Response::HTTP_NOT_FOUND,
+        'edit_not_found' => Response::HTTP_BAD_REQUEST,
 
         'update' => Response::HTTP_FOUND,
-        'update_not_found' => Response::HTTP_NOT_FOUND,
+        'update_not_found' => Response::HTTP_BAD_REQUEST,
 
         'delete' => Response::HTTP_FOUND,
-        'delete_not_found' => Response::HTTP_NOT_FOUND,
+        'delete_not_found' => Response::HTTP_BAD_REQUEST,
     ];
 
     /**

@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\Ship;
+use Dingo\Api\Dispatcher;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ShipsController
@@ -13,12 +14,19 @@ use Illuminate\Contracts\View\View;
 class ShipController extends Controller
 {
     /**
+     * @var \Dingo\Api\Dispatcher
+     */
+    protected $api;
+
+    /**
      * ShipsController constructor.
      */
-    public function __construct()
+    public function __construct(Dispatcher $api)
     {
         parent::__construct();
         $this->middleware('auth:admin');
+        $this->api = $api;
+        $this->api->be(Auth::guard('admin')->user());
     }
 
     /**
@@ -31,10 +39,16 @@ class ShipController extends Controller
         $this->authorize('web.admin.starcitizen.vehicles.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        $ships = $this->api->with(
+            [
+                'limit' => 0,
+            ]
+        )->get("api/vehicles/ships");
+
         return view(
             'admin.starcitizen.vehicles.ships.index',
             [
-                'ships' => Ship::all(),
+                'ships' => $ships,
             ]
         );
     }
@@ -42,16 +56,18 @@ class ShipController extends Controller
     /**
      * Display Ship data, edit Translations
      *
-     * @param  \App\Models\Api\StarCitizen\Vehicle\Ship $ship
+     * @param string $ship
      *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function edit(Ship $ship)
+    public function edit(string $ship)
     {
         $this->authorize('web.admin.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        $ship = $this->api->get("api/vehicles/ships/{$ship}");
 
         return view(
             'admin.starcitizen.vehicles.ships.edit',
@@ -64,19 +80,20 @@ class ShipController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\TranslationRequest    $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\Ship $ship
+     * @param \App\Http\Requests\TranslationRequest $request
+     * @param string                                $ship
      *
      * @return \Illuminate\Http\RedirectResponse
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(TranslationRequest $request, Ship $ship)
+    public function update(TranslationRequest $request, string $ship)
     {
         $this->authorize('web.admin.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
+        $ship = $this->api->get("api/vehicles/ships/{$ship}");
 
         foreach ($data as $localeCode => $translation) {
             $ship->translations()->updateOrCreate(
@@ -85,6 +102,6 @@ class ShipController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.ships.edit', $ship->getRouteKey());
+        return redirect()->route('web.admin.starcitizen.vehicles.ships.edit', $ship->getApiRouteKey());
     }
 }

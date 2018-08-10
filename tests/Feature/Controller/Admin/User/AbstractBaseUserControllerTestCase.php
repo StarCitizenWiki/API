@@ -43,7 +43,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.users.edit', $user));
+        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.users.edit', $user->getRouteKey()));
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
     }
 
@@ -66,7 +66,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
         $user = factory(User::class)->create();
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.users.update', $user),
+            route('web.admin.users.update', $user->getRouteKey()),
             [
                 'name' => 'Star Citizen Wiki',
                 'requests_per_minute' => 60,
@@ -109,7 +109,7 @@ class AbstractBaseUserControllerTestCase extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($this->admin, 'admin')->delete(route('web.admin.users.destroy', $user));
+        $response = $this->actingAs($this->admin, 'admin')->delete(route('web.admin.users.destroy', $user->getRouteKey()));
         $response->assertStatus(static::RESPONSE_STATUSES['delete']);
     }
 
