@@ -7,12 +7,12 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\AbstractBaseTransformer;
+use League\Fractal\TransformerAbstract;
 
 /**
  * Class SystemTransformer
  */
-class CelestialObjectTransformer extends AbstractBaseTransformer
+class CelestialObjectTransformer extends TransformerAbstract
 {
     const FILTER_FIELDS = ['sourcedata', 'id', 'exclude', 'created_at', 'updated_at', 'info_url', 'shader_data'];
     const RENAME_KEYS = ['cig_id' => 'id', 'cig_system_id' => 'system_id', 'cig_time_modified' => 'time_modified'];

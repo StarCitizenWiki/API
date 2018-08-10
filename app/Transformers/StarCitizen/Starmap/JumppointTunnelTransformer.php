@@ -6,12 +6,13 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\AbstractBaseTransformer;
+
+use League\Fractal\TransformerAbstract;
 
 /**
  * Class JumppointTunnelTransformer
  */
-class JumppointTunnelTransformer extends AbstractBaseTransformer
+class JumppointTunnelTransformer extends TransformerAbstract
 {
     const FILTER_FIELDS = ['sourcedata', 'id', 'exclude', 'created_at', 'updated_at'];
     const RENAME_KEYS = ['cig_id' => 'id', 'cig_system_id' => 'system_id'];

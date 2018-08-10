@@ -7,12 +7,12 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\AbstractBaseTransformer;
+use League\Fractal\TransformerAbstract;
 
 /**
  * Class SystemTransformer
  */
-class SystemTransformer extends AbstractBaseTransformer
+class SystemTransformer extends TransformerAbstract
 {
 
     const FILTER_FIELDS = ['sourcedata', 'id', 'exclude', 'created_at', 'updated_at', 'info_url'];

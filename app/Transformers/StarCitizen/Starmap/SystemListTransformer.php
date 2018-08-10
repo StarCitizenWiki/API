@@ -8,12 +8,12 @@
 namespace App\Transformers\StarCitizen\Starmap;
 
 use App\Models\Api\StarCitizen\Starmap\Starsystem;
-use App\Transformers\AbstractBaseTransformer;
+use League\Fractal\TransformerAbstract;
 
 /**
  * Class ShipsListTransformer
  */
-class SystemListTransformer extends AbstractBaseTransformer
+class SystemListTransformer extends TransformerAbstract
 {
     protected $validFields = [
         'wiki_url',
