@@ -46,6 +46,11 @@ return [
             'length' => 4,
         ],
 
+        \App\Models\Account\User\User::class => [
+            'salt' => 'star-citizen.wiki_user',
+            'length' => 4,
+        ],
+
         /**
          * Star Citizen
          */
@@ -77,11 +82,11 @@ return [
             'salt' => 'star-citizen.wiki_type',
             'length' => 4,
         ],
-        \App\Models\Api\StarCitizen\Vehicle\GroundVehicle::class => [
+        \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle::class => [
             'salt' => 'star-citizen.wiki_ground_vehicle',
             'length' => 4,
         ],
-        \App\Models\Api\StarCitizen\Vehicle\Ship::class => [
+        \App\Models\Api\StarCitizen\Vehicle\Ship\Ship::class => [
             'salt' => 'star-citizen.wiki_ship',
             'length' => 4,
         ],

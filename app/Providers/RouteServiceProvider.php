@@ -2,18 +2,18 @@
 
 namespace App\Providers;
 
+use App\Models\Account\User\User;
 use App\Models\Api\Notification;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
-use App\Models\Api\StarCitizen\Vehicle\GroundVehicle;
-use App\Models\Api\StarCitizen\Vehicle\Ship;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Vinkla\Hashids\Facades\Hashids;
@@ -59,6 +59,17 @@ class RouteServiceProvider extends ServiceProvider
     private function bindAdminModelRoutes()
     {
         Route::bind(
+            'user',
+            function ($id) {
+                // TODO unschöne Lösung. Implicit Model Binding läuft vor Policies -> Geblockter User bekommt für nicht existierendes Model 404 Fehler statt 403
+                // Mögliche Lösung: Model Typehint aus Controller entfernen und Model explizit aus DB holen
+                Gate::authorize('web.admin.users.view', Auth::guard('admin')->user());
+                $id = $this->hasher($id, User::class);
+
+                return User::where('id', $id)->firstOrFail();
+            }
+        );
+        Route::bind(
             'notification',
             function ($id) {
                 $id = $this->hasher($id, Notification::class);
@@ -70,15 +81,6 @@ class RouteServiceProvider extends ServiceProvider
         /**
          * Star Citizen
          */
-        Route::bind(
-            'manufacturer',
-            function ($id) {
-                $id = $this->hasher($id, Manufacturer::class);
-
-                return Manufacturer::where('id', $id)->firstOrFail();
-            }
-        );
-
         Route::bind(
             'production_note',
             function ($id) {
