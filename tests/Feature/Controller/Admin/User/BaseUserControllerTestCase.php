@@ -16,6 +16,8 @@ use Tests\TestCase;
  *
  * @covers \App\Policies\Web\Admin\User\UserPolicy<extended>
  *
+ * @covers \App\Models\Account\User\User
+ *
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState

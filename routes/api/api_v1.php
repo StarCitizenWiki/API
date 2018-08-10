@@ -19,7 +19,7 @@ $api->group(
         $api->group(
             [
                 'namespace' => 'Manufacturer',
-                'prefix' => 'manufacturer',
+                'prefix' => 'manufacturers',
             ],
             function ($api) {
                 $api->get('/', ['as' => 'api.v1.starcitizen.manufacturers.all', 'uses' => 'ManufacturerController@index']);

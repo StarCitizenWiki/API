@@ -28,11 +28,6 @@ class ManufacturerController extends ApiController
     ];
 
     /**
-     * {@inheritdoc}
-     */
-    protected const NOT_FOUND_STRING = 'No Manufacturer found for Query: %s';
-
-    /**
      * ManufacturerController constructor.
      *
      * @param \Illuminate\Http\Request                                                  $request
@@ -68,9 +63,7 @@ class ManufacturerController extends ApiController
         $manufacturer = urldecode($manufacturer);
 
         try {
-            $manufacturer = Manufacturer::where('name_short', $manufacturer)->with(
-                ['ships', 'groundVehicles']
-            )->firstOrFail();
+            $manufacturer = Manufacturer::where('name_short', $manufacturer)->orWhere('name', $manufacturer)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $manufacturer));
         }

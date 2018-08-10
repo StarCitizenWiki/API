@@ -23,4 +23,6 @@ use Tests\TestCase;
 class AbstractApiTestCase extends TestCase
 {
     use RefreshDatabase;
+
+    protected const GERMAN_DEFAULT_TRANSLATION = 'Deutsches Lorem Ipsum';
 }

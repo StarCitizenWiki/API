@@ -10,9 +10,20 @@ use Tests\Feature\Controller\Api\AbstractApiTestCase as ApiTestCase;
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController<extended>
  * @covers \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer<extended>
+ * @covers \App\Models\Api\StarCitizen\Stat\Stat<extended>
  */
 class StatControllerTest extends ApiTestCase
 {
+    /**
+     * @var array Default Transformer Structure
+     */
+    protected $structure = [
+        'funds',
+        'fans',
+        'fleet',
+        'timestamp',
+    ];
+
     /**
      * Tests Stats from Interfaces
      *
@@ -28,7 +39,14 @@ class StatControllerTest extends ApiTestCase
             ->assertSee('fleet')
             ->assertSee('fans')
             ->assertSee('timestamp')
-            ->assertSee('meta');
+            ->assertSee('meta')
+            ->assertJsonStructure(
+                [
+                    'data' => [
+                        $this->structure,
+                    ],
+                ]
+            );
     }
 
     /**
@@ -46,7 +64,14 @@ class StatControllerTest extends ApiTestCase
             ->assertSee('fleet')
             ->assertSee('fans')
             ->assertSee('timestamp')
-            ->assertSee('meta');
+            ->assertSee('meta')
+            ->assertJsonStructure(
+                [
+                    'data' => [
+                        $this->structure,
+                    ],
+                ]
+            );
     }
 
     /**
@@ -63,7 +88,14 @@ class StatControllerTest extends ApiTestCase
             ->assertSee('funds')
             ->assertSee('fleet')
             ->assertSee('fans')
-            ->assertSee('timestamp');
+            ->assertSee('timestamp')
+            ->assertJsonStructure(
+                [
+                    'data' => [
+                        $this->structure,
+                    ],
+                ]
+            );
     }
 
     /**
@@ -84,6 +116,13 @@ class StatControllerTest extends ApiTestCase
                         ],
                     ],
                 ]
+            )
+            ->assertJsonStructure(
+                [
+                    'data' => [
+                        $this->structure,
+                    ],
+                ]
             );
     }
 
@@ -101,7 +140,12 @@ class StatControllerTest extends ApiTestCase
             ->assertSee('fleet')
             ->assertSee('fans')
             ->assertSee('timestamp')
-            ->assertJsonCount(4, 'data');
+            ->assertJsonCount(4, 'data')
+            ->assertJsonStructure(
+                [
+                    'data' => $this->structure,
+                ]
+            );
     }
 
     /**

@@ -81,7 +81,31 @@ $factory->state(
     function (Faker $faker) {
         return [
             'locale_code' => 'de_DE',
-            'translation' => 'Lorem Ipsum dolor sit amet',
+            'translation' => 'Deutsches Lorem Ipsum',
+        ];
+    }
+);
+
+$factory->state(
+    \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle::class,
+    'ground_vehicle',
+    function (Faker $faker) {
+        $type = \App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation::where('translation', 'ground');
+        if ($type->count() === 0) {
+            $typeTranslation = factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation::class)->make(
+                [
+                    'translation' => 'ground',
+                ]
+            );
+            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType $type */
+            $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleType::class)->create();
+            $type->translations()->save($typeTranslation);
+        } else {
+            $type = $type->first();
+        }
+
+        return [
+            'vehicle_type_id' => $type->id,
         ];
     }
 );

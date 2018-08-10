@@ -53,6 +53,7 @@ class ShipTransformer extends VehicleTransformer
             ],
             'foci' => $this->getFociTranslations($ship),
             'production_status' => $this->getProductionStatusTranslations($ship),
+            'production_note' => $this->getProductionNoteTranslations($ship),
             'type' => $this->getTypeTranslations($ship),
             'description' => $this->getDescriptionTranslations($ship),
             'size' => $this->getSizeTranslations($ship),

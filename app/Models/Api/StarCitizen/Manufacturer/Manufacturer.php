@@ -29,6 +29,8 @@ class Manufacturer extends HasTranslations
         'translations',
     ];
 
+    protected $perPage = 10;
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

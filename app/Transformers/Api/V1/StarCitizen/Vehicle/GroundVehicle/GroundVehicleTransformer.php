@@ -42,6 +42,7 @@ class GroundVehicleTransformer extends VehicleTransformer
             ],
             'foci' => $this->getFociTranslations($groundVehicle),
             'production_status' => $this->getProductionStatusTranslations($groundVehicle),
+            'production_note' => $this->getProductionNoteTranslations($groundVehicle),
             'type' => $this->getTypeTranslations($groundVehicle),
             'description' => $this->getDescriptionTranslations($groundVehicle),
             'size' => $this->getSizeTranslations($groundVehicle),

@@ -20,16 +20,22 @@ abstract class AbstractApiController extends Controller
 {
     use Helpers;
 
+    const INVALID_LIMIT_STRING = 'Limit has to be greater than 0';
+
+    const INVALID_LOCALE_STRING = 'Locale Code \'%s\' is not valid';
+
+    const INVALID_RELATION_STRING = 'Relation \'%s\' does not exist';
+
+    /**
+     * Sprintf String which is used if no model was found
+     */
+    const NOT_FOUND_STRING = 'No Results for Query \'%s\'';
+
     /**
      * Array of valid Model Relations
      * Set this in the corresponding controller
      */
     protected const VALID_RELATIONS = [];
-
-    /**
-     * Sprintf String which is used if no model was found
-     */
-    protected const NOT_FOUND_STRING = '';
 
     /**
      * @var \Illuminate\Http\Request The API Request
@@ -95,6 +101,8 @@ abstract class AbstractApiController extends Controller
         $query->with($this->validRelations);
 
         if ($query instanceof Model) {
+            $query->load($this->validRelations);
+
             return $this->response->item($query, $this->transformer)->setMeta($this->getMeta());
         }
 
@@ -140,7 +148,7 @@ abstract class AbstractApiController extends Controller
                 $this->transformer->setLocale($localeCode);
             }
         } else {
-            $this->errors['locale'] = sprintf("Locale Code %s is not valid", $localeCode);
+            $this->errors['locale'] = sprintf(static::INVALID_LOCALE_STRING, $localeCode);
         }
     }
 
@@ -152,14 +160,15 @@ abstract class AbstractApiController extends Controller
     protected function checkIncludes($relations)
     {
         if (!is_array($relations)) {
-            $relations = array_map('trim', array_map('camel_case', explode(',', $relations)));
+            $relations = explode(',', $relations);
         }
+        $relations = array_map('trim', array_map('camel_case', $relations));
 
         foreach ($relations as $relation) {
             if (in_array($relation, static::VALID_RELATIONS)) {
                 $this->validRelations[] = $relation;
             } else {
-                $this->errors['with'][] = sprintf('Relation %s does not exist', snake_case($relation));
+                $this->errors['with'][] = sprintf(static::INVALID_RELATION_STRING, snake_case($relation));
             }
         }
     }
@@ -177,7 +186,7 @@ abstract class AbstractApiController extends Controller
             } elseif (0 === $limit) {
                 $this->limit = 0;
             } else {
-                $this->errors['limit'] = 'Limit is not valid';
+                $this->errors['limit'] = static::INVALID_LIMIT_STRING;
             }
         }
     }

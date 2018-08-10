@@ -8,7 +8,11 @@ use App\Models\Account\Admin\AdminGroup;
 /**
  * Class AdminControllerTest
  *
- * {@inheritdoc}
+ * @covers \App\Policies\Web\Admin\AdminPolicy<extended>
+ *
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
+ * @covers \App\Http\Middleware\CheckUserState
  */
 class AdminControllerSysopTest extends BaseAdminControllerTestCase
 {

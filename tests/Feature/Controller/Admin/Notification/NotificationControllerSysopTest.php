@@ -8,7 +8,11 @@ use App\Models\Account\Admin\AdminGroup;
 /**
  * Class NotificationControllerTest
  *
- * {@inheritdoc}
+ * @covers \App\Policies\Web\Admin\Notification\NotificationPolicy<extended>
+ *
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
+ * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
+ * @covers \App\Http\Middleware\CheckUserState
  */
 class NotificationControllerSysopTest extends BaseNotificationControllerTestCase
 {

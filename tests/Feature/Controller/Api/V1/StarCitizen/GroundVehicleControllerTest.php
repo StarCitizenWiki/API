@@ -10,9 +10,9 @@ use Tests\Feature\Controller\Api\AbstractApiTestCase as ApiTestCase;
 /**
  * {@inheritdoc}
  *
- * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController<extended>
- * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Ship\Ship<extended>
+ * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController<extended>
+ * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer<extended>
+ * @covers \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle<extended>
  * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
  * @covers \App\Models\Api\StarCitizen\ProductionNote\ProductionNote<extended>
  * @covers \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus<extended>
@@ -20,7 +20,7 @@ use Tests\Feature\Controller\Api\AbstractApiTestCase as ApiTestCase;
  * @covers \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize<extended>
  * @covers \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType<extended>
  */
-class ShipControllerTest extends ApiTestCase
+class GroundVehicleControllerTest extends ApiTestCase
 {
     /**
      * @var array Base Transformer Structure
@@ -41,17 +41,6 @@ class ShipControllerTest extends ApiTestCase
         ],
         'speed' => [
             'scm',
-            'afterburner',
-        ],
-        'agility' => [
-            'pitch',
-            'yaw',
-            'roll',
-            'acceleration' => [
-                'x_axis',
-                'y_axis',
-                'z_axis',
-            ],
         ],
         'foci',
         'production_status',
@@ -66,21 +55,21 @@ class ShipControllerTest extends ApiTestCase
     ];
 
     /**
-     * Get Ship from Interfaces
+     * Get GroundVehicle from Interfaces
      *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
     public function testShow()
     {
-        $vehicle = factory(Vehicle::class)->create(
+        $vehicle = factory(Vehicle::class)->state('ground_vehicle')->create(
             [
-                'name' => '300i',
+                'name' => 'Cyclone',
             ]
         );
         $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
 
-        $response = $this->get('/api/vehicles/ships/300i');
-        $response->assertOk()->assertSee('300i')->assertJsonStructure(
+        $response = $this->get('/api/vehicles/ground_vehicles/Cyclone');
+        $response->assertOk()->assertSee('Cyclone')->assertJsonStructure(
             [
                 'data' => $this->structure,
             ]
@@ -88,45 +77,54 @@ class ShipControllerTest extends ApiTestCase
     }
 
     /**
-     * Get Ship from Interfaces
+     * Get GroundVehicle from Interfaces
      *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
     public function testShowMultipleTranslations()
     {
-        $vehicle = factory(Vehicle::class)->create(
+        $vehicle = factory(Vehicle::class)->state('ground_vehicle')->create(
             [
-                'name' => 'Orion',
+                'name' => 'Cyclone TR',
             ]
         );
         $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
-        $response = $this->get('/api/vehicles/ships/Orion');
-        $response->assertOk()->assertSee('Orion')->assertJsonStructure(
+        $response = $this->get('/api/vehicles/ground_vehicles/Cyclone+TR');
+        $response->assertOk()->assertSee('Cyclone TR')->assertJsonStructure(
             [
                 'data' => $this->structure,
             ]
-        );
+        )->assertJsonStructure(
+            [
+                'data' => [
+                    'description' => [
+                        'en_EN',
+                        'de_DE',
+                    ],
+                ],
+            ]
+        )->assertSee(static::GERMAN_DEFAULT_TRANSLATION);
     }
 
     /**
-     * Get Ship from Interfaces
+     * Get GroundVehicle from Interfaces
      *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
     public function testShowLocaleGerman()
     {
-        $vehicle = factory(Vehicle::class)->create(
+        $vehicle = factory(Vehicle::class)->state('ground_vehicle')->create(
             [
-                'name' => '100i',
+                'name' => 'Nova Tank',
             ]
         );
         $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
-        $response = $this->get('/api/vehicles/ships/100i?locale=de_DE');
-        $response->assertOk()->assertSee('100i')->assertJsonStructure(
+        $response = $this->get('/api/vehicles/ground_vehicles/Nova+Tank?locale=de_DE');
+        $response->assertOk()->assertSee('Nova Tank')->assertJsonStructure(
             [
                 'data' => $this->structure,
             ]
@@ -138,16 +136,16 @@ class ShipControllerTest extends ApiTestCase
      */
     public function testShowLocaleInvalid()
     {
-        $vehicle = factory(Vehicle::class)->create(
+        $vehicle = factory(Vehicle::class)->state('ground_vehicle')->create(
             [
-                'name' => 'Aurora CL',
+                'name' => 'Ursa Rover',
             ]
         );
         $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
-        $response = $this->get('/api/vehicles/ships/Aurora+CL?locale=invalid');
-        $response->assertOk()->assertSee('Aurora CL')->assertJsonStructure(
+        $response = $this->get('/api/vehicles/ground_vehicles/Ursa+Rover?locale=invalid');
+        $response->assertOk()->assertSee('Ursa Rover')->assertJsonStructure(
             [
                 'data' => $this->structure,
                 'meta' => [
@@ -160,25 +158,27 @@ class ShipControllerTest extends ApiTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::index
      */
     public function testIndexPaginatedDefault()
     {
-        $response = $this->get('/api/vehicles/ships');
+        $response = $this->get('/api/vehicles/ground_vehicles');
         $response->assertOk()->assertJsonStructure(
             [
-                'data' => [],
+                'data' => [
+                    $this->structure,
+                ],
                 'meta' => [],
             ]
         )->assertJsonCount(5, 'data');
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::index
      */
     public function testIndexPaginatedCustom()
     {
-        $response = $this->get('/api/vehicles/ships?limit=1');
+        $response = $this->get('/api/vehicles/ground_vehicles?limit=1');
         $response->assertOk()->assertJsonStructure(
             [
                 'data' => [
@@ -190,11 +190,11 @@ class ShipControllerTest extends ApiTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::index
      */
     public function testIndexInvalidLimit()
     {
-        $response = $this->get('/api/vehicles/ships?limit=-1');
+        $response = $this->get('/api/vehicles/ground_vehicles?limit=-1');
         $response->assertOk()->assertJsonStructure(
             [
                 'data' => [
@@ -206,54 +206,54 @@ class ShipControllerTest extends ApiTestCase
                     ],
                 ],
             ]
-        );
+        )->assertSee(AbstractApiController::INVALID_LIMIT_STRING);
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
     public function testShowNotFound()
     {
-        $response = $this->get('/api/vehicles/ships/NotExistent');
+        $response = $this->get('/api/vehicles/ground_vehicles/NotExistent');
         $response->assertNotFound()->assertSee(sprintf(AbstractApiController::NOT_FOUND_STRING, 'NotExistent'));
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
     public function testSearch()
     {
-        $vehicle = factory(Vehicle::class)->create(
+        $vehicle = factory(Vehicle::class)->state('ground_vehicle')->create(
             [
-                'name' => 'Hammerhead',
+                'name' => 'Tonk',
             ]
         );
         $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
         $response = $this->post(
-            '/api/vehicles/ships/search',
+            '/api/vehicles/ground_vehicles/search',
             [
-                'query' => 'Hammerhead',
+                'query' => 'Tonk',
             ]
         );
 
-        $response->assertOk()->assertSee('Hammerhead')->assertJsonStructure(
+        $response->assertOk()->assertSee('Tonk')->assertJsonStructure(
             [
                 'data' => [
                     $this->structure,
                 ],
             ]
-        );
+        )->assertSee(static::GERMAN_DEFAULT_TRANSLATION);
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
     public function testSearchNotFound()
     {
         $response = $this->post(
-            '/api/vehicles/ships/search',
+            '/api/vehicles/ground_vehicles/search',
             [
                 'query' => 'NotExistent',
             ]
@@ -270,7 +270,7 @@ class ShipControllerTest extends ApiTestCase
         parent::setUp();
         $this->createSystemLanguages();
 
-        factory(Vehicle::class, 10)->create()->each(
+        factory(Vehicle::class, 10)->state('ground_vehicle')->create()->each(
             function ($vehicle) {
                 $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
             }

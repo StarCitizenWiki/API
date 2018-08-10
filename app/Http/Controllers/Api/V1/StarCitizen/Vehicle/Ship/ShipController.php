@@ -16,11 +16,6 @@ use Illuminate\Http\Request;
 class ShipController extends ApiController
 {
     /**
-     * {@inheritdoc}
-     */
-    protected const NOT_FOUND_STRING = 'No Ship found for Query: %s';
-
-    /**
      * ShipController constructor.
      *
      * @param \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer $transformer

@@ -9,6 +9,7 @@
 namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\Api\Translation\AbstractHasTranslations;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
 use League\Fractal\TransformerAbstract;
 
@@ -17,6 +18,18 @@ use League\Fractal\TransformerAbstract;
  */
 class ManufacturerTransformer extends TransformerAbstract implements LocaleAwareTransformerInterface
 {
+    private $localeCode;
+
+    /**
+     * Set the Locale
+     *
+     * @param string $localeCode
+     */
+    public function setLocale(string $localeCode)
+    {
+        $this->localeCode = $localeCode;
+    }
+
     /**
      * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
      *
@@ -24,10 +37,13 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
      */
     public function transform(Manufacturer $manufacturer)
     {
+        $translations = $this->getTranslation($manufacturer);
+
         $manufacturerTransformed = [
             'code' => $manufacturer->name_short,
             'name' => $manufacturer->name,
-            'known_for' => '',
+            'known_for' => $translations['known_for'],
+            'description' => $translations['description'],
         ];
 
         if ($manufacturer->relationLoaded('ships')) {
@@ -84,14 +100,49 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
     }
 
     /**
-     * @param string $localeCode
+     * If a valid locale code is set this function will return the corresponding translation or use english as a fallback
+     * @Todo Generate Array with translations that used the english fallback
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @param \App\Models\Api\Translation\AbstractHasTranslations $model
      *
-     * @return void
+     * @return array|string the Translation
      */
-    public function setLocale(string $localeCode)
+    private function getTranslation(AbstractHasTranslations $model)
     {
-        // TODO: Implement setLocale() method.
+        app('Log')::debug(
+            "Relation translations for Model ".get_class($model)." is loaded: {$model->relationLoaded('translations')}"
+        );
+
+        $translations = [
+            'known_for' => [],
+            'description' => [],
+        ];
+
+        $model->translations->each(
+            function ($translation) use (&$translations) {
+                if (null !== $this->localeCode) {
+                    if ($translation->locale_code === $this->localeCode ||
+                        (empty($translations['known_for']) && $translation->locale_code === config(
+                                'language.english'
+                            ))) {
+                        $translations = [
+                            'known_for' => $translation->known_for,
+                            'description' => $translation->description,
+                        ];
+                    } else {
+                        // Translation already found, exit loop
+                        return false;
+                    }
+
+                    return $translation;
+                } else {
+                    $translations['known_for'][$translation->locale_code] = $translation->known_for;
+                    $translations['description'][$translation->locale_code] = $translation->known_for;
+                }
+            }
+        );
+
+        return $translations;
     }
+
 }

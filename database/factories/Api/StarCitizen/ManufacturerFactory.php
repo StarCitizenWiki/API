@@ -25,3 +25,15 @@ $factory->define(
         ];
     }
 );
+
+$factory->state(
+    \App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation::class,
+    'german',
+    function (Faker $faker) {
+        return [
+            'locale_code' => 'de_DE',
+            'known_for' => 'Deutsches Lorem Ipsum',
+            'description' => 'Deutsches Lorem Ipsum',
+        ];
+    }
+);
