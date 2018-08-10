@@ -7,7 +7,7 @@
 
 namespace App\Transformers\Api\V1\StarCitizen\Stat;
 
-use App\Models\Api\StarCitizen\Stat;
+use App\Models\Api\StarCitizen\Stat\Stat;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -16,7 +16,7 @@ use League\Fractal\TransformerAbstract;
 class StatTransformer extends TransformerAbstract
 {
     /**
-     * @param \App\Models\Api\StarCitizen\Stat $stat
+     * @param \App\Models\Api\StarCitizen\Stat\Stat $stat
      *
      * @return array
      */
