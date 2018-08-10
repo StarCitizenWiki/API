@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\StarCitizen;
+namespace App\Models\Api\StarCitizen\Stat;
 
 use Illuminate\Database\Eloquent\Model;
 

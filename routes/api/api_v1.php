@@ -11,8 +11,20 @@ $api->group(
                 'prefix' => 'stats',
             ],
             function ($api) {
-                $api->get('latest', ['as' => 'api.v1.stats.latest', 'uses' => 'StatController@latest']);
-                $api->get('/', ['as' => 'api.v1.stats.all', 'uses' => 'StatController@index']);
+                $api->get('latest', ['as' => 'api.v1.starcitizen.stats.latest', 'uses' => 'StatController@latest']);
+                $api->get('/', ['as' => 'api.v1.starcitizen.stats.all', 'uses' => 'StatController@index']);
+            }
+        );
+
+        $api->group(
+            [
+                'namespace' => 'Manufacturer',
+                'prefix' => 'manufacturer',
+            ],
+            function ($api) {
+                $api->get('/', ['as' => 'api.v1.starcitizen.manufacturers.all', 'uses' => 'ManufacturerController@index']);
+                $api->get('{manufacturer}', ['as' => 'api.v1.starcitizen.manufacturers.show', 'uses' => 'ManufacturerController@show']);
+                $api->post('/search', ['as' => 'api.v1.starcitizen.manufacturers.search', 'uses' => 'ManufacturerController@search']);
             }
         );
 
@@ -28,8 +40,21 @@ $api->group(
                         'prefix' => 'ships',
                     ],
                     function ($api) {
-                        $api->get('/', ['as' => 'api.v1.vehicles.ships.all', 'uses' => 'ShipController@index']);
-                        $api->get('{ship}', ['as' => 'api.v1.vehicles.ships.show', 'uses' => 'ShipController@show']);
+                        $api->get('/', ['as' => 'api.v1.starcitizen.vehicles.ships.all', 'uses' => 'ShipController@index']);
+                        $api->get('{ship}', ['as' => 'api.v1.starcitizen.vehicles.ships.show', 'uses' => 'ShipController@show']);
+                        $api->post('/search', ['as' => 'api.v1.starcitizen.vehicles.ships.search', 'uses' => 'ShipController@search']);
+                    }
+                );
+
+                $api->group(
+                    [
+                        'namespace' => 'GroundVehicle',
+                        'prefix' => 'ground_vehicles',
+                    ],
+                    function ($api) {
+                        $api->get('/', ['as' => 'api.v1.starcitizen.vehicles.ground_vehicles.all', 'uses' => 'GroundVehicleController@index']);
+                        $api->get('{ground_vehicle}', ['as' => 'api.v1.starcitizen.vehicles.ground_vehicles.show', 'uses' => 'GroundVehicleController@show']);
+                        $api->post('/search', ['as' => 'api.v1.starcitizen.vehicles.ground_vehicles.search', 'uses' => 'GroundVehicleController@search']);
                     }
                 );
             }

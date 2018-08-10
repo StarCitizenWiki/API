@@ -27,10 +27,6 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract implements
      */
     public function setLocale(string $localeCode)
     {
-        if (!in_array($localeCode, config('language.codes'))) {
-            throw new BadRequestHttpException(sprintf("Locale Code %s is not valid", $localeCode));
-        }
-
         $this->localeCode = $localeCode;
     }
 
