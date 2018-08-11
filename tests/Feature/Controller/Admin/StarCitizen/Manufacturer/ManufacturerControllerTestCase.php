@@ -1,0 +1,148 @@
+<?php declare(strict_types = 1);
+/**
+ * Created by PhpStorm.
+ * User: Hanne
+ * Date: 11.08.2018
+ * Time: 22:00
+ */
+
+namespace Tests\Feature\Controller\Admin\StarCitizen\Manufacturer;
+
+use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
+use Illuminate\Http\Response;
+use Tests\Feature\Controller\Admin\StarCitizen\StarCitizenTestCase;
+
+/**
+ * Manufacturer Controller Test Case
+ */
+class ManufacturerControllerTestCase extends StarCitizenTestCase
+{
+    /**
+     * Index Tests
+     */
+
+    /**
+     * Test Index
+     *
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::index
+     */
+    public function testIndex()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.starcitizen.manufacturers.index'));
+        $response->assertStatus(static::RESPONSE_STATUSES['index']);
+
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertDontSee(__('Keine Hersteller vorhanden'))
+                ->assertSee('CIG ID')
+                ->assertSee(Manufacturer::count());
+        }
+    }
+
+
+    /**
+     * Edit Tests
+     */
+
+    /**
+     * Test Edit
+     *
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::edit
+     */
+    public function testEdit()
+    {
+        /** @var Manufacturer $manufacturer */
+        $manufacturer = factory(Manufacturer::class)->create();
+        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+
+        $response = $this->actingAs($this->admin, 'admin')->get(
+            route('web.admin.starcitizen.manufacturers.edit', $manufacturer->getRouteKey())
+        );
+        $response->assertStatus(static::RESPONSE_STATUSES['edit']);
+
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertDontSee(__('Keine Hersteller vorhanden'))
+                ->assertSee('CIG ID')
+                ->assertSee(Manufacturer::count());
+        }
+    }
+
+    /**
+     * Test Edit
+     *
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::edit
+     */
+    public function testEditNotFound()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->get(
+            route('web.admin.starcitizen.manufacturers.edit', static::MODEL_ID_NOT_EXISTENT)
+        );
+        $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
+    }
+
+
+    /**
+     * Update Tests
+     */
+
+    /**
+     * Test Update
+     *
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::update
+     * @covers \App\Http\Requests\TranslationRequest
+     * @covers \App\Models\Api\ModelChangelog
+     * @covers \App\Http\Requests\ManufacturerTranslationRequest
+     */
+    public function testUpdate()
+    {
+        /** @var Manufacturer $manufacturer */
+        $manufacturer = factory(Manufacturer::class)->create();
+        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+
+        $response = $this->actingAs($this->admin, 'admin')->patch(
+            route('web.admin.starcitizen.manufacturers.update', $manufacturer->getRouteKey()),
+            [
+                'known_for_en_EN' => 'Hersteller Known For',
+                'description_en_EN' => 'Hersteller description',
+                'known_for_de_DE' => null,
+                'description_de_DE' => null,
+            ]
+        );
+
+        $response->assertStatus(static::RESPONSE_STATUSES['update']);
+    }
+
+    /**
+     * Test Update
+     *
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::update
+     */
+    public function testUpdateNotFound()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->patch(
+            route('web.admin.starcitizen.manufacturers.update', static::MODEL_ID_NOT_EXISTENT),
+            [
+                'known_for_en_EN' => 'Hersteller Known For',
+                'description_en_EN' => 'Hersteller description',
+                'known_for_de_DE' => null,
+                'description_de_DE' => null,
+            ]
+        );
+
+        $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * Creates needed Manufacturers
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+        factory(Manufacturer::class, 10)->create()->each(
+            function (Manufacturer $manufacturer) {
+                $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+            }
+        );
+    }
+}

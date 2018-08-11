@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ManufacturerTranslationRequest;
 use App\Models\System\Language;
 use Dingo\Api\Dispatcher;
-use Dingo\Api\Exception\InternalHttpException;
 use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Testing\HttpException;
 use Illuminate\Support\Facades\Auth;
 
 /**
