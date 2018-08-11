@@ -34,11 +34,11 @@ class UserControllerBlockedTest extends UserControllerTestCase
 
     /**
      * {@inheritdoc}
+     * Adds the specific group to the Admin model
      */
     protected function setUp()
     {
         parent::setUp();
-
         $this->admin = factory(Admin::class)->state('blocked')->create();
         $this->admin->groups()->sync([AdminGroup::where('name', 'sysop')->first()->id]);
     }

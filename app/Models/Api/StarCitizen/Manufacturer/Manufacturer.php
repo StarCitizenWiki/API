@@ -46,6 +46,6 @@ class Manufacturer extends HasTranslations
      */
     public function getRouteKey()
     {
-        return urlencode($this->name);
+        return urlencode($this->name_short);
     }
 }

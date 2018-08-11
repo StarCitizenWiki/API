@@ -7,29 +7,13 @@
 
 namespace Tests\Feature\Controller\Admin\Admin;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\Feature\Controller\Admin\AdminTestCase;
 
 /**
  * Class AbstractBaseAdminControllerTest
- *
- * @covers \App\Policies\Web\Admin\AdminPolicy<extended>
- *
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
- * @covers \App\Http\Middleware\CheckUserState
  */
-class AdminControllerTestCase extends TestCase
+class AdminControllerTestCase extends AdminTestCase
 {
-    use RefreshDatabase;
-
-    protected const RESPONSE_STATUSES = [];
-
-    /**
-     * @var \App\Models\Account\Admin\Admin
-     */
-    protected $admin;
-
     /**
      * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
      */
@@ -37,14 +21,5 @@ class AdminControllerTestCase extends TestCase
     {
         $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.dashboard'));
         $response->assertStatus(static::RESPONSE_STATUSES['dashboard']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->createAdminGroups();
     }
 }

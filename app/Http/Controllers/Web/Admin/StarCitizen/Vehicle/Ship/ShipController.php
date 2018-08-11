@@ -43,7 +43,7 @@ class ShipController extends Controller
             [
                 'limit' => 0,
             ]
-        )->get("api/vehicles/ships");
+        )->get('api/vehicles/ships');
 
         return view(
             'admin.starcitizen.vehicles.ships.index',

@@ -32,12 +32,11 @@ class NotificationControllerUserTest extends NotificationControllerTestCase
 
     /**
      * {@inheritdoc}
+     * Adds the specific group to the Admin model
      */
     protected function setUp()
     {
         parent::setUp();
-
-        $this->admin = factory(Admin::class)->create();
         $this->admin->groups()->sync(AdminGroup::where('name', 'user')->first()->id);
     }
 }

@@ -3,7 +3,6 @@
 namespace Tests\Feature\Controller\Account;
 
 use App\Models\Account\User\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -15,8 +14,6 @@ use Tests\TestCase;
  */
 class AccountControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
     private $user;
 
     /**

@@ -10,28 +10,18 @@ namespace Tests\Feature\Controller\Admin\Notification;
 use App\Mail\NotificationEmail;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
-use Tests\TestCase;
+use Tests\Feature\Controller\Admin\AdminTestCase;
 
 /**
  * Class AbstractBaseNotificationControllerTest
  */
-class NotificationControllerTestCase extends TestCase
+class NotificationControllerTestCase extends AdminTestCase
 {
-    use RefreshDatabase;
-
-    protected const RESPONSE_STATUSES = [];
-
     /**
      * @var array
      */
     protected $notifications;
-
-    /**
-     * @var \App\Models\Account\Admin\Admin
-     */
-    protected $admin;
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::index
@@ -209,11 +199,11 @@ class NotificationControllerTestCase extends TestCase
 
     /**
      * {@inheritdoc}
+     * Creates needed Notifications
      */
     protected function setUp()
     {
         parent::setUp();
-        $this->createAdminGroups();
         $this->notifications = factory(Notification::class, 5)->states('active')->create();
     }
 }

@@ -8,32 +8,16 @@
 namespace Tests\Feature\Controller\Admin\User;
 
 use App\Models\Account\User\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\Feature\Controller\Admin\AdminTestCase;
 
 /**
- * Class AbstractBaseUserControllerTestCase
- *
- * @covers \App\Policies\Web\Admin\User\UserPolicy<extended>
- *
- * @covers \App\Models\Account\User\User
- *
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
- * @covers \App\Http\Middleware\CheckUserState
+ * Class UserControllerTestCase
  */
-class UserControllerTestCase extends TestCase
+class UserControllerTestCase extends AdminTestCase
 {
-    use RefreshDatabase;
-
-    protected const RESPONSE_STATUSES = [];
-
-    protected const USER_ID_NOT_EXISTENT = 999999;
-
     /**
-     * @var \App\Models\Account\Admin\Admin
+     * Index Tests
      */
-    protected $admin;
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\User\UserController::index
@@ -43,6 +27,11 @@ class UserControllerTestCase extends TestCase
         $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.users.index'));
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
     }
+
+
+    /**
+     * Edit Tests
+     */
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\User\UserController::edit
@@ -61,10 +50,15 @@ class UserControllerTestCase extends TestCase
     public function testEditNotFound()
     {
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.users.edit', self::USER_ID_NOT_EXISTENT)
+            route('web.admin.users.edit', self::MODEL_ID_NOT_EXISTENT)
         );
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
+
+
+    /**
+     * Update Tests
+     */
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\User\UserController::update
@@ -94,7 +88,7 @@ class UserControllerTestCase extends TestCase
     public function testUpdateNotFound()
     {
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.users.update', self::USER_ID_NOT_EXISTENT),
+            route('web.admin.users.update', self::MODEL_ID_NOT_EXISTENT),
             [
                 'name' => 'Star Citizen Wiki',
                 'requests_per_minute' => 60,
@@ -138,6 +132,11 @@ class UserControllerTestCase extends TestCase
         }
     }
 
+
+    /**
+     * Restore Tests
+     */
+
     /**
      * @covers \App\Http\Controllers\Web\Admin\User\UserController::update
      * @covers \App\Http\Controllers\Web\Admin\User\UserController::restore
@@ -154,6 +153,26 @@ class UserControllerTestCase extends TestCase
         );
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::update
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::restore
+     */
+    public function testRestoreNotFound()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->patch(
+            route('web.admin.users.update', static::MODEL_ID_NOT_EXISTENT),
+            [
+                'restore' => true,
+            ]
+        );
+        $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+
+    /**
+     * Delete Tests
+     */
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\User\UserController::destroy
@@ -174,17 +193,8 @@ class UserControllerTestCase extends TestCase
     public function testDeleteNotFound()
     {
         $response = $this->actingAs($this->admin, 'admin')->delete(
-            route('web.admin.users.destroy', self::USER_ID_NOT_EXISTENT)
+            route('web.admin.users.destroy', self::MODEL_ID_NOT_EXISTENT)
         );
         $response->assertStatus(static::RESPONSE_STATUSES['delete_not_found']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->createAdminGroups();
     }
 }

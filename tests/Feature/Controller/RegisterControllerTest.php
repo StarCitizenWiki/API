@@ -3,8 +3,6 @@
 namespace Tests\Feature\Controller;
 
 use App\Http\Controllers\Web\User\Auth\RegisterController;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -12,8 +10,6 @@ use Tests\TestCase;
  */
 class RegisterControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @var  RegisterController */
     private $controller;
 

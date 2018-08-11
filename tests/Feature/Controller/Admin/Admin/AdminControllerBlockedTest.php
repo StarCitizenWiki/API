@@ -21,7 +21,8 @@ class AdminControllerBlockedTest extends AdminControllerTestCase
     ];
 
     /**
-     * Creates the Admin
+     * {@inheritdoc}
+     * Adds the specific group to the Admin model
      */
     protected function setUp()
     {

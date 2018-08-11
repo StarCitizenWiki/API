@@ -32,13 +32,13 @@ class ManufacturerTranslationRequest extends FormRequest
         $rule = '|string|min:1';
         $rules = [];
 
-        foreach ($localeCodes as $code => $model) {
-            if (config('language.english') === $model) {
+        foreach ($localeCodes as $code => $languageModel) {
+            if (config('language.english') === $languageModel->locale_code) {
                 $rules["description_{$code}"] = 'required'.$rule;
                 $rules["known_for_{$code}"] = 'required'.$rule;
             } else {
-                $rules["description_{$code}"] = 'present'.$rule;
-                $rules["known_for_{$code}"] = 'present'.$rule;
+                $rules["description_{$code}"] = 'nullable'.$rule;
+                $rules["known_for_{$code}"] = 'nullable'.$rule;
             }
         }
 

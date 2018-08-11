@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Controller\Admin\Admin;
 
-use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
 
 /**
@@ -21,12 +20,12 @@ class AdminControllerBureaucratTest extends AdminControllerTestCase
     ];
 
     /**
-     * Creates the Admin
+     * {@inheritdoc}
+     * Adds the specific group to the Admin model
      */
     protected function setUp()
     {
         parent::setUp();
-        $this->admin = factory(Admin::class)->create();
         $this->admin->groups()->sync(AdminGroup::where('name', 'bureaucrat')->first()->id);
     }
 }
