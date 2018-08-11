@@ -9,6 +9,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
+use Carbon\Carbon;
 use Dingo\Api\Routing\Helpers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -122,7 +123,9 @@ abstract class AbstractApiController extends Controller
      */
     protected function getMeta(): array
     {
-        $meta = [];
+        $meta = [
+            'processed_at' => Carbon::now()->toDateTimeString(),
+        ];
 
         if (!empty($this->errors)) {
             $meta['errors'] = $this->errors;
