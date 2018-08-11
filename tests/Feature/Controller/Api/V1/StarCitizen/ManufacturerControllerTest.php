@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\AbstractApiController;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use Tests\Feature\Controller\Api\AbstractApiTestCase as ApiTestCase;
+use Tests\Feature\Controller\Api\ApiTestCase as ApiTestCase;
 
 /**
  * {@inheritdoc}

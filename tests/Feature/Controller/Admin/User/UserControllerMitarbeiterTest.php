@@ -17,7 +17,7 @@ use Illuminate\Http\Response;
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class UserControllerMitarbeiterTest extends BaseUserControllerTestCase
+class UserControllerMitarbeiterTest extends UserControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'index' => Response::HTTP_FORBIDDEN,

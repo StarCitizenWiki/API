@@ -17,7 +17,7 @@ use Tests\TestCase;
 /**
  * Class AbstractBaseNotificationControllerTest
  */
-class BaseNotificationControllerTestCase extends TestCase
+class NotificationControllerTestCase extends TestCase
 {
     use RefreshDatabase;
 

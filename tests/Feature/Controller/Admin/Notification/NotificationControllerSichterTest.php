@@ -14,7 +14,7 @@ use App\Models\Account\Admin\AdminGroup;
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class NotificationControllerSichterTest extends BaseNotificationControllerTestCase
+class NotificationControllerSichterTest extends NotificationControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'index' => \Illuminate\Http\Response::HTTP_OK,

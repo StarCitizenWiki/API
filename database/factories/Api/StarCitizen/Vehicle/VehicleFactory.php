@@ -109,3 +109,12 @@ $factory->state(
         ];
     }
 );
+
+// State Definition needed in VehicleTestCase
+$factory->state(
+    \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle::class,
+    'ship',
+    function () {
+        return [];
+    }
+);

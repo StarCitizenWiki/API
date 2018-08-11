@@ -14,7 +14,7 @@ use App\Models\Account\Admin\AdminGroup;
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class AdminControllerUserTest extends BaseAdminControllerTestCase
+class AdminControllerUserTest extends AdminControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'dashboard' => \Illuminate\Http\Response::HTTP_OK,

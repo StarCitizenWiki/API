@@ -17,7 +17,7 @@ use Illuminate\Http\Response;
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class UserControllerSysopTest extends BaseUserControllerTestCase
+class UserControllerSysopTest extends UserControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'index' => Response::HTTP_OK,

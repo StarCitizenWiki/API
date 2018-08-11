@@ -19,7 +19,7 @@ use Tests\TestCase;
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class BaseAdminControllerTestCase extends TestCase
+class AdminControllerTestCase extends TestCase
 {
     use RefreshDatabase;
 
