@@ -66,7 +66,7 @@ class RouteServiceProvider extends ServiceProvider
                 Gate::authorize('web.admin.users.view', Auth::guard('admin')->user());
                 $id = $this->hasher($id, User::class);
 
-                return User::where('id', $id)->firstOrFail();
+                return User::withTrashed()->findOrFail($id);
             }
         );
         Route::bind(
@@ -74,7 +74,7 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $id = $this->hasher($id, Notification::class);
 
-                return Notification::where('id', $id)->firstOrFail();
+                return Notification::findOrFail($id);
             }
         );
 
@@ -86,7 +86,7 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $id = $this->hasher($id, ProductionNote::class);
 
-                return ProductionNote::where('id', $id)->firstOrFail();
+                return ProductionNote::findOrFail($id);
             }
         );
 
@@ -95,7 +95,7 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $id = $this->hasher($id, ProductionStatus::class);
 
-                return ProductionStatus::where('id', $id)->firstOrFail();
+                return ProductionStatus::findOrFail($id);
             }
         );
 
@@ -107,7 +107,7 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $id = $this->hasher($id, VehicleFocus::class);
 
-                return VehicleFocus::where('id', $id)->firstOrFail();
+                return VehicleFocus::findOrFail($id);
             }
         );
 
@@ -116,7 +116,7 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $id = $this->hasher($id, VehicleSize::class);
 
-                return VehicleSize::where('id', $id)->firstOrFail();
+                return VehicleSize::findOrFail($id);
             }
         );
 
@@ -125,7 +125,7 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $id = $this->hasher($id, VehicleType::class);
 
-                return VehicleType::where('id', $id)->firstOrFail();
+                return VehicleType::findOrFail($id);
             }
         );
     }

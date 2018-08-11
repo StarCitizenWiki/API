@@ -7,19 +7,15 @@
 
 namespace Tests\Feature\Controller\Admin\Notification;
 
+use App\Mail\NotificationEmail;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 /**
  * Class AbstractBaseNotificationControllerTest
- *
- * @covers \App\Policies\Web\Admin\Notification\NotificationPolicy<extended>
- *
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
- * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
- * @covers \App\Http\Middleware\CheckUserState
  */
 class BaseNotificationControllerTestCase extends TestCase
 {
@@ -94,6 +90,39 @@ class BaseNotificationControllerTestCase extends TestCase
     }
 
     /**
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::store
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::dispatchJob
+     * @covers \App\Jobs\Web\SendNotificationEmail
+     * @covers \App\Mail\NotificationEmail
+     */
+    public function testStoreWithEmailJob()
+    {
+
+        Mail::fake();
+
+        $response = $this->actingAs($this->admin, 'admin')->post(
+            route('web.admin.notifications.store'),
+            [
+                'content' => str_random(100),
+                'level' => 3,
+                'expired_at' => Carbon::now()->addDay(),
+                'output' => [
+                    'index',
+                    'email',
+                ],
+            ]
+        );
+
+        $response->assertStatus(static::RESPONSE_STATUSES['store']);
+
+        if ($response->status() !== 403) {
+            Mail::assertQueued(NotificationEmail::class);
+        }
+    }
+
+    /**
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::update
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
@@ -119,6 +148,45 @@ class BaseNotificationControllerTestCase extends TestCase
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::update
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::dispatchJob
+     * @covers \App\Jobs\Web\SendNotificationEmail
+     * @covers \App\Mail\NotificationEmail
+     */
+    public function testUpdateResendEmail()
+    {
+        /** @var \App\Models\Api\Notification $notification */
+        $notification = factory(Notification::class)->create();
+
+        Mail::fake();
+
+        $response = $this->actingAs($this->admin, 'admin')->patch(
+            route('web.admin.notifications.update', $notification->getRouteKey()),
+            [
+                'content' => str_random(100),
+                'level' => rand(0, 3),
+                'expired_at' => Carbon::now()->addDay(),
+                'published_at' => $notification->published_at,
+                'order' => 0,
+                'resend_email' => true,
+                'output' => [
+                    'index',
+                    'status',
+                    'email',
+                ],
+            ]
+        );
+
+        $response->assertStatus(static::RESPONSE_STATUSES['update']);
+
+        if ($response->status() !== 403) {
+            Mail::assertQueued(NotificationEmail::class);
+        }
     }
 
     /**

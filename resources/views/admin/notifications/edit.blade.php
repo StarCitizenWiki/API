@@ -82,9 +82,9 @@
                     </div>
                     @if($notification->output_email)
                         <div class="custom-control custom-checkbox text-danger">
-                            <input type="checkbox" class="custom-control-input" id="resend_mail" name="resend_mail"
-                                   value="resend_mail">
-                            <label class="custom-control-label" for="resend_mail">@lang('E-Mail erneut versenden')</label>
+                            <input type="checkbox" class="custom-control-input" id="resend_email" name="resend_email"
+                                   value="true">
+                            <label class="custom-control-label" for="resend_email">@lang('E-Mail erneut versenden')</label>
                         </div>
                     @endif
                 </div>

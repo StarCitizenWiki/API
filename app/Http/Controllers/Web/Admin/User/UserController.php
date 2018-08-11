@@ -117,6 +117,10 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): RedirectResponse
     {
+        if ($request->has('restore')) {
+            return $this->restore($user);
+        }
+
         $this->authorize('web.admin.users.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 

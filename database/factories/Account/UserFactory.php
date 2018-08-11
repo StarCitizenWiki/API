@@ -32,3 +32,19 @@ $factory->state(
         'state' => \App\Models\Account\User\User::STATE_BLOCKED,
     ]
 );
+
+$factory->state(
+    \App\Models\Account\User\User::class,
+    'whitelisted',
+    [
+        'state' => \App\Models\Account\User\User::STATE_UNTHROTTLED,
+    ]
+);
+
+$factory->state(
+    \App\Models\Account\User\User::class,
+    'deleted',
+    [
+        'deleted_at' => \Carbon\Carbon::now(),
+    ]
+);

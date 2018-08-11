@@ -80,8 +80,7 @@ class BaseUserControllerTestCase extends TestCase
                 'requests_per_minute' => 60,
                 'api_token' => str_random(60),
                 'email' => 'info@star-citizen.wiki',
-                'whitelisted' => true,
-                'blacklisted' => false,
+                'state' => User::STATE_DEFAULT,
                 'notes' => str_random(120),
                 'password' => null,
             ]
@@ -101,13 +100,59 @@ class BaseUserControllerTestCase extends TestCase
                 'requests_per_minute' => 60,
                 'api_token' => str_random(60),
                 'email' => 'info@star-citizen.wiki',
-                'whitelisted' => true,
-                'blacklisted' => false,
+                'state' => User::STATE_UNTHROTTLED,
                 'notes' => str_random(120),
                 'password' => null,
             ]
         );
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::update
+     */
+    public function testUpdatePassword()
+    {
+        $user = factory(User::class)->create();
+        $password = $user->password;
+
+        $response = $this->actingAs($this->admin, 'admin')->patch(
+            route('web.admin.users.update', $user->getRouteKey()),
+            [
+                'name' => 'Star Citizen Wiki',
+                'requests_per_minute' => 60,
+                'api_token' => str_random(60),
+                'email' => 'info@star-citizen.wiki',
+                'state' => User::STATE_DEFAULT,
+                'notes' => str_random(120),
+                'password' => 'test',
+                'password_confirmation' => 'test',
+            ]
+        );
+
+        $user = User::find($user->id);
+
+        $response->assertStatus(static::RESPONSE_STATUSES['update']);
+        if ($response->status() !== 403) {
+            $this->assertNotEquals($user->password, $password);
+        }
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::update
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController::restore
+     */
+    public function testRestore()
+    {
+        $user = factory(User::class)->state('deleted')->create();
+
+        $response = $this->actingAs($this->admin, 'admin')->patch(
+            route('web.admin.users.update', $user->getRouteKey()),
+            [
+                'restore' => true,
+            ]
+        );
+        $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
 
     /**

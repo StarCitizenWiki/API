@@ -117,7 +117,9 @@ class NotificationController extends Controller
 
         $notification = Notification::create($data);
 
-        $this->dispatchJob($notification);
+        if (true === $data['output_email']) {
+            $this->dispatchJob($notification);
+        }
 
         return redirect()->route(
             'web.admin.dashboard',
@@ -153,7 +155,7 @@ class NotificationController extends Controller
                 'output' => 'required|array|in:status,email,index',
                 'order' => 'required|int|between:0,5',
                 'published_at' => 'required|date',
-                'resend_mail' => 'nullable',
+                'resend_email' => 'nullable|boolean',
             ]
         );
 
@@ -162,10 +164,10 @@ class NotificationController extends Controller
         $data['expired_at'] = Carbon::parse($request->get('expired_at'));
         $this->processPublishedAt($data);
 
-        $resendEmail = array_pull($data, 'resend_email', false);
+        $resendEmail = (bool) array_pull($data, 'resend_email', false);
         $notification->update($data);
 
-        if ('resend_email' === $resendEmail || ($notification->output_email === false && $data['output_email'] === true)) {
+        if (true === $resendEmail || ($notification->output_email === false && $data['output_email'] === true)) {
             $this->dispatchJob($notification);
         }
 
@@ -236,6 +238,7 @@ class NotificationController extends Controller
     private function dispatchJob(Notification $notification)
     {
         $job = (new SendNotificationEmail($notification));
+
 
         if (!is_null($this->jobDelay)) {
             $job->delay($this->jobDelay);
