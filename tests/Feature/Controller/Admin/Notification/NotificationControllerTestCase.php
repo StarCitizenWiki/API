@@ -84,12 +84,13 @@ class NotificationControllerTestCase extends AdminTestCase
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::dispatchJob
+     *
      * @covers \App\Jobs\Web\SendNotificationEmail
+     *
      * @covers \App\Mail\NotificationEmail
      */
     public function testStoreWithEmailJob()
     {
-
         Mail::fake();
 
         $response = $this->actingAs($this->admin, 'admin')->post(
@@ -116,6 +117,8 @@ class NotificationControllerTestCase extends AdminTestCase
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::update
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
+     *
+     * @covers \App\Models\Api\ModelChangelog
      */
     public function testUpdate()
     {
@@ -145,8 +148,12 @@ class NotificationControllerTestCase extends AdminTestCase
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::dispatchJob
+     *
      * @covers \App\Jobs\Web\SendNotificationEmail
+     *
      * @covers \App\Mail\NotificationEmail
+     *
+     * @covers \App\Models\Api\ModelChangelog
      */
     public function testUpdateResendEmail()
     {

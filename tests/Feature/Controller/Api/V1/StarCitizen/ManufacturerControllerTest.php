@@ -6,262 +6,183 @@ use App\Http\Controllers\Api\AbstractApiController;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use Tests\Feature\Controller\Api\ApiTestCase as ApiTestCase;
 
 /**
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController<extended>
+ *
  * @covers \App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer<extended>
+ *
  * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
  */
-class ManufacturerControllerTest extends ApiTestCase
+class ManufacturerControllerTest extends StarCitizenTestCase
 {
     /**
-     * @var array Base Transformer Structure
+     * {@inheritdoc}
      */
-    private $structure = [
+    protected const MODEL_DEFAULT_PAGINATION_COUNT = 10;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected const BASE_API_ENDPOINT = '/api/manufacturers';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $structure = [
         'code',
         'name',
         'known_for',
         'description',
     ];
 
+
     /**
-     * Get GroundVehicle from Interfaces
+     * Index Method Tests
+     */
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexAll(int $allCount = 0)
+    {
+        parent::testIndexAll(Manufacturer::count());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexPaginatedCustom(int $limit = 5)
+    {
+        parent::testIndexPaginatedCustom($limit);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexInvalidLimit(int $limit = -1)
+    {
+        parent::testIndexInvalidLimit($limit);
+    }
+
+
+    /**
+     * Show Method Tests
+     */
+
+    /**
+     * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testShow()
+    public function testShow(string $name = 'RSI')
     {
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name_short' => 'RSI',
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $this->makeManufacturerWithName($name);
 
-        $response = $this->get('/api/manufacturers/RSI');
-
-        $response->assertOk()->assertSee('RSI')->assertJsonStructure(
-            [
-                'data' => $this->structure,
-            ]
-        );
+        parent::testShow($name);
     }
 
+
     /**
-     * Get Manufacturer
+     * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testShowMultipleTranslations()
+    public function testShowMultipleTranslations(string $name = 'ORIG')
     {
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name_short' => 'ORIG',
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
-        $response = $this->get('/api/manufacturers/ORIG');
-        $response->assertOk()->assertSee('ORIG')->assertJsonStructure(
-            [
-                'data' => $this->structure,
-            ]
-        )->assertJsonStructure(
-            [
-                'data' => [
-                    'description' => [
-                        'en_EN',
-                        'de_DE',
-                    ],
-                ],
-            ]
-        )->assertSee(static::GERMAN_DEFAULT_TRANSLATION);
+        parent::testShowMultipleTranslations($name);
     }
 
     /**
-     * Get GroundVehicle from Interfaces
+     * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testShowLocaleGerman()
+    public function testShowLocaleGerman(string $name = 'TMBL')
     {
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name_short' => 'TMBL',
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
-        $response = $this->get('/api/manufacturers/TMBL?locale=de_DE');
-        $response->assertOk()->assertSee('TMBL')->assertJsonStructure(
-            [
-                'data' => $this->structure,
-            ]
-        )->assertSee(static::GERMAN_DEFAULT_TRANSLATION);
+        parent::testShowLocaleGerman($name);
     }
 
     /**
-     * Test Invalid Locale Code
+     * {@inheritdoc}
+     *
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testShowLocaleInvalid()
+    public function testShowLocaleInvalid(string $name = 'DRAK')
     {
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name_short' => 'DRAK',
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
-        $response = $this->get('/api/manufacturers/DRAK?locale=invalid');
-        $response->assertOk()->assertSee('DRAK')->assertJsonStructure(
-            [
-                'data' => $this->structure,
-                'meta' => [
-                    'errors' => [
-                        'locale',
-                    ],
-                ],
-            ]
-        )->assertSee(sprintf(AbstractApiController::INVALID_LOCALE_STRING, 'invalid'));
+        parent::testShowLocaleInvalid($name);
+    }
+
+
+    /**
+     * Search Method Tests
+     */
+
+    /**
+     * {@inheritdoc}
+     *
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::search
+     */
+    public function testSearch(string $name = 'AOPOA')
+    {
+        $this->makeManufacturerWithName($name);
+
+        parent::testSearch($name);
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::index
+     * {@inheritdoc}
+     *
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::search
      */
-    public function testIndexPaginatedDefault()
+    public function testSearchWithGermanTranslation(string $name = 'ANVL')
     {
-        $response = $this->get('/api/manufacturers');
-        $response->assertOk()->assertJsonStructure(
-            [
-                'data' => [
-                    $this->structure,
-                ],
-                'meta' => [],
-            ]
-        )->assertJsonCount(10, 'data');
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::index
-     */
-    public function testIndexPaginatedCustom()
-    {
-        $response = $this->get('/api/manufacturers?limit=1');
-        $response->assertOk()->assertJsonStructure(
-            [
-                'data' => [
-                    $this->structure,
-                ],
-                'meta' => [],
-            ]
-        )->assertJsonCount(1, 'data');
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::index
-     */
-    public function testIndexInvalidLimit()
-    {
-        $response = $this->get('/api/manufacturers?limit=-1');
-        $response->assertOk()->assertJsonStructure(
-            [
-                'data' => [
-                    $this->structure,
-                ],
-                'meta' => [
-                    'errors' => [
-                        'limit',
-                    ],
-                ],
-            ]
-        )->assertSee(AbstractApiController::INVALID_LIMIT_STRING);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
-     */
-    public function testShowNotFound()
-    {
-        $response = $this->get('/api/manufacturers/NotExistent');
-        $response->assertNotFound()->assertSee(sprintf(AbstractApiController::NOT_FOUND_STRING, 'NotExistent'));
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
-     */
-    public function testSearch()
-    {
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name_short' => 'AOPOA',
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
-        $response = $this->post(
-            '/api/manufacturers/search',
-            [
-                'query' => 'AOPOA',
-            ]
-        );
-
-        $response->assertOk()->assertSee('AOPOA')->assertJsonStructure(
-            [
-                'data' => [
-                    $this->structure,
-                ],
-            ]
-        )->assertSee(static::GERMAN_DEFAULT_TRANSLATION);
+        parent::testSearchWithGermanTranslation($name);
     }
 
-    /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
-     */
-    public function testSearchNotFound()
-    {
-        $response = $this->post(
-            '/api/manufacturers/search',
-            [
-                'query' => 'NotExistent',
-            ]
-        );
-
-        $response->assertNotFound();
-    }
 
     /**
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
     public function testRelationInclude()
     {
-        /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name_short' => 'BANU',
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $manufacturer = $this->makeManufacturerWithName('BANU');
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
         $manufacturer->ships()->saveMany(
             factory(Vehicle::class, 5)->make()
         );
 
-        $response = $this->get('/api/manufacturers/BANU?with=ships');
+        $response = $this->get(
+            sprintf(
+                '%s/%s?with=%s',
+                static::BASE_API_ENDPOINT,
+                'BANU',
+                'ships'
+            )
+        );
 
-        $response->assertOk()->assertJsonStructure(
-            [
-                'data' => $this->structure,
-                'meta' => [],
-            ]
-        )->assertJsonCount(5, 'data.ships');
+        $response->assertOk()
+            ->assertJsonStructure(
+                [
+                    'data' => $this->structure,
+                    'meta' => [],
+                ]
+            )->assertJsonCount(5, 'data.ships');
     }
 
     /**
@@ -269,13 +190,7 @@ class ManufacturerControllerTest extends ApiTestCase
      */
     public function testMultipleRelationInclude()
     {
-        /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name_short' => 'BANU2',
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $manufacturer = $this->makeManufacturerWithName('VANDUUL');
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
         $manufacturer->ships()->saveMany(
@@ -286,14 +201,24 @@ class ManufacturerControllerTest extends ApiTestCase
             factory(Vehicle::class, 5)->state('ground_vehicle')->make()
         );
 
-        $response = $this->get('/api/manufacturers/BANU2?with=ships,ground_vehicles');
+        $response = $this->get(
+            sprintf(
+                '%s/%s?with=%s',
+                static::BASE_API_ENDPOINT,
+                'VANDUUL',
+                'ships,ground_vehicles'
+            )
+        );
 
-        $response->assertOk()->assertJsonStructure(
-            [
-                'data' => $this->structure,
-                'meta' => [],
-            ]
-        )->assertJsonCount(5, 'data.ships')->assertJsonCount(5, 'data.ground_vehicles');
+        $response->assertOk()
+            ->assertJsonStructure(
+                [
+                    'data' => $this->structure,
+                    'meta' => [],
+                ]
+            )
+            ->assertJsonCount(5, 'data.ships')
+            ->assertJsonCount(5, 'data.ground_vehicles');
     }
 
     /**
@@ -301,20 +226,30 @@ class ManufacturerControllerTest extends ApiTestCase
      */
     public function testInvalidRelation()
     {
-        $response = $this->get('/api/manufacturers?with=invalid');
-        $response->assertOk()->assertJsonStructure(
-            [
-                'data' => [
-                    $this->structure,
-                ],
-                'meta' => [
-                    'errors' => [
-                        'with',
+        $response = $this->get(
+            sprintf(
+                '%s?with=%s',
+                static::BASE_API_ENDPOINT,
+                'invalid'
+            )
+        );
+
+        $response->assertOk()
+            ->assertJsonStructure(
+                [
+                    'data' => [
+                        $this->structure,
                     ],
-                ],
-            ]
-        )->assertSee(sprintf(AbstractApiController::INVALID_RELATION_STRING, 'invalid'));
+                    'meta' => [
+                        'errors' => [
+                            'with',
+                        ],
+                    ],
+                ]
+            )
+            ->assertSee(sprintf(AbstractApiController::INVALID_RELATION_STRING, 'invalid'));
     }
+
 
     /**
      * Setup Vehicles
@@ -325,9 +260,28 @@ class ManufacturerControllerTest extends ApiTestCase
         $this->createSystemLanguages();
 
         factory(Manufacturer::class, 20)->create()->each(
-            function ($manufacturer) {
+            function (Manufacturer $manufacturer) {
                 $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
             }
         );
+    }
+
+    /**
+     * Creates a Manufacturer with specified Name and default translation
+     *
+     * @param string $name The Name
+     *
+     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
+     */
+    private function makeManufacturerWithName(string $name)
+    {
+        $manufacturer = factory(Manufacturer::class)->create(
+            [
+                'name' => $name,
+            ]
+        );
+        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+
+        return $manufacturer;
     }
 }

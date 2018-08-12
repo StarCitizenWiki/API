@@ -14,6 +14,8 @@ use Illuminate\Http\Response;
 
 /**
  * @covers \App\Policies\Web\Admin\StarCitizen\Manufacturer\ManufacturerPolicy<extended>
+ *
+ * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
  */
 class ManufacturerControllerBlockedTest extends ManufacturerControllerTestCase
 {

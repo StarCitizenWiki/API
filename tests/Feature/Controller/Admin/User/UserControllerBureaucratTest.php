@@ -15,6 +15,8 @@ use Illuminate\Http\Response;
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
+ *
+ * @covers \App\Providers\RouteServiceProvider
  */
 class UserControllerBureaucratTest extends UserControllerTestCase
 {

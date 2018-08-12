@@ -9,13 +9,25 @@ use Tests\Feature\Controller\Api\ApiTestCase as ApiTestCase;
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController<extended>
+ *
  * @covers \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer<extended>
+ *
  * @covers \App\Models\Api\StarCitizen\Stat\Stat<extended>
  */
 class StatControllerTest extends ApiTestCase
 {
     /**
-     * @var array Default Transformer Structure
+     * {@inheritdoc}
+     */
+    protected const MODEL_DEFAULT_PAGINATION_COUNT = 10;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected const BASE_API_ENDPOINT = '/api/stats';
+
+    /**
+     * {@inheritdoc}
      */
     protected $structure = [
         'funds',
@@ -24,107 +36,39 @@ class StatControllerTest extends ApiTestCase
         'timestamp',
     ];
 
+
     /**
-     * Tests Stats from Interfaces
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
+     * Index Method Tests
      */
-    public function testIndexPaginatedDefault()
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexAll(int $allCount = 0)
     {
-        $response = $this->get('/api/stats');
-        $response->assertOk()
-            ->assertSee('data')
-            ->assertJsonCount(10, 'data')
-            ->assertSee('funds')
-            ->assertSee('fleet')
-            ->assertSee('fans')
-            ->assertSee('timestamp')
-            ->assertSee('meta')
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        $this->structure,
-                    ],
-                ]
-            );
+        parent::testIndexAll(Stat::count());
     }
 
     /**
-     * Tests Stats from Interfaces
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
+     * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom()
+    public function testIndexPaginatedCustom(int $limit = 5)
     {
-        $response = $this->get('/api/stats?limit=5');
-        $response->assertOk()
-            ->assertSee('data')
-            ->assertJsonCount(5, 'data')
-            ->assertSee('funds')
-            ->assertSee('fleet')
-            ->assertSee('fans')
-            ->assertSee('timestamp')
-            ->assertSee('meta')
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        $this->structure,
-                    ],
-                ]
-            );
+        parent::testIndexPaginatedCustom($limit);
     }
 
     /**
-     * Tests Stats from Interfaces
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
+     * {@inheritdoc}
      */
-    public function testIndexAll()
+    public function testIndexInvalidLimit(int $limit = -1)
     {
-        $response = $this->get('/api/stats?limit=0');
-        $response->assertOk()
-            ->assertSee('data')
-            ->assertJsonCount(Stat::count(), 'data')
-            ->assertSee('funds')
-            ->assertSee('fleet')
-            ->assertSee('fans')
-            ->assertSee('timestamp')
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        $this->structure,
-                    ],
-                ]
-            );
+        parent::testIndexInvalidLimit($limit);
     }
 
+
     /**
-     * Tests Stats from Interfaces
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index
+     * Show Method Tests
      */
-    public function testIndexInvalidLimit()
-    {
-        $response = $this->get('/api/stats?limit=-1');
-        $response->assertOk()
-            ->assertSee('error')
-            ->assertJsonStructure(
-                [
-                    'meta' => [
-                        'errors' => [
-                            'limit',
-                        ],
-                    ],
-                ]
-            )
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        $this->structure,
-                    ],
-                ]
-            );
-    }
 
     /**
      * Tests Stats from Interfaces
@@ -133,7 +77,7 @@ class StatControllerTest extends ApiTestCase
      */
     public function testLatestApiView()
     {
-        $response = $this->get('/api/stats/latest');
+        $response = $this->get(sprintf('%s/latest', static::BASE_API_ENDPOINT));
         $response->assertOk()
             ->assertSee('data')
             ->assertSee('funds')
@@ -147,6 +91,7 @@ class StatControllerTest extends ApiTestCase
                 ]
             );
     }
+
 
     /**
      * Creates Faked Stats in DB

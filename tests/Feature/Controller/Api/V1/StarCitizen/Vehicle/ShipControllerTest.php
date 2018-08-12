@@ -2,13 +2,16 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
+use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle\VehicleControllerTestCase;
 
 /**
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController<extended>
+ *
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer<extended>
+ *
  * @covers \App\Models\Api\StarCitizen\Vehicle\Ship\Ship<extended>
  * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
  * @covers \App\Models\Api\StarCitizen\ProductionNote\ProductionNote<extended>
@@ -72,6 +75,40 @@ class ShipControllerTest extends VehicleControllerTestCase
         ],
     ];
 
+
+    /**
+     * Index Method Tests
+     */
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexAll(int $allCount = 0)
+    {
+        parent::testIndexAll(Ship::count());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexPaginatedCustom(int $limit = 2)
+    {
+        parent::testIndexPaginatedCustom($limit);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexInvalidLimit(int $limit = -1)
+    {
+        parent::testIndexInvalidLimit($limit);
+    }
+
+
+    /**
+     * Show Method Tests
+     */
+
     /**
      * {@inheritdoc}
      *
@@ -112,45 +149,10 @@ class ShipControllerTest extends VehicleControllerTestCase
         parent::testShowLocaleInvalid($name);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
-     */
-    public function testShowNotFound()
-    {
-        parent::testShowNotFound();
-    }
 
     /**
-     * {@inheritdoc}
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index
+     * Search Method Tests
      */
-    public function testIndexPaginatedDefault()
-    {
-        parent::testIndexPaginatedDefault();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index
-     */
-    public function testIndexPaginatedCustom()
-    {
-        parent::testIndexPaginatedCustom();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index
-     */
-    public function testIndexInvalidLimit()
-    {
-        parent::testIndexInvalidLimit();
-    }
 
     /**
      * {@inheritdoc}
@@ -167,8 +169,8 @@ class ShipControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::search
      */
-    public function testSearchNotFound()
+    public function testSearchWithGermanTranslation(string $name = 'Merchantman')
     {
-        parent::testSearchNotFound();
+        parent::testSearch($name);
     }
 }

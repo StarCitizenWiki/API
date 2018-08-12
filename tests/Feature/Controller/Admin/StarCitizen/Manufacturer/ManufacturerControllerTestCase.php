@@ -26,6 +26,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      * Test Index
      *
      * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::index
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::index
      */
     public function testIndex()
     {
@@ -48,6 +49,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      * Test Edit
      *
      * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::edit
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
     public function testEdit()
     {
@@ -63,7 +65,9 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
         if ($response->status() === Response::HTTP_OK) {
             $response->assertDontSee(__('Keine Hersteller vorhanden'))
                 ->assertSee('CIG ID')
-                ->assertSee(Manufacturer::count());
+                ->assertSee($manufacturer->cig_id)
+                ->assertSee($manufacturer->name)
+                ->assertSee($manufacturer->name_short);
         }
     }
 
@@ -71,6 +75,9 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      * Test Edit
      *
      * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::edit
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
+     *
+     * @covers \App\Exceptions\Handler
      */
     public function testEditNotFound()
     {
@@ -89,9 +96,12 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::update
-     * @covers \App\Http\Requests\TranslationRequest
-     * @covers \App\Models\Api\ModelChangelog
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
+     *
      * @covers \App\Http\Requests\ManufacturerTranslationRequest
+     *
+     * @covers \App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation
+     * @covers \App\Models\Api\ModelChangelog
      */
     public function testUpdate()
     {
@@ -116,6 +126,9 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Manufacturer\ManufacturerController::update
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
+     *
+     * @covers \App\Exceptions\Handler
      */
     public function testUpdateNotFound()
     {

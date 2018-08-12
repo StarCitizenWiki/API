@@ -8,40 +8,45 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
-use App\Http\Controllers\Api\AbstractApiController;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
-use Tests\Feature\Controller\Api\ApiTestCase;
+use Tests\Feature\Controller\Api\V1\StarCitizen\StarCitizenTestCase;
 
 /**
  * Base Vehicle Test Case
  */
-class VehicleControllerTestCase extends ApiTestCase
+class VehicleControllerTestCase extends StarCitizenTestCase
 {
-    /**
-     * Show Api Endpoint without Trailing Slash
-     */
-    protected const BASE_API_ENDPOINT = '';
-
     /**
      * Vehicle Type that gets created through the Vehicle Factories
      */
     protected const DEFAULT_VEHICLE_TYPE = '';
 
     /**
-     * Name to use for 'Not Found' Tests
-     */
-    protected const NOT_EXISTENT_NAME = 'NotExistent';
-
-    /**
      * The Vehicle Count to create on setUp
      */
     protected const VEHICLE_COUNT = 10;
 
+
     /**
-     * @var array Base Transformer Structure
+     * Index Method Tests
      */
-    protected $structure = [];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexPaginatedCustom(int $limit = 2)
+    {
+        parent::testIndexPaginatedCustom($limit);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexInvalidLimit(int $limit = -1)
+    {
+        parent::testIndexInvalidLimit($limit);
+    }
 
 
     /**
@@ -55,25 +60,8 @@ class VehicleControllerTestCase extends ApiTestCase
      */
     public function testShow(string $name)
     {
-        $vehicle = $this->makeVehicleWithName($name);
-
-        $response = $this->get(
-            sprintf(
-                '%s/%s%s',
-                static::BASE_API_ENDPOINT,
-                urlencode($name),
-                ''
-
-            )
-        );
-        $response->assertOk()
-            ->assertSee($name)
-            ->assertJsonStructure(
-                [
-                    'data' => $this->structure,
-                    'meta',
-                ]
-            );
+        $this->makeVehicleWithName($name);
+        parent::testShow($name);
     }
 
     /**
@@ -86,33 +74,7 @@ class VehicleControllerTestCase extends ApiTestCase
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
-        $response = $this->get(
-            sprintf(
-                '%s/%s%s',
-                static::BASE_API_ENDPOINT,
-                urlencode($name),
-                ''
-            )
-        );
-        $response->assertOk()
-            ->assertSee($name)
-            ->assertJsonStructure(
-                [
-                    'data' => $this->structure,
-                    'meta',
-                ]
-            )
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        'description' => [
-                            'en_EN',
-                            'de_DE',
-                        ],
-                    ],
-                ]
-            )
-            ->assertSee(static::GERMAN_DEFAULT_TRANSLATION);
+        parent::testShowMultipleTranslations($name);
     }
 
     /**
@@ -125,24 +87,7 @@ class VehicleControllerTestCase extends ApiTestCase
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
-        $response = $this->get(
-            sprintf(
-                '%s/%s%s',
-                static::BASE_API_ENDPOINT,
-                urlencode($name),
-                '?locale=de_DE'
-            )
-        );
-
-        $response->assertOk()
-            ->assertSee($name)
-            ->assertJsonStructure(
-                [
-                    'data' => $this->structure,
-                    'meta',
-                ]
-            )
-            ->assertSee(static::GERMAN_DEFAULT_TRANSLATION);
+        parent::testShowLocaleGerman($name);
     }
 
     /**
@@ -155,137 +100,8 @@ class VehicleControllerTestCase extends ApiTestCase
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
-        $response = $this->get(
-            sprintf(
-                '%s/%s%s',
-                static::BASE_API_ENDPOINT,
-                urlencode($name),
-                '?locale=invalid'
-            )
-        );
-
-        $response->assertOk()
-            ->assertSee($name)
-            ->assertJsonStructure(
-                [
-                    'data' => $this->structure,
-                    'meta' => [
-                        'errors' => [
-                            'locale',
-                        ],
-                    ],
-                ]
-            )
-            ->assertSee(
-                sprintf(
-                    AbstractApiController::INVALID_LOCALE_STRING,
-                    'invalid'
-                )
-            );
+        parent::testShowLocaleGerman($name);
     }
-
-    /**
-     * Test Show Specific Vehicle which does not exist
-     */
-    public function testShowNotFound()
-    {
-        $response = $this->get(
-            sprintf(
-                '%s/%s%s',
-                static::BASE_API_ENDPOINT,
-                static::NOT_EXISTENT_NAME,
-                ''
-            )
-        );
-
-        $response->assertNotFound()
-            ->assertSee(
-                sprintf(
-                    AbstractApiController::NOT_FOUND_STRING,
-                    static::NOT_EXISTENT_NAME
-                )
-            );
-    }
-
-
-
-    /**
-     * Index Method Tests
-     */
-
-    /**
-     * Test Index with default Pagination
-     */
-    public function testIndexPaginatedDefault()
-    {
-        $response = $this->get(static::BASE_API_ENDPOINT);
-
-        $response->assertOk()
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        $this->structure,
-                    ],
-                    'meta',
-                ]
-            )
-            ->assertJsonCount(5, 'data');
-    }
-
-    /**
-     * Test Index with custom Pagination (limit)
-     */
-    public function testIndexPaginatedCustom()
-    {
-        $response = $this->get(
-            sprintf(
-                '%s%s',
-                static::BASE_API_ENDPOINT,
-                '?limit=1'
-            )
-        );
-
-        $response->assertOk()
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        $this->structure,
-                    ],
-                    'meta',
-                ]
-            )
-            ->assertJsonCount(1, 'data');
-    }
-
-    /**
-     * Test Index with invalid Pagination (limit)
-     */
-    public function testIndexInvalidLimit()
-    {
-        $response = $this->get(
-            sprintf(
-                '%s%s',
-                static::BASE_API_ENDPOINT,
-                '?limit=-1'
-            )
-        );
-
-        $response->assertOk()
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        $this->structure,
-                    ],
-                    'meta' => [
-                        'errors' => [
-                            'limit',
-                        ],
-                    ],
-                ]
-            )
-            ->assertSee(AbstractApiController::INVALID_LIMIT_STRING);
-    }
-
 
 
     /**
@@ -293,68 +109,28 @@ class VehicleControllerTestCase extends ApiTestCase
      */
 
     /**
-     * Test Search for specific Vehicle with German Translations
+     * Test Search for specific Vehicle
      *
      * @param string $name The Vehicle Name
      */
     public function testSearch(string $name)
     {
-        $vehicle = $this->makeVehicleWithName($name);
-        $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
+        $this->makeVehicleWithName($name);
 
-        $response = $this->post(
-            sprintf(
-                '%s/%s',
-                static::BASE_API_ENDPOINT,
-                'search'
-            ),
-            [
-                'query' => $name,
-            ]
-        );
-
-        $response->assertOk()
-            ->assertSee($name)
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        $this->structure,
-                    ],
-                    'meta',
-                ]
-            )
-            ->assertJsonStructure(
-                [
-                    'data' => [
-                        [
-                            'description' => [
-                                'en_EN',
-                                'de_DE',
-                            ],
-                        ],
-                    ],
-                ]
-            )
-            ->assertSee(static::GERMAN_DEFAULT_TRANSLATION);
+        parent::testSearch($name);
     }
 
     /**
-     * Test Search for not existent vehicle
+     * Test Search for specific Vehicle with German Translations
+     *
+     * @param string $name The Vehicle Name
      */
-    public function testSearchNotFound()
+    public function testSearchWithGermanTranslation(string $name)
     {
-        $response = $this->post(
-            sprintf(
-                '%s/%s',
-                static::BASE_API_ENDPOINT,
-                'search'
-            ),
-            [
-                'query' => static::NOT_EXISTENT_NAME,
-            ]
-        );
+        $vehicle = $this->makeVehicleWithName($name);
+        $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
-        $response->assertNotFound();
+        parent::testSearch($name);
     }
 
 

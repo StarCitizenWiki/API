@@ -2,13 +2,16 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
+use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle\VehicleControllerTestCase;
 
 /**
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController<extended>
+ *
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer<extended>
+ *
  * @covers \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle<extended>
  * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
  * @covers \App\Models\Api\StarCitizen\ProductionNote\ProductionNote<extended>
@@ -61,6 +64,40 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
         ],
     ];
 
+
+    /**
+     * Index Method Tests
+     */
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexAll(int $allCount = 0)
+    {
+        parent::testIndexAll(GroundVehicle::count());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexPaginatedCustom(int $limit = 5)
+    {
+        parent::testIndexPaginatedCustom($limit);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexInvalidLimit(int $limit = -1)
+    {
+        parent::testIndexInvalidLimit($limit);
+    }
+
+
+    /**
+     * Show Method Tests
+     */
+
     /**
      * {@inheritdoc}
      *
@@ -78,7 +115,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
      */
     public function testShowMultipleTranslations(string $name = 'Cyclone TR')
     {
-        parent::testShow($name);
+        parent::testShowMultipleTranslations($name);
     }
 
     /**
@@ -101,43 +138,10 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
         parent::testShowLocaleInvalid($name);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
-     */
-    public function testShowNotFound()
-    {
-        parent::testShowNotFound();
-    }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::index
+     * Search Method Tests
      */
-    public function testIndexPaginatedDefault()
-    {
-        parent::testIndexPaginatedDefault();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::index
-     */
-    public function testIndexPaginatedCustom()
-    {
-        parent::testIndexPaginatedCustom();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::index
-     */
-    public function testIndexInvalidLimit()
-    {
-        parent::testIndexInvalidLimit();
-    }
 
     /**
      * {@inheritdoc}
@@ -154,8 +158,8 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::search
      */
-    public function testSearchNotFound()
+    public function testSearchWithGermanTranslation(string $name = 'Tonk2')
     {
-        parent::testSearchNotFound();
+        parent::testSearch($name);
     }
 }

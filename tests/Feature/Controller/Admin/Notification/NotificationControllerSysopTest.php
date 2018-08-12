@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Controller\Admin\Notification;
 
-use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
 
 /**
@@ -13,6 +12,10 @@ use App\Models\Account\Admin\AdminGroup;
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
+ *
+ * @covers \App\Providers\RouteServiceProvider
+ *
+ * @covers \App\Models\Api\Notification
  */
 class NotificationControllerSysopTest extends NotificationControllerTestCase
 {
