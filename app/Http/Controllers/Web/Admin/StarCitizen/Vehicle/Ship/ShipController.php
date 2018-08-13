@@ -104,6 +104,6 @@ class ShipController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.ships.edit', $ship->getApiRouteKey());
+        return redirect()->route('web.admin.starcitizen.vehicles.ships.edit', $ship->getRouteKey());
     }
 }
