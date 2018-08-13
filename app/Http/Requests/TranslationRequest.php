@@ -32,11 +32,11 @@ class TranslationRequest extends FormRequest
         $rule = '|string|min:1';
         $rules = [];
 
-        foreach ($localeCodes as $code => $model) {
-            if (config('language.english') === $model) {
+        foreach ($localeCodes as $code => $language) {
+            if (config('language.english') === $language->locale_code) {
                 $rules[$code] = 'required'.$rule;
             } else {
-                $rules[$code] = 'present'.$rule;
+                $rules[$code] = 'nullable'.$rule;
             }
         }
 

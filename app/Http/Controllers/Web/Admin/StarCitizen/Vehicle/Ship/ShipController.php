@@ -20,6 +20,8 @@ class ShipController extends Controller
 
     /**
      * ShipsController constructor.
+     *
+     * @param \Dingo\Api\Dispatcher $api
      */
     public function __construct(Dispatcher $api)
     {

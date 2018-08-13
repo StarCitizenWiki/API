@@ -11,6 +11,7 @@ namespace Tests\Feature\Controller\Admin\StarCitizen\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Admin\StarCitizen\StarCitizenTestCase;
 
 /**
@@ -119,6 +120,8 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
             ]
         );
 
+        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
 
@@ -141,6 +144,8 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
                 'description_de_DE' => null,
             ]
         );
+
+        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }

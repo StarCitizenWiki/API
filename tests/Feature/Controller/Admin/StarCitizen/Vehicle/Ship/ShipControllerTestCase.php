@@ -10,8 +10,10 @@ namespace Tests\Feature\Controller\Admin\StarCitizen\Vehicle\Ship;
 
 
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Admin\StarCitizen\StarCitizenTestCase;
 
 /**
@@ -55,7 +57,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
     public function testEdit()
     {
         /** @var Ship $ship */
-        $ship = factory(Ship::class)->create();
+        $ship = factory(Vehicle::class)->state('ship')->create();
         $ship->translations()->save(factory(VehicleTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->get(
@@ -95,19 +97,56 @@ class ShipControllerTestCase extends StarCitizenTestCase
     /**
      * Test Update
      *
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Ship\ShipController::update
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     *
+     * @covers \App\Http\Requests\TranslationRequest
+     *
+     * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation
+     * @covers \App\Models\Api\ModelChangelog
      */
     public function testUpdate()
     {
-        $this->markTestIncomplete();
+        /** @var Ship $ship */
+        $ship = factory(Vehicle::class)->state('ship')->create();
+        $ship->translations()->save(factory(VehicleTranslation::class)->make());
+
+        $response = $this->actingAs($this->admin, 'admin')->patch(
+            route('web.admin.starcitizen.vehicles.ships.update', $ship->getRouteKey()),
+            [
+                'en_EN' => 'GroundVehicle translation',
+            ]
+        );
+
+        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+
+        $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
 
     /**
      * Test Update
      *
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Ship\ShipController::update
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     *
+     * @covers \App\Exceptions\Handler
      */
     public function testUpdateNotFound()
     {
-        $this->markTestIncomplete();
+        /** @var Ship $ship */
+        $ship = factory(Vehicle::class)->state('ship')->create();
+        $ship->translations()->save(factory(VehicleTranslation::class)->make());
+
+        $response = $this->actingAs($this->admin, 'admin')->patch(
+            route('web.admin.starcitizen.vehicles.ships.update', static::MODEL_ID_NOT_EXISTENT),
+            [
+                'en_EN' => 'GroundVehicle translation',
+            ]
+        );
+
+        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+
+        $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
 
     /**
@@ -117,8 +156,8 @@ class ShipControllerTestCase extends StarCitizenTestCase
     protected function setUp()
     {
         parent::setUp();
-        factory(Ship::class, 10)->create()->each(
-            function (Ship $ship) {
+        factory(Vehicle::class, 10)->state('ship')->create()->each(
+            function (Vehicle $ship) {
                 $ship->translations()->save(factory(VehicleTranslation::class)->make());
             }
         );
