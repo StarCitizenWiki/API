@@ -53,84 +53,6 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Binds Model Slugs to Resolve Logic
-     * Decodes Hashed IDs
-     */
-    private function bindAdminModelRoutes()
-    {
-        Route::bind(
-            'user',
-            function ($id) {
-                // TODO unschöne Lösung. Implicit Model Binding läuft vor Policies -> Geblockter User bekommt für nicht existierendes Model 404 Fehler statt 403
-                // Mögliche Lösung: Model Typehint aus Controller entfernen und Model explizit aus DB holen
-                Gate::authorize('web.admin.users.view', Auth::guard('admin')->user());
-                $id = $this->hasher($id, User::class);
-
-                return User::withTrashed()->findOrFail($id);
-            }
-        );
-        Route::bind(
-            'notification',
-            function ($id) {
-                $id = $this->hasher($id, Notification::class);
-
-                return Notification::findOrFail($id);
-            }
-        );
-
-        /**
-         * Star Citizen
-         */
-        Route::bind(
-            'production_note',
-            function ($id) {
-                $id = $this->hasher($id, ProductionNote::class);
-
-                return ProductionNote::findOrFail($id);
-            }
-        );
-
-        Route::bind(
-            'production_status',
-            function ($id) {
-                $id = $this->hasher($id, ProductionStatus::class);
-
-                return ProductionStatus::findOrFail($id);
-            }
-        );
-
-        /**
-         * Vehicles
-         */
-        Route::bind(
-            'focus',
-            function ($id) {
-                $id = $this->hasher($id, VehicleFocus::class);
-
-                return VehicleFocus::findOrFail($id);
-            }
-        );
-
-        Route::bind(
-            'size',
-            function ($id) {
-                $id = $this->hasher($id, VehicleSize::class);
-
-                return VehicleSize::findOrFail($id);
-            }
-        );
-
-        Route::bind(
-            'type',
-            function ($id) {
-                $id = $this->hasher($id, VehicleType::class);
-
-                return VehicleType::findOrFail($id);
-            }
-        );
-    }
-
-    /**
      * Define the routes for the application.
      *
      * @return void
@@ -205,6 +127,94 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
+     * Binds Model Slugs to Resolve Logic
+     * Decodes Hashed IDs
+     */
+    private function bindAdminModelRoutes()
+    {
+        Route::bind(
+            'user',
+            function ($id) {
+                // TODO unschöne Lösung. Implicit Model Binding läuft vor Policies -> Geblockter User bekommt für nicht existierendes Model 404 Fehler statt 403
+                // Mögliche Lösung: Model Typehint aus Controller entfernen und Model explizit aus DB holen
+                Gate::authorize('web.admin.users.view', Auth::guard('admin')->user());
+                $id = $this->decodeId($id, User::class);
+
+                return User::withTrashed()->findOrFail($id);
+            }
+        );
+        Route::bind(
+            'notification',
+            function ($id) {
+                $id = $this->decodeId($id, Notification::class);
+
+                return Notification::findOrFail($id);
+            }
+        );
+
+        /**
+         * Star Citizen
+         */
+        Route::bind(
+            'production_note',
+            function ($id) {
+                $this->authorizeTranslationView();
+
+                $id = $this->decodeId($id, ProductionNote::class);
+
+                return ProductionNote::findOrFail($id);
+            }
+        );
+
+        Route::bind(
+            'production_status',
+            function ($id) {
+                $this->authorizeTranslationView();
+
+                $id = $this->decodeId($id, ProductionStatus::class);
+
+                return ProductionStatus::findOrFail($id);
+            }
+        );
+
+        /**
+         * Vehicles
+         */
+        Route::bind(
+            'focus',
+            function ($id) {
+                $this->authorizeTranslationView();
+
+                $id = $this->decodeId($id, VehicleFocus::class);
+
+                return VehicleFocus::findOrFail($id);
+            }
+        );
+
+        Route::bind(
+            'size',
+            function ($id) {
+                $this->authorizeTranslationView();
+
+                $id = $this->decodeId($id, VehicleSize::class);
+
+                return VehicleSize::findOrFail($id);
+            }
+        );
+
+        Route::bind(
+            'type',
+            function ($id) {
+                $this->authorizeTranslationView();
+
+                $id = $this->decodeId($id, VehicleType::class);
+
+                return VehicleType::findOrFail($id);
+            }
+        );
+    }
+
+    /**
      * Tries to decode a hashid string into an id
      *
      * @param string $value
@@ -215,7 +225,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      */
-    private function hasher($value, string $connection = 'main')
+    private function decodeId($value, string $connection = 'main')
     {
         if (is_int($value)) {
             return $value;
@@ -223,10 +233,16 @@ class RouteServiceProvider extends ServiceProvider
 
         $decoded = Hashids::connection($connection)->decode($value);
 
-        if (empty($decoded) || !is_integer($decoded[0])) {
-            throw new BadRequestHttpException();
-        }
+        return $decoded[0] ?? null;
+    }
 
-        return $decoded[0];
+    /**
+     * Check if User can View Translation Resource
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    private function authorizeTranslationView()
+    {
+        Gate::authorize('web.admin.starcitizen.translations.view', Auth::guard('admin')->user());
     }
 }
