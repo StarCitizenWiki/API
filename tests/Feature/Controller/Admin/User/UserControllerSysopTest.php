@@ -24,13 +24,13 @@ class UserControllerSysopTest extends UserControllerTestCase
         'index' => Response::HTTP_OK,
 
         'edit' => Response::HTTP_OK,
-        'edit_not_found' => Response::HTTP_BAD_REQUEST,
+        'edit_not_found' => Response::HTTP_NOT_FOUND,
 
         'update' => Response::HTTP_FOUND,
-        'update_not_found' => Response::HTTP_BAD_REQUEST,
+        'update_not_found' => Response::HTTP_NOT_FOUND,
 
         'delete' => Response::HTTP_FOUND,
-        'delete_not_found' => Response::HTTP_BAD_REQUEST,
+        'delete_not_found' => Response::HTTP_NOT_FOUND,
     ];
 
     /**

@@ -8,7 +8,6 @@
 
 namespace Tests\Feature\Controller\Admin\StarCitizen\Vehicle\Ship;
 
-
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
@@ -56,7 +55,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      */
     public function testEdit()
     {
-        /** @var Ship $ship */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
         $ship = factory(Vehicle::class)->state('ship')->create();
         $ship->translations()->save(factory(VehicleTranslation::class)->make());
 
@@ -107,7 +106,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var Ship $ship */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
         $ship = factory(Vehicle::class)->state('ship')->create();
         $ship->translations()->save(factory(VehicleTranslation::class)->make());
 
@@ -133,7 +132,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdateNotFound()
     {
-        /** @var Ship $ship */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
         $ship = factory(Vehicle::class)->state('ship')->create();
         $ship->translations()->save(factory(VehicleTranslation::class)->make());
 

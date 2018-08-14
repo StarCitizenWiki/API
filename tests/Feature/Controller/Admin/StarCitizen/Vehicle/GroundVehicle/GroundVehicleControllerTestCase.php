@@ -55,7 +55,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      */
     public function testEdit()
     {
-        /** @var GroundVehicle $groundVehicle */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
         $groundVehicle = factory(Vehicle::class)->state('ground_vehicle')->create();
         $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
 
@@ -106,7 +106,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var GroundVehicle $groundVehicle */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
         $groundVehicle = factory(Vehicle::class)->state('ground_vehicle')->create();
         $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
 
@@ -132,7 +132,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdateNotFound()
     {
-        /** @var GroundVehicle $groundVehicle */
+        /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
         $groundVehicle = factory(Vehicle::class)->state('ground_vehicle')->create();
         $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
 

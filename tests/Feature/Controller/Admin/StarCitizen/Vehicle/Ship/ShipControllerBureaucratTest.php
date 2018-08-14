@@ -6,18 +6,17 @@
  * Time: 22:47
  */
 
-namespace Tests\Feature\Controller\Admin\StarCitizen\Manufacturer;
+namespace Tests\Feature\Controller\Admin\StarCitizen\Vehicle\Ship;
 
-use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
 use Illuminate\Http\Response;
 
 /**
- * @covers \App\Policies\Web\Admin\StarCitizen\Vehicle\VehiclePolicy<extended>
+ * @covers \App\Policies\Web\Admin\StarCitizen\TranslationPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\Ship\Ship<extended>
+ * @covers \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus<extended>
  */
-class ShipControllerBureaucratTest extends ManufacturerControllerTestCase
+class ShipControllerBureaucratTest extends ShipControllerTestCase
 {
     /**
      * {@inheritdoc}
