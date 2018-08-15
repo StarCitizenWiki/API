@@ -13,6 +13,21 @@
     </div>
 @endcomponent
 
+@component('components.navs.nav_element', [
+    'route' => route('web.admin.starcitizen.vehicles.ground_vehicles.index'),
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                car
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Bodenfahrzeuge')
+        </div>
+    </div>
+@endcomponent
+
 @can('web.admin.starcitizen.translations.view')
     @component('components.navs.nav_element', [
         'route' => route('web.admin.starcitizen.vehicles.sizes.index'),
