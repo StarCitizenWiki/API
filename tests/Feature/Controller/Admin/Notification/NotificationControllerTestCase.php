@@ -10,6 +10,7 @@ namespace Tests\Feature\Controller\Admin\Notification;
 use App\Mail\NotificationEmail;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
+use Dingo\Api\Http\Response;
 use Illuminate\Support\Facades\Mail;
 use Tests\Feature\Controller\Admin\AdminTestCase;
 
@@ -31,6 +32,9 @@ class NotificationControllerTestCase extends AdminTestCase
         $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.notifications.index'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertSee(__('Benachrichtigungen'));
+        }
     }
 
     /**
@@ -41,6 +45,13 @@ class NotificationControllerTestCase extends AdminTestCase
         $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.notifications.create'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['create']);
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertSee(__('Benachrichtigung hinzufügen'))
+                ->assertSee(__('Inhalt'))
+                ->assertSee(__('Typ'))
+                ->assertSee(__('Reihenfolge'))
+                ->assertSee(__('Speichern'));
+        }
     }
 
     /**
@@ -55,6 +66,14 @@ class NotificationControllerTestCase extends AdminTestCase
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertSee(__('Benachrichtigung bearbeiten'))
+                ->assertSee(__('Inhalt'))
+                ->assertSee(__('Typ'))
+                ->assertSee(__('Reihenfolge'))
+                ->assertSee(__('Speichern'))
+                ->assertSee(__('Löschen'));
+        }
     }
 
     /**

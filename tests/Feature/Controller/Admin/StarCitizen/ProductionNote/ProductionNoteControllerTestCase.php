@@ -34,7 +34,9 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
 
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertDontSee(__('Keine Übersetzungen vorhanden'));
+            $response->assertDontSee(__('Keine Übersetzungen vorhanden'))
+                ->assertSee(__('Produktionsnotizen'))
+                ->assertSee(__('en_EN'));
         }
     }
 
@@ -60,7 +62,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
 
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertDontSee(__('Keine Übersetzungen vorhanden'));
+            $response->assertSee(__('Übersetzungen'))->assertSee(__('Speichern'));
         }
     }
 

@@ -37,6 +37,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
 
         if ($response->status() === Response::HTTP_OK) {
             $response->assertDontSee(__('Keine Schiffe vorhanden'))
+                ->assertSee(__('Raumschiffe'))
                 ->assertSee('CIG ID')
                 ->assertSee(Ship::count());
         }
@@ -65,10 +66,13 @@ class ShipControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
 
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertDontSee(__('Keine Schiffe vorhanden'))
+            $response->assertSee(__('Schiffsdaten'))
+                ->assertSee(__('Übersetzungen'))
+                ->assertSee(__('Beschreibung'))
+                ->assertSee(__('Speichern'))
                 ->assertSee('CIG ID')
-                ->assertSee($ship->cig_id)
-                ->assertSee($ship->name);
+                ->assertSee($ship->name)
+                ->assertSee($ship->cig_id);
         }
     }
 

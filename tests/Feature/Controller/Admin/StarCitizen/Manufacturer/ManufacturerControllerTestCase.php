@@ -36,6 +36,8 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
 
         if ($response->status() === Response::HTTP_OK) {
             $response->assertDontSee(__('Keine Hersteller vorhanden'))
+                ->assertSee(__('Hersteller'))
+                ->assertSee(__('Name'))
                 ->assertSee('CIG ID')
                 ->assertSee(Manufacturer::count());
         }
