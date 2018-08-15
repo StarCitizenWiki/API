@@ -65,21 +65,21 @@
                 </div>
                 <div class="form-group">
                     <span class="d-block">@lang('Ausgabetyp'):</span>
-                    <label class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="status" name="output[]" value="status" @if(old('output_status')) checked @endif>
-                        <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">@lang('Statusseite')</span>
-                    </label>
-                    <label class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="index" name="output[]" value="index" @if(old('output_index')) checked @endif>
-                        <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">@lang('Startseite')</span>
-                    </label>
-                    <label class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="email" name="output[]" value="email" @if(old('output_email')) checked disabled @endif>
-                        <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">@lang('E-Mail')</span>
-                    </label>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="status" name="output[]" value="status"
+                               @if(old('output_status')) checked @endif>
+                        <label class="custom-control-label" for="status">@lang('Statusseite')</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="index" name="output[]" value="index"
+                               @if(old('output_index')) checked @endif>
+                        <label class="custom-control-label" for="index">@lang('Startseite')</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="email" name="output[]" value="email"
+                               @if(old('output_email')) checked @endif>
+                        <label class="custom-control-label" for="email">@lang('E-Mail')</label>
+                    </div>
                 </div>
 
                 <button class="btn btn-outline-secondary float-right" name="save">@lang('Speichern')</button>
