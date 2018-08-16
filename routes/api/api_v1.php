@@ -34,6 +34,26 @@ $api->group(
                 );
             }
         );
+
+        $api->group(
+            [
+                'namespace' => 'Starmap',
+                'prefix' => 'starmap',
+            ],
+            function ($api) {
+                $api->get('/', ['as' => 'api.v1.starsystem.all', 'uses' => 'StarsystemController@index']);
+                $api->get('{code}', ['as' => 'api.v1.starsystem.show', 'uses' => 'StarsystemController@show']);
+            },
+            function ($api) {
+                $api->get('/', ['as' => 'api.v1.jumppoint.all', 'uses' => 'JumppointController@index']);
+                $api->get('{code}', ['as' => 'api.v1.jumppoint.show', 'uses' => 'JumppointController@show']);
+            },
+            function ($api) {
+                $api->get('/', ['as' => 'api.v1.celestialobject.all', 'uses' => 'CelestialObjectController@index']);
+                $api->get('{code}', ['as' => 'api.v1.celestialobject.show', 'uses' => 'CelestialObjectController@show']);
+            }
+        );
+
         /*
                 Route::prefix('starmap')
                     ->namespace('Starmap')

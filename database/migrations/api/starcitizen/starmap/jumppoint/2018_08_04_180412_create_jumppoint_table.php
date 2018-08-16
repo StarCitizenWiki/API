@@ -4,10 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-/**
- * Class CreateJumppointsTable creates/destroys jumppoint table
- */
-class CreateJumppointsTable extends Migration
+class CreateJumppointTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,7 +13,7 @@ class CreateJumppointsTable extends Migration
      */
     public function up()
     {
-        Schema::create('jumppoints', function (Blueprint $table) {
+        Schema::create('jumppoint', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->boolean('exclude')->default(false);
             $table->timestamps();
@@ -36,10 +33,13 @@ class CreateJumppointsTable extends Migration
             $table->string('exit_code');
             $table->string('exit_designation');
 
-            $table->json('sourcedata');
+            $table->unique('cig_id');
+            $table->foreign('entry_cig_id')->references('cig_id')->on('celestial_object')->onDelete('cascade');
+            $table->foreign('exit_cig_id')->references('cig_id')->on('celestial_object')->onDelete('cascade');
+
+            $table->foreign('entry_cig_system_id')->references('cig_id')->on('starsystem')->onDelete('cascade');
+            $table->foreign('exit_cig_system_id')->references('cig_id')->on('starsystem')->onDelete('cascade');
         });
-
-
     }
 
     /**
@@ -49,6 +49,8 @@ class CreateJumppointsTable extends Migration
      */
     public function down()
     {
+        //also remove old jumppoints
         Schema::dropIfExists('jumppoints');
+        Schema::dropIfExists('jumppoint');
     }
 }
