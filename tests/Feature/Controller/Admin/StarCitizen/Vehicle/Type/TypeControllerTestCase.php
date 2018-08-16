@@ -103,6 +103,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.vehicles.types.update', $vehicleType->getRouteKey()),
             [
                 'en_EN' => 'Vehicle Type translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 
@@ -122,6 +123,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.vehicles.types.update', static::MODEL_ID_NOT_EXISTENT),
             [
                 'en_EN' => 'Vehicle Type translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 

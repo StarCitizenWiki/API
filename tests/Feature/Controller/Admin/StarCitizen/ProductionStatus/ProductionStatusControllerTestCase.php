@@ -103,6 +103,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.production_statuses.update', $productionStatus->getRouteKey()),
             [
                 'en_EN' => 'Vehicle ProductionStatus translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 
@@ -122,6 +123,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.production_statuses.update', static::MODEL_ID_NOT_EXISTENT),
             [
                 'en_EN' => 'Production Statuss translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 

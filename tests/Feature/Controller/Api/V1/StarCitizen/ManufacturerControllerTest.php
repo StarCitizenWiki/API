@@ -160,7 +160,8 @@ class ManufacturerControllerTest extends StarCitizenTestCase
      */
     public function testRelationInclude()
     {
-        $manufacturer = $this->makeManufacturerWithName('BANU');
+        $name = str_random(6);
+        $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
         $manufacturer->ships()->saveMany(
@@ -171,7 +172,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
             sprintf(
                 '%s/%s?with=%s',
                 static::BASE_API_ENDPOINT,
-                'BANU',
+                $name,
                 'ships'
             )
         );
@@ -182,7 +183,8 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     'data' => $this->structure,
                     'meta' => [],
                 ]
-            )->assertJsonCount(5, 'data.ships');
+            )
+            ->assertJsonCount($manufacturer->ships()->count(), 'data.ships');
     }
 
     /**
@@ -190,11 +192,13 @@ class ManufacturerControllerTest extends StarCitizenTestCase
      */
     public function testMultipleRelationInclude()
     {
-        $manufacturer = $this->makeManufacturerWithName('VANDUUL');
+        $name = str_random(5);
+
+        $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
         $manufacturer->ships()->saveMany(
-            factory(Vehicle::class, 5)->make()
+            factory(Vehicle::class, 5)->state('ship')->make()
         );
 
         $manufacturer->groundVehicles()->saveMany(
@@ -205,7 +209,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
             sprintf(
                 '%s/%s?with=%s',
                 static::BASE_API_ENDPOINT,
-                'VANDUUL',
+                urlencode($name),
                 'ships,ground_vehicles'
             )
         );
@@ -217,8 +221,8 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     'meta' => [],
                 ]
             )
-            ->assertJsonCount(5, 'data.ships')
-            ->assertJsonCount(5, 'data.ground_vehicles');
+            ->assertJsonCount($manufacturer->ships()->count(), 'data.ships')
+            ->assertJsonCount($manufacturer->groundVehicles()->count(), 'data.ground_vehicles');
     }
 
     /**

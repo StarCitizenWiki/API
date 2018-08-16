@@ -103,6 +103,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.production_notes.update', $productionNote->getRouteKey()),
             [
                 'en_EN' => 'Vehicle ProductionNote translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 
@@ -122,6 +123,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.production_notes.update', static::MODEL_ID_NOT_EXISTENT),
             [
                 'en_EN' => 'Production Notes translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 

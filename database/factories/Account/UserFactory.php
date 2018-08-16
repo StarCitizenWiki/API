@@ -9,7 +9,7 @@ $factory->define(
 
         return [
             'id' => $id++,
-            'name' => $faker->name,
+            'name' => $faker->userName,
             'email' => $faker->unique()->safeEmail,
             'api_token' => str_random(60),
             'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret

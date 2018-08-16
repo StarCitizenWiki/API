@@ -183,7 +183,7 @@ class StarCitizenTestCase extends ApiTestCase
                 'search'
             ),
             [
-                'query' => $name,
+                'query' => urlencode($name),
             ]
         );
 
@@ -213,7 +213,7 @@ class StarCitizenTestCase extends ApiTestCase
                 'search'
             ),
             [
-                'query' => $name,
+                'query' => urlencode($name),
             ]
         );
 

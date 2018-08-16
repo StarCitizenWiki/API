@@ -118,6 +118,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.vehicles.ships.update', $ship->getRouteKey()),
             [
                 'en_EN' => 'GroundVehicle translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 
@@ -144,6 +145,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.vehicles.ships.update', static::MODEL_ID_NOT_EXISTENT),
             [
                 'en_EN' => 'GroundVehicle translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 

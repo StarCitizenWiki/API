@@ -103,6 +103,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.vehicles.foci.update', $vehicleFocus->getRouteKey()),
             [
                 'en_EN' => 'Vehicle Focus translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 
@@ -122,6 +123,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.vehicles.foci.update', static::MODEL_ID_NOT_EXISTENT),
             [
                 'en_EN' => 'Vehicle Focus translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 

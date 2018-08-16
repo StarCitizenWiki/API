@@ -103,6 +103,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.vehicles.sizes.update', $vehicleSize->getRouteKey()),
             [
                 'en_EN' => 'Vehicle Size translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 
@@ -122,6 +123,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
             route('web.admin.starcitizen.vehicles.sizes.update', static::MODEL_ID_NOT_EXISTENT),
             [
                 'en_EN' => 'Vehicle Size translation',
+                'de_DE' => 'Translation Deutsch',
             ]
         );
 

@@ -117,8 +117,8 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
             [
                 'known_for_en_EN' => 'Hersteller Known For',
                 'description_en_EN' => 'Hersteller description',
-                'known_for_de_DE' => null,
-                'description_de_DE' => null,
+                'known_for_de_DE' => 'Hersteller Known For Deutsch',
+                'description_de_DE' => 'Hersteller description Deutsch',
             ]
         );
 
@@ -142,8 +142,8 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
             [
                 'known_for_en_EN' => 'Hersteller Known For',
                 'description_en_EN' => 'Hersteller description',
-                'known_for_de_DE' => null,
-                'description_de_DE' => null,
+                'known_for_de_DE' => 'Hersteller Known For Deutsch',
+                'description_de_DE' => 'Hersteller description Deutsch',
             ]
         );
 
