@@ -2,10 +2,13 @@
 
 @section('content')
     <div class="card-deck">
-        <div class="card">
-            <h4 class="card-header">@lang('Fahrzeugdaten') <small class="float-right mt-1">Letztes Update: {{ $ground_vehicle->updated_at->diffForHumans() }}</small></h4>
-            <div class="card-body">
-                @component('components.forms.form')
+        @component('admin.components.card', [
+            'class' => 'mb-4',
+        ])
+            @slot('title')
+                <h4 class="mb-0">@lang('Fahrzeugdaten') <small class="float-right mt-1">Letztes Update: {{ $ground_vehicle->updated_at->diffForHumans() }}</small></h4>
+            @endslot
+            @component('components.forms.form')
                     <div class="row">
                         <div class="col-12 col-lg-4">
                             @component('components.forms.form-group', [
@@ -185,8 +188,8 @@
                     </div>
 
                 @endcomponent
-            </div>
-        </div>
+        @endcomponent
+
         @component('components.forms.form', [
             'action' => route('web.admin.starcitizen.vehicles.ground_vehicles.update', $ground_vehicle->getRouteKey()),
             'method' => 'PATCH',
@@ -195,6 +198,8 @@
             <div class="wrapper">
                 <h4 class="card-header">@lang('Übersetzungen')</h4>
                 <div class="card-body">
+                    @include('components.errors')
+                    @include('components.messages')
                     @foreach($ground_vehicle->translationsCollection() as $key => $translation)
                         @component('components.forms.form-group', [
                             'inputType' => 'textarea',

@@ -1,9 +1,10 @@
-@extends('admin.layouts.default')
+@extends('admin.layouts.default_wide')
 
 @section('content')
     <div class="card">
         <h4 class="card-header">@lang('Hersteller')</h4>
         <div class="card-body px-0 table-responsive">
+            @include('components.messages')
             <table class="table table-striped mb-0">
                 <thead>
                     <tr>

@@ -90,6 +90,12 @@ class ProductionNoteController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.production_notes.index');
+        return redirect()->route('web.admin.starcitizen.production_notes.index')->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __('Produktionsnotiz')]),
+                ],
+            ]
+        );
     }
 }

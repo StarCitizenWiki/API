@@ -37,8 +37,8 @@ class ManufacturerTranslationRequest extends FormRequest
                 $rules["description_{$code}"] = 'required'.$rule;
                 $rules["known_for_{$code}"] = 'required'.$rule;
             } else {
-                $rules["description_{$code}"] = 'nullable'.$rule;
-                $rules["known_for_{$code}"] = 'nullable'.$rule;
+                $rules["description_{$code}"] = 'present'.$rule;
+                $rules["known_for_{$code}"] = 'present'.$rule;
             }
         }
 

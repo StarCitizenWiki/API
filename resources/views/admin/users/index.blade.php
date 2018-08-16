@@ -4,6 +4,7 @@
     <div class="card">
         <h4 class="card-header">@lang('Benutzer')</h4>
         <div class="card-body px-0 table-responsive">
+            @include('components.messages')
             <table class="table table-striped mb-0">
                 <thead>
                 <tr>

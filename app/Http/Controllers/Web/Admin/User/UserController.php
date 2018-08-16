@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\Auth;
  */
 class UserController extends Controller
 {
-    const WEB_ADMIN_USERS_INDEX = 'web.admin.users.index';
-    const PASSWORD = 'password';
+    private const WEB_ADMIN_USERS_INDEX = 'web.admin.users.index';
+    private const PASSWORD = 'password';
+    private const USER = 'Benutzer';
 
     /**
      * UserController constructor.
@@ -83,7 +84,13 @@ class UserController extends Controller
 
         $user->delete();
 
-        return redirect()->route(self::WEB_ADMIN_USERS_INDEX);
+        return redirect()->route(self::WEB_ADMIN_USERS_INDEX)->withMessages(
+            [
+                'danger' => [
+                    __('crud.deleted', ['type' => __(self::USER)]),
+                ],
+            ]
+        );
     }
 
     /**
@@ -102,7 +109,13 @@ class UserController extends Controller
 
         $user->restore();
 
-        return redirect()->route(self::WEB_ADMIN_USERS_INDEX);
+        return redirect()->route(self::WEB_ADMIN_USERS_INDEX)->withMessages(
+            [
+                'warning' => [
+                    __('crud.restored', ['type' => __(self::USER)]),
+                ],
+            ]
+        );
     }
 
     /**
@@ -144,6 +157,12 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route(self::WEB_ADMIN_USERS_INDEX);
+        return redirect()->route(self::WEB_ADMIN_USERS_INDEX)->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __(self::USER)]),
+                ],
+            ]
+        );
     }
 }

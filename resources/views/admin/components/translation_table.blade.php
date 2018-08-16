@@ -5,7 +5,7 @@
                 <th>@lang('ID')</th>
             @endcan
             @foreach($languages as $language)
-                <th>{{ $language->locale_code }}</th>
+                <th>@lang($language->locale_code)</th>
             @endforeach
             @can('web.admin.starcitizen.translations.update')
                 <th>&nbsp;</th>

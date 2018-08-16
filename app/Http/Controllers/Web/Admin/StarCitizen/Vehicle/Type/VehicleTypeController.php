@@ -90,6 +90,12 @@ class VehicleTypeController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.types.index');
+        return redirect()->route('web.admin.starcitizen.vehicles.types.index')->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __('Fahrzeugtyp')]),
+                ],
+            ]
+        );
     }
 }

@@ -90,6 +90,12 @@ class VehicleFocusController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.foci.index');
+        return redirect()->route('web.admin.starcitizen.vehicles.foci.index')->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __('Fahrzeugfokus')]),
+                ],
+            ]
+        );
     }
 }

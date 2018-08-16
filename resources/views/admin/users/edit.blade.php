@@ -2,12 +2,10 @@
 @section('content')
     @component('admin.components.card', [
         'class' => 'mb-4',
-        'icon' => 'user',
+        'title' => '#'.__('Benutzer bearbeiten'),
     ])
-        @slot('title')
-            #@lang('Benutzer bearbeiten')
-        @endslot
         @include('components.errors')
+        @include('components.messages')
         @component('components.forms.form', [
             'action' => route('web.admin.users.update', $user),
             'method' => 'PATCH',
@@ -60,7 +58,7 @@
                 'value' => $user->api_token,
             ])@endcomponent
             <div class="row">
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-lg-4">
                     @component('components.forms.form-group', [
                         'inputType' => 'integer',
                         'label' => __('Anfragen pro Minute'),
@@ -68,7 +66,7 @@
                         'value' => $user->requests_per_minute,
                     ])@endcomponent
                 </div>
-                <div class="col-12 col-lg-6">
+                <div class="col-12 col-lg-8">
                     @component('components.forms.form-group', [
                         'label' => __('Passwort ändern'),
                         'id' => 'password',

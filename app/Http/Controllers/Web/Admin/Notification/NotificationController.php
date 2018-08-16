@@ -14,9 +14,8 @@ use Illuminate\View\View;
  */
 class NotificationController extends Controller
 {
-    const ADMIN_NOTIFICATION_INDEX = 'web.admin.notifications.index';
-    const MESSAGE = 'message';
-    const NOTIFICATION = 'Benachrichtigung';
+    private const ADMIN_NOTIFICATION_INDEX = 'web.admin.notifications.index';
+    private const NOTIFICATION = 'Benachrichtigung';
 
     private $jobDelay = null;
 
@@ -121,10 +120,11 @@ class NotificationController extends Controller
             $this->dispatchJob($notification);
         }
 
-        return redirect()->route(
-            'web.admin.dashboard',
+        return redirect()->route('web.admin.dashboard')->withMessages(
             [
-                self::MESSAGE => __('crud.created', ['type' => self::NOTIFICATION]),
+                'success' => [
+                    __('crud.created', ['type' => self::NOTIFICATION]),
+                ],
             ]
         );
     }
@@ -171,10 +171,11 @@ class NotificationController extends Controller
             $this->dispatchJob($notification);
         }
 
-        return redirect()->route(
-            self::ADMIN_NOTIFICATION_INDEX,
+        return redirect()->route(self::ADMIN_NOTIFICATION_INDEX)->withMessages(
             [
-                self::MESSAGE => __('crud.updated', ['type' => self::NOTIFICATION]),
+                'success' => [
+                    __('crud.updated', ['type' => self::NOTIFICATION]),
+                ],
             ]
         );
     }
@@ -193,10 +194,11 @@ class NotificationController extends Controller
 
         $notification->delete();
 
-        return redirect()->route(
-            self::ADMIN_NOTIFICATION_INDEX,
+        return redirect()->route(self::ADMIN_NOTIFICATION_INDEX)->withMessages(
             [
-                self::MESSAGE => __('crud.deleted', ['type' => self::NOTIFICATION]),
+                'danger' => [
+                    __('crud.deleted', ['type' => self::NOTIFICATION]),
+                ],
             ]
         );
     }

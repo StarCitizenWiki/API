@@ -3,7 +3,7 @@
 return [
     'created' => ':Type erstellt',
     'restored' => ':Type wiederhergestellt',
-    'updated' => ':Type geupdated',
+    'updated' => ':Type aktualisiert',
     'deleted' => ':Type gelöscht',
     'not_found' => ':Type nicht gefunden',
 ];

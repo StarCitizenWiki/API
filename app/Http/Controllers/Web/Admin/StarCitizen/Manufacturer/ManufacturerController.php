@@ -113,6 +113,15 @@ class ManufacturerController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.manufacturers.edit', $manufacturer->id);
+        return redirect()->route(
+            'web.admin.starcitizen.manufacturers.edit',
+            $manufacturer->getRouteKey()
+        )->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __('Hersteller')]),
+                ],
+            ]
+        );
     }
 }

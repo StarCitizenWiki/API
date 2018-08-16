@@ -90,6 +90,12 @@ class VehicleSizeController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.sizes.index');
+        return redirect()->route('web.admin.starcitizen.vehicles.sizes.index')->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __('Fahrzeuggröße')]),
+                ],
+            ]
+        );
     }
 }

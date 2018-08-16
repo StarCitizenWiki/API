@@ -105,6 +105,12 @@ class GroundVehicleController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.ground_vehicles.edit', $groundVehicle->getRouteKey());
+        return redirect()->route('web.admin.starcitizen.vehicles.ground_vehicles.edit', $groundVehicle->getRouteKey())->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __('Fahrzeug')]),
+                ],
+            ]
+        );
     }
 }

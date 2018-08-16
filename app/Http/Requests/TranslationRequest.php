@@ -36,7 +36,7 @@ class TranslationRequest extends FormRequest
             if (config('language.english') === $language->locale_code) {
                 $rules[$code] = 'required'.$rule;
             } else {
-                $rules[$code] = 'nullable'.$rule;
+                $rules[$code] = 'present'.$rule;
             }
         }
 

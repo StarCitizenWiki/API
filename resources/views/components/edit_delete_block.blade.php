@@ -21,7 +21,7 @@
                 @slot('options')
                     data-fa-transform="up-2"
                 @endslot
-                trash
+                trash-alt
             @endcomponent
         </a>
     @endunless

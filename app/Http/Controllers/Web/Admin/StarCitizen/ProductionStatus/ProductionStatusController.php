@@ -88,6 +88,12 @@ class ProductionStatusController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.production_statuses.index');
+        return redirect()->route('web.admin.starcitizen.production_statuses.index')->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __('Produktionsstatus')]),
+                ],
+            ]
+        );
     }
 }

@@ -80,7 +80,7 @@ return [
         'string'  => ':attribute muss :size Zeichen lang sein.',
         'array'   => ':attribute muss genau :size Elemente haben.',
     ],
-    'string'               => ':attribute muss ein String sein.',
+    'string'               => ':attribute muss eine Zeichenkette sein.',
     'timezone'             => ':attribute muss eine gültige Zeitzone sein.',
     'unique'               => ':attribute ist schon vergeben.',
     'uploaded'             => 'Der :attribute konnte nicht hochgeladen werden.',
@@ -118,6 +118,9 @@ return [
         'username' => 'Benutzername',
         'password' => 'Passwort',
         'email'    => 'E-Mail-Adresse',
+
+        'de_DE' => 'Deutsch',
+        'en_EN' => 'Englisch',
     ],
 
 ];

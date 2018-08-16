@@ -6,10 +6,12 @@
     <div class="wrapper">
         <h4 class="card-header">@lang('Übersetzungen')</h4>
         <div class="card-body">
+            @include('components.errors')
+            @include('components.messages')
             @foreach($translation->translationsCollection() as $key => $translationObject)
                 @component('components.forms.form-group', [
                     'inputType' => 'text',
-                    'label' => __('Übersetzung ').$key,
+                    'label' => __('Übersetzung ').__($key),
                     'id' => $key,
                     'value' => $translationObject->translation,
                 ])
