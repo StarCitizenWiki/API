@@ -17,7 +17,8 @@ class Kernel extends ConsoleKernel
      *
      * @var array
      */
-    protected $commands = [//
+    protected $commands = [
+
     ];
 
     /**
@@ -31,7 +32,11 @@ class Kernel extends ConsoleKernel
     {
         $schedule->job(new DownloadStats())->dailyAt('20:00');
 
-        $schedule->job(new DownloadShipMatrix())->weekly();
+        $schedule->job(new DownloadShipMatrix())->weekly()->then(
+            function () {
+                $this->call('import:shipmatrix');
+            }
+        );
     }
 
     /**

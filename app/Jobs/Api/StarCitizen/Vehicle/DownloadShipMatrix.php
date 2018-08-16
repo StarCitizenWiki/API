@@ -87,7 +87,6 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
             Storage::disk(self::VEHICLES_DISK)->put($fileName, json_encode($response->data));
         }
 
-        app('Log')::info('Ship Matrix Download finished, dispatching Parsing Job');
-        dispatch(new ParseShipMatrixDownload($fileName));
+        app('Log')::info('Ship Matrix Download finished');
     }
 }

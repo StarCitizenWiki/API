@@ -28,11 +28,23 @@ class ParseShipMatrixDownload implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param string $shipMatrixFileName
+     * @param null|string $shipMatrixFileName
      */
-    public function __construct(string $shipMatrixFileName)
+    public function __construct(?string $shipMatrixFileName = null)
     {
-        $this->shipMatrixFileName = $shipMatrixFileName;
+        if (null !== $shipMatrixFileName) {
+            $this->shipMatrixFileName = $shipMatrixFileName;
+        } else {
+            $diskPath = Storage::disk('vehicles')->path('');
+            $files = scandir($diskPath, SCANDIR_SORT_DESCENDING);
+
+            if (is_array($files) && starts_with($files[0], 'shipmatrix')) {
+                $this->shipMatrixFileName = $files[0];
+            } else {
+                app('Log')::error('No Shipmatrix File on Disk \'vehicles\' found');
+                $this->fail();
+            }
+        }
     }
 
     /**

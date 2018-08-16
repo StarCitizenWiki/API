@@ -102,10 +102,10 @@ class ParseVehicle implements ShouldQueue
         /** @var \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle */
         $vehicle = Vehicle::updateOrCreate(
             [
-                'name' => (string) $this->rawData->get(self::VEHICLE_NAME),
+                'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
             ],
             [
-                'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
+                'name' => (string) $this->rawData->get(self::VEHICLE_NAME),
                 'manufacturer_id' => (int) $this->getManufacturer()->id,
                 'production_status_id' => (int) $this->getProductionStatus()->id,
                 'production_note_id' => (int) $this->getProductionNote()->id,
@@ -185,10 +185,10 @@ class ParseVehicle implements ShouldQueue
         /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
         $manufacturer = Manufacturer::updateOrCreate(
             [
-                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
+                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
             ],
             [
-                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
+                'name' => htmlspecialchars_decode($manufacturerData->get(self::MANUFACTURER_NAME)),
                 'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
             ]
         );
