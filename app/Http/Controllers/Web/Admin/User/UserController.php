@@ -134,6 +134,10 @@ class UserController extends Controller
             return $this->restore($user);
         }
 
+        if ($request->has('delete')) {
+            return $this->destroy($user);
+        }
+
         $this->authorize('web.admin.users.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
