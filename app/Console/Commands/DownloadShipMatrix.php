@@ -53,15 +53,13 @@ class DownloadShipMatrix extends Command
     {
         $this->info('Dispatching Ship Matrix Download');
 
-        $force = false;
-        if (null !== $this->option('force')) {
+        if ($this->option('force')) {
             $this->info('Forcing Download');
-            $force = true;
         }
 
-        $this->dispatcher->dispatchNow(new DownloadShipMatrixJob($force));
+        $this->dispatcher->dispatchNow(new DownloadShipMatrixJob($this->option('force')));
 
-        if (null !== $this->option('import')) {
+        if ($this->option('import')) {
             $this->info('Starting Import');
             $this->dispatcher->dispatchNow(new ParseShipMatrixDownload());
         }
