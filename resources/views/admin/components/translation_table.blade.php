@@ -27,7 +27,7 @@
                 </td>
             @endforeach
             @can('web.admin.starcitizen.translations.update')
-                <td>
+                <td class="text-center">
                     @component('components.edit_delete_block')
                         @slot('edit_url')
                             {{ route($editRoute, $translation->getRouteKey()) }}

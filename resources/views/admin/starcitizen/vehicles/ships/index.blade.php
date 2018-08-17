@@ -59,7 +59,7 @@
                             {{ $ship->updated_at->diffForHumans() }}
                         </td>
                         @can('web.admin.starcitizen.vehicles.update')
-                            <td>
+                            <td class="text-center">
                                 @component('components.edit_delete_block')
                                     @slot('edit_url')
                                         {{ route('web.admin.starcitizen.vehicles.ships.edit', $ship->getRouteKey()) }}

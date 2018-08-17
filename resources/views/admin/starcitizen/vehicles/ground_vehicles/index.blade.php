@@ -59,7 +59,7 @@
                             {{ $ground_vehicle->updated_at->diffForHumans() }}
                         </td>
                         @can('web.admin.starcitizen.vehicles.update')
-                            <td>
+                            <td class="text-center">
                                 @component('components.edit_delete_block')
                                     @slot('edit_url')
                                         {{ route('web.admin.starcitizen.vehicles.ground_vehicles.edit', $ground_vehicle->getRouteKey()) }}

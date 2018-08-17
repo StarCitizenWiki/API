@@ -24,7 +24,7 @@
             @endforeach
         </div>
         <div class="card-footer">
-            <button class="btn btn-outline-success" name="save">@lang('Speichern')</button>
+            <button class="btn btn-outline-secondary ml-auto d-flex" name="save">@lang('Speichern')</button>
         </div>
     </div>
 @endcomponent

@@ -46,7 +46,7 @@
                             {{ count($manufacturer->groundVehicles) }}
                         </td>
                         @can('web.admin.starcitizen.manufacturers.update')
-                            <td>
+                            <td class="text-center">
                                 @component('components.edit_delete_block')
                                     @slot('edit_url')
                                         {{ route('web.admin.starcitizen.manufacturers.edit', $manufacturer->getRouteKey()) }}

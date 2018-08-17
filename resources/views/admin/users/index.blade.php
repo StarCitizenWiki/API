@@ -91,7 +91,7 @@
                                     @endslot
                                     @if($user->trashed())
                                         @slot('restore_url')
-                                            {{ route('web.admin.users.edit', $user->getRouteKey()) }}
+                                            {{ route('web.admin.users.update', $user->getRouteKey()) }}
                                         @endslot
                                     @else
                                         @slot('delete_url')

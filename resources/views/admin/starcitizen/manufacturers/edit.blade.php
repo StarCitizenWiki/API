@@ -6,7 +6,7 @@
             'class' => 'mb-4',
         ])
             @slot('title')
-                @lang('Herstellerdaten') <small class="float-right mt-1">Letztes Update: {{ $manufacturer->updated_at->diffForHumans() }}</small>
+                <h4 class="mb-0">@lang('Herstellerdaten') <small class="float-right mt-1">Letztes Update: {{ $manufacturer->updated_at->diffForHumans() }}</small></h4>
             @endslot
             @component('components.forms.form')
                 <div class="row">
@@ -75,7 +75,7 @@
                     @foreach($manufacturer->translationsCollection() as $key => $translation)
                         @component('components.forms.form-group', [
                             'inputType' => 'textarea',
-                            'label' => __('Beschreibung ').$key,
+                            'label' => __('Beschreibung ').__($key),
                             'id' => "description_{$key}",
                             'rows' => 6,
                             'value' => $translation->description,
@@ -88,7 +88,7 @@
                         @endcomponent
                         @component('components.forms.form-group', [
                             'inputType' => 'text',
-                            'label' => __('Bekannt für ').$key,
+                            'label' => __('Bekannt für ').__($key),
                             'id' => "known_for_{$key}",
                             'rows' => 6,
                             'value' => $translation->known_for,
@@ -101,8 +101,8 @@
                         @endcomponent
                     @endforeach
                 </div>
-                <div class="card-footer">
-                    <button class="btn btn-outline-success" name="save">@lang('Speichern')</button>
+                <div class="card-footer d-flex">
+                    <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
                 </div>
             </div>
         @endcomponent
