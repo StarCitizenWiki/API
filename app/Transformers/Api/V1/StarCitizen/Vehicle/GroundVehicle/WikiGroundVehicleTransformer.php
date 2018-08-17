@@ -23,7 +23,77 @@ class WikiGroundVehicleTransformer extends VehicleTransformer
      */
     public function transform(GroundVehicle $groundVehicle)
     {
-        return [
+        $merge = [];
+        $trim = function ($value) {
+            return rtrim($value, ',');
+        };
+
+        $foci = $this->getFociTranslations($groundVehicle);
+        $productionStatuses = $this->getProductionStatusTranslations($groundVehicle);
+        $productionNotes = $this->getProductionNoteTranslations($groundVehicle);
+        $types = $this->getTypeTranslations($groundVehicle);
+        $descriptions = $this->getDescriptionTranslations($groundVehicle);
+        $sizes = $this->getSizeTranslations($groundVehicle);
+
+        if (is_array($foci)) {
+            $focusMerge = [];
+            foreach ($foci as $focusArray) {
+                foreach ($focusArray as $lang => $focus) {
+                    $focusMerge[$lang][] = $focus;
+                }
+
+            }
+
+            foreach ($focusMerge as $lang => $focus) {
+                $merge["foci_{$lang}"] = implode(',', $focus);
+            }
+        } else {
+            $merge['foci'] = implode(',', $foci);
+        }
+
+        if (is_array($productionStatuses)) {
+            foreach ($productionStatuses as $lang => $productionStatus) {
+                $merge["production_status_{$lang}"] = $productionStatus;
+            }
+        } else {
+            $merge['production_status'] = $productionStatuses;
+        }
+
+        if (is_array($productionNotes)) {
+            foreach ($productionNotes as $lang => $productionNote) {
+                $merge["production_note_{$lang}"] = $productionNote;
+            }
+        } else {
+            $merge['production_note'] = $productionNotes;
+        }
+
+        if (is_array($types)) {
+            foreach ($types as $lang => $type) {
+                $merge["type_{$lang}"] = $type;
+            }
+        } else {
+            $merge['type'] = $types;
+        }
+
+        if (is_array($descriptions)) {
+            foreach ($descriptions as $lang => $description) {
+                $merge["description_{$lang}"] = $description;
+            }
+        } else {
+            $merge['production_note'] = $descriptions;
+        }
+
+        if (is_array($sizes)) {
+            foreach ($sizes as $lang => $size) {
+                $merge["size_{$lang}"] = $size;
+            }
+        } else {
+            $merge['size'] = $sizes;
+        }
+
+        $merge = array_map($trim, $merge);
+
+        $data = [
             'id' => $groundVehicle->cig_id,
             'chassis_id' => $groundVehicle->chassis_id,
             'name' => $groundVehicle->name,
@@ -35,14 +105,10 @@ class WikiGroundVehicleTransformer extends VehicleTransformer
             'crew_min' => $groundVehicle->min_crew,
             'crew_max' => $groundVehicle->max_crew,
             'scm_speed' => $groundVehicle->scm_speed,
-            'foci' => rtrim(implode(',', $this->getFociTranslations($groundVehicle)), ','),
-            'production_status' => $this->getProductionStatusTranslations($groundVehicle),
-            'production_note' => $this->getProductionNoteTranslations($groundVehicle),
-            'type' => $this->getTypeTranslations($groundVehicle),
-            'description' => $this->getDescriptionTranslations($groundVehicle),
-            'size' => $this->getSizeTranslations($groundVehicle),
             'manufacturer_code' => $groundVehicle->manufacturer->name_short,
             'manufacturer_name' => $groundVehicle->manufacturer->name,
         ];
+
+        return array_merge($data, $merge);
     }
 }

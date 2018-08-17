@@ -23,7 +23,77 @@ class WikiShipTransformer extends VehicleTransformer
      */
     public function transform(Ship $ship)
     {
-        return [
+        $merge = [];
+        $trim = function ($value) {
+            return rtrim($value, ',');
+        };
+
+        $foci = $this->getFociTranslations($ship);
+        $productionStatuses = $this->getProductionStatusTranslations($ship);
+        $productionNotes = $this->getProductionNoteTranslations($ship);
+        $types = $this->getTypeTranslations($ship);
+        $descriptions = $this->getDescriptionTranslations($ship);
+        $sizes = $this->getSizeTranslations($ship);
+
+        if (is_array($foci)) {
+            $focusMerge = [];
+            foreach ($foci as $focusArray) {
+                foreach ($focusArray as $lang => $focus) {
+                    $focusMerge[$lang][] = $focus;
+                }
+
+            }
+
+            foreach ($focusMerge as $lang => $focus) {
+                $merge["foci_{$lang}"] = implode(',', $focus);
+            }
+        } else {
+            $merge['foci'] = implode(',', $foci);
+        }
+
+        if (is_array($productionStatuses)) {
+            foreach ($productionStatuses as $lang => $productionStatus) {
+                $merge["production_status_{$lang}"] = $productionStatus;
+            }
+        } else {
+            $merge['production_status'] = $productionStatuses;
+        }
+
+        if (is_array($productionNotes)) {
+            foreach ($productionNotes as $lang => $productionNote) {
+                $merge["production_note_{$lang}"] = $productionNote;
+            }
+        } else {
+            $merge['production_note'] = $productionNotes;
+        }
+
+        if (is_array($types)) {
+            foreach ($types as $lang => $type) {
+                $merge["type_{$lang}"] = $type;
+            }
+        } else {
+            $merge['type'] = $types;
+        }
+
+        if (is_array($descriptions)) {
+            foreach ($descriptions as $lang => $description) {
+                $merge["description_{$lang}"] = $description;
+            }
+        } else {
+            $merge['production_note'] = $descriptions;
+        }
+
+        if (is_array($sizes)) {
+            foreach ($sizes as $lang => $size) {
+                $merge["size_{$lang}"] = $size;
+            }
+        } else {
+            $merge['size'] = $sizes;
+        }
+
+        $merge = array_map($trim, $merge);
+
+        $data = [
             'id' => $ship->cig_id,
             'chassis_id' => $ship->chassis_id,
             'name' => $ship->name,
@@ -42,14 +112,10 @@ class WikiShipTransformer extends VehicleTransformer
             'x_axis_acceleration' => $ship->x_axis_acceleration,
             'y_axis_acceleration' => $ship->y_axis_acceleration,
             'z_axis_acceleration' => $ship->z_axis_acceleration,
-            'foci' => rtrim(implode(',', $this->getFociTranslations($ship)), ','),
-            'production_status' => $this->getProductionStatusTranslations($ship),
-            'production_note' => $this->getProductionNoteTranslations($ship),
-            'type' => $this->getTypeTranslations($ship),
-            'description' => $this->getDescriptionTranslations($ship),
-            'size' => $this->getSizeTranslations($ship),
             'manufacturer_code' => $ship->manufacturer->name_short,
             'manufacturer_name' => $ship->manufacturer->name,
         ];
+
+        return array_merge($data, $merge);
     }
 }
