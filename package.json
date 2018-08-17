@@ -11,17 +11,17 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.2",
-    "@fortawesome/pro-light-svg-icons": "^5.2",
     "@fortawesome/free-brands-svg-icons": "^5.2",
+    "@fortawesome/pro-light-svg-icons": "^5.2",
     "bootstrap": "^4.1.2",
     "cross-env": "^5.2.0",
     "jquery": "^3.3.1",
     "jquery-slim": "^3.0.0",
     "laravel-mix": "^2.0",
     "lodash": "^4.17.10",
-    "popper.js": "^1.14.3"
-  },
-  "dependencies": {
-    "datatables.net-bs4": "^1.10.19"
+    "popper.js": "^1.14.3",
+    "datatables.net-bs4": "^1.10.19",
+    "laravel-mix-purgecss": "^2.2.3",
+    "yarn": "^1.9.4"
   }
 }
