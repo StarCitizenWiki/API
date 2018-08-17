@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\WikiShipTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -24,6 +25,10 @@ class ShipController extends ApiController
     public function __construct(ShipTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
+        if ($request->has('format') && $request->get('format') === 'wiki') {
+            $this->transformer = new WikiShipTransformer();
+        }
+
         parent::__construct($request);
     }
 

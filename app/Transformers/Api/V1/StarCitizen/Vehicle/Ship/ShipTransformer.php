@@ -11,7 +11,7 @@ use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as VehicleTransformer;
 
 /**
- * Class StatsTransformer
+ * Class Ship Transformer
  */
 class ShipTransformer extends VehicleTransformer
 {

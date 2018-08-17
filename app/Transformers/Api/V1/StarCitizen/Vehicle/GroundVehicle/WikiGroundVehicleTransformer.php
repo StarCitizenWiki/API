@@ -11,9 +11,10 @@ use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as VehicleTransformer;
 
 /**
- * Class Ground Vehicle Transformer
+ * Class Wiki Ground Vehicle Transformer
+ * Flat Array
  */
-class GroundVehicleTransformer extends VehicleTransformer
+class WikiGroundVehicleTransformer extends VehicleTransformer
 {
     /**
      * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
@@ -26,30 +27,22 @@ class GroundVehicleTransformer extends VehicleTransformer
             'id' => $groundVehicle->cig_id,
             'chassis_id' => $groundVehicle->chassis_id,
             'name' => $groundVehicle->name,
-            'sizes' => [
-                'length' => $groundVehicle->length,
-                'beam' => $groundVehicle->beam,
-                'height' => $groundVehicle->height,
-            ],
+            'length' => $groundVehicle->length,
+            'beam' => $groundVehicle->beam,
+            'height' => $groundVehicle->height,
             'mass' => $groundVehicle->mass,
             'cargo_capacity' => $groundVehicle->cargo_capacity,
-            'crew' => [
-                'min' => $groundVehicle->min_crew,
-                'max' => $groundVehicle->max_crew,
-            ],
-            'speed' => [
-                'scm' => $groundVehicle->scm_speed,
-            ],
-            'foci' => $this->getFociTranslations($groundVehicle),
+            'crew_min' => $groundVehicle->min_crew,
+            'crew_max' => $groundVehicle->max_crew,
+            'scm_speed' => $groundVehicle->scm_speed,
+            'foci' => rtrim(implode(',', $this->getFociTranslations($groundVehicle)), ','),
             'production_status' => $this->getProductionStatusTranslations($groundVehicle),
             'production_note' => $this->getProductionNoteTranslations($groundVehicle),
             'type' => $this->getTypeTranslations($groundVehicle),
             'description' => $this->getDescriptionTranslations($groundVehicle),
             'size' => $this->getSizeTranslations($groundVehicle),
-            'manufacturer' => [
-                'code' => $groundVehicle->manufacturer->name_short,
-                'name' => $groundVehicle->manufacturer->name,
-            ],
+            'manufacturer_code' => $groundVehicle->manufacturer->name_short,
+            'manufacturer_name' => $groundVehicle->manufacturer->name,
         ];
     }
 }
