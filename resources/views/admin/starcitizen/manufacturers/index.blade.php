@@ -17,7 +17,7 @@
                         <th>@lang('Raumschiffe')</th>
                         <th>@lang('Fahrzeuge')</th>
                         @can('web.admin.starcitizen.manufacturers.update')
-                            <th>&nbsp;</th>
+                            <th data-orderable="false">&nbsp;</th>
                         @endcan
                     </tr>
                 </thead>

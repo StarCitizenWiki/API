@@ -8,7 +8,7 @@
                 <th>@lang($language->locale_code)</th>
             @endforeach
             @can('web.admin.starcitizen.translations.update')
-                <th>&nbsp;</th>
+                <th data-orderable="false">&nbsp;</th>
             @endcan
         </tr>
     </thead>

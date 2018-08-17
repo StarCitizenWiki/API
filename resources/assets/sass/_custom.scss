@@ -7,3 +7,15 @@
     border-top: 0;
   }
 }
+
+.dataTables_wrapper {
+  .dataTables_length,
+  .dataTables_info {
+    padding-left: 15px;
+  }
+
+  .dataTables_filter,
+  .dataTables_paginate {
+    padding-right: 15px;
+  }
+}

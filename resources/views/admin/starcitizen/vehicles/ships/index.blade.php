@@ -19,7 +19,7 @@
                         <th>@lang('Notiz')</th>
                         <th>@lang('Update')</th>
                         @can('web.admin.starcitizen.vehicles.update')
-                            <th>&nbsp;</th>
+                            <th data-orderable="false">&nbsp;</th>
                         @endcan
                     </tr>
                 </thead>
