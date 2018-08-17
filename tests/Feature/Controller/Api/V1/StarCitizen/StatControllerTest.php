@@ -89,7 +89,10 @@ class StatControllerTest extends ApiTestCase
                 [
                     'data' => $this->structure,
                 ]
-            );
+            )
+            ->assertHeader('content-type', 'application/json')
+            ->assertHeader('x-ratelimit-limit')
+            ->assertHeader('etag');
     }
 
 
