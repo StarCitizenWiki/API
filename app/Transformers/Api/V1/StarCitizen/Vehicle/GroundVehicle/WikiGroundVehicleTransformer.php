@@ -35,20 +35,26 @@ class WikiGroundVehicleTransformer extends VehicleTransformer
         $descriptions = $this->getDescriptionTranslations($groundVehicle);
         $sizes = $this->getSizeTranslations($groundVehicle);
 
-        if (is_array($foci)) {
-            $focusMerge = [];
-            foreach ($foci as $focusArray) {
-                foreach ($focusArray as $lang => $focus) {
-                    $focusMerge[$lang][] = $focus;
+        $focusMerge = [];
+        $multipleLangs = false;
+        foreach ($foci as $focus) {
+            if (is_array($focus)) {
+                $multipleLangs = true;
+                foreach ($focus as $lang => $focus1) {
+                    $focusMerge[$lang][] = $focus1;
                 }
-
+            } else {
+                $focusMerge[] = $focus;
             }
 
+        }
+
+        if ($multipleLangs) {
             foreach ($focusMerge as $lang => $focus) {
                 $merge["foci_{$lang}"] = implode(',', $focus);
             }
         } else {
-            $merge['foci'] = implode(',', $foci);
+            $merge['foci'] = implode(',', $focusMerge);
         }
 
         if (is_array($productionStatuses)) {
