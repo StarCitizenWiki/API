@@ -186,7 +186,7 @@ abstract class AbstractApiController extends Controller
      */
     private function processLimit()
     {
-        if ($this->request->has(self::LIMIT) && !empty($this->request->get(self::LIMIT))) {
+        if ($this->request->has(self::LIMIT) && null !== $this->request->get(self::LIMIT, null)) {
             $itemLimit = (int) $this->request->get(self::LIMIT);
 
             if ($itemLimit > 0) {
@@ -204,7 +204,7 @@ abstract class AbstractApiController extends Controller
      */
     private function processIncludes()
     {
-        if ($this->request->has('with') && !empty($this->request->get('with'))) {
+        if ($this->request->has('with') && null !== $this->request->get('with', null)) {
             $this->checkIncludes($this->request->get('with', []));
         }
     }
@@ -214,7 +214,7 @@ abstract class AbstractApiController extends Controller
      */
     private function processLocale()
     {
-        if ($this->request->has(self::LOCALE) && !empty($this->request->get(self::LOCALE))) {
+        if ($this->request->has(self::LOCALE) && null !== $this->request->get(self::LOCALE, null)) {
             $this->setLocale($this->request->get(self::LOCALE));
         }
     }
