@@ -14,14 +14,13 @@ use Illuminate\View\View;
  */
 class NotificationController extends Controller
 {
-    const ADMIN_NOTIFICATION_INDEX = 'web.admin.notifications.index';
-    const MESSAGE = 'message';
-    const NOTIFICATION = 'Notification';
+    private const ADMIN_NOTIFICATION_INDEX = 'web.admin.notifications.index';
+    private const NOTIFICATION = 'Benachrichtigung';
 
     private $jobDelay = null;
 
     /**
-     * ShortUrlController constructor.
+     * Notification Controller constructor.
      */
     public function __construct()
     {
@@ -31,9 +30,12 @@ class NotificationController extends Controller
 
     /**
      * @return \Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index(): View
     {
+        $this->authorize('web.admin.notifications.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -46,9 +48,12 @@ class NotificationController extends Controller
 
     /**
      * @return \Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function create(): View
     {
+        $this->authorize('web.admin.notifications.create');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view('admin.notifications.create');
@@ -58,9 +63,12 @@ class NotificationController extends Controller
      * @param \App\Models\Api\Notification $notification
      *
      * @return \Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(Notification $notification)
     {
+        $this->authorize('web.admin.notifications.update');
         app('Log')::debug(make_name_readable(__FUNCTION__), ['id' => $notification->id]);
 
         return view(
@@ -75,9 +83,14 @@ class NotificationController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return $this|\Illuminate\Database\Eloquent\Model
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(Request $request)
     {
+        $this->authorize('web.admin.notifications.create');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         $data = $this->validate(
             $request,
             [
@@ -103,12 +116,15 @@ class NotificationController extends Controller
 
         $notification = Notification::create($data);
 
-        $this->dispatchJob($notification);
+        if (true === $data['output_email']) {
+            $this->dispatchJob($notification);
+        }
 
-        return redirect()->route(
-            'web.admin.dashboard',
+        return redirect()->route('web.admin.dashboard')->withMessages(
             [
-                self::MESSAGE => __('crud.created', ['type' => self::NOTIFICATION]),
+                'success' => [
+                    __('crud.created', ['type' => self::NOTIFICATION]),
+                ],
             ]
         );
     }
@@ -123,6 +139,9 @@ class NotificationController extends Controller
      */
     public function update(Request $request, Notification $notification)
     {
+        $this->authorize('web.admin.notifications.update');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         if ($request->has('delete')) {
             return $this->destroy($notification);
         }
@@ -136,7 +155,7 @@ class NotificationController extends Controller
                 'output' => 'required|array|in:status,email,index',
                 'order' => 'required|int|between:0,5',
                 'published_at' => 'required|date',
-                'resend_mail' => 'nullable',
+                'resend_email' => 'nullable|boolean',
             ]
         );
 
@@ -145,17 +164,18 @@ class NotificationController extends Controller
         $data['expired_at'] = Carbon::parse($request->get('expired_at'));
         $this->processPublishedAt($data);
 
-        $resendEmail = array_pull($data, 'resend_email', false);
+        $resendEmail = (bool) array_pull($data, 'resend_email', false);
         $notification->update($data);
 
-        if ('resend_email' === $resendEmail || ($notification->output_email === false && $data['output_email'] === true)) {
+        if (true === $resendEmail || ($notification->output_email === false && $data['output_email'] === true)) {
             $this->dispatchJob($notification);
         }
 
-        return redirect()->route(
-            self::ADMIN_NOTIFICATION_INDEX,
+        return redirect()->route(self::ADMIN_NOTIFICATION_INDEX)->withMessages(
             [
-                self::MESSAGE => __('crud.updated', ['type' => self::NOTIFICATION]),
+                'success' => [
+                    __('crud.updated', ['type' => self::NOTIFICATION]),
+                ],
             ]
         );
     }
@@ -169,12 +189,16 @@ class NotificationController extends Controller
      */
     public function destroy(Notification $notification)
     {
+        $this->authorize('web.admin.notifications.delete');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         $notification->delete();
 
-        return redirect()->route(
-            self::ADMIN_NOTIFICATION_INDEX,
+        return redirect()->route(self::ADMIN_NOTIFICATION_INDEX)->withMessages(
             [
-                self::MESSAGE => __('crud.deleted', ['type' => self::NOTIFICATION]),
+                'danger' => [
+                    __('crud.deleted', ['type' => self::NOTIFICATION]),
+                ],
             ]
         );
     }
@@ -216,6 +240,7 @@ class NotificationController extends Controller
     private function dispatchJob(Notification $notification)
     {
         $job = (new SendNotificationEmail($notification));
+
 
         if (!is_null($this->jobDelay)) {
             $job->delay($this->jobDelay);

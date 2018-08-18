@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
 
         Carbon::setLocale(config('app.locale'));
 
-        if (config('app.debug')) {
+        if (config('app.debug') && config('app.env') === 'local') {
             DB::listen(
                 function (QueryExecuted $query) {
                     app('Log')::debug($query->sql);
@@ -42,31 +42,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $adminAuthImpl = \App\Repositories\StarCitizenWiki\Auth\AuthRepository::class;
-
-        switch ($this->app->environment()) {
-            case 'local':
-                $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
-                $this->app->register(\Hesto\MultiAuth\MultiAuthServiceProvider::class);
-                $adminAuthImpl = \App\Repositories\StarCitizenWiki\Auth\AuthRepositoryStub::class;
-                break;
-
-            case 'testing':
-                $adminAuthImpl = \App\Repositories\StarCitizenWiki\Auth\AuthRepositoryStub::class;
-                break;
-
-            case 'production':
-                break;
-
-            default:
-                break;
-        }
-
-        $this->app->bind(
-            \App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface::class,
-            $adminAuthImpl
-        );
-
         /**
          * Star Citizen Api Interfaces
          */

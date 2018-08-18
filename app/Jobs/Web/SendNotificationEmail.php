@@ -42,14 +42,12 @@ class SendNotificationEmail implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->notification->output_email) {
-            $users = User::all()->where(
-                'receive_notification_level',
-                '<=',
-                $this->notification->level
-            );
+        $users = User::all()->where(
+            'receive_notification_level',
+            '<=',
+            $this->notification->level
+        );
 
-            Mail::to($users)->send(new NotificationEmail($this->notification));
-        }
+        Mail::to($users)->queue(new NotificationEmail($this->notification));
     }
 }

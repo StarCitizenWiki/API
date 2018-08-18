@@ -7,16 +7,16 @@
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle\Ship;
 
-use App\Models\Api\StarCitizen\Vehicle\Ship;
+use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as VehicleTransformer;
 
 /**
- * Class StatsTransformer
+ * Class Ship Transformer
  */
 class ShipTransformer extends VehicleTransformer
 {
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Ship $ship
+     * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
      *
      * @return array
      */
@@ -53,6 +53,7 @@ class ShipTransformer extends VehicleTransformer
             ],
             'foci' => $this->getFociTranslations($ship),
             'production_status' => $this->getProductionStatusTranslations($ship),
+            'production_note' => $this->getProductionNoteTranslations($ship),
             'type' => $this->getTypeTranslations($ship),
             'description' => $this->getDescriptionTranslations($ship),
             'size' => $this->getSizeTranslations($ship),

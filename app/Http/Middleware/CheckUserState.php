@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Aborts the current request if the user is blacklisted
@@ -30,6 +31,8 @@ class CheckUserState
                     'request_url' => $request->getUri(),
                 ]
             );
+
+            Auth::logout();
 
             abort(403, __('Benutzer ist gesperrt'));
         }

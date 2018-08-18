@@ -4,8 +4,11 @@
             <h4 class="card-header {{ $titleClass or '' }}">
                 @if(isset($icon))
                     @component('components.elements.icon', [
-                        'class' => 'mr-1'
+                        'class' => 'mr-1',
                     ])
+                        @slot('options')
+                            data-fa-transform="up-2"
+                        @endslot
                         {{ $icon }}
                     @endcomponent
                 @endif

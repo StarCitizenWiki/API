@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware\Api;
 
+use App\Models\Account\User\User;
 use Closure;
 
 /**
@@ -22,7 +23,7 @@ class UpdateTokenTimestamp
     {
         $user = $request->user();
 
-        if (!is_null($user)) {
+        if (!is_null($user) && $user instanceof User) {
             $user->api_token_last_used = date('Y-m-d H:i:s');
             $user->save();
 

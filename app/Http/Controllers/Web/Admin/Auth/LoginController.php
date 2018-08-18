@@ -3,10 +3,7 @@
 namespace App\Http\Controllers\Web\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
-use Hesto\MultiAuth\Traits\LogsoutGuard;
+use App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,9 +24,7 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers, LogsoutGuard {
-        LogsoutGuard::logout insteadof AuthenticatesUsers;
-    }
+    use AuthenticatesUsers;
 
     /**
      * Where to redirect users after login / registration.
@@ -38,20 +33,20 @@ class LoginController extends Controller
      */
     public $redirectTo = '/admin/dashboard';
 
-    private $backendError = false;
-    /** @var  AuthRepositoryInterface */
+    /**
+     * @var \App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface
+     */
     private $authRepository;
 
     /**
      * Create a new controller instance.
      *
-     * @param \App\Repositories\StarCitizenWiki\Interfaces\AuthRepositoryInterface $authRepository
+     * @param \App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface $authRepository
      */
     public function __construct(AuthRepositoryInterface $authRepository)
     {
         parent::__construct();
         $this->middleware('admin.guest', ['except' => 'logout']);
-
         $this->authRepository = $authRepository;
     }
 
@@ -67,16 +62,6 @@ class LoginController extends Controller
     }
 
     /**
-     * Show the application's login form.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function showLoginForm()
-    {
-        return view('admin.auth.login');
-    }
-
-    /**
      * Get the login username to be used by the controller.
      *
      * @return string
@@ -87,6 +72,51 @@ class LoginController extends Controller
     }
 
     /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function showLoginForm()
+    {
+        return view('admin.auth.login');
+    }
+
+    /**
+     * Redirect the user to the GitHub authentication page.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function redirectToProvider()
+    {
+        return $this->authRepository->startAuth();
+    }
+
+    /**
+     * Obtain the user information from GitHub.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function handleProviderCallback()
+    {
+        $user = $this->authRepository->getUserFromProvider();
+        $authUser = $this->authRepository->getOrCreateLocalUser($user, 'mediawiki');
+
+        Auth::guard('admin')->login($authUser);
+
+        return redirect($this->redirectTo);
+    }
+
+    /**
+     * Redirect to Login Form
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function loggedOut(Request $request)
+    {
+        return redirect()->route('web.admin.auth.login');
+    }
+
+    /**
      * Get the guard to be used during authentication.
      *
      * @return \Illuminate\Contracts\Auth\StatefulGuard
@@ -94,56 +124,5 @@ class LoginController extends Controller
     protected function guard()
     {
         return Auth::guard('admin');
-    }
-
-    /**
-     * Attempt to log the user into the application.
-     *
-     * @param  \Illuminate\Http\Request $request
-     *
-     * @return bool
-     */
-    protected function attemptLogin(Request $request)
-    {
-        try {
-            $passwordValid = $this->authRepository->authenticateUsingCredentials(
-                $request->get($this->username()),
-                $request->get('password')
-            );
-        } catch (ConnectException | RequestException $e) {
-            $this->backendError = true;
-
-            return false;
-        }
-
-        if ($passwordValid) {
-            return $this->guard()->attempt(
-                [
-                    'username' => $request->get('username'),
-                    'password' => config('api.admin_password'),
-                ],
-                false
-            );
-        }
-
-        return false;
-    }
-
-    /**
-     * Get the failed login response instance.
-     *
-     * @param  \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    protected function sendFailedLoginResponse(Request $request)
-    {
-        if ($this->backendError) {
-            $errors = ['Backend Error'];
-        } else {
-            $errors = [$this->username() => trans('auth.failed')];
-        }
-
-        return redirect()->route('web.admin.auth.login')->withInput($request->only($this->username()))->withErrors($errors);
     }
 }

@@ -3,26 +3,19 @@
 namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\Api\StarCitizen\Vehicle\Ship;
+use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\WikiShipTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 /**
  * @Resource("Ships", uri="/vehicles/ships")
+ *
+ * @covers \App\Http\Controllers\Api\AbstractApiController
  */
 class ShipController extends ApiController
 {
-    /**
-     * @var \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer
-     */
-    private $transformer;
-
-    /**
-     * @var Request
-     */
-    private $request;
-
     /**
      * ShipController constructor.
      *
@@ -32,15 +25,15 @@ class ShipController extends ApiController
     public function __construct(ShipTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
-        $this->request = $request;
-
-        if ($request->has('locale')) {
-            $this->transformer->setLocale($request->get('locale'));
+        if ($request->has('format') && $request->get('format') === 'wiki') {
+            $this->transformer = new WikiShipTransformer();
         }
+
+        parent::__construct($request);
     }
 
     /**
-     * @param string $shipName
+     * @param string $ship
      *
      * @return \Dingo\Api\Http\Response
      *
@@ -155,16 +148,17 @@ class ShipController extends ApiController
      * })
      * @Response(404, body={"message": "No Ship found for Query: Ship Name", "status_code": 404})
      */
-    public function show(string $shipName)
+    public function show(string $ship)
     {
-        $shipName = urldecode($shipName);
+        $ship = urldecode($ship);
+
         try {
-            $ship = Ship::where('name', $shipName)->firstOrFail();
+            $ship = Ship::where('name', $ship)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf('No Ship found for Query: %s', $shipName));
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $ship));
         }
 
-        return $this->response->item($ship, $this->transformer);
+        return $this->getResponse($ship);
     }
 
     /**
@@ -175,7 +169,8 @@ class ShipController extends ApiController
      * @Versions({"v1"})
      *
      * @Parameters({
-     *      @Parameter("page", description="The page of results to view.", default=1)
+     *      @Parameter("page", description="The page of results to view.", type="integer", default=1)
+     *      @Parameter("limit", description="The Result limit. 0 = Limit disabled", type="integer", default=5)
      * })
      *
      * @Response(200, body={
@@ -255,8 +250,24 @@ class ShipController extends ApiController
      */
     public function index()
     {
-        $ships = Ship::paginate();
+        return $this->getResponse(Ship::query());
+    }
 
-        return $this->response->paginator($ships, $this->transformer);
+    /**
+     * Search Endpoint
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function search()
+    {
+        $query = $this->request->get('query');
+        $query = urldecode($query);
+        $queryBuilder = Ship::where('name', 'like', "%{$query}%");
+
+        if ($queryBuilder->count() === 0) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+        }
+
+        return $this->getResponse($queryBuilder);
     }
 }

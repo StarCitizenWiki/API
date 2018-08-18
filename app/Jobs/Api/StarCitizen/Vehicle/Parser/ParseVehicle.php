@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * Class AbstractParseVehicle
@@ -83,7 +83,7 @@ class ParseVehicle implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param \Tightenco\Collect\Support\Collection $rawData
+     * @param \Illuminate\Support\Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
@@ -102,30 +102,30 @@ class ParseVehicle implements ShouldQueue
         /** @var \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle */
         $vehicle = Vehicle::updateOrCreate(
             [
-                'name' => (string) $this->rawData->get(self::VEHICLE_NAME),
+                'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
             ],
             [
-                'cig_id' => (int) $this->rawData->get(self::VEHICLE_ID),
-                'manufacturer_id' => (int) $this->getManufacturer()->cig_id,
+                'name' => (string) $this->rawData->get(self::VEHICLE_NAME),
+                'manufacturer_id' => (int) $this->getManufacturer()->id,
                 'production_status_id' => (int) $this->getProductionStatus()->id,
                 'production_note_id' => (int) $this->getProductionNote()->id,
                 'vehicle_size_id' => (int) $this->getVehicleSize()->id,
                 'vehicle_type_id' => (int) $this->getVehicleType()->id,
-                'length' => (float) $this->rawData->get(self::VEHICLE_LENGTH),
-                'beam' => (float) $this->rawData->get(self::VEHICLE_BEAM),
-                'height' => (float) $this->rawData->get(self::VEHICLE_HEIGHT),
+                'length' => number_format((float) $this->rawData->get(self::VEHICLE_LENGTH), 2, '.', ''),
+                'beam' => number_format((float) $this->rawData->get(self::VEHICLE_BEAM), 2, '.', ''),
+                'height' => number_format((float) $this->rawData->get(self::VEHICLE_HEIGHT), 2, '.', ''),
                 'mass' => (int) $this->rawData->get(self::VEHICLE_MASS),
                 'cargo_capacity' => (int) $this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
                 'min_crew' => (int) $this->rawData->get(self::VEHICLE_MIN_CREW),
                 'max_crew' => (int) $this->rawData->get(self::VEHICLE_MAX_CREW),
                 'scm_speed' => (int) $this->rawData->get(self::VEHICLE_SCM_SPEED),
                 'afterburner_speed' => (int) $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
-                'pitch_max' => (float) $this->rawData->get(self::VEHICLE_PITCH_MAX),
-                'yaw_max' => (float) $this->rawData->get(self::VEHICLE_YAW_MAX),
-                'roll_max' => (float) $this->rawData->get(self::VEHICLE_ROLL_MAX),
-                'x_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION),
-                'y_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION),
-                'z_axis_acceleration' => (float) $this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION),
+                'pitch_max' => number_format((float) $this->rawData->get(self::VEHICLE_PITCH_MAX), 2, '.', ''),
+                'yaw_max' => number_format((float) $this->rawData->get(self::VEHICLE_YAW_MAX), 2, '.', ''),
+                'roll_max' => number_format((float) $this->rawData->get(self::VEHICLE_ROLL_MAX), 2, '.', ''),
+                'x_axis_acceleration' => number_format((float) $this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION), 2, '.', ''),
+                'y_axis_acceleration' => number_format((float) $this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION), 2, '.', ''),
+                'z_axis_acceleration' => number_format((float) $this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION), 2, '.', ''),
                 'chassis_id' => (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID),
                 'updated_at' => $this->rawData->get(self::TIME_MODIFIED_UNFILTERED),
             ]
@@ -181,14 +181,14 @@ class ParseVehicle implements ShouldQueue
     {
         app('Log')::debug('Getting Manufacturer');
 
-        $manufacturerData = $this->rawDataGet(self::MANUFACTURER);
+        $manufacturerData = collect($this->rawDataGet(self::MANUFACTURER));
         /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
         $manufacturer = Manufacturer::updateOrCreate(
             [
-                'name' => $manufacturerData->get(self::MANUFACTURER_NAME),
+                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
             ],
             [
-                'cig_id' => $this->rawDataGet(self::MANUFACTURER_ID),
+                'name' => htmlspecialchars_decode($manufacturerData->get(self::MANUFACTURER_NAME)),
                 'name_short' => $manufacturerData->get(self::MANUFACTURER_CODE),
             ]
         );

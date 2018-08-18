@@ -3,9 +3,16 @@
 @section('title', 'Server Error.')
 
 @section('content')
-    @unless(empty($exception->getMessage()) && config('app.debug') === true)
-        😱 {{ $exception->getMessage() }}
-    @else
-        😰 @lang('This should not have happened.')<br><a href="mailto:{{ config('mail.from.address') }}">Contact us</a>
-    @endunless
+    😰 @lang('This should not have happened.')
+@endsection
+
+@section('debug')
+    @if(config('app.debug') === true)
+        <pre style="margin: 1rem 0; text-align: left">
+Message: {{ $exception->getMessage() }}
+            <br>
+Stack: <br>
+{!! $exception->getTraceAsString() !!}
+        </pre>
+    @endif
 @endsection

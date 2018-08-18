@@ -3,13 +3,15 @@
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Rodenastyle\StreamParser\StreamParser;
-use Tightenco\Collect\Support\Collection;
+use InvalidArgumentException;
+use function GuzzleHttp\json_decode;
 
 /**
  * Class ParseShipsDownload
@@ -26,11 +28,23 @@ class ParseShipMatrixDownload implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param string $shipMatrixFileName
+     * @param null|string $shipMatrixFileName
      */
-    public function __construct(string $shipMatrixFileName)
+    public function __construct(?string $shipMatrixFileName = null)
     {
-        $this->shipMatrixFileName = $shipMatrixFileName;
+        if (null !== $shipMatrixFileName) {
+            $this->shipMatrixFileName = $shipMatrixFileName;
+        } else {
+            $diskPath = Storage::disk('vehicles')->path('');
+            $files = scandir($diskPath, SCANDIR_SORT_DESCENDING);
+
+            if (is_array($files) && starts_with($files[0], 'shipmatrix')) {
+                $this->shipMatrixFileName = $files[0];
+            } else {
+                app('Log')::error('No Shipmatrix File on Disk \'vehicles\' found');
+                $this->fail();
+            }
+        }
     }
 
     /**
@@ -40,11 +54,32 @@ class ParseShipMatrixDownload implements ShouldQueue
      */
     public function handle()
     {
-        app('Log')::info('Parsing Download');
-        StreamParser::json(Storage::disk('vehicles')->path($this->shipMatrixFileName))->each(
-            function (Collection $vehicle) {
-                dispatch(new ParseVehicle($vehicle));
-            }
-        );
+        app('Log')::info('Parsing Ship Matrix Download');
+
+        try {
+            $vehicles = json_decode(Storage::disk('vehicles')->get($this->shipMatrixFileName));
+        } catch (FileNotFoundException $e) {
+            app('Log')::error(
+                "File {$this->shipMatrixFileName} not found on Disk vehicles",
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
+
+            return;
+        } catch (InvalidArgumentException $e) {
+            app('Log')::error(
+                "File {$this->shipMatrixFileName} does not contain valid JSON",
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
+
+            return;
+        }
+
+        foreach ($vehicles as $vehicle) {
+            dispatch(new ParseVehicle(new Collection($vehicle)));
+        }
     }
 }

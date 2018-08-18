@@ -3,7 +3,6 @@
 namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
 use App\Events\ModelUpdating;
-use App\Models\Api\ModelChangelog;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
@@ -11,12 +10,16 @@ use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 
 /**
  * Abstract Vehicle Class
  */
 class Vehicle extends HasTranslations
 {
+    use ModelChangelog;
+
     protected $fillable = [
         'cig_id',
         'name',
@@ -43,20 +46,6 @@ class Vehicle extends HasTranslations
         'chassis_id',
     ];
 
-    protected $casts = [
-        'length' => 'float',
-        'beam' => 'float',
-        'height' => 'float',
-
-        'pitch_max' => 'float',
-        'yaw_max' => 'float',
-        'roll_max' => 'float',
-
-        'x_axis_acceleration' => 'float',
-        'y_axis_acceleration' => 'float',
-        'z_axis_acceleration' => 'float',
-    ];
-
     protected $with = [
         'foci',
         'manufacturer',
@@ -73,11 +62,9 @@ class Vehicle extends HasTranslations
 
     protected $perPage = 5;
 
-
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
     ];
-
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -85,16 +72,6 @@ class Vehicle extends HasTranslations
     public function translations()
     {
         return $this->hasMany(VehicleTranslation::class);
-    }
-
-    /**
-     * The saved changes
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function changelogs()
-    {
-        return $this->morphMany(ModelChangelog::class, 'changelog');
     }
 
     /**
@@ -114,7 +91,7 @@ class Vehicle extends HasTranslations
      */
     public function manufacturer()
     {
-        return $this->belongsTo(Manufacturer::class, 'manufacturer_id', 'cig_id');
+        return $this->belongsTo(Manufacturer::class);
     }
 
     /**
@@ -175,5 +152,15 @@ class Vehicle extends HasTranslations
     public function getForeignKey()
     {
         return 'vehicle_id';
+    }
+
+    /**
+     * Key by which the api searches
+     *
+     * @return string
+     */
+    public function getRouteKey()
+    {
+        return urlencode($this->name);
     }
 }

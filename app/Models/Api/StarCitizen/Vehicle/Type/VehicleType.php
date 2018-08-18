@@ -4,6 +4,7 @@ namespace App\Models\Api\StarCitizen\Vehicle\Type;
 
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 
 /**
  * Vehicle Type Model
@@ -11,6 +12,7 @@ use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 class VehicleType extends HasTranslations
 {
     use VehicleRelations;
+    use ObfuscatedRouteKey;
 
     public $timestamps = false;
 

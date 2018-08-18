@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
  * Class Notification
@@ -14,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Notification extends Model
 {
     use SoftDeletes;
+    use ObfuscatedRouteKey;
+    use ModelChangelog;
 
     public const NOTIFICATION_LEVEL_TYPES = [
         -1 => 'no notifications',
@@ -184,10 +188,5 @@ class Notification extends Model
     public function scopeAsMail(Builder $query)
     {
         return $query->where('output_email', true);
-    }
-
-    public function changelogs()
-    {
-        return $this->morphMany('App\Models\Api\ModelChangelog', 'changelog');
     }
 }

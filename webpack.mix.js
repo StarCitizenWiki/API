@@ -1,6 +1,7 @@
 let mix = require('laravel-mix');
+require('laravel-mix-purgecss');
 
-mix.sourceMaps();
+//mix.sourceMaps();
 
 // APP
 mix.js('resources/assets/js/app.js', 'public/js').version()

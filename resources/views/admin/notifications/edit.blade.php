@@ -1,14 +1,15 @@
 @extends('admin.layouts.default')
 
 @section('content')
-    <div class="card">
-        <h4 class="card-header">@lang('Notification bearbeiten')</h4>
-        <div class="card-body">
-            @include('components.errors')
-            @component('components.forms.form', [
-                'method' => 'PATCH',
-                'action' => route('web.admin.notifications.update', $notification->getRouteKey()),
-            ])
+    @component('components.forms.form', [
+        'method' => 'PATCH',
+        'action' => route('web.admin.notifications.update', $notification->getRouteKey()),
+        'class' => 'card',
+    ])
+        <div class="wrapper">
+            <h4 class="card-header">@lang('Benachrichtigung bearbeiten')</h4>
+            <div class="card-body">
+                @include('components.errors')
                 @component('components.forms.form-group', [
                     'inputType' => 'textarea',
                     'label' => __('Inhalt'),
@@ -82,18 +83,19 @@
                     </div>
                     @if($notification->output_email)
                         <div class="custom-control custom-checkbox text-danger">
-                            <input type="checkbox" class="custom-control-input" id="resend_mail" name="resend_mail"
-                                   value="resend_mail">
-                            <label class="custom-control-label" for="resend_mail">@lang('E-Mail erneut versenden')</label>
+                            <input type="checkbox" class="custom-control-input" id="resend_email" name="resend_email"
+                                   value="true">
+                            <label class="custom-control-label" for="resend_email">@lang('E-Mail erneut versenden')</label>
                         </div>
                     @endif
                 </div>
-
-                <button class="btn btn-outline-secondary" name="save">@lang('Speichern')</button>
+            </div>
+            <div class="card-footer d-flex">
                 @unless($notification->trashed())
-                    <button class="btn btn-outline-danger float-right" name="delete">@lang('Löschen')</button>
+                    <button class="btn btn-outline-danger" name="delete">@lang('Löschen')</button>
                 @endunless
-            @endcomponent
+                <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
+            </div>
         </div>
-    </div>
+    @endcomponent
 @endsection

@@ -6,26 +6,32 @@
         <div class="card-body px-0 table-responsive">
             <table class="table table-striped mb-0">
                 <thead>
-                <tr>
-                    <th>@lang('ID')</th>
-                    <th>@lang('CIG ID')</th>
-                    <th>@lang('Name')</th>
-                    <th>@lang('Hersteller')</th>
-                    <th>@lang('Fokus')</th>
-                    <th>@lang('Typ')</th>
-                    <th>@lang('Status')</th>
-                    <th>@lang('Notiz')</th>
-                    <th>@lang('Update')</th>
-                    <th></th>
-                </tr>
+                    <tr>
+                        @can('web.admin.internals.view')
+                            <th>@lang('ID')</th>
+                        @endcan
+                        <th>@lang('CIG ID')</th>
+                        <th>@lang('Name')</th>
+                        <th>@lang('Hersteller')</th>
+                        <th>@lang('Fokus')</th>
+                        <th>@lang('Typ')</th>
+                        <th>@lang('Status')</th>
+                        <th>@lang('Notiz')</th>
+                        <th>@lang('Update')</th>
+                        @can('web.admin.starcitizen.vehicles.update')
+                            <th data-orderable="false">&nbsp;</th>
+                        @endcan
+                    </tr>
                 </thead>
                 <tbody>
 
                 @forelse($ships as $ship)
                     <tr>
-                        <td>
-                            {{ $ship->id }}
-                        </td>
+                        @can('web.admin.internals.view')
+                            <td>
+                                {{ $ship->id }}
+                            </td>
+                        @endcan
                         <td>
                             {{ $ship->cig_id }}
                         </td>
@@ -52,18 +58,20 @@
                         <td>
                             {{ $ship->updated_at->diffForHumans() }}
                         </td>
-                        <td>
-                            @component('components.edit_delete_block')
-                                @slot('edit_url')
-                                    {{ route('web.admin.starcitizen.vehicles.ships.edit', $ship->id) }}
-                                @endslot
-                                {{ $ship->id }}
-                            @endcomponent
-                        </td>
+                        @can('web.admin.starcitizen.vehicles.update')
+                            <td class="text-center">
+                                @component('components.edit_delete_block')
+                                    @slot('edit_url')
+                                        {{ route('web.admin.starcitizen.vehicles.ships.edit', $ship->getRouteKey()) }}
+                                    @endslot
+                                    {{ $ship->getRouteKey() }}
+                                @endcomponent
+                            </td>
+                        @endcan
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">@lang('Keine Schiffe vorhanden')</td>
+                        <td colspan="10">@lang('Keine Raumschiffe vorhanden')</td>
                     </tr>
                 @endforelse
                 </tbody>

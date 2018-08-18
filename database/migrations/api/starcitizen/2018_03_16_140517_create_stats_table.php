@@ -20,9 +20,9 @@ class CreateStatsTable extends Migration
             'stats',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string("funds");
-                $table->string("fleet");
-                $table->string("fans");
+                $table->unsignedDecimal('funds', 15, 2);
+                $table->unsignedBigInteger('fleet');
+                $table->unsignedBigInteger('fans');
                 $table->timestamps();
             }
         );

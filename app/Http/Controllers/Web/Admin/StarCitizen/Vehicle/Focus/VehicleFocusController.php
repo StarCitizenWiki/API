@@ -13,12 +13,24 @@ use App\Models\System\Language;
 class VehicleFocusController extends Controller
 {
     /**
+     * VehicleFocusController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth:admin');
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
+        $this->authorize('web.admin.starcitizen.translations.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -37,9 +49,12 @@ class VehicleFocusController extends Controller
      * @param \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $focus
      *
      * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(VehicleFocus $focus)
     {
+        $this->authorize('web.admin.starcitizen.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -58,9 +73,14 @@ class VehicleFocusController extends Controller
      * @param \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $focus
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(TranslationRequest $request, VehicleFocus $focus)
     {
+        $this->authorize('web.admin.starcitizen.translations.update');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {
@@ -70,6 +90,12 @@ class VehicleFocusController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.foci.index');
+        return redirect()->route('web.admin.starcitizen.vehicles.foci.index')->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __('Fahrzeugfokus')]),
+                ],
+            ]
+        );
     }
 }

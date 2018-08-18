@@ -35,7 +35,7 @@
         <div class="row">
             <div class="col-1">
                 @component('components.elements.icon')
-                    trash
+                    trash-alt
                 @endcomponent
             </div>
             <div class="col">

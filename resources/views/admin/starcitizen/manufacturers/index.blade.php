@@ -1,28 +1,35 @@
-@extends('admin.layouts.default')
+@extends('admin.layouts.default_wide')
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">@lang('Raumschiffe')</h4>
+        <h4 class="card-header">@lang('Hersteller')</h4>
         <div class="card-body px-0 table-responsive">
+            @include('components.messages')
             <table class="table table-striped mb-0">
                 <thead>
-                <tr>
-                    <th>@lang('ID')</th>
-                    <th>@lang('CIG ID')</th>
-                    <th>@lang('Name')</th>
-                    <th>@lang('Code')</th>
-                    <th>@lang('Ships')</th>
-                    <th>@lang('Vehicles')</th>
-                    <th></th>
-                </tr>
+                    <tr>
+                        @can('web.admin.internals.view')
+                            <th>@lang('ID')</th>
+                        @endcan
+                        <th>@lang('CIG ID')</th>
+                        <th>@lang('Name')</th>
+                        <th>@lang('Code')</th>
+                        <th>@lang('Raumschiffe')</th>
+                        <th>@lang('Fahrzeuge')</th>
+                        @can('web.admin.starcitizen.manufacturers.update')
+                            <th data-orderable="false">&nbsp;</th>
+                        @endcan
+                    </tr>
                 </thead>
                 <tbody>
 
                 @forelse($manufacturers as $manufacturer)
                     <tr>
-                        <td>
-                            {{ $manufacturer->id }}
-                        </td>
+                        @can('web.admin.internals.view')
+                            <td>
+                                {{ $manufacturer->getRouteKey() }}
+                            </td>
+                        @endcan
                         <td>
                             {{ $manufacturer->cig_id }}
                         </td>
@@ -38,18 +45,20 @@
                         <td>
                             {{ count($manufacturer->groundVehicles) }}
                         </td>
-                        <td>
-                            @component('components.edit_delete_block')
-                                @slot('edit_url')
-                                    {{ route('web.admin.starcitizen.manufacturers.edit', $manufacturer->id) }}
-                                @endslot
-                                {{ $manufacturer->id }}
-                            @endcomponent
-                        </td>
+                        @can('web.admin.starcitizen.manufacturers.update')
+                            <td class="text-center">
+                                @component('components.edit_delete_block')
+                                    @slot('edit_url')
+                                        {{ route('web.admin.starcitizen.manufacturers.edit', $manufacturer->getRouteKey()) }}
+                                    @endslot
+                                    {{ $manufacturer->getRouteKey() }}
+                                @endcomponent
+                            </td>
+                        @endcan
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">@lang('Keine Benutzer vorhanden')</td>
+                        <td colspan="7">@lang('Keine Hersteller vorhanden')</td>
                     </tr>
                 @endforelse
                 </tbody>

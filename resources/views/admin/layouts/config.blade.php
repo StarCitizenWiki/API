@@ -43,34 +43,35 @@
 {{-- Main Content --}}
 @section('topNav--class', 'bg-blue-grey')
 
-@section('topNav__title', 'API Admin')
-@section('topNav__title--class', 'd-md-none')
-
-
 @section('topNav__content')
-    @unless(Auth::guest())
-        @component('components.navs.nav_element', ['route' => route('web.admin.auth.logout')])
-            @slot('options')
-                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-            @endslot
-
-            @component('components.forms.form', [
-                'id' => 'logout-form',
-                'action' => route('web.admin.auth.logout'),
-                'class' => 'd-none',
-            ])
-            @endcomponent
-
-            @component('components.elements.icon', ['class' => 'mr-1'])
-                sign-out
-            @endcomponent
-            @lang('Logout')
-        @endcomponent
-    @endunless
-
-    <div class="nav d-flex d-md-none flex-row flex-lg-column">
-        @include('admin.menu.main')
-    </div>
+    @if(Auth::guard('admin')->check())
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="admin_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ Auth::guard('admin')->user()->username }}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="admin_dropdown">
+                <a class="dropdown-item disabled">
+                    @component('components.elements.icon', ['class' => 'mr-1'])
+                        user
+                    @endcomponent
+                    @lang('Profil')
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    @component('components.forms.form', [
+                        'id' => 'logout-form',
+                        'action' => route('web.admin.auth.logout'),
+                        'class' => 'd-none',
+                    ])
+                    @endcomponent
+                    @component('components.elements.icon', ['class' => 'mr-1'])
+                        sign-out
+                    @endcomponent
+                    @lang('Logout')
+                </a>
+            </div>
+        </li>
+    @endif
 @endsection
 
 

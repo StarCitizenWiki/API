@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\Auth;
  */
 class UserController extends Controller
 {
-    const WEB_ADMIN_USERS_INDEX = 'web.admin.users.index';
-    const PASSWORD = 'password';
+    private const WEB_ADMIN_USERS_INDEX = 'web.admin.users.index';
+    private const PASSWORD = 'password';
+    private const USER = 'Benutzer';
 
     /**
      * UserController constructor.
@@ -29,9 +30,12 @@ class UserController extends Controller
      * Returns the View with all Users listed
      *
      * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
     {
+        $this->authorize('web.admin.users.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -48,9 +52,12 @@ class UserController extends Controller
      * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Routing\Redirector
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(User $user)
     {
+        $this->authorize('web.admin.users.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -72,11 +79,18 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
+        $this->authorize('web.admin.users.delete');
         app('Log')::notice("Account {$user->name} ({$user->id}) deleted by ".Auth::id());
 
         $user->delete();
 
-        return redirect()->route(self::WEB_ADMIN_USERS_INDEX);
+        return redirect()->route(self::WEB_ADMIN_USERS_INDEX)->withMessages(
+            [
+                'danger' => [
+                    __('crud.deleted', ['type' => __(self::USER)]),
+                ],
+            ]
+        );
     }
 
     /**
@@ -85,26 +99,48 @@ class UserController extends Controller
      * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function restore(User $user): RedirectResponse
     {
+        $this->authorize('web.admin.users.update');
         app('Log')::notice("Restored Account with ID: {$user->id}");
 
         $user->restore();
 
-        return redirect()->route(self::WEB_ADMIN_USERS_INDEX);
+        return redirect()->route(self::WEB_ADMIN_USERS_INDEX)->withMessages(
+            [
+                'warning' => [
+                    __('crud.restored', ['type' => __(self::USER)]),
+                ],
+            ]
+        );
     }
 
     /**
      * Updates a User by ID
      *
-     * @param \Illuminate\Http\Request $request Update Request
+     * @param \Illuminate\Http\Request      $request Update Request
      * @param \App\Models\Account\User\User $user
      *
      * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(Request $request, User $user): RedirectResponse
     {
+        if ($request->has('restore')) {
+            return $this->restore($user);
+        }
+
+        if ($request->has('delete')) {
+            return $this->destroy($user);
+        }
+
+        $this->authorize('web.admin.users.update');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
         $data = $this->validate(
             $request,
             [
@@ -125,6 +161,12 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route(self::WEB_ADMIN_USERS_INDEX);
+        return redirect()->route(self::WEB_ADMIN_USERS_INDEX)->withMessages(
+            [
+                'success' => [
+                    __('crud.updated', ['type' => __(self::USER)]),
+                ],
+            ]
+        );
     }
 }

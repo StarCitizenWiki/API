@@ -1,4 +1,5 @@
 .nav-dark {
+  .dropdown-item,
   .nav-link {
     cursor: pointer;
     color: rgba(255, 255, 255, 0.5);
@@ -19,7 +20,7 @@
     }
   }
 }
-
+/**
 #nav-top-menu {
   ul.collapse {
     display: block !important;
@@ -64,4 +65,4 @@ aside .nav-link {
   div > ul.nav {
     width: 100%;
   }
-}
+}**/

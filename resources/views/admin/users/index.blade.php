@@ -4,26 +4,33 @@
     <div class="card">
         <h4 class="card-header">@lang('Benutzer')</h4>
         <div class="card-body px-0 table-responsive">
+            @include('components.messages')
             <table class="table table-striped mb-0">
                 <thead>
                 <tr>
-                    <th>@lang('ID')</th>
+                    @can('web.admin.internals.view')
+                        <th>@lang('ID')</th>
+                    @endcan
                     <th>@lang('Registrierdatum')</th>
                     <th>@lang('Name')</th>
                     <th>@lang('E-Mail')</th>
                     <th>@lang('Notiz')</th>
-                    <th>@lang('API Key')</th>
+                    <th>@lang('API Schlüssel')</th>
                     <th class="text-center">@lang('Status')</th>
-                    <th>&nbsp;</th>
+                    @can('web.admin.users.update')
+                        <th>&nbsp;</th>
+                    @endcan
                 </tr>
                 </thead>
                 <tbody>
 
                 @forelse($users as $user)
                     <tr @if($user->trashed()) class="text-muted" @endif>
-                        <td>
-                            {{ $user->id }}
-                        </td>
+                        @can('web.admin.internals.view')
+                            <td>
+                                {{ $user->getRouteKey() }}
+                            </td>
+                        @endcan
                         <td title="{{ $user->created_at->format('d.m.Y H:i:s') }}">
                             {{ $user->created_at->format('d.m.Y') }}
                         </td>
@@ -76,27 +83,29 @@
                                 @endcomponent
                             @endif
                         </td>
-                        <td>
-                            @component('components.edit_delete_block')
-                                @slot('edit_url')
-                                    {{ route('web.admin.users.edit', $user->getRouteKey()) }}
-                                @endslot
-                                @if($user->trashed())
-                                    @slot('restore_url')
+                        @can('web.admin.users.update')
+                            <td>
+                                @component('components.edit_delete_block')
+                                    @slot('edit_url')
                                         {{ route('web.admin.users.edit', $user->getRouteKey()) }}
                                     @endslot
-                                @else
-                                    @slot('delete_url')
-                                        {{ route('web.admin.users.destroy', $user->getRouteKey()) }}
-                                    @endslot
-                                @endif
-                                {{ $user->getRouteKey() }}
-                            @endcomponent
-                        </td>
+                                    @if($user->trashed())
+                                        @slot('restore_url')
+                                            {{ route('web.admin.users.update', $user->getRouteKey()) }}
+                                        @endslot
+                                    @else
+                                        @slot('delete_url')
+                                            {{ route('web.admin.users.destroy', $user->getRouteKey()) }}
+                                        @endslot
+                                    @endif
+                                    {{ $user->getRouteKey() }}
+                                @endcomponent
+                            </td>
+                        @endcan
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">@lang('Keine Benutzer vorhanden')</td>
+                        <td colspan="8">@lang('Keine Benutzer vorhanden')</td>
                     </tr>
                 @endforelse
                 </tbody>

@@ -2,32 +2,35 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">@lang('Notifications')</h4>
+        <h4 class="card-header">@lang('Benachrichtigungen')</h4>
         <div class="card-body px-0 table-responsive">
+            @include('components.messages')
             <table class="table table-striped mb-0">
                 <thead>
                 <tr>
-                    <th>@lang('ID')</th>
-                    <th>@lang('Hash ID')</th>
+                    @can('web.admin.internals.view')
+                        <th>@lang('ID')</th>
+                    @endcan
                     <th>@lang('Level')</th>
                     <th>@lang('Erstellt')</th>
                     <th>@lang('Inhalt')</th>
                     <th>@lang('Ausgabedatum')</th>
                     <th>@lang('Ablaufdatum')</th>
                     <th>@lang('Ausgabe')</th>
-                    <th>&nbsp;</th>
+                    @can('web.admin.notifications.update')
+                        <th>&nbsp;</th>
+                    @endcan
                 </tr>
                 </thead>
                 <tbody>
 
                     @forelse($notifications as $notification)
                         <tr @if($notification->expired()) class="text-muted" @endif>
-                            <td>
-                                {{ $notification->id }}
-                            </td>
-                            <td>
-                                {{ $notification->getRouteKey() }}
-                            </td>
+                            @can('web.admin.internals.view')
+                                <td>
+                                    {{ $notification->getRouteKey() }}
+                                </td>
+                            @endcan
                             <td class="@unless($notification->expired()) text-{{ $notification->getBootstrapClass() }} @else text-muted @endunless">
                                 {{ $notification->getLevelAsText() }}
                             </td>
@@ -68,6 +71,7 @@
                                     @endif
                                 </div>
                             </td>
+                            @can('web.admin.notifications.update')
                             <td>
                                 @component('components.edit_delete_block')
                                     @slot('edit_url')
@@ -81,10 +85,11 @@
                                     {{ $notification->getRouteKey() }}
                                 @endcomponent
                             </td>
+                            @endcan
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7">@lang('Keine Notifications vorhanden')</td>
+                            <td colspan="7">@lang('Keine Benachrichtigungen vorhanden')</td>
                         </tr>
                     @endforelse
                 </tbody>

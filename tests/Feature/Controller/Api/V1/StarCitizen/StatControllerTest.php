@@ -2,55 +2,99 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
-use App\Models\Api\StarCitizen\Stat;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Models\Api\StarCitizen\Stat\Stat;
+use Tests\Feature\Controller\Api\ApiTestCase as ApiTestCase;
 
 /**
- * Class StatsApiControllerTest
+ * {@inheritdoc}
+ *
+ * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController<extended>
+ *
+ * @covers \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer<extended>
+ *
+ * @covers \App\Models\Api\StarCitizen\Stat\Stat<extended>
  */
-class StatControllerTest extends TestCase
+class StatControllerTest extends ApiTestCase
 {
-    use RefreshDatabase;
+    /**
+     * {@inheritdoc}
+     */
+    protected const MODEL_DEFAULT_PAGINATION_COUNT = 10;
 
     /**
-     * Tests Stats from Interfaces
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::index()
-     * @covers \App\Http\Middleware\ThrottleApi
-     * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * {@inheritdoc}
      */
-    public function testAllApiView()
+    protected const BASE_API_ENDPOINT = '/api/stats';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $structure = [
+        'funds',
+        'fans',
+        'fleet',
+        'timestamp',
+    ];
+
+
+    /**
+     * Index Method Tests
+     */
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexAll(int $allCount = 0)
     {
-        $response = $this->get('/api/stats');
-        $response->assertStatus(200)
-            ->assertSee('data')
-            ->assertJsonCount(10, 'data')
-            ->assertSee('funds')
-            ->assertSee('fleet')
-            ->assertSee('fans')
-            ->assertSee('timestamp')
-            ->assertSee('meta');
+        parent::testIndexAll(Stat::count());
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function testIndexPaginatedCustom(int $limit = 5)
+    {
+        parent::testIndexPaginatedCustom($limit);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function testIndexInvalidLimit(int $limit = -1)
+    {
+        parent::testIndexInvalidLimit($limit);
+    }
+
+
+    /**
+     * Show Method Tests
+     */
+
+    /**
      * Tests Stats from Interfaces
      *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::latest()
-     * @covers \App\Http\Middleware\ThrottleApi
-     * @covers \App\Http\Middleware\UpdateTokenTimestamp
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController::latest
      */
     public function testLatestApiView()
     {
-        $response = $this->get('/api/stats/latest');
-        $response->assertStatus(200)
+        $response = $this->get(sprintf('%s/latest', static::BASE_API_ENDPOINT));
+        $response->assertOk()
             ->assertSee('data')
             ->assertSee('funds')
             ->assertSee('fleet')
             ->assertSee('fans')
             ->assertSee('timestamp')
-            ->assertJsonCount(4, 'data');
+            ->assertJsonCount(4, 'data')
+            ->assertJsonStructure(
+                [
+                    'data' => $this->structure,
+                ]
+            )
+            ->assertHeader('content-type', 'application/json')
+            ->assertHeader('x-ratelimit-limit')
+            ->assertHeader('etag');
     }
+
 
     /**
      * Creates Faked Stats in DB
@@ -59,6 +103,6 @@ class StatControllerTest extends TestCase
     {
         parent::setUp();
 
-        factory(Stat::class, 10)->create();
+        factory(Stat::class, 20)->create();
     }
 }

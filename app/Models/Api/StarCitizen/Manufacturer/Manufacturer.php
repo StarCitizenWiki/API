@@ -29,11 +29,23 @@ class Manufacturer extends HasTranslations
         'translations',
     ];
 
+    protected $perPage = 10;
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function translations()
     {
         return $this->hasMany(ManufacturerTranslation::class);
+    }
+
+    /**
+     * Key by which the api searches
+     *
+     * @return string
+     */
+    public function getRouteKey()
+    {
+        return urlencode($this->name_short);
     }
 }

@@ -21,7 +21,7 @@
                 @slot('options')
                     data-fa-transform="up-2"
                 @endslot
-                trash
+                trash-alt
             @endcomponent
         </a>
     @endunless
@@ -31,7 +31,10 @@
                 'id' => 'restore-form'.$slot,
                 'class' => 'd-none',
                 'action' => $restore_url,
-            ])@endcomponent
+                'method' => 'PATCH',
+            ])
+                <input type="hidden" id="restore" name="restore">
+            @endcomponent
             @component('components.elements.icon', [
                 'class' => 'fa-flip-horizontal',
             ])

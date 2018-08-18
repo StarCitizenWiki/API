@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">@lang('Produktions Status')</h4>
+        <h4 class="card-header">@lang('Produktionsstatus')</h4>
         <div class="card-body px-0 table-responsive">
             @include('admin.components.translation_table')
         </div>

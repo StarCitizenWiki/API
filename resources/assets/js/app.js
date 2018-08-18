@@ -5,8 +5,102 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
-require('datatables.net-bs4');
-require('../../../node_modules/@fortawesome/fontawesome-pro/js/light')
-require('../../../node_modules/@fortawesome/fontawesome-pro/js/brands')
-require('../../../node_modules/@fortawesome/fontawesome-pro/js/fontawesome')
+import './bootstrap';
+import 'datatables.net-bs4';
+import { library, dom } from '@fortawesome/fontawesome-svg-core'
+
+import {
+  faBook,
+  faBuilding,
+  faBullhorn,
+  faCar,
+  faCircle,
+  faCircleNotch,
+  faClipboardCheck,
+  faCloud,
+  faCogs,
+  faComment,
+  faCrosshairs,
+  faDesktop,
+  faDotCircle,
+  faEnvelope,
+  faExpandAlt,
+  faExternalLink,
+  faGlobe,
+  faHome,
+  faIdCard,
+  faImage,
+  faIndustry,
+  faMinus,
+  faPencil,
+  faPlus,
+  faQuestionCircle,
+  faRepeat,
+  faRocket,
+  faSignIn,
+  faSignOut,
+  faStickyNote,
+  faStopCircle,
+  faTable,
+  faTachometer,
+  faTrashAlt,
+  faUser,
+  faUserCircle,
+  faUserPlus,
+  faUsers,
+} from '@fortawesome/pro-light-svg-icons'
+
+import {
+  faFacebook,
+  faTwitter,
+  faTeamspeak,
+} from '@fortawesome/free-brands-svg-icons'
+
+library.add(
+  faBook,
+  faBuilding,
+  faBullhorn,
+  faCar,
+  faCircle,
+  faCircleNotch,
+  faClipboardCheck,
+  faCloud,
+  faCogs,
+  faComment,
+  faCrosshairs,
+  faDesktop,
+  faDotCircle,
+  faEnvelope,
+  faExpandAlt,
+  faExternalLink,
+  faGlobe,
+  faHome,
+  faIdCard,
+  faImage,
+  faIndustry,
+  faMinus,
+  faPencil,
+  faPlus,
+  faQuestionCircle,
+  faRepeat,
+  faRocket,
+  faSignIn,
+  faSignOut,
+  faStickyNote,
+  faStopCircle,
+  faTable,
+  faTachometer,
+  faTrashAlt,
+  faUser,
+  faUserCircle,
+  faUserPlus,
+  faUsers
+)
+
+library.add(
+  faFacebook,
+  faTwitter,
+  faTeamspeak
+)
+
+dom.watch()

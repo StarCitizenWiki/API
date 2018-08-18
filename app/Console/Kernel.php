@@ -2,7 +2,8 @@
 
 namespace App\Console;
 
-use App\Jobs\Api\StarCitizen\DownloadStats;
+use App\Console\Commands\ImportShipMatrix;
+use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -17,7 +18,10 @@ class Kernel extends ConsoleKernel
      *
      * @var array
      */
-    protected $commands = [//
+    protected $commands = [
+        \App\Console\Commands\DownloadShipMatrix::class,
+        \App\Console\Commands\DownloadStats::class,
+        ImportShipMatrix::class,
     ];
 
     /**
@@ -29,9 +33,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new DownloadStats())->everyTenMinutes();
+        $schedule->job(new DownloadStats())->dailyAt('20:00');
 
-        $schedule->job(new DownloadShipMatrix())->daily();
+        $schedule->job(new DownloadShipMatrix())->weekly()->then(
+            function () {
+                $this->call('import:shipmatrix');
+            }
+        );
     }
 
     /**
