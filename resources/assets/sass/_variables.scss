@@ -1,0 +1,19 @@
+// Brands
+$blue: #0f3e50;
+$cyan: #1090ac;
+$green: #12b87f;
+$yellow: #d2ba18;
+$red: #d24418;
+$blue-grey: #6e7982;
+
+// Bootstrap Stuff
+$grid-breakpoints: (
+    xs: 0,
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1921px,
+) !default;
+
+$enable-rounded: false;

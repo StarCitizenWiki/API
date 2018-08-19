@@ -1,130 +1,118 @@
-@extends('layouts.admin')
-@section('title')
-    @lang('admin/users/index.header')
-@endsection
+@extends('admin.layouts.default_wide')
+
+@section('title', __('Benutzerübersicht'))
 
 @section('content')
-    <table class="table table-striped" id="userTable" cellspacing="0" width="100%">
-        <thead>
-            <tr>
-                <th><span>@lang('admin/users/index.id')</span></th>
-                <th><span>@lang('admin/users/index.name')</span></th>
-                <th><span>@lang('admin/users/index.created')</span></th>
-                <th><span>@lang('admin/users/index.last_login')</span></th>
-                <th><span>@lang('admin/users/index.last_request')</span></th>
-                <th class="text-center"><span>@lang('admin/users/index.state')</span></th>
-                <th><span>@lang('admin/users/index.email')</span></th>
-                <th><span>@lang('admin/users/index.api_key')</span></th>
-                <th><span>@lang('admin/users/index.notes')</span></th>
-                <th><span>@lang('admin/users/index.requests_per_minute')</span></th>
-                <th>&nbsp;</th>
-            </tr>
-        </thead>
-        <tbody>
-        @if(count($users) > 0)
-            @foreach($users as $user)
+    <div class="card">
+        <h4 class="card-header">@lang('Benutzer')</h4>
+        <div class="card-body px-0 table-responsive">
+            @include('components.messages')
+            <table class="table table-striped mb-0">
+                <thead>
                 <tr>
-                    <td>
-                        {{ $user->id }}
-                    </td>
-                    <td>
-                        {{ $user->name }}
-                    </td>
-                    <td>
-                        {{ Carbon\Carbon::parse($user->created_at)->format('d.m.Y') }}
-                    </td>
-                    <td>
-                        {{ Carbon\Carbon::parse($user->last_login)->format('d.m.Y') }}
-                    </td>
-                    <td>
-                        @unless(is_null($user->api_token_last_used))
-                            {{ Carbon\Carbon::parse($user->api_token_last_used)->format('d.m.Y H:i:s') }}
-                        @else
-                            Nie
-                        @endunless
-                    </td>
-                    <td class="text-center">
-                        @if($user->deleted_at)
-                            <span class="badge badge-info">
-                                @lang('admin/users/index.deleted')
-                            </span>
-                        @elseif($user->isWhitelisted())
-                            <span class="badge badge-success">
-                                @lang('admin/users/index.whitelisted')
-                            </span>
-                        @elseif($user->isBlacklisted())
-                            <span class="badge badge-danger">
-                                @lang('admin/users/index.blacklisted')
-                            </span>
-                        @else
-                            <span class="badge badge-default">
-                                @lang('admin/users/index.normal')
-                            </span>
-                        @endif
-                    </td>
-                    <td>
-                        {{ $user->email }}
-                    </td>
-                    <td>
-                        <i class="fa fa-key" data-placement="top" data-toggle="popover" title="Key" data-content="{{ $user->api_token }}" tabindex="0"></i>
-                    </td>
-                    <td>
-                        <i class="fa fa-book" data-placement="top" data-toggle="popover" title="Notizen" data-content="{{ $user->notes }}" data-trigger="focus" tabindex="1"></i>
-                    </td>
-                    <td>
-                        <code>
-                        @if($user->isWhitelisted() || $user->isBlacklisted())
-                            -
-                        @else
-                            {{ $user->requests_per_minute }}
-                        @endif
-                        </code>
-                    </td>
-                    <td>
-                        <div class="btn-group btn-group-sm" role="group" aria-label="">
-                            <a href="{{ route('admin_users_edit_form', $user->id) }}" class="btn btn-warning">
-                                <i class="fa fa-pencil"></i>
-                            </a>
-                            @unless($user->trashed())
-                            <a href="#" class="btn btn-danger"
-                                onclick="event.preventDefault();
-                                document.getElementById('delete-form{{ $user->id }}').submit();">
-                                <form id="delete-form{{ $user->id }}" action="{{ route('admin_users_delete') }}" method="POST" style="display: none;">
-                                    <input name="_method" type="hidden" value="DELETE">
-                                    <input name="id" type="hidden" value="{{ $user->id }}">
-                                    {{ csrf_field() }}
-                                </form>
-                                <i class="fa fa-trash-o"></i>
-                            </a>
-                            @else
-                                <a href="#" class="btn btn-success"
-                                   onclick="event.preventDefault();
-                                           document.getElementById('restore-form{{ $user->id }}').submit();">
-                                    <form id="restore-form{{ $user->id }}" action="{{ route('admin_users_restore') }}" method="POST" style="display: none;">
-                                        {{ csrf_field() }}
-                                        <input type="hidden" name="id" value="{{ $user->id }}">
-                                    </form>
-                                    <i class="fa fa-repeat"></i>
-                                </a>
-                            @endunless
-                        </div>
-                    </td>
+                    @can('web.admin.internals.view')
+                        <th>@lang('ID')</th>
+                    @endcan
+                    <th>@lang('Registrierdatum')</th>
+                    <th>@lang('Name')</th>
+                    <th>@lang('E-Mail')</th>
+                    <th>@lang('Notiz')</th>
+                    <th>@lang('API Schlüssel')</th>
+                    <th class="text-center">@lang('Status')</th>
+                    @can('web.admin.users.update')
+                        <th>&nbsp;</th>
+                    @endcan
                 </tr>
-            @endforeach
-        @else
-            <tr>
-                <td colspan="11">@lang('admin/users/index.no_users_found')</td>
-            </tr>
-        @endif
-        </tbody>
-    </table>
-@endsection
+                </thead>
+                <tbody>
 
-@section('scripts')
-    <script>
-        $(function () {
-            $('[data-toggle="popover"]').popover()
-        });
-    </script>
-    @include('components.init_dataTables')
+                @forelse($users as $user)
+                    <tr @if($user->trashed()) class="text-muted" @endif>
+                        @can('web.admin.internals.view')
+                            <td>
+                                {{ $user->getRouteKey() }}
+                            </td>
+                        @endcan
+                        <td title="{{ $user->created_at->format('d.m.Y H:i:s') }}">
+                            {{ $user->created_at->format('d.m.Y') }}
+                        </td>
+                        <td>
+                            {{ $user->name }}
+                        </td>
+                        <td>
+                            {{ $user->email }}
+                        </td>
+                        <td>
+                            {{ $user->notes }}
+                        </td>
+                        <td>
+                            {{ $user->api_token }}
+                        </td>
+                        <td class="text-center">
+                            @if($user->trashed())
+                                @component('components.elements.icon', [
+                                    'class' => 'text-muted'
+                                ])
+                                    @slot('options')
+                                        title="@lang('Gelöscht')"
+                                    @endslot
+                                    trash-alt
+                                @endcomponent
+                            @elseif($user->isUnthrottled())
+                                @component('components.elements.icon', [
+                                    'class' => 'text-success'
+                                ])
+                                    @slot('options')
+                                        title="@lang('Nicht limitiert')"
+                                    @endslot
+                                    circle
+                                @endcomponent
+                            @elseif($user->isBlocked())
+                                @component('components.elements.icon', [
+                                    'class' => 'text-danger'
+                                ])
+                                    @slot('options')
+                                        title="@lang('Gesperrt')"
+                                    @endslot
+                                    stop-circle
+                                @endcomponent
+                            @else
+                                @component('components.elements.icon')
+                                    @slot('options')
+                                        title="@lang('Normal')"
+                                    @endslot
+                                    minus
+                                @endcomponent
+                            @endif
+                        </td>
+                        @can('web.admin.users.update')
+                            <td>
+                                @component('components.edit_delete_block')
+                                    @slot('edit_url')
+                                        {{ route('web.admin.users.edit', $user->getRouteKey()) }}
+                                    @endslot
+                                    @if($user->trashed())
+                                        @slot('restore_url')
+                                            {{ route('web.admin.users.update', $user->getRouteKey()) }}
+                                        @endslot
+                                    @else
+                                        @slot('delete_url')
+                                            {{ route('web.admin.users.destroy', $user->getRouteKey()) }}
+                                        @endslot
+                                    @endif
+                                    {{ $user->getRouteKey() }}
+                                @endcomponent
+                            </td>
+                        @endcan
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8">@lang('Keine Benutzer vorhanden')</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">{{ $users->links() }}</div>
+    </div>
 @endsection

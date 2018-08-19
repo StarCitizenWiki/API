@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 11.03.2017
@@ -7,19 +7,19 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Transformers\BaseAPITransformerInterface;
 use League\Fractal\TransformerAbstract;
 
 /**
  * Class SystemTransformer
- *
- * @package App\Transformers\StarCitizen\Starmap
  */
-class SystemTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class SystemTransformer extends TransformerAbstract
 {
 
+    const FILTER_FIELDS = ['sourcedata', 'id', 'exclude', 'created_at', 'updated_at', 'info_url'];
+    const RENAME_KEYS = ['cig_id' => 'id', 'cig_time_modified' => 'time_modified'];
+    const SUBARRAY_NODES = ['position', 'affiliation', 'aggregated'];
+
     /**
-     * TODO
      *
      * @param mixed $system System Data
      *
@@ -27,6 +27,8 @@ class SystemTransformer extends TransformerAbstract implements BaseAPITransforme
      */
     public function transform($system)
     {
-        return $system;
+        $system = $this->moveToSubarray($system, static::SUBARRAY_NODES);
+
+        return $this->filterAndRenameFields($system);
     }
 }

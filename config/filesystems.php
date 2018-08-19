@@ -54,22 +54,6 @@ return [
             'visibility' => 'public',
         ],
 
-        'tools' => [
-            'driver' => 'local',
-            'root' => storage_path('app/tools'),
-        ],
-
-        'tools_media' => [
-            'driver' => 'local',
-            'root' => storage_path('app/tools/media'),
-        ],
-
-        'tools_media_images' => [
-            'driver' => 'local',
-            'root' => storage_path('app/tools/media/images'),
-            'visibility' => 'public',
-        ],
-
         'api' => [
             'driver' => 'local',
             'root' => storage_path('app/api'),
@@ -80,32 +64,14 @@ return [
             'root' => storage_path('app/api/starmap'),
         ],
 
-        'scdb' => [
+        'vehicles' => [
             'driver' => 'local',
-            'root' => storage_path('app/scdb'),
+            'root' => storage_path('app/api/vehicles'),
         ],
 
-        'scdb_ships' => [
+        'stats' => [
             'driver' => 'local',
-            'root' => storage_path('app/scdb/ships'),
-        ],
-
-        'scdb_ships_base' => [
-            'driver' => 'local',
-            'root' => storage_path('app/scdb/ships/base'),
-        ],
-
-        'scdb_ships_splitted' => [
-            'driver' => 'local',
-            'root' => storage_path('app/scdb/ships/splitted'),
-        ],
-
-        's3' => [
-            'driver' => 's3',
-            'key' => 'your-key',
-            'secret' => 'your-secret',
-            'region' => 'your-region',
-            'bucket' => 'your-bucket',
+            'root' => storage_path('app/api/stats'),
         ],
 
     ],

@@ -1,50 +1,46 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Exceptions;
 
-use App\Traits\RestExceptionHandlerTrait;
-use App\Traits\RestTrait;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Validation\ValidationException;
 
 /**
  * Class Handler
- *
- * @package App\Exceptions
  */
 class Handler extends ExceptionHandler
 {
-    use RestTrait;
-    use RestExceptionHandlerTrait;
-
     /**
-     * A list of the exception types that should not be reported.
+     * A list of the exception types that are not reported.
      *
      * @var array
      */
     protected $dontReport = [
-        \Illuminate\Auth\AuthenticationException::class,
-        \Illuminate\Auth\Access\AuthorizationException::class,
-        \Symfony\Component\HttpKernel\Exception\HttpException::class,
-        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
-        \Illuminate\Session\TokenMismatchException::class,
-        \Illuminate\Validation\ValidationException::class,
+        //
+    ];
+
+    /**
+     * A list of the inputs that are never flashed for validation exceptions.
+     *
+     * @var array
+     */
+    protected $dontFlash = [
+        'password',
+        'password_confirmation',
     ];
 
     /**
      * Report or log an exception.
-     *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
      * @param \Exception $exception The thrown Exception
      *
      * @return void
+     *
+     * @throws Exception
      */
-    public function report(Exception $exception) : void
+    public function report(Exception $exception): void
     {
         parent::report($exception);
     }
@@ -55,15 +51,11 @@ class Handler extends ExceptionHandler
      * @param \Illuminate\Http\Request $request   The HTTP Request
      * @param \Exception               $exception The Exception to render
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response | \Symfony\Component\HttpFoundation\Response
      */
     public function render($request, Exception $exception)
     {
-        if ($this->isApiCall($request) || $request->expectsJson()) {
-            return $this->getJsonResponseForException($request, $exception);
-        } else {
-            return parent::render($request, $exception);
-        }
+        return parent::render($request, $exception);
     }
 
     /**
@@ -71,7 +63,7 @@ class Handler extends ExceptionHandler
      *
      * @param \Illuminate\Http\Request                 $request   The HTTP Request
      * @param \Illuminate\Auth\AuthenticationException $exception The Auth Exception
-
+     *
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception)
@@ -80,6 +72,22 @@ class Handler extends ExceptionHandler
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        return redirect()->guest('login');
+        if (array_search('admin', $exception->guards()) !== false) {
+            $path = 'admin/login';
+        } else {
+            $path = 'login';
+        }
+
+        return redirect()->guest($path);
+    }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return bool
+     */
+    protected function wantsJson($request): bool
+    {
+        return $request->wantsJson() || $request->query('format', null) === 'json';
     }
 }

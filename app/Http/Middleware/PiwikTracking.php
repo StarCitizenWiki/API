@@ -1,18 +1,14 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http\Middleware;
 
 use Closure;
-use Composer\DependencyResolver\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use PiwikTracker;
 
 /**
  * Class PiwikTracking
  * Passes the RequestData to Piwik
- *
- * @package App\Http\Middleware
  */
 class PiwikTracking
 {
@@ -23,30 +19,35 @@ class PiwikTracking
      * @param \Closure                 $next    Next
      *
      * @return mixed
+     *
+     * @throws \Exception
      */
     public function handle($request, Closure $next)
     {
         /**
          * Local nicht tracken
          */
-        if (App::environment('production')) {
+        if (App::environment('production') && config('tracking.enabled')) {
             /**
              * Piwik Tracker Class
              *
-             * @var PiwikTracker $piwikClient
+             * @var \PiwikTracker $piwikClient
              */
-            $piwikClient = new PiwikTracker(PIWIK_SITE_ID);
-            $piwikClient::$URL = PIWIK_URL;
+            $piwikClient = new PiwikTracker(config('tracking.site_id'));
+            $piwikClient::$URL = config('tracking.url');
 
             $piwikClient->setUrl($request->fullUrl());
             $piwikClient->setGenerationTime(microtime(true) - LARAVEL_START);
-            $piwikClient->setUserId($request->get(AUTH_KEY_FIELD_NAME, false));
-            $piwikClient->doTrackPageView($request->getRequestUri());
 
-            Log::debug('Passed URL to Piwik', [
-                'method' => __METHOD__,
-                'url' => $request->fullUrl(),
-            ]);
+            $user = $request->user();
+
+            $key = false;
+            if (!is_null($user)) {
+                $key = $user->id;
+            }
+
+            $piwikClient->setUserId($key);
+            $piwikClient->doTrackPageView($request->getRequestUri());
         }
 
         return $next($request);

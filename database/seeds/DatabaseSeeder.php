@@ -1,7 +1,10 @@
-<?php
+<?php declare(strict_types = 1);
 
 use Illuminate\Database\Seeder;
 
+/**
+ * Class DatabaseSeeder
+ */
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -11,9 +14,45 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(UsersTableSeeder::class);
-        $this->call(ShortUrlWhitelistsTableSeeder::class);
-        $this->call(StarsystemsTableSeeder::class);
-        $this->call(ShortURLsTableSeeder::class);
+        $this->seedSystemTables();
+        $this->seedAccountTables();
+        $this->seedApiTables();
+    }
+
+    /**
+     * System Tables
+     */
+    private function seedSystemTables()
+    {
+        $this->call(LanguageTableSeeder::class);
+    }
+
+    /**
+     * Account Tables: Groups, Admin, Users
+     */
+    private function seedAccountTables()
+    {
+        $this->call(AdminGroupTableSeeder::class);
+        $this->call(UserTableSeeder::class);
+    }
+
+    /**
+     * API Tables
+     */
+    private function seedApiTables()
+    {
+        /** Stats */
+        $this->call(StatTableSeeder::class);
+
+        /** Star Citizen General */
+        $this->call(ProductionStatusTableSeeder::class);
+        $this->call(ProductionNoteTableSeeder::class);
+
+        /** Vehicles */
+        $this->call(VehicleSizeTableSeeder::class);
+
+        if (App::environment() === 'local') {
+            $this->call(NotificationTableSeeder::class);
+        }
     }
 }

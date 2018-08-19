@@ -1,10 +1,15 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Event;
+use App\Events\ModelUpdating;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\MediaWiki\MediaWikiExtendSocialite;
 
+/**
+ * Class EventServiceProvider
+ */
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -13,26 +18,17 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\UserRegistered' => [
-            'App\Listeners\SendUserCredentials',
+        'Illuminate\Auth\Events\Registered' => [
+            'App\Listeners\SendUserWelcomeMail',
         ],
         'Illuminate\Auth\Events\Login' => [
             'App\Listeners\LogSuccessfulLogin',
         ],
-        'App\Events\URLShortened' => [
-            'App\Listeners\SendURLShortenedNotification',
-        ]
+        ModelUpdating::class => [
+            \App\Listeners\ModelUpdating::class,
+        ],
+        SocialiteWasCalled::class => [
+            MediaWikiExtendSocialite::class,
+        ],
     ];
-
-    /**
-     * Register any events for your application.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        parent::boot();
-
-        //
-    }
 }

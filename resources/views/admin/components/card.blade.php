@@ -1,7 +1,38 @@
-<div class="card mb-3 rounded" style="overflow: hidden" title="{{ $title or '' }}">
-    <div class="card-block p-0 clearfix">
-        <i class="fa fa-{{ $icon or '' }} bg-inverse py-4 text-white mr-1 float-left display-5 col-5 text-center"></i>
-        <div class="h5 mb-0 pt-4 text-center">{{ $content or '' }}</div>
-        <div class="text-muted text-uppercase font-weight-bold font-xs text-center">{{ $slot or '' }}</div>
+<div class="card {{ $class ?? '' }}" {{ $options ?? '' }}>
+    @if(isset($title))
+        @if(starts_with($title, '#'))
+            <h4 class="card-header {{ $titleClass ?? '' }}">
+                @if(isset($icon))
+                    @component('components.elements.icon', [
+                        'class' => 'mr-1',
+                    ])
+                        @slot('options')
+                            data-fa-transform="up-2"
+                        @endslot
+                        {{ $icon }}
+                    @endcomponent
+                @endif
+                {{ ltrim($title, '#') }}
+            </h4>
+        @else
+            <div class="card-header {{ $titleClass ?? '' }}">
+                @if(isset($icon))
+                    @component('components.elements.icon', [
+                        'class' => 'mr-1'
+                    ])
+                        {{ $icon }}
+                    @endcomponent
+                @endif
+                {{ $title }}
+            </div>
+        @endif
+    @endif
+    <div class="card-body {{ $contentClass ?? '' }}">
+        {{ $slot }}
     </div>
+    @if(isset($footer))
+        <div class="card-footer {{ $footerClass ?? '' }}">
+            {{ $footer }}
+        </div>
+    @endif
 </div>

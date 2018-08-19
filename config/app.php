@@ -1,6 +1,10 @@
-<?php
+<?php declare(strict_types = 1);
 
 return [
+
+    'version' => '0.0.1',
+
+    'registration_enabled' => env('REGISTRATION_ENABLED', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -12,7 +16,7 @@ return [
     | any other location as required by the application or its packages.
     */
 
-    'name' => 'Star Citizen Wiki API',
+    'name' => 'Star Citizen Wiki Api',
 
     /*
     |--------------------------------------------------------------------------
@@ -52,9 +56,6 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
-    'api_url' => env('APP_API_URL', 'http://localhost'),
-    'tools_url' => env('APP_TOOLS_URL', 'http://localhost'),
-    'shorturl_url' => env('APP_SHORTURL_URL', 'http://localhost'),
 
     /*
     |--------------------------------------------------------------------------
@@ -112,25 +113,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Logging Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Here you may configure the log settings for your application. Out of
-    | the box, Laravel uses the Monolog PHP logging library. This gives
-    | you a variety of powerful log handlers / formatters to utilize.
-    |
-    | Available Settings: "single", "daily", "syslog", "errorlog"
-    |
-    */
-
-    'log' => env('APP_LOG', 'daily'),
-
-    'log_max_files' => 60,
-
-    'log_level' => env('APP_LOG_LEVEL', 'debug'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
     |
@@ -167,12 +149,10 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Laravel\Tinker\TinkerServiceProvider::class,
 
         /*
          * Package Service Providers...
          */
-
         //
 
         /*
@@ -180,16 +160,12 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        /*
-         * Fractal service
-         */
-        Spatie\Fractal\FractalServiceProvider::class,
+        App\Providers\Web\Admin\AuthServiceProvider::class,
 
-        Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
+        Jackiedo\LogReader\LogReaderServiceProvider::class,
     ],
 
     /*
@@ -220,8 +196,10 @@ return [
         'File' => Illuminate\Support\Facades\File::class,
         'Gate' => Illuminate\Support\Facades\Gate::class,
         'Hash' => Illuminate\Support\Facades\Hash::class,
+        'Hashids' => Vinkla\Hashids\Facades\Hashids::class,
         'Lang' => Illuminate\Support\Facades\Lang::class,
         'Log' => Illuminate\Support\Facades\Log::class,
+        'LogReader' => Jackiedo\LogReader\Facades\LogReader::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
         'Password' => Illuminate\Support\Facades\Password::class,

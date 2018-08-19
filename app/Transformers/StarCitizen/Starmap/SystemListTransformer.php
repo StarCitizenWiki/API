@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 04.03.2017
@@ -7,43 +7,33 @@
 
 namespace App\Transformers\StarCitizen\Starmap;
 
-use App\Models\Starsystem;
-use App\Traits\FiltersDataTrait;
-use App\Transformers\BaseAPITransformerInterface;
+use App\Models\Api\StarCitizen\Starmap\Starsystem;
 use League\Fractal\TransformerAbstract;
 
 /**
  * Class ShipsListTransformer
- *
- * @package App\Transformers\StarCitizenWiki\Ships
  */
-class SystemListTransformer extends TransformerAbstract implements BaseAPITransformerInterface
+class SystemListTransformer extends TransformerAbstract
 {
-    use FiltersDataTrait;
-
     protected $validFields = [
         'wiki_url',
         'api_url',
     ];
 
     /**
-     * Transformes the whole ship list
+     * Transforms the whole ship list
      *
-     * @param Starsystem $system
+     * @param \App\Models\Api\StarCitizen\Starmap\Starsystem $system
      *
      * @return array
-     * @internal param mixed $ship Data
-     *
      */
-    public function transform($system)
+    public function transform(Starsystem $system)
     {
-        $transformed = [
+        return [
             $system['code'] => [
-                'api_url' => '//'.config('app.api_url').'/api/v1/starmap/systems/'.$system['code'],
-                'wiki_url' => '//star-citizen.wiki/'.ucfirst(strtolower($system['code'])),
+                'api_url' => config('app.api_url').'/api/v1/starmap/systems/'.$system['code'],
+                'wiki_url' => config('api.wiki_url').'/'.ucfirst(strtolower($system['code'])),
             ],
         ];
-
-        return $this->filterData($transformed);
     }
 }

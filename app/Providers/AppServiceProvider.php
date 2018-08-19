@@ -1,10 +1,18 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\View;
+use Carbon\Carbon;
+use FilesystemIterator;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
+/**
+ * Class AppServiceProvider
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -14,12 +22,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $bootstrapModules = [
-            'enableCSS' =>  true,
-            'enableJS' => true,
-        ];
+        $this->loadMigrations();
 
-        View::share('bootstrapModules', $bootstrapModules);
+        Carbon::setLocale(config('app.locale'));
+
+        if (config('app.debug') && config('app.env') === 'local') {
+            DB::listen(
+                function (QueryExecuted $query) {
+                    app('Log')::debug($query->sql);
+                }
+            );
+        }
     }
 
     /**
@@ -29,18 +42,32 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if ($this->app->environment() !== 'production') {
-            $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
+        /**
+         * Star Citizen Api Interfaces
+         */
+        $this->app->bind(
+            \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface::class,
+            \App\Repositories\StarCitizen\Api\v1\Starmap\StarmapRepository::class
+        );
+    }
+
+    /**
+     * Loads migrations in Sub-folders
+     */
+    private function loadMigrations()
+    {
+        $dirs = [];
+        $directoryIterator = new RecursiveDirectoryIterator(database_path('migrations'), FilesystemIterator::SKIP_DOTS);
+        $iteratorIterator = new RecursiveIteratorIterator($directoryIterator, RecursiveIteratorIterator::SELF_FIRST);
+
+        foreach ($iteratorIterator as $filename) {
+            if ($filename->isDir()) {
+                $dirs[] = $filename;
+            }
         }
 
-        /**
-         * Star Citizen API Interfaces
-         */
-        $this->app->bind('StarCitizen\API\StatsRepository', \App\Repositories\StarCitizen\APIv1\StatsRepository::class);
+        $dirs = array_sort($dirs);
 
-        /**
-         * Star Citizen Wiki API Interfaces
-         */
-        $this->app->bind('StarCitizenWiki\API\ShipsRepository', \App\Repositories\StarCitizenWiki\APIv1\ShipsRepository::class);
+        $this->loadMigrationsFrom($dirs);
     }
 }

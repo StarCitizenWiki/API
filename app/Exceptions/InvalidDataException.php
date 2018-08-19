@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Hannes
  * Date: 29.01.2017
@@ -12,8 +12,6 @@ use Exception;
 /**
  * Class InvalidDataException
  * General Exception to throw if Data is invalid
- *
- * @package App\Exceptions
  */
 class InvalidDataException extends Exception
 {

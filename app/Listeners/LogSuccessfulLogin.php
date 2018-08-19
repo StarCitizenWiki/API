@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Listeners;
 
@@ -6,15 +6,13 @@ use Illuminate\Auth\Events\Login;
 
 /**
  * Class LogSuccessfulLogin
- *
- * @package App\Listeners
  */
 class LogSuccessfulLogin
 {
     /**
      * Handle the event.
      *
-     * @param Login $event Event
+     * @param \Illuminate\Auth\Events\Login $event Event
      *
      * @return void
      */

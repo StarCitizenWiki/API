@@ -1,10 +1,13 @@
-// Fonts
-//@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
-@import "node_modules/font-awesome/scss/font-awesome.scss";
-
 // Bootstrap
-$enable-flex: true;
-@import "node_modules/bootstrap/scss/bootstrap.scss";
+@import "variables";
+//@import "../../../node_modules/bootstrap/scss/bootstrap";
+@import "~bootstrap/scss/bootstrap";
 
-@import "datatables_bs4.scss";
-@import "datatables.scss";
+@import "~datatables.net-bs4/css/dataTables.bootstrap4.css";
+@import "defaults";
+@import "button";
+@import "card";
+@import "nav";
+@import "text";
+@import "alert";
+@import "custom";

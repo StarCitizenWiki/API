@@ -1,12 +1,12 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Http;
 
+use App\Http\Throttle\ApiThrottle;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 /**
  * Class Kernel
- * @package App\Http
  */
 class Kernel extends HttpKernel
 {
@@ -19,7 +19,10 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
-        \App\Http\Middleware\PiwikTracking::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\TrustProxies::class,
     ];
 
     /**
@@ -35,15 +38,16 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
-            \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+            \App\Http\Middleware\CheckUserState::class,
+            \App\Http\Middleware\PiwikTracking::class,
         ],
 
         'api' => [
-            'throttle:60,1',
             'bindings',
-            'token_usage',
-            'add_api_headers',
+            'update_token_timestamp',
+            'check_user_state',
+            'piwik_tracking',
+            'api.throttle',
         ],
     ];
 
@@ -55,15 +59,16 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
+        'admin' => \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin::class,
+        'admin.guest' => \App\Http\Middleware\Web\Admin\RedirectIfAdmin::class,
+        'api.throttle' => ApiThrottle::class,
         'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle' => \App\Http\Middleware\ThrottleAPI::class,
-        'admin' => \App\Http\Middleware\CheckIfAdmin::class,
-        'token_usage' => \App\Http\Middleware\UpdateTokenTimestamp::class,
-        'add_api_headers' => \App\Http\Middleware\AddAPIHeaders::class,
+        'check_user_state' => \App\Http\Middleware\CheckUserState::class,
+        'guest' => \App\Http\Middleware\Web\User\RedirectIfAuthenticated::class,
+        'update_token_timestamp' => \App\Http\Middleware\Api\UpdateTokenTimestamp::class,
         'piwik_tracking' => \App\Http\Middleware\PiwikTracking::class,
     ];
 }
