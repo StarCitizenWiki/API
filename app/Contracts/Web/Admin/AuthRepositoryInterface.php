@@ -6,7 +6,7 @@
  * Time: 10:51
  */
 
-namespace App\Repositories\Contracts\Web\Admin;
+namespace App\Contracts\Web\Admin;
 
 use App\Models\Account\Admin\Admin;
 use SocialiteProviders\Manager\OAuth1\User;

@@ -10,7 +10,7 @@ namespace App\Repositories\Web\Admin;
 
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
-use App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface;
+use App\Contracts\Web\Admin\AuthRepositoryInterface;
 use SocialiteProviders\Manager\OAuth1\User;
 
 /**

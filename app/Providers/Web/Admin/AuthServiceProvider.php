@@ -6,9 +6,11 @@
  * Time: 10:57
  */
 
-namespace App\Repositories\Providers\Web\Admin;
+namespace App\Providers\Web\Admin;
 
-use App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface;
+use App\Contracts\Web\Admin\AuthRepositoryInterface;
+use App\Repositories\Web\Admin\AuthRepository;
+use App\Repositories\Web\Admin\AuthRepositoryStub;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -21,9 +23,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $adminAuthImplementation = 'App\Repositories\Web\Admin\AuthRepository';
-        if (config('app.env') === 'local' && config('auth.providers.admins.use_stub_when_local') === true) {
-            $adminAuthImplementation = 'App\Repositories\Web\Admin\AuthRepositoryStub';
+        $adminAuthImplementation = AuthRepository::class;
+        if (config('auth.providers.admins.use_stub') === true) {
+            $adminAuthImplementation = AuthRepositoryStub::class;
         }
 
         $this->app->bind(AuthRepositoryInterface::class, $adminAuthImplementation);

@@ -10,7 +10,7 @@ namespace App\Repositories\Web\Admin;
 
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
-use App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface;
+use App\Contracts\Web\Admin\AuthRepositoryInterface;
 use Laravel\Socialite\Facades\Socialite;
 use SocialiteProviders\Manager\OAuth1\User;
 
@@ -53,7 +53,7 @@ class AuthRepository implements AuthRepositoryInterface
             [
                 'username' => $user->username,
                 'blocked' => $user->blocked,
-                'provider_id' => $user->id,
+                'provider_id' => $user->getId(),
                 'provider' => $provider,
             ]
         );
