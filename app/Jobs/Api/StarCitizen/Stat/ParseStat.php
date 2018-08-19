@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Api\StarCitizen\Stat;
 
-use App\Models\Api\StarCitizen\Stat;
+use App\Models\Api\StarCitizen\Stat\Stat;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
