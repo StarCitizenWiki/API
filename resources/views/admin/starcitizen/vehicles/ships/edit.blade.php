@@ -1,7 +1,7 @@
 @extends('admin.layouts.default_wide')
 
 @section('title')
-    @lang('Raumschiff') {{ $ground_vehicle->name}} @lang('bearbeiten')
+    @lang('Raumschiff') {{ $ship->name}} @lang('bearbeiten')
 @endsection
 
 @section('content')
