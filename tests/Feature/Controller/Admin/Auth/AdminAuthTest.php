@@ -17,7 +17,7 @@ use Tests\Feature\Controller\Admin\AdminTestCase;
  *
  * @covers \App\Http\Controllers\Web\Admin\Auth\LoginController
  */
-class AdminAuthStubTest extends AdminTestCase
+class AdminAuthTest extends AdminTestCase
 {
     /**
      * Login Form

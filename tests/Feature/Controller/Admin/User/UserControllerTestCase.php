@@ -8,6 +8,7 @@
 namespace Tests\Feature\Controller\Admin\User;
 
 use App\Models\Account\User\User;
+use Illuminate\Http\Response;
 use Tests\Feature\Controller\Admin\AdminTestCase;
 
 /**
@@ -26,6 +27,10 @@ class UserControllerTestCase extends AdminTestCase
     {
         $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.users.index'));
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
+
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertViewIs('admin.users.index');
+        }
     }
 
 
@@ -42,6 +47,10 @@ class UserControllerTestCase extends AdminTestCase
 
         $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.users.edit', $user->getRouteKey()));
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
+
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertViewIs('admin.users.edit');
+        }
     }
 
     /**

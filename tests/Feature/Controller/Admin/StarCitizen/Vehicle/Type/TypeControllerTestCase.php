@@ -34,7 +34,8 @@ class TypeControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
 
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertDontSee(__('Keine Übersetzungen vorhanden'))
+            $response->assertViewIs('admin.starcitizen.vehicles.types.index')
+                ->assertDontSee(__('Keine Übersetzungen vorhanden'))
                 ->assertSee(__('Fahrzeugtypen'))
                 ->assertSee(__('en_EN'));
         }
@@ -62,7 +63,9 @@ class TypeControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
 
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertSee(__('Übersetzungen'))->assertSee(__('Speichern'));
+            $response->assertViewIs('admin.starcitizen.vehicles.types.edit')
+                ->assertSee(__('Übersetzungen'))
+                ->assertSee(__('Speichern'));
         }
     }
 
