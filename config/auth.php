@@ -73,7 +73,7 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Account\Admin\Admin::class,
-            'use_stub_when_local' => env('ADMIN_AUTH_STUB_WHEN_LOCAL', true),
+            'use_stub' => env('ADMIN_AUTH_USE_STUB', false),
         ],
 
         'users' => [
