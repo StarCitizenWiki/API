@@ -11,7 +11,6 @@ use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 
 /**
  * Abstract Vehicle Class
@@ -44,6 +43,7 @@ class Vehicle extends HasTranslations
         'y_axis_acceleration',
         'z_axis_acceleration',
         'chassis_id',
+        'updated_at',
     ];
 
     protected $with = [
