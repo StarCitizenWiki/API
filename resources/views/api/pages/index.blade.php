@@ -20,13 +20,21 @@
         <div class="card-body">
             <h4 class="card-title">@lang('Das Projekt')</h4>
             <div class="card-text">
-                @lang('api/index.about')
-
-                <a href="mailto:info@star-citizen.wiki" class="text-italic">@lang('api/index.write')</a>
-                @lang('api/index.about_2')
-                <a href="ts3server://ts.star-citizen.wiki" class="text-italic">@lang('api/index.teamspeak_server')</a>
+                <p>
+                    @lang('Die Star Citizen Wiki API dient als Schnittstelle zwischen dem Wiki und diversen anderen Datenquellen.')
+                </p>
+                <p>
+                    @lang('Du hast Interesse an Programmierung und Webdesign?')
+                    <br>
+                    @lang('Wir suchen immer engagierte Leute für unser Projekt.')
+                </p>
+                <p>
+                    <a href="mailto:info@star-citizen.wiki" class="text-italic">@lang('Schreib')</a>
+                    @lang('uns, oder besuch uns auf unserem')
+                    <a href="ts3server://ts.star-citizen.wiki" class="text-italic">Teamspeak-Server</a>!
+                </p>
             </div>
-            @if (Auth::guest())
+            @if (Auth::guest() && config('app.registration_enabled'))
                 <a href="{{ route('web.user.auth.register_form') }}" class="mt-4 btn btn-outline-primary">@lang('Registrieren')</a>
             @endif
         </div>
