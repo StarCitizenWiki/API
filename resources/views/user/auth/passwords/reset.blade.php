@@ -21,7 +21,7 @@
         <h4 class="card-header">@lang('Passwort zurücksetzen')</h4>
         <div class="card-body">
             @component('components.forms.form', ['action' => route('web.user.auth.password.request')])
-                <input type="hidden" name="token" value="{{ $token or '' }}">
+                <input type="hidden" name="token" value="{{ $token ?? '' }}">
 
                 @component('components.forms.form-group', [
                     'inputType' => 'email',
@@ -32,7 +32,7 @@
                     'tabIndex' => 1,
                     'inputOptions' => 'spellcheck=false',
                 ])
-                    @slot('value'){{ $email or old('email') }}@endslot
+                    @slot('value'){{ $email ?? old('email') }}@endslot
                 @endcomponent
 
                 @component('components.forms.form-group', [

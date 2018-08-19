@@ -1,48 +1,48 @@
-<div class="form-group {{ $class or '' }}">
+<div class="form-group {{ $class ?? '' }}">
     @if(isset($label))
-    <label @if(isset($labelClass)) class="{{ $labelClass or '' }}" @endif
+    <label @if(isset($labelClass)) class="{{ $labelClass ?? '' }}" @endif
            for="{{ $id }}"
            aria-label="{{ $id }}"
-           {{ $labelOptions or '' }}>
+           {{ $labelOptions ?? '' }}>
         {{ $label }}:
     </label>
     @endif
 
     @if(isset($inputType) && $inputType === 'textarea')
-        <textarea type="{{ $inputType or 'text' }}"
-               name="{{ $name or $id }}"
+        <textarea type="{{ $inputType ?? 'text' }}"
+               name="{{ $name ?? $id }}"
                aria-label="{{ $id }}"
-               @if(isset($tabIndex)) tabindex="{{ $tabIndex or 0 }}" @endif
-               @if(isset($cols)) cols="{{ $cols or 0 }}" @endif
-               rows="{{ $rows or 3 }}"
+               @if(isset($tabIndex)) tabindex="{{ $tabIndex ?? 0 }}" @endif
+               @if(isset($cols)) cols="{{ $cols ?? 0 }}" @endif
+               rows="{{ $rows ?? 3 }}"
                id="{{ $id }}"
-               class="{{ $inputClass or 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
+               class="{{ $inputClass ?? 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
                @if(isset($required) && $required == '1') required @endif
                @if(isset($autofocus) && $autofocus == '1') autofocus @endif
-                {{ $inputOptions or '' }}>{{ $value or old($id) }}</textarea>
+                {{ $inputOptions ?? '' }}>{{ $value ?? old($id) }}</textarea>
     @elseif(isset($inputType) && $inputType === 'select')
-        <select type="{{ $inputType or 'text' }}"
-                  name="{{ $name or $id }}"
+        <select type="{{ $inputType ?? 'text' }}"
+                  name="{{ $name ?? $id }}"
                   aria-label="{{ $id }}"
-                  @if(isset($tabIndex)) tabindex="{{ $tabIndex or 0 }}" @endif
+                  @if(isset($tabIndex)) tabindex="{{ $tabIndex ?? 0 }}" @endif
                   id="{{ $id }}"
-                  class="{{ $inputClass or 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
+                  class="{{ $inputClass ?? 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
                   @if(isset($required) && $required == '1') required @endif
                   @if(isset($autofocus) && $autofocus == '1') autofocus @endif
-                {{ $inputOptions or '' }}>
-            {{ $selectOptions or '' }}
+                {{ $inputOptions ?? '' }}>
+            {{ $selectOptions ?? '' }}
         </select>
     @else
-        <input type="{{ $inputType or 'text' }}"
-               name="{{ $name or $id }}"
+        <input type="{{ $inputType ?? 'text' }}"
+               name="{{ $name ?? $id }}"
                aria-label="{{ $id }}"
-               @if(isset($tabIndex)) tabindex="{{ $tabIndex or 0 }}" @endif
-               @if(isset($value)) value="{{ $value or '' }}" @endif
+               @if(isset($tabIndex)) tabindex="{{ $tabIndex ?? 0 }}" @endif
+               @if(isset($value)) value="{{ $value ?? '' }}" @endif
                id="{{ $id }}"
-               class="{{ $inputClass or 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
+               class="{{ $inputClass ?? 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
                @if(isset($required) && $required == '1') required @endif
                @if(isset($autofocus) && $autofocus == '1') autofocus @endif
-                {{ $inputOptions or '' }}>
+                {{ $inputOptions ?? '' }}>
     @endif
     {{ $slot }}
 </div>

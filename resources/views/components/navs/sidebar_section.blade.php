@@ -1,10 +1,10 @@
-<ul class="nav {{ $class or '' }}" {{ $options or '' }}>
+<ul class="nav {{ $class ?? '' }}" {{ $options ?? '' }}>
     <li class="nav-item">
         @unless(empty($title))
-            <span class="nav-link {{ $titleClass or '' }}">{{ $title or '' }}</span>
+            <span class="nav-link {{ $titleClass ?? '' }}">{{ $title ?? '' }}</span>
         @endunless
 
-        <ul class="list-unstyled {{ $id or '' }} {{ $contentClass or '' }}{{--
+        <ul class="list-unstyled {{ $id ?? '' }} {{ $contentClass ?? '' }}{{--
         --}}@if(isset($isLink) && !empty($isLink))
             @if (isset($show) && $show == 1)
 {{--        --}}show

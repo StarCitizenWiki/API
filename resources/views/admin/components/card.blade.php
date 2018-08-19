@@ -1,7 +1,7 @@
-<div class="card {{ $class or '' }}" {{ $options or '' }}>
+<div class="card {{ $class ?? '' }}" {{ $options ?? '' }}>
     @if(isset($title))
         @if(starts_with($title, '#'))
-            <h4 class="card-header {{ $titleClass or '' }}">
+            <h4 class="card-header {{ $titleClass ?? '' }}">
                 @if(isset($icon))
                     @component('components.elements.icon', [
                         'class' => 'mr-1',
@@ -15,7 +15,7 @@
                 {{ ltrim($title, '#') }}
             </h4>
         @else
-            <div class="card-header {{ $titleClass or '' }}">
+            <div class="card-header {{ $titleClass ?? '' }}">
                 @if(isset($icon))
                     @component('components.elements.icon', [
                         'class' => 'mr-1'
@@ -27,11 +27,11 @@
             </div>
         @endif
     @endif
-    <div class="card-body {{ $contentClass or '' }}">
+    <div class="card-body {{ $contentClass ?? '' }}">
         {{ $slot }}
     </div>
     @if(isset($footer))
-        <div class="card-footer {{ $footerClass or '' }}">
+        <div class="card-footer {{ $footerClass ?? '' }}">
             {{ $footer }}
         </div>
     @endif
