@@ -28,6 +28,7 @@
     @endcomponent
 @endcan
 
+{{--
 @component('components.navs.sidebar_section', [
     'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
     'titleClass' => 'text-muted pb-0',
@@ -37,6 +38,7 @@
 ])
     @include('admin.menu.starmap')
 @endcomponent
+--}}
 
 @can('web.admin.starcitizen.vehicles.view')
     @component('components.navs.sidebar_section', [

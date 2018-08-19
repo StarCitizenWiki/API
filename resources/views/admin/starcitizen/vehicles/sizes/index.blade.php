@@ -1,5 +1,7 @@
 @extends('admin.layouts.default')
 
+@section('title', __('Fahrzeuggrößen'))
+
 @section('content')
     <div class="card">
         <h4 class="card-header">@lang('Fahrzeuggrößen')</h4>

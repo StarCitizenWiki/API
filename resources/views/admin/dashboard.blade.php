@@ -1,5 +1,7 @@
 @extends('admin.layouts.default_wide')
 
+@section('title', __('Dashboard'))
+
 {{-- Page Content --}}
 @section('content')
     <section class="row equal-height">

@@ -15,6 +15,7 @@
     @endcomponent
 @endcan
 
+{{--
 @can('web.admin.internals.view')
     @component('components.navs.nav_element', [
         'route' => route('web.admin.logs.index'),
@@ -31,6 +32,7 @@
         </div>
     @endcomponent
 @endcan
+--}}
 
 @can('web.admin.users.view')
     @component('components.navs.nav_element', [

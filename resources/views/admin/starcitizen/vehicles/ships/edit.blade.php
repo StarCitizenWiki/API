@@ -1,5 +1,9 @@
 @extends('admin.layouts.default_wide')
 
+@section('title')
+    @lang('Raumschiff') {{ $ground_vehicle->name}} @lang('bearbeiten')
+@endsection
+
 @section('content')
     <div class="card-deck">
         @component('admin.components.card', [

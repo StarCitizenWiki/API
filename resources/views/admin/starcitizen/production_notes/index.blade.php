@@ -1,5 +1,7 @@
 @extends('admin.layouts.default')
 
+@section('title', __('Produktionsnotizen'))
+
 @section('content')
     <div class="card">
         <h4 class="card-header">@lang('Produktionsnotizen')</h4>

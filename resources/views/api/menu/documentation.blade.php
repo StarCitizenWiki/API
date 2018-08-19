@@ -1,5 +1,6 @@
 @component('components.navs.nav_element', [
-    'route' => route('web.api.faq'),
+    'contentClass' => 'disabled',
+    'route' => '-'
 ])
     <div class="row">
         <div class="col-1">
