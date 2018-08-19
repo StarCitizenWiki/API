@@ -49,7 +49,7 @@ return [
                 \App\Logging\AddLogProcessor::class,
             ],
             'path'   => storage_path('logs/laravel.log'),
-            'level'  => 'debug',
+            'level' => env('LOG_LEVEL', 'info'),
             'days'   => 7,
         ],
 
