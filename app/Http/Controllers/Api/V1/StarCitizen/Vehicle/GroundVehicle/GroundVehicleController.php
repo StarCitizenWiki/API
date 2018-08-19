@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\WikiGroundVehicleTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -25,9 +24,6 @@ class GroundVehicleController extends ApiController
     public function __construct(GroundVehicleTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
-        if ($request->has('format') && $request->get('format') === 'wiki') {
-            $this->transformer = new WikiGroundVehicleTransformer();
-        }
 
         parent::__construct($request);
     }
