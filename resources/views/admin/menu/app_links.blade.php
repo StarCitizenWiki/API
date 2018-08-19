@@ -1,6 +1,6 @@
 @component('components.navs.nav_element')
     @slot('route')
-        //{{ config('app.api_url') }}
+        //{{ config('app.url') }}
     @endslot
     <div class="row">
         <div class="col-1">
