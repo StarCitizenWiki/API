@@ -16,8 +16,7 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'disabled',
-    'route' => '-'
+    'route' => route('web.api.documentation')
 ])
     <div class="row">
         <div class="col-1">
