@@ -16,7 +16,7 @@
 
 
 @component('components.navs.nav_element', [
-    'route' => route('web.api.documentation')
+    'route' => 'https://docs.star-citizen.wiki/'
 ])
     <div class="row">
         <div class="col-1">

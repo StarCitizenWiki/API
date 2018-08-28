@@ -48,7 +48,7 @@ Das ``meta`` Feld enthält darüberhinaus immer das Feld ``processed_at`` mit ei
     {
       "data": {},
       "meta": {
-        "processed_at": "2018-08-27 18:47:23"
+        "processed_at": "2018-08-01 00:00:00"
       }
     }
 
@@ -69,14 +69,14 @@ Beispielanfrage mit Guzzle
 
     $client = new GuzzleHttp\Client([
         'timeout' => 3.0,
-        'base_uri' => 'https://api.star-citizen.wiki/api',
+        'base_uri' => 'https://api.star-citizen.wiki',
         'headers' => [
             'Auth' => 'Bearer <API Key>',
             'Accept' => 'application/x.StarCitizenWikiApi.v1+json',
         ]
     ]);
 
-    $res = $client->request('GET', '/stats/latest');
+    $res = $client->request('GET', '/api/stats/latest');
     echo $res->getStatusCode();
     // "200"
     echo $res->getBody();

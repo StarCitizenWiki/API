@@ -6,7 +6,5 @@ Route::group(
         Route::get('/', 'PageController@showApiView')->name('index');
         Route::get('/faq', 'PageController@showFaqView')->name('faq');
         Route::get('/status', 'PageController@showStatusView')->name('status');
-
-        Route::get('/documentation', 'PageController@documentation')->name('documentation');
     }
 );

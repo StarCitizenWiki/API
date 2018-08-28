@@ -5,31 +5,12 @@ namespace App\Http\Controllers\Web\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Api\Notification;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Storage;
-use League\CommonMark\Converter;
 
 /**
  * Class APIPageController
  */
 class PageController extends Controller
 {
-    /**
-     * @var \League\CommonMark\Converter
-     */
-    protected $converter;
-
-    /**
-     * PageController constructor.
-     *
-     * @param \League\CommonMark\Converter $converter
-     */
-    public function __construct(Converter $converter)
-    {
-        parent::__construct();
-
-        $this->converter = $converter;
-    }
-
     /**
      * Returns the API Index View
      *
@@ -88,13 +69,5 @@ class PageController extends Controller
                 'notifications' => $notifications,
             ]
         );
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function documentation()
-    {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
     }
 }
