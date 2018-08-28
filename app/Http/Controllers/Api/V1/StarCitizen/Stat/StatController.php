@@ -8,7 +8,9 @@ use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
 use Illuminate\Http\Request;
 
 /**
- * @Resource("Stats", uri="/stats")
+ * Stat API
+ * Ausgabe des aktuellen Spendenstatus, der Fans sowie der Fleet (Crowdfund Stats)
+ * Import der Statistik erfolgt täglich um 20:00
  */
 class StatController extends ApiController
 {
@@ -32,20 +34,7 @@ class StatController extends ApiController
     }
 
     /**
-     * Get Latest Crowdfund Stats
-     *
-     * @Get("/latest")
-     *
-     * @Versions({"v1"})
-     *
-     * @Response(200, body={
-     *     "data": {
-     *          "funds": "180000000",
-     *          "fans": "2000000",
-     *          "fleet": "1500000",
-     *          "timestamp": "2018-01-02 20:00:00"
-     *      }
-     * })
+     * Ausgabe der aktuellen Statistik
      *
      * @return \Dingo\Api\Http\Response
      */
@@ -57,45 +46,7 @@ class StatController extends ApiController
     }
 
     /**
-     * Get All Crowdfund Stats paginated
-     *
-     * @Get("/")
-     *
-     * @Versions({"v1"})
-     *
-     * @Parameters({
-     *      @Parameter("page", description="The page of results to view.", default=1)
-     * })
-     *
-     * @Response(200, body={
-     *     "data": {
-     *          {
-     *              "funds": "180000000",
-     *              "fans": "2000000",
-     *              "fleet": "1500000",
-     *              "timestamp": "2018-01-02 20:00:00"
-     *          },
-     *          {
-     *              "funds": "...",
-     *              "fans": "...",
-     *              "fleet": "...",
-     *              "timestamp": "2018-01-01 20:00:00"
-     *          }
-     *     },
-     *     "meta": {
-     *          "pagination": {
-     *              "total": 1000,
-     *              "count": 15,
-     *              "per_page": 15,
-     *              "current_page": 1,
-     *              "total_pages": 100,
-     *              "links": {
-     *                  "next": "Link",
-     *                  "prev": "Link"
-     *              }
-     *          }
-     *     }
-     * })
+     * Ausgabe aller Statistiken
      *
      * @return \Dingo\Api\Http\Response
      */

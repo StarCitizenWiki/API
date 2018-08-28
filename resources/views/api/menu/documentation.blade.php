@@ -16,8 +16,7 @@
 
 
 @component('components.navs.nav_element', [
-    'contentClass' => 'disabled',
-    'route' => '-'
+    'route' => 'https://docs.star-citizen.wiki/'
 ])
     <div class="row">
         <div class="col-1">

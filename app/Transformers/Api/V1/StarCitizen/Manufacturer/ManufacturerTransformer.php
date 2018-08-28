@@ -121,10 +121,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
         $model->translations->each(
             function ($translation) use (&$translations) {
                 if (null !== $this->localeCode) {
-                    if ($translation->locale_code === $this->localeCode ||
-                        (empty($translations['known_for']) && $translation->locale_code === config(
-                                'language.english'
-                            ))) {
+                    if ($translation->locale_code === $this->localeCode || (empty($translations['known_for']) && $translation->locale_code === config('language.english'))) {
                         $translations = [
                             'known_for' => $translation->known_for,
                             'description' => $translation->description,
@@ -137,7 +134,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
                     return $translation;
                 } else {
                     $translations['known_for'][$translation->locale_code] = $translation->known_for;
-                    $translations['description'][$translation->locale_code] = $translation->known_for;
+                    $translations['description'][$translation->locale_code] = $translation->description;
                 }
             }
         );
