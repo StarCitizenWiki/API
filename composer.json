@@ -11,6 +11,7 @@
         "php": ">=7.2",
         "ext-json": "*",
         "dingo/api": "2.0.0-alpha2",
+        "fabpot/goutte": "^3.2",
         "fideloper/proxy": "~4.0",
         "guzzlehttp/guzzle": "^6.3",
         "jackiedo/log-reader": "2.*",

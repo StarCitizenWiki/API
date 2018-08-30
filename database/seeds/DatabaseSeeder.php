@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->seedSystemTables();
         $this->seedAccountTables();
         $this->seedApiTables();
+        $this->seedRsiTables();
     }
 
     /**
@@ -54,5 +55,14 @@ class DatabaseSeeder extends Seeder
         if (App::environment() === 'local') {
             $this->call(NotificationTableSeeder::class);
         }
+    }
+
+    /**
+     * Comm Links
+     */
+    private function seedRsiTables()
+    {
+        $this->call(CategoryTableSeeder::class);
+        $this->call(ResortTableSeeder::class);
     }
 }
