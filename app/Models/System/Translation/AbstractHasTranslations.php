@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\Translation;
+namespace App\Models\System\Translation;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\DB;
  */
 abstract class AbstractHasTranslations extends Model
 {
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    abstract public function translations();
+
     /**
      * @return \Illuminate\Database\Eloquent\Model|null
      */

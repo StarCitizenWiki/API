@@ -7,7 +7,7 @@
             @foreach($languages as $language)
                 <th>@lang($language->locale_code)</th>
             @endforeach
-            @can('web.admin.starcitizen.translations.update')
+            @can('web.admin.translations.update')
                 <th data-orderable="false">&nbsp;</th>
             @endcan
         </tr>
@@ -26,7 +26,7 @@
                     {{ optional($translationObject)->translation ?? '-' }}
                 </td>
             @endforeach
-            @can('web.admin.starcitizen.translations.update')
+            @can('web.admin.translations.update')
                 <td class="text-center">
                     @component('components.edit_delete_block')
                         @slot('edit_url')

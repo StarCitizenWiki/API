@@ -9,6 +9,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Dispatches a ParseCommLink Job for the newest file in every Comm Link Folder
+ */
 class ParseCommLinkDownload implements ShouldQueue
 {
     use Dispatchable;
@@ -17,13 +20,18 @@ class ParseCommLinkDownload implements ShouldQueue
     use SerializesModels;
 
     /**
+     * @var int Offset to start parsing from
+     */
+    private $offset = 0;
+
+    /**
      * Create a new job instance.
      *
-     * @return void
+     * @param int $offset Directory Offset
      */
-    public function __construct()
+    public function __construct(int $offset = 0)
     {
-        //
+        $this->offset = $offset;
     }
 
     /**
@@ -34,9 +42,11 @@ class ParseCommLinkDownload implements ShouldQueue
     public function handle()
     {
         foreach (Storage::disk('comm_links')->directories() as $commLinkDir) {
-            $file = scandir(Storage::disk('comm_links')->path($commLinkDir), SCANDIR_SORT_DESCENDING)[0];
+            if (intval($commLinkDir) >= $this->offset) {
+                $file = scandir(Storage::disk('comm_links')->path($commLinkDir), SCANDIR_SORT_DESCENDING)[0];
 
-            dispatch(new ParseCommLink(intval($commLinkDir), $file));
+                dispatch(new ParseCommLink(intval($commLinkDir), $file));
+            }
         }
     }
 }

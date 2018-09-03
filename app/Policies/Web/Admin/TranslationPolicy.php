@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Policies\Web\Admin\StarCitizen;
+namespace App\Policies\Web\Admin;
 
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;

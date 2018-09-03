@@ -9,6 +9,7 @@ use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
+use App\Models\Rsi\CommLink\CommLink;
 use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -212,6 +213,16 @@ class RouteServiceProvider extends ServiceProvider
                 return VehicleType::findOrFail($id);
             }
         );
+
+        /**
+         * RSI
+         */
+        Route::bind(
+            'comm_link',
+            function ($id) {
+                return CommLink::where('cig_id', $id)->firstOrFail();
+            }
+        );
     }
 
     /**
@@ -243,6 +254,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     private function authorizeTranslationView()
     {
-        Gate::authorize('web.admin.starcitizen.translations.view', Auth::guard('admin')->user());
+        Gate::authorize('web.admin.translations.view', Auth::guard('admin')->user());
     }
 }

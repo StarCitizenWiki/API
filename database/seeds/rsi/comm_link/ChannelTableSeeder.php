@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class ResortTableSeeder extends Seeder
+class ChannelTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,7 +11,7 @@ class ResortTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('resorts')->insert(
+        DB::table('comm_link_channels')->insert(
             [
                 'name' => 'Undefined',
             ]

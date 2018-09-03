@@ -30,7 +30,7 @@ class VehicleFocusController extends Controller
      */
     public function index()
     {
-        $this->authorize('web.admin.starcitizen.translations.view');
+        $this->authorize('web.admin.translations.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -54,7 +54,7 @@ class VehicleFocusController extends Controller
      */
     public function edit(VehicleFocus $focus)
     {
-        $this->authorize('web.admin.starcitizen.translations.update');
+        $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -78,7 +78,7 @@ class VehicleFocusController extends Controller
      */
     public function update(TranslationRequest $request, VehicleFocus $focus)
     {
-        $this->authorize('web.admin.starcitizen.translations.update');
+        $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();

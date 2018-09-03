@@ -4,15 +4,15 @@ namespace App\Jobs\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Checks downloaded Comm Links against the live version
+ * Re-Downloads a new Version of an existing Comm Link
  */
-class CheckDownloadedCommLinks implements ShouldQueue
+class DownloadAllCommLinks implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -20,16 +20,6 @@ class CheckDownloadedCommLinks implements ShouldQueue
     use SerializesModels;
 
     const FIRST_COMM_LINK_ID = 12663;
-
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
 
     /**
      * Execute the job.

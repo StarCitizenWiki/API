@@ -2,7 +2,7 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
-use App\Models\Api\Translation\AbstractTranslation as Translation;
+use App\Models\System\Translation\AbstractTranslation as Translation;
 
 /**
  * Ship Translations Model

@@ -66,6 +66,19 @@ Route::group(
                                 );
                         }
                     );
+
+                Route::namespace('Rsi')
+                    ->name('rsi.')
+                    ->prefix('rsi')
+                    ->group(
+                        function () {
+                            Route::resources(
+                                [
+                                    'comm_links' => 'CommLink\CommLinkController',
+                                ]
+                            );
+                        }
+                    );
             }
         );
     }

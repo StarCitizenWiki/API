@@ -63,6 +63,7 @@ class DatabaseSeeder extends Seeder
     private function seedRsiTables()
     {
         $this->call(CategoryTableSeeder::class);
-        $this->call(ResortTableSeeder::class);
+        $this->call(ChannelTableSeeder::class);
+        $this->call(SeriesTableSeeder::class);
     }
 }

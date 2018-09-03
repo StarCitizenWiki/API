@@ -3,9 +3,12 @@
 namespace App\Jobs\Rsi\CommLink;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
+use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Models\Rsi\CommLink\CommLink;
 use Goutte\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -54,9 +57,17 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         $latestPost = $crawler->filter('.hub-blocks > a')->first();
         $latestPostId = $this->extractLatestPostId($latestPost);
 
-        for ($id = self::FIRST_COMM_LINK_ID; $id <= $latestPostId; $id++) {
+        try {
+            $dbId = CommLink::orderByDesc('cig_id')->firstOrFail()->cig_id;
+        } catch (ModelNotFoundException $e) {
+            $dbId = self::FIRST_COMM_LINK_ID;
+        }
+
+        for ($id = $dbId; $id <= $latestPostId; $id++) {
             dispatch(new DownloadCommLink(($id)))->onQueue('comm_links');
         }
+
+        dispatch(new ParseCommLinkDownload($dbId));
     }
 
     /**

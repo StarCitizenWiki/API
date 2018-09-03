@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateResortsTable extends Migration
+class CreateCommLinkCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateResortsTable extends Migration
     public function up()
     {
         Schema::create(
-            'resorts',
+            'comm_link_categories',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name');
@@ -30,6 +30,6 @@ class CreateResortsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('resorts');
+        Schema::dropIfExists('comm_link_categories');
     }
 }

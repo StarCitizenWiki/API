@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Console\Commands\ImportShipMatrix;
 use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use Illuminate\Console\Scheduling\Schedule;
@@ -21,7 +20,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\DownloadShipMatrix::class,
         \App\Console\Commands\DownloadStats::class,
-        ImportShipMatrix::class,
+        \App\Console\Commands\ImportShipMatrix::class,
+        \App\Console\Commands\ImportCommLinks::class,
     ];
 
     /**

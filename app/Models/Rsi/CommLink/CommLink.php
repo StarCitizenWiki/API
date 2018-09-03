@@ -8,30 +8,65 @@
 
 namespace App\Models\Rsi\CommLink;
 
+use App\Models\Rsi\CommLink\Category\Category;
+use App\Models\Rsi\CommLink\Channel\Channel;
+use App\Models\Rsi\CommLink\Content\Content;
+use App\Models\Rsi\CommLink\Series\Series;
+use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
-use Illuminate\Database\Eloquent\Model;
 
-class CommLink extends Model
+class CommLink extends HasTranslations
 {
     use ModelChangelog;
 
     protected $fillable = [
         'cig_id',
+        'title',
         'comment_count',
         'file',
-        'hash',
-        'resort_id',
+        'channel_id',
         'category_id',
+        'series_id',
         'created_at',
     ];
 
-    public function resort()
+    protected $with = [
+        'channel',
+        'category',
+        'series',
+        'content',
+    ];
+
+    public function getRouteKey()
     {
-        return $this->belongsTo(Resort::class);
+        return $this->cig_id;
+    }
+
+    public function channel()
+    {
+        return $this->belongsTo(Channel::class);
     }
 
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function series()
+    {
+        return $this->belongsTo(Series::class);
+    }
+
+    public function content()
+    {
+        return $this->hasOne(Content::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function translations()
+    {
+        return $this->hasMany(CommLinkTranslation::class);
     }
 }

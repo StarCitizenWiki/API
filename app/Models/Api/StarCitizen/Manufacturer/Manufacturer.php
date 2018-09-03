@@ -3,7 +3,7 @@
 namespace App\Models\Api\StarCitizen\Manufacturer;
 
 use App\Events\ModelUpdating;
-use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 

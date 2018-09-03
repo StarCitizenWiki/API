@@ -2,7 +2,7 @@
 
 namespace App\Models\Api\StarCitizen\ProductionStatus;
 
-use App\Models\Api\Translation\AbstractTranslation as Translation;
+use App\Models\System\Translation\AbstractTranslation as Translation;
 
 /**
  * Production Status Translations

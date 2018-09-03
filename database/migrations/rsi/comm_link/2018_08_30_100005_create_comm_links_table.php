@@ -18,18 +18,22 @@ class CreateCommLinksTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->unsignedBigInteger('cig_id');
+
+                $table->string('title');
                 $table->unsignedBigInteger('comment_count');
 
                 $table->string('file');
 
-                $table->unsignedInteger('resort_id');
+                $table->unsignedInteger('channel_id');
                 $table->unsignedInteger('category_id');
+                $table->unsignedInteger('series_id');
 
                 $table->timestamps();
 
 
-                $table->foreign('resort_id')->references('id')->on('resorts')->onDelete('cascade');
-                $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+                $table->foreign('channel_id')->references('id')->on('comm_link_channels')->onDelete('cascade');
+                $table->foreign('category_id')->references('id')->on('comm_link_categories')->onDelete('cascade');
+                $table->foreign('series_id')->references('id')->on('comm_link_series')->onDelete('cascade');
             }
         );
     }

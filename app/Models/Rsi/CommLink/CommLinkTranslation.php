@@ -1,27 +1,23 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\StarCitizen\Manufacturer;
+namespace App\Models\Rsi\CommLink;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
 
-/**
- * Manufacturer Translations
- */
-class ManufacturerTranslation extends Translation
+class CommLinkTranslation extends Translation
 {
     protected $fillable = [
         'locale_code',
-        'manufacturer_id',
-        'known_for',
-        'description',
+        'comm_link_id',
+        'translation',
     ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function manufacturer()
+    public function commLink()
     {
-        return $this->belongsTo(Manufacturer::class);
+        return $this->belongsTo(CommLink::class);
     }
 
     /**
@@ -31,6 +27,6 @@ class ManufacturerTranslation extends Translation
      */
     public function getMorphClass()
     {
-        return Manufacturer::class;
+        return CommLink::class;
     }
 }

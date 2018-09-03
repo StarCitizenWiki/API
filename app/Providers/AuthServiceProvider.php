@@ -32,6 +32,7 @@ class AuthServiceProvider extends ServiceProvider
          * Admin Gates
          */
         Gate::define('web.admin.dashboard.view', 'App\Policies\Web\Admin\AdminPolicy@viewDashboard');
+        Gate::resource('web.admin.translations', 'App\Policies\Web\Admin\TranslationPolicy');
 
         /**
          * Internals = Datenbank IDs, etc.
@@ -46,7 +47,6 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * Star Citizen
          */
-        Gate::resource('web.admin.starcitizen.translations', 'App\Policies\Web\Admin\StarCitizen\TranslationPolicy');
         Gate::resource('web.admin.starcitizen.manufacturers', 'App\Policies\Web\Admin\StarCitizen\Manufacturer\ManufacturerPolicy');
         Gate::resource('web.admin.starcitizen.vehicles', 'App\Policies\Web\Admin\StarCitizen\Vehicle\VehiclePolicy');
     }

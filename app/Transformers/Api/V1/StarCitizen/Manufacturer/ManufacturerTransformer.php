@@ -9,7 +9,7 @@
 namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\Api\Translation\AbstractHasTranslations;
+use App\Models\System\Translation\AbstractHasTranslations;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
 use League\Fractal\TransformerAbstract;
 
@@ -103,7 +103,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
      * If a valid locale code is set this function will return the corresponding translation or use english as a fallback
      * @Todo Generate Array with translations that used the english fallback
      *
-     * @param \App\Models\Api\Translation\AbstractHasTranslations $model
+     * @param \App\Models\System\Translation\AbstractHasTranslations $model
      *
      * @return array|string the Translation
      */

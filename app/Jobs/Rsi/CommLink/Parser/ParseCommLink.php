@@ -2,9 +2,10 @@
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
-use App\Models\Rsi\CommLink\Category;
+use App\Models\Rsi\CommLink\Category\Category;
+use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\Resort;
+use App\Models\Rsi\CommLink\Series\Series;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,6 +15,9 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * Parses the HTML File and extracts all needed Data
+ */
 class ParseCommLink implements ShouldQueue
 {
     use Dispatchable;
@@ -21,8 +25,33 @@ class ParseCommLink implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private $id;
+    /**
+     * Default Creation Date no Date was found in the Comm Link
+     */
+    private const DEFAULT_CREATION_DATE = '2012-01-01 00:00:00';
+
+    /**
+     * @var int Comm Link ID
+     */
+    private $commLinkId;
+
+    /**
+     * @var string File in the Comm Link ID Folder
+     */
     private $file;
+
+    /**
+     * @var \Symfony\Component\DomCrawler\Crawler
+     */
+    private $crawler;
+
+    /**
+     * @var array Array with Links and Images from the Comm Link
+     */
+    private $commLinkContent = [
+        'images' => [],
+        'links' => [],
+    ];
 
     /**
      * Create a new job instance.
@@ -32,7 +61,7 @@ class ParseCommLink implements ShouldQueue
      */
     public function __construct(int $id, string $file)
     {
-        $this->id = $id;
+        $this->commLinkId = $id;
         $this->file = $file;
     }
 
@@ -45,82 +74,302 @@ class ParseCommLink implements ShouldQueue
      */
     public function handle()
     {
-        $content = Storage::disk('comm_links')->get($this->fileName());
-        $crawler = new Crawler($content);
+        $content = Storage::disk('comm_links')->get($this->filePath());
+        $this->crawler = new Crawler();
+        $this->crawler->addHtmlContent($content, 'UTF-8');
 
-        $content = $crawler->filter('#post')->first();
+        $content = $this->crawler->filter('#post')->first();
 
         try {
-            $content->html();
+            $content->text();
         } catch (\InvalidArgumentException $e) {
-            app('Log')::info("Comm-Link with id {$this->id} has no content");
+            app('Log')::info("Comm-Link with id {$this->commLinkId} has no content");
 
             return;
         }
 
+        $commentCount = $this->getCommentCount();
+        $createdAt = $this->getCreatedAt();
 
-        $commentCount = 0;
-        try {
-            $commentCount = $crawler->filter('.comment-count')->first()->text();
-        } catch (\InvalidArgumentException $e) {
-            echo "Comm-Link with id {$this->id} has no Comments\n";
-        }
-
-        $createdAt = '2012-01-01 00:00:00';
-        try {
-            $createdAt = Carbon::parse(
-                $crawler->filter('.title-section .details div:nth-of-type(3) p')->text()
-            )->toDateTimeString();
-        } catch (\InvalidArgumentException $e) {
-            echo "Comm-Link with id {$this->id} has no Creation Date\n";
-        }
-
-        CommLink::updateOrCreate(
+        /** @var \App\Models\Rsi\CommLink\CommLink $commLink */
+        $commLink = CommLink::updateOrCreate(
             [
-                'cig_id' => $this->id,
+                'cig_id' => $this->commLinkId,
             ],
             [
+                'title' => $this->getTitle(),
                 'comment_count' => $commentCount,
                 'file' => $this->file,
-                'resort_id' => $this->getResort($crawler),
-                'category_id' => $this->getCategory($crawler),
+                'channel_id' => $this->getChannel(),
+                'category_id' => $this->getCategory(),
+                'series_id' => $this->getSeries(),
                 'created_at' => $createdAt,
+            ]
+        );
+
+        $commLink->translations()->updateOrCreate(
+            [
+                'locale_code' => 'en_EN',
+            ],
+            [
+                'translation' => $this->getContent(),
+            ]
+        );
+
+        $commLink->content()->updateOrCreate(
+            [
+                'content' => json_encode($this->commLinkContent),
             ]
         );
     }
 
-    private function fileName()
-    {
-        return "{$this->id}/{$this->file}";
-    }
-
-    private function getResort(Crawler $crawler)
+    /**
+     * Tries to extract the Creation Date from the .title-section Element
+     * Defaults to '2012-01-01 00:00:00' if no Date was found
+     *
+     * @return string Parsed Date
+     */
+    private function getCreatedAt()
     {
         try {
-            $resort = $crawler->filter('.title-bar .title h2')->text();
+            return Carbon::parse(
+                $this->crawler->filter('.title-section .details div:nth-of-type(3) p')->text()
+            )->toDateTimeString();
         } catch (\InvalidArgumentException $e) {
-            return Resort::find(1)->id;
+            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no Creation Date");
         }
 
-        return Resort::firstOrCreate(
+        return self::DEFAULT_CREATION_DATE;
+    }
+
+    /**
+     * Tries to extract the Comment Count from the .title-section Element
+     *
+     * @return int Comment Count
+     */
+    private function getCommentCount(): int
+    {
+        try {
+            return intval($this->crawler->filter('.comment-count')->first()->text());
+        } catch (\InvalidArgumentException $e) {
+            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no Comments");
+        }
+
+        return 0;
+    }
+
+    /**
+     * @return string Path to Comm Link File
+     */
+    private function filePath()
+    {
+        return "{$this->commLinkId}/{$this->file}";
+    }
+
+    /**
+     * Tries to Extract the Comm Link Channel
+     * Defaults to 'Undefined' if not found
+     *
+     * @return int Channel ID
+     */
+    private function getChannel()
+    {
+        try {
+            $channel = $this->crawler->filter('.title-bar .title h2')->text();
+        } catch (\InvalidArgumentException $e) {
+            // Populated by Seed
+            return 1;
+        }
+
+        if (empty($channel)) {
+            // Populated by Seed
+            return 1;
+        }
+
+        return Channel::firstOrCreate(
             [
-                'name' => $resort,
+                'name' => $channel,
             ]
         )->id;
     }
 
-    private function getCategory(Crawler $crawler)
+    /**
+     * Tries to Extract the Comm Link Category
+     * Defaults to 'Undefined' if not found
+     *
+     * @return int Category ID
+     */
+    private function getCategory()
     {
         try {
-            $resort = $crawler->filter('.title-bar .title h1')->text();
+            $category = $this->crawler->filter('.title-bar .title h1')->text();
         } catch (\InvalidArgumentException $e) {
-            return Category::find(1)->id;
+            // Populated by Seed
+            return 1;
+        }
+
+        if (empty($category)) {
+            // Populated by Seed
+            return 1;
         }
 
         return Category::firstOrCreate(
             [
-                'name' => $resort,
+                'name' => $category,
             ]
         )->id;
+    }
+
+    /**
+     * Tries to Extract the Comm Link Series
+     * Defaults to 'None' if not found
+     *
+     * @return int Series ID
+     */
+    private function getSeries()
+    {
+        try {
+            $series = $this->crawler->filter('.presented-by + div + h1')->text();
+        } catch (\InvalidArgumentException $e) {
+            // Populated by Seed
+            return 1;
+        }
+
+        if (empty($series)) {
+            // Populated by Seed
+            return 1;
+        }
+
+        return Series::firstOrCreate(
+            [
+                'name' => $series,
+            ]
+        )->id;
+    }
+
+    /**
+     * Extracts the Comm Link title from the <title> Element
+     *
+     * @return string Comm Link Title
+     */
+    private function getTitle()
+    {
+        try {
+            $title = $this->crawler->filterXPath('//title')->text();
+        } catch (\InvalidArgumentException $e) {
+            return 'No Title Found';
+        }
+
+        return trim(
+            preg_replace(
+                [
+                    "/\r|\n/",
+                    '/\s+/',
+                ],
+                [
+                    '',
+                    ' ',
+                ],
+                explode('-', $title)[0]
+            )
+        );
+    }
+
+    /**
+     * Tries to extract the Comm Link Content as Text
+     *
+     * @param string $filter Content Element class/id
+     *
+     * @return string
+     */
+    private function getContent(string $filter = '.segment')
+    {
+        if ($this->isSpecialPage()) {
+            $filter = '#layout-system';
+        }
+
+        $content = '';
+
+        try {
+            $this->crawler->filter($filter)->each(
+                function (Crawler $crawler) use (&$content) {
+                    $this->extractImages($crawler);
+                    $this->extractLinks($crawler);
+
+                    $content .= $crawler->text();
+                }
+            );
+        } catch (\InvalidArgumentException $e) {
+            app('Log')::info("Comm-Link with id {$this->commLinkId} has no Content in {$filter}.");
+        }
+
+        return base64_encode(
+            trim(
+                preg_replace(
+                    [
+                        '/\R+/',
+                    ],
+                    [
+                        "\n",
+                    ],
+                    $content
+                )
+            )
+        );
+    }
+
+    /**
+     * Checks if Comm Link Page is a Ship Page
+     * Ship Pages are wrapped in a '#layout-system' Div
+     *
+     * @return bool
+     */
+    private function isSpecialPage(): bool
+    {
+        return ($this->crawler->filter('#layout-system')->count() === 1) ? true : false;
+    }
+
+    /**
+     * Extracts all <a> Elements from the Crawler
+     * Saves href and Link Texts
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $section
+     */
+    private function extractLinks(Crawler $section)
+    {
+        $section->filterXPath('//a')->each(
+            function (Crawler $crawler) {
+                $href = $crawler->attr('href');
+
+                if (null !== $href && '#' !== $href) {
+                    $this->commLinkContent['links'][] = [
+                        'href' => $href,
+                        'text' => trim($crawler->text()),
+                    ];
+                }
+            }
+        );
+    }
+
+    /**
+     * Extracts all <img> Elements from the Crawler
+     * Saves src and alt attributes
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $section
+     */
+    private function extractImages(Crawler $section)
+    {
+        $section->filterXPath('//img')->each(
+            function (Crawler $crawler) {
+                $src = $crawler->attr('src');
+
+                if (null !== $src) {
+                    $this->commLinkContent['images'][] = [
+                        'src' => str_replace('/post/', '/source/', $src),
+                        'alt' => trim($crawler->attr('alt') ?? ''),
+                    ];
+                }
+            }
+        );
     }
 }

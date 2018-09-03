@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\Translation;
+namespace App\Models\System\Translation;
 
 use App\Events\ModelUpdating;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;

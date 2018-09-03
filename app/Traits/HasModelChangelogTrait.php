@@ -7,7 +7,7 @@
 
 namespace App\Traits;
 
-use App\Models\Api\ModelChangelog;
+use App\Models\System\ModelChangelog;
 
 /**
  * Trait HasModelChangelogTrait

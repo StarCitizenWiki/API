@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class CategoryTableSeeder extends Seeder
+class SeriesTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,9 +11,9 @@ class CategoryTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('comm_link_categories')->insert(
+        DB::table('comm_link_series')->insert(
             [
-                'name' => 'Undefined',
+                'name' => 'None',
             ]
         );
     }
