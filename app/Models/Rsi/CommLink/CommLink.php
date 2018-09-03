@@ -10,7 +10,8 @@ namespace App\Models\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
-use App\Models\Rsi\CommLink\Content\Content;
+use App\Models\Rsi\CommLink\Image\Image;
+use App\Models\Rsi\CommLink\Link\Link;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
@@ -34,7 +35,8 @@ class CommLink extends HasTranslations
         'channel',
         'category',
         'series',
-        'content',
+        'images',
+        'links',
     ];
 
     public function getRouteKey()
@@ -57,9 +59,14 @@ class CommLink extends HasTranslations
         return $this->belongsTo(Series::class);
     }
 
-    public function content()
+    public function images()
     {
-        return $this->hasOne(Content::class);
+        return $this->belongsToMany(Image::class, 'comm_link_image', 'comm_link_id', 'comm_link_image_id');
+    }
+
+    public function links()
+    {
+        return $this->belongsToMany(Link::class, 'comm_link_link', 'comm_link_id', 'comm_link_link_id');
     }
 
     /**

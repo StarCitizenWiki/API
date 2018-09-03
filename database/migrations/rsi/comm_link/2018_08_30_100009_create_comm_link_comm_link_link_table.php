@@ -4,7 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommLinkContentTable extends Migration
+/**
+ * Class CreateAdminAdminGroupsTable
+ */
+class CreateCommLinkCommLinkLinkTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,14 +17,13 @@ class CreateCommLinkContentTable extends Migration
     public function up()
     {
         Schema::create(
-            'comm_link_content',
+            'comm_link_link',
             function (Blueprint $table) {
-                $table->increments('id');
                 $table->unsignedInteger('comm_link_id');
-                $table->json('content');
-                $table->timestamps();
+                $table->unsignedInteger('comm_link_link_id');
 
-                $table->foreign('comm_link_id')->references('id')->on('comm_links')->onDelete('cascade');
+                $table->foreign('comm_link_id')->references('id')->on('comm_links');
+                $table->foreign('comm_link_link_id')->references('id')->on('comm_link_links');
             }
         );
     }
@@ -33,6 +35,6 @@ class CreateCommLinkContentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('comm_link_content');
+        Schema::dropIfExists('comm_link_link');
     }
 }

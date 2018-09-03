@@ -5,6 +5,8 @@ namespace App\Jobs\Rsi\CommLink\Parser;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Image\Image;
+use App\Models\Rsi\CommLink\Link\Link;
 use App\Models\Rsi\CommLink\Series\Series;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -88,6 +90,8 @@ class ParseCommLink implements ShouldQueue
             return;
         }
 
+        $this->extractImages();
+        $this->extractLinks();
         $commentCount = $this->getCommentCount();
         $createdAt = $this->getCreatedAt();
 
@@ -116,11 +120,52 @@ class ParseCommLink implements ShouldQueue
             ]
         );
 
-        $commLink->content()->updateOrCreate(
-            [
-                'content' => json_encode($this->commLinkContent),
-            ]
+        $commLink->images()->sync($this->getImageIds());
+        $commLink->links()->sync($this->getLinkIds());
+    }
+
+    private function getImageIds(): array
+    {
+        $imageIds = [];
+        $images = collect($this->commLinkContent['images']);
+        $images->each(
+            function ($image) use (&$imageIds) {
+                $src = $image['src'];
+                $pattern = '/media\/(\w+)\/(\w+)\//';
+                $src = preg_replace($pattern, '/media/$1/source/', $src);
+
+                if (null === parse_url($src, PHP_URL_HOST)) {
+                    $src = config('api.rsi_url').$src;
+                }
+
+                $imageIds[] = Image::firstOrCreate(
+                    [
+                        'src' => $src,
+                        'alt' => $image['alt'],
+                    ]
+                )->id;
+            }
         );
+
+        return $imageIds;
+    }
+
+    private function getLinkIds(): array
+    {
+        $linkIds = [];
+        $links = collect($this->commLinkContent['links']);
+        $links->each(
+            function ($link) use (&$linkIds) {
+                $linkIds[] = Link::firstOrCreate(
+                    [
+                        'href' => $link['href'],
+                        'text' => $link['text'],
+                    ]
+                )->id;
+            }
+        );
+
+        return $linkIds;
     }
 
     /**
@@ -293,9 +338,6 @@ class ParseCommLink implements ShouldQueue
         try {
             $this->crawler->filter($filter)->each(
                 function (Crawler $crawler) use (&$content) {
-                    $this->extractImages($crawler);
-                    $this->extractLinks($crawler);
-
                     $content .= $crawler->text();
                 }
             );
@@ -332,18 +374,16 @@ class ParseCommLink implements ShouldQueue
     /**
      * Extracts all <a> Elements from the Crawler
      * Saves href and Link Texts
-     *
-     * @param \Symfony\Component\DomCrawler\Crawler $section
      */
-    private function extractLinks(Crawler $section)
+    private function extractLinks()
     {
-        $section->filterXPath('//a')->each(
+        $this->crawler->filter('#post')->filterXPath('//a')->each(
             function (Crawler $crawler) {
                 $href = $crawler->attr('href');
 
-                if (null !== $href && '#' !== $href) {
+                if (null !== $href && null !== parse_url($href, PHP_URL_HOST)) {
                     $this->commLinkContent['links'][] = [
-                        'href' => $href,
+                        'href' => trim($href),
                         'text' => trim($crawler->text()),
                     ];
                 }
@@ -354,18 +394,16 @@ class ParseCommLink implements ShouldQueue
     /**
      * Extracts all <img> Elements from the Crawler
      * Saves src and alt attributes
-     *
-     * @param \Symfony\Component\DomCrawler\Crawler $section
      */
-    private function extractImages(Crawler $section)
+    private function extractImages()
     {
-        $section->filterXPath('//img')->each(
+        $this->crawler->filter('#post')->filterXPath('//img')->each(
             function (Crawler $crawler) {
                 $src = $crawler->attr('src');
 
-                if (null !== $src) {
+                if (null !== $src && !empty($src)) {
                     $this->commLinkContent['images'][] = [
-                        'src' => str_replace('/post/', '/source/', $src),
+                        'src' => ltrim(trim($src), '/'),
                         'alt' => trim($crawler->attr('alt') ?? ''),
                     ];
                 }
