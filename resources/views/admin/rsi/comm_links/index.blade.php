@@ -15,6 +15,8 @@
                     <th>@lang('CIG ID')</th>
                     <th>@lang('Titel')</th>
                     <th>@lang('Kommentare')</th>
+                    <th>@lang('Bilder')</th>
+                    <th>@lang('Links')</th>
                     <th>@lang('Inhalt')</th>
                     <th>@lang('Channel')</th>
                     <th>@lang('Kategorie')</th>
@@ -44,6 +46,12 @@
                             {{ $commLink->comment_count }}
                         </td>
                         <td>
+                            {{ count($commLink->images) }}
+                        </td>
+                        <td>
+                            {{ count($commLink->links) }}
+                        </td>
+                        <td>
                             {{ $commLink->english()->translation ? 'Ja' : 'Nein' }}
                         </td>
                         <td>
@@ -61,6 +69,9 @@
                         @can('web.admin.starcitizen.vehicles.update')
                             <td class="text-center">
                                 @component('components.edit_delete_block')
+                                    @slot('show_url')
+                                        {{ route('web.admin.rsi.comm_links.show', $commLink->getRouteKey()) }}
+                                    @endslot
                                     @slot('edit_url')
                                         {{ route('web.admin.rsi.comm_links.edit', $commLink->getRouteKey()) }}
                                     @endslot

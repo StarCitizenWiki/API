@@ -14,6 +14,7 @@ class SeriesTableSeeder extends Seeder
         DB::table('comm_link_series')->insert(
             [
                 'name' => 'None',
+                'slug' => 'undefined',
             ]
         );
     }

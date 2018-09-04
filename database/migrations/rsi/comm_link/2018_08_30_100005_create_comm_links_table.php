@@ -21,6 +21,7 @@ class CreateCommLinksTable extends Migration
 
                 $table->string('title');
                 $table->unsignedBigInteger('comment_count');
+                $table->string('url')->nullable();
 
                 $table->string('file');
 

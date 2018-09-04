@@ -14,6 +14,7 @@ class ChannelTableSeeder extends Seeder
         DB::table('comm_link_channels')->insert(
             [
                 'name' => 'Undefined',
+                'slug' => 'undefined',
             ]
         );
     }

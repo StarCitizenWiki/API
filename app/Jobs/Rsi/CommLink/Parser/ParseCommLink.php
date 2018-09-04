@@ -80,7 +80,7 @@ class ParseCommLink implements ShouldQueue
         $this->crawler = new Crawler();
         $this->crawler->addHtmlContent($content, 'UTF-8');
 
-        $content = $this->crawler->filter('#post')->first();
+        $content = $this->crawler->filter('#post');
 
         try {
             $content->text();
@@ -90,10 +90,16 @@ class ParseCommLink implements ShouldQueue
             return;
         }
 
+        $this->createCommLink();
+    }
+
+    /**
+     * Creates the Comm Link Model and populates it
+     */
+    private function createCommLink()
+    {
         $this->extractImages();
         $this->extractLinks();
-        $commentCount = $this->getCommentCount();
-        $createdAt = $this->getCreatedAt();
 
         /** @var \App\Models\Rsi\CommLink\CommLink $commLink */
         $commLink = CommLink::updateOrCreate(
@@ -102,12 +108,13 @@ class ParseCommLink implements ShouldQueue
             ],
             [
                 'title' => $this->getTitle(),
-                'comment_count' => $commentCount,
+                'comment_count' => $this->getCommentCount(),
+                'url' => $this->getOriginalUrl(),
                 'file' => $this->file,
                 'channel_id' => $this->getChannel(),
                 'category_id' => $this->getCategory(),
                 'series_id' => $this->getSeries(),
-                'created_at' => $createdAt,
+                'created_at' => $this->getCreatedAt(),
             ]
         );
 
@@ -124,67 +131,111 @@ class ParseCommLink implements ShouldQueue
         $commLink->links()->sync($this->getLinkIds());
     }
 
-    private function getImageIds(): array
+    /**
+     * Extracts all <img> Elements from the Crawler
+     * Saves src and alt attributes
+     */
+    private function extractImages(): void
     {
-        $imageIds = [];
-        $images = collect($this->commLinkContent['images']);
-        $images->each(
-            function ($image) use (&$imageIds) {
-                $src = $image['src'];
-                $pattern = '/media\/(\w+)\/(\w+)\//';
-                $src = preg_replace($pattern, '/media/$1/source/', $src);
+        $this->crawler->filter('#post')->filterXPath('//img')->each(
+            function (Crawler $crawler) {
+                $src = $crawler->attr('src');
 
-                if (null === parse_url($src, PHP_URL_HOST)) {
-                    $src = config('api.rsi_url').$src;
+                if (null !== $src && !empty($src)) {
+                    $this->commLinkContent['images'][] = [
+                        'src' => ltrim(trim($src), '/'),
+                        'alt' => $crawler->attr('alt') ?? '',
+                    ];
+                }
+            }
+        );
+
+        try {
+            $background = $this->crawler->filter('#post-background');
+            $src = $background->attr('style');
+
+            if (null !== $src && !empty($src)) {
+                if (preg_match('/(\/media\/.*\.\w+)/', $src, $src)) {
+                    $src = $src[1];
                 }
 
-                $imageIds[] = Image::firstOrCreate(
-                    [
-                        'src' => $src,
-                        'alt' => $image['alt'],
-                    ]
-                )->id;
+                $this->commLinkContent['images'][] = [
+                    'src' => ltrim(trim($src), '/'),
+                    'alt' => '#post-background',
+                ];
             }
-        );
-
-        return $imageIds;
-    }
-
-    private function getLinkIds(): array
-    {
-        $linkIds = [];
-        $links = collect($this->commLinkContent['links']);
-        $links->each(
-            function ($link) use (&$linkIds) {
-                $linkIds[] = Link::firstOrCreate(
-                    [
-                        'href' => $link['href'],
-                        'text' => $link['text'],
-                    ]
-                )->id;
-            }
-        );
-
-        return $linkIds;
+        } catch (\InvalidArgumentException $e) {
+            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no #post-background Element");
+        }
     }
 
     /**
-     * Tries to extract the Creation Date from the .title-section Element
-     * Defaults to '2012-01-01 00:00:00' if no Date was found
-     *
-     * @return string Parsed Date
+     * Extracts all <a> Elements from the Crawler
+     * Saves href and Link Texts
      */
-    private function getCreatedAt()
+    private function extractLinks(): void
+    {
+        $this->crawler->filter('#post')->filterXPath('//a')->each(
+            function (Crawler $crawler) {
+                $href = $crawler->attr('href');
+
+                if (null !== $href && null !== parse_url($href, PHP_URL_HOST)) {
+                    $this->commLinkContent['links'][] = [
+                        'href' => $href,
+                        'text' => $crawler->text(),
+                    ];
+                }
+            }
+        );
+
+        $this->crawler->filter('#post')->filterXPath('//iframe')->each(
+            function (Crawler $crawler) {
+                $src = $crawler->attr('src');
+
+                if (null !== $src && null !== parse_url($src, PHP_URL_HOST)) {
+                    if (null === parse_url($src, PHP_URL_SCHEME)) {
+                        $src = 'https:'.$src;
+                    }
+
+                    $this->commLinkContent['links'][] = [
+                        'href' => $src,
+                        'text' => 'iframe',
+                    ];
+                }
+            }
+        );
+    }
+
+    /**
+     * Extracts the Comm Link title from the <title> Element
+     *
+     * @return string Comm Link Title
+     */
+    private function getTitle(): string
     {
         try {
-            return Carbon::parse(
-                $this->crawler->filter('.title-section .details div:nth-of-type(3) p')->text()
-            )->toDateTimeString();
+            $title = $this->crawler->filterXPath('//title')->text();
         } catch (\InvalidArgumentException $e) {
-            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no Creation Date");
+            return 'No Title Found';
         }
 
-        return self::DEFAULT_CREATION_DATE;
+        $title = preg_replace(
+            [
+                "/\r|\n/",
+                '/\s+/',
+            ],
+            [
+                '',
+                ' ',
+            ],
+            str_replace(
+                ' - Roberts Space Industries | Follow the development of Star Citizen and Squadron 42',
+                '',
+                $title
+            )
+        );
+
+        return $this->cleanText($title);
     }
 
     /**
@@ -204,11 +255,21 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * @return string Path to Comm Link File
+     * Tries to get the original Comm Link URL from the 'Add-Comment' Link
+     *
+     * @return null|string
      */
-    private function filePath()
+    private function getOriginalUrl(): ?string
     {
-        return "{$this->commLinkId}/{$this->file}";
+        try {
+            $href = $this->crawler->filter('a.add-comment')->attr('href');
+        } catch (\InvalidArgumentException $e) {
+            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no Add Comment Link");
+
+            return null;
+        }
+
+        return $this->cleanText(str_replace('/connect?jumpto=', '', $href));
     }
 
     /**
@@ -217,7 +278,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @return int Channel ID
      */
-    private function getChannel()
+    private function getChannel(): int
     {
         try {
             $channel = $this->crawler->filter('.title-bar .title h2')->text();
@@ -231,9 +292,12 @@ class ParseCommLink implements ShouldQueue
             return 1;
         }
 
+        $channel = $this->cleanText($channel);
+
         return Channel::firstOrCreate(
             [
                 'name' => $channel,
+                'slug' => str_slug($channel, '-'),
             ]
         )->id;
     }
@@ -244,7 +308,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @return int Category ID
      */
-    private function getCategory()
+    private function getCategory(): int
     {
         try {
             $category = $this->crawler->filter('.title-bar .title h1')->text();
@@ -258,9 +322,12 @@ class ParseCommLink implements ShouldQueue
             return 1;
         }
 
+        $category = $this->cleanText($category);
+
         return Category::firstOrCreate(
             [
                 'name' => $category,
+                'slug' => str_slug($category, '-'),
             ]
         )->id;
     }
@@ -271,7 +338,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @return int Series ID
      */
-    private function getSeries()
+    private function getSeries(): int
     {
         try {
             $series = $this->crawler->filter('.presented-by + div + h1')->text();
@@ -285,39 +352,33 @@ class ParseCommLink implements ShouldQueue
             return 1;
         }
 
+        $series = $this->cleanText($series);
+
         return Series::firstOrCreate(
             [
                 'name' => $series,
+                'slug' => str_slug($series, '-'),
             ]
         )->id;
     }
 
     /**
-     * Extracts the Comm Link title from the <title> Element
+     * Tries to extract the Creation Date from the .title-section Element
+     * Defaults to '2012-01-01 00:00:00' if no Date was found
      *
-     * @return string Comm Link Title
+     * @return string Parsed Date
      */
-    private function getTitle()
+    private function getCreatedAt(): string
     {
         try {
-            $title = $this->crawler->filterXPath('//title')->text();
+            return Carbon::parse(
+                $this->crawler->filter('.title-section .details div:nth-of-type(3) p')->text()
+            )->toDateTimeString();
         } catch (\InvalidArgumentException $e) {
-            return 'No Title Found';
+            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no Creation Date");
         }
 
-        return trim(
-            preg_replace(
-                [
-                    "/\r|\n/",
-                    '/\s+/',
-                ],
-                [
-                    '',
-                    ' ',
-                ],
-                explode('-', $title)[0]
-            )
-        );
+        return self::DEFAULT_CREATION_DATE;
     }
 
     /**
@@ -327,7 +388,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @return string
      */
-    private function getContent(string $filter = '.segment')
+    private function getContent(string $filter = '.segment'): string
     {
         if ($this->isSpecialPage()) {
             $filter = '#layout-system';
@@ -338,26 +399,82 @@ class ParseCommLink implements ShouldQueue
         try {
             $this->crawler->filter($filter)->each(
                 function (Crawler $crawler) use (&$content) {
-                    $content .= $crawler->text();
+                    $content .= ltrim($crawler->html());
                 }
             );
         } catch (\InvalidArgumentException $e) {
             app('Log')::info("Comm-Link with id {$this->commLinkId} has no Content in {$filter}.");
         }
 
-        return base64_encode(
-            trim(
-                preg_replace(
-                    [
-                        '/\R+/',
-                    ],
-                    [
-                        "\n",
-                    ],
-                    $content
-                )
+        $content = trim(
+            preg_replace(
+                ['/\R+/', '/[\ |\t]+/'],
+                ["\n", ' '],
+                $content
             )
         );
+
+        $content = nl2br(trim(strip_tags($content, '<p><br>')), false);
+        $content = preg_replace('/\<p\>(?:(?:\&nbsp\;|\ | )*(?:<br\s*\/?>)*\s*)?\<\/p\>/i', '', $content);
+        $content = preg_replace('/(?:\<br>\s?)+/i', '<br>', $content);
+        $content = preg_replace('/^\s*(?:<br\s*\/?>\s*)*/i', '', $content);
+        $content = preg_replace('/\s*(?:<br\s*\/?>\s*)*$/i', '', $content);
+
+        return $content;
+    }
+
+    /**
+     * Returns an array with image ids from the image table
+     *
+     * @return array Image IDs
+     */
+    private function getImageIds(): array
+    {
+        $imageIds = [];
+        $images = collect($this->commLinkContent['images']);
+        $images->each(
+            function ($image) use (&$imageIds) {
+                $src = $image['src'];
+                $pattern = '/media\/(\w+)\/(\w+)\//';
+                $src = preg_replace($pattern, 'media/$1/source/', $src);
+
+                if (null === parse_url($src, PHP_URL_HOST)) {
+                    $src = config('api.rsi_url').'/'.$src;
+                }
+
+                $imageIds[] = Image::firstOrCreate(
+                    [
+                        'src' => $this->cleanText($src),
+                        'alt' => $this->cleanText($image['alt']),
+                    ]
+                )->id;
+            }
+        );
+
+        return array_unique($imageIds);
+    }
+
+    /**
+     * Returns an array with link ids from the link table
+     *
+     * @return array Link IDs
+     */
+    private function getLinkIds(): array
+    {
+        $linkIds = [];
+        $links = collect($this->commLinkContent['links']);
+        $links->each(
+            function ($link) use (&$linkIds) {
+                $linkIds[] = Link::firstOrCreate(
+                    [
+                        'href' => $this->cleanText($link['href']),
+                        'text' => $this->cleanText($link['text']),
+                    ]
+                )->id;
+            }
+        );
+
+        return array_unique($linkIds);
     }
 
     /**
@@ -372,42 +489,22 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Extracts all <a> Elements from the Crawler
-     * Saves href and Link Texts
+     * Removes all new lines and trims the string
+     *
+     * @param string $string
+     *
+     * @return string cleaned text
      */
-    private function extractLinks()
+    private function cleanText(string $string): string
     {
-        $this->crawler->filter('#post')->filterXPath('//a')->each(
-            function (Crawler $crawler) {
-                $href = $crawler->attr('href');
-
-                if (null !== $href && null !== parse_url($href, PHP_URL_HOST)) {
-                    $this->commLinkContent['links'][] = [
-                        'href' => trim($href),
-                        'text' => trim($crawler->text()),
-                    ];
-                }
-            }
-        );
+        return trim(preg_replace('/\R/', '', $string));
     }
 
     /**
-     * Extracts all <img> Elements from the Crawler
-     * Saves src and alt attributes
+     * @return string Path to Comm Link File
      */
-    private function extractImages()
+    private function filePath(): string
     {
-        $this->crawler->filter('#post')->filterXPath('//img')->each(
-            function (Crawler $crawler) {
-                $src = $crawler->attr('src');
-
-                if (null !== $src && !empty($src)) {
-                    $this->commLinkContent['images'][] = [
-                        'src' => ltrim(trim($src), '/'),
-                        'alt' => trim($crawler->attr('alt') ?? ''),
-                    ];
-                }
-            }
-        );
+        return "{$this->commLinkId}/{$this->file}";
     }
 }

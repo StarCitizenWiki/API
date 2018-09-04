@@ -9,14 +9,16 @@ use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
+use App\Models\Rsi\CommLink\Category\Category;
+use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Series\Series;
 use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Vinkla\Hashids\Facades\Hashids;
 
 /**
@@ -221,6 +223,27 @@ class RouteServiceProvider extends ServiceProvider
             'comm_link',
             function ($id) {
                 return CommLink::where('cig_id', $id)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'category',
+            function ($slug) {
+                return Category::where('slug', $slug)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'channel',
+            function ($slug) {
+                return Channel::where('slug', $slug)->firstOrFail();
+            }
+        );
+
+        Route::bind(
+            'series',
+            function ($slug) {
+                return Series::where('slug', $slug)->firstOrFail();
             }
         );
     }

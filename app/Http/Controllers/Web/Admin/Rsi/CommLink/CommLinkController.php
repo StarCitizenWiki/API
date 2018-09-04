@@ -38,15 +38,16 @@ class CommLinkController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     *
      * @return \Illuminate\Http\Response
      */
     public function show(CommLink $commLink)
     {
         return view(
-            'admin.rsi.comm_links.edit',
+            'admin.rsi.comm_links.show',
             [
-                'content' => $commLink->english()->translation,
+                'commLink' => $commLink,
             ]
         );
     }
@@ -54,7 +55,8 @@ class CommLinkController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int $id
+     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit(CommLink $commLink)

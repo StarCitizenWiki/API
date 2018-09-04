@@ -16,6 +16,9 @@ use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
+/**
+ * Comm Link
+ */
 class CommLink extends HasTranslations
 {
     use ModelChangelog;
@@ -24,6 +27,7 @@ class CommLink extends HasTranslations
         'cig_id',
         'title',
         'comment_count',
+        'url',
         'file',
         'channel_id',
         'category_id',
@@ -39,31 +43,61 @@ class CommLink extends HasTranslations
         'links',
     ];
 
+    /**
+     * CIG ID
+     *
+     * @return int
+     */
     public function getRouteKey()
     {
         return $this->cig_id;
     }
 
+    /**
+     * Channel Model
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function channel()
     {
         return $this->belongsTo(Channel::class);
     }
 
+    /**
+     * Category Model
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * Series Model
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function series()
     {
         return $this->belongsTo(Series::class);
     }
 
+    /**
+     * Images Collection
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function images()
     {
         return $this->belongsToMany(Image::class, 'comm_link_image', 'comm_link_id', 'comm_link_image_id');
     }
 
+    /**
+     * Links Collection
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function links()
     {
         return $this->belongsToMany(Link::class, 'comm_link_link', 'comm_link_id', 'comm_link_link_id');

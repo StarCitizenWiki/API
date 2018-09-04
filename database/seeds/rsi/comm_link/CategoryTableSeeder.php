@@ -14,6 +14,7 @@ class CategoryTableSeeder extends Seeder
         DB::table('comm_link_categories')->insert(
             [
                 'name' => 'Undefined',
+                'slug' => 'undefined',
             ]
         );
     }

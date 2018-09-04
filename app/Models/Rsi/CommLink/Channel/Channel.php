@@ -11,16 +11,33 @@ namespace App\Models\Rsi\CommLink\Channel;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Comm Link Channel
+ */
 class Channel extends Model
 {
     protected $table = 'comm_link_channels';
 
     protected $fillable = [
         'name',
+        'slug',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function commLinks()
     {
         return $this->hasMany(CommLink::class);
+    }
+
+    /**
+     * Name as slug
+     *
+     * @return mixed
+     */
+    public function getRouteKey()
+    {
+        return $this->slug;
     }
 }

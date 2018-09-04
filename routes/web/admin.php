@@ -77,6 +77,17 @@ Route::group(
                                     'comm_links' => 'CommLink\CommLinkController',
                                 ]
                             );
+
+                            Route::namespace('CommLink')
+                                ->name('comm_links.')
+                                ->prefix('comm_links')
+                                ->group(
+                                    function () {
+                                        Route::get('categories/{category}', 'CategoryController@index')->name('categories.index');
+                                        Route::get('channels/{channel}', 'ChannelController@index')->name('channels.index');
+                                        Route::get('series/{series}', 'SeriesController@index')->name('series.index');
+                                    }
+                                );
                         }
                     );
             }
