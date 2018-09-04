@@ -48,7 +48,7 @@
                 <tr>
                     <th>Kategorie</th>
                     <td>
-                        <a href="{{ route('web.admin.rsi.comm_links.categories.index', $commLink->category->getRouteKey()) }}">
+                        <a href="{{ route('web.admin.rsi.comm_links.categories.show', $commLink->category->getRouteKey()) }}">
                             {{ $commLink->category->name }}
                         </a>
                     </td>
@@ -56,7 +56,7 @@
                 <tr>
                     <th>Channel</th>
                     <td>
-                        <a href="{{ route('web.admin.rsi.comm_links.channels.index', $commLink->channel->getRouteKey()) }}">
+                        <a href="{{ route('web.admin.rsi.comm_links.channels.show', $commLink->channel->getRouteKey()) }}">
                             {{ $commLink->channel->name }}
                         </a>
                     </td>
@@ -64,14 +64,18 @@
                 <tr>
                     <th>Serie</th>
                     <td>
-                        <a href="{{ route('web.admin.rsi.comm_links.series.index', $commLink->series->getRouteKey()) }}">
+                        <a href="{{ route('web.admin.rsi.comm_links.series.show', $commLink->series->getRouteKey()) }}">
                             {{ $commLink->series->name }}
                         </a>
                     </td>
                 </tr>
                 <tr>
                     <th>Url</th>
-                    <td><a href="{{ config('api.rsi_url') }}{{ $commLink->url }}" target="_blank">{{ $commLink->url }}</a></td>
+                    <td>
+                        <a href="{{ $commLink->url ?? "https://robertsspaceindustries.com/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">
+                            {{ $commLink->url ?? 'Keine Original URL vorhanden' }}
+                        </a>
+                    </td>
                 </tr>
                 <tr>
                     <th>Kommentare</th>

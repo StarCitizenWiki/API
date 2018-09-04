@@ -72,22 +72,31 @@ Route::group(
                     ->prefix('rsi')
                     ->group(
                         function () {
-                            Route::resources(
-                                [
-                                    'comm_links' => 'CommLink\CommLinkController',
-                                ]
-                            );
-
                             Route::namespace('CommLink')
                                 ->name('comm_links.')
                                 ->prefix('comm_links')
                                 ->group(
                                     function () {
-                                        Route::get('categories/{category}', 'CategoryController@index')->name('categories.index');
-                                        Route::get('channels/{channel}', 'ChannelController@index')->name('channels.index');
-                                        Route::get('series/{series}', 'SeriesController@index')->name('series.index');
+                                        Route::get('categories', 'CategoryController@index')->name('categories.index');
+                                        Route::get('categories/{category}', 'CategoryController@show')->name(
+                                            'categories.show'
+                                        );
+
+                                        Route::get('channels', 'ChannelController@index')->name('channels.index');
+                                        Route::get('channels/{channel}', 'ChannelController@show')->name(
+                                            'channels.show'
+                                        );
+
+                                        Route::get('series', 'SeriesController@index')->name('series.index');
+                                        Route::get('series/{series}', 'SeriesController@show')->name('series.show');
                                     }
                                 );
+
+                            Route::resources(
+                                [
+                                    'comm_links' => 'CommLink\CommLinkController',
+                                ]
+                            );
                         }
                     );
             }

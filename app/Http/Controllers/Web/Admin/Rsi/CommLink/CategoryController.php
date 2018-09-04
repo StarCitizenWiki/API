@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web\Admin\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Category\Category;
-use App\Models\Rsi\CommLink\CommLink;
 
 /**
  * Comm Link Category Controller
@@ -12,15 +11,40 @@ use App\Models\Rsi\CommLink\CommLink;
 class CategoryController extends Controller
 {
     /**
+     * All Categories
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function index()
+    {
+        $this->authorize('web.admin.rsi.comm_links.view');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        return view(
+            'admin.rsi.comm_links.category.index',
+            [
+                'categories' => Category::orderBy('name')->get(),
+            ]
+        );
+    }
+
+    /**
      * Get All Comm Links in a given Category
      *
      * @param \App\Models\Rsi\CommLink\Category\Category $category
      *
      * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(Category $category)
     {
-        $links = CommLink::where('category_id', $category->id)->paginate(20);
+        $this->authorize('web.admin.rsi.comm_links.view');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        $links = $category->commLinks()->orderByDesc('cig_id')->paginate(20);
 
         return view(
             'admin.rsi.comm_links.index',

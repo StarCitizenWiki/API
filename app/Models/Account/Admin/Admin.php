@@ -45,6 +45,13 @@ class Admin extends Authenticatable
         return $this->groups->first()->permission_level;
     }
 
+    public function isEditor(): bool
+    {
+        $group = $this->groups()->where('name', 'editor')->first();
+
+        return null === $group ? false : true;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

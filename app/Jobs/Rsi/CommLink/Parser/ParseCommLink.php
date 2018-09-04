@@ -406,6 +406,8 @@ class ParseCommLink implements ShouldQueue
             app('Log')::info("Comm-Link with id {$this->commLinkId} has no Content in {$filter}.");
         }
 
+        $content = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $content);
+        $content = strip_tags($content, '<p><br>');
         $content = trim(
             preg_replace(
                 ['/\R+/', '/[\ |\t]+/'],
@@ -414,7 +416,7 @@ class ParseCommLink implements ShouldQueue
             )
         );
 
-        $content = nl2br(trim(strip_tags($content, '<p><br>')), false);
+        $content = nl2br($content, false);
         $content = preg_replace('/\<p\>(?:(?:\&nbsp\;|\ | )*(?:<br\s*\/?>)*\s*)?\<\/p\>/i', '', $content);
         $content = preg_replace('/(?:\<br>\s?)+/i', '<br>', $content);
         $content = preg_replace('/^\s*(?:<br\s*\/?>\s*)*/i', '', $content);

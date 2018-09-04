@@ -9,7 +9,7 @@
             <table class="table table-striped mb-0">
                 <thead>
                 <tr>
-                    @can('web.admin.starcitizen.vehicles.update')
+                    @can('web.admin.internals.view')
                         <th>@lang('ID')</th>
                     @endcan
                     <th>@lang('CIG ID')</th>
@@ -22,9 +22,7 @@
                     <th>@lang('Kategorie')</th>
                     <th>@lang('Serie')</th>
                     <th>@lang('Veröffentlichung')</th>
-                    @can('web.admin.rsi.comm_links.update')
-                        <th data-orderable="false">&nbsp;</th>
-                    @endcan
+                    <th data-orderable="false">&nbsp;</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -37,7 +35,7 @@
                             </td>
                         @endcan
                         <td>
-                            <a href="https://robertsspaceindustries.com/comm-link/SCW/{{ $commLink->cig_id }}-API" target="_blank">{{ $commLink->cig_id }}</a>
+                            <a href="{{ $commLink->url ?? "https://robertsspaceindustries.com/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">{{ $commLink->cig_id }}</a>
                         </td>
                         <td>
                             {{ $commLink->title }}
@@ -66,23 +64,23 @@
                         <td title="{{ $commLink->created_at->format('d.m.Y') }}">
                             {{ $commLink->created_at->diffForHumans() }}
                         </td>
-                        @can('web.admin.starcitizen.vehicles.update')
-                            <td class="text-center">
-                                @component('components.edit_delete_block')
-                                    @slot('show_url')
-                                        {{ route('web.admin.rsi.comm_links.show', $commLink->getRouteKey()) }}
-                                    @endslot
+                        <td class="text-center">
+                            @component('components.edit_delete_block')
+                                @slot('show_url')
+                                    {{ route('web.admin.rsi.comm_links.show', $commLink->getRouteKey()) }}
+                                @endslot
+                                @can('web.admin.rsi.comm_links.update')
                                     @slot('edit_url')
                                         {{ route('web.admin.rsi.comm_links.edit', $commLink->getRouteKey()) }}
                                     @endslot
-                                    {{ $commLink->getRouteKey() }}
-                                @endcomponent
-                            </td>
-                        @endcan
+                                @endcan
+                                {{ $commLink->getRouteKey() }}
+                            @endcomponent
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10">@lang('Keine Comm Links vorhanden')</td>
+                        <td colspan="12">@lang('Keine Comm Links vorhanden')</td>
                     </tr>
                 @endforelse
                 </tbody>
