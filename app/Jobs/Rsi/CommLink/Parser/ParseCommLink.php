@@ -9,6 +9,8 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link\Link;
 use App\Models\Rsi\CommLink\Series\Series;
 use Carbon\Carbon;
+use DOMDocument;
+use DOMXPath;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -406,8 +408,22 @@ class ParseCommLink implements ShouldQueue
             app('Log')::info("Comm-Link with id {$this->commLinkId} has no Content in {$filter}.");
         }
 
+
+        return empty($content) ? '' : $this->cleanContent($content);
+    }
+
+    /**
+     * Removes some Tags, converts newlines to br
+     *
+     * @param string $content
+     *
+     * @return string
+     */
+    private function cleanContent(string $content): string
+    {
         $content = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $content);
-        $content = strip_tags($content, '<p><br>');
+        $content = strip_tags($content, '<p><br><table><tbody><td><tfoot><th><thead><tr>');
+        $content = $this->stripTagAttributes($content);
         $content = trim(
             preg_replace(
                 ['/\R+/', '/[\ |\t]+/'],
@@ -415,14 +431,41 @@ class ParseCommLink implements ShouldQueue
                 $content
             )
         );
-
         $content = nl2br($content, false);
         $content = preg_replace('/\<p\>(?:(?:\&nbsp\;|\ | )*(?:<br\s*\/?>)*\s*)?\<\/p\>/i', '', $content);
         $content = preg_replace('/(?:\<br>\s?)+/i', '<br>', $content);
-        $content = preg_replace('/^\s*(?:<br\s*\/?>\s*)*/i', '', $content);
-        $content = preg_replace('/\s*(?:<br\s*\/?>\s*)*$/i', '', $content);
+        $content = preg_replace('/^\s*(?:<br\s*\/?>\s*)*/is', '', $content);
+        $content = preg_replace('/\s*(?:<br\s*\/?>\s*)*$/is', '', $content);
 
         return $content;
+    }
+
+    /**
+     * Removes all Attributes from Tags, so only pure tags are left
+     *
+     * @param string $html
+     *
+     * @return string Cleaned html
+     */
+    private function stripTagAttributes(string $html): string
+    {
+        $dom = new DOMDocument();
+
+        libxml_use_internal_errors(true);
+        $success = $dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        libxml_use_internal_errors(false);
+
+        if (!$success) {
+            return '';
+        }
+
+        $xpath = new DOMXPath($dom);
+        $nodes = $xpath->query('//@*');
+        foreach ($nodes as $node) {
+            $node->parentNode->removeAttribute($node->nodeName);
+        }
+
+        return $dom->saveHTML();
     }
 
     /**

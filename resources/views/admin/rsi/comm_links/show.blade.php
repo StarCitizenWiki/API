@@ -12,6 +12,18 @@
 @endsection
 
 @section('content')
+    <div class="d-flex mb-3">
+        @unless(null === $prev)
+            <a href="{{ route('web.admin.rsi.comm_links.show', $prev) }}" class="btn btn-outline-secondary">Vorheriger</a>
+        @else
+            <a href="#" class="btn btn-outline-secondary disabled">Vorheriger</a>
+        @endunless
+        @unless(null === $next)
+            <a href="{{ route('web.admin.rsi.comm_links.show', $next) }}" class="btn btn-outline-secondary ml-auto">Nächste</a>
+        @else
+            <a href="#" class="btn btn-outline-secondary disabled ml-auto">Nächste</a>
+        @endunless
+    </div>
     <div class="card">
         <div class="card-header">
             <h4>
@@ -19,69 +31,132 @@
             </h4>
         </div>
         <div class="card-body">
-            {!! preg_replace('/(?:\<br>\s?)+/', '<br>', $commLink->english()->translation) !!}
-            <hr>
-            <h5>Links in diesem Comm Link: ({{ count($commLink->links) }})</h5>
-            @forelse($commLink->links as $link)
-                <span class="d-block"><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> &mdash; {{ $link->href }}</span>
-            @empty
-                Keine Links vorhanden
-            @endforelse
-            <hr>
-            <h5>Bilder in diesem Comm Link: ({{ count($commLink->images) }})</h5>
-            @forelse($commLink->images as $image)
-                <a class="" href="{{ $image->src }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->src) }}" class="img-thumbnail" style="max-width: 150px;"></a>
-            @empty
-                Keine Bilder vorhanden
-            @endforelse
-            <hr>
-            <h5>Metadaten:</h5>
-            <table class="table mb-0">
-                <tr>
-                    <th>ID</th>
-                    <td>{{ $commLink->cig_id }}</td>
-                </tr>
-                <tr>
-                    <th>Veröffentlichung</th>
-                    <td>{{ $commLink->created_at->format('d.m.Y') }}</td>
-                </tr>
-                <tr>
-                    <th>Kategorie</th>
-                    <td>
-                        <a href="{{ route('web.admin.rsi.comm_links.categories.show', $commLink->category->getRouteKey()) }}">
-                            {{ $commLink->category->name }}
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Channel</th>
-                    <td>
-                        <a href="{{ route('web.admin.rsi.comm_links.channels.show', $commLink->channel->getRouteKey()) }}">
-                            {{ $commLink->channel->name }}
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Serie</th>
-                    <td>
-                        <a href="{{ route('web.admin.rsi.comm_links.series.show', $commLink->series->getRouteKey()) }}">
-                            {{ $commLink->series->name }}
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Url</th>
-                    <td>
-                        <a href="{{ $commLink->url ?? "https://robertsspaceindustries.com/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">
-                            {{ $commLink->url ?? 'Keine Original URL vorhanden' }}
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Kommentare</th>
-                    <td>{{ $commLink->comment_count }}</td>
-                </tr>
-            </table>
+            @include('components.messages')
+            <nav class="mb-3">
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-en_EN-tab" data-toggle="tab" href="#nav-en_EN" role="tab" aria-controls="nav-en_EN" aria-selected="true">
+                        @lang('en_EN')
+                    </a>
+                    <a class="nav-item nav-link" id="nav-de_DE-tab" data-toggle="tab" href="#nav-de_DE" role="tab" aria-controls="nav-de_DE" aria-selected="false">
+                        @lang('de_DE')
+                    </a>
+                    <a class="nav-item nav-link" id="nav-links-tab" data-toggle="tab" href="#nav-links" role="tab" aria-controls="nav-links" aria-selected="false">
+                        @lang('Links') <span class="badge badge-primary">{{ count($commLink->links) }}</span>
+                    </a>
+                    <a class="nav-item nav-link" id="nav-images-tab" data-toggle="tab" href="#nav-images" role="tab" aria-controls="nav-images" aria-selected="false">
+                        @lang('Bilder') <span class="badge badge-primary">{{ count($commLink->images) }}</span>
+                    </a>
+                    <a class="nav-item nav-link" id="nav-meta-tab" data-toggle="tab" href="#nav-meta" role="tab" aria-controls="nav-meta" aria-selected="false">
+                        @lang('Metadaten')
+                    </a>
+                    <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#nav-changelog" role="tab" aria-controls="nav-changelog" aria-selected="false">
+                        @lang('Verlauf')
+                    </a>
+                    <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.admin.rsi.comm_links.edit', $commLink->getRouteKey()) }}">
+                        @lang('Bearbeiten')
+                    </a>
+                </div>
+            </nav>
+
+            <div class="tab-content" id="nav-tab-translations">
+                <div class="tab-pane fade show active" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
+                    {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : $commLink->english()->translation !!}
+                </div>
+                <div class="tab-pane fade" id="nav-de_DE" role="tabpanel" aria-labelledby="nav-de_DE-tab">
+                    {!! optional($commLink->german())->translation ?? 'Nicht vorhanden' !!}
+                </div>
+                <div class="tab-pane fade" id="nav-links" role="tabpanel" aria-labelledby="nav-links-tab">
+                    @forelse($commLink->links as $link)
+                        <span class="d-block"><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> &mdash; {{ $link->href }}</span>
+                    @empty
+                        Keine Links vorhanden
+                    @endforelse
+                </div>
+                <div class="tab-pane fade" id="nav-images" role="tabpanel" aria-labelledby="nav-images-tab">
+                    @forelse($commLink->images as $image)
+                        <a class="" href="{{ $image->src }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->src) }}" class="img-thumbnail" style="max-width: 150px;"></a>
+                    @empty
+                        Keine Bilder vorhanden
+                    @endforelse
+                </div>
+                <div class="tab-pane fade" id="nav-meta" role="tabpanel" aria-labelledby="nav-meta-tab">
+                    <table class="table mb-0">
+                        <tr>
+                            <th class="border-top-0">ID</th>
+                            <td class="border-top-0">{{ $commLink->cig_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Veröffentlichung</th>
+                            <td>{{ $commLink->created_at->format('d.m.Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Kategorie</th>
+                            <td>
+                                <a href="{{ route('web.admin.rsi.comm_links.categories.show', $commLink->category->getRouteKey()) }}">
+                                    {{ $commLink->category->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Channel</th>
+                            <td>
+                                <a href="{{ route('web.admin.rsi.comm_links.channels.show', $commLink->channel->getRouteKey()) }}">
+                                    {{ $commLink->channel->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Serie</th>
+                            <td>
+                                <a href="{{ route('web.admin.rsi.comm_links.series.show', $commLink->series->getRouteKey()) }}">
+                                    {{ $commLink->series->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Url</th>
+                            <td>
+                                <a href="https://robertsspaceindustries.com{{ $commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">
+                                    {{ $commLink->url ?? 'Keine Original URL vorhanden' }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Kommentare</th>
+                            <td>{{ $commLink->comment_count }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="nav-changelog" role="tabpanel" aria-labelledby="nav-changelog-tab">
+                    @forelse($changelogs as $changelog)
+                        <ul>
+                        <?php
+                        $changelogData = json_decode($changelog->changelog, true);
+                        $attributes = [];
+                        $new = false;
+                        foreach ($changelogData as $key => $item) {
+                            if ($key !== 'by') {
+                                $attributes[] = $key;
+                                if ($item['old'] === null) {
+                                    $new = true;
+                                    break;
+                                } else {
+                                    $new = false;
+                                }
+                            }
+                        }
+                        if ($new) {
+                            echo "<li>Übersetzung erstellt durch {$changelogData['by']['name']} ".$changelog->created_at->diffForHumans()."</li>";
+                        } else {
+                            echo "<li>".implode(', ', $attributes)." geändert durch {$changelogData['by']['name']} ".$changelog->created_at->diffForHumans()."</li>";
+                        }
+                        ?>
+                        </ul>
+                    @empty
+                        Keine Änderungen vorhanden
+                    @endforelse
+                </div>
+            </div>
         </div>
     </div>
 @endsection

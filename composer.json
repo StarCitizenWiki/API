@@ -9,7 +9,9 @@
     "type": "project",
     "require": {
         "php": ">=7.2",
+        "ext-dom": "*",
         "ext-json": "*",
+        "ext-libxml": "*",
         "dingo/api": "2.0.0-alpha2",
         "fabpot/goutte": "^3.2",
         "fideloper/proxy": "~4.0",

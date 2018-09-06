@@ -18,6 +18,7 @@
                     <th>@lang('Bilder')</th>
                     <th>@lang('Links')</th>
                     <th>@lang('Inhalt')</th>
+                    <th>@lang('Übersetzt')</th>
                     <th>@lang('Channel')</th>
                     <th>@lang('Kategorie')</th>
                     <th>@lang('Serie')</th>
@@ -52,6 +53,9 @@
                         <td>
                             {{ $commLink->english()->translation ? 'Ja' : 'Nein' }}
                         </td>
+                        <td class="text-{{ optional($commLink->german())->translation ? 'success' : 'danger' }}">
+                            {{ optional($commLink->german())->translation ? 'Ja' : 'Nein' }}
+                        </td>
                         <td>
                             {{ $commLink->channel->name }}
                         </td>
@@ -61,7 +65,7 @@
                         <td>
                             {{ $commLink->series->name }}
                         </td>
-                        <td title="{{ $commLink->created_at->format('d.m.Y') }}">
+                        <td title="{{ $commLink->created_at->format('d.m.Y') }}" data-search="{{ $commLink->created_at->format('d.m.Y') }}">
                             {{ $commLink->created_at->diffForHumans() }}
                         </td>
                         <td class="text-center">
@@ -88,4 +92,9 @@
         </div>
         <div class="card-footer">{{ $commLinks->links() }}</div>
     </div>
+@endsection
+
+@section('body__after')
+    @parent
+    @include('components.init_dataTables')
 @endsection

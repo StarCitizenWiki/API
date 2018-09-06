@@ -8,6 +8,7 @@
 
 namespace App\Models\Rsi\CommLink;
 
+use App\Events\ModelUpdating;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\Image\Image;
@@ -22,6 +23,11 @@ use App\Traits\HasModelChangelogTrait as ModelChangelog;
 class CommLink extends HasTranslations
 {
     use ModelChangelog;
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+    ];
 
     protected $fillable = [
         'cig_id',
