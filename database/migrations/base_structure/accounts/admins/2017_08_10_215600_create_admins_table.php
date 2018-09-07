@@ -2,9 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
-class CreateModelChangelogsTable extends Migration
+/**
+ * Class CreateAdminsTable
+ */
+class CreateAdminsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +16,15 @@ class CreateModelChangelogsTable extends Migration
     public function up()
     {
         Schema::create(
-            'model_changelogs',
+            'admins',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->json('changelog');
-                $table->unsignedInteger('changelog_id');
-                $table->string('changelog_type');
+                $table->string('username')->unique();
+                $table->boolean('blocked');
+                $table->string('provider');
+                $table->integer('provider_id')->unique();
+                $table->timestamp('last_login')->nullable();
+                $table->rememberToken();
                 $table->timestamps();
             }
         );
@@ -32,6 +37,6 @@ class CreateModelChangelogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('model_changelogs');
+        Schema::drop('admins');
     }
 }
