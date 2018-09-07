@@ -19,6 +19,7 @@ abstract class AbstractTranslation extends Model
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
         'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
     ];
 
     /**

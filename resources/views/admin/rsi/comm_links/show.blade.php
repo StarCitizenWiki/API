@@ -66,11 +66,13 @@
                     {!! optional($commLink->german())->translation ?? 'Nicht vorhanden' !!}
                 </div>
                 <div class="tab-pane fade" id="nav-links" role="tabpanel" aria-labelledby="nav-links-tab">
-                    @forelse($commLink->links as $link)
-                        <span class="d-block"><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> &mdash; {{ $link->href }}</span>
-                    @empty
-                        Keine Links vorhanden
-                    @endforelse
+                    <ul>
+                        @forelse($commLink->links as $link)
+                            <li><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> &mdash; {{ $link->href }}</li>
+                        @empty
+                            <li>Keine Links vorhanden</li>
+                        @endforelse
+                    </ul>
                 </div>
                 <div class="tab-pane fade" id="nav-images" role="tabpanel" aria-labelledby="nav-images-tab">
                     @forelse($commLink->images as $image)
@@ -130,27 +132,15 @@
                 <div class="tab-pane fade" id="nav-changelog" role="tabpanel" aria-labelledby="nav-changelog-tab">
                     @forelse($changelogs as $changelog)
                         <ul>
-                        <?php
-                        $changelogData = json_decode($changelog->changelog, true);
-                        $attributes = [];
-                        $new = false;
-                        foreach ($changelogData as $key => $item) {
-                            if ($key !== 'by') {
-                                $attributes[] = $key;
-                                if ($item['old'] === null) {
-                                    $new = true;
-                                    break;
-                                } else {
-                                    $new = false;
-                                }
-                            }
-                        }
-                        if ($new) {
-                            echo "<li>Übersetzung erstellt durch {$changelogData['by']['name']} ".$changelog->created_at->diffForHumans()."</li>";
-                        } else {
-                            echo "<li>".implode(', ', $attributes)." geändert durch {$changelogData['by']['name']} ".$changelog->created_at->diffForHumans()."</li>";
-                        }
-                        ?>
+                            @if($changelog->type === 'creation')
+                                <li>
+                                    Übersetzung erstellt durch <a href="{{ $changelog->admin->userNameWikiLink() }}" target="_blank">{{ $changelog->admin->username }}</a> <span title="{{ $changelog->created_at->format('d.m.Y H:i') }}">{{ $changelog->created_at->diffForHumans() }}</span>
+                                </li>
+                            @else {{-- Update --}}
+                                <li title="{{ implode(', ', array_keys($changelog->changelog['changes'])) }}">
+                                    Comm Link aktualisiert durch <a href="{{ $changelog->admin->userNameWikiLink() }}" target="_blank">{{ $changelog->admin->username }}</a> <span title="{{ $changelog->created_at->format('d.m.Y H:i') }}">{{ $changelog->created_at->diffForHumans() }}</span>
+                                </li>
+                            @endif
                         </ul>
                     @empty
                         Keine Änderungen vorhanden
