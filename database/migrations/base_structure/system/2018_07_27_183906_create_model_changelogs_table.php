@@ -18,7 +18,7 @@ class CreateModelChangelogsTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
-                $table->json('changelog');
+                $table->json('changelog')->nullable();
                 $table->unsignedInteger('admin_id');
                 $table->unsignedInteger('changelog_id');
                 $table->string('changelog_type');

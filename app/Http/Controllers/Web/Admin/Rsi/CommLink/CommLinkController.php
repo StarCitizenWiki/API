@@ -64,6 +64,8 @@ class CommLinkController extends Controller
             }
         );
 
+        $changelog = $changelog->sortByDesc('created_at');
+
         return view(
             'admin.rsi.comm_links.show',
             [
@@ -122,7 +124,7 @@ class CommLinkController extends Controller
         );
 
         foreach ($data as $localeCode => $translation) {
-            if (config('language.english') !== $localeCode) {
+            if (config('language.english') !== $localeCode && null !== $translation) {
                 $commLink->translations()->updateOrCreate(
                     ['locale_code' => $localeCode],
                     ['translation' => $translation]

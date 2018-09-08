@@ -19,14 +19,4 @@ class CommLinkTranslation extends Translation
     {
         return $this->belongsTo(CommLink::class);
     }
-
-    /**
-     * Associate Translations with Parent Model
-     *
-     * @return string
-     */
-    public function getMorphClass()
-    {
-        return CommLink::class;
-    }
 }

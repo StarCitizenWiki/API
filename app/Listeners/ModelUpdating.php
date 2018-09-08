@@ -29,11 +29,18 @@ class ModelUpdating
     {
         $this->model = $event->model;
 
+        // TODO Hacky
+        $createdAt = now();
+        if ($this->model instanceof Translation) {
+            $createdAt = now()->addSecond();
+        }
+
         $this->model->changelogs()->create(
             [
                 'type' => $this->getChangelogType(),
                 'changelog' => $this->getChangelogData(),
                 'admin_id' => $this->getCreatorId(),
+                'created_at' => $createdAt,
             ]
         );
     }
@@ -43,12 +50,15 @@ class ModelUpdating
      *
      * @return array
      */
-    private function getChangelogData(): array
+    private function getChangelogData(): ?array
     {
-        $changelog = [
-            'changes' => $this->getChanges(),
-            'extra' => [],
-        ];
+        $changelog = [];
+
+        $changes = $this->getChanges();
+
+        if (!empty($changes)) {
+            $changelog['changes'] = $this->getChanges();
+        }
 
         if ($this->model instanceof Translation) {
             $changelog['extra'] = [
@@ -56,7 +66,7 @@ class ModelUpdating
             ];
         }
 
-        return $changelog;
+        return empty($changelog) ? null : $changelog;
     }
 
     /**
@@ -85,7 +95,7 @@ class ModelUpdating
         $changes = [];
 
         /** Don't create changes for Model Creations, since all Old values will be null */
-        if (!$this->model->wasRecentlyCreated) {
+        if (!$this->model->wasRecentlyCreated && null === $this->model->deleted_at) {
             foreach ($this->model->getDirty() as $key => $value) {
                 $original = $this->model->getOriginal($key);
                 $changes[$key] = [
@@ -111,6 +121,6 @@ class ModelUpdating
             $id = Auth::guard(self::ADMIN_GUARD)->user()->provider_id;
         }
 
-        return (int)$id;
+        return (int) $id;
     }
 }

@@ -1,17 +1,17 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Web\Admin\Rsi\CommLink;
+namespace App\Http\Controllers\Web\Admin\Rsi\CommLink\Series;
 
 use App\Http\Controllers\Controller;
-use App\Models\Rsi\CommLink\Channel\Channel;
+use App\Models\Rsi\CommLink\Series\Series;
 
 /**
- * Comm Link Channel Controller
+ * Comm Link Series
  */
-class ChannelController extends Controller
+class SeriesController extends Controller
 {
     /**
-     * All Channels
+     * All Series
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      *
@@ -23,28 +23,28 @@ class ChannelController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.rsi.comm_links.channel.index',
+            'admin.rsi.comm_links.series.index',
             [
-                'channels' => Channel::orderBy('name')->get(),
+                'series' => Series::orderBy('name')->get(),
             ]
         );
     }
 
     /**
-     * Get all Comm Links of a given Channel
+     * Get all Comm Links in a given Series
      *
-     * @param \App\Models\Rsi\CommLink\Channel\Channel $channel
+     * @param \App\Models\Rsi\CommLink\Series\Series $series
      *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function show(Channel $channel)
+    public function show(Series $series)
     {
         $this->authorize('web.admin.rsi.comm_links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $links = $channel->commLinks()->orderByDesc('cig_id')->paginate(20);
+        $links = $series->commLinks()->orderByDesc('cig_id')->paginate(20);
 
         return view(
             'admin.rsi.comm_links.index',

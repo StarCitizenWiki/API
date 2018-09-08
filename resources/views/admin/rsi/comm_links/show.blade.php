@@ -132,15 +132,29 @@
                 <div class="tab-pane fade" id="nav-changelog" role="tabpanel" aria-labelledby="nav-changelog-tab">
                     @forelse($changelogs as $changelog)
                         <ul>
-                            @if($changelog->type === 'creation')
-                                <li>
-                                    Übersetzung erstellt durch <a href="{{ $changelog->admin->userNameWikiLink() }}" target="_blank">{{ $changelog->admin->username }}</a> <span title="{{ $changelog->created_at->format('d.m.Y H:i') }}">{{ $changelog->created_at->diffForHumans() }}</span>
-                                </li>
-                            @else {{-- Update --}}
-                                <li title="{{ implode(', ', array_keys($changelog->changelog['changes'])) }}">
-                                    Comm Link aktualisiert durch <a href="{{ $changelog->admin->userNameWikiLink() }}" target="_blank">{{ $changelog->admin->username }}</a> <span title="{{ $changelog->created_at->format('d.m.Y H:i') }}">{{ $changelog->created_at->diffForHumans() }}</span>
-                                </li>
-                            @endif
+                            <li>
+                                @if(isset($changelog->changelog['extra']['locale']))
+                                    Übersetzung @lang($changelog->changelog['extra']['locale'])
+                                    @if($changelog->type === 'creation')
+                                        erstellt durch
+                                    @else
+                                        aktualisiert durch
+                                    @endif
+                                @else
+                                    Comm Link
+                                    @if($changelog->type === 'creation')
+                                        importiert von
+                                    @else
+                                        aktualisiert durch
+                                    @endif
+                                @endif
+                                <a href="{{ optional($changelog->admin)->userNameWikiLink() ?? '#' }}" target="_blank">
+                                    {{ optional($changelog->admin)->username ?? 'Import Script' }}
+                                </a>
+                                <span>
+                                    {{ $changelog->created_at->diffForHumans() }} &mdash; {{ $changelog->created_at->format('d.m.Y H:i') }}
+                                </span>
+                            </li>
                         </ul>
                     @empty
                         Keine Änderungen vorhanden

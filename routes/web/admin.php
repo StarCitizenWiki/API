@@ -77,18 +77,24 @@ Route::group(
                                 ->prefix('comm_links')
                                 ->group(
                                     function () {
-                                        Route::get('categories', 'CategoryController@index')->name('categories.index');
-                                        Route::get('categories/{category}', 'CategoryController@show')->name(
+                                        Route::get('categories', 'Category\CategoryController@index')->name(
+                                            'categories.index'
+                                        );
+                                        Route::get('categories/{category}', 'Category\CategoryController@show')->name(
                                             'categories.show'
                                         );
 
-                                        Route::get('channels', 'ChannelController@index')->name('channels.index');
-                                        Route::get('channels/{channel}', 'ChannelController@show')->name(
+                                        Route::get('channels', 'Channel\ChannelController@index')->name(
+                                            'channels.index'
+                                        );
+                                        Route::get('channels/{channel}', 'Channel\ChannelController@show')->name(
                                             'channels.show'
                                         );
 
-                                        Route::get('series', 'SeriesController@index')->name('series.index');
-                                        Route::get('series/{series}', 'SeriesController@show')->name('series.show');
+                                        Route::get('series', 'Series\SeriesController@index')->name('series.index');
+                                        Route::get('series/{series}', 'Series\SeriesController@show')->name(
+                                            'series.show'
+                                        );
                                     }
                                 );
 

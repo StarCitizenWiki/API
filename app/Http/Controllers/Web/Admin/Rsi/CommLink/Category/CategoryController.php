@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Web\Admin\Rsi\CommLink;
+namespace App\Http\Controllers\Web\Admin\Rsi\CommLink\Category;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Category\Category;

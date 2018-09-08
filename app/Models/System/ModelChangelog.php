@@ -14,6 +14,7 @@ class ModelChangelog extends Model
         'type',
         'changelog',
         'admin_id',
+        'created_at',
     ];
 
     protected $casts = [
