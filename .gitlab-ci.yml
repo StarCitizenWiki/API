@@ -1,7 +1,7 @@
 # This file is a template, and might need editing before it works on your project.
 # Official framework image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/php
-image: php:latest
+image: php:7.1
 
 # Pick zero or more services to be used on all builds.
 # Only needed when using a docker container to run your tests in.
@@ -47,8 +47,7 @@ before_script:
 
   # Install Composer and project dependencies.
   - curl -sS https://getcomposer.org/installer | php
-  - php composer.phar update
-  #- php composer.phar update
+  - php composer.phar install
 
   # Install Node dependencies.
   # comment this out if you don't have a node dependency
@@ -76,7 +75,7 @@ before_script:
   - php artisan migrate
 
   # Run database seed
-  - php artisan db:seed
+  #- php artisan db:seed
 
 test:
   script:

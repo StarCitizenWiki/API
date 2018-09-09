@@ -43,7 +43,7 @@ class Admin extends Authenticatable
 
     public function getHighestPermissionLevel(): int
     {
-        return intval($this->groups->first()->permission_level);
+        return $this->groups->first()->permission_level;
     }
 
     public function isEditor(): bool
