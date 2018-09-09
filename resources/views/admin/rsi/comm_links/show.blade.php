@@ -14,14 +14,14 @@
 @section('content')
     <div class="d-flex mb-3">
         @unless(null === $prev)
-            <a href="{{ route('web.admin.rsi.comm_links.show', $prev) }}" class="btn btn-outline-secondary">Vorheriger</a>
+            <a href="{{ route('web.admin.rsi.comm_links.show', $prev) }}" class="btn btn-outline-secondary">@lang('Vorheriger')</a>
         @else
-            <a href="#" class="btn btn-outline-secondary disabled">Vorheriger</a>
+            <a href="#" class="btn btn-outline-secondary disabled">@lang('Vorheriger')</a>
         @endunless
         @unless(null === $next)
-            <a href="{{ route('web.admin.rsi.comm_links.show', $next) }}" class="btn btn-outline-secondary ml-auto">Nächste</a>
+            <a href="{{ route('web.admin.rsi.comm_links.show', $next) }}" class="btn btn-outline-secondary ml-auto">@lang('Nächste')</a>
         @else
-            <a href="#" class="btn btn-outline-secondary disabled ml-auto">Nächste</a>
+            <a href="#" class="btn btn-outline-secondary disabled ml-auto">@lang('Nächste')</a>
         @endunless
     </div>
     <div class="card">
@@ -52,9 +52,11 @@
                     <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#nav-changelog" role="tab" aria-controls="nav-changelog" aria-selected="false">
                         @lang('Verlauf')
                     </a>
+                    @can('web.admin.rsi.comm_links.update')
                     <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.admin.rsi.comm_links.edit', $commLink->getRouteKey()) }}">
                         @lang('Bearbeiten')
                     </a>
+                    @endcan
                 </div>
             </nav>
 

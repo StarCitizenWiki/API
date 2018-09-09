@@ -23,7 +23,7 @@ class CategoryController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.rsi.comm_links.category.index',
+            'admin.rsi.comm_links.categories.index',
             [
                 'categories' => Category::orderBy('name')->get(),
             ]

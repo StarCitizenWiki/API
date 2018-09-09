@@ -75,6 +75,15 @@ $factory->state(
 
 $factory->state(
     App\Models\Account\Admin\AdminGroup::class,
+    'editor',
+    [
+        'name' => 'editor',
+        'permission_level' => 0,
+    ]
+);
+
+$factory->state(
+    App\Models\Account\Admin\AdminGroup::class,
     'user',
     [
         'name' => 'user',

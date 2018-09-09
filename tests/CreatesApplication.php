@@ -37,6 +37,7 @@ trait CreatesApplication
             factory(AdminGroup::class)->states('sichter')->create();
             factory(AdminGroup::class)->states('mitarbeiter')->create();
             factory(AdminGroup::class)->states('user')->create();
+            factory(AdminGroup::class)->states('editor')->create();
         }
     }
 

@@ -17,7 +17,7 @@ class CreateCommLinksTable extends Migration
             'comm_links',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->unsignedBigInteger('cig_id');
+                $table->unsignedBigInteger('cig_id')->unique();
 
                 $table->string('title');
                 $table->unsignedBigInteger('comment_count');

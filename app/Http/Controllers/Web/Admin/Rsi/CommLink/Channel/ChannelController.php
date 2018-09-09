@@ -23,7 +23,7 @@ class ChannelController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.rsi.comm_links.channel.index',
+            'admin.rsi.comm_links.channels.index',
             [
                 'channels' => Channel::orderBy('name')->get(),
             ]

@@ -30,6 +30,11 @@ class AdminGroup extends Model
     const MITARBEITER = 1;
 
     /**
+     * Comm Link Editor
+     */
+    const EDITOR = 0;
+
+    /**
      * Registrierter Account
      */
     const USER = 0;
