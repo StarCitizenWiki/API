@@ -13,6 +13,7 @@ import 'tinymce/themes/modern/theme';
 
 import {
   faBook,
+  faBooks,
   faBuilding,
   faBullhorn,
   faCar,
@@ -64,6 +65,7 @@ import {
 
 library.add(
   faBook,
+  faBooks,
   faBuilding,
   faBullhorn,
   faCar,

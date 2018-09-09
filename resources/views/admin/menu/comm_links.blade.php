@@ -31,12 +31,29 @@
 @component('components.navs.nav_element', [
     'route' => route('web.admin.rsi.comm_links.channels.index'),
 ])
-    @lang('Channel')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                circle
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Channel')
+        </div>
+    </div>
 @endcomponent
 
 @component('components.navs.nav_element', [
     'route' => route('web.admin.rsi.comm_links.series.index'),
 ])
-
-    @lang('Serien')
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                books
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Serien')
+        </div>
+    </div>
 @endcomponent
