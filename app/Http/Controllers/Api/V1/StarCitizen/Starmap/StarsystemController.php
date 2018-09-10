@@ -22,12 +22,12 @@ class StarsystemController extends ApiController
     /**
      * @var \App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer
      */
-    private $transformer;
+    protected $transformer;
 
     /**
      * @var \App\Http\Controllers\Api\V1\StarCitizen\Starmap\Request
      */
-    private $request;
+    protected $request;
 
     /**
      * StarsystemController constructor.
