@@ -14,7 +14,6 @@
                     @endcan
                     <th>@lang('CIG ID')</th>
                     <th>@lang('Titel')</th>
-                    <th>@lang('Kommentare')</th>
                     <th>@lang('Bilder')</th>
                     <th>@lang('Links')</th>
                     <th>@lang('Inhalt')</th>
@@ -40,9 +39,6 @@
                         </td>
                         <td>
                             {{ $commLink->title }}
-                        </td>
-                        <td>
-                            {{ $commLink->comment_count }}
                         </td>
                         <td>
                             {{ count($commLink->images) }}

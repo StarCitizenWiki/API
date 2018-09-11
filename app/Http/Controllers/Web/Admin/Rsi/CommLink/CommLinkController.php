@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Web\Admin\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommLinkRequest;
+use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\System\ModelChangelog;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Comm Link Controller
@@ -91,10 +94,36 @@ class CommLinkController extends Controller
         $this->authorize('web.admin.rsi.comm_links.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        $versions = Storage::disk('comm_links')->files($commLink->cig_id);
+        $versions = array_map(
+            function ($value) {
+                $file = preg_split('#(?<=)[/\\\]#', $value)[1];
+
+                return str_replace('.html', '', $file);
+            },
+            $versions
+        );
+        rsort($versions);
+
+        $versionData = [];
+        foreach ($versions as $version) {
+            $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
+
+            if ("{$version}.html" === $commLink->file) {
+                $output = sprintf('%s: %s', __('Aktuell'), $output);
+            }
+
+            $versionData[] = [
+                'output' => $output,
+                'file' => "{$version}.html",
+            ];
+        }
+
         return view(
             'admin.rsi.comm_links.edit',
             [
                 'commLink' => $commLink,
+                'versions' => $versionData,
             ]
         );
     }
@@ -115,27 +144,37 @@ class CommLinkController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
         $data = $request->validated();
 
-        $commLink->update(
-            [
-                'title' => array_pull($data, 'title'),
-                'url' => array_pull($data, 'url'),
-                'created_at' => array_pull($data, 'created_at'),
-            ]
-        );
+        if (isset($data['version']) && $data['version'] !== $commLink->file) {
+            $message = __('Comm Link Import gestartet');
 
-        foreach ($data as $localeCode => $translation) {
-            if (config('language.english') !== $localeCode && null !== $translation) {
-                $commLink->translations()->updateOrCreate(
-                    ['locale_code' => $localeCode],
-                    ['translation' => $translation]
-                );
+            dispatch(new ParseCommLink($commLink->cig_id, $data['version'], $commLink, true));
+        } else {
+            unset($data['version']);
+
+            $commLink->update(
+                [
+                    'title' => array_pull($data, 'title'),
+                    'url' => array_pull($data, 'url'),
+                    'created_at' => array_pull($data, 'created_at'),
+                ]
+            );
+
+            foreach ($data as $localeCode => $translation) {
+                if (config('language.english') !== $localeCode && null !== $translation) {
+                    $commLink->translations()->updateOrCreate(
+                        ['locale_code' => $localeCode],
+                        ['translation' => $translation]
+                    );
+                }
             }
+
+            $message = __('crud.updated', ['type' => __('Comm Link')]);
         }
 
         return redirect()->route('web.admin.rsi.comm_links.show', $commLink->getRouteKey())->withMessages(
             [
                 'success' => [
-                    __('crud.updated', ['type' => __('Comm Link')]),
+                    $message,
                 ],
             ]
         );

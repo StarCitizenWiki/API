@@ -41,6 +41,10 @@ class CommLinkRequest extends FormRequest
             }
         }
 
+        if (Auth::guard('admin')->user()->can('web.admin.rsi.comm_links.update_settings')) {
+            $rules['version'] = 'required|string|regex:/\d{4}\-\d{2}\-\d{2}\_\d{6}\.html/';
+        }
+
         return $rules;
     }
 }
