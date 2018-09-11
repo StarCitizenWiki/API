@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
+use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -41,12 +42,17 @@ class ParseCommLinkDownload implements ShouldQueue
      */
     public function handle()
     {
-        foreach (Storage::disk('comm_links')->directories() as $commLinkDir) {
-            if (intval($commLinkDir) >= $this->offset) {
-                $file = scandir(Storage::disk('comm_links')->path($commLinkDir), SCANDIR_SORT_DESCENDING)[0];
+        $commLinks = CommLink::all();
+        $commLinks = $commLinks->keyBy('cig_id');
 
-                dispatch(new ParseCommLink(intval($commLinkDir), $file));
+        collect(Storage::disk('comm_links')->directories())->each(
+            function ($commLinkDir) use ($commLinks) {
+                if (intval($commLinkDir) >= $this->offset) {
+                    $file = scandir(Storage::disk('comm_links')->path($commLinkDir), SCANDIR_SORT_DESCENDING)[0];
+
+                    dispatch(new ParseCommLink(intval($commLinkDir), $file, $commLinks->get($commLinkDir, null)));
+                }
             }
-        }
+        );
     }
 }

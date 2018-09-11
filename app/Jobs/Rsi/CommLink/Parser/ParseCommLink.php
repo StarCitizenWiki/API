@@ -2,15 +2,12 @@
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
-use App\Models\Rsi\CommLink\Category\Category;
-use App\Models\Rsi\CommLink\Channel\Channel;
+use App\Events\Rsi\CommLink\CommLinkChanged;
+use App\Jobs\Rsi\CommLink\Parser\Element\Content;
+use App\Jobs\Rsi\CommLink\Parser\Element\Image;
+use App\Jobs\Rsi\CommLink\Parser\Element\Link;
+use App\Jobs\Rsi\CommLink\Parser\Element\Metadata;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\Image\Image;
-use App\Models\Rsi\CommLink\Link\Link;
-use App\Models\Rsi\CommLink\Series\Series;
-use Carbon\Carbon;
-use DOMDocument;
-use DOMXPath;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,9 +27,9 @@ class ParseCommLink implements ShouldQueue
     use SerializesModels;
 
     /**
-     * Default Creation Date no Date was found in the Comm Link
+     * Comm Link Post CSS Selector
      */
-    private const DEFAULT_CREATION_DATE = '2012-01-01 00:00:00';
+    const POST_SELECTOR = '#post';
 
     /**
      * @var int Comm Link ID
@@ -45,28 +42,36 @@ class ParseCommLink implements ShouldQueue
     private $file;
 
     /**
+     * @var \App\Models\Rsi\CommLink\CommLink
+     */
+    private $commLinkModel;
+
+    /**
+     * True if the given file content should be imported into the comm link model
+     *
+     * @var bool
+     */
+    private $forceImport;
+
+    /**
      * @var \Symfony\Component\DomCrawler\Crawler
      */
     private $crawler;
 
     /**
-     * @var array Array with Links and Images from the Comm Link
-     */
-    private $commLinkContent = [
-        'images' => [],
-        'links' => [],
-    ];
-
-    /**
      * Create a new job instance.
      *
-     * @param int    $id
-     * @param string $file
+     * @param int                                    $id          Comm Link ID
+     * @param string                                 $file        Current File Name
+     * @param \App\Models\Rsi\CommLink\CommLink|null $commLink    Optional Comm Link Model to update
+     * @param bool                                   $forceImport Flag to Force Import from current file
      */
-    public function __construct(int $id, string $file)
+    public function __construct(int $id, string $file, ?CommLink $commLink = null, bool $forceImport = false)
     {
         $this->commLinkId = $id;
         $this->file = $file;
+        $this->commLinkModel = $commLink;
+        $this->forceImport = $forceImport;
     }
 
     /**
@@ -82,467 +87,98 @@ class ParseCommLink implements ShouldQueue
         $this->crawler = new Crawler();
         $this->crawler->addHtmlContent($content, 'UTF-8');
 
-        $content = $this->crawler->filter('#post');
+        $content = $this->crawler->filter(self::POST_SELECTOR);
 
-        try {
-            $content->text();
-        } catch (\InvalidArgumentException $e) {
+        if ($content->count() === 0) {
             app('Log')::info("Comm-Link with id {$this->commLinkId} has no content");
 
             return;
         }
 
-        $this->createCommLink();
+        if (null === $this->commLinkModel || $this->forceImport) {
+            $this->createCommLink(); // Updates or Creates
+        } else {
+            $this->checkCommLinkForChanges();
+        }
     }
 
     /**
-     * Creates the Comm Link Model and populates it
+     * Updates or Creates a Comm Link Model and populates it
      */
     private function createCommLink()
     {
-        $this->extractImages();
-        $this->extractLinks();
-
         /** @var \App\Models\Rsi\CommLink\CommLink $commLink */
         $commLink = CommLink::updateOrCreate(
             [
                 'cig_id' => $this->commLinkId,
             ],
-            [
-                'title' => $this->getTitle(),
-                'comment_count' => $this->getCommentCount(),
-                'url' => $this->getOriginalUrl(),
-                'file' => $this->file,
-                'channel_id' => $this->getChannel(),
-                'category_id' => $this->getCategory(),
-                'series_id' => $this->getSeries(),
-                'created_at' => $this->getCreatedAt(),
-            ]
+            $this->getCommLinkData()
         );
 
+        $this->addEnglishCommLinkTranslation($commLink);
+        $this->syncImageIds($commLink);
+        $this->syncLinkIds($commLink);
+    }
+
+    /**
+     * Creates the Comm Link Dara Array from Metadata
+     *
+     * @return array
+     */
+    private function getCommLinkData()
+    {
+        $metaData = (new Metadata($this->crawler))->getMetaData();
+
+        return [
+            'title' => $metaData->get('title'),
+            'comment_count' => $metaData->get('comment_count'),
+            'url' => $metaData->get('url'),
+            'file' => $this->file,
+            'channel_id' => $metaData->get('channel_id'),
+            'category_id' => $metaData->get('category_id'),
+            'series_id' => $metaData->get('series_id'),
+            'created_at' => $metaData->get('created_at'),
+        ];
+    }
+
+    /**
+     * Adds or Updates the default english Translation to the Comm Link
+     *
+     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     */
+    private function addEnglishCommLinkTranslation(CommLink $commLink)
+    {
+        $contentParser = new Content($this->crawler);
         $commLink->translations()->updateOrCreate(
             [
                 'locale_code' => 'en_EN',
             ],
             [
-                'translation' => $this->getContent(),
+                'translation' => $contentParser->getContent(),
             ]
         );
-
-        $commLink->images()->sync($this->getImageIds());
-        $commLink->links()->sync($this->getLinkIds());
     }
 
     /**
-     * Extracts all <img> Elements from the Crawler
-     * Saves src and alt attributes
+     * Syncs extracted Comm Link Image Ids
+     *
+     * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
-    private function extractImages(): void
+    private function syncImageIds(CommLink $commLink)
     {
-        $this->crawler->filter('#post')->filterXPath('//img')->each(
-            function (Crawler $crawler) {
-                $src = $crawler->attr('src');
-
-                if (null !== $src && !empty($src)) {
-                    $this->commLinkContent['images'][] = [
-                        'src' => ltrim(trim($src), '/'),
-                        'alt' => $crawler->attr('alt') ?? '',
-                    ];
-                }
-            }
-        );
-
-        try {
-            $background = $this->crawler->filter('#post-background');
-            $src = $background->attr('style');
-
-            if (null !== $src && !empty($src)) {
-                if (preg_match('/(\/media\/.*\.\w+)/', $src, $src)) {
-                    $src = $src[1];
-                }
-
-                $this->commLinkContent['images'][] = [
-                    'src' => ltrim(trim($src), '/'),
-                    'alt' => '#post-background',
-                ];
-            }
-        } catch (\InvalidArgumentException $e) {
-            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no #post-background Element");
-        }
+        $imageParser = new Image($this->crawler);
+        $commLink->images()->sync($imageParser->getImageIds());
     }
 
     /**
-     * Extracts all <a> Elements from the Crawler
-     * Saves href and Link Texts
+     * Syncs extrated Comm Link Link Ids
+     *
+     * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
-    private function extractLinks(): void
+    private function syncLinkIds(CommLink $commLink)
     {
-        $this->crawler->filter('#post')->filterXPath('//a')->each(
-            function (Crawler $crawler) {
-                $href = $crawler->attr('href');
-
-                if (null !== $href && null !== parse_url($href, PHP_URL_HOST)) {
-                    $this->commLinkContent['links'][] = [
-                        'href' => $href,
-                        'text' => $crawler->text(),
-                    ];
-                }
-            }
-        );
-
-        $this->crawler->filter('#post')->filterXPath('//iframe')->each(
-            function (Crawler $crawler) {
-                $src = $crawler->attr('src');
-
-                if (null !== $src && null !== parse_url($src, PHP_URL_HOST)) {
-                    if (null === parse_url($src, PHP_URL_SCHEME)) {
-                        $src = 'https:'.$src;
-                    }
-
-                    $this->commLinkContent['links'][] = [
-                        'href' => $src,
-                        'text' => 'iframe',
-                    ];
-                }
-            }
-        );
-    }
-
-    /**
-     * Extracts the Comm Link title from the <title> Element
-     *
-     * @return string Comm Link Title
-     */
-    private function getTitle(): string
-    {
-        try {
-            $title = $this->crawler->filterXPath('//title')->text();
-        } catch (\InvalidArgumentException $e) {
-            return 'No Title Found';
-        }
-
-        $title = preg_replace(
-            [
-                "/\r|\n/",
-                '/\s+/',
-            ],
-            [
-                '',
-                ' ',
-            ],
-            str_replace(
-                ' - Roberts Space Industries | Follow the development of Star Citizen and Squadron 42',
-                '',
-                $title
-            )
-        );
-
-        return $this->cleanText($title);
-    }
-
-    /**
-     * Tries to extract the Comment Count from the .title-section Element
-     *
-     * @return int Comment Count
-     */
-    private function getCommentCount(): int
-    {
-        try {
-            return intval($this->crawler->filter('.comment-count')->first()->text());
-        } catch (\InvalidArgumentException $e) {
-            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no Comments");
-        }
-
-        return 0;
-    }
-
-    /**
-     * Tries to get the original Comm Link URL from the 'Add-Comment' Link
-     *
-     * @return null|string
-     */
-    private function getOriginalUrl(): ?string
-    {
-        try {
-            $href = $this->crawler->filter('a.add-comment')->attr('href');
-        } catch (\InvalidArgumentException $e) {
-            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no Add Comment Link");
-
-            return null;
-        }
-
-        return $this->cleanText(str_replace('/connect?jumpto=', '', $href));
-    }
-
-    /**
-     * Tries to Extract the Comm Link Channel
-     * Defaults to 'Undefined' if not found
-     *
-     * @return int Channel ID
-     */
-    private function getChannel(): int
-    {
-        try {
-            $channel = $this->crawler->filter('.title-bar .title h2')->text();
-        } catch (\InvalidArgumentException $e) {
-            // Populated by Seed
-            return 1;
-        }
-
-        if (empty($channel)) {
-            // Populated by Seed
-            return 1;
-        }
-
-        $channel = $this->cleanText($channel);
-
-        return Channel::firstOrCreate(
-            [
-                'name' => $channel,
-                'slug' => str_slug($channel, '-'),
-            ]
-        )->id;
-    }
-
-    /**
-     * Tries to Extract the Comm Link Category
-     * Defaults to 'Undefined' if not found
-     *
-     * @return int Category ID
-     */
-    private function getCategory(): int
-    {
-        try {
-            $category = $this->crawler->filter('.title-bar .title h1')->text();
-        } catch (\InvalidArgumentException $e) {
-            // Populated by Seed
-            return 1;
-        }
-
-        if (empty($category)) {
-            // Populated by Seed
-            return 1;
-        }
-
-        $category = $this->cleanText($category);
-
-        return Category::firstOrCreate(
-            [
-                'name' => $category,
-                'slug' => str_slug($category, '-'),
-            ]
-        )->id;
-    }
-
-    /**
-     * Tries to Extract the Comm Link Series
-     * Defaults to 'None' if not found
-     *
-     * @return int Series ID
-     */
-    private function getSeries(): int
-    {
-        try {
-            $series = $this->crawler->filter('.presented-by + div + h1')->text();
-        } catch (\InvalidArgumentException $e) {
-            // Populated by Seed
-            return 1;
-        }
-
-        if (empty($series)) {
-            // Populated by Seed
-            return 1;
-        }
-
-        $series = $this->cleanText($series);
-
-        return Series::firstOrCreate(
-            [
-                'name' => $series,
-                'slug' => str_slug($series, '-'),
-            ]
-        )->id;
-    }
-
-    /**
-     * Tries to extract the Creation Date from the .title-section Element
-     * Defaults to '2012-01-01 00:00:00' if no Date was found
-     *
-     * @return string Parsed Date
-     */
-    private function getCreatedAt(): string
-    {
-        try {
-            return Carbon::parse(
-                $this->crawler->filter('.title-section .details div:nth-of-type(3) p')->text()
-            )->toDateTimeString();
-        } catch (\InvalidArgumentException $e) {
-            app('Log')::debug("Comm-Link with id {$this->commLinkId} has no Creation Date");
-        }
-
-        return self::DEFAULT_CREATION_DATE;
-    }
-
-    /**
-     * Tries to extract the Comm Link Content as Text
-     *
-     * @param string $filter Content Element class/id
-     *
-     * @return string
-     */
-    private function getContent(string $filter = '.segment'): string
-    {
-        if ($this->isSpecialPage()) {
-            $filter = '#layout-system';
-        }
-
-        $content = '';
-
-        try {
-            $this->crawler->filter($filter)->each(
-                function (Crawler $crawler) use (&$content) {
-                    $content .= ltrim($crawler->html());
-                }
-            );
-        } catch (\InvalidArgumentException $e) {
-            app('Log')::info("Comm-Link with id {$this->commLinkId} has no Content in {$filter}.");
-        }
-
-
-        return empty($content) ? '' : $this->cleanContent($content);
-    }
-
-    /**
-     * Removes some Tags, converts newlines to br
-     *
-     * @param string $content
-     *
-     * @return string
-     */
-    private function cleanContent(string $content): string
-    {
-        $content = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $content);
-        $content = strip_tags($content, '<p><br><table><tbody><td><tfoot><th><thead><tr>');
-        $content = $this->stripTagAttributes($content);
-        $content = trim(
-            preg_replace(
-                ['/\R+/', '/[\ |\t]+/'],
-                ["\n", ' '],
-                $content
-            )
-        );
-        $content = nl2br($content, false);
-        $content = preg_replace('/\<p\>(?:(?:\&nbsp\;|\ | )*(?:<br\s*\/?>)*\s*)?\<\/p\>/i', '', $content);
-        $content = preg_replace('/(?:\<br>\s?)+/i', '<br>', $content);
-        $content = preg_replace('/^\s*(?:<br\s*\/?>\s*)*/is', '', $content);
-        $content = preg_replace('/\s*(?:<br\s*\/?>\s*)*$/is', '', $content);
-
-        return $content;
-    }
-
-    /**
-     * Removes all Attributes from Tags, so only pure tags are left
-     *
-     * @param string $html
-     *
-     * @return string Cleaned html
-     */
-    private function stripTagAttributes(string $html): string
-    {
-        $dom = new DOMDocument();
-
-        libxml_use_internal_errors(true);
-        $success = $dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        libxml_use_internal_errors(false);
-
-        if (!$success) {
-            return '';
-        }
-
-        $xpath = new DOMXPath($dom);
-        $nodes = $xpath->query('//@*');
-        foreach ($nodes as $node) {
-            $node->parentNode->removeAttribute($node->nodeName);
-        }
-
-        return $dom->saveHTML();
-    }
-
-    /**
-     * Returns an array with image ids from the image table
-     *
-     * @return array Image IDs
-     */
-    private function getImageIds(): array
-    {
-        $imageIds = [];
-        $images = collect($this->commLinkContent['images']);
-        $images->each(
-            function ($image) use (&$imageIds) {
-                $src = $image['src'];
-                $pattern = '/media\/(\w+)\/(\w+)\//';
-                $src = preg_replace($pattern, 'media/$1/source/', $src);
-
-                if (null === parse_url($src, PHP_URL_HOST)) {
-                    $src = config('api.rsi_url').'/'.$src;
-                }
-
-                $imageIds[] = Image::firstOrCreate(
-                    [
-                        'src' => $this->cleanText($src),
-                        'alt' => $this->cleanText($image['alt']),
-                    ]
-                )->id;
-            }
-        );
-
-        return array_unique($imageIds);
-    }
-
-    /**
-     * Returns an array with link ids from the link table
-     *
-     * @return array Link IDs
-     */
-    private function getLinkIds(): array
-    {
-        $linkIds = [];
-        $links = collect($this->commLinkContent['links']);
-        $links->each(
-            function ($link) use (&$linkIds) {
-                $linkIds[] = Link::firstOrCreate(
-                    [
-                        'href' => $this->cleanText($link['href']),
-                        'text' => $this->cleanText($link['text']),
-                    ]
-                )->id;
-            }
-        );
-
-        return array_unique($linkIds);
-    }
-
-    /**
-     * Checks if Comm Link Page is a Ship Page
-     * Ship Pages are wrapped in a '#layout-system' Div
-     *
-     * @return bool
-     */
-    private function isSpecialPage(): bool
-    {
-        return ($this->crawler->filter('#layout-system')->count() === 1) ? true : false;
-    }
-
-    /**
-     * Removes all new lines and trims the string
-     *
-     * @param string $string
-     *
-     * @return string cleaned text
-     */
-    private function cleanText(string $string): string
-    {
-        return trim(preg_replace('/\R/', '', $string));
+        $linkParser = new Link($this->crawler);
+        $commLink->links()->sync($linkParser->getLinkIds());
     }
 
     /**
@@ -551,5 +187,41 @@ class ParseCommLink implements ShouldQueue
     private function filePath(): string
     {
         return "{$this->commLinkId}/{$this->file}";
+    }
+
+    /**
+     * Checks if Content of current Comm Link has Changed
+     * Updates Metadata
+     */
+    private function checkCommLinkForChanges()
+    {
+        $data = $this->getCommLinkData();
+
+        if ($this->contentHasChanged()) {
+            dispatch(new CommLinkChanged($this->commLinkModel));
+
+            if (null === optional($this->commLinkModel->english())->translation) {
+                $this->addEnglishCommLinkTranslation($this->commLinkModel);
+            } else {
+                // Don't update the current File if Content has Changed and Translation is not null
+                unset($data['file']);
+            }
+        }
+
+        $this->commLinkModel->update($data);
+        $this->syncImageIds($this->commLinkModel);
+        $this->syncLinkIds($this->commLinkModel);
+    }
+
+    /**
+     * Checks if Local Content is Equal to DB Content
+     *
+     * @return bool
+     */
+    private function contentHasChanged()
+    {
+        $contentParser = new Content($this->crawler);
+
+        return $contentParser->getContent() === optional($this->commLinkModel->english())->translation;
     }
 }

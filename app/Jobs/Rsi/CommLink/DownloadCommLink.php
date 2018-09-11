@@ -11,7 +11,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Downloads the Whole Page Content
@@ -23,7 +22,6 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const POST_SLUG = '-IMPORT';
     const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
 
     /**
@@ -45,8 +43,6 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      * Execute the job.
      *
      * @return void
-     *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function handle()
     {
@@ -54,7 +50,10 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
         $scraper = new Client();
         $scraper->setClient($this->client);
 
-        $response = $scraper->request('GET', self::COMM_LINK_BASE_URL.'/SCW/'.$this->postId.self::POST_SLUG);
+        $response = $scraper->request(
+            'GET',
+            sprintf('%s/%s/%d-IMPORT', self::COMM_LINK_BASE_URL, 'SCW', $this->postId)
+        );
 
         try {
             $content = $this->cleanResponse($response->html());
@@ -72,19 +71,6 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 
         $fileName = sprintf('%d/%s.html', $this->postId, Carbon::now()->format('Y-m-d_His'));
 
-        if (Storage::disk('comm_links')->exists($this->postId)) {
-            $file = scandir(Storage::disk('comm_links')->path($this->postId), SCANDIR_SORT_DESCENDING)[0];
-            $localHtml = new Crawler(Storage::disk('comm_links')->get($this->postId.'/'.$file));
-
-            if (!$this->contentHasChanged($localHtml, $response)) {
-                app('Log')::debug("Content of Comm-Link {$this->postId} has not changed");
-
-                return;
-            }
-
-            app('Log')::info("Content of Comm-Link {$this->postId} has changed since last download");
-        }
-
         Storage::disk('comm_links')->put($fileName, $content);
     }
 
@@ -98,64 +84,5 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     private function cleanResponse(string $content): string
     {
         return preg_replace('/\'token\'\s?\:\s?\'[A-Za-z0-9\+\:\-\_\/]+\'/', '\'token\' : \'\'', $content);
-    }
-
-    /**
-     * Compares the white space removed content of two '#bodyWrapper' Elements
-     *
-     * @param \Symfony\Component\DomCrawler\Crawler $localFile
-     * @param \Symfony\Component\DomCrawler\Crawler $websiteFile
-     *
-     * @return bool
-     */
-    private function contentHasChanged(Crawler $localFile, Crawler $websiteFile)
-    {
-        try {
-            $presentHash = md5($this->removeWhiteSpace($this->extractWrapperContent($localFile)));
-        } catch (\InvalidArgumentException $e) {
-            app('Log')::warning("Content of Local Comm-Link {$this->postId} has no Body Wrapper");
-            $this->fail($e);
-
-            return false;
-        }
-
-        try {
-            $onlineHash = md5($this->removeWhiteSpace($this->extractWrapperContent($websiteFile)));
-        } catch (\InvalidArgumentException $e) {
-            app('Log')::warning("Content of Online Comm-Link {$this->postId} has no Body Wrapper");
-            $this->fail($e);
-
-            return false;
-        }
-
-        if ($presentHash === $onlineHash) {
-            app('Log')::debug("Content of Comm-Link {$this->postId} has not changed");
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param string $content
-     *
-     * @return string
-     */
-    private function removeWhiteSpace(string $content)
-    {
-        return preg_replace('/\s/', '', $content);
-    }
-
-    /**
-     * Extracts the '#bodyWrapper' Element from a Crawler
-     *
-     * @param \Symfony\Component\DomCrawler\Crawler $crawler
-     *
-     * @return string
-     */
-    private function extractWrapperContent(Crawler $crawler)
-    {
-        return $crawler->filter('#bodyWrapper')->html();
     }
 }
