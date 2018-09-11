@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Events\ModelUpdating;
+use App\Events\Rsi\CommLink\CommLinkChanged;
+use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
+use App\Listeners\Rsi\CommLink\SendCommLinkChangedMail;
+use App\Listeners\Rsi\CommLink\SendNewCommLinksNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 use SocialiteProviders\MediaWiki\MediaWikiExtendSocialite;
@@ -29,6 +33,16 @@ class EventServiceProvider extends ServiceProvider
         ],
         SocialiteWasCalled::class => [
             MediaWikiExtendSocialite::class,
+        ],
+
+        /**
+         * Comm Links
+         */
+        NewCommLinksDownloaded::class => [
+            SendNewCommLinksNotification::class,
+        ],
+        CommLinkChanged::class => [
+            SendCommLinkChangedMail::class,
         ],
     ];
 }
