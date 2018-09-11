@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Re-Downloads a new Version of an existing Comm Link
  */
-class DownloadAllCommLinks implements ShouldQueue
+class ReDownloadDbCommLinks implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
