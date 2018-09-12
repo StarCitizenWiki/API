@@ -48,6 +48,7 @@ class AuthRepositoryStub implements AuthRepositoryInterface
         $admin = factory(Admin::class)->create(
             [
                 'username' => 'Local Wiki Admin',
+                'email' => 'admin@example.com',
             ]
         );
         $admin->groups()->sync([AdminGroup::where('name', 'bureaucrat')->first()->id]);

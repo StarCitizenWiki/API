@@ -2,12 +2,12 @@
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
-use App\Events\Rsi\CommLink\CommLinkChanged;
 use App\Jobs\Rsi\CommLink\Parser\Element\Content;
 use App\Jobs\Rsi\CommLink\Parser\Element\Image;
 use App\Jobs\Rsi\CommLink\Parser\Element\Link;
 use App\Jobs\Rsi\CommLink\Parser\Element\Metadata;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\CommLinkChanged;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -198,14 +198,21 @@ class ParseCommLink implements ShouldQueue
         $data = $this->getCommLinkData();
 
         if ($this->contentHasChanged()) {
-            dispatch(new CommLinkChanged($this->commLinkModel));
-
+            $hadContent = true;
             if (null === optional($this->commLinkModel->english())->translation) {
                 $this->addEnglishCommLinkTranslation($this->commLinkModel);
+                $hadContent = false;
             } else {
                 // Don't update the current File if Content has Changed and Translation is not null
                 unset($data['file']);
             }
+
+            CommLinkChanged::create(
+                [
+                    'comm_link_id' => $this->commLinkModel->id,
+                    'had_content' => $hadContent,
+                ]
+            );
         }
 
         $this->commLinkModel->update($data);
@@ -222,6 +229,6 @@ class ParseCommLink implements ShouldQueue
     {
         $contentParser = new Content($this->crawler);
 
-        return $contentParser->getContent() === optional($this->commLinkModel->english())->translation;
+        return $contentParser->getContent() !== optional($this->commLinkModel->english())->translation;
     }
 }

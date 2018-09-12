@@ -66,8 +66,6 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         for ($id = $dbId; $id <= $latestPostId; $id++) {
             dispatch(new DownloadCommLink(($id)))->onQueue('comm_links');
         }
-
-        dispatch(new ParseCommLinkDownload($dbId));
     }
 
     /**

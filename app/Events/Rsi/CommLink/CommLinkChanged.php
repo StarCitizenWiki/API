@@ -2,9 +2,8 @@
 
 namespace App\Events\Rsi\CommLink;
 
-use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\CommLinkChanged as CommLinkChangedModel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -15,17 +14,16 @@ class CommLinkChanged
     use SerializesModels;
 
     /**
-     * @var \App\Models\Rsi\CommLink\CommLink
+     * @var \Illuminate\Database\Eloquent\Collection
      */
-    public $commLink;
+    public $commLinks;
 
     /**
      * Create a new event instance.
-     *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
-    public function __construct(CommLink $commLink)
+    public function __construct()
     {
-        $this->commLink = $commLink;
+        $this->commLinks = CommLinkChangedModel::all();
+        CommLinkChangedModel::query()->truncate();
     }
 }

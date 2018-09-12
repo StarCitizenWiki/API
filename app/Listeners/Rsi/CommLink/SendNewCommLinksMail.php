@@ -2,11 +2,11 @@
 
 namespace App\Listeners\Rsi\CommLink;
 
-use App\Events\Rsi\CommLink\CommLinkChanged;
+use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendCommLinkChangedMail
+class SendNewCommLinksMail
 {
     /**
      * Create the event listener.
@@ -21,10 +21,10 @@ class SendCommLinkChangedMail
     /**
      * Handle the event.
      *
-     * @param  CommLinkChanged  $event
+     * @param  NewCommLinksDownloaded  $event
      * @return void
      */
-    public function handle(CommLinkChanged $event)
+    public function handle(NewCommLinksDownloaded $event)
     {
         //
     }

@@ -2,11 +2,9 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-/**
- * Class CreateAdminsTable
- */
-class CreateAdminsTable extends Migration
+class CreateCommLinkChangedTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,16 +14,12 @@ class CreateAdminsTable extends Migration
     public function up()
     {
         Schema::create(
-            'admins',
+            'comm_link_changed',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('username')->unique();
-                $table->string('email')->unique();
-                $table->boolean('blocked');
-                $table->string('provider');
-                $table->integer('provider_id')->unique();
-                $table->timestamp('last_login')->nullable();
-                $table->rememberToken();
+                $table->unsignedInteger('comm_link_id');
+                $table->boolean('had_content');
+
                 $table->timestamps();
             }
         );
@@ -38,6 +32,6 @@ class CreateAdminsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('admins');
+        Schema::dropIfExists('comm_link_changed');
     }
 }

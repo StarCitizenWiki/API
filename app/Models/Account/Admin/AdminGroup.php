@@ -2,6 +2,7 @@
 
 namespace App\Models\Account\Admin;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -45,5 +46,10 @@ class AdminGroup extends Model
     public function admins()
     {
         return $this->belongsToMany(Admin::class);
+    }
+
+    public function scopeAdmin(Builder $query)
+    {
+        $query->where('name', 'bureaucrat')->orWhere('name', 'sysop');
     }
 }

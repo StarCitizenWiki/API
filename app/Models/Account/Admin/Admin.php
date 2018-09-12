@@ -3,6 +3,7 @@
 namespace App\Models\Account\Admin;
 
 use App\Models\System\ModelChangelog;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -15,6 +16,7 @@ class Admin extends Authenticatable
 
     protected $fillable = [
         'username',
+        'email',
         'blocked',
         'provider',
         'provider_id',
@@ -61,6 +63,11 @@ class Admin extends Authenticatable
     public function userNameWikiLink()
     {
         return sprintf('%s/Benutzer:%s', config('api.wiki_url'), $this->username);
+    }
+
+    public function adminGroup()
+    {
+        return $this->belongsToMany(AdminGroup::class)->admin();
     }
 
     /**
