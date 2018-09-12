@@ -148,6 +148,7 @@ class CommLinkController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function update(CommLinkRequest $request, CommLink $commLink)
     {

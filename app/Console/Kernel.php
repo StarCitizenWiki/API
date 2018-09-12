@@ -11,6 +11,7 @@ use App\Jobs\Rsi\CommLink\GenerateNewCommLinksMail;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use App\Jobs\Rsi\CommLink\ReDownloadDbCommLinks;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\CommLinkChanged;
 use Goutte\Client;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -87,6 +88,15 @@ class Kernel extends ConsoleKernel
                 $this->schedule->job(new ParseCommLinkDownload());
             }
         );
+
+        /**
+         * Truncate Changed Table to reset IDs
+         */
+        $this->schedule->call(
+            function () {
+                CommLinkChanged::query()->truncate();
+            }
+        )->dailyAt('00:30');
     }
 
     /**

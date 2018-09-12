@@ -12,7 +12,7 @@ class SendCommLinkChangedNotification
     /**
      * Handle the event.
      *
-     * @param  CommLinkChanged $event
+     * @param  \App\Events\Rsi\CommLink\CommLinkChanged $event
      *
      * @return void
      */

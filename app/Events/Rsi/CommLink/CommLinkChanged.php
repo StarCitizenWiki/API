@@ -23,7 +23,7 @@ class CommLinkChanged
      */
     public function __construct()
     {
-        $this->commLinks = CommLinkChangedModel::all();
-        CommLinkChangedModel::query()->truncate();
+        $this->commLinks = CommLinkChangedModel::where('type', 'update')->get();
+        CommLinkChangedModel::query()->where('type', 'update')->delete();
     }
 }

@@ -118,6 +118,14 @@ class ParseCommLink implements ShouldQueue
         $this->addEnglishCommLinkTranslation($commLink);
         $this->syncImageIds($commLink);
         $this->syncLinkIds($commLink);
+
+        CommLinkChanged::create(
+            [
+                'comm_link_id' => $this->commLinkModel->id,
+                'had_content' => false,
+                'type' => 'creation',
+            ]
+        );
     }
 
     /**
@@ -211,6 +219,7 @@ class ParseCommLink implements ShouldQueue
                 [
                     'comm_link_id' => $this->commLinkModel->id,
                     'had_content' => $hadContent,
+                    'type' => 'update',
                 ]
             );
         }

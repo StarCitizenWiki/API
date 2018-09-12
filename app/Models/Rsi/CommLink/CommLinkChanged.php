@@ -14,6 +14,7 @@ class CommLinkChanged extends Model
     protected $fillable = [
         'comm_link_id',
         'had_content',
+        'type',
     ];
 
     protected $with = [

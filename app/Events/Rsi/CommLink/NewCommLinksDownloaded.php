@@ -2,14 +2,10 @@
 
 namespace App\Events\Rsi\CommLink;
 
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
+use App\Models\Rsi\CommLink\CommLinkChanged as CommLinkChangedModel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 class NewCommLinksDownloaded
 {
@@ -20,15 +16,14 @@ class NewCommLinksDownloaded
     /**
      * @var \Illuminate\Database\Eloquent\Collection
      */
-    public $newCommLinks;
+    public $commLinks;
 
     /**
      * Create a new event instance.
-     *
-     * @param \Illuminate\Database\Eloquent\Collection $newCommLinks
      */
-    public function __construct(Collection $newCommLinks)
+    public function __construct()
     {
-        $this->newCommLinks = $newCommLinks;
+        $this->commLinks = CommLinkChangedModel::where('type', 'creation')->get();
+        CommLinkChangedModel::query()->where('type', 'creation')->delete();
     }
 }
