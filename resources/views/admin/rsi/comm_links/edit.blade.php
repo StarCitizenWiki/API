@@ -87,21 +87,35 @@
                     </div>
                     @can('web.admin.rsi.comm_links.update_settings')
                     <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
-                        <div class="form-group">
-                            <div class="alert alert-warning text-center mb-3">
-                                @lang('Achtung, durch das Klicken auf Speichern wird die ausgewählte Version des Comm Links importiert!')
+                        <div class="alert alert-warning text-center mb-3">
+                            @lang('Achtung, durch das Klicken auf Speichern wird die ausgewählte Version des Comm Links importiert!')
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-lg-4">
+                                <div class="form-group">
+                                    <label for="version">Importierte Version:</label>
+                                    <select class="form-control" id="version" name="version">
+                                        @foreach($versions as $version)
+                                            <option value="{{ $version['file'] }}" @if($version['file'] === $commLink->file) selected @endif>{{ $version['output'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
-
-                            <label for="version">Importierte Version:</label>
-                            <select class="form-control" id="version" name="version">
-                                @foreach($versions as $version)
-                                    <option value="{{ $version['file'] }}" @if($version['file'] === $commLink->file) selected @endif>{{ $version['output'] }}</option>
-                                @endforeach
-                            </select>
+                            <div class="col-12 col-lg-2">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button class="btn btn-block btn-outline-success" name="preview" id="preview">Vorschau</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     @endcan
                 </div>
+                @if(isset($preview))
+                    <hr>
+                    <h5>@lang('Vorschau der ausgewählten Version'):</h5>
+                    {!! empty($preview) ? __('Kein Inhalt vorhanden') : $preview !!}
+                @endif
             </div>
             <div class="card-footer d-flex">
                 <a href="{{ route('web.admin.rsi.comm_links.show', $commLink->getRouteKey()) }}" class="btn btn-outline-primary">@lang('Lesen')</a>

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Web\Admin\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommLinkRequest;
+use App\Jobs\Rsi\CommLink\Parser\Element\Content;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Comm Link Controller
@@ -85,11 +87,14 @@ class CommLinkController extends Controller
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      *
+     * @param null|string                       $previewVersion
+     *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    public function edit(CommLink $commLink)
+    public function edit(CommLink $commLink, ?string $previewVersion = null)
     {
         $this->authorize('web.admin.rsi.comm_links.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -119,12 +124,18 @@ class CommLinkController extends Controller
             ];
         }
 
+        $data = [
+            'commLink' => $commLink,
+            'versions' => $versionData,
+        ];
+
+        if (null !== $previewVersion) {
+            $data['preview'] = $this->getPreviewVersionContent($commLink, $previewVersion);
+        }
+
         return view(
             'admin.rsi.comm_links.edit',
-            [
-                'commLink' => $commLink,
-                'versions' => $versionData,
-            ]
+            $data
         );
     }
 
@@ -141,8 +152,15 @@ class CommLinkController extends Controller
     public function update(CommLinkRequest $request, CommLink $commLink)
     {
         $this->authorize('web.admin.rsi.comm_links.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
         $data = $request->validated();
+
+        // TODO Hacky
+        if ($request->has('preview')) {
+            return $this->edit($commLink, $data['version']);
+        }
+
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
 
         if (isset($data['version']) && $data['version'] !== $commLink->file) {
             $message = __('Comm Link Import gestartet');
@@ -178,5 +196,28 @@ class CommLinkController extends Controller
                 ],
             ]
         );
+    }
+
+    /**
+     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param string                            $version
+     *
+     * @return string
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    private function getPreviewVersionContent(CommLink $commLink, string $version)
+    {
+        $this->authorize('web.admin.rsi.comm_links.update_settings');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}");
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content, 'UTF-8');
+
+        $contentParser = new Content($crawler);
+
+        return $contentParser->getContent();
     }
 }
