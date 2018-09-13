@@ -7,8 +7,8 @@ use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Jackiedo\LogReader\Facades\LogReader;
 
 /**
  * Class AdminController
@@ -68,5 +68,35 @@ class AdminController extends Controller
                 'notifications' => $notifications,
             ]
         );
+    }
+
+    /**
+     * View to Accept Editor Licence
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function acceptLicenseView()
+    {
+        return view('admin.accept_license');
+    }
+
+    /**
+     * Update Admin to accept Editor Licence
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function acceptLicense(Request $request)
+    {
+        /** @var \App\Models\Account\Admin\Admin $admin */
+        $admin = Auth::guard('admin')->user();
+        $admin->settings()->updateOrCreate(
+            [
+                'editor_license_accepted' => true,
+            ]
+        );
+
+        return redirect()->route('web.admin.dashboard');
     }
 }

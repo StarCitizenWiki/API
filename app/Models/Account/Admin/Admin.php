@@ -23,6 +23,7 @@ class Admin extends Authenticatable
 
     protected $with = [
         'groups',
+        'settings',
     ];
 
     /**
@@ -106,5 +107,13 @@ class Admin extends Authenticatable
     public function groups()
     {
         return $this->belongsToMany(AdminGroup::class)->orderByDesc('permission_level');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function settings()
+    {
+        return $this->hasMany(AdminSetting::class);
     }
 }
