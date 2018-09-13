@@ -87,55 +87,24 @@ class CommLinkController extends Controller
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      *
-     * @param null|string                       $previewVersion
-     *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    public function edit(CommLink $commLink, ?string $previewVersion = null)
+    public function edit(CommLink $commLink)
     {
         $this->authorize('web.admin.rsi.comm_links.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $versions = Storage::disk('comm_links')->files($commLink->cig_id);
-        $versions = array_map(
-            function ($value) {
-                $file = preg_split('#(?<=)[/\\\]#', $value)[1];
-
-                return str_replace('.html', '', $file);
-            },
-            $versions
-        );
-        rsort($versions);
-
-        $versionData = [];
-        foreach ($versions as $version) {
-            $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
-
-            if ("{$version}.html" === $commLink->file) {
-                $output = sprintf('%s: %s', __('Aktuell'), $output);
-            }
-
-            $versionData[] = [
-                'output' => $output,
-                'file' => "{$version}.html",
-            ];
-        }
-
-        $data = [
-            'commLink' => $commLink,
-            'versions' => $versionData,
-        ];
-
-        if (null !== $previewVersion) {
-            $data['preview'] = $this->getPreviewVersionContent($commLink, $previewVersion);
-        }
+        $versions = $this->getCommLinkVersions($commLink->cig_id);
+        $versionData = $this->processCommLinkVersions($versions, $commLink->file);
 
         return view(
             'admin.rsi.comm_links.edit',
-            $data
+            [
+                'commLink' => $commLink,
+                'versions' => $versionData,
+            ]
         );
     }
 
@@ -148,20 +117,13 @@ class CommLinkController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function update(CommLinkRequest $request, CommLink $commLink)
     {
         $this->authorize('web.admin.rsi.comm_links.update');
-        $data = $request->validated();
-
-        // TODO Hacky
-        if ($request->has('preview')) {
-            return $this->edit($commLink, $data['version']);
-        }
-
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        $data = $request->validated();
 
         if (isset($data['version']) && $data['version'] !== $commLink->file) {
             $message = __('Comm Link Import gestartet');
@@ -200,25 +162,85 @@ class CommLinkController extends Controller
     }
 
     /**
+     * Preview a Comm Link Version
+     *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      * @param string                            $version
      *
-     * @return string
+     * @return \Illuminate\View\View
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    private function getPreviewVersionContent(CommLink $commLink, string $version)
+    public function preview(CommLink $commLink, string $version)
     {
-        $this->authorize('web.admin.rsi.comm_links.update_settings');
+        $this->authorize('web.admin.rsi.comm_links.preview');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}");
+        $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}.html");
         $crawler = new Crawler();
         $crawler->addHtmlContent($content, 'UTF-8');
 
         $contentParser = new Content($crawler);
 
-        return $contentParser->getContent();
+        return view(
+            'admin.rsi.comm_links.preview',
+            [
+                'commLink' => $commLink,
+                'version' => $version,
+                'preview' => $contentParser->getContent(),
+            ]
+        );
+    }
+
+    /**
+     * Returns all Comm Link Version Files in a Comm Link Folder
+     *
+     * @param int $commLinkCigId
+     *
+     * @return array
+     */
+    private function getCommLinkVersions(int $commLinkCigId): array
+    {
+        $versions = Storage::disk('comm_links')->files($commLinkCigId);
+        $versions = array_map(
+            function ($value) {
+                $file = preg_split('#(?<=)[/\\\]#', $value)[1];
+
+                return str_replace('.html', '', $file);
+            },
+            $versions
+        );
+        rsort($versions);
+
+        return $versions;
+    }
+
+    /**
+     * Parses Comm Link Version Names to a Human readable String, creates Data array to use in views
+     *
+     * @param array  $versions
+     * @param string $currentVersion
+     *
+     * @return array
+     */
+    private function processCommLinkVersions(array $versions, string $currentVersion): array
+    {
+        $versionData = [];
+        foreach ($versions as $version) {
+            $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
+
+            if ("{$version}.html" === $currentVersion) {
+                $output = sprintf('%s: %s', __('Aktuell'), $output);
+            }
+
+            $versionData[] = [
+                'output' => $output,
+                'file_clean' => $version,
+                'file' => "{$version}.html",
+            ];
+        }
+
+        return $versionData;
     }
 }

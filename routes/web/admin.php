@@ -103,6 +103,7 @@ Route::group(
                                     'comm_links' => 'CommLink\CommLinkController',
                                 ]
                             );
+                            Route::get('comm_links/{comm_link}/{version}/preview', 'CommLink\CommLinkController@preview')->name('comm_links.preview');
                         }
                     );
             }

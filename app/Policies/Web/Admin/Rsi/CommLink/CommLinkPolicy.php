@@ -49,4 +49,16 @@ class CommLinkPolicy extends BaseAdminPolicy
     {
         return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
     }
+
+    /**
+     * Preview Comm Link Version
+     *
+     * @param \App\Models\Account\Admin\Admin $admin
+     *
+     * @return bool
+     */
+    public function preview(Admin $admin)
+    {
+        return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
+    }
 }
