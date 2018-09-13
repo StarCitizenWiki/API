@@ -57,7 +57,7 @@ class Admin extends Authenticatable
     {
         $group = $this->groups()->where('name', 'editor')->first();
 
-        return null === $group;
+        return null !== $group;
     }
 
     /**

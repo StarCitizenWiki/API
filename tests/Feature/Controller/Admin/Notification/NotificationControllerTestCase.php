@@ -139,7 +139,7 @@ class NotificationControllerTestCase extends AdminTestCase
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processOutput
      * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController::processPublishedAt
      *
-     * @covers \App\Models\Api\ModelChangelog
+     * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
     {
@@ -174,7 +174,7 @@ class NotificationControllerTestCase extends AdminTestCase
      *
      * @covers \App\Mail\NotificationEmail
      *
-     * @covers \App\Models\Api\ModelChangelog
+     * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdateResendEmail()
     {

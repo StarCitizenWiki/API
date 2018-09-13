@@ -79,7 +79,7 @@ class CommLinkControllerTestCase extends AdminTestCase
      * @covers \App\Http\Controllers\Web\Admin\Rsi\CommLink\CommLinkController::update
      *
      * @covers \App\Models\Rsi\CommLink\CommLink
-     * @covers \App\Models\Api\ModelChangelog
+     * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
     {

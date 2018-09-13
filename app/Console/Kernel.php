@@ -69,16 +69,14 @@ class Kernel extends ConsoleKernel
     private function scheduleCommLinkJobs()
     {
         /** Check for new Comm Links */
-        $missingOffset = optional(CommLink::orderByDesc('cig_id')->first())->cig_id ?? 0;
         $this->schedule->job(new DownloadMissingCommLinks(new Client()))->hourly()->withoutOverlapping()->then(
-            function () use ($missingOffset) {
+            function () {
+                $missingOffset = optional(CommLink::orderByDesc('cig_id')->first())->cig_id ?? 0;
                 $this->schedule->job(new ParseCommLinkDownload($missingOffset));
             }
         )->then(
-            function () use ($missingOffset) {
-                $newCommLinks = CommLink::where('cig_id', '>', $missingOffset)->get();
-
-                $this->events->dispatch(new NewCommLinksDownloaded($newCommLinks));
+            function () {
+                $this->events->dispatch(new NewCommLinksDownloaded());
             }
         );
 

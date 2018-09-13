@@ -9,6 +9,7 @@ $factory->define(
 
         return [
             'username' => $faker->userName,
+            'email' => $faker->email,
             'blocked' => false,
             'provider' => 'starcitizenwiki',
             'provider_id' => $id++,

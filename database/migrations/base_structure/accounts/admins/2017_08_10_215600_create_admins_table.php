@@ -20,7 +20,7 @@ class CreateAdminsTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('username')->unique();
-                $table->string('email')->unique();
+                $table->string('email')->nullable()->unique();
                 $table->boolean('blocked');
                 $table->string('provider');
                 $table->integer('provider_id')->unique();

@@ -106,7 +106,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      * @covers \App\Http\Requests\ManufacturerTranslationRequest
      *
      * @covers \App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation
-     * @covers \App\Models\Api\ModelChangelog
+     * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
     {

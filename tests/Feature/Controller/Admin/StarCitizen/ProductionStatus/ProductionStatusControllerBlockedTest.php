@@ -13,7 +13,7 @@ use App\Models\Account\Admin\AdminGroup;
 use Illuminate\Http\Response;
 
 /**
- * @covers \App\Policies\Web\Admin\StarCitizen\TranslationPolicy<extended>
+ * @covers \App\Policies\Web\Admin\TranslationPolicy<extended>
  *
  * @covers \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus<extended>
  */

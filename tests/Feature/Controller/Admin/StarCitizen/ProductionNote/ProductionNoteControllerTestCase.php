@@ -94,7 +94,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Requests\TranslationRequest
      *
-     * @covers \App\Models\Api\ModelChangelog
+     * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
     {

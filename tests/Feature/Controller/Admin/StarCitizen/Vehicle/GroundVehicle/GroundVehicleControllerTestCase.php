@@ -106,7 +106,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      * @covers \App\Http\Requests\TranslationRequest
      *
      * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation
-     * @covers \App\Models\Api\ModelChangelog
+     * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
     {
