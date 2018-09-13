@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
-use App\Events\Rsi\CommLink\CommLinkChanged as CommLinkChangedEvent;
+use App\Events\Rsi\CommLink\CommLinksChanged as CommLinkChangedEvent;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

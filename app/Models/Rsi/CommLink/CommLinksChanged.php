@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Simple Model to hold changed Comm Links
  */
-class CommLinkChanged extends Model
+class CommLinksChanged extends Model
 {
-    protected $table = 'comm_link_changed';
+    protected $table = 'comm_links_changed';
 
     protected $fillable = [
         'comm_link_id',

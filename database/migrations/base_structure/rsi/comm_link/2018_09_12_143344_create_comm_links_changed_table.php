@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommLinkChangedTable extends Migration
+class CreateCommLinksChangedTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateCommLinkChangedTable extends Migration
     public function up()
     {
         Schema::create(
-            'comm_link_changed',
+            'comm_links_changed',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->unsignedInteger('comm_link_id');
@@ -33,6 +33,6 @@ class CreateCommLinkChangedTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('comm_link_changed');
+        Schema::dropIfExists('comm_links_changed');
     }
 }

@@ -8,6 +8,9 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+/**
+ * Changelog Mail Generator
+ */
 class NewCommLinksDownloaded extends Mailable
 {
     use Queueable;

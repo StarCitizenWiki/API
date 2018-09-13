@@ -7,7 +7,7 @@ use App\Jobs\Rsi\CommLink\Parser\Element\Image;
 use App\Jobs\Rsi\CommLink\Parser\Element\Link;
 use App\Jobs\Rsi\CommLink\Parser\Element\Metadata;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinkChanged;
+use App\Models\Rsi\CommLink\CommLinksChanged;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -119,9 +119,9 @@ class ParseCommLink implements ShouldQueue
         $this->syncImageIds($commLink);
         $this->syncLinkIds($commLink);
 
-        CommLinkChanged::create(
+        CommLinksChanged::create(
             [
-                'comm_link_id' => $this->commLinkModel->id,
+                'comm_link_id' => $commLink->id,
                 'had_content' => false,
                 'type' => 'creation',
             ]
@@ -215,7 +215,7 @@ class ParseCommLink implements ShouldQueue
                 unset($data['file']);
             }
 
-            CommLinkChanged::create(
+            CommLinksChanged::create(
                 [
                     'comm_link_id' => $this->commLinkModel->id,
                     'had_content' => $hadContent,

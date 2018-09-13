@@ -2,7 +2,7 @@
 
 namespace App\Events\Rsi\CommLink;
 
-use App\Models\Rsi\CommLink\CommLinkChanged as CommLinkChangedModel;
+use App\Models\Rsi\CommLink\CommLinksChanged as CommLinkChangedModel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;

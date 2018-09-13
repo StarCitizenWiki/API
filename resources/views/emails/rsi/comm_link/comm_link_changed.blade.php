@@ -15,6 +15,8 @@ Dies sind Comm Links, welche bisher keinen Inhalt hatten.
 </ul>
 @endcomponent
 
+<br>
+<br>
 
 ## Comm Links mit geändertem Inhalt: {{ $withContent->count() }}
 Dies sind Comm Links, dessen Inhalt geändert wurden.

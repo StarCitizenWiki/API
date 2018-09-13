@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Changelog Mail Generator
  */
-class CommLinkChanged extends Mailable
+class CommLinksChanged extends Mailable
 {
     use Queueable;
     use SerializesModels;

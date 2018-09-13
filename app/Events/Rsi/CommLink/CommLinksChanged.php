@@ -2,12 +2,12 @@
 
 namespace App\Events\Rsi\CommLink;
 
-use App\Models\Rsi\CommLink\CommLinkChanged as CommLinkChangedModel;
+use App\Models\Rsi\CommLink\CommLinksChanged as CommLinksChangedModel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class CommLinkChanged
+class CommLinksChanged
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -23,7 +23,7 @@ class CommLinkChanged
      */
     public function __construct()
     {
-        $this->commLinks = CommLinkChangedModel::where('type', 'update')->get();
-        CommLinkChangedModel::query()->where('type', 'update')->delete();
+        $this->commLinks = CommLinksChangedModel::where('type', 'update')->get();
+        CommLinksChangedModel::query()->where('type', 'update')->delete();
     }
 }

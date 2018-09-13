@@ -7,7 +7,10 @@ use App\Models\Account\Admin\Admin;
 use App\Notifications\Rsi\CommLink\NewCommLinksDownloaded as NewCommLinksDownloadedNotification;
 use Illuminate\Support\Facades\Notification;
 
-class SendNewCommLinksNotification
+/**
+ * Send Notification top Admins (Sysop, Bureaucrat) and Editors
+ */
+class SendNewCommLinksDownloadedNotification
 {
     /**
      * Handle the event.

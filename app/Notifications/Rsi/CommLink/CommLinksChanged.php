@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Rsi\CommLink;
 
-use App\Mail\Rsi\CommLink\CommLinkChanged as CommLinkChangedMail;
+use App\Mail\Rsi\CommLink\CommLinksChanged as CommLinksChangedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Notifications\Notification;
@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notification;
 /**
  * Notification for sending Changelog to Admins
  */
-class CommLinkChanged extends Notification
+class CommLinksChanged extends Notification
 {
     use Queueable;
 
@@ -47,7 +47,7 @@ class CommLinkChanged extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new CommLinkChangedMail($this->commLinks))->to($notifiable->email);
+        return (new CommLinksChangedMail($this->commLinks))->to($notifiable->email);
     }
 
     /**

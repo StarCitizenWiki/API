@@ -7,14 +7,14 @@ use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
 use App\Jobs\Rsi\CommLink\DownloadMissingCommLinks;
-use App\Jobs\Rsi\CommLink\GenerateNewCommLinksMail;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use App\Jobs\Rsi\CommLink\ReDownloadDbCommLinks;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinkChanged;
+use App\Models\Rsi\CommLink\CommLinksChanged as CommLinkChangedModel;
 use Goutte\Client;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 
 /**
  * Class Kernel
@@ -85,6 +85,10 @@ class Kernel extends ConsoleKernel
             function () {
                 $this->schedule->job(new ParseCommLinkDownload());
             }
+        )->then(
+            function () {
+                $this->events->dispatch(new CommLinksChangedEvent());
+            }
         );
 
         /**
@@ -92,7 +96,7 @@ class Kernel extends ConsoleKernel
          */
         $this->schedule->call(
             function () {
-                CommLinkChanged::query()->truncate();
+                CommLinkChangedModel::query()->truncate();
             }
         )->dailyAt('00:30');
     }
