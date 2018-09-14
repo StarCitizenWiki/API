@@ -11,8 +11,8 @@ Route::group(
             function () {
                 Route::get('dashboard', 'AdminController@showDashboardView')->name('dashboard');
 
-                Route::get('accept_licence', 'AdminController@acceptLicenseView')->name('accept_license_view');
-                Route::post('accept_licence', 'AdminController@acceptLicense')->name('accept_license');
+                Route::get('accept_license', 'AdminController@acceptLicenseView')->name('accept_license_view');
+                Route::post('accept_license', 'AdminController@acceptLicense')->name('accept_license');
 
                 Route::resources(
                     [
