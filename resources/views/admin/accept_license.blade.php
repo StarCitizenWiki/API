@@ -16,18 +16,24 @@
     ])@endcomponent
 
     <div class="card bg-dark text-light-grey">
-        <h4 class="card-header">@lang('Editor Lizenz akzeptieren')</h4>
+        <h4 class="card-header text-center">@lang('Editor Lizenz akzeptieren')</h4>
         <div class="card-body">
-            <p>
-                {{-- TODO Update Text, Link zum Wiki Artikel --}}
-                @lang('Durch den Klick auf "Bestätigen" bestätigst du, dass jegliche von dir übersetzten Texte der Allgemeinheit frei zur Verfügung stehen, und du keine Rechte an diesen hast.')
-            </p>
+            {{-- TODO Update Text, Link zum Wiki Artikel --}}
+            @lang('Durch den Klick auf "Bestätigen" bestätigst du, dass jegliche von dir übersetzten Texte der Allgemeinheit frei zur Verfügung stehen, und du keine Rechte an diesen hast.')
+            <a href="#" class="text-light-grey d-block">@lang('Mehr Informationen') <i class="fal fa-external-link fa-sm" data-fa-transform="up-3"></i></a>
+        </div>
+        <div class="card-footer d-flex">
             @component('components.forms.form', [
-                'action' => route('web.admin.accept_licence')
+                'action' => route('web.admin.auth.logout'),
             ])
-                <button class="btn btn-secondary btn-block mb-3">@lang('Bestätigen')</button>
+                <button class="btn btn-link text-light-grey">@lang('Abbrechen')</button>
             @endcomponent
-            <small><a href="{{ route('web.api.index') }}" class="text-white">@lang('Zurück')</a></small>
+            @component('components.forms.form', [
+                'class' => 'ml-auto',
+                'action' => route('web.admin.accept_license'),
+            ])
+                <button class="btn btn-outline-success">@lang('Bestätigen')</button>
+            @endcomponent
         </div>
     </div>
 @endsection
