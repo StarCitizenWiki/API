@@ -18,7 +18,7 @@ use Mockery;
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class AdminControllerUserTest extends AdminControllerTestCase
+class AdminControllerEditorTest extends AdminControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'dashboard' => \Illuminate\Http\Response::HTTP_OK,
@@ -75,29 +75,24 @@ class AdminControllerUserTest extends AdminControllerTestCase
      */
     public function testAcceptLicenseViewAfterLogin()
     {
-        $provider = Mockery::mock('Laravel\Socialite\Contracts\Provider');
-        $provider->shouldReceive('redirect')->andReturn('Redirected');
-        $providerName = 'mediawiki';
-
-        /** @var \App\Models\Account\Admin\Admin $socialAccount */
-        $socialAccount = factory(Admin::class)->create(['provider' => $providerName]);
-        $socialAccount->groups()->sync(AdminGroup::where('name', 'editor')->first()->id);
-
-        $abstractUser = Mockery::mock('\SocialiteProviders\Manager\OAuth1\User');
-
-        $abstractUser->shouldReceive('getId')->andReturn($socialAccount->provider_id);
-
-        $provider = Mockery::mock('Laravel\Socialite\Contracts\Provider');
-        $provider->shouldReceive('user')->andReturn($abstractUser);
-
-        Socialite::shouldReceive('driver')->with('mediawiki')->andReturn($provider);
+        $provider = 'mediawiki';
 
         $authRepository = Mockery::mock(AuthRepositoryInterface::class);
-        $authRepository->shouldReceive('getUserFromProvider')->andReturn($abstractUser);
-        $authRepository->shouldReceive('getOrCreateLocalUser')->with($abstractUser, $providerName)->andReturn(
-            $socialAccount
+        $oauthUser = Mockery::mock('\SocialiteProviders\Manager\OAuth1\User');
+
+        /** @var \App\Models\Account\Admin\Admin $localUser */
+        $localUser = factory(Admin::class)->create(
+            [
+                'provider' => $provider,
+            ]
         );
+        $localUser->groups()->sync(AdminGroup::where('name', 'editor')->first()->id);
+
+        $authRepository->shouldReceive('getUserFromProvider')->andReturn($oauthUser);
+        $authRepository->shouldReceive('getOrCreateLocalUser')->with($oauthUser, $provider)->andReturn($localUser);
         $this->app->instance(AuthRepositoryInterface::class, $authRepository);
+
+        Socialite::shouldReceive('with->stateless->user')->andReturn($oauthUser);
 
         $response = $this->followingRedirects()->get(route('web.admin.auth.login.callback'));
 
@@ -112,38 +107,33 @@ class AdminControllerUserTest extends AdminControllerTestCase
      */
     public function testAcceptLicenseViewAfterLoginAccepted()
     {
-        $provider = Mockery::mock('Laravel\Socialite\Contracts\Provider');
-        $provider->shouldReceive('redirect')->andReturn('Redirected');
-        $providerName = 'mediawiki';
+        $provider = 'mediawiki';
 
-        /** @var \App\Models\Account\Admin\Admin $socialAccount */
-        $socialAccount = factory(Admin::class)->create(['provider' => $providerName]);
-        $socialAccount->groups()->sync(AdminGroup::where('name', 'editor')->first()->id);
-        $socialAccount->settings()->updateOrCreate(
+        $authRepository = Mockery::mock(AuthRepositoryInterface::class);
+        $oauthUser = Mockery::mock('\SocialiteProviders\Manager\OAuth1\User');
+
+        /** @var \App\Models\Account\Admin\Admin $localUser */
+        $localUser = factory(Admin::class)->create(
+            [
+                'provider' => $provider,
+            ]
+        );
+        $localUser->groups()->sync(AdminGroup::where('name', 'editor')->first()->id);
+        $localUser->settings()->updateOrCreate(
             [
                 'editor_license_accepted' => true,
             ]
         );
 
-        $abstractUser = Mockery::mock('\SocialiteProviders\Manager\OAuth1\User');
-
-        $abstractUser->shouldReceive('getId')->andReturn($socialAccount->provider_id);
-
-        $provider = Mockery::mock('Laravel\Socialite\Contracts\Provider');
-        $provider->shouldReceive('user')->andReturn($abstractUser);
-
-        Socialite::shouldReceive('driver')->with('mediawiki')->andReturn($provider);
-
-        $authRepository = Mockery::mock(AuthRepositoryInterface::class);
-        $authRepository->shouldReceive('getUserFromProvider')->andReturn($abstractUser);
-        $authRepository->shouldReceive('getOrCreateLocalUser')->with($abstractUser, $providerName)->andReturn(
-            $socialAccount
-        );
+        $authRepository->shouldReceive('getUserFromProvider')->andReturn($oauthUser);
+        $authRepository->shouldReceive('getOrCreateLocalUser')->with($oauthUser, $provider)->andReturn($localUser);
         $this->app->instance(AuthRepositoryInterface::class, $authRepository);
+
+        Socialite::shouldReceive('with->stateless->user')->andReturn($oauthUser);
 
         $response = $this->followingRedirects()->get(route('web.admin.auth.login.callback'));
 
-        $response->assertViewIs('admin.dashboard');
+        $response->assertViewIs('admin.dashboard')->assertSee($localUser->username);
     }
 
     /**
