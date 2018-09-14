@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
@@ -10,11 +11,8 @@ use App\Jobs\Rsi\CommLink\DownloadMissingCommLinks;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use App\Jobs\Rsi\CommLink\ReDownloadDbCommLinks;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinksChanged as CommLinkChangedModel;
-use Goutte\Client;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 
 /**
  * Class Kernel
@@ -69,7 +67,7 @@ class Kernel extends ConsoleKernel
     private function scheduleCommLinkJobs()
     {
         /** Check for new Comm Links */
-        $this->schedule->job(new DownloadMissingCommLinks(new Client()))->hourly()->withoutOverlapping()->then(
+        $this->schedule->job(app(DownloadMissingCommLinks::class))->hourly()->withoutOverlapping()->then(
             function () {
                 $missingOffset = optional(CommLink::orderByDesc('cig_id')->first())->cig_id ?? 0;
                 $this->schedule->job(new ParseCommLinkDownload($missingOffset));
@@ -90,15 +88,6 @@ class Kernel extends ConsoleKernel
                 $this->events->dispatch(new CommLinksChangedEvent());
             }
         );
-
-        /**
-         * Truncate Changed Table to reset IDs
-         */
-        $this->schedule->call(
-            function () {
-                CommLinkChangedModel::query()->truncate();
-            }
-        )->dailyAt('00:30');
     }
 
     /**
