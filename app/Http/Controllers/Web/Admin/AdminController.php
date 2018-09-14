@@ -74,9 +74,18 @@ class AdminController extends Controller
      * View to Accept Editor Licence
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function acceptLicenseView()
     {
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+        $this->authorize('web.admin.accept_license');
+
+        if (optional(Auth::guard('admin')->user()->settings)->editor_license_accepted === true) {
+            return redirect()->route('web.admin.dashboard');
+        }
+
         return view('admin.accept_license');
     }
 
@@ -86,9 +95,14 @@ class AdminController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function acceptLicense(Request $request)
     {
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+        $this->authorize('web.admin.accept_license');
+
         /** @var \App\Models\Account\Admin\Admin $admin */
         $admin = Auth::guard('admin')->user();
         $admin->settings()->updateOrCreate(

@@ -92,7 +92,7 @@ class LoginController extends Controller
     /**
      * Obtain the user information from GitHub.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function handleProviderCallback()
     {
@@ -101,7 +101,7 @@ class LoginController extends Controller
 
         Auth::guard('admin')->login($authUser);
 
-        return $this->afterLogin();
+        return $this->authenticated();
     }
 
     /**
@@ -131,7 +131,7 @@ class LoginController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    protected function afterLogin()
+    protected function authenticated()
     {
         /** @var \App\Models\Account\Admin\Admin $admin */
         $admin = Auth::guard('admin')->user();

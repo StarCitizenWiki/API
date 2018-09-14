@@ -13,6 +13,10 @@ class AdminSetting extends Model
         'editor_license_accepted',
     ];
 
+    protected $casts = [
+        'editor_license_accepted' => 'boolean',
+    ];
+
     /**
      * The associated Admin
      *

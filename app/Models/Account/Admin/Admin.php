@@ -110,10 +110,10 @@ class Admin extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function settings()
     {
-        return $this->hasMany(AdminSetting::class);
+        return $this->hasOne(AdminSetting::class);
     }
 }

@@ -38,6 +38,7 @@ class AuthServiceProvider extends ServiceProvider
          * Admin Gates
          */
         Gate::define('web.admin.dashboard.view', 'App\Policies\Web\Admin\AdminPolicy@viewDashboard');
+        Gate::define('web.admin.accept_license', 'App\Policies\Web\Admin\AdminPolicy@acceptLicense');
         Gate::resource('web.admin.translations', TranslationPolicy::class);
 
         /**
