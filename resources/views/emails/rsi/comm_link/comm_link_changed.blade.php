@@ -7,7 +7,7 @@ Dies sind Comm Links, welche bisher keinen Inhalt hatten.
 <ul>
     @forelse($withoutContent as $item)
         <li>
-            {{ $item->commLink->cig_id }}: {{ $item->commLink->title }} &mdash; <a href="{{ route('web.admin.rsi.comm_links.show', $item->commLink->cig_id) }}">Link</a>
+            {{ $item->commLink->cig_id }}: {{ $item->commLink->title }} &mdash; <a href="{{ route('web.admin.rsi.comm-links.show', $item->commLink->cig_id) }}">Link</a>
         </li>
     @empty
         <li>Keine Comm Links geändert</li>
@@ -24,7 +24,7 @@ Dies sind Comm Links, dessen Inhalt geändert wurden.
 <ul>
     @forelse($withContent as $item)
         <li>
-            {{ $item->commLink->cig_id }}: {{ $item->commLink->title }} &mdash; <a href="{{ route('web.admin.rsi.comm_links.show', $item->commLink->cig_id) }}">Link</a>
+            {{ $item->commLink->cig_id }}: {{ $item->commLink->title }} &mdash; <a href="{{ route('web.admin.rsi.comm-links.show', $item->commLink->cig_id) }}">Link</a>
         </li>
     @empty
         <li>Keine Comm Links geändert</li>

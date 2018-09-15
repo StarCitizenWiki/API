@@ -27,7 +27,7 @@ class CommLinkController extends Controller
      */
     public function index()
     {
-        $this->authorize('web.admin.rsi.comm_links.view');
+        $this->authorize('web.admin.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $links = CommLink::orderByDesc('cig_id')->paginate(100);
@@ -51,7 +51,7 @@ class CommLinkController extends Controller
      */
     public function show(CommLink $commLink)
     {
-        $this->authorize('web.admin.rsi.comm_links.view');
+        $this->authorize('web.admin.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $previous = CommLink::where('id', '<', $commLink->id)->orderBy('id', 'desc')->first(['cig_id']);
@@ -93,7 +93,7 @@ class CommLinkController extends Controller
      */
     public function edit(CommLink $commLink)
     {
-        $this->authorize('web.admin.rsi.comm_links.update');
+        $this->authorize('web.admin.rsi.comm-links.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $versions = $this->getCommLinkVersions($commLink->cig_id);
@@ -120,13 +120,13 @@ class CommLinkController extends Controller
      */
     public function update(CommLinkRequest $request, CommLink $commLink)
     {
-        $this->authorize('web.admin.rsi.comm_links.update');
+        $this->authorize('web.admin.rsi.comm-links.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 
         if (isset($data['version']) && $data['version'] !== $commLink->file) {
-            $this->authorize('web.admin.rsi.comm_links.update_settings');
+            $this->authorize('web.admin.rsi.comm-links.update_settings');
             $message = __('Comm Link Import gestartet');
 
             dispatch(new ParseCommLink($commLink->cig_id, $data['version'], $commLink, true));
@@ -153,7 +153,7 @@ class CommLinkController extends Controller
             $message = __('crud.updated', ['type' => __('Comm Link')]);
         }
 
-        return redirect()->route('web.admin.rsi.comm_links.show', $commLink->getRouteKey())->withMessages(
+        return redirect()->route('web.admin.rsi.comm-links.show', $commLink->getRouteKey())->withMessages(
             [
                 'success' => [
                     $message,
@@ -175,7 +175,7 @@ class CommLinkController extends Controller
      */
     public function preview(CommLink $commLink, string $version)
     {
-        $this->authorize('web.admin.rsi.comm_links.preview');
+        $this->authorize('web.admin.rsi.comm-links.preview');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}.html");

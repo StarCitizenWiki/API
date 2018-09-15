@@ -33,7 +33,7 @@ class ChannelControllerTestCase extends AdminTestCase
      */
     public function testIndex()
     {
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.rsi.comm_links.channels.index'));
+        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.rsi.comm-links.channels.index'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
         if ($response->status() === Response::HTTP_OK) {
@@ -48,7 +48,7 @@ class ChannelControllerTestCase extends AdminTestCase
     public function testShow()
     {
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.rsi.comm_links.channels.show', $this->channel)
+            route('web.admin.rsi.comm-links.channels.show', $this->channel)
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['show']);

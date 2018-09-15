@@ -14,12 +14,12 @@
 @section('content')
     <div class="d-flex mb-3">
         @unless(null === $prev)
-            <a href="{{ route('web.admin.rsi.comm_links.show', $prev) }}" class="btn btn-outline-secondary">@lang('Vorheriger')</a>
+            <a href="{{ route('web.admin.rsi.comm-links.show', $prev) }}" class="btn btn-outline-secondary">@lang('Vorheriger')</a>
         @else
             <a href="#" class="btn btn-outline-secondary disabled">@lang('Vorheriger')</a>
         @endunless
         @unless(null === $next)
-            <a href="{{ route('web.admin.rsi.comm_links.show', $next) }}" class="btn btn-outline-secondary ml-auto">@lang('Nächste')</a>
+            <a href="{{ route('web.admin.rsi.comm-links.show', $next) }}" class="btn btn-outline-secondary ml-auto">@lang('Nächste')</a>
         @else
             <a href="#" class="btn btn-outline-secondary disabled ml-auto">@lang('Nächste')</a>
         @endunless
@@ -52,8 +52,8 @@
                     <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#nav-changelog" role="tab" aria-controls="nav-changelog" aria-selected="false">
                         @lang('Verlauf')
                     </a>
-                    @can('web.admin.rsi.comm_links.update')
-                    <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.admin.rsi.comm_links.edit', $commLink->getRouteKey()) }}">
+                    @can('web.admin.rsi.comm-links.update')
+                    <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.admin.rsi.comm-links.edit', $commLink->getRouteKey()) }}">
                         @lang('Bearbeiten')
                     </a>
                     @endcan
@@ -96,7 +96,7 @@
                         <tr>
                             <th>Kategorie</th>
                             <td>
-                                <a href="{{ route('web.admin.rsi.comm_links.categories.show', $commLink->category->getRouteKey()) }}">
+                                <a href="{{ route('web.admin.rsi.comm-links.categories.show', $commLink->category->getRouteKey()) }}">
                                     {{ $commLink->category->name }}
                                 </a>
                             </td>
@@ -104,7 +104,7 @@
                         <tr>
                             <th>Channel</th>
                             <td>
-                                <a href="{{ route('web.admin.rsi.comm_links.channels.show', $commLink->channel->getRouteKey()) }}">
+                                <a href="{{ route('web.admin.rsi.comm-links.channels.show', $commLink->channel->getRouteKey()) }}">
                                     {{ $commLink->channel->name }}
                                 </a>
                             </td>
@@ -112,7 +112,7 @@
                         <tr>
                             <th>Serie</th>
                             <td>
-                                <a href="{{ route('web.admin.rsi.comm_links.series.show', $commLink->series->getRouteKey()) }}">
+                                <a href="{{ route('web.admin.rsi.comm-links.series.show', $commLink->series->getRouteKey()) }}">
                                     {{ $commLink->series->name }}
                                 </a>
                             </td>

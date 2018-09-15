@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-md-12 col-lg-6 mx-auto">
                     @foreach($series as $serie)
-                        <a class="btn btn-block btn-outline-secondary text-center" href="{{ route('web.admin.rsi.comm_links.series.show', $serie->getRouteKey()) }}">
+                        <a class="btn btn-block btn-outline-secondary text-center" href="{{ route('web.admin.rsi.comm-links.series.show', $serie->getRouteKey()) }}">
                             {{ $serie->name }}
                         </a>
                     @endforeach

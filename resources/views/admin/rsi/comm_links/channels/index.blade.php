@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-md-12 col-lg-6 mx-auto">
                     @foreach($channels as $channel)
-                        <a class="btn btn-block btn-outline-secondary text-center" href="{{ route('web.admin.rsi.comm_links.channels.show', $channel->getRouteKey()) }}">
+                        <a class="btn btn-block btn-outline-secondary text-center" href="{{ route('web.admin.rsi.comm-links.channels.show', $channel->getRouteKey()) }}">
                             {{ $channel->name }}
                         </a>
                     @endforeach

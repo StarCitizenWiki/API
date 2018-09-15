@@ -63,8 +63,8 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * RSI
          */
-        Gate::resource('web.admin.rsi.comm_links', CommLinkPolicy::class);
-        Gate::define('web.admin.rsi.comm_links.update_settings', 'App\Policies\Web\Admin\Rsi\CommLink\CommLinkPolicy@updateSettings');
-        Gate::define('web.admin.rsi.comm_links.preview', 'App\Policies\Web\Admin\Rsi\CommLink\CommLinkPolicy@preview');
+        Gate::resource('web.admin.rsi.comm-links', CommLinkPolicy::class);
+        Gate::define('web.admin.rsi.comm-links.update_settings', 'App\Policies\Web\Admin\Rsi\CommLink\CommLinkPolicy@updateSettings');
+        Gate::define('web.admin.rsi.comm-links.preview', 'App\Policies\Web\Admin\Rsi\CommLink\CommLinkPolicy@preview');
     }
 }

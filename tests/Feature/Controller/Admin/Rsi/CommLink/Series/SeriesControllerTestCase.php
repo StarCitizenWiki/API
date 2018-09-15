@@ -33,7 +33,7 @@ class SeriesControllerTestCase extends AdminTestCase
      */
     public function testIndex()
     {
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.rsi.comm_links.series.index'));
+        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.rsi.comm-links.series.index'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
         if ($response->status() === Response::HTTP_OK) {
@@ -48,7 +48,7 @@ class SeriesControllerTestCase extends AdminTestCase
     public function testShow()
     {
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.rsi.comm_links.series.show', $this->series)
+            route('web.admin.rsi.comm-links.series.show', $this->series)
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['show']);

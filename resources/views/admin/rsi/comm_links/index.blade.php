@@ -67,11 +67,11 @@
                         <td class="text-center">
                             @component('components.edit_delete_block')
                                 @slot('show_url')
-                                    {{ route('web.admin.rsi.comm_links.show', $commLink->getRouteKey()) }}
+                                    {{ route('web.admin.rsi.comm-links.show', $commLink->getRouteKey()) }}
                                 @endslot
-                                @can('web.admin.rsi.comm_links.update')
+                                @can('web.admin.rsi.comm-links.update')
                                     @slot('edit_url')
-                                        {{ route('web.admin.rsi.comm_links.edit', $commLink->getRouteKey()) }}
+                                        {{ route('web.admin.rsi.comm-links.edit', $commLink->getRouteKey()) }}
                                     @endslot
                                 @endcan
                                 {{ $commLink->getRouteKey() }}

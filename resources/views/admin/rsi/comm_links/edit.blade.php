@@ -5,7 +5,7 @@
 @section('content')
     @component('components.forms.form', [
         'method' => 'PATCH',
-        'action' => route('web.admin.rsi.comm_links.update', $commLink->getRouteKey()),
+        'action' => route('web.admin.rsi.comm-links.update', $commLink->getRouteKey()),
         'class' => 'card',
     ])
         <div class="wrapper">
@@ -66,7 +66,7 @@
                         <a class="nav-item nav-link" id="nav-de_DE-tab" data-toggle="tab" href="#nav-de_DE" role="tab" aria-controls="nav-de_DE" aria-selected="false">
                             @lang('de_DE')
                         </a>
-                        @can('web.admin.rsi.comm_links.update_settings')
+                        @can('web.admin.rsi.comm-links.update_settings')
                         <a class="nav-item nav-link" id="nav-settings-tab" data-toggle="tab" href="#nav-settings" role="tab" aria-controls="nav-settings" aria-selected="false">
                             @lang('Einstellungen')
                         </a>
@@ -85,7 +85,7 @@
                             <textarea class="form-control edit-content" name="de_DE" id="de_DE">{!! old('de_DE') ?? optional($commLink->german())->translation !!}</textarea>
                         </div>
                     </div>
-                    @can('web.admin.rsi.comm_links.update_settings')
+                    @can('web.admin.rsi.comm-links.update_settings')
                     <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
                         <div class="alert alert-warning text-center mb-3">
                             @lang('Achtung, durch das Klicken auf Speichern wird die ausgewählte Version des Comm Links importiert!')
@@ -106,7 +106,7 @@
                             <div class="col-12 col-lg-3">
                                 @foreach($versions as $version)
                                     @unless(starts_with($version['output'], 'Aktuell'))
-                                        <a class="btn btn-block btn-outline-secondary" href="{{ route('web.admin.rsi.comm_links.preview', [$commLink->getRouteKey(), $version['file_clean']]) }}">Vorschau Version vom {{ $version['output'] }}</a>
+                                        <a class="btn btn-block btn-outline-secondary" href="{{ route('web.admin.rsi.comm-links.preview', [$commLink->getRouteKey(), $version['file_clean']]) }}">Vorschau Version vom {{ $version['output'] }}</a>
                                     @endunless
                                 @endforeach
                             </div>
@@ -116,7 +116,7 @@
                 </div>
             </div>
             <div class="card-footer d-flex">
-                <a href="{{ route('web.admin.rsi.comm_links.show', $commLink->getRouteKey()) }}" class="btn btn-outline-primary">@lang('Lesen')</a>
+                <a href="{{ route('web.admin.rsi.comm-links.show', $commLink->getRouteKey()) }}" class="btn btn-outline-primary">@lang('Lesen')</a>
                 <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
             </div>
         </div>

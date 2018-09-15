@@ -76,7 +76,7 @@
     @endcomponent
 @endcan
 
-@can('web.admin.rsi.comm_links.view')
+@can('web.admin.rsi.comm-links.view')
     @component('components.navs.sidebar_section', [
         'class' => 'mr-4 mr-md-0 mb-5',
         'titleClass' => 'text-muted pb-0',

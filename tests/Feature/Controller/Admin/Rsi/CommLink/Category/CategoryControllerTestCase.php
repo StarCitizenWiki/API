@@ -33,7 +33,7 @@ class CategoryControllerTestCase extends AdminTestCase
      */
     public function testIndex()
     {
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.rsi.comm_links.categories.index'));
+        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.rsi.comm-links.categories.index'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
         if ($response->status() === Response::HTTP_OK) {
@@ -48,7 +48,7 @@ class CategoryControllerTestCase extends AdminTestCase
     public function testShow()
     {
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.rsi.comm_links.categories.show', $this->category)
+            route('web.admin.rsi.comm-links.categories.show', $this->category)
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['show']);

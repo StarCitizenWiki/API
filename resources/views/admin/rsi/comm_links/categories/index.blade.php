@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-md-12 col-lg-6 mx-auto">
                     @foreach($categories as $category)
-                        <a class="btn btn-block btn-outline-secondary text-center" href="{{ route('web.admin.rsi.comm_links.categories.show', $category->getRouteKey()) }}">
+                        <a class="btn btn-block btn-outline-secondary text-center" href="{{ route('web.admin.rsi.comm-links.categories.show', $category->getRouteKey()) }}">
                             {{ $category->name }}
                         </a>
                     @endforeach

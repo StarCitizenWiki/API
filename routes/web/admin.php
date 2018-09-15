@@ -76,8 +76,8 @@ Route::group(
                     ->group(
                         function () {
                             Route::namespace('CommLink')
-                                ->name('comm_links.')
-                                ->prefix('comm_links')
+                                ->name('comm-links.')
+                                ->prefix('comm-links')
                                 ->group(
                                     function () {
                                         Route::get('categories', 'Category\CategoryController@index')->name(
@@ -103,10 +103,10 @@ Route::group(
 
                             Route::resources(
                                 [
-                                    'comm_links' => 'CommLink\CommLinkController',
+                                    'comm-links' => 'CommLink\CommLinkController',
                                 ]
                             );
-                            Route::get('comm_links/{comm_link}/{version}/preview', 'CommLink\CommLinkController@preview')->name('comm_links.preview');
+                            Route::get('comm-links/{comm_link}/{version}/preview', 'CommLink\CommLinkController@preview')->name('comm-links.preview');
                         }
                     );
             }

@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('web.admin.rsi.comm_links.index'),
+    'route' => route('web.admin.rsi.comm-links.index'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('web.admin.rsi.comm_links.categories.index'),
+    'route' => route('web.admin.rsi.comm-links.categories.index'),
 ])
     <div class="row">
         <div class="col-1">
@@ -29,7 +29,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('web.admin.rsi.comm_links.channels.index'),
+    'route' => route('web.admin.rsi.comm-links.channels.index'),
 ])
     <div class="row">
         <div class="col-1">
@@ -44,7 +44,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('web.admin.rsi.comm_links.series.index'),
+    'route' => route('web.admin.rsi.comm-links.series.index'),
 ])
     <div class="row">
         <div class="col-1">

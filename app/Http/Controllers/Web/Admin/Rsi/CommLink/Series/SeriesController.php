@@ -19,7 +19,7 @@ class SeriesController extends Controller
      */
     public function index()
     {
-        $this->authorize('web.admin.rsi.comm_links.view');
+        $this->authorize('web.admin.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -41,7 +41,7 @@ class SeriesController extends Controller
      */
     public function show(Series $series)
     {
-        $this->authorize('web.admin.rsi.comm_links.view');
+        $this->authorize('web.admin.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $links = $series->commLinks()->orderByDesc('cig_id')->paginate(20);

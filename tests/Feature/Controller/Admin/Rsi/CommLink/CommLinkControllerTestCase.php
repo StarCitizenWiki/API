@@ -31,7 +31,7 @@ class CommLinkControllerTestCase extends AdminTestCase
      */
     public function testIndex()
     {
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.rsi.comm_links.index'));
+        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.rsi.comm-links.index'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
         if ($response->status() === Response::HTTP_OK) {
@@ -46,7 +46,7 @@ class CommLinkControllerTestCase extends AdminTestCase
     public function testShow()
     {
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.rsi.comm_links.show', $this->commLink->getRouteKey())
+            route('web.admin.rsi.comm-links.show', $this->commLink->getRouteKey())
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['show']);
@@ -56,7 +56,7 @@ class CommLinkControllerTestCase extends AdminTestCase
                 ->assertSee(__('en_EN'))
                 ->assertSee(__('de_DE'));
 
-            if ($this->admin->can('web.admin.rsi.comm_links.update')) {
+            if ($this->admin->can('web.admin.rsi.comm-links.update')) {
                 $response->assertSee(__('Bearbeiten'));
             }
         }
@@ -90,7 +90,7 @@ EOF
         );
 
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.rsi.comm_links.edit', $this->commLink->getRouteKey())
+            route('web.admin.rsi.comm-links.edit', $this->commLink->getRouteKey())
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
@@ -117,7 +117,7 @@ EOF
     public function testUpdate()
     {
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.rsi.comm_links.update', $this->commLink),
+            route('web.admin.rsi.comm-links.update', $this->commLink),
             [
                 'title' => $this->commLink->title,
                 'url' => $this->commLink->url,
@@ -145,7 +145,7 @@ EOF
     public function testUpdateVersion()
     {
         // TODO Refactor?
-        if (!$this->admin->can('web.admin.rsi.comm_links.update_settings')) {
+        if (!$this->admin->can('web.admin.rsi.comm-links.update_settings')) {
             $this->markTestSkipped('Admin has no Version Update Permissions');
 
             return;
@@ -154,7 +154,7 @@ EOF
         Bus::fake();
 
         $response = $this->actingAs($this->admin, 'admin')->followingRedirects()->patch(
-            route('web.admin.rsi.comm_links.update', $this->commLink),
+            route('web.admin.rsi.comm-links.update', $this->commLink),
             [
                 'title' => $this->commLink->title,
                 'url' => $this->commLink->url,
@@ -204,7 +204,7 @@ EOF
         );
 
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.rsi.comm_links.preview', [$this->commLink, $version])
+            route('web.admin.rsi.comm-links.preview', [$this->commLink, $version])
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['preview']);
