@@ -126,6 +126,7 @@ class CommLinkController extends Controller
         $data = $request->validated();
 
         if (isset($data['version']) && $data['version'] !== $commLink->file) {
+            $this->authorize('web.admin.rsi.comm_links.update_settings');
             $message = __('Comm Link Import gestartet');
 
             dispatch(new ParseCommLink($commLink->cig_id, $data['version'], $commLink, true));

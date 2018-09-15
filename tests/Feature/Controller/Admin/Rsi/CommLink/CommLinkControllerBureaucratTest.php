@@ -28,6 +28,9 @@ class CommLinkControllerBureaucratTest extends CommLinkControllerTestCase
         'edit' => \Illuminate\Http\Response::HTTP_OK,
 
         'update' => \Illuminate\Http\Response::HTTP_FOUND,
+        'update_version' => \Illuminate\Http\Response::HTTP_OK, //Follow Redirects
+
+        'preview' => \Illuminate\Http\Response::HTTP_OK,
     ];
 
     /**

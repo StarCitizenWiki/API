@@ -18,7 +18,7 @@ $factory->define(
             'comment_count' => $faker->numberBetween(0, 2000),
             'url' => $faker->boolean() ? '/comm-link/SCW/'.$cigId.'-IMPORT' : null,
 
-            'file' => \Carbon\Carbon::now().'.html',
+            'file' => \Carbon\Carbon::now()->format('Y-m-d_His').'.html',
 
             'channel_id' => $channel->id,
             'category_id' => $category->id,

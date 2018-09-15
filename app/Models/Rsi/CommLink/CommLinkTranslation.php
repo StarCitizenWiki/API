@@ -4,6 +4,9 @@ namespace App\Models\Rsi\CommLink;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
 
+/**
+ * Class CommLinkTranslation
+ */
 class CommLinkTranslation extends Translation
 {
     protected $fillable = [

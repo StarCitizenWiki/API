@@ -28,6 +28,9 @@ class CommLinkControllerSichterTest extends CommLinkControllerTestCase
         'edit' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
 
         'update' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+        'update_version' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'preview' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
     ];
 
     /**
