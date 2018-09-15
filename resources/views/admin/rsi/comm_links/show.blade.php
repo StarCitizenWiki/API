@@ -65,6 +65,10 @@
                     {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : $commLink->english()->translation !!}
                 </div>
                 <div class="tab-pane fade" id="nav-de_DE" role="tabpanel" aria-labelledby="nav-de_DE-tab">
+                    <div class="alert alert-warning text-center">
+                        @lang('Achtung! Durch das Benutzen des Textes stimmst du der Star Citizen Wiki Übersetzungsvereinbarung zu.')
+                        <a href="{{ config('api.wiki_url') }}/Star_Citizen_Wiki:%C3%9Cbersetzungsvereinbarung">@lang('Weitere Informationen hier')</a>
+                    </div>
                     {!! optional($commLink->german())->translation ?? 'Nicht vorhanden' !!}
                 </div>
                 <div class="tab-pane fade" id="nav-links" role="tabpanel" aria-labelledby="nav-links-tab">

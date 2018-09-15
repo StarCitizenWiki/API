@@ -31,6 +31,10 @@
 
     <div class="row my-5">
         <div class="col-12 col-md-6 mx-auto">
+            <div class="alert alert-warning text-center">
+                @lang('Achtung! Durch das Benutzen des Textes stimmst du der Star Citizen Wiki Übersetzungsvereinbarung zu.')
+                <a href="{{ config('api.wiki_url') }}/Star_Citizen_Wiki:%C3%9Cbersetzungsvereinbarung">@lang('Weitere Informationen hier')</a>
+            </div>
             <div class="card bg-dark text-light-grey">
                 <h4 class="card-header">
                     @lang('Comm Link') - {{ $commLink->title }}
