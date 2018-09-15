@@ -8,6 +8,8 @@
 namespace Tests\Feature\Controller\Admin\Rsi\CommLink\Category;
 
 use App\Models\Rsi\CommLink\Category\Category;
+use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\CommLinkTranslation;
 use Dingo\Api\Http\Response;
 use Tests\Feature\Controller\Admin\AdminTestCase;
 
@@ -20,6 +22,11 @@ class CategoryControllerTestCase extends AdminTestCase
      * @var \App\Models\Rsi\CommLink\Category\Category
      */
     protected $category;
+
+    /**
+     * @var \Illuminate\Database\Eloquent\Collection
+     */
+    protected $commLinks;
 
     /**
      * @covers \App\Http\Controllers\Web\Admin\Rsi\CommLink\Category\CategoryController::index
@@ -35,13 +42,38 @@ class CategoryControllerTestCase extends AdminTestCase
     }
 
     /**
+     * @covers \App\Http\Controllers\Web\Admin\Rsi\CommLink\Category\CategoryController::show
+     * @covers \App\Models\Rsi\CommLink\Category\Category
+     */
+    public function testShow()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->get(
+            route('web.admin.rsi.comm_links.categories.show', $this->category)
+        );
+
+        $response->assertStatus(static::RESPONSE_STATUSES['show']);
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertViewIs('admin.rsi.comm_links.index')->assertSee(
+                $this->commLinks->first()->title
+            );
+        }
+    }
+
+    /**
      * {@inheritdoc}
      * Creates needed Comm Link Category
      */
     protected function setUp()
     {
         parent::setUp();
+        $this->createSystemLanguages();
 
         $this->category = factory(Category::class)->create();
+
+        $this->commLinks = factory(CommLink::class, 5)->create(['category_id' => $this->category->id])->each(
+            function (CommLink $commLink) {
+                $commLink->translations()->save(factory(CommLinkTranslation::class)->make());
+            }
+        );
     }
 }
