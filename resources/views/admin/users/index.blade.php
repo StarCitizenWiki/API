@@ -1,5 +1,7 @@
 @extends('admin.layouts.default_wide')
 
+@section('title', __('Benutzerübersicht'))
+
 @section('content')
     <div class="card">
         <h4 class="card-header">@lang('Benutzer')</h4>

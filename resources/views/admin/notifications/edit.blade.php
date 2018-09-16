@@ -1,5 +1,7 @@
 @extends('admin.layouts.default')
 
+@section('title', __('Benachrichtigung bearbeiten'))
+
 @section('content')
     @component('components.forms.form', [
         'method' => 'PATCH',

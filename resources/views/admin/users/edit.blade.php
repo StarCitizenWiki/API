@@ -1,4 +1,9 @@
 @extends('admin.layouts.default')
+
+@section('title')
+    @lang('Benutzer') {{ $user->name }} @lang('bearbeiten')
+@endsection
+
 @section('content')
     @component('components.forms.form', [
         'action' => route('web.admin.users.update', $user->getRouteKey()),

@@ -1,5 +1,7 @@
 @extends('admin.layouts.default')
 
+@section('title', __('Benachrichtigung hinzufügen'))
+
 @section('content')
     @component('components.forms.form', [
         'action' => route('web.admin.notifications.create'),

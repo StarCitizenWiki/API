@@ -3,6 +3,8 @@
 {{-- Page Title --}}
 @section('title', __('Login'))
 
+@section('topNav--class', 'd-none')
+
 @section('main--class', 'mt-5')
 
 @section('content')

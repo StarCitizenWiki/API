@@ -1,6 +1,6 @@
 @extends('api.layouts.default')
 
-@section('title', trans('FAQ'))
+@section('title', 'FAQ')
 
 @section('content')
 

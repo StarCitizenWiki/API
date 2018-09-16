@@ -1,6 +1,6 @@
 <div class="btn-group btn-group-sm" role="group" aria-label="">
     @unless(empty($edit_url))
-        <a href="{{ $edit_url or '' }}" class="btn btn-outline-secondary" role="button">
+        <a href="{{ $edit_url ?? '' }}" class="btn btn-outline-secondary" role="button">
             @component('components.elements.icon')
                 @slot('options')
                     data-fa-transform="up-2"

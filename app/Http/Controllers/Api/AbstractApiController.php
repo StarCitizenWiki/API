@@ -39,30 +39,35 @@ abstract class AbstractApiController extends Controller
     protected const VALID_RELATIONS = [];
 
     /**
+     * Limit Get Parameter
+     */
+    private const LIMIT = 'limit';
+
+    /**
+     * Locale Get Parameter
+     */
+    private const LOCALE = 'locale';
+
+    /**
      * @var \Illuminate\Http\Request The API Request
      */
     protected $request;
-
     /**
      * @var \League\Fractal\TransformerAbstract The Default Transformer for index and show
      */
     protected $transformer;
-
     /**
      * @var array Parameter Errors
      */
     protected $errors = [];
-
     /**
      * @var array Parsed and validated relations
      */
     protected $validRelations = [];
-
     /**
      * @var int Pagination Limit, 0 = no pagination
      */
     protected $limit;
-
     /**
      * @var string Locale Code, set if Transformer implements LocaleAwareTransformerInterface
      */
@@ -151,7 +156,7 @@ abstract class AbstractApiController extends Controller
                 $this->transformer->setLocale($localeCode);
             }
         } else {
-            $this->errors['locale'] = sprintf(static::INVALID_LOCALE_STRING, $localeCode);
+            $this->errors[self::LOCALE] = sprintf(static::INVALID_LOCALE_STRING, $localeCode);
         }
     }
 
@@ -181,15 +186,15 @@ abstract class AbstractApiController extends Controller
      */
     private function processLimit()
     {
-        if ($this->request->has('limit')) {
-            $limit = (int) $this->request->get('limit');
+        if ($this->request->has(self::LIMIT) && null !== $this->request->get(self::LIMIT, null)) {
+            $itemLimit = (int) $this->request->get(self::LIMIT);
 
-            if ($limit > 0) {
-                $this->limit = $limit;
-            } elseif (0 === $limit) {
+            if ($itemLimit > 0) {
+                $this->limit = $itemLimit;
+            } elseif (0 === $itemLimit) {
                 $this->limit = 0;
             } else {
-                $this->errors['limit'] = static::INVALID_LIMIT_STRING;
+                $this->errors[self::LIMIT] = static::INVALID_LIMIT_STRING;
             }
         }
     }
@@ -199,7 +204,7 @@ abstract class AbstractApiController extends Controller
      */
     private function processIncludes()
     {
-        if ($this->request->has('with')) {
+        if ($this->request->has('with') && null !== $this->request->get('with', null)) {
             $this->checkIncludes($this->request->get('with', []));
         }
     }
@@ -209,8 +214,8 @@ abstract class AbstractApiController extends Controller
      */
     private function processLocale()
     {
-        if ($this->request->has('locale')) {
-            $this->setLocale($this->request->get('locale'));
+        if ($this->request->has(self::LOCALE) && null !== $this->request->get(self::LOCALE, null)) {
+            $this->setLocale($this->request->get(self::LOCALE));
         }
     }
 }

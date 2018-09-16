@@ -1,5 +1,7 @@
 @extends('admin.layouts.default_wide')
 
+@section('title', __('Raumschiffe'))
+
 @section('content')
     <div class="card">
         <h4 class="card-header">@lang('Raumschiffe')</h4>

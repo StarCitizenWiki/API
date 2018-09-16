@@ -1,5 +1,5 @@
-<div class="container{{ $type == 'fluid' ? '-fluid' : '' }} {{ $class or '' }}"
-     @if(isset($id)) id="{{ $id or '' }}" @endif
-    {{ $options or '' }}>
+<div class="container{{ $type == 'fluid' ? '-fluid' : '' }} {{ $class ?? '' }}"
+     @if(isset($id)) id="{{ $id ?? '' }}" @endif
+    {{ $options ?? '' }}>
     {{ $slot}}
 </div>

@@ -71,6 +71,12 @@
                 </a>
             </div>
         </li>
+        @component('components.navs.nav_element', ['contentClass' => 'small'])
+            @slot('options')
+                style="padding-top: 0.7rem; cursor: default"
+            @endslot
+            v{{ config('app.version') }}
+        @endcomponent
     @endif
 @endsection
 

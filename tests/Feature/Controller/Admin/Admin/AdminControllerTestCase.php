@@ -7,6 +7,7 @@
 
 namespace Tests\Feature\Controller\Admin\Admin;
 
+use Illuminate\Http\Response;
 use Tests\Feature\Controller\Admin\AdminTestCase;
 
 /**
@@ -19,7 +20,11 @@ class AdminControllerTestCase extends AdminTestCase
      */
     public function testDashboardView()
     {
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.dashboard'));
+        $response = $this->actingAs($this->admin, 'admin')->followingRedirects()->get(route('web.admin.dashboard'));
         $response->assertStatus(static::RESPONSE_STATUSES['dashboard']);
+
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertViewIs('admin.dashboard');
+        }
     }
 }

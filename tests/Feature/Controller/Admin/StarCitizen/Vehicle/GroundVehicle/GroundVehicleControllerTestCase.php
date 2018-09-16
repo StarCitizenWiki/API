@@ -36,7 +36,8 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
 
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertDontSee(__('Keine Fahrzeuge vorhanden'))
+            $response->assertViewIs('admin.starcitizen.vehicles.ground_vehicles.index')
+                ->assertDontSee(__('Keine Fahrzeuge vorhanden'))
                 ->assertSee(__('Fahrzeuge'))
                 ->assertSee('CIG ID')
                 ->assertSee(GroundVehicle::count());
@@ -66,7 +67,8 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
 
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertSee(__('Fahrzeugdaten'))
+            $response->assertViewIs('admin.starcitizen.vehicles.ground_vehicles.edit')
+                ->assertSee(__('Fahrzeugdaten'))
                 ->assertSee(__('Speichern'))
                 ->assertSee('CIG ID')
                 ->assertSee($groundVehicle->cig_id)

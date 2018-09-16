@@ -33,7 +33,7 @@ class NotificationControllerTestCase extends AdminTestCase
 
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertSee(__('Benachrichtigungen'));
+            $response->assertViewIs('admin.notifications.index')->assertSee(__('Benachrichtigungen'));
         }
     }
 
@@ -46,7 +46,8 @@ class NotificationControllerTestCase extends AdminTestCase
 
         $response->assertStatus(static::RESPONSE_STATUSES['create']);
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertSee(__('Benachrichtigung hinzufügen'))
+            $response->assertViewIs('admin.notifications.create')
+                ->assertSee(__('Benachrichtigung hinzufügen'))
                 ->assertSee(__('Inhalt'))
                 ->assertSee(__('Typ'))
                 ->assertSee(__('Reihenfolge'))
@@ -67,7 +68,8 @@ class NotificationControllerTestCase extends AdminTestCase
 
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertSee(__('Benachrichtigung bearbeiten'))
+            $response->assertViewIs('admin.notifications.edit')
+                ->assertSee(__('Benachrichtigung bearbeiten'))
                 ->assertSee(__('Inhalt'))
                 ->assertSee(__('Typ'))
                 ->assertSee(__('Reihenfolge'))

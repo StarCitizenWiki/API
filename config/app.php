@@ -2,6 +2,10 @@
 
 return [
 
+    'version' => '0.0.1',
+
+    'registration_enabled' => env('REGISTRATION_ENABLED', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -159,7 +163,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        App\Repositories\Providers\Web\Admin\AuthServiceProvider::class,
+        App\Providers\Web\Admin\AuthServiceProvider::class,
 
         Jackiedo\LogReader\LogReaderServiceProvider::class,
     ],

@@ -11,6 +11,4 @@ composer.phar
 /Vagrantfile
 /_ide_helper.php
 /.phpstorm.meta.php
-/public/css/
-/public/js/
 /.phpunit.result.cache

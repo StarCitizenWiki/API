@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface;
+use App\Contracts\Web\Admin\AuthRepositoryInterface;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,14 +34,14 @@ class LoginController extends Controller
     public $redirectTo = '/admin/dashboard';
 
     /**
-     * @var \App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface
+     * @var \App\Contracts\Web\Admin\AuthRepositoryInterface
      */
     private $authRepository;
 
     /**
      * Create a new controller instance.
      *
-     * @param \App\Repositories\Contracts\Web\Admin\AuthRepositoryInterface $authRepository
+     * @param \App\Contracts\Web\Admin\AuthRepositoryInterface $authRepository
      */
     public function __construct(AuthRepositoryInterface $authRepository)
     {
