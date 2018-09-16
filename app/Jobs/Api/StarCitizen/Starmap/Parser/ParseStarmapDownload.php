@@ -31,10 +31,13 @@ class ParseStarmapDownload implements ShouldQueue
     use SerializesModels;
 
     const OVERVIEWDATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
+    const CELESTIALOBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
 
     private $starmapFolder;
     private $starmapFiles = [];
     private $starmapBootupFile;
+
+    private const STARSYSTEM_DISK = 'starsystem';
 
     public function __construct(?string $starmapFileName = null)
     {
@@ -42,12 +45,13 @@ class ParseStarmapDownload implements ShouldQueue
             $this->starmapFileName = $starmapFileName;
         } else {
             $this->starmapFolder = $this->getNewestStarmapFolder();
-            $diskPath = Storage::disk('starmap/'.$this->starmapFolder)->path('');
+            $diskPath = Storage::disk(self::STARSYSTEM_DISK)->path('/'.$this->starmapFolder);
+//            $diskPath = Storage::disk('starmap/'.$this->starmapFolder)->path('');
             $files = scandir($diskPath, SCANDIR_SORT_DESCENDING);
 
             if (is_array($files)) {
                 foreach ($files as $file) {
-                    if (strcmp($file, DownloadStarmap::STARMAP_BOOTUP_FILENAME)) {
+                    if (0 === strcmp($file, DownloadStarmap::STARMAP_BOOTUP_FILENAME)) {
                         $this->starmapBootupFile = $file;
                     } else {
                         $this->starmapFiles[$file.""] = $file;
@@ -62,20 +66,13 @@ class ParseStarmapDownload implements ShouldQueue
 
     private function getNewestStarmapFolder()
     {
-        $diskPath = Storage::disk('starmap')->path('');
-        //TODO prüfen ob descent folders und erster (neuester) ausreicht
-//        $folders = scandir($diskPath, SCANDIR_SORT_DESCENDING);
-        $folders = array_filter(scandir($diskPath), function($file) { return is_dir($file); });
+        $diskPath = Storage::disk(self::STARSYSTEM_DISK)->path('');
 
+        $folders = scandir($diskPath, SCANDIR_SORT_DESCENDING);
         $newestStarmapFolder = null;
-        foreach ($folders as $folder) {
-            $starmapTimestampFolder = Carbon::createFromFormat('Y-m-d', $folder);
-
-            if (is_null($newestStarmapFolder) || $starmapTimestampFolder->diffInDays($newestStarmapFolder) > 0) {
-                $newestStarmapFolder = $starmapTimestampFolder;
-            }
+        if (is_array($folders)) {
+            return $folders[0];
         }
-        return $newestStarmapFolder->format('Y-m-d');
     }
 
     /**
@@ -88,7 +85,9 @@ class ParseStarmapDownload implements ShouldQueue
         app('Log')::info('Parsing Starmap Download');
 
         try {
-            $starmaps = json_decode($this->starmapBootupFile);
+            $bootup = Storage::disk(self::STARSYSTEM_DISK)->get('/'.$this->starmapFolder . '/'.
+                                                               $this->starmapBootupFile);
+            $starmaps = json_decode($bootup, true);
         } catch (FileNotFoundException $e) {
             app('Log')::error(
                 "File {$this->starmapBootupFile} not found",
@@ -110,7 +109,7 @@ class ParseStarmapDownload implements ShouldQueue
         }
 
         if ($this->checkIfDataCanBeProcessed($starmaps, static::OVERVIEWDATA_CHECKLIST)) {
-            $starsystems = $this->rawData['data']['systems']['resultset'];
+            $starsystems = $starmaps['data']['systems']['resultset'];
         } else {
             app('Log')::error('Can not read Starsystems from RawData');
             return;
@@ -118,15 +117,38 @@ class ParseStarmapDownload implements ShouldQueue
 
 
         foreach ($starsystems as $starsystem) {
-            dispatch(new ParseStarsytem($starsystem));
-            $this->handleCelestialObjects($starsystem);
+            try {
+                dispatch(new ParseStarsytem(new Collection($starsystem)));
+                $this->handleCelestialObjects($starsystem);
+            } catch (FileNotFoundException $e) {
+                app('Log')::error(
+                    "File {$starsystem}_system.json not found",
+                    [
+                        'message' => $e->getMessage(),
+                    ]
+                );
+
+                return;
+            } catch (InvalidArgumentException $e) {
+                app('Log')::error(
+                    "File {$starsystem}_system.json does not contain valid JSON",
+                    [
+                        'message' => $e->getMessage(),
+                    ]
+                );
+
+                return;
+            }
         }
     }
 
     private function handleCelestialObjects($starsystem) {
 
         try {
-            $starsystemData = json_decode($this->starmapFiles[$starsystem]);
+            $starsystemFile = Storage::disk(self::STARSYSTEM_DISK)->get('/'.$this->starmapFolder . '/'.
+                                                                            $starsystem['code']."_system.json");
+            $celestialObjects = json_decode($starsystemFile, true);
+//            $starsystemData = json_decode($this->starmapFiles[$starsystem['code']."_system.json"], true);
         } catch (InvalidArgumentException $e) {
             app('Log')::error(
                 "File {$this->starmapFiles[$starsystem]} does not contain valid JSON",
@@ -138,16 +160,17 @@ class ParseStarmapDownload implements ShouldQueue
             return;
         }
 
-        if ($this->checkIfDataCanBeProcessed($starsystemData, static::CELESTIALOBJECTS_CHECKLIST)) {
-            $celestialObjects = $starsystemData['data']['resultset'][0]['celestial_objects'];
-            //TODO Celestial Subobjects in Files laden
-            //$allCelestialObjects = $this->addCelestialSubobjects($celestialObjects);
-        } else {
-            app('Log')::error("Can not read System {$starsystem} from RSI");
-        }
+//        if ($this->checkArrayStructure($starsystemData, static::CELESTIALOBJECTS_CHECKLIST)) {
+//            $celestialObjects = $starsystemData['data']['resultset'][0]['celestial_objects'];
+//            //TODO Celestial Subobjects in Files laden
+//            //$allCelestialObjects = $this->addCelestialSubobjects($celestialObjects);
+//        } else {
+//            app('Log')::error("Can not read System {$starsystem} from RSI");
+//            return;
+//        }
 
         foreach ($celestialObjects as $celestialObject) {
-            dispatch(new ParseCelestialObject($celestialObject, $starsystem['id']));
+            dispatch(new ParseCelestialObject(new Collection($celestialObject), $starsystem['id']));
         }
     }
 

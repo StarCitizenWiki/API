@@ -26,7 +26,6 @@ class ParseStarsytem implements ShouldQueue
     use SerializesModels;
 
 
-
     /**
      * @var \Illuminate\Support\Collection
      */
@@ -47,28 +46,28 @@ class ParseStarsytem implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         Starsystem::updateOrCreate(
             [
-                'code'                      => $this->rawData['code'],
-                'cig_id'                    => $this->rawData['id'],
+                'code'   => $this->rawData['code'],
+                'cig_id' => $this->rawData['id'],
             ],
             [
-                'status'                    => $this->rawData['status'],
-                'cig_time_modified'         => $this->rawData['time_modified'],
-                'type'                      => $this->rawData['type'],
-                'name'                      => $this->rawData['name'],
-                'position_x'                => $this->rawData['position_x'],
-                'position_y'                => $this->rawData['position_y'],
-                'position_z'                => $this->rawData['position_z'],
-                'info_url'                  => $this->rawData['info_url'],
-                'description'               => $this->rawData['description'],
-                'affiliation_id'            => ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]),
-                'aggregated_size'           => $this->rawData['aggregated_size'],
-                'aggregated_population'     => $this->rawData['aggregated_population'],
-                'aggregated_economy'        => $this->rawData['aggregated_economy'],
-                'aggregated_danger'         => $this->rawData['aggregated_danger'],
+                'status'                => $this->rawData['status'],
+                'cig_time_modified'     => $this->rawData['time_modified'],
+                'type'                  => $this->rawData['type'],
+                'name'                  => $this->rawData['name'],
+                'position_x'            => $this->rawData['position_x'],
+                'position_y'            => $this->rawData['position_y'],
+                'position_z'            => $this->rawData['position_z'],
+                'info_url'              => $this->rawData['info_url'],
+                'description'           => $this->rawData['description'],
+                'affiliation_id'        => ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]),
+                'aggregated_size'       => $this->rawData['aggregated_size'],
+                'aggregated_population' => $this->rawData['aggregated_population'],
+                'aggregated_economy'    => $this->rawData['aggregated_economy'],
+                'aggregated_danger'     => $this->rawData['aggregated_danger'],
             ]
         );
     }

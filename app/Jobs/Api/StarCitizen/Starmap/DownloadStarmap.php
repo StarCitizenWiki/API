@@ -25,8 +25,8 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const STARSYSTEM_BOOTUP_ENDPOINT = "/starmap/bootup";
-    const STARSYSTEM_ENDPOINT = '/star-systems/';
+    const STARSYSTEM_BOOTUP_ENDPOINT = "/api/starmap/bootup";
+    const STARSYSTEM_ENDPOINT = '/api/starmap/star-systems/';
     public const STARMAP_BOOTUP_FILENAME = "bootup.json";
     private const STARSYSTEM_DISK = 'starsystem';
 
@@ -66,8 +66,12 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
         app('Log')::info('Starting Starmap Download');
 
         $timestamp = now()->format("Y-m-d");
-        $this->setBootup($timestamp);
-        $this->setStarsystems($timestamp);
+
+        if ($this->force || !Storage::disk(self::STARSYSTEM_DISK)->exists($timestamp)) {
+            $this->initClient();
+            $this->setBootup($timestamp);
+            $this->setStarsystems($timestamp);
+        }
 
 //        $this->setSystems();
 //        foreach ($this->starsystems as $system) {
@@ -84,46 +88,46 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
 
     private function setBootup($timestamp) : void
     {
-        if ($this->force || !Storage::disk(self::STARSYSTEM_DISK)->exists($timestamp)) {
-            $this->initClient();
-            $bootupFileName = self::STARMAP_BOOTUP_FILENAME;
+        try {
+            $response = $this->client->post(self::STARSYSTEM_BOOTUP_ENDPOINT);
+        } catch (ConnectException $e) {
+            app('Log')::critical(
+                'Could not connect to RSI Starmap Bootup',
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
 
-            try {
-                $response = $this->client->post(self::STARSYSTEM_BOOTUP_ENDPOINT);
-            } catch (ConnectException $e) {
-                app('Log')::critical(
-                    'Could not connect to RSI Starmap Bootup',
-                    [
-                        'message' => $e->getMessage(),
-                    ]
-                );
+            return;
+        }
 
-                return;
+        $overviewData = json_decode($response->getBody()->getContents(), true);
+        $this->checkAndSetStarsystems($overviewData);
+
+        Storage::disk(self::STARSYSTEM_DISK)->put($timestamp . "/" . self::STARMAP_BOOTUP_FILENAME,
+                                                  json_encode($overviewData));
+    }
+
+    private function checkAndSetStarsystems($overviewData) {
+        try {
+            if ($this->checkIfDataCanBeProcessed($overviewData, static::OVERVIEWDATA_CHECKLIST)) {
+                $this->starsystems = $overviewData['data']['systems']['resultset'];
+            } else {
+                throw new InvalidDataException('Can not read Star-Systems from RSI');
             }
+        } catch (InvalidArgumentException $e) {
+            app('Log')::error(
+                'Starmap Bootup data is not valid json',
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
 
-            try {
-                $overviewData = json_decode($response->getBody()->getContents(), true);
-                if ($this->checkIfDataCanBeProcessed($overviewData, static::OVERVIEWDATA_CHECKLIST)) {
-                    $this->starsystems = $overviewData['data']['systems']['resultset'];
-                } else {
-                    throw new InvalidDataException('Can not read Systems from RSI');
-                }
-            } catch (InvalidArgumentException $e) {
-                app('Log')::error(
-                    'Starmap Bootup data is not valid json',
-                    [
-                        'message' => $e->getMessage(),
-                    ]
-                );
+            return;
+        } catch (InvalidDataException $e) {
+            app('Log')::error($e->getMessage());
 
-                return;
-            } catch (InvalidDataException $e) {
-                app('Log')::error($e->getMessage());
-
-                return;
-            }
-
-            Storage::disk(self::STARSYSTEM_DISK . "/" . $timestamp)->put($bootupFileName, json_encode($overviewData));
+            return;
         }
     }
 
@@ -133,7 +137,7 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
             $system = $system['code'];
 
             try {
-                $response = $this->client->get(self::STARSYSTEM_ENDPOINT . $system);
+                $response = $this->client->post(self::STARSYSTEM_ENDPOINT . $system);
             } catch (ConnectException $e) {
                 app('Log')::critical(
                     'Could not connect to RSI Starmap ' . $system,
@@ -165,7 +169,7 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
                 return;
             }
 
-            Storage::disk(self::STARSYSTEM_DISK . "/" . $timestamp)->put($system, json_encode($celestialObjects));
+            Storage::disk(self::STARSYSTEM_DISK)->put($timestamp . "/" . $system."_system.json", json_encode($celestialObjects));
         }
     }
 
