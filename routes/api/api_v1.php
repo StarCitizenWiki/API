@@ -66,16 +66,44 @@ $api->group(
                 'prefix' => 'starmap',
             ],
             function ($api) {
-                $api->get('/', ['as' => 'api.v1.starsystem.all', 'uses' => 'StarsystemController@index']);
-                $api->get('{code}', ['as' => 'api.v1.starsystem.show', 'uses' => 'StarsystemController@show']);
-            },
-            function ($api) {
-                $api->get('/', ['as' => 'api.v1.jumppoint.all', 'uses' => 'JumppointController@index']);
-                $api->get('{code}', ['as' => 'api.v1.jumppoint.show', 'uses' => 'JumppointController@show']);
-            },
-            function ($api) {
-                $api->get('/', ['as' => 'api.v1.celestialobject.all', 'uses' => 'CelestialObjectController@index']);
-                $api->get('{code}', ['as' => 'api.v1.celestialobject.show', 'uses' => 'CelestialObjectController@show']);
+                $api->group(
+                    [
+                        'namespace' => 'Starsystem',
+                        'prefix'    => 'starsystem',
+                    ],
+                    function ($api) {
+                        $api->get('/', ['as' => 'api.v1.starmap.starsystem.all', 'uses' => 'StarsystemController@index']);
+                        $api->get('{code}', ['as' => 'api.v1.starmap.starsystem.show', 'uses' => 'StarsystemController@show']);
+                    }
+                );
+
+                $api->group(
+                    [
+                        'namespace' => 'CelestialObject',
+                        'prefix'    => 'celestialobject',
+                    ],
+                    function ($api) {
+                        $api->get(
+                            '/',
+                            ['as' => 'api.v1.starmap.celestialobject.all', 'uses' => 'CelestialObjectController@index']
+                        );
+                        $api->get(
+                            '{code}',
+                            ['as' => 'api.v1.starmap.celestialobject.show', 'uses' => 'CelestialObjectController@show']
+                        );
+                    }
+                );
+
+//            $api->group(
+//                [
+//                    'namespace' => 'jumppoint',
+//                    'prefix' => 'jumppoint',
+//                ],
+//                function ($api) {
+//                    $api->get('/', ['as' => 'api.v1.jumppoint.all', 'uses' => 'JumppointController@index']);
+//                    $api->get('{code}', ['as' => 'api.v1.jumppoint.show', 'uses' => 'JumppointController@show']);
+//                }
+//            );
             }
         );
 

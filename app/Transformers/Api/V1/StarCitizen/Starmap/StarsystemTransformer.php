@@ -27,7 +27,7 @@ class StarsystemTransformer extends AbstractTranslationTransformer
             'id' => $starsystem->cig_id,
             'code' => $starsystem->code,
             'name' => $starsystem->name,
-            'status' => $starsystem->code,
+            'status' => $starsystem->status,
             'time_modified' => $starsystem->cig_time_modified,
             'type' => $starsystem->type,
             'position' => [
@@ -36,11 +36,11 @@ class StarsystemTransformer extends AbstractTranslationTransformer
               'z' => $starsystem->position_z,
             ],
             'info_url' => $starsystem->info_url,
-            'description' => $this->getTranslation($starsystem->description),
+            'description' => $this->getTranslation($starsystem),
             'affiliation' => [
                 'name' => $starsystem->affiliation->name,
                 'code' => $starsystem->affiliation->code,
-                'color' => $starsystem->subtype->code,
+                'color' => $starsystem->affiliation->color,
             ],
             'aggregated' => [
                 'size' => $starsystem->aggregated_size,

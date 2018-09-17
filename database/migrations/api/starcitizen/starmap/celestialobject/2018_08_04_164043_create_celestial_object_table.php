@@ -18,10 +18,10 @@ class CreateCelestialObjectTable extends Migration
             $table->boolean('exclude')->default(false);
             $table->timestamps();
             $table->unsignedInteger('cig_id');
-            $table->unsignedInteger('cig_system_id');
+            $table->unsignedInteger('starsystem_id');
             $table->dateTime('cig_time_modified');
             $table->enum('type', ['JUMPPOINT', 'STAR', 'ASTEROID_BELT', 'ASTEROID_FIELD', 'MANMADE', 'PLANET', 'LZ',
-                                  'SATELLITE']);
+                                  'SATELLITE', 'POI', 'BLACKHOLE']);
 
             $table->string('designation');
             $table->string('name')->nullable();
@@ -32,7 +32,6 @@ class CreateCelestialObjectTable extends Migration
             $table->decimal('longitude')->nullable();
             $table->decimal('axial_tilt')->nullable();
             $table->decimal('orbit_period')->nullable();
-            $table->string('description')->nullable();
             $table->string('info_url')->nullable();
             $table->boolean('habitable')->nullable();
             $table->boolean('fairchanceact')->nullable();
@@ -45,9 +44,9 @@ class CreateCelestialObjectTable extends Migration
             $table->unsignedInteger('subtype_id')->nullable();
             $table->unsignedInteger('affiliation_id')->nullable();
 
-            $table->foreign('subtype_id')->references('id')->on('celestial_object_subtype')->onDelete('cascade');
-            $table->foreign('affiliation_id')->references('id')->on('affiliation')->onDelete('cascade');
-            $table->foreign('cig_system_id')->references('cig_id')->on('starsystem')->onDelete('cascade');
+            $table->foreign('subtype_id')->references('id')->on('celestial_object_subtype')->onDelete('cascade')->nullable();
+            $table->foreign('affiliation_id')->references('id')->on('affiliation')->onDelete('cascade')->nullable();
+            $table->foreign('starsystem_id')->references('id')->on('starsystem')->onDelete('cascade')->nullable();
 
             $table->unique('cig_id');
             $table->unique('code');

@@ -12,9 +12,6 @@ use App\Models\Api\StarCitizen\Starmap\Affiliation;
 class ParseAffiliation
 {
     public static function getAffiliation($affiliationData) : int {
-
-        //TODO check input Data
-
         $affiliation = Affiliation::updateOrCreate(
             [
                 'id'            => $affiliationData['id'],

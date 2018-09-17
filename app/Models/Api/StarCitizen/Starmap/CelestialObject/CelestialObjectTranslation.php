@@ -15,9 +15,8 @@ use App\Models\Api\Translation\AbstractTranslation as Translation;
 class CelestialObjectTranslation extends Translation
 {
     protected $fillable = [
-        'id',
         'locale_code',
-        'cig_id',
+        'celestial_object_id',
         'translation',
     ];
 

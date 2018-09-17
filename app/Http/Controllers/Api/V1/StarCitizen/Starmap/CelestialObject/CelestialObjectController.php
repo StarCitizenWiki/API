@@ -4,7 +4,7 @@
  * Date: 07.08.2018 14:31
  */
 
-namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap;
+namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\CelestialObject;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
@@ -21,12 +21,12 @@ class CelestialObjectController extends ApiController
     /**
      * @var \App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer
      */
-    private $transformer;
+    protected $transformer;
 
     /**
      * @var \Illuminate\Http\Request
      */
-    private $request;
+    protected $request;
 
     /**
      * CelestialObjectController constructor.
@@ -39,9 +39,7 @@ class CelestialObjectController extends ApiController
         $this->transformer = $transformer;
         $this->request = $request;
 
-        if ($request->has('locale')) {
-            $this->transformer->setLocale($request->get('locale'));
-        }
+        parent::__construct($request);
     }
 
     /**
@@ -51,12 +49,14 @@ class CelestialObjectController extends ApiController
      */
     public function show(String $code)
     {
+        $code = urldecode($code);
+
         try {
             $celestialObject = CelestialObject::where('code', $code)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf('No Jumppoint found for Query: %s', $id));
+            $this->response->errorNotFound(sprintf('No Celestial Object found for Query: %s', $code));
         }
-        return $this->response->item($celestialObject, $this->transformer);
+        return $this->getResponse($celestialObject);
     }
 
     //TODO weitere Funktionen
@@ -66,7 +66,24 @@ class CelestialObjectController extends ApiController
      */
     public function index()
     {
-        $celestialObjects = CelestialObject::paginate();
-        return $this->response->paginator($celestialObjects, $this->transformer);
+        return $this->getResponse(CelestialObject::query());
+    }
+
+    /**
+     * Search Endpoint
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function search()
+    {
+        $query = $this->request->get('query', '');
+        $query = urldecode($query);
+        $queryBuilder = CelestialObject::where('name', 'like', "%{$query}%");
+
+        if ($queryBuilder->count() === 0) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+        }
+
+        return $this->getResponse($queryBuilder);
     }
 }

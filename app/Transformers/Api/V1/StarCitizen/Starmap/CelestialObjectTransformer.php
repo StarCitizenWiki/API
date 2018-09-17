@@ -26,7 +26,7 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
         return [
             'id' => $celestialObject->cig_id,
             'code' => $celestialObject->code,
-            'system_id' => $celestialObject->cig_system_id,
+            'system_id' => $celestialObject->starsystem_id,
             'time_modified' => $celestialObject->cig_time_modified,
             'type' => $celestialObject->type,
             'designation' => $celestialObject->designation,
@@ -37,7 +37,7 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
             'longitude' => $celestialObject->longitude,
             'axial_tilt' => $celestialObject->axial_tilt,
             'orbit_period' => $celestialObject->orbit_period,
-            'description' => $this->getTranslation($celestialObject->description),
+            'description' => $this->getTranslation($celestialObject),
             'info_url' => $celestialObject->info_url,
             'habitable' => $celestialObject->habitable,
             'fairchanceact' => $celestialObject->fairchanceact,
@@ -50,14 +50,18 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
             'size' => $celestialObject->size,
             'parent_id' => $celestialObject->parent_id,
             'subtype' => [
-                'id' => $celestialObject->subtype->id,
-                'name' => $celestialObject->subtype->name,
-                'type' => $celestialObject->subtype->type,
+                'name' => !empty($celestialObject->celestial_object_subtype) ?
+        $celestialObject->celestial_object_subtype->name : "",
+                'type' => !empty($celestialObject->celestial_object_subtype) ?
+                    $celestialObject->celestial_object_subtype->type : "",
             ],
             'affiliation' => [
-                'name' => $celestialObject->subtype->name,
-                'code' => $celestialObject->subtype->code,
-                'color' => $celestialObject->subtype->color,
+                'name' => !empty($celestialObject->affiliation) ?
+                    $celestialObject->affiliation->name : "",
+                'code' => !empty($celestialObject->affiliation) ?
+                    $celestialObject->affiliation->code : "",
+                'color' => !empty($celestialObject->affiliation) ?
+                    $celestialObject->affiliation->color : "",
             ],
         ];
     }

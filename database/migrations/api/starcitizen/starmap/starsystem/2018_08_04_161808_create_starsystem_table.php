@@ -27,7 +27,6 @@ class CreateStarsystemTable extends Migration
             $table->decimal('position_y');
             $table->decimal('position_z');
             $table->string('info_url')->nullable();
-            $table->string('description');
 
             $table->decimal('aggregated_size');
             $table->decimal('aggregated_population');

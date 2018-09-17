@@ -4,7 +4,7 @@
  * Date: 07.08.2018 14:14
  */
 
-namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap;
+namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\Starsystem;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
@@ -25,7 +25,7 @@ class StarsystemController extends ApiController
     protected $transformer;
 
     /**
-     * @var \App\Http\Controllers\Api\V1\StarCitizen\Starmap\Request
+     * @var \Illuminate\Http\Request
      */
     protected $request;
 
@@ -40,9 +40,7 @@ class StarsystemController extends ApiController
         $this->transformer = $transformer;
         $this->request = $request;
 
-        if ($request->has('locale')) {
-            $this->transformer->setLocale($request->get('locale'));
-        }
+        parent::__construct($request);
     }
 
     /**
@@ -54,11 +52,11 @@ class StarsystemController extends ApiController
     {
         $starsystemName = urldecode($starsystemName);
         try {
-            $starsystem = Starsystem::where('name', $starsystemName)->firstOrFail();
+            $starsystem = Starsystem::where('code', $starsystemName)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf('No Starsystem found for Query: %s', $starsystemName));
         }
-        return $this->response->item($starsystem, $this->transformer);
+        return $this->getResponse($starsystem);
     }
 
     /**
@@ -66,7 +64,24 @@ class StarsystemController extends ApiController
      */
     public function index()
     {
-        $starsystems = Starsystem::paginate();
-        return $this->response->paginator($starsystems, $this->transformer);
+        return $this->getResponse(Starsystem::query());
+    }
+
+    /**
+     * Search Endpoint
+     *
+     * @return \Dingo\Api\Http\Response
+     */
+    public function search()
+    {
+        $query = $this->request->get('query', '');
+        $query = urldecode($query);
+        $queryBuilder = Starsystem::where('name', 'like', "%{$query}%");
+
+        if ($queryBuilder->count() === 0) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+        }
+
+        return $this->getResponse($queryBuilder);
     }
 }

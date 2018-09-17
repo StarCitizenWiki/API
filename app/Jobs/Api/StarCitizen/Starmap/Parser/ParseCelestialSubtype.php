@@ -12,10 +12,7 @@ use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObjectSubtype;
 class ParseCelestialSubtype
 {
 
-    public static function getCelestialSubtype($celestialSubtypeData): int
-    {
-        //TODO check input Data
-
+    public static function getCelestialSubtype($celestialSubtypeData): int {
         $celestialSubtype = CelestialObjectSubtype::updateOrCreate(
             [
                 'id'   => $celestialSubtypeData['id'],

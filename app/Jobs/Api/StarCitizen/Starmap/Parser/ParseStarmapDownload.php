@@ -8,14 +8,13 @@ namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
 use App\Jobs\Api\StarCitizen\Starmap\DownloadStarmap;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use function GuzzleHttp\json_decode;
 
@@ -33,6 +32,7 @@ class ParseStarmapDownload implements ShouldQueue
     const OVERVIEWDATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
     const CELESTIALOBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
 
+    private $starmapFileName;
     private $starmapFolder;
     private $starmapFiles = [];
     private $starmapBootupFile;
@@ -45,8 +45,11 @@ class ParseStarmapDownload implements ShouldQueue
             $this->starmapFileName = $starmapFileName;
         } else {
             $this->starmapFolder = $this->getNewestStarmapFolder();
+            if (null !== $this->starmapFolder) {
+                app('Log')::error("No Starmap Folder on Disk 'starsystem' found.");
+            }
+
             $diskPath = Storage::disk(self::STARSYSTEM_DISK)->path('/'.$this->starmapFolder);
-//            $diskPath = Storage::disk('starmap/'.$this->starmapFolder)->path('');
             $files = scandir($diskPath, SCANDIR_SORT_DESCENDING);
 
             if (is_array($files)) {
@@ -58,7 +61,7 @@ class ParseStarmapDownload implements ShouldQueue
                     }
                 }
             } else {
-                app('Log')::error("No Starmap Files on Disk 'starmap\{$this->starmapFolder}' found");
+                app('Log')::error("No Starmap Files on Disk 'starmap\{$this->starmapFolder}' found.");
                 $this->fail();
             }
         }
@@ -69,10 +72,10 @@ class ParseStarmapDownload implements ShouldQueue
         $diskPath = Storage::disk(self::STARSYSTEM_DISK)->path('');
 
         $folders = scandir($diskPath, SCANDIR_SORT_DESCENDING);
-        $newestStarmapFolder = null;
         if (is_array($folders)) {
             return $folders[0];
         }
+        return null;
     }
 
     /**
@@ -148,7 +151,6 @@ class ParseStarmapDownload implements ShouldQueue
             $starsystemFile = Storage::disk(self::STARSYSTEM_DISK)->get('/'.$this->starmapFolder . '/'.
                                                                             $starsystem['code']."_system.json");
             $celestialObjects = json_decode($starsystemFile, true);
-//            $starsystemData = json_decode($this->starmapFiles[$starsystem['code']."_system.json"], true);
         } catch (InvalidArgumentException $e) {
             app('Log')::error(
                 "File {$this->starmapFiles[$starsystem]} does not contain valid JSON",
@@ -159,15 +161,6 @@ class ParseStarmapDownload implements ShouldQueue
 
             return;
         }
-
-//        if ($this->checkArrayStructure($starsystemData, static::CELESTIALOBJECTS_CHECKLIST)) {
-//            $celestialObjects = $starsystemData['data']['resultset'][0]['celestial_objects'];
-//            //TODO Celestial Subobjects in Files laden
-//            //$allCelestialObjects = $this->addCelestialSubobjects($celestialObjects);
-//        } else {
-//            app('Log')::error("Can not read System {$starsystem} from RSI");
-//            return;
-//        }
 
         foreach ($celestialObjects as $celestialObject) {
             dispatch(new ParseCelestialObject(new Collection($celestialObject), $starsystem['id']));

@@ -17,13 +17,13 @@ class CreateStarsystemTranslationTable extends Migration
             $table->bigIncrements('id');
             $table->timestamps();
             $table->char('locale_code', 5);
-            $table->unsignedInteger('cig_id');
+            $table->unsignedInteger('starsystem_id');
             $table->text('translation');
 
-            $table->foreign('cig_id')->references('cig_id')->on('starsystem')->onDelete('cascade');
+            $table->foreign('starsystem_id')->references('id')->on('starsystem')->onDelete('cascade');
             $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
 
-            $table->unique(['locale_code', 'cig_id'], 'starsystem_translation_primary');
+//            $table->unique(['locale_code', 'starsystem_id'], 'starsystem_translation_primary');
         });
     }
 

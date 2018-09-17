@@ -7,8 +7,9 @@
 namespace App\Models\Api\StarCitizen\Starmap\Starsystem;
 
 use App\Events\ModelUpdating;
+use App\Models\Api\ModelChangelog;
+use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Starsystem
@@ -28,7 +29,6 @@ class Starsystem extends HasTranslations
         'position_y',
         'position_z',
         'info_url',
-        'description',
         'affiliation_id',
         'aggregated_size',
         'aggregated_population',
@@ -36,9 +36,7 @@ class Starsystem extends HasTranslations
         'aggregated_danger',
     ];
 
-    //TODO szi Cast benötigt, wenn schon in richtigem Format?
     protected $casts = [
-
     ];
 
     protected $with = [

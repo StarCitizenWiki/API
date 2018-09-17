@@ -16,9 +16,11 @@ class StarsystemTranslation extends Translation
 {
     protected $fillable = [
         'locale_code',
-        'cig_id',
+        'starsystem_id',
         'translation',
     ];
+
+    protected $table = 'starsystem_translation';
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo Starsystem

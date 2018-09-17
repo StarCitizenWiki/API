@@ -6,6 +6,7 @@
 
 namespace App\Models\Api\StarCitizen\Starmap\CelestialObject;
 
+use App\Events\ModelUpdating;
 use App\Models\Api\ModelChangelog;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
@@ -21,7 +22,7 @@ class CelestialObject extends HasTranslations
         'code',
         'exclude',
         'cig_id',
-        'cig_system_id',
+        'starsystem_id',
         'cig_time_modified',
         'type',
         'designation',
@@ -46,9 +47,7 @@ class CelestialObject extends HasTranslations
         'affiliation_id',
     ];
 
-    //TODO szi Cast benötigt, wenn schon in richtigem Format?
     protected $casts = [
-
     ];
 
     protected $with = [
@@ -61,6 +60,10 @@ class CelestialObject extends HasTranslations
     protected $perPage = 5;
 
     protected $table = 'celestial_object';
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -101,7 +104,7 @@ class CelestialObject extends HasTranslations
      */
     public function starsystem()
     {
-        return $this->belongsTo(Starsystem::class, 'cig_system_id');
+        return $this->belongsTo(Starsystem::class, 'id');
     }
 
     /**
@@ -121,7 +124,7 @@ class CelestialObject extends HasTranslations
      */
     public function getForeignKey()
     {
-        return 'cig_id';
+        return 'id';
     }
 
 }

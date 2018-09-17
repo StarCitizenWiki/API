@@ -25,6 +25,7 @@ class ParseStarsytem implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    protected const LANGUAGE_EN = 'en_EN';
 
     /**
      * @var \Illuminate\Support\Collection
@@ -48,12 +49,13 @@ class ParseStarsytem implements ShouldQueue
      */
     public function handle(): void
     {
-        Starsystem::updateOrCreate(
+        /** @var \App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem $starsystem */
+        $starsystem = Starsystem::updateOrCreate(
             [
                 'code'   => $this->rawData['code'],
-                'cig_id' => $this->rawData['id'],
             ],
             [
+                'cig_id'                => $this->rawData['id'],
                 'status'                => $this->rawData['status'],
                 'cig_time_modified'     => $this->rawData['time_modified'],
                 'type'                  => $this->rawData['type'],
@@ -62,13 +64,24 @@ class ParseStarsytem implements ShouldQueue
                 'position_y'            => $this->rawData['position_y'],
                 'position_z'            => $this->rawData['position_z'],
                 'info_url'              => $this->rawData['info_url'],
-                'description'           => $this->rawData['description'],
-                'affiliation_id'        => ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]),
+                'affiliation_id'        => !empty($this->rawData['affiliation']) ?
+                    ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]) : null,
                 'aggregated_size'       => $this->rawData['aggregated_size'],
                 'aggregated_population' => $this->rawData['aggregated_population'],
                 'aggregated_economy'    => $this->rawData['aggregated_economy'],
                 'aggregated_danger'     => $this->rawData['aggregated_danger'],
             ]
         );
+
+        $starsystem->translations()->updateOrCreate(
+            [
+                'starsystem_id' => $starsystem->id,
+                'locale_code' => self::LANGUAGE_EN,
+            ],
+            [
+                'translation' => $this->rawData['description'],
+            ]
+        );
+
     }
 }

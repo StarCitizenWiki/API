@@ -7,6 +7,7 @@
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
+use function GuzzleHttp\Promise\iter_for;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -24,6 +25,8 @@ class ParseCelestialObject implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    protected const LANGUAGE_EN = 'en_EN';
 
     /**
      * @var \Illuminate\Support\Collection
@@ -50,13 +53,16 @@ class ParseCelestialObject implements ShouldQueue
      */
     public function handle()
     {
-        CelestialObject::updateOrCreate(
+        app('Log')::warning("Parse Celestial Object: empty=".empty($this->rawData['subtype']) ? "true" : "false");
+
+        /** @var \App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject $celestialObject */
+        $celestialObject = CelestialObject::updateOrCreate(
             [
                 'code'              => $this->rawData['code'],
-                'cig_id'            => $this->rawData['id'],
-                'cig_system_id'     => $this->starsystemId,
+                'starsystem_id'     => $this->starsystemId,
             ],
             [
+                'cig_id'            => $this->rawData['id'],
                 'cig_time_modified' => $this->rawData['time_modified'],
                 'type'              => $this->rawData['type'],
                 'designation'       => $this->rawData['designation'],
@@ -67,7 +73,6 @@ class ParseCelestialObject implements ShouldQueue
                 'longitude'         => $this->rawData['longitude'],
                 'axial_tilt'        => $this->rawData['axial_tilt'],
                 'orbit_period'      => $this->rawData['orbit_period'],
-                'description'       => $this->rawData['description'],
                 'info_url'          => $this->rawData['info_url'],
                 'habitable'         => $this->rawData['habitable'],
                 'fairchanceact'     => $this->rawData['fairchanceact'],
@@ -77,10 +82,21 @@ class ParseCelestialObject implements ShouldQueue
                 'sensor_danger'     => $this->rawData['sensor_danger'],
                 'size'              => $this->rawData['size'],
                 'parent_id'         => $this->rawData['parent_id'],
-                'subtype_id'        => ParseCelestialSubtype::getCelestialSubtype($this->rawData['subtype']),
-                'affiliation_id'    => ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]),
+                'subtype_id'        => !empty($this->rawData['subtype']) ?
+                    ParseCelestialSubtype::getCelestialSubtype($this->rawData['subtype']) : null,
+                'affiliation_id'    => !empty($this->rawData['affiliation']) ?
+                    ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]) : null,
             ]
+        );
 
+        $celestialObject->translations()->updateOrCreate(
+            [
+                'celestial_object_id' => $celestialObject->id,
+                'locale_code' => self::LANGUAGE_EN,
+            ],
+            [
+                'translation' => !empty($this->rawData['description']) ? $this->rawData['description'] : "",
+            ]
         );
     }
 }

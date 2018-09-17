@@ -17,14 +17,13 @@ class CreateCelestialObjectTranslationTable extends Migration
             $table->bigIncrements('id');
             $table->timestamps();
             $table->char('locale_code', 5);
-            $table->unsignedInteger('cig_id');
+            $table->unsignedInteger('celestial_object_id');
             $table->text('translation');
 
-            $table->foreign('cig_id')->references('cig_id')->on('celestial_object')->onDelete('cascade');
+            $table->foreign('celestial_object_id')->references('id')->on('celestial_object')->onDelete('cascade');
             $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
 
-            $table->unique(['locale_code', 'cig_id'], 'celestial_object_translation_primary');
-
+//            $table->unique(['locale_code', 'celestialobject_id'], 'celestial_object_translation_primary');
         });
     }
 
