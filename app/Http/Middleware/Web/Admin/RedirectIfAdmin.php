@@ -21,7 +21,7 @@ class RedirectIfAdmin
     public function handle($request, Closure $next, $guard = 'admin')
     {
         if (Auth::guard($guard)->check()) {
-            return redirect()->route('web.admin.dashboard');
+            return redirect()->intended(route('web.admin.dashboard'));
         }
 
         return $next($request);

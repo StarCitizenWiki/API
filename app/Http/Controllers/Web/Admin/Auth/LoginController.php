@@ -142,6 +142,6 @@ class LoginController extends Controller
             return redirect()->route('web.admin.accept_license_view');
         }
 
-        return redirect($this->redirectTo);
+        return redirect()->intended($this->redirectTo);
     }
 }
