@@ -9,6 +9,7 @@ namespace App\Models\Api\StarCitizen\Starmap\Starsystem;
 use App\Events\ModelUpdating;
 use App\Models\Api\ModelChangelog;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
+use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
 
 /**
@@ -58,6 +59,14 @@ class Starsystem extends HasTranslations
     public function translations()
     {
         return $this->hasMany(StarsystemTranslation::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function celestialObject()
+    {
+        return $this->hasMany(CelestialObject::class);
     }
 
     /**
