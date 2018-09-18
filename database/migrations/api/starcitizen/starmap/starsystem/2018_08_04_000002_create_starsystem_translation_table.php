@@ -19,12 +19,15 @@ class CreateStarsystemTranslationTable extends Migration
             $table->char('locale_code', 5);
             $table->unsignedInteger('starsystem_id');
             $table->text('translation');
+        });
 
+        Schema::table('starsystem_translation', function (Blueprint $table) {
             $table->foreign('starsystem_id')->references('id')->on('starsystem')->onDelete('cascade');
             $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
 
 //            $table->unique(['locale_code', 'starsystem_id'], 'starsystem_translation_primary');
         });
+
     }
 
     /**
