@@ -54,6 +54,8 @@ class Notification extends Model
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
     ];
 
     /**

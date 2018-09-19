@@ -17,6 +17,9 @@ class Manufacturer extends HasTranslations
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
+
     ];
 
     protected $fillable = [
