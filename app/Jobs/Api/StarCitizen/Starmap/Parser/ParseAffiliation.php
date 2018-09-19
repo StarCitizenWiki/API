@@ -22,10 +22,13 @@ class ParseAffiliation
     {
         $affiliation = Affiliation::updateOrCreate(
             [
-                'id' => $affiliationData['id'],
+                'cig_id' => $affiliationData['id'],
+            ],
+            [
                 'name' => $affiliationData['name'],
                 'code' => $affiliationData['code'],
                 'color' => $affiliationData['color'],
+                'membership_id' => $affiliationData['membership.id'] ?? null,
             ]
         );
 

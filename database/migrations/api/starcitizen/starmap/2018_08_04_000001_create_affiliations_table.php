@@ -16,13 +16,13 @@ class CreateAffiliationsTable extends Migration
         Schema::create(
             'affiliations',
             function (Blueprint $table) {
-                $table->unsignedInteger('id');
+                $table->increments('id');
+                $table->unsignedInteger('cig_id');
                 $table->string('name');
                 $table->string('code');
                 $table->string('color');
                 $table->unsignedInteger('membership_id')->nullable();
 
-                $table->primary('id');
                 $table->unique('name');
                 $table->unique('code');
             }

@@ -14,10 +14,11 @@ use Illuminate\Database\Eloquent\Model;
 class Affiliation extends Model
 {
     protected $fillable = [
-        'id',
+        'cig_id',
         'name',
         'code',
         'color',
+        'membership_id',
     ];
 
     public $timestamps = false;
