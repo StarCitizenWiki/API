@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 04.08.2018 18:19
@@ -7,17 +7,18 @@
 namespace App\Models\Api\StarCitizen\Starmap\Starsystem;
 
 use App\Events\ModelUpdating;
-use App\Models\Api\ModelChangelog;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
  * Class Starsystem
- * @package App\Models\Api\StarCitizen\Starmap\Starsystem
  */
 class Starsystem extends HasTranslations
 {
+    use ModelChangelog;
+
     protected $fillable = [
         'code',
         'exclude',
@@ -37,9 +38,6 @@ class Starsystem extends HasTranslations
         'aggregated_danger',
     ];
 
-    protected $casts = [
-    ];
-
     protected $with = [
         'affiliation',
         'translations',
@@ -49,9 +47,9 @@ class Starsystem extends HasTranslations
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
     ];
-
-    protected $table = 'starsystem';
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -67,16 +65,6 @@ class Starsystem extends HasTranslations
     public function celestialObject()
     {
         return $this->hasMany(CelestialObject::class);
-    }
-
-    /**
-     * The saved changes
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function changelogs()
-    {
-        return $this->morphMany(ModelChangelog::class, 'changelog');
     }
 
     /**

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 05.08.2018 17:25
@@ -6,29 +6,30 @@
 
 namespace App\Models\Api\StarCitizen\Starmap\Jumppoint;
 
-use App\Models\Api\ModelChangelog;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Jumppoint
- * @package App\Models\Api\StarCitizen\Starmap\Jumppoint
  */
 class Jumppoint extends Model
 {
+    use ModelChangelog;
+
     protected $fillable = [
         'exclude',
         'cig_id',
         'size',
         'direction',
-        'entry_cig_id',
+        'entry_id',
         'entry_status',
-        'entry_cig_system_id',
+        'entry_system_id',
         'entry_code',
         'entry_designation',
-        'exit_cig_id',
+        'exit_id',
         'exit_status',
-        'exit_cig_system_id',
+        'exit_system_id',
         'exit_code',
         'exit_designation',
     ];
@@ -38,18 +39,12 @@ class Jumppoint extends Model
 
     ];
 
-    protected $with = [
-        'celestial_object',
-    ];
-
-    protected $table = 'jumppoint';
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function entry()
     {
-        return $this->belongsTo(CelestialObject::class, 'entry_cig_id', 'cig_id');
+        return $this->belongsTo(CelestialObject::class, 'entry_id', 'id');
     }
 
     /**
@@ -57,16 +52,6 @@ class Jumppoint extends Model
      */
     public function exit()
     {
-        return $this->belongsTo(CelestialObject::class, 'exit_cig_id', 'cig_id');
-    }
-
-    /**
-     * The saved changes
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function changelogs()
-    {
-        return $this->morphMany(ModelChangelog::class, 'changelog');
+        return $this->belongsTo(CelestialObject::class, 'exit_id', 'id');
     }
 }

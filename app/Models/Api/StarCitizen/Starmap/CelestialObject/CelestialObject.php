@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 04.08.2018 20:11
@@ -7,17 +7,18 @@
 namespace App\Models\Api\StarCitizen\Starmap\CelestialObject;
 
 use App\Events\ModelUpdating;
-use App\Models\Api\ModelChangelog;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
  * CelestialObject Model
- * @package App\Models\Api\StarCitizen\Starmap\CelestialObject
  */
 class CelestialObject extends HasTranslations
 {
+    use ModelChangelog;
+
     protected $fillable = [
         'code',
         'exclude',
@@ -47,11 +48,8 @@ class CelestialObject extends HasTranslations
         'affiliation_id',
     ];
 
-    protected $casts = [
-    ];
-
     protected $with = [
-        'celestial_object_subtype',
+        'celestialObjectSubtype',
         'affiliation',
         'starsystem',
         'translations',
@@ -59,10 +57,10 @@ class CelestialObject extends HasTranslations
 
     protected $perPage = 5;
 
-    protected $table = 'celestial_object';
-
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
     ];
 
     /**
@@ -74,19 +72,9 @@ class CelestialObject extends HasTranslations
     }
 
     /**
-     * The saved changes
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function changelogs()
-    {
-        return $this->morphMany(ModelChangelog::class, 'changelog');
-    }
-
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo celestial_object_subtype
      */
-    public function celestial_object_subtype()
+    public function celestialObjectSubtype()
     {
         return $this->belongsTo(CelestialObjectSubtype::class, 'subtype_id');
     }
@@ -108,16 +96,6 @@ class CelestialObject extends HasTranslations
     }
 
     /**
-     * Use CelestialObject Class in Children
-     *
-     * @return string
-     */
-    public function getMorphClass()
-    {
-        return self::class;
-    }
-
-    /**
      * Hardcoded to fix Child Problems
      *
      * @return string
@@ -126,5 +104,4 @@ class CelestialObject extends HasTranslations
     {
         return 'id';
     }
-
 }

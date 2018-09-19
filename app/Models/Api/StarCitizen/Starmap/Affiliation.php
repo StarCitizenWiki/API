@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 04.08.2018 19:58
@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Affiliation Model
- * @package App\Models\Api\StarCitizen\Starmap
  */
 class Affiliation extends Model
 {
@@ -22,8 +21,4 @@ class Affiliation extends Model
     ];
 
     public $timestamps = false;
-
-    protected $table = 'affiliation';
-
-
 }

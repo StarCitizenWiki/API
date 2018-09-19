@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 04.08.2018 20:12
@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * CelestialObjectSubtype Model
- * @package App\Models\Api\StarCitizen\Starmap\CelestialObject
  */
 class CelestialObjectSubtype extends Model
 {
@@ -19,6 +18,4 @@ class CelestialObjectSubtype extends Model
         'name',
         'type',
     ];
-
-    protected $table = 'celestial_object_subtype';
 }
