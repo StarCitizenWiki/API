@@ -69,27 +69,27 @@ $api->group(
                 $api->group(
                     [
                         'namespace' => 'Starsystem',
-                        'prefix'    => 'starsystem',
+                        'prefix'    => 'starsystems',
                     ],
                     function ($api) {
-                        $api->get('/', ['as' => 'api.v1.starmap.starsystem.all', 'uses' => 'StarsystemController@index']);
-                        $api->get('{code}', ['as' => 'api.v1.starmap.starsystem.show', 'uses' => 'StarsystemController@show']);
+                        $api->get('/', ['as' => 'api.v1.starmap.starsystems.index', 'uses' => 'StarsystemController@index']);
+                        $api->get('{code}', ['as' => 'api.v1.starmap.starsystems.show', 'uses' => 'StarsystemController@show']);
                     }
                 );
 
                 $api->group(
                     [
                         'namespace' => 'CelestialObject',
-                        'prefix'    => 'celestialobject',
+                        'prefix'    => 'celestial-objects',
                     ],
                     function ($api) {
                         $api->get(
                             '/',
-                            ['as' => 'api.v1.starmap.celestialobject.all', 'uses' => 'CelestialObjectController@index']
+                            ['as' => 'api.v1.starmap.celestial-objects.index', 'uses' => 'CelestialObjectController@index']
                         );
                         $api->get(
                             '{code}',
-                            ['as' => 'api.v1.starmap.celestialobject.show', 'uses' => 'CelestialObjectController@show']
+                            ['as' => 'api.v1.starmap.celestial-objects.show', 'uses' => 'CelestialObjectController@show']
                         );
                     }
                 );
