@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Web\Admin\Auth;
 
-use App\Http\Controllers\Controller;
 use App\Contracts\Web\Admin\AuthRepositoryInterface;
+use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -92,7 +92,7 @@ class LoginController extends Controller
     /**
      * Obtain the user information from GitHub.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function handleProviderCallback()
     {
@@ -101,7 +101,7 @@ class LoginController extends Controller
 
         Auth::guard('admin')->login($authUser);
 
-        return redirect($this->redirectTo);
+        return $this->authenticated();
     }
 
     /**
@@ -124,5 +124,24 @@ class LoginController extends Controller
     protected function guard()
     {
         return Auth::guard('admin');
+    }
+
+    /**
+     * Redirect to Accept Licence View if Editor has not accepted the licence
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function authenticated()
+    {
+        /** @var \App\Models\Account\Admin\Admin $admin */
+        $admin = Auth::guard('admin')->user();
+
+        $accepted = optional($admin->settings)->editor_license_accepted ?? false;
+
+        if ($admin->isEditor() && !$accepted) {
+            return redirect()->route('web.admin.accept_license_view');
+        }
+
+        return redirect()->intended($this->redirectTo);
     }
 }

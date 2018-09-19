@@ -9,7 +9,7 @@ use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
-use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**

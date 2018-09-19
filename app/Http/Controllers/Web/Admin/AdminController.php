@@ -7,8 +7,8 @@ use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Jackiedo\LogReader\Facades\LogReader;
 
 /**
  * Class AdminController
@@ -68,5 +68,49 @@ class AdminController extends Controller
                 'notifications' => $notifications,
             ]
         );
+    }
+
+    /**
+     * View to Accept Editor Licence
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function acceptLicenseView()
+    {
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+        $this->authorize('web.admin.accept_license');
+
+        if (optional(Auth::guard('admin')->user()->settings)->editor_license_accepted === true) {
+            return redirect()->route('web.admin.dashboard');
+        }
+
+        return view('admin.accept_license');
+    }
+
+    /**
+     * Update Admin to accept Editor Licence
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function acceptLicense(Request $request)
+    {
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+        $this->authorize('web.admin.accept_license');
+
+        /** @var \App\Models\Account\Admin\Admin $admin */
+        $admin = Auth::guard('admin')->user();
+        $admin->settings()->updateOrCreate(
+            [
+                'editor_license_accepted' => true,
+            ]
+        );
+
+        return redirect()->route('web.admin.dashboard');
     }
 }

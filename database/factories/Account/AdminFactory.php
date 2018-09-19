@@ -9,6 +9,7 @@ $factory->define(
 
         return [
             'username' => $faker->userName,
+            'email' => $faker->email,
             'blocked' => false,
             'provider' => 'starcitizenwiki',
             'provider_id' => $id++,
@@ -70,6 +71,15 @@ $factory->state(
     [
         'name' => 'mitarbeiter',
         'permission_level' => 1,
+    ]
+);
+
+$factory->state(
+    App\Models\Account\Admin\AdminGroup::class,
+    'editor',
+    [
+        'name' => 'editor',
+        'permission_level' => 0,
     ]
 );
 

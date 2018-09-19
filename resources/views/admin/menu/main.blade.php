@@ -64,14 +64,26 @@
     @endcomponent
 @endcan
 
-@can('web.admin.starcitizen.translations.view')
+@can('web.admin.translations.view')
     @component('components.navs.sidebar_section', [
-        'class' => 'mr-4 mr-md-0 mb-5',
+        'class' => 'mr-4 mr-md-0 mb-md-5 mb-lg-2',
         'titleClass' => 'text-muted pb-0',
         'contentClass' => 'pl-3 pl-md-2',
         'id' => 'm_translations',
         'title' => __('Übersetzungen'),
     ])
         @include('admin.menu.translations')
+    @endcomponent
+@endcan
+
+@can('web.admin.rsi.comm-links.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mr-4 mr-md-0 mb-5',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_comm_links',
+        'title' => __('Comm Link'),
+    ])
+        @include('admin.menu.comm_links')
     @endcomponent
 @endcan

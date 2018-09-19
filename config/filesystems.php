@@ -54,6 +54,11 @@ return [
             'visibility' => 'public',
         ],
 
+        'comm_links' => [
+            'driver' => 'local',
+            'root' => storage_path('app/comm_links'),
+        ],
+
         'api' => [
             'driver' => 'local',
             'root' => storage_path('app/api'),

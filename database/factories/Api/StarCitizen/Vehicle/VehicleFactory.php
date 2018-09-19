@@ -121,11 +121,9 @@ $factory->state(
     \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle::class,
     'ship',
     function () {
-        $type = \App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation::where(
-            'translation',
-            '!=',
-            'ground'
-        )->first();
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType $type */
+        $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleType::class)->create();
+        $type->translations()->save(factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation::class)->make());
 
         return [
             'vehicle_type_id' => $type->id,

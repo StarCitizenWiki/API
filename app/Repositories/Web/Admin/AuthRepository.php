@@ -8,9 +8,9 @@
 
 namespace App\Repositories\Web\Admin;
 
+use App\Contracts\Web\Admin\AuthRepositoryInterface;
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
-use App\Contracts\Web\Admin\AuthRepositoryInterface;
 use Laravel\Socialite\Facades\Socialite;
 use SocialiteProviders\Manager\OAuth1\User;
 
@@ -40,10 +40,19 @@ class AuthRepository implements AuthRepositoryInterface
      */
     public function getOrCreateLocalUser(User $user, string $provider): Admin
     {
+        /** @var \App\Models\Account\Admin\Admin $authUser */
         $authUser = Admin::where('provider_id', $user->id)->first();
 
         if ($authUser) {
             $this->syncLocalUserGroups($user, $authUser);
+
+            if ($authUser->email !== $user->getEmail()) {
+                $authUser->update(
+                    [
+                        'email' => $user->getEmail(),
+                    ]
+                );
+            }
 
             return $authUser;
         }
@@ -52,6 +61,7 @@ class AuthRepository implements AuthRepositoryInterface
         $admin = Admin::create(
             [
                 'username' => $user->username,
+                'email' => $user->getEmail(),
                 'blocked' => $user->blocked,
                 'provider_id' => $user->getId(),
                 'provider' => $provider,

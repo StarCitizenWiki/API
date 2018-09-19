@@ -23,4 +23,14 @@ class AdminPolicy extends BaseAdminPolicy
     {
         return $admin->getHighestPermissionLevel() >= AdminGroup::USER;
     }
+
+    /**
+     * @param \App\Models\Account\Admin\Admin $admin
+     *
+     * @return bool
+     */
+    public function acceptLicense(Admin $admin)
+    {
+        return $admin->isEditor();
+    }
 }

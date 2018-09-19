@@ -30,7 +30,7 @@ class ProductionStatusController extends Controller
      */
     public function index()
     {
-        $this->authorize('web.admin.starcitizen.translations.view');
+        $this->authorize('web.admin.translations.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -54,7 +54,7 @@ class ProductionStatusController extends Controller
      */
     public function edit(ProductionStatus $status)
     {
-        $this->authorize('web.admin.starcitizen.translations.update');
+        $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
@@ -78,7 +78,7 @@ class ProductionStatusController extends Controller
      */
     public function update(TranslationRequest $request, ProductionStatus $status)
     {
-        $this->authorize('web.admin.starcitizen.translations.update');
+        $this->authorize('web.admin.translations.update');
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {

@@ -11,6 +11,9 @@ Route::group(
             function () {
                 Route::get('dashboard', 'AdminController@showDashboardView')->name('dashboard');
 
+                Route::get('accept_license', 'AdminController@acceptLicenseView')->name('accept_license_view');
+                Route::post('accept_license', 'AdminController@acceptLicense')->name('accept_license');
+
                 Route::resources(
                     [
                         'notifications' => 'Notification\NotificationController',
@@ -64,6 +67,46 @@ Route::group(
                                         );
                                     }
                                 );
+                        }
+                    );
+
+                Route::namespace('Rsi')
+                    ->name('rsi.')
+                    ->prefix('rsi')
+                    ->group(
+                        function () {
+                            Route::namespace('CommLink')
+                                ->name('comm-links.')
+                                ->prefix('comm-links')
+                                ->group(
+                                    function () {
+                                        Route::get('categories', 'Category\CategoryController@index')->name(
+                                            'categories.index'
+                                        );
+                                        Route::get('categories/{category}', 'Category\CategoryController@show')->name(
+                                            'categories.show'
+                                        );
+
+                                        Route::get('channels', 'Channel\ChannelController@index')->name(
+                                            'channels.index'
+                                        );
+                                        Route::get('channels/{channel}', 'Channel\ChannelController@show')->name(
+                                            'channels.show'
+                                        );
+
+                                        Route::get('series', 'Series\SeriesController@index')->name('series.index');
+                                        Route::get('series/{series}', 'Series\SeriesController@show')->name(
+                                            'series.show'
+                                        );
+                                    }
+                                );
+
+                            Route::resources(
+                                [
+                                    'comm-links' => 'CommLink\CommLinkController',
+                                ]
+                            );
+                            Route::get('comm-links/{comm_link}/{version}/preview', 'CommLink\CommLinkController@preview')->name('comm-links.preview');
                         }
                     );
             }

@@ -8,9 +8,12 @@
 import './bootstrap';
 import 'datatables.net-bs4';
 import { library, dom } from '@fortawesome/fontawesome-svg-core'
+import tinymce from 'tinymce/tinymce';
+import 'tinymce/themes/modern/theme';
 
 import {
   faBook,
+  faBooks,
   faBuilding,
   faBullhorn,
   faCar,
@@ -21,12 +24,14 @@ import {
   faCloud,
   faCogs,
   faComment,
+  faCommentAlt,
   faCrosshairs,
   faDesktop,
   faDotCircle,
   faEnvelope,
   faExpandAlt,
   faExternalLink,
+  faEye,
   faGlobe,
   faHome,
   faIdCard,
@@ -42,6 +47,7 @@ import {
   faSignOut,
   faStickyNote,
   faStopCircle,
+  faTag,
   faTable,
   faTachometer,
   faTrashAlt,
@@ -59,6 +65,7 @@ import {
 
 library.add(
   faBook,
+  faBooks,
   faBuilding,
   faBullhorn,
   faCar,
@@ -69,12 +76,14 @@ library.add(
   faCloud,
   faCogs,
   faComment,
+  faCommentAlt,
   faCrosshairs,
   faDesktop,
   faDotCircle,
   faEnvelope,
   faExpandAlt,
   faExternalLink,
+  faEye,
   faGlobe,
   faHome,
   faIdCard,
@@ -90,6 +99,7 @@ library.add(
   faSignOut,
   faStickyNote,
   faStopCircle,
+  faTag,
   faTable,
   faTachometer,
   faTrashAlt,
@@ -106,3 +116,4 @@ library.add(
 )
 
 dom.watch()
+

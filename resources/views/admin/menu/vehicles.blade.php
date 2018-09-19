@@ -28,7 +28,7 @@
     </div>
 @endcomponent
 
-@can('web.admin.starcitizen.translations.view')
+@can('web.admin.translations.view')
     @component('components.navs.nav_element', [
         'route' => route('web.admin.starcitizen.vehicles.sizes.index'),
     ])

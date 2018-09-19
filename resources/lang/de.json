@@ -1,4 +1,9 @@
 {
   "de_DE": "Deutsch",
-  "en_EN": "Englisch"
+  "en_EN": "Englisch",
+
+  "created_at": "Erstelldatum",
+  "translation": "Übersetzung",
+  "title": "Titel",
+  "url": "URL"
 }

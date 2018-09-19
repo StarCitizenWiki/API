@@ -2,10 +2,15 @@
 
 namespace App\Console;
 
-use App\Console\Commands\ImportShipMatrix;
-use App\Jobs\Api\StarCitizen\Starmap\DownloadStarmap;
+use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
+use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
+use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
+use App\Jobs\Rsi\CommLink\DownloadMissingCommLinks;
+use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\ReDownloadDbCommLinks;
+use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -22,9 +27,13 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\DownloadShipMatrix::class,
         \App\Console\Commands\DownloadStats::class,
-        \App\Console\Commands\DownloadStarmap::class,
-        ImportShipMatrix::class,
+        \App\Console\Commands\ImportShipMatrix::class,
+        \App\Console\Commands\ImportCommLinks::class,
     ];
+    /**
+     * @var \Illuminate\Console\Scheduling\Schedule
+     */
+    private $schedule;
 
     /**
      * Define the application's command schedule.
@@ -35,19 +44,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $this->schedule = $schedule;
+
         $schedule->job(new DownloadStats())->dailyAt('20:00');
-
-        $schedule->job(new DownloadShipMatrix())->weekly()->then(
-            function () {
-                $this->call('import:shipmatrix');
-            }
-        );
-
-        $schedule->job(new DownloadStarmap())->weekly()->then(
-            function () {
-                $this->call('import:starmap');
-            }
-        );
+        $this->scheduleShipMatrixJobs();
+        $this->scheduleCommLinkJobs();
     }
 
     /**
@@ -58,5 +59,48 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         require base_path('routes/console.php');
+    }
+
+    /**
+     * Comm Link related Jobs
+     */
+    private function scheduleCommLinkJobs()
+    {
+        /** Check for new Comm Links */
+        $this->schedule->job(app(DownloadMissingCommLinks::class))->hourly()->withoutOverlapping()->then(
+            function () {
+                $missingOffset = optional(CommLink::orderByDesc('cig_id')->first())->cig_id ?? 0;
+                $this->schedule->job(new ParseCommLinkDownload($missingOffset));
+            }
+        )->then(
+            function () {
+                $this->events->dispatch(new NewCommLinksDownloaded());
+            }
+        );
+
+        /** Re-Download all Comm Links monthly */
+        $this->schedule->job(new ReDownloadDbCommLinks())->monthly()->then(
+            function () {
+                $this->schedule->job(new ParseCommLinkDownload());
+            }
+        )->then(
+            function () {
+                $this->events->dispatch(new CommLinksChangedEvent());
+            }
+        );
+    }
+
+    /**
+     * Ship Matrix related Jobs
+     */
+    private function scheduleShipMatrixJobs()
+    {
+        $this->schedule->job(new DownloadShipMatrix())->weekly()->then(
+            function () {
+                $this->schedule->job(new ParseShipMatrixDownload());
+            }
+        );
+
+        // TODO Stündlicher Check auf neue Schiffe
     }
 }
