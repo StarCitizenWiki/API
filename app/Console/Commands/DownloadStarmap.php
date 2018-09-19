@@ -1,15 +1,14 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Console\Commands;
 
+use App\Jobs\Api\StarCitizen\Starmap\DownloadStarmap as DownloadStarmapJob;
 use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmapDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
-use App\Jobs\Api\StarCitizen\Starmap\DownloadStarmap as DownloadStarmapJob;
 
 /**
  * Start Starmap Download Shop
- * @package App\Console\Commands
  */
 class DownloadStarmap extends Command
 {
@@ -49,7 +48,7 @@ class DownloadStarmap extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
@@ -65,6 +64,5 @@ class DownloadStarmap extends Command
             $this->info('Starting Import');
             $this->dispatcher->dispatchNow(new ParseStarmapDownload());
         }
-
     }
 }
