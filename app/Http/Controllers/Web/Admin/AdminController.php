@@ -69,7 +69,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Update (Block) Admin
+     * Update (Block/Restore) Admin
      *
      * @param \Illuminate\Http\Request        $request
      * @param \App\Models\Account\Admin\Admin $admin
@@ -83,7 +83,11 @@ class AdminController extends Controller
         $this->authorize('web.admin.admins.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $admin->blocked = 1;
+        if ($request->has('restore')) {
+            $admin->blocked = 0;
+        } else {
+            $admin->blocked = 1;
+        }
         $admin->save();
 
         return redirect(route('web.admin.admins.edit', $admin->getRouteKey()));

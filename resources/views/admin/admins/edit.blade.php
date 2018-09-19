@@ -56,7 +56,7 @@
                             'inputType' => 'text',
                             'label' => __('E-Mail'),
                             'id' => 'email',
-                            'value' => $admin->email ?? 'Keine E-Mail vorhanden',
+                            'value' => empty($admin->email) ? 'Keine E-Mail vorhanden' : $admin->email,
                         ])
                             @slot('inputOptions')
                                 readonly
@@ -91,22 +91,26 @@
                     </div>
                 </div>
                 <hr>
-                <h5>Sessions:</h5>
-                @foreach($admin->sessions as $session)
-                    <div>
-                        <p>Agent: {{ $session->user_agent }}</p>
-                        <p>Letzte Aktivität: {{ \Carbon\Carbon::createFromTimestamp($session->last_activity)->diffForHumans() }}</p>
-                    </div>
-                @endforeach
-                <hr>
-                <p class="mb-0">
-                    Durch den Klick auf <i>Blockieren</i> wird der Nutzer ausgeloggt und bis zum nächsten Login blockiert.<br>
-                    Für einen dauerthaften Ausschluss muss der Nutzer zuerst auf dem Wiki blockiert werden:
-                    <a class="text-info ml-auto" target="_blank" href="{{ config('api.wiki_url') }}/Spezial:Sperren/{{ $admin->username }}">Admin auf Wiki Blockieren</a>
-                </p>
+                @unless($admin->isBlocked())
+                    <p class="mb-0">
+                        Durch den Klick auf <i>Blockieren</i> wird der Nutzer ausgeloggt und blockiert.<br>
+                        Dies blockiert den Nutzer allerdings <i>nicht</i> auf dem Wiki:
+                        <a class="text-info ml-auto" target="_blank" href="{{ config('api.wiki_url') }}/Spezial:Sperren/{{ $admin->username }}">Auf Wiki Blockieren</a>
+                    </p>
+                @else
+                    <p class="mb-0">
+                        Durch den Klick auf <i>Freischalten</i> wird der Nutzer auf der API erneut freigeschaltet.<br>
+                        Dies schaltet den Nutzer allerdings <i>nicht</i> auf dem Wiki frei:
+                        <a class="text-info ml-auto" target="_blank" href="{{ config('api.wiki_url') }}/Spezial:Freigeben/{{ $admin->username }}">Auf Wiki Freigeben</a>
+                    </p>
+                @endunless
             </div>
             <div class="card-footer d-flex">
-                <button class="btn btn-outline-danger ml-auto" name="block">@lang('Blockieren')</button>
+                @if($admin->isBlocked())
+                    <button class="btn btn-outline-success ml-auto" name="restore">@lang('Freischalten')</button>
+                @else
+                    <button class="btn btn-outline-danger ml-auto" name="block">@lang('Blockieren')</button>
+                @endif
             </div>
         </div>
     @endcomponent
