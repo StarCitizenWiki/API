@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Api\StarCitizen\Stat\DownloadStats as DownloadStatsJob;
+use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
@@ -16,7 +17,9 @@ class DownloadStats extends Command
      *
      * @var string
      */
-    protected $signature = 'download:stats';
+    protected $signature = 'download:stats
+                            {--f|force : Force Download, Overwrite File if exist} 
+                            {--i|import : Import Stats after Download}';
 
     /**
      * The console command description.
@@ -45,11 +48,21 @@ class DownloadStats extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
         $this->info("Dispatching Stats Download");
-        $this->dispatcher->dispatchNow(new DownloadStatsJob());
+
+        if ($this->option('force')) {
+            $this->info('Forcing Download');
+        }
+
+        $this->dispatcher->dispatchNow(new DownloadStatsJob($this->option('force')));
+
+        if ($this->option('import')) {
+            $this->info('Starting Import');
+            $this->dispatcher->dispatchNow(new ParseStat());
+        }
     }
 }

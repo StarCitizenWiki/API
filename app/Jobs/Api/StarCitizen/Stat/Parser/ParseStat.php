@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\Api\StarCitizen\Stat;
+namespace App\Jobs\Api\StarCitizen\Stat\Parser;
 
 use App\Models\Api\StarCitizen\Stat\Stat;
 use Illuminate\Bus\Queueable;
@@ -31,8 +31,13 @@ class ParseStat implements ShouldQueue
      *
      * @param string $statFileName
      */
-    public function __construct(string $statFileName)
+    public function __construct(?string $statFileName = null)
     {
+        if (null === $statFileName) {
+            $timestamp = now()->format("Y-m-d");
+            $statFileName = "stats_{$timestamp}.json";
+        }
+
         $this->statFileName = $statFileName;
     }
 
@@ -44,9 +49,10 @@ class ParseStat implements ShouldQueue
     public function handle()
     {
         app('Log')::info('Parsing Stat Download');
+        $year = now()->year;
 
         try {
-            $stat = json_decode(Storage::disk(self::STATS_DISK)->get($this->statFileName));
+            $stat = json_decode(Storage::disk(self::STATS_DISK)->get(sprintf('%d/%s', $year, $this->statFileName)));
         } catch (FileNotFoundException $e) {
             app('Log')::error(
                 "File {$this->statFileName} not found on Disk ".self::STATS_DISK,
@@ -54,6 +60,8 @@ class ParseStat implements ShouldQueue
                     'message' => $e->getMessage(),
                 ]
             );
+
+            $this->fail($e);
 
             return;
         } catch (InvalidArgumentException $e) {
@@ -63,6 +71,8 @@ class ParseStat implements ShouldQueue
                     'message' => $e->getMessage(),
                 ]
             );
+
+            $this->fail($e);
 
             return;
         }

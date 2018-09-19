@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
+use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
 use App\Jobs\Rsi\CommLink\DownloadMissingCommLinks;
@@ -46,7 +47,7 @@ class Kernel extends ConsoleKernel
     {
         $this->schedule = $schedule;
 
-        $schedule->job(new DownloadStats())->dailyAt('20:00');
+        $this->scheduleStatJobs();
         $this->scheduleShipMatrixJobs();
         $this->scheduleCommLinkJobs();
     }
@@ -59,6 +60,18 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         require base_path('routes/console.php');
+    }
+
+    /**
+     * Stat related Jobs
+     */
+    private function scheduleStatJobs()
+    {
+        $this->schedule->job(new DownloadStats())->dailyAt('20:00')->then(
+            function () {
+                $this->schedule->job(new ParseStat());
+            }
+        );
     }
 
     /**

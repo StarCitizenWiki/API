@@ -3,12 +3,8 @@
 namespace App\Jobs\Api\StarCitizen\Stat;
 
 use App\Exceptions\InvalidDataException;
-use App\Jobs\AbstractBaseDownloadData;
-use App\Models\Api\StarCitizen\Stat;
-use GuzzleHttp\Exception\ClientException;
+use App\Jobs\Api\StarCitizen\AbstractRSIDownloadData as RSIDownloadData;
 use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,10 +12,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
-use function GuzzleHttp\json_decode;
-use function GuzzleHttp\Psr7\str;
-use App\Jobs\Api\StarCitizen\AbstractRSIDownloadData as RSIDownloadData;
 
 /**
  * Class DownloadStats
@@ -55,10 +47,11 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
     {
         app('Log')::info('Starting Stats Download Job.');
 
+        $year = now()->year;
         $timestamp = now()->format("Y-m-d");
         $fileName = "stats_{$timestamp}.json";
 
-        if ($this->force || !Storage::disk(self::STATS_DISK)->exists($fileName)) {
+        if ($this->force || !Storage::disk(self::STATS_DISK)->exists(sprintf('%d/%s', $year, $fileName))) {
             $this->initClient();
 
             try {
@@ -80,6 +73,8 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
                     ]
                 );
 
+                $this->fail($e);
+
                 return;
             }
 
@@ -97,13 +92,14 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
             } catch (InvalidDataException $e) {
                 app('Log')::error($e->getMessage());
 
+                $this->fail($e);
+
                 return;
             }
 
-            Storage::disk(self::STATS_DISK)->put($fileName, json_encode($response->data));
+            Storage::disk(self::STATS_DISK)->put(sprintf('%d/%s', $year, $fileName), json_encode($response->data));
         }
 
-        app('Log')::info('Stat Download finished, dispatching Parsing Job');
-        dispatch(new ParseStat($fileName));
+        app('Log')::info('Stat Download finished');
     }
 }
