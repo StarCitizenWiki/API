@@ -22,14 +22,4 @@ class VehicleTranslation extends Translation
     {
         return $this->belongsTo(Vehicle::class);
     }
-
-    /**
-     * Associate Translations with the Vehicle
-     *
-     * @return string
-     */
-    public function getMorphClass()
-    {
-        return Vehicle::class;
-    }
 }

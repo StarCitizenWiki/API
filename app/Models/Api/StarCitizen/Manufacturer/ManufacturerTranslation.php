@@ -23,14 +23,4 @@ class ManufacturerTranslation extends Translation
     {
         return $this->belongsTo(Manufacturer::class);
     }
-
-    /**
-     * Associate Translations with Parent Model
-     *
-     * @return string
-     */
-    public function getMorphClass()
-    {
-        return Manufacturer::class;
-    }
 }
