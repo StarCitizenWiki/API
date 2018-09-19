@@ -1,16 +1,13 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Transformers\Api\V1\StarCitizen;
 
-use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Transformers\Api\LocaleAwareTransformerInterface as LocaleAwareTransformer;
 use League\Fractal\TransformerAbstract;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-
 
 /**
  * Class AbstractTranslationTransformer
- * @package App\Transformers\Api\V1\StarCitizen
  */
 class AbstractTranslationTransformer extends TransformerAbstract implements LocaleAwareTransformer
 {
@@ -30,7 +27,7 @@ class AbstractTranslationTransformer extends TransformerAbstract implements Loca
      * If a valid locale code is set this function will return the corresponding translation or use english as a fallback
      * @Todo Generate Array with translations that used the english fallback
      *
-     * @param \App\Models\Api\Translation\AbstractHasTranslations $model
+     * @param \App\Models\System\Translation\AbstractHasTranslations $model
      *
      * @return array|string the Translation
      */
