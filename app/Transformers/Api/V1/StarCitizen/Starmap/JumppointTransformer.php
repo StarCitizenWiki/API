@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 07.08.2018 15:08
@@ -6,12 +6,11 @@
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
+use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 /**
  * Class JumppointTransformer
- * @package App\Transformers\Api\V1\StarCitizen\Starmap
  */
 class JumppointTransformer extends AbstractTranslationTransformer
 {
@@ -21,12 +20,12 @@ class JumppointTransformer extends AbstractTranslationTransformer
      *
      * @return array
      */
-    public function transform(Jumppoint $jumppoint)
+    public function transform(Jumppoint $jumppoint): array
     {
         return [
             'id' => $jumppoint->cig_id,
             'size' => $jumppoint->size,
-            'direction'  => $jumppoint->direction,
+            'direction' => $jumppoint->direction,
             'entry' => [
                 'id' => $jumppoint->entry_cig_id,
                 'system_id' => $jumppoint->entry_cig_system_id,
@@ -40,8 +39,7 @@ class JumppointTransformer extends AbstractTranslationTransformer
                 'status' => $jumppoint->exit_status,
                 'code' => $jumppoint->exit_code,
                 'designation' => $jumppoint->exit_designation,
-            ]
+            ],
         ];
-
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 07.08.2018 14:17
@@ -6,12 +6,11 @@
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 /**
  * Class StarsystemTransformer
- * @package App\Transformers\Api\V1\StarCitizen\Starmap
  */
 class StarsystemTransformer extends AbstractTranslationTransformer
 {
@@ -21,7 +20,7 @@ class StarsystemTransformer extends AbstractTranslationTransformer
      *
      * @return array
      */
-    public function transform(Starsystem $starsystem)
+    public function transform(Starsystem $starsystem): array
     {
         return [
             'id' => $starsystem->cig_id,
@@ -31,9 +30,9 @@ class StarsystemTransformer extends AbstractTranslationTransformer
             'time_modified' => $starsystem->cig_time_modified,
             'type' => $starsystem->type,
             'position' => [
-              'x' => $starsystem->position_x,
-              'y' => $starsystem->position_y,
-              'z' => $starsystem->position_z,
+                'x' => $starsystem->position_x,
+                'y' => $starsystem->position_y,
+                'z' => $starsystem->position_z,
             ],
             'info_url' => $starsystem->info_url,
             'description' => $this->getTranslation($starsystem),
@@ -50,6 +49,4 @@ class StarsystemTransformer extends AbstractTranslationTransformer
             ],
         ];
     }
-
 }
-

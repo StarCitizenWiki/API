@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 07.08.2018 15:20
@@ -6,12 +6,11 @@
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
+use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 /**
  * Class CelestialObjectTransformer
- * @package App\Transformers\Api\V1\StarCitizen\Starmap
  */
 class CelestialObjectTransformer extends AbstractTranslationTransformer
 {
@@ -21,7 +20,7 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
      *
      * @return array
      */
-    public function transform(CelestialObject $celestialObject)
+    public function transform(CelestialObject $celestialObject): array
     {
         return [
             'id' => $celestialObject->cig_id,
@@ -51,7 +50,7 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
             'parent_id' => $celestialObject->parent_id,
             'subtype' => [
                 'name' => !empty($celestialObject->celestial_object_subtype) ?
-        $celestialObject->celestial_object_subtype->name : "",
+                    $celestialObject->celestial_object_subtype->name : "",
                 'type' => !empty($celestialObject->celestial_object_subtype) ?
                     $celestialObject->celestial_object_subtype->type : "",
             ],
