@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 19.08.2018 21:01
@@ -6,16 +6,15 @@
 
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
-use Illuminate\Bus\Queueable;
 
 /**
  * Class ParseJumppoint
- * @package App\Jobs\Api\StarCitizen\Starmap\Parser
  */
 class ParseJumppoint implements ShouldQueue
 {
@@ -46,6 +45,6 @@ class ParseJumppoint implements ShouldQueue
      */
     public function handle()
     {
-
+        //TODO
     }
 }

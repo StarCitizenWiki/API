@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 19.08.2018 21:01
@@ -16,7 +16,6 @@ use Illuminate\Support\Collection;
 
 /**
  * Class ParseStarsytem
- * @package App\Jobs\Api\StarCitizen\Starmap\Parser
  */
 class ParseStarsytem implements ShouldQueue
 {
@@ -52,24 +51,24 @@ class ParseStarsytem implements ShouldQueue
         /** @var \App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem $starsystem */
         $starsystem = Starsystem::updateOrCreate(
             [
-                'code'   => $this->rawData['code'],
+                'code' => $this->rawData['code'],
             ],
             [
-                'cig_id'                => $this->rawData['id'],
-                'status'                => $this->rawData['status'],
-                'cig_time_modified'     => $this->rawData['time_modified'],
-                'type'                  => $this->rawData['type'],
-                'name'                  => $this->rawData['name'],
-                'position_x'            => $this->rawData['position_x'],
-                'position_y'            => $this->rawData['position_y'],
-                'position_z'            => $this->rawData['position_z'],
-                'info_url'              => $this->rawData['info_url'],
-                'affiliation_id'        => !empty($this->rawData['affiliation']) ?
+                'cig_id' => $this->rawData['id'],
+                'status' => $this->rawData['status'],
+                'cig_time_modified' => $this->rawData['time_modified'],
+                'type' => $this->rawData['type'],
+                'name' => $this->rawData['name'],
+                'position_x' => $this->rawData['position_x'],
+                'position_y' => $this->rawData['position_y'],
+                'position_z' => $this->rawData['position_z'],
+                'info_url' => $this->rawData['info_url'],
+                'affiliation_id' => !empty($this->rawData['affiliation']) ?
                     ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]) : null,
-                'aggregated_size'       => $this->rawData['aggregated_size'],
+                'aggregated_size' => $this->rawData['aggregated_size'],
                 'aggregated_population' => $this->rawData['aggregated_population'],
-                'aggregated_economy'    => $this->rawData['aggregated_economy'],
-                'aggregated_danger'     => $this->rawData['aggregated_danger'],
+                'aggregated_economy' => $this->rawData['aggregated_economy'],
+                'aggregated_danger' => $this->rawData['aggregated_danger'],
             ]
         );
 
@@ -82,6 +81,5 @@ class ParseStarsytem implements ShouldQueue
                 'translation' => $this->rawData['description'],
             ]
         );
-
     }
 }

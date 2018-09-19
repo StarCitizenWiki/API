@@ -1,49 +1,62 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap;
 
-use App\Jobs\AbstractBaseDownloadData;
+use App\Exceptions\InvalidDataException;
+use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
+use GuzzleHttp\Exception\ConnectException;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use InvalidArgumentException;
-use App\Exceptions\InvalidDataException;
-use GuzzleHttp\Exception\ConnectException;
+use function GuzzleHttp\json_decode;
 
 /**
  * Class DownloadStarmap
- * @package App\Jobs\Api\StarCitizen\Starmap
  */
-class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
+class DownloadStarmap extends BaseDownloadData implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
 
-    const STARSYSTEM_BOOTUP_ENDPOINT = "/api/starmap/bootup";
-    const STARSYSTEM_ENDPOINT = '/api/starmap/star-systems/';
-    public const STARMAP_BOOTUP_FILENAME = "bootup.json";
+    const STARMAP_BOOTUP_FILENAME = 'bootup.json';
+
+    private const STARSYSTEM_BOOTUP_ENDPOINT = '/api/starmap/bootup';
+    private const STARSYSTEM_ENDPOINT = '/api/starmap/star-systems/';
     private const STARSYSTEM_DISK = 'starsystem';
 
     // Requests for Celestial Subobject
-    const CELESTIAL_SUBOBJECTS_REQUEST = ['PLANET'];
+    const CELESTIAL_SUB_OBJECTS_REQUEST = ['PLANET'];
     // Add Type to Starmapdata
-    const CELESTIAL_SUBOBJECTS_TYPE = ['LZ'];
+    const CELESTIAL_SUB_OBJECTS_TYPE = ['LZ'];
 
-    const OVERVIEWDATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
-    const CELESTIALOBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
-    const CELESTIALSUBOBJECTS_CHECKLIST = ['data', 'resultset', 0, 'children', 0];
+    const OVERVIEW_DATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
+    const CELESTIAL_OBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
+    const CELESTIAL_SUB_OBJECTS_CHECKLIST = ['data', 'resultset', 0, 'children', 0];
 
+    /**
+     * @var
+     */
     private $starsystems;
 
+    /**
+     * @var int
+     */
     private $starsystemsUpdated = 0;
+
+    /**
+     * @var int
+     */
     private $celestialObjectsUpdated = 0;
 
+    /**
+     * @var bool Force Download
+     */
     private $force;
 
     /**
@@ -73,7 +86,7 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
             $this->setStarsystems($timestamp);
         }
 
-//TODO Mail an api@startcitizen.wiki und ins log mit Anzahl wieviel System und Celestial Objects Updated
+        //TODO Mail an api@startcitizen.wiki und ins log mit Anzahl wieviel System und Celestial Objects Updated
 
         app('Log')::info(
             "Starmap Download Job Finished (Starsystems updated:{$this->starsystemsUpdated} 
@@ -81,7 +94,10 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
         );
     }
 
-    private function setBootup($timestamp) : void
+    /**
+     * @param string $timestamp
+     */
+    private function setBootup(string $timestamp): void
     {
         try {
             $response = $this->client->post(self::STARSYSTEM_BOOTUP_ENDPOINT);
@@ -93,19 +109,27 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
                 ]
             );
 
+            $this->fail($e);
+
             return;
         }
 
         $overviewData = json_decode($response->getBody()->getContents(), true);
         $this->checkAndSetStarsystems($overviewData);
 
-        Storage::disk(self::STARSYSTEM_DISK)->put($timestamp . "/" . self::STARMAP_BOOTUP_FILENAME,
-                                                  json_encode($overviewData));
+        Storage::disk(self::STARSYSTEM_DISK)->put(
+            sprintf('%s/%s', $timestamp, self::STARMAP_BOOTUP_FILENAME),
+            json_encode($overviewData)
+        );
     }
 
-    private function checkAndSetStarsystems($overviewData) {
+    /**
+     * @param array $overviewData
+     */
+    private function checkAndSetStarsystems(array $overviewData): void
+    {
         try {
-            if ($this->checkIfDataCanBeProcessed($overviewData, static::OVERVIEWDATA_CHECKLIST)) {
+            if ($this->checkIfDataCanBeProcessed($overviewData, static::OVERVIEW_DATA_CHECKLIST)) {
                 $this->starsystems = $overviewData['data']['systems']['resultset'];
             } else {
                 throw new InvalidDataException('Can not read Star-Systems from RSI');
@@ -126,16 +150,19 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
         }
     }
 
-    private function setStarsystems($timestamp) : void
+    /**
+     * @param string $timestamp
+     */
+    private function setStarsystems(string $timestamp): void
     {
         foreach ($this->starsystems as $system) {
             $system = $system['code'];
 
             try {
-                $response = $this->client->post(self::STARSYSTEM_ENDPOINT . $system);
+                $response = $this->client->post(self::STARSYSTEM_ENDPOINT.$system);
             } catch (ConnectException $e) {
                 app('Log')::critical(
-                    'Could not connect to RSI Starmap ' . $system,
+                    'Could not connect to RSI Starmap '.$system,
                     [
                         'message' => $e->getMessage(),
                     ]
@@ -146,7 +173,7 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
 
             try {
                 $starsystemData = json_decode($response->getBody()->getContents(), true);
-                if ($this->checkIfDataCanBeProcessed($starsystemData, static::CELESTIALOBJECTS_CHECKLIST)) {
+                if ($this->checkIfDataCanBeProcessed($starsystemData, static::CELESTIAL_OBJECTS_CHECKLIST)) {
                     $celestialObjects = $starsystemData['data']['resultset'][0]['celestial_objects'];
                 }
             } catch (InvalidArgumentException $e) {
@@ -158,13 +185,12 @@ class DownloadStarmap extends AbstractBaseDownloadData implements ShouldQueue
                 );
 
                 return;
-            } catch (InvalidDataException $e) {
-                app('Log')::error($e->getMessage());
-
-                return;
             }
 
-            Storage::disk(self::STARSYSTEM_DISK)->put($timestamp . "/" . $system."_system.json", json_encode($celestialObjects));
+            Storage::disk(self::STARSYSTEM_DISK)->put(
+                sprintf('%s/%s_system.json', $timestamp, $system),
+                json_encode($celestialObjects)
+            );
         }
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 19.08.2018 21:01
@@ -7,17 +7,15 @@
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
-use function GuzzleHttp\Promise\iter_for;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
-use Illuminate\Bus\Queueable;
 
 /**
  * Class ParseCelestialObject
- * @package App\Jobs\Api\StarCitizen\Starmap\Parser
  */
 class ParseCelestialObject implements ShouldQueue
 {
@@ -32,13 +30,17 @@ class ParseCelestialObject implements ShouldQueue
      * @var \Illuminate\Support\Collection
      */
     protected $rawData;
-    private $starsystemId;
 
+    /**
+     * @var int Starsystem Id
+     */
+    private $starsystemId;
 
     /**
      * Create a new job instance.
      *
      * @param \Illuminate\Support\Collection $rawData
+     * @param int                            $starsystemId
      */
     public function __construct(Collection $rawData, $starsystemId)
     {
@@ -53,38 +55,40 @@ class ParseCelestialObject implements ShouldQueue
      */
     public function handle()
     {
-        app('Log')::warning("Parse Celestial Object: empty=".empty($this->rawData['subtype']) ? "true" : "false");
+        if (empty($this->rawData['subtype'])) {
+            app('Log')::warning("Parse Celestial Object: empty=true");
+        }
 
         /** @var \App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject $celestialObject */
         $celestialObject = CelestialObject::updateOrCreate(
             [
-                'code'              => $this->rawData['code'],
-                'starsystem_id'     => $this->starsystemId,
+                'code' => $this->rawData['code'],
+                'starsystem_id' => $this->starsystemId,
             ],
             [
-                'cig_id'            => $this->rawData['id'],
+                'cig_id' => $this->rawData['id'],
                 'cig_time_modified' => $this->rawData['time_modified'],
-                'type'              => $this->rawData['type'],
-                'designation'       => $this->rawData['designation'],
-                'name'              => $this->rawData['name'],
-                'age'               => $this->rawData['age'],
-                'distance'          => $this->rawData['distance'],
-                'latitude'          => $this->rawData['latitude'],
-                'longitude'         => $this->rawData['longitude'],
-                'axial_tilt'        => $this->rawData['axial_tilt'],
-                'orbit_period'      => $this->rawData['orbit_period'],
-                'info_url'          => $this->rawData['info_url'],
-                'habitable'         => $this->rawData['habitable'],
-                'fairchanceact'     => $this->rawData['fairchanceact'],
-                'appearance'        => $this->rawData['appearance'],
+                'type' => $this->rawData['type'],
+                'designation' => $this->rawData['designation'],
+                'name' => $this->rawData['name'],
+                'age' => $this->rawData['age'],
+                'distance' => $this->rawData['distance'],
+                'latitude' => $this->rawData['latitude'],
+                'longitude' => $this->rawData['longitude'],
+                'axial_tilt' => $this->rawData['axial_tilt'],
+                'orbit_period' => $this->rawData['orbit_period'],
+                'info_url' => $this->rawData['info_url'],
+                'habitable' => $this->rawData['habitable'],
+                'fairchanceact' => $this->rawData['fairchanceact'],
+                'appearance' => $this->rawData['appearance'],
                 'sensor_population' => $this->rawData['sensor_population'],
-                'sensor_economy'    => $this->rawData['sensor_economy'],
-                'sensor_danger'     => $this->rawData['sensor_danger'],
-                'size'              => $this->rawData['size'],
-                'parent_id'         => $this->rawData['parent_id'],
-                'subtype_id'        => !empty($this->rawData['subtype']) ?
+                'sensor_economy' => $this->rawData['sensor_economy'],
+                'sensor_danger' => $this->rawData['sensor_danger'],
+                'size' => $this->rawData['size'],
+                'parent_id' => $this->rawData['parent_id'],
+                'subtype_id' => !empty($this->rawData['subtype']) ?
                     ParseCelestialSubtype::getCelestialSubtype($this->rawData['subtype']) : null,
-                'affiliation_id'    => !empty($this->rawData['affiliation']) ?
+                'affiliation_id' => !empty($this->rawData['affiliation']) ?
                     ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]) : null,
             ]
         );
