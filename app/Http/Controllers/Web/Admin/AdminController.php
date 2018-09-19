@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Account\Admin\Admin;
 use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,6 +27,69 @@ class AdminController extends Controller
     }
 
     /**
+     * View all Admins
+     *
+     * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function index(): View
+    {
+        $this->authorize('web.admin.admins.view');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        return view(
+            'admin.admins.index',
+            [
+                'admins' => Admin::all(),
+            ]
+        );
+    }
+
+    /**
+     * Edit Admin
+     *
+     * @param \App\Models\Account\Admin\Admin $admin
+     *
+     * @return \Illuminate\Contracts\View\View
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function edit(Admin $admin): View
+    {
+        $this->authorize('web.admin.admins.update');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        return view(
+            'admin.admins.edit',
+            [
+                'admin' => $admin,
+            ]
+        );
+    }
+
+    /**
+     * Update (Block) Admin
+     *
+     * @param \Illuminate\Http\Request        $request
+     * @param \App\Models\Account\Admin\Admin $admin
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function update(Request $request, Admin $admin): RedirectResponse
+    {
+        $this->authorize('web.admin.admins.update');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        $admin->blocked = 1;
+        $admin->save();
+
+        return redirect(route('web.admin.admins.edit', $admin->getRouteKey()));
+    }
+
+    /**
      * Returns the Dashboard View
      *
      * @return \Illuminate\Contracts\View\View
@@ -33,8 +98,8 @@ class AdminController extends Controller
      */
     public function showDashboardView(): View
     {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
         $this->authorize('web.admin.dashboard.view');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $today = Carbon::today()->toDateString();
 
@@ -79,8 +144,8 @@ class AdminController extends Controller
      */
     public function acceptLicenseView()
     {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
         $this->authorize('web.admin.accept_license');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         if (optional(Auth::guard('admin')->user()->settings)->editor_license_accepted === true) {
             return redirect()->route('web.admin.dashboard');
@@ -100,8 +165,8 @@ class AdminController extends Controller
      */
     public function acceptLicense(Request $request)
     {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
         $this->authorize('web.admin.accept_license');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         /** @var \App\Models\Account\Admin\Admin $admin */
         $admin = Auth::guard('admin')->user();

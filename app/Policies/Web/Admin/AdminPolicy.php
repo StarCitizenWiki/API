@@ -15,6 +15,43 @@ class AdminPolicy extends BaseAdminPolicy
     use HandlesAuthorization;
 
     /**
+     * Admin Index
+     *
+     * @param \App\Models\Account\Admin\Admin $admin
+     *
+     * @return bool
+     */
+    public function view(Admin $admin)
+    {
+        return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
+    }
+
+    /**
+     * Admin Detail
+     *
+     * @param \App\Models\Account\Admin\Admin $admin
+     *
+     * @return bool
+     */
+    public function show(Admin $admin)
+    {
+        return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
+    }
+
+
+    /**
+     * Admin Update (Block)
+     *
+     * @param \App\Models\Account\Admin\Admin $admin
+     *
+     * @return bool
+     */
+    public function update(Admin $admin)
+    {
+        return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
+    }
+
+    /**
      * @param \App\Models\Account\Admin\Admin $admin
      *
      * @return bool

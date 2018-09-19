@@ -22,6 +22,12 @@ class AdminControllerEditorTest extends AdminControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'dashboard' => \Illuminate\Http\Response::HTTP_OK,
+
+        'index' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'edit' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'update' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
     ];
 
     /**

@@ -17,6 +17,12 @@ class AdminControllerBureaucratTest extends AdminControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
         'dashboard' => \Illuminate\Http\Response::HTTP_OK,
+
+        'index' => \Illuminate\Http\Response::HTTP_OK,
+
+        'edit' => \Illuminate\Http\Response::HTTP_OK,
+
+        'update' => \Illuminate\Http\Response::HTTP_OK,
     ];
 
     /**

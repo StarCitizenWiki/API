@@ -16,6 +16,7 @@ Route::group(
 
                 Route::resources(
                     [
+                        'admins' => 'AdminController',
                         'notifications' => 'Notification\NotificationController',
                         'users' => 'User\UserController',
                     ]
