@@ -7,6 +7,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\Notification;
 
+use App\Http\Controllers\Web\Admin\Notification\NotificationController;
 use App\Mail\NotificationEmail;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
@@ -223,6 +224,19 @@ class NotificationControllerTestCase extends AdminTestCase
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['destroy']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\Notification\NotificationController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(NotificationController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(NotificationController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

@@ -18,6 +18,7 @@
                     <th>@lang('Gruppen')</th>
                     <th>@lang('Blockiert')</th>
                     <th>@lang('Provider')</th>
+                    <th>@lang('Änderungen')</th>
                     <th>@lang('Letzter Login')</th>
                     <th data-orderable="false">&nbsp;</th>
                 </tr>
@@ -48,6 +49,9 @@
                         </td>
                         <td>
                             {{ $admin->provider }}
+                        </td>
+                        <td>
+                            {{ $admin->changelogs_count }}
                         </td>
                         <td title="{{ $admin->last_login->format('d.m.Y H:i:s') }}">
                             {{ $admin->last_login->diffForHumans() }}

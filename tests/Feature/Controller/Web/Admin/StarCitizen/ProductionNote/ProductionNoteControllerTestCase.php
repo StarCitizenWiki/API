@@ -8,6 +8,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\StarCitizen\ProductionNote;
 
+use App\Http\Controllers\Web\Admin\StarCitizen\ProductionNote\ProductionNoteController;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation;
 use Illuminate\Http\Response;
@@ -133,6 +134,19 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
         $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\ProductionNote\ProductionNoteController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(ProductionNoteController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(ProductionNoteController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

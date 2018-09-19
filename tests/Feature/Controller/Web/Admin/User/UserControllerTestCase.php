@@ -7,6 +7,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\User;
 
+use App\Http\Controllers\Web\Admin\User\UserController;
 use App\Models\Account\User\User;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\Admin\AdminTestCase;
@@ -205,5 +206,18 @@ class UserControllerTestCase extends AdminTestCase
             route('web.admin.users.destroy', self::MODEL_ID_NOT_EXISTENT)
         );
         $response->assertStatus(static::RESPONSE_STATUSES['delete_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\User\UserController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(UserController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(UserController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 }

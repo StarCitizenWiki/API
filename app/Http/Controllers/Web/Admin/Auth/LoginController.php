@@ -139,7 +139,7 @@ class LoginController extends Controller
         $accepted = optional($admin->settings)->editor_license_accepted ?? false;
 
         if ($admin->isEditor() && !$accepted) {
-            return redirect()->route('web.admin.accept_license_view');
+            return redirect()->route('web.admin.license.show');
         }
 
         return redirect()->intended($this->redirectTo);

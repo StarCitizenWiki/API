@@ -7,6 +7,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\Admin;
 
+use App\Http\Controllers\Web\Admin\Admin\AdminController;
 use App\Models\Account\Admin\Admin;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\Admin\AdminTestCase;
@@ -17,20 +18,7 @@ use Tests\Feature\Controller\Web\Admin\AdminTestCase;
 class AdminControllerTestCase extends AdminTestCase
 {
     /**
-     * @covers \App\Http\Controllers\Web\Admin\AdminController::showDashboardView
-     */
-    public function testDashboardView()
-    {
-        $response = $this->actingAs($this->admin, 'admin')->followingRedirects()->get(route('web.admin.dashboard'));
-        $response->assertStatus(static::RESPONSE_STATUSES['dashboard']);
-
-        if ($response->status() === Response::HTTP_OK) {
-            $response->assertViewIs('admin.dashboard');
-        }
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\Admin\AdminController::index
+     * @covers \App\Http\Controllers\Web\Admin\Admin\AdminController::index
      */
     public function testIndex()
     {
@@ -43,7 +31,7 @@ class AdminControllerTestCase extends AdminTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\AdminController::edit
+     * @covers \App\Http\Controllers\Web\Admin\Admin\AdminController::edit
      */
     public function testEdit()
     {
@@ -54,19 +42,22 @@ class AdminControllerTestCase extends AdminTestCase
             $response->assertViewIs('admin.admins.edit')
                 ->assertSee($this->admin->username)
                 ->assertSee($this->admin->provider)
-                ->assertSee('Blockieren');
+                ->assertSee(__('Blockieren'));
         }
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\AdminController::update
+     * @covers \App\Http\Controllers\Web\Admin\Admin\AdminController::update
      */
-    public function testUpdate()
+    public function testUpdateBlock()
     {
         $localAdmin = factory(Admin::class)->create();
 
         $response = $this->actingAs($this->admin, 'admin')->followingRedirects()->patch(
-            route('web.admin.admins.update', $localAdmin)
+            route('web.admin.admins.update', $localAdmin),
+            [
+                'block' => true,
+            ]
         );
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
 
@@ -74,8 +65,45 @@ class AdminControllerTestCase extends AdminTestCase
             $response->assertViewIs('admin.admins.edit')
                 ->assertSee($localAdmin->username)
                 ->assertSee($localAdmin->provider)
-                ->assertSee('Blockieren');
+                ->assertSee(__('Freischalten'));
             $this->assertEquals(true, Admin::where('id', $localAdmin->id)->first()->blocked);
         }
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\Admin\AdminController::update
+     */
+    public function testUpdateRestore()
+    {
+        $localAdmin = factory(Admin::class)->state('blocked')->create();
+
+        $response = $this->actingAs($this->admin, 'admin')->followingRedirects()->patch(
+            route('web.admin.admins.update', $localAdmin),
+            [
+                'restore' => true,
+            ]
+        );
+        $response->assertStatus(static::RESPONSE_STATUSES['update']);
+
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertViewIs('admin.admins.edit')
+                ->assertSee($localAdmin->username)
+                ->assertSee($localAdmin->provider)
+                ->assertSee(__('Blockieren'));
+            $this->assertEquals(false, Admin::where('id', $localAdmin->id)->first()->blocked);
+        }
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\Admin\AdminController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(AdminController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(AdminController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 }

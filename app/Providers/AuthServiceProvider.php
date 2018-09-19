@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
-use App\Policies\Web\Admin\AdminPolicy;
+use App\Policies\Web\Admin\Admin\AdminPolicy;
+use App\Policies\Web\Admin\DashboardPolicy;
+use App\Policies\Web\Admin\License\LicensePolicy;
 use App\Policies\Web\Admin\Notification\NotificationPolicy;
 use App\Policies\Web\Admin\Rsi\CommLink\CommLinkPolicy;
 use App\Policies\Web\Admin\StarCitizen\Manufacturer\ManufacturerPolicy;
@@ -38,9 +40,9 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * Admin Gates
          */
-        Gate::define('web.admin.dashboard.view', 'App\Policies\Web\Admin\AdminPolicy@viewDashboard');
-        Gate::define('web.admin.accept_license', 'App\Policies\Web\Admin\AdminPolicy@acceptLicense');
+        Gate::resource('web.admin.dashboard', DashboardPolicy::class);
         Gate::resource('web.admin.admins', AdminPolicy::class);
+        Gate::resource('web.admin.license', LicensePolicy::class);
         Gate::resource('web.admin.translations', TranslationPolicy::class);
 
         /**

@@ -8,6 +8,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\StarCitizen\ProductionStatus;
 
+use App\Http\Controllers\Web\Admin\StarCitizen\ProductionStatus\ProductionStatusController;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
 use Illuminate\Http\Response;
@@ -133,6 +134,19 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
         $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\ProductionStatus\ProductionStatusController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(ProductionStatusController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(ProductionStatusController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

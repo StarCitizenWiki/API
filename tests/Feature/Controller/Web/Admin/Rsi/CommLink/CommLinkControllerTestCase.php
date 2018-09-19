@@ -7,6 +7,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\Rsi\CommLink;
 
+use App\Http\Controllers\Web\Admin\Rsi\CommLink\CommLinkController;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
@@ -213,6 +214,19 @@ EOF
             $response->assertViewIs('admin.rsi.comm_links.preview')
                 ->assertSee(__('Preview Content'));
         }
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\Rsi\CommLink\CommLinkController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(CommLinkController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(CommLinkController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

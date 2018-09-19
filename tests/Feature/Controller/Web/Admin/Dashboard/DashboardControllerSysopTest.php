@@ -1,26 +1,22 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Feature\Controller\Web\Admin\Admin;
+namespace Tests\Feature\Controller\Web\Admin\Dashboard;
 
 use App\Models\Account\Admin\AdminGroup;
 
 /**
  * Class AdminControllerTest
  *
- * @covers \App\Policies\Web\Admin\Admin\AdminPolicy<extended>
+ * @covers \App\Policies\Web\Admin\DashboardPolicy<extended>
  *
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class AdminControllerBureaucratTest extends AdminControllerTestCase
+class DashboardControllerSysopTest extends DashboardControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
-        'index' => \Illuminate\Http\Response::HTTP_OK,
-
-        'edit' => \Illuminate\Http\Response::HTTP_OK,
-
-        'update' => \Illuminate\Http\Response::HTTP_OK,
+        'show' => \Illuminate\Http\Response::HTTP_OK,
     ];
 
     /**
@@ -30,6 +26,6 @@ class AdminControllerBureaucratTest extends AdminControllerTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->admin->groups()->sync(AdminGroup::where('name', 'bureaucrat')->first()->id);
+        $this->admin->groups()->sync(AdminGroup::where('name', 'sysop')->first()->id);
     }
 }

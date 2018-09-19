@@ -9,14 +9,20 @@ Route::group(
 
         Route::middleware(['admin', 'auth:admin'])->group(
             function () {
-                Route::get('dashboard', 'AdminController@showDashboardView')->name('dashboard');
+                Route::get('dashboard', 'DashboardController@show')->name('dashboard');
 
-                Route::get('accept_license', 'AdminController@acceptLicenseView')->name('accept_license_view');
-                Route::post('accept_license', 'AdminController@acceptLicense')->name('accept_license');
+                Route::namespace('License')
+                    ->name('license.')
+                    ->group(
+                        function () {
+                            Route::get('editor-license', 'LicenseController@show')->name('show');
+                            Route::post('editor-license', 'LicenseController@accept')->name('accept');
+                        }
+                    );
 
                 Route::resources(
                     [
-                        'admins' => 'AdminController',
+                        'admins' => 'Admin\AdminController',
                         'notifications' => 'Notification\NotificationController',
                         'users' => 'User\UserController',
                     ]
@@ -107,7 +113,10 @@ Route::group(
                                     'comm-links' => 'CommLink\CommLinkController',
                                 ]
                             );
-                            Route::get('comm-links/{comm_link}/{version}/preview', 'CommLink\CommLinkController@preview')->name('comm-links.preview');
+                            Route::get(
+                                'comm-links/{comm_link}/{version}/preview',
+                                'CommLink\CommLinkController@preview'
+                            )->name('comm-links.preview');
                         }
                     );
             }

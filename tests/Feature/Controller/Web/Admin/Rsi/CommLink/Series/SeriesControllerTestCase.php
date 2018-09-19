@@ -7,6 +7,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\Rsi\CommLink\Series;
 
+use App\Http\Controllers\Web\Admin\Rsi\CommLink\Series\SeriesController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\Rsi\CommLink\Series\Series;
@@ -57,6 +58,19 @@ class SeriesControllerTestCase extends AdminTestCase
                 $this->commLinks->first()->title
             );
         }
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\Rsi\CommLink\Series\SeriesController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(SeriesController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(SeriesController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

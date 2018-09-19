@@ -8,6 +8,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\StarCitizen\Vehicle\Focus;
 
+use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController;
 use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation;
 use Illuminate\Http\Response;
@@ -133,6 +134,19 @@ class FocusControllerTestCase extends StarCitizenTestCase
         $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(VehicleFocusController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(VehicleFocusController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

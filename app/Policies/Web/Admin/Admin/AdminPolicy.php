@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Policies\Web\Admin;
+namespace App\Policies\Web\Admin\Admin;
 
 use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
@@ -27,20 +27,7 @@ class AdminPolicy extends BaseAdminPolicy
     }
 
     /**
-     * Admin Detail
-     *
-     * @param \App\Models\Account\Admin\Admin $admin
-     *
-     * @return bool
-     */
-    public function show(Admin $admin)
-    {
-        return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
-    }
-
-
-    /**
-     * Admin Update (Block)
+     * Admin Update
      *
      * @param \App\Models\Account\Admin\Admin $admin
      *
@@ -49,25 +36,5 @@ class AdminPolicy extends BaseAdminPolicy
     public function update(Admin $admin)
     {
         return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
-    }
-
-    /**
-     * @param \App\Models\Account\Admin\Admin $admin
-     *
-     * @return bool
-     */
-    public function viewDashboard(Admin $admin)
-    {
-        return $admin->getHighestPermissionLevel() >= AdminGroup::USER;
-    }
-
-    /**
-     * @param \App\Models\Account\Admin\Admin $admin
-     *
-     * @return bool
-     */
-    public function acceptLicense(Admin $admin)
-    {
-        return $admin->isEditor();
     }
 }

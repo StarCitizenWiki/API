@@ -30,7 +30,7 @@
             @endcomponent
             @component('components.forms.form', [
                 'class' => 'ml-auto',
-                'action' => route('web.admin.accept_license'),
+                'action' => route('web.admin.license.accept'),
             ])
                 <button class="btn btn-outline-success">@lang('Bestätigen')</button>
             @endcomponent

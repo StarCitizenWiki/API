@@ -8,6 +8,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\StarCitizen\Vehicle\Type;
 
+use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
 use App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation;
 use Illuminate\Http\Response;
@@ -133,6 +134,19 @@ class TypeControllerTestCase extends StarCitizenTestCase
         $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(VehicleTypeController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(VehicleTypeController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

@@ -8,6 +8,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\StarCitizen\Vehicle\Size;
 
+use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSizeTranslation;
 use Illuminate\Http\Response;
@@ -133,6 +134,19 @@ class SizeControllerTestCase extends StarCitizenTestCase
         $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(VehicleSizeController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(VehicleSizeController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

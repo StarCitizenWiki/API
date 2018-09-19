@@ -19,6 +19,15 @@ use Symfony\Component\DomCrawler\Crawler;
 class CommLinkController extends Controller
 {
     /**
+     * CommLinkController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth:admin');
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response

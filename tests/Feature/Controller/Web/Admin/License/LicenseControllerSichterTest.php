@@ -1,26 +1,26 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Feature\Controller\Web\Admin\Admin;
+namespace Tests\Feature\Controller\Web\Admin\License;
 
 use App\Models\Account\Admin\AdminGroup;
 
 /**
  * Class AdminControllerTest
  *
- * @covers \App\Policies\Web\Admin\Admin\AdminPolicy<extended>
+ * @covers \App\Policies\Web\Admin\License\LicensePolicy<extended>
  *
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class AdminControllerBureaucratTest extends AdminControllerTestCase
+class LicenseControllerSichterTest extends LicenseControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
-        'index' => \Illuminate\Http\Response::HTTP_OK,
+        'show' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
 
-        'edit' => \Illuminate\Http\Response::HTTP_OK,
+        'accept' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
 
-        'update' => \Illuminate\Http\Response::HTTP_OK,
+        'show_accepted' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
     ];
 
     /**
@@ -30,6 +30,6 @@ class AdminControllerBureaucratTest extends AdminControllerTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->admin->groups()->sync(AdminGroup::where('name', 'bureaucrat')->first()->id);
+        $this->admin->groups()->sync(AdminGroup::where('name', 'sichter')->first()->id);
     }
 }

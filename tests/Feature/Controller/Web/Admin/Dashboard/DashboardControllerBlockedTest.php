@@ -1,26 +1,23 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Feature\Controller\Web\Admin\Admin;
+namespace Tests\Feature\Controller\Web\Admin\Dashboard;
 
+use App\Models\Account\Admin\Admin;
 use App\Models\Account\Admin\AdminGroup;
 
 /**
  * Class AdminControllerTest
  *
- * @covers \App\Policies\Web\Admin\Admin\AdminPolicy<extended>
+ * @covers \App\Policies\Web\Admin\DashboardPolicy<extended>
  *
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
  * @covers \App\Http\Middleware\CheckUserState
  */
-class AdminControllerBureaucratTest extends AdminControllerTestCase
+class DashboardControllerBlockedTest extends DashboardControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
-        'index' => \Illuminate\Http\Response::HTTP_OK,
-
-        'edit' => \Illuminate\Http\Response::HTTP_OK,
-
-        'update' => \Illuminate\Http\Response::HTTP_OK,
+        'show' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
     ];
 
     /**
@@ -30,6 +27,7 @@ class AdminControllerBureaucratTest extends AdminControllerTestCase
     protected function setUp()
     {
         parent::setUp();
+        $this->admin = factory(Admin::class)->state('blocked')->create();
         $this->admin->groups()->sync(AdminGroup::where('name', 'bureaucrat')->first()->id);
     }
 }

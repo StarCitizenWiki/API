@@ -11,6 +11,15 @@ use App\Models\Rsi\CommLink\Category\Category;
 class CategoryController extends Controller
 {
     /**
+     * CommLinkController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth:admin');
+    }
+
+    /**
      * All Categories
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
