@@ -29,7 +29,7 @@ abstract class AbstractBaseDownloadData
         $this->client = new Client(
             [
                 'base_uri' => config('api.rsi_url'),
-                'timeout' => 3.0,
+                'timeout' => 60.0,
                 'headers' => ['X-RSI-Token' => self::RSI_TOKEN],
             ]
         );

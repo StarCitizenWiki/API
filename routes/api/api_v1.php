@@ -59,6 +59,54 @@ $api->group(
                 );
             }
         );
+
+        $api->group(
+            [
+                'namespace' => 'Starmap',
+                'prefix' => 'starmap',
+            ],
+            function ($api) {
+                $api->group(
+                    [
+                        'namespace' => 'Starsystem',
+                        'prefix'    => 'starsystems',
+                    ],
+                    function ($api) {
+                        $api->get('/', ['as' => 'api.v1.starmap.starsystems.index', 'uses' => 'StarsystemController@index']);
+                        $api->get('{code}', ['as' => 'api.v1.starmap.starsystems.show', 'uses' => 'StarsystemController@show']);
+                    }
+                );
+
+                $api->group(
+                    [
+                        'namespace' => 'CelestialObject',
+                        'prefix'    => 'celestial-objects',
+                    ],
+                    function ($api) {
+                        $api->get(
+                            '/',
+                            ['as' => 'api.v1.starmap.celestial-objects.index', 'uses' => 'CelestialObjectController@index']
+                        );
+                        $api->get(
+                            '{code}',
+                            ['as' => 'api.v1.starmap.celestial-objects.show', 'uses' => 'CelestialObjectController@show']
+                        );
+                    }
+                );
+
+//            $api->group(
+//                [
+//                    'namespace' => 'jumppoint',
+//                    'prefix' => 'jumppoint',
+//                ],
+//                function ($api) {
+//                    $api->get('/', ['as' => 'api.v1.jumppoint.all', 'uses' => 'JumppointController@index']);
+//                    $api->get('{code}', ['as' => 'api.v1.jumppoint.show', 'uses' => 'JumppointController@show']);
+//                }
+//            );
+            }
+        );
+
         /*
                 Route::prefix('starmap')
                     ->namespace('Starmap')

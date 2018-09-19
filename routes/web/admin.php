@@ -40,9 +40,9 @@ Route::group(
                                     function () {
                                         Route::resources(
                                             [
-                                                'systems' => 'SystemController',
-                                                'celestialobjects' => 'CelestialObjectController',
-                                                'jumppointtunnel' => 'JumppointTunnelController',
+                                                'system' => 'Starsystem\StarsystemController',
+                                                'celestial-object' => 'CelestialObject\CelestialObjectController',
+                                                'jumppoint' => 'Jumppoint\JumppointController',
                                             ]
                                         );
                                     }

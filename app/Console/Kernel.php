@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Console\Commands\ImportShipMatrix;
+use App\Jobs\Api\StarCitizen\Starmap\DownloadStarmap;
 use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use Illuminate\Console\Scheduling\Schedule;
@@ -21,6 +22,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\DownloadShipMatrix::class,
         \App\Console\Commands\DownloadStats::class,
+        \App\Console\Commands\DownloadStarmap::class,
         ImportShipMatrix::class,
     ];
 
@@ -38,6 +40,12 @@ class Kernel extends ConsoleKernel
         $schedule->job(new DownloadShipMatrix())->weekly()->then(
             function () {
                 $this->call('import:shipmatrix');
+            }
+        );
+
+        $schedule->job(new DownloadStarmap())->weekly()->then(
+            function () {
+                $this->call('import:starmap');
             }
         );
     }
