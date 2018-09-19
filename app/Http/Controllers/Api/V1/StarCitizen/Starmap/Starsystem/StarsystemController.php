@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 07.08.2018 14:14
@@ -14,31 +14,18 @@ use Illuminate\Http\Request;
 
 /**
  * Class StarsystemController
- * @package App\Http\Controllers\Api\V1\StarCitizen\Starmap
  */
 class StarsystemController extends ApiController
 {
-
-    /**
-     * @var \App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer
-     */
-    protected $transformer;
-
-    /**
-     * @var \Illuminate\Http\Request
-     */
-    protected $request;
-
     /**
      * StarsystemController constructor.
      *
-     * @param \App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer $transformer
      * @param \Illuminate\Http\Request                                           $request
+     * @param \App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer $transformer
      */
-    public function __construct(StarsystemTransformer $transformer, Request $request)
+    public function __construct(Request $request, StarsystemTransformer $transformer)
     {
         $this->transformer = $transformer;
-        $this->request = $request;
 
         parent::__construct($request);
     }
@@ -52,10 +39,12 @@ class StarsystemController extends ApiController
     {
         $starsystemName = urldecode($starsystemName);
         try {
+            /** @var \App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem $starsystem */
             $starsystem = Starsystem::where('code', $starsystemName)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf('No Starsystem found for Query: %s', $starsystemName));
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $starsystemName));
         }
+
         return $this->getResponse($starsystem);
     }
 

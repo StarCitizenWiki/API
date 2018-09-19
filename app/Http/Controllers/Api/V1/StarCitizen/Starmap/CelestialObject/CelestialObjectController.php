@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 07.08.2018 14:31
@@ -14,31 +14,18 @@ use Illuminate\Http\Request;
 
 /**
  * Class CelestialObjectController
- * @package App\Http\Controllers\Api\V1\StarCitizen\Starmap
  */
 class CelestialObjectController extends ApiController
 {
     /**
-     * @var \App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer
-     */
-    protected $transformer;
-
-    /**
-     * @var \Illuminate\Http\Request
-     */
-    protected $request;
-
-    /**
      * CelestialObjectController constructor.
      *
-     * @param \App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer $transformer
      * @param \Illuminate\Http\Request                                                $request
+     * @param \App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer $transformer
      */
-    public function __construct(CelestialObjectTransformer $transformer, Request $request)
+    public function __construct(Request $request, CelestialObjectTransformer $transformer)
     {
         $this->transformer = $transformer;
-        $this->request = $request;
-
         parent::__construct($request);
     }
 
@@ -52,10 +39,12 @@ class CelestialObjectController extends ApiController
         $code = urldecode($code);
 
         try {
+            /** @var \App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject $celestialObject */
             $celestialObject = CelestialObject::where('code', $code)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf('No Celestial Object found for Query: %s', $code));
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $code));
         }
+
         return $this->getResponse($celestialObject);
     }
 

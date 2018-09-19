@@ -1,64 +1,52 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * User: Keonie
  * Date: 07.08.2018 14:13
  */
 
-namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap;
+namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\Jumppoint;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
-use App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use InvalidArgumentException;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 /**
  * Class JumppointController
- * @package App\Http\Controllers\Api\V1\StarCitizen\Starmap
  */
 class JumppointController extends ApiController
 {
     /**
-     * @var \App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer
-     */
-    private $transformer;
-
-    /**
-     * @var \Illuminate\Http\Request
-     */
-    private $request;
-
-    /**
      * JumppointController constructor.
      *
-     * @param \App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer $transformer
      * @param \Illuminate\Http\Request                                          $request
+     * @param \App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer $transformer
      */
-    public function __construct(JumppointTransformer $transformer, Request $request)
+    public function __construct(Request $request, JumppointTransformer $transformer)
     {
         $this->transformer = $transformer;
-        $this->request = $request;
 
-        if ($request->has('locale')) {
-            $this->transformer->setLocale($request->get('locale'));
-        }
+        parent::__construct($request);
     }
 
     /**
-     * @param $id
+     * @param int $id
      *
      * @return \Dingo\Api\Http\Response
      */
     public function show($id)
     {
         try {
+            /** @var \App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint $jumppoint */
             $jumppoint = Jumppoint::where('cig_id', $id)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf('No Jumppoint found for Query: %s', $id));
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $id));
         }
-        return $this->response->item($jumppoint, $this->transformer);
+
+        return $this->getResponse($jumppoint);
     }
 
     /**
@@ -79,7 +67,8 @@ class JumppointController extends ApiController
             ->groupBy('cig_id')
             ->get()
             ->toArray();
-        return $this->response->item($jumppoints, $this->transformer);
+
+        return $this->response->collection($jumppoints, $this->transformer);
     }
 
     /**
@@ -87,7 +76,6 @@ class JumppointController extends ApiController
      */
     public function index()
     {
-        $jumppoints = Jumppoint::paginate();
-        return $this->response->paginator($jumppoints, $this->transformer);
+        return $this->getResponse(Jumppoint::query());
     }
 }
