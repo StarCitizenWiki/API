@@ -6,7 +6,7 @@
 
 namespace App\Models\Api\StarCitizen\Starmap\Starsystem;
 
-use App\Models\Api\Translation\AbstractTranslation as Translation;
+use App\Models\System\Translation\AbstractTranslation as Translation;
 
 /**
  * Star System Translation Model

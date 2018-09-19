@@ -9,7 +9,7 @@ namespace App\Models\Api\StarCitizen\Starmap\CelestialObject;
 use App\Events\ModelUpdating;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
-use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
