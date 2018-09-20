@@ -155,7 +155,7 @@
 
     @can('web.admin.users.view')
         <section class="row equal-height">
-            <div class="col-12 col-md-6 col-xl-3 mb-4">
+            <div class="col-12 col-md-5 col-xl-3 mb-4">
                 @component('admin.components.card', [
                     'class' => 'bg-dark text-light',
                     'icon' => 'users',
@@ -200,7 +200,7 @@
                 @endcomponent
             </div>
 
-            <div class="col-12 col-md-6 col-xl-6 mb-4">
+            <div class="col-12 col-md-7 col-xl-6 mb-4">
                 @component('admin.components.card', [
                     'class' => 'bg-dark text-light',
                     'contentClass' => 'bg-white text-dark p-2 table-responsive',

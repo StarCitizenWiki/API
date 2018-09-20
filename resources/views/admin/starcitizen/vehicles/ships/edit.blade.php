@@ -5,14 +5,15 @@
 @endsection
 
 @section('content')
-    <div class="card-deck">
-        @component('admin.components.card', [
-            'class' => 'mb-4',
-        ])
-            @slot('title')
-                <h4 class="mb-0">@lang('Schiffsdaten') <small class="float-right mt-1">Letztes Update: {{ $ship->updated_at->diffForHumans() }}</small></h4>
-            @endslot
-            @component('components.forms.form')
+    <div class="row">
+        <div class="col-12 col-xl-6">
+            @component('admin.components.card', [
+                'class' => 'mb-4',
+            ])
+                @slot('title')
+                    <h4 class="mb-0">@lang('Schiffsdaten') <small class="float-right mt-1">Letztes Update: {{ $ship->updated_at->diffForHumans() }}</small></h4>
+                @endslot
+                @component('components.forms.form')
                     <div class="row">
                         <div class="col-12 col-lg-4">
                             @component('components.forms.form-group', [
@@ -262,38 +263,41 @@
                     </div>
 
                 @endcomponent
-        @endcomponent
+            @endcomponent
+        </div>
 
-        @component('components.forms.form', [
-            'action' => route('web.admin.starcitizen.vehicles.ships.update', $ship->getRouteKey()),
-            'method' => 'PATCH',
-            'class' => 'card h-100 d-flex flex-column justify-content-between'
-        ])
-            <div class="wrapper">
-                <h4 class="card-header">@lang('Übersetzungen')</h4>
-                <div class="card-body">
-                    @include('components.errors')
-                    @include('components.messages')
-                    @foreach($ship->translationsCollection() as $key => $translation)
-                        @component('components.forms.form-group', [
-                            'inputType' => 'textarea',
-                            'label' => __('Beschreibung ').$key,
-                            'id' => $key,
-                            'rows' => 6,
-                            'value' => $translation->translation,
-                        ])
-                            @slot('inputOptions')
-                                @if($key === config('language.english'))
-                                    readonly
-                                @endif
-                            @endslot
-                        @endcomponent
-                    @endforeach
+        <div class="col-12 col-xl-6">
+            @component('components.forms.form', [
+                'action' => route('web.admin.starcitizen.vehicles.ships.update', $ship->getRouteKey()),
+                'method' => 'PATCH',
+                'class' => 'card h-100 d-flex flex-column justify-content-between'
+            ])
+                <div class="wrapper">
+                    <h4 class="card-header">@lang('Übersetzungen')</h4>
+                    <div class="card-body">
+                        @include('components.errors')
+                        @include('components.messages')
+                        @foreach($ship->translationsCollection() as $key => $translation)
+                            @component('components.forms.form-group', [
+                                'inputType' => 'textarea',
+                                'label' => __('Beschreibung').' '.__($key),
+                                'id' => $key,
+                                'rows' => 6,
+                                'value' => $translation->translation,
+                            ])
+                                @slot('inputOptions')
+                                    @if($key === config('language.english'))
+                                        readonly
+                                    @endif
+                                @endslot
+                            @endcomponent
+                        @endforeach
+                    </div>
+                    <div class="card-footer d-flex">
+                        <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
+                    </div>
                 </div>
-                <div class="card-footer d-flex">
-                    <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
-                </div>
-            </div>
-        @endcomponent
+            @endcomponent
+        </div>
     </div>
 @endsection
