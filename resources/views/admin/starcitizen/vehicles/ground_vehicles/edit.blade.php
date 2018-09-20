@@ -181,7 +181,7 @@
                                 @endcomponent
                             </div>
 
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-lg-6">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -200,7 +200,7 @@
             @component('components.forms.form', [
                 'action' => route('web.admin.starcitizen.vehicles.ground_vehicles.update', $ground_vehicle->getRouteKey()),
                 'method' => 'PATCH',
-                'class' => 'card h-100 d-flex flex-column justify-content-between'
+                'class' => 'card'
             ])
                 <div class="wrapper">
                     <h4 class="card-header">@lang('Übersetzungen')</h4>

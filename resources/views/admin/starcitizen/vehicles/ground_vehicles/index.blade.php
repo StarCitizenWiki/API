@@ -57,7 +57,7 @@
                         <td>
                             {{ optional($ground_vehicle->productionNote)->english()->translation ?? 'None' }}
                         </td>
-                        <td>
+                        <td data-order="{{ $ground_vehicle->updated_at->timestamp }}">
                             {{ $ground_vehicle->updated_at->diffForHumans() }}
                         </td>
                         @can('web.admin.starcitizen.vehicles.update')

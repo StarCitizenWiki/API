@@ -270,7 +270,7 @@
             @component('components.forms.form', [
                 'action' => route('web.admin.starcitizen.vehicles.ships.update', $ship->getRouteKey()),
                 'method' => 'PATCH',
-                'class' => 'card h-100 d-flex flex-column justify-content-between'
+                'class' => 'card'
             ])
                 <div class="wrapper">
                     <h4 class="card-header">@lang('Übersetzungen')</h4>
