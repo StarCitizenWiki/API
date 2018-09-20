@@ -11,6 +11,15 @@ use App\Models\Rsi\CommLink\Channel\Channel;
 class ChannelController extends Controller
 {
     /**
+     * CommLinkController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth:admin');
+    }
+
+    /**
      * All Channels
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View

@@ -8,7 +8,7 @@ use App\Models\Account\Admin\AdminGroup;
 /**
  * Class AdminControllerTest
  *
- * @covers \App\Policies\Web\Admin\AdminPolicy<extended>
+ * @covers \App\Policies\Web\Admin\Admin\AdminPolicy<extended>
  *
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfNotAdmin
  * @covers \App\Http\Middleware\Web\Admin\RedirectIfAdmin
@@ -17,7 +17,11 @@ use App\Models\Account\Admin\AdminGroup;
 class AdminControllerBlockedTest extends AdminControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
-        'dashboard' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+        'index' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'edit' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+
+        'update' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
     ];
 
     /**

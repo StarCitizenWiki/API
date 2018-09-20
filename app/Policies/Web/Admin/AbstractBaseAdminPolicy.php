@@ -12,7 +12,7 @@ use App\Models\Account\Admin\Admin;
 /**
  * Class AbstractBaseAdminPolicy
  */
-class AbstractBaseAdminPolicy
+abstract class AbstractBaseAdminPolicy
 {
     /**
      * Don't allow Access if Account is blocked

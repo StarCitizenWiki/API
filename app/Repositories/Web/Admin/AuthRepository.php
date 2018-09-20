@@ -41,7 +41,7 @@ class AuthRepository implements AuthRepositoryInterface
     public function getOrCreateLocalUser(User $user, string $provider): Admin
     {
         /** @var \App\Models\Account\Admin\Admin $authUser */
-        $authUser = Admin::where('provider_id', $user->id)->first();
+        $authUser = Admin::query()->where('provider_id', $user->id)->where('provider', $provider)->first();
 
         if ($authUser) {
             $this->syncLocalUserGroups($user, $authUser);

@@ -8,9 +8,9 @@ use App\Policies\Web\Admin\AbstractBaseAdminPolicy as BaseAdminPolicy;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
- * Class AdminPolicy
+ * Class DashboardPolicy
  */
-class AdminPolicy extends BaseAdminPolicy
+class DashboardPolicy extends BaseAdminPolicy
 {
     use HandlesAuthorization;
 
@@ -19,18 +19,8 @@ class AdminPolicy extends BaseAdminPolicy
      *
      * @return bool
      */
-    public function viewDashboard(Admin $admin)
+    public function view(Admin $admin)
     {
         return $admin->getHighestPermissionLevel() >= AdminGroup::USER;
-    }
-
-    /**
-     * @param \App\Models\Account\Admin\Admin $admin
-     *
-     * @return bool
-     */
-    public function acceptLicense(Admin $admin)
-    {
-        return $admin->isEditor();
     }
 }

@@ -55,6 +55,7 @@ import {
   faUserCircle,
   faUserPlus,
   faUsers,
+  faUsersCrown
 } from '@fortawesome/pro-light-svg-icons'
 
 import {
@@ -106,7 +107,8 @@ library.add(
   faUser,
   faUserCircle,
   faUserPlus,
-  faUsers
+  faUsers,
+  faUsersCrown
 )
 
 library.add(

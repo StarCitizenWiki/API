@@ -19,6 +19,7 @@ class CreateAdminSettingsTable extends Migration
                 $table->increments('id');
                 $table->unsignedInteger('admin_id');
                 $table->boolean('editor_license_accepted')->default(false);
+                $table->boolean('editor_receive_emails')->default(true);
                 $table->timestamps();
 
                 $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');

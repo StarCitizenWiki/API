@@ -2,6 +2,7 @@
 
 namespace App\Models\Account\Admin;
 
+use App\Models\System\Session;
 use App\Models\System\ModelChangelog;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -33,6 +34,12 @@ class Admin extends Authenticatable
      */
     protected $hidden = [
         'remember_token',
+    ];
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'last_login',
     ];
 
     /**
@@ -115,5 +122,13 @@ class Admin extends Authenticatable
     public function settings()
     {
         return $this->hasOne(AdminSetting::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function sessions()
+    {
+        return $this->hasMany(Session::class, 'user_id', 'id');
     }
 }

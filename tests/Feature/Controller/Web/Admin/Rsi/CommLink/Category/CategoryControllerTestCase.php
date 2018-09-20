@@ -7,6 +7,7 @@
 
 namespace Tests\Feature\Controller\Web\Admin\Rsi\CommLink\Category;
 
+use App\Http\Controllers\Web\Admin\Rsi\CommLink\Category\CategoryController;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
@@ -57,6 +58,19 @@ class CategoryControllerTestCase extends AdminTestCase
                 $this->commLinks->first()->title
             );
         }
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\Admin\Rsi\CommLink\Category\CategoryController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(CategoryController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth:admin');
+
+        $reflectedClass = new \ReflectionClass(CategoryController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

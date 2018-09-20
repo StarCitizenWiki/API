@@ -23,10 +23,12 @@ class CreateAdminsTable extends Migration
                 $table->string('email')->nullable()->unique();
                 $table->boolean('blocked');
                 $table->string('provider');
-                $table->integer('provider_id')->unique();
+                $table->integer('provider_id');
                 $table->timestamp('last_login')->nullable();
                 $table->rememberToken();
                 $table->timestamps();
+
+                $table->unique(['provider_id', 'provider']);
             }
         );
     }

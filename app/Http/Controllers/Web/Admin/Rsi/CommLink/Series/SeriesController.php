@@ -11,6 +11,15 @@ use App\Models\Rsi\CommLink\Series\Series;
 class SeriesController extends Controller
 {
     /**
+     * CommLinkController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth:admin');
+    }
+
+    /**
      * All Series
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
