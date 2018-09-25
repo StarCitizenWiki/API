@@ -13,7 +13,7 @@ class FocusTranslation extends Translation
 
     protected $fillable = [
         'locale_code',
-        'vehicle_focus_id',
+        'focus_id',
         'translation',
     ];
 

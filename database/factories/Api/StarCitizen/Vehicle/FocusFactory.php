@@ -5,7 +5,9 @@ use Faker\Generator as Faker;
 $factory->define(
     \App\Models\Api\StarCitizen\Vehicle\Focus\Focus::class,
     function (Faker $faker) {
-        return [];
+        return [
+            'slug' => $faker->slug,
+        ];
     }
 );
 

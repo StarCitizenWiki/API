@@ -4,7 +4,6 @@ namespace App\Models\Api\StarCitizen\ProductionStatus;
 
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 
 /**
  * Production Status Model
@@ -12,13 +11,33 @@ use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 class ProductionStatus extends HasTranslations
 {
     use VehicleRelations;
-    use ObfuscatedRouteKey;
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'slug',
+    ];
+
+    /**
+     * @var array
+     */
     protected $with = [
         'translations',
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

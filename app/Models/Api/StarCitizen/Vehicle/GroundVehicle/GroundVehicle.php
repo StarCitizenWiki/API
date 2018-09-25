@@ -26,7 +26,7 @@ class GroundVehicle extends Vehicle
                 // TODO Refactor to eliminate DB call?
                 $type = TypeTranslation::where('translation', 'ground')->first();
 
-                $builder->where('vehicle_type_id', '=', optional($type)->vehicle_type_id);
+                $builder->where('type_id', '=', optional($type)->type_id);
             }
         );
     }

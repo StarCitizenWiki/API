@@ -22,11 +22,12 @@ class Vehicle extends HasTranslations
     protected $fillable = [
         'cig_id',
         'name',
+        'slug',
         'manufacturer_id',
         'production_status_id',
         'production_note_id',
-        'vehicle_size_id',
-        'vehicle_type_id',
+        'size_id',
+        'type_id',
         'length',
         'beam',
         'height',
@@ -123,7 +124,7 @@ class Vehicle extends HasTranslations
      */
     public function type()
     {
-        return $this->belongsTo(Type::class, 'vehicle_type_id');
+        return $this->belongsTo(Type::class);
     }
 
     /**
@@ -133,7 +134,7 @@ class Vehicle extends HasTranslations
      */
     public function size()
     {
-        return $this->belongsTo(Size::class, 'vehicle_size_id');
+        return $this->belongsTo(Size::class);
     }
 
     /**
@@ -157,12 +158,10 @@ class Vehicle extends HasTranslations
     }
 
     /**
-     * Key by which the api searches
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    public function getRouteKey()
+    public function getRouteKeyName()
     {
-        return urlencode($this->name);
+        return 'slug';
     }
 }

@@ -76,7 +76,11 @@ class Focus extends BaseElement
         app('Log')::debug('Creating new Vehicle Focus');
 
         /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\Focus $vehicleFocus */
-        $vehicleFocus = VehicleFocus::create();
+        $vehicleFocus = VehicleFocus::create(
+            [
+                'slug' => str_slug($focus),
+            ]
+        );
 
         $vehicleFocus->translations()->create(
             [

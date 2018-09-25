@@ -40,11 +40,12 @@ $factory->define(
         return [
             'cig_id' => $cigId++,
             'name' => $faker->userName,
+            'slug' => $faker->slug,
             'manufacturer_id' => $manufacturer->id,
             'production_status_id' => $productionStatus->id,
             'production_note_id' => $productionNote->id,
-            'vehicle_size_id' => $vehicleSize->id,
-            'vehicle_type_id' => $vehicleType->id,
+            'size_id' => $vehicleSize->id,
+            'type_id' => $vehicleType->id,
             'length' => $faker->randomFloat(2, 0, 1000),
             'beam' => $faker->randomFloat(2, 0, 1000),
             'height' => $faker->randomFloat(2, 0, 1000),
@@ -111,7 +112,7 @@ $factory->state(
         }
 
         return [
-            'vehicle_type_id' => $type->id,
+            'type_id' => $type->id,
         ];
     }
 );
@@ -126,7 +127,7 @@ $factory->state(
         $type->translations()->save(factory(\App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation::class)->make());
 
         return [
-            'vehicle_type_id' => $type->id,
+            'type_id' => $type->id,
         ];
     }
 );

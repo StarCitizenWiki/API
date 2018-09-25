@@ -17,6 +17,7 @@ class CreateVehicleSizesTable extends Migration
             'vehicle_sizes',
             function (Blueprint $table) {
                 $table->increments('id');
+                $table->string('slug')->unique();
             }
         );
     }

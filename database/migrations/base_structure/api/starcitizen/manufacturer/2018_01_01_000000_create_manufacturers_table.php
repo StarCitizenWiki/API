@@ -18,8 +18,8 @@ class CreateManufacturersTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->unsignedInteger('cig_id');
-                $table->string('name');
-                $table->string('name_short');
+                $table->string('name')->unique();
+                $table->string('name_short')->unique();
                 $table->timestamps();
 
                 $table->unique('cig_id');

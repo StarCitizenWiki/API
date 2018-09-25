@@ -18,12 +18,13 @@ class CreateVehiclesTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->unsignedInteger('cig_id');
-                $table->string('name');
+                $table->string('name')->unique();
+                $table->string('slug')->unique();
                 $table->unsignedInteger('manufacturer_id');
                 $table->unsignedInteger('production_status_id');
                 $table->unsignedInteger('production_note_id');
-                $table->unsignedInteger('vehicle_size_id');
-                $table->unsignedInteger('vehicle_type_id');
+                $table->unsignedInteger('size_id');
+                $table->unsignedInteger('type_id');
                 $table->unsignedDecimal('length')->nullable();
                 $table->unsignedDecimal('beam')->nullable();
                 $table->unsignedDecimal('height')->nullable();
@@ -50,8 +51,8 @@ class CreateVehiclesTable extends Migration
                 $table->foreign('production_note_id')->references('id')->on('production_notes')->onDelete(
                     'cascade'
                 );
-                $table->foreign('vehicle_size_id')->references('id')->on('vehicle_sizes')->onDelete('cascade');
-                $table->foreign('vehicle_type_id')->references('id')->on('vehicle_types')->onDelete('cascade');
+                $table->foreign('size_id')->references('id')->on('vehicle_sizes')->onDelete('cascade');
+                $table->foreign('type_id')->references('id')->on('vehicle_types')->onDelete('cascade');
             }
         );
     }

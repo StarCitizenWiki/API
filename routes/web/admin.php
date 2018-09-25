@@ -5,7 +5,21 @@ Route::group(
     function () {
         Route::namespace('Auth')
             ->name('auth.')
-            ->group(base_path('routes/web/admin/auth.php'));
+            ->group(
+                function () {
+                    Route::group(
+                        [],
+                        function () {
+                            Route::get('/login', 'LoginController@showLoginForm')->name('login');
+                            Route::get('/login/start', 'LoginController@redirectToProvider')->name('login.start');
+                            Route::get('/login/callback', 'LoginController@handleProviderCallback')->name(
+                                'login.callback'
+                            );
+                            Route::post('/logout', 'LoginController@logout')->name('logout');
+                        }
+                    );
+                }
+            );
 
         Route::middleware(['admin', 'auth:admin'])->group(
             function () {
@@ -27,8 +41,6 @@ Route::group(
                         'users' => 'User\UserController',
                     ]
                 );
-
-                Route::namespace('Log')->group(base_path('routes/web/admin/log.php'));
 
                 Route::namespace('StarCitizen')
                     ->name('starcitizen.')
@@ -67,9 +79,9 @@ Route::group(
                                             [
                                                 'ships' => 'Ship\ShipController',
                                                 'ground_vehicles' => 'GroundVehicle\GroundVehicleController',
-                                                'sizes' => 'Size\VehicleSizeController',
-                                                'foci' => 'Focus\VehicleFocusController',
-                                                'types' => 'Type\VehicleTypeController',
+                                                'sizes' => 'Size\SizeController',
+                                                'foci' => 'Focus\FocusController',
+                                                'types' => 'Type\TypeController',
                                             ]
                                         );
                                     }

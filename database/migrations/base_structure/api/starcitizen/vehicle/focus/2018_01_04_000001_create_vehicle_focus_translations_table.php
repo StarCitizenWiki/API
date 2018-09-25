@@ -18,13 +18,13 @@ class CreateVehicleFocusTranslationsTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->char('locale_code', 5);
-                $table->unsignedInteger('vehicle_focus_id');
+                $table->unsignedInteger('focus_id');
                 $table->string('translation');
                 $table->timestamps();
 
-                $table->unique(['locale_code', 'vehicle_focus_id'], 'vehicle_focus_translations_primary');
+                $table->unique(['locale_code', 'focus_id'], 'vehicle_focus_translations_primary');
                 $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
-                $table->foreign('vehicle_focus_id')->references('id')->on('vehicle_foci')->onDelete('cascade');
+                $table->foreign('focus_id')->references('id')->on('vehicle_foci')->onDelete('cascade');
             }
         );
     }

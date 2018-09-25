@@ -24,20 +24,18 @@ class Channel extends Model
     ];
 
     /**
+     * {@inheritdoc}
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function commLinks()
     {
         return $this->hasMany(CommLink::class);
-    }
-
-    /**
-     * Name as slug
-     *
-     * @return mixed
-     */
-    public function getRouteKey()
-    {
-        return $this->slug;
     }
 }

@@ -16,6 +16,7 @@ class ProductionStatusTableSeeder extends Seeder
         DB::table('production_statuses')->insert(
             [
                 'id' => 1,
+                'slug' => 'undefined',
             ]
         );
         DB::table('production_status_translations')->insert(

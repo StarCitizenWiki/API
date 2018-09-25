@@ -80,11 +80,12 @@ class ParseVehicle implements ShouldQueue
             ],
             [
                 'name' => $this->getName(),
+                'slug' => $this->getSlug(),
                 'manufacturer_id' => $this->getManufacturerId(),
                 'production_status_id' => $this->getProductionStatusId(),
                 'production_note_id' => $this->getProductionNoteId(),
-                'vehicle_size_id' => $this->getSizeId(),
-                'vehicle_type_id' => $this->getTypeId(),
+                'size_id' => $this->getSizeId(),
+                'type_id' => $this->getTypeId(),
                 'length' => $this->getLength(),
                 'beam' => $this->getBeam(),
                 'height' => $this->getHeight(),
@@ -168,6 +169,14 @@ class ParseVehicle implements ShouldQueue
     private function getName(): string
     {
         return $this->rawData->get(self::VEHICLE_NAME);
+    }
+
+    /**
+     * @return string
+     */
+    private function getSlug(): string
+    {
+        return str_slug($this->getName());
     }
 
     /**

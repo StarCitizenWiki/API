@@ -60,7 +60,11 @@ class Size extends BaseElement
         app('Log')::debug('Creating new Vehicle Size');
 
         /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $size */
-        $size = VehicleSize::create();
+        $size = VehicleSize::create(
+            [
+                'slug' => str_slug($this->rawData->get(self::VEHICLE_SIZE)),
+            ]
+        );
 
         $size->translations()->create(
             [

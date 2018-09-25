@@ -51,13 +51,11 @@ class CommLink extends HasTranslations
     ];
 
     /**
-     * CIG ID
-     *
-     * @return int
+     * {@inheritdoc}
      */
-    public function getRouteKey()
+    public function getRouteKeyName()
     {
-        return $this->cig_id;
+        return 'cig_id';
     }
 
     /**

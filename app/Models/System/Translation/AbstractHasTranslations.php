@@ -74,7 +74,7 @@ abstract class AbstractHasTranslations extends Model
                     "{$table}.locale_code",
                     '=',
                     'languages.locale_code'
-                )->where($table.'.'.str_singular($this->getTable()).'_id', '=', $this->getKey());
+                )->where($table.'.'.str_singular($this->getForeignKey()), '=', $this->getKey());
             }
         )->get();
 

@@ -19,14 +19,6 @@ class ProductionStatus extends BaseElement
 {
     private const PRODUCTION_STATUS = 'production_status';
 
-    private const PRODUCTION_STATUSES = [
-        'Update Pass Scheduled',
-        'Update pass scheduled',
-        'Update pass scheduled.',
-    ];
-
-    private const PRODUCTION_STATUS_NORMALIZED = 'Update Pass Scheduled';
-
     /**
      * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
      */
@@ -34,7 +26,7 @@ class ProductionStatus extends BaseElement
     {
         app('Log')::debug('Getting Production Status');
 
-        $status = $this->getNormalizedStatus();
+        $status = $this->rawData->get(self::PRODUCTION_STATUS);
 
         if (null === $status) {
             app('Log')::debug('Status not set in Matrix, returning default (undefined)');
@@ -60,7 +52,6 @@ class ProductionStatus extends BaseElement
         return $productionStatusTranslation->productionStatus;
     }
 
-
     /**
      * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
      */
@@ -69,37 +60,21 @@ class ProductionStatus extends BaseElement
         app('Log')::debug('Creating new Production Status');
 
         /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
-        $productionStatus = ProductionStatusModel::create();
+        $productionStatus = ProductionStatusModel::create(
+            [
+                'slug' => str_slug($this->rawData->get(self::PRODUCTION_STATUS)),
+            ]
+        );
 
         $productionStatus->translations()->create(
             [
                 'locale_code' => config('language.english'),
-                'translation' => $this->getNormalizedStatus(),
+                'translation' => $this->rawData->get(self::PRODUCTION_STATUS),
             ]
         );
 
         app('Log')::debug('Production Status created');
 
         return $productionStatus;
-    }
-
-    /**
-     * Returns the normalized Production Status
-     *
-     * @return string|null
-     */
-    private function getNormalizedStatus()
-    {
-        $status = $this->rawData->get(self::PRODUCTION_STATUS);
-
-        if (null !== $status && is_string($status)) {
-            $status = rtrim($status, '.');
-
-            if (in_array($status, self::PRODUCTION_STATUSES)) {
-                $status = self::PRODUCTION_STATUS_NORMALIZED;
-            }
-        }
-
-        return $status;
     }
 }

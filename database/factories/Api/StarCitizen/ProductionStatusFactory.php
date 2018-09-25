@@ -5,7 +5,9 @@ use Faker\Generator as Faker;
 $factory->define(
     \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus::class,
     function (Faker $faker) {
-        return [];
+        return [
+            'slug' => $faker->slug(2),
+        ];
     }
 );
 

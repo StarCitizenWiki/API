@@ -3,7 +3,6 @@
 namespace App\Models\Api\StarCitizen\Vehicle\Size;
 
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 
 /**
@@ -12,12 +11,18 @@ use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 class Size extends HasTranslations
 {
     use VehicleRelations;
-    use ObfuscatedRouteKey;
 
     /**
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'slug',
+    ];
 
     /**
      * @var string
@@ -35,9 +40,9 @@ class Size extends HasTranslations
     /**
      * {@inheritdoc}
      */
-    public function getForeignKey()
+    public function getRouteKeyName()
     {
-        return 'vehicle_size_id';
+        return 'slug';
     }
 
     /**

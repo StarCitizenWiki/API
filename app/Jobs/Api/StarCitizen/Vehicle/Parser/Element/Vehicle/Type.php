@@ -60,7 +60,11 @@ class Type extends BaseElement
         app('Log')::debug('Creating new Vehicle Type');
 
         /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
-        $type = VehicleType::create();
+        $type = VehicleType::create(
+            [
+                'slug' => str_slug($this->rawData->get(self::VEHICLE_TYPE)),
+            ]
+        );
 
         $type->translations()->create(
             [

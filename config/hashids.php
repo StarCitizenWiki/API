@@ -54,40 +54,8 @@ return [
         /**
          * Star Citizen
          */
-        \App\Models\Api\StarCitizen\Manufacturer\Manufacturer::class => [
-            'salt' => 'star-citizen.wiki_manufacturer',
-            'length' => 4,
-        ],
         \App\Models\Api\StarCitizen\ProductionNote\ProductionNote::class => [
             'salt' => 'star-citizen.wiki_production_note',
-            'length' => 4,
-        ],
-        \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus::class => [
-            'salt' => 'star-citizen.wiki_production_status',
-            'length' => 4,
-        ],
-
-        /**
-         * Vehicles
-         */
-        \App\Models\Api\StarCitizen\Vehicle\Focus\Focus::class => [
-            'salt' => 'star-citizen.wiki_focus',
-            'length' => 4,
-        ],
-        \App\Models\Api\StarCitizen\Vehicle\Size\Size::class => [
-            'salt' => 'star-citizen.wiki_size',
-            'length' => 4,
-        ],
-        \App\Models\Api\StarCitizen\Vehicle\Type\Type::class => [
-            'salt' => 'star-citizen.wiki_type',
-            'length' => 4,
-        ],
-        \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle::class => [
-            'salt' => 'star-citizen.wiki_ground_vehicle',
-            'length' => 4,
-        ],
-        \App\Models\Api\StarCitizen\Vehicle\Ship\Ship::class => [
-            'salt' => 'star-citizen.wiki_ship',
             'length' => 4,
         ],
     ],

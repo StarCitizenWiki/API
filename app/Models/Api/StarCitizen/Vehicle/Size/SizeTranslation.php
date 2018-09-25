@@ -13,7 +13,7 @@ class SizeTranslation extends Translation
 
     protected $fillable = [
         'locale_code',
-        'vehicle_size_id',
+        'size_id',
         'translation',
     ];
 

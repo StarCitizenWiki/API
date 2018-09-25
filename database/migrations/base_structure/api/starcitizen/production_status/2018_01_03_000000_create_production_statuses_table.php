@@ -17,6 +17,7 @@ class CreateProductionStatusesTable extends Migration
             'production_statuses',
             function (Blueprint $table) {
                 $table->increments('id');
+                $table->string('slug')->unique();
             }
         );
     }

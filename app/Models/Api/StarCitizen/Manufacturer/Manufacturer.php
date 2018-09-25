@@ -43,12 +43,10 @@ class Manufacturer extends HasTranslations
     }
 
     /**
-     * Key by which the api searches
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    public function getRouteKey()
+    public function getRouteKeyName()
     {
-        return urlencode($this->name_short);
+        return 'name_short';
     }
 }

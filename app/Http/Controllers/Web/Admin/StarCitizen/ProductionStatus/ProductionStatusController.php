@@ -46,13 +46,13 @@ class ProductionStatusController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $status
+     * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus
      *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function edit(ProductionStatus $status)
+    public function edit(ProductionStatus $productionStatus)
     {
         $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -60,7 +60,7 @@ class ProductionStatusController extends Controller
         return view(
             'admin.starcitizen.production_statuses.edit',
             [
-                'translation' => $status,
+                'translation' => $productionStatus,
                 'updateRoute' => 'web.admin.starcitizen.production_statuses.update',
             ]
         );
@@ -70,19 +70,19 @@ class ProductionStatusController extends Controller
      * Update the specified resource in storage.
      *
      * @param \App\Http\Requests\TranslationRequest                         $request
-     * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $status
+     * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus
      *
      * @return \Illuminate\Http\RedirectResponse
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(TranslationRequest $request, ProductionStatus $status)
+    public function update(TranslationRequest $request, ProductionStatus $productionStatus)
     {
         $this->authorize('web.admin.translations.update');
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {
-            $status->translations()->updateOrCreate(
+            $productionStatus->translations()->updateOrCreate(
                 ['locale_code' => $localeCode],
                 ['translation' => $translation]
             );

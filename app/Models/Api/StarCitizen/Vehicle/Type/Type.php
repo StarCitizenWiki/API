@@ -3,7 +3,6 @@
 namespace App\Models\Api\StarCitizen\Vehicle\Type;
 
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 
 /**
@@ -12,12 +11,18 @@ use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 class Type extends HasTranslations
 {
     use VehicleRelations;
-    use ObfuscatedRouteKey;
 
     /**
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'slug',
+    ];
 
     /**
      * @var string
@@ -34,9 +39,9 @@ class Type extends HasTranslations
     /**
      * {@inheritdoc}
      */
-    public function getForeignKey()
+    public function getRouteKeyName()
     {
-        return 'vehicle_type_id';
+        return 'slug';
     }
 
     /**

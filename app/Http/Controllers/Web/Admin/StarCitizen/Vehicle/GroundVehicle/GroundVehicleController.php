@@ -15,21 +15,12 @@ use Illuminate\Support\Facades\Auth;
 class GroundVehicleController extends Controller
 {
     /**
-     * @var \Dingo\Api\Dispatcher
-     */
-    protected $api;
-
-    /**
      * ShipsController constructor.
-     *
-     * @param \Dingo\Api\Dispatcher $api
      */
-    public function __construct(Dispatcher $api)
+    public function __construct()
     {
         parent::__construct();
         $this->middleware('auth:admin');
-        $this->api = $api;
-        $this->api->be(Auth::guard('admin')->user());
     }
 
     /**
@@ -42,17 +33,10 @@ class GroundVehicleController extends Controller
         $this->authorize('web.admin.starcitizen.vehicles.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $groundVehicles = $this->api->with(
-            [
-                'limit' => 0,
-            ]
-        )->get('api/vehicles/ground_vehicles');
-
-
         return view(
             'admin.starcitizen.vehicles.ground_vehicles.index',
             [
-                'ground_vehicles' => $groundVehicles,
+                'ground_vehicles' => GroundVehicle::all(),
             ]
         );
     }
@@ -60,18 +44,16 @@ class GroundVehicleController extends Controller
     /**
      * Display Ship data, edit Translations
      *
-     * @param string $groundVehicle
+     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
      *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function edit(string $groundVehicle)
+    public function edit(GroundVehicle $groundVehicle)
     {
         $this->authorize('web.admin.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        $groundVehicle = $this->api->get("api/vehicles/ground_vehicles/{$groundVehicle}");
 
         return view(
             'admin.starcitizen.vehicles.ground_vehicles.edit',
@@ -84,19 +66,17 @@ class GroundVehicleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\TranslationRequest $request
-     * @param string                                $groundVehicle
+     * @param \App\Http\Requests\TranslationRequest                           $request
+     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
      *
      * @return \Illuminate\Http\RedirectResponse
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(TranslationRequest $request, string $groundVehicle)
+    public function update(TranslationRequest $request, GroundVehicle $groundVehicle)
     {
         $this->authorize('web.admin.starcitizen.vehicles.update');
         $data = $request->validated();
-
-        $groundVehicle = $this->api->get("api/vehicles/ground_vehicles/{$groundVehicle}");
 
         foreach ($data as $localeCode => $translation) {
             $groundVehicle->translations()->updateOrCreate(

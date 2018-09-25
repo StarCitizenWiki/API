@@ -13,7 +13,7 @@ class TypeTranslation extends Translation
 
     protected $fillable = [
         'locale_code',
-        'vehicle_type_id',
+        'type_id',
         'translation',
     ];
 
@@ -22,6 +22,6 @@ class TypeTranslation extends Translation
      */
     public function vehicleType()
     {
-        return $this->belongsTo(Type::class);
+        return $this->belongsTo(Type::class, 'type_id');
     }
 }

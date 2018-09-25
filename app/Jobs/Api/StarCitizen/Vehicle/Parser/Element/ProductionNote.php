@@ -19,6 +19,14 @@ class ProductionNote extends BaseElement
 {
     protected const PRODUCTION_NOTE = 'production_note';
 
+    private const PRODUCTION_STATUSES = [
+        'Update Pass Scheduled',
+        'Update pass scheduled',
+        'Update pass scheduled.',
+    ];
+
+    private const PRODUCTION_STATUS_NORMALIZED = 'Update Pass Scheduled';
+
     /**
      * @return \App\Models\Api\StarCitizen\ProductionNote\ProductionNote
      */
@@ -26,7 +34,7 @@ class ProductionNote extends BaseElement
     {
         app('Log')::debug('Getting Production Note');
 
-        $note = $this->rawData->get(self::PRODUCTION_NOTE);
+        $note = $this->getNormalizedStatus();
         if (null === $note) {
             app('Log')::debug('Production Note not set in Matrix, returning default (None)');
 
@@ -64,12 +72,32 @@ class ProductionNote extends BaseElement
         $productionNote->translations()->create(
             [
                 'locale_code' => config('language.english'),
-                'translation' => $this->rawData->get(self::PRODUCTION_NOTE),
+                'translation' => $this->getNormalizedStatus(),
             ]
         );
 
         app('Log')::debug('Production Note created');
 
         return $productionNote;
+    }
+
+    /**
+     * Returns the normalized Production Status
+     *
+     * @return string|null
+     */
+    private function getNormalizedStatus()
+    {
+        $status = $this->rawData->get(self::PRODUCTION_NOTE);
+
+        if (null !== $status && is_string($status)) {
+            $status = rtrim($status, '.');
+
+            if (in_array($status, self::PRODUCTION_STATUSES)) {
+                $status = self::PRODUCTION_STATUS_NORMALIZED;
+            }
+        }
+
+        return $status;
     }
 }
