@@ -20,8 +20,8 @@ class SizeTranslation extends Translation
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function vehicleSize()
+    public function size()
     {
-        return $this->belongsTo(Size::class);
+        return $this->belongsTo(Size::class, 'size_id');
     }
 }

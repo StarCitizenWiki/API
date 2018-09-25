@@ -38,7 +38,7 @@ class ProductionStatusController extends Controller
             [
                 'translations' => ProductionStatus::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.production_statuses.edit',
+                'editRoute' => 'web.admin.starcitizen.production-statuses.edit',
             ]
         );
     }
@@ -61,7 +61,7 @@ class ProductionStatusController extends Controller
             'admin.starcitizen.production_statuses.edit',
             [
                 'translation' => $productionStatus,
-                'updateRoute' => 'web.admin.starcitizen.production_statuses.update',
+                'updateRoute' => 'web.admin.starcitizen.production-statuses.update',
             ]
         );
     }
@@ -88,7 +88,7 @@ class ProductionStatusController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.production_statuses.index')->withMessages(
+        return redirect()->route('web.admin.starcitizen.production-statuses.index')->withMessages(
             [
                 'success' => [
                     __('crud.updated', ['type' => __('Produktionsstatus')]),

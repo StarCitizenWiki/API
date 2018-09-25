@@ -52,7 +52,7 @@ class Focus extends BaseElement
                         'locale_code',
                         config('language.english')
                     )->firstOrFail();
-                    $focus = $focus->vehicleFocus;
+                    $focus = $focus->focus;
                 } catch (ModelNotFoundException $e) {
                     $focus = $this->createNewVehicleFocus($vehicleFocus);
                 }

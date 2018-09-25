@@ -20,8 +20,8 @@ class FocusTranslation extends Translation
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function vehicleFocus()
+    public function focus()
     {
-        return $this->belongsTo(Focus::class);
+        return $this->belongsTo(Focus::class, 'focus_id');
     }
 }

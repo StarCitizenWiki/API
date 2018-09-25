@@ -34,9 +34,9 @@ class GroundVehicleController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.ground_vehicles.index',
+            'admin.starcitizen.vehicles.ground-vehicles.index',
             [
-                'ground_vehicles' => GroundVehicle::all(),
+                'ground-vehicles' => GroundVehicle::all(),
             ]
         );
     }
@@ -56,7 +56,7 @@ class GroundVehicleController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.ground_vehicles.edit',
+            'admin.starcitizen.vehicles.ground-vehicles.edit',
             [
                 'ground_vehicle' => $groundVehicle,
             ]
@@ -85,7 +85,7 @@ class GroundVehicleController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.ground_vehicles.edit', $groundVehicle->getRouteKey())->withMessages(
+        return redirect()->route('web.admin.starcitizen.vehicles.ground-vehicles.edit', $groundVehicle->getRouteKey())->withMessages(
             [
                 'success' => [
                     __('crud.updated', ['type' => __('Fahrzeug')]),

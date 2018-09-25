@@ -20,7 +20,7 @@ class TypeTranslation extends Translation
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function vehicleType()
+    public function type()
     {
         return $this->belongsTo(Type::class, 'type_id');
     }

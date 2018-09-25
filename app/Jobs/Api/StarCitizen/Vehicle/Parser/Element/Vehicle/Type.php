@@ -49,7 +49,7 @@ class Type extends BaseElement
             return $this->createNewVehicleType();
         }
 
-        return $typeTranslation->vehicleType;
+        return $typeTranslation->type;
     }
 
     /**

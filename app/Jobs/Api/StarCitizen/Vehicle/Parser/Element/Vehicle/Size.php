@@ -49,7 +49,7 @@ class Size extends BaseElement
             return $this->createNewVehicleSize();
         }
 
-        return $sizeTranslation->vehicleSize;
+        return $sizeTranslation->size;
     }
 
     /**

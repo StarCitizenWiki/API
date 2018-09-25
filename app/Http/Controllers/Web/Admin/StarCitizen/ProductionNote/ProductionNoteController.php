@@ -38,7 +38,7 @@ class ProductionNoteController extends Controller
             [
                 'translations' => ProductionNote::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.production_notes.edit',
+                'editRoute' => 'web.admin.starcitizen.production-notes.edit',
             ]
         );
     }
@@ -61,7 +61,7 @@ class ProductionNoteController extends Controller
             'admin.starcitizen.production_notes.edit',
             [
                 'translation' => $note,
-                'updateRoute' => 'web.admin.starcitizen.production_notes.update',
+                'updateRoute' => 'web.admin.starcitizen.production-notes.update',
             ]
         );
     }
@@ -90,7 +90,7 @@ class ProductionNoteController extends Controller
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.production_notes.index')->withMessages(
+        return redirect()->route('web.admin.starcitizen.production-notes.index')->withMessages(
             [
                 'success' => [
                     __('crud.updated', ['type' => __('Produktionsnotiz')]),
