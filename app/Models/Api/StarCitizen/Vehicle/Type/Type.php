@@ -32,6 +32,14 @@ class Type extends HasTranslations
     ];
 
     /**
+     * {@inheritdoc}
+     */
+    public function getForeignKey()
+    {
+        return 'vehicle_type_id';
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function translations()

@@ -18,7 +18,7 @@ class ModelChangelog extends Model
     ];
 
     protected $casts = [
-        'changelog' => 'array',
+        'changelog' => 'collection',
     ];
 
     protected $with = [

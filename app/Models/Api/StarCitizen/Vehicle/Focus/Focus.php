@@ -32,6 +32,14 @@ class Focus extends HasTranslations
     ];
 
     /**
+     * {@inheritdoc}
+     */
+    public function getForeignKey()
+    {
+        return 'vehicle_focus_id';
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function translations()

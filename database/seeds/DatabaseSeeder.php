@@ -51,6 +51,7 @@ class DatabaseSeeder extends Seeder
 
         /** Vehicles */
         $this->call(SizeTableSeeder::class);
+        $this->call(TypeTableSeeder::class);
 
         if (App::environment() === 'local') {
             $this->call(NotificationTableSeeder::class);

@@ -24,12 +24,21 @@ class Size extends HasTranslations
      */
     protected $table = 'vehicle_sizes';
 
+
     /**
      * @var array
      */
     protected $with = [
         'translations',
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getForeignKey()
+    {
+        return 'vehicle_size_id';
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
