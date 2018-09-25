@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 
 /**
  * Class AppServiceProvider
@@ -56,18 +57,16 @@ class AppServiceProvider extends ServiceProvider
      */
     private function loadMigrations()
     {
-        $dirs = [];
         $directoryIterator = new RecursiveDirectoryIterator(database_path('migrations'), FilesystemIterator::SKIP_DOTS);
-        $iteratorIterator = new RecursiveIteratorIterator($directoryIterator, RecursiveIteratorIterator::SELF_FIRST);
+        $migrationDirectories = new RecursiveIteratorIterator($directoryIterator, RecursiveIteratorIterator::SELF_FIRST);
+        $migrationDirectories = collect($migrationDirectories);
 
-        foreach ($iteratorIterator as $filename) {
-            if ($filename->isDir()) {
-                $dirs[] = $filename;
+        $migrationDirectories->filter(
+            function (SplFileInfo $filename) {
+                return $filename->isDir();
             }
-        }
+        );
 
-        $dirs = array_sort($dirs);
-
-        $this->loadMigrationsFrom($dirs);
+        $this->loadMigrationsFrom($migrationDirectories->toArray());
     }
 }

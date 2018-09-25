@@ -96,13 +96,15 @@ class ModelUpdating
 
         /** Don't create changes for Model Creations, since all Old values will be null */
         if (!$this->model->wasRecentlyCreated && null === $this->model->deleted_at) {
-            foreach ($this->model->getDirty() as $key => $value) {
-                $original = $this->model->getOriginal($key);
-                $changes[$key] = [
-                    'old' => $original,
-                    'new' => (string) $value,
-                ];
-            }
+            collect($this->model->getDirty())->each(
+                function ($value, $key) use ($changes) {
+                    $original = $this->model->getOriginal($key);
+                    $changes[$key] = [
+                        'old' => $original,
+                        'new' => (string) $value,
+                    ];
+                }
+            );
         }
 
         return $changes;

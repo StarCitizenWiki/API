@@ -123,9 +123,24 @@ class ParseVehicle implements ShouldQueue
                 'pitch_max' => number_format((float) $this->rawData->get(self::VEHICLE_PITCH_MAX), 2, '.', ''),
                 'yaw_max' => number_format((float) $this->rawData->get(self::VEHICLE_YAW_MAX), 2, '.', ''),
                 'roll_max' => number_format((float) $this->rawData->get(self::VEHICLE_ROLL_MAX), 2, '.', ''),
-                'x_axis_acceleration' => number_format((float) $this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION), 2, '.', ''),
-                'y_axis_acceleration' => number_format((float) $this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION), 2, '.', ''),
-                'z_axis_acceleration' => number_format((float) $this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION), 2, '.', ''),
+                'x_axis_acceleration' => number_format(
+                    (float) $this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION),
+                    2,
+                    '.',
+                    ''
+                ),
+                'y_axis_acceleration' => number_format(
+                    (float) $this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION),
+                    2,
+                    '.',
+                    ''
+                ),
+                'z_axis_acceleration' => number_format(
+                    (float) $this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION),
+                    2,
+                    '.',
+                    ''
+                ),
                 'chassis_id' => (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID),
                 'updated_at' => $this->rawData->get(self::TIME_MODIFIED_UNFILTERED),
             ]
@@ -338,17 +353,19 @@ class ParseVehicle implements ShouldQueue
 
         app('Log')::debug('Vehicle Focus count: '.count($vehicleFoci));
 
-        foreach ($vehicleFoci as $vehicleFocus) {
-            try {
-                /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation $focus */
-                $focus = VehicleFocusTranslation::where('translation', $vehicleFocus)->firstOrFail();
-                $focus = $focus->vehicleFocus;
-            } catch (ModelNotFoundException $e) {
-                $focus = $this->createNewVehicleFocus($vehicleFocus);
-            }
+        collect($vehicleFoci)->each(
+            function ($vehicleFocus) use ($vehicleFociIDs) {
+                try {
+                    /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation $focus */
+                    $focus = VehicleFocusTranslation::where('translation', $vehicleFocus)->firstOrFail();
+                    $focus = $focus->vehicleFocus;
+                } catch (ModelNotFoundException $e) {
+                    $focus = $this->createNewVehicleFocus($vehicleFocus);
+                }
 
-            $vehicleFociIDs[] = $focus->id;
-        }
+                $vehicleFociIDs[] = $focus->id;
+            }
+        );
 
         return $vehicleFociIDs;
     }

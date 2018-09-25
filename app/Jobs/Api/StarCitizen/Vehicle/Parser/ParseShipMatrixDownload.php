@@ -78,8 +78,10 @@ class ParseShipMatrixDownload implements ShouldQueue
             return;
         }
 
-        foreach ($vehicles as $vehicle) {
-            dispatch(new ParseVehicle(new Collection($vehicle)));
-        }
+        collect($vehicles)->each(
+            function ($vehicle) {
+                dispatch(new ParseVehicle(new Collection($vehicle)));
+            }
+        );
     }
 }

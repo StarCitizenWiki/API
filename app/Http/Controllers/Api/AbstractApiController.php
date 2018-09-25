@@ -170,15 +170,26 @@ abstract class AbstractApiController extends Controller
         if (!is_array($relations)) {
             $relations = explode(',', $relations);
         }
-        $relations = array_map('trim', array_map('camel_case', $relations));
 
-        foreach ($relations as $relation) {
-            if (in_array($relation, static::VALID_RELATIONS)) {
-                $this->validRelations[] = $relation;
-            } else {
-                $this->errors['with'][] = sprintf(static::INVALID_RELATION_STRING, snake_case($relation));
+        $relations = collect($relations);
+
+        $relations->transform(
+            function ($relation) {
+                return trim($relation);
             }
-        }
+        )->transform(
+            function ($relation) {
+                return camel_case($relation);
+            }
+        )->each(
+            function ($relation) {
+                if (in_array($relation, static::VALID_RELATIONS)) {
+                    $this->validRelations[] = $relation;
+                } else {
+                    $this->errors['with'][] = sprintf(static::INVALID_RELATION_STRING, snake_case($relation));
+                }
+            }
+        );
     }
 
     /**

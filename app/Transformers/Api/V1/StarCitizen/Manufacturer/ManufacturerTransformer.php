@@ -11,6 +11,7 @@ namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\System\Translation\AbstractHasTranslations;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
+use Illuminate\Support\Collection;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -62,20 +63,18 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
      *
      * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
      *
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
-    private function getShipLinksForManufacturer(Manufacturer $manufacturer): array
+    private function getShipLinksForManufacturer(Manufacturer $manufacturer): Collection
     {
-        $ships = [];
-
-        foreach ($manufacturer->ships as $ship) {
-            $ships[] = app('api.url')->version('v1')->route(
-                'api.v1.starcitizen.vehicles.ships.show',
-                [$ship->getRouteKey()]
-            );
-        }
-
-        return $ships;
+        return $manufacturer->ships->map(
+            function ($ship) {
+                return app('api.url')->version('v1')->route(
+                    'api.v1.starcitizen.vehicles.ships.show',
+                    [$ship->getRouteKey()]
+                );
+            }
+        );
     }
 
     /**
@@ -83,20 +82,18 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
      *
      * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
      *
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
-    private function getGroundVehicleLinksForManufacturer(Manufacturer $manufacturer): array
+    private function getGroundVehicleLinksForManufacturer(Manufacturer $manufacturer): Collection
     {
-        $groundVehicles = [];
-
-        foreach ($manufacturer->groundVehicles as $groundVehicle) {
-            $groundVehicles[] = app('api.url')->version('v1')->route(
-                'api.v1.starcitizen.vehicles.ground_vehicles.show',
-                [$groundVehicle->getRouteKey()]
-            );
-        }
-
-        return $groundVehicles;
+        return $manufacturer->groundVehicles->map(
+            function ($groundVehicle) {
+                return app('api.url')->version('v1')->route(
+                    'api.v1.starcitizen.vehicles.ground_vehicles.show',
+                    [$groundVehicle->getRouteKey()]
+                );
+            }
+        );
     }
 
     /**
@@ -121,7 +118,9 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
         $model->translations->each(
             function ($translation) use (&$translations) {
                 if (null !== $this->localeCode) {
-                    if ($translation->locale_code === $this->localeCode || (empty($translations['known_for']) && $translation->locale_code === config('language.english'))) {
+                    if ($translation->locale_code === $this->localeCode || (empty($translations['known_for']) && $translation->locale_code === config(
+                                'language.english'
+                            ))) {
                         $translations = [
                             'known_for' => $translation->known_for,
                             'description' => $translation->description,
@@ -130,6 +129,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
                         // Translation already found, exit loop
                         return false;
                     }
+
 
                     return $translation;
                 } else {
@@ -141,5 +141,4 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
 
         return $translations;
     }
-
 }

@@ -237,19 +237,21 @@ class CommLinkController extends Controller
     private function processCommLinkVersions(array $versions, string $currentVersion): array
     {
         $versionData = [];
-        foreach ($versions as $version) {
-            $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
+        collect($versions)->each(
+            function ($version) use ($versionData, $currentVersion) {
+                $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
 
-            if ("{$version}.html" === $currentVersion) {
-                $output = sprintf('%s: %s', __('Aktuell'), $output);
+                if ("{$version}.html" === $currentVersion) {
+                    $output = sprintf('%s: %s', __('Aktuell'), $output);
+                }
+
+                $versionData[] = [
+                    'output' => $output,
+                    'file_clean' => $version,
+                    'file' => "{$version}.html",
+                ];
             }
-
-            $versionData[] = [
-                'output' => $output,
-                'file_clean' => $version,
-                'file' => "{$version}.html",
-            ];
-        }
+        );
 
         return $versionData;
     }

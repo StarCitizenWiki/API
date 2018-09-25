@@ -71,13 +71,15 @@ class ParseStarmapDownload implements ShouldQueue
             $files = scandir($diskPath, SCANDIR_SORT_DESCENDING);
 
             if (is_array($files)) {
-                foreach ($files as $file) {
-                    if (0 === strcmp($file, DownloadStarmap::STARMAP_BOOTUP_FILENAME)) {
-                        $this->starmapBootupFile = $file;
-                    } else {
-                        $this->starmapFiles["{$file}"] = $file;
+                collect($files)->each(
+                    function ($file) {
+                        if (0 === strcmp($file, DownloadStarmap::STARMAP_BOOTUP_FILENAME)) {
+                            $this->starmapBootupFile = $file;
+                        } else {
+                            $this->starmapFiles["{$file}"] = $file;
+                        }
                     }
-                }
+                );
             } else {
                 app('Log')::error("No Starmap Files on Disk 'starmap\{$this->starmapFolder}' found.");
                 $this->fail();
