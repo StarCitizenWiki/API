@@ -8,8 +8,8 @@
 namespace Tests\Feature\Notification\Rsi\CommLink;
 
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
-use App\Models\Account\Admin\Admin;
-use App\Models\Account\Admin\AdminGroup;
+use App\Models\Account\User\User;
+use App\Models\Account\User\UserGroup;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinksChanged as CommLinksChangedModel;
 use App\Notifications\Rsi\CommLink\CommLinksChanged as CommLinksChangedNotification;
@@ -29,7 +29,7 @@ class CommLinkChangedTest extends TestCase
      * @covers \App\Listeners\Rsi\CommLink\SendCommLinksChangedNotification
      * @covers \App\Notifications\Rsi\CommLink\CommLinksChanged
      * @covers \App\Mail\Rsi\CommLink\CommLinksChanged
-     * @covers \App\Models\Account\Admin\Admin
+     * @covers \App\Models\Account\User\User
      */
     public function testNotificationSendToAdmins()
     {
@@ -46,11 +46,11 @@ class CommLinkChangedTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->createAdminGroups();
+        $this->createUserGroups();
 
-        $this->admins = factory(Admin::class, 2)->create()->each(
-            function (Admin $admin) {
-                $admin->groups()->sync(AdminGroup::where('name', 'sysop')->first()->id);
+        $this->admins = factory(User::class, 2)->create()->each(
+            function (User $admin) {
+                $admin->groups()->sync(UserGroup::where('name', 'sysop')->first()->id);
             }
         );
 

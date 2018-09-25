@@ -3,7 +3,7 @@
 namespace App\Listeners\Rsi\CommLink;
 
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
-use App\Models\Account\Admin\Admin;
+use App\Models\Account\User\User;
 use App\Notifications\Rsi\CommLink\NewCommLinksDownloaded as NewCommLinksDownloadedNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -21,7 +21,7 @@ class SendNewCommLinksDownloadedNotification
      */
     public function handle(NewCommLinksDownloaded $event)
     {
-        $admins = Admin::query()->whereHas('editorGroup')->orWhereHas('adminGroup')->whereNotNull('email')->get();
+        $admins = User::query()->whereHas('editorGroup')->orWhereHas('adminGroup')->whereNotNull('email')->get();
 
         Notification::send($admins, new NewCommLinksDownloadedNotification($event->commLinks));
     }

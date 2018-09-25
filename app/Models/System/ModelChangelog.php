@@ -2,7 +2,7 @@
 
 namespace App\Models\System;
 
-use App\Models\Account\Admin\Admin;
+use App\Models\Account\User\User;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -13,7 +13,7 @@ class ModelChangelog extends Model
     protected $fillable = [
         'type',
         'changelog',
-        'admin_id',
+        'user_id',
         'created_at',
     ];
 
@@ -22,7 +22,7 @@ class ModelChangelog extends Model
     ];
 
     protected $with = [
-        'admin',
+        'user',
     ];
 
     /**
@@ -38,8 +38,8 @@ class ModelChangelog extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function admin()
+    public function user()
     {
-        return $this->belongsTo(Admin::class);
+        return $this->belongsTo(User::class);
     }
 }

@@ -23,8 +23,8 @@ class CreateVehicleTranslationsTable extends Migration
                 $table->timestamps();
 
                 $table->unique(['locale_code', 'vehicle_id'], 'vehicle_translations_primary');
-                $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
-                $table->foreign('vehicle_id')->references('id')->on('vehicles')->onDelete('cascade');
+                $table->foreign('locale_code')->references('locale_code')->on('languages');
+                $table->foreign('vehicle_id')->references('id')->on('vehicles');
             }
         );
     }

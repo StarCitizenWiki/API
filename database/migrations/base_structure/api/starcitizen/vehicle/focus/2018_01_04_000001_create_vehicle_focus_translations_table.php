@@ -23,8 +23,8 @@ class CreateVehicleFocusTranslationsTable extends Migration
                 $table->timestamps();
 
                 $table->unique(['locale_code', 'focus_id'], 'vehicle_focus_translations_primary');
-                $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
-                $table->foreign('focus_id')->references('id')->on('vehicle_foci')->onDelete('cascade');
+                $table->foreign('locale_code')->references('locale_code')->on('languages');
+                $table->foreign('focus_id')->references('id')->on('vehicle_foci');
             }
         );
     }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Web\User\Auth;
 
+use App\Contracts\Web\User\AuthRepositoryInterface;
 use App\Http\Controllers\Controller;
-use App\Models\Account\User\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,18 +27,52 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
     /**
-     * Create a new controller instance.
+     * Where to redirect users after login / registration.
+     *
+     * @var string
      */
-    public function __construct()
+    public $redirectTo = '/dashboard';
+
+    /**
+     * @var \App\Contracts\Web\User\AuthRepositoryInterface
+     */
+    private $authRepository;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param \App\Contracts\Web\User\AuthRepositoryInterface $authRepository
+     */
+    public function __construct(AuthRepositoryInterface $authRepository)
     {
         parent::__construct();
         $this->middleware('guest', ['except' => 'logout']);
+        $this->authRepository = $authRepository;
     }
 
     /**
-     * Show the application's login form.
+     * Get the path that we should redirect once logged out.
+     * Adaptable to user needs.
      *
-     * @return \Illuminate\Http\Response
+     * @return string
+     */
+    public function logoutToPath()
+    {
+        return '/';
+    }
+
+    /**
+     * Get the login username to be used by the controller.
+     *
+     * @return string
+     */
+    public function username()
+    {
+        return 'username';
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function showLoginForm()
     {
@@ -46,54 +80,58 @@ class LoginController extends Controller
     }
 
     /**
-     * Log the user out of the application.
-     *
-     * @param \Illuminate\Http\Request $request Login Request
+     * Redirect the user to the GitHub authentication page.
      *
      * @return \Illuminate\Http\Response
      */
-    public function logout(Request $request)
+    public function redirectToProvider()
     {
-        app('Log')::info('User with ID: '.Auth::id().' logged out');
-
-        $this->guard()->logout();
-
-        $request->session()->flush();
-
-        $request->session()->regenerate();
-
-        return redirect('/');
+        return $this->authRepository->startAuth();
     }
 
     /**
-     * Checks if a User is blacklisted if so returns an error
-     *
-     * @param \Illuminate\Http\Request $request Login Request
-     * @param mixed                    $user    Authenticated User
+     * Obtain the user information from GitHub.
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    protected function authenticated(Request $request, User $user)
+    public function handleProviderCallback()
     {
-        if ($user->isBlocked()) {
-            app('Log')::notice("Blacklisted User with ID: {$user->id} tried to login");
-            Auth::logout();
+        $user = $this->authRepository->getUserFromProvider();
+        $authUser = $this->authRepository->getOrCreateLocalUser($user, 'mediawiki');
 
-            return redirect()->route('web.user.auth.login_form')->withErrors('Account is blacklisted');
-        }
+        Auth::login($authUser);
 
-        app('Log')::info("User with ID: {$user->id} logged in");
-
-        return null;
+        return $this->authenticated();
     }
 
     /**
-     * Where to redirect users after registration.
+     * Redirect to Login Form
      *
-     * @return string
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
-    protected function redirectTo()
+    protected function loggedOut(Request $request)
     {
-        return route('web.user.account.index');
+        return redirect()->route('web.user.auth.login');
+    }
+
+    /**
+     * Redirect to Accept Licence View if Editor has not accepted the licence
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function authenticated()
+    {
+        /** @var \App\Models\Account\User\User $user */
+        $user = Auth::user();
+
+        $accepted = optional($user->settings)->editor_license_accepted ?? false;
+
+        if ($user->isEditor() && !$accepted) {
+            return redirect()->route('web.user.license.show');
+        }
+
+        return redirect()->intended($this->redirectTo);
     }
 }

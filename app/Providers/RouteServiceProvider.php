@@ -115,11 +115,6 @@ class RouteServiceProvider extends ServiceProvider
                                     ->namespace('Api')
                                     ->group(base_path('routes/web/api.php'));
 
-                                Route::name('admin.')
-                                    ->namespace('Admin')
-                                    ->prefix('admin')
-                                    ->group(base_path('routes/web/admin.php'));
-
                                 Route::name('user.')
                                     ->namespace('User')
                                     ->group(base_path('routes/web/user.php'));
@@ -140,10 +135,10 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 // TODO unschöne Lösung. Implicit Model Binding läuft vor Policies -> Geblockter User bekommt für nicht existierendes Model 404 Fehler statt 403
                 // Mögliche Lösung: Model Typehint aus Controller entfernen und Model explizit aus DB holen
-                Gate::authorize('web.admin.users.view', Auth::guard('admin')->user());
+                Gate::authorize('web.user.users.view', Auth::user());
                 $id = $this->decodeId($id, User::class);
 
-                return User::withTrashed()->findOrFail($id);
+                return User::findOrFail($id);
             }
         );
         Route::bind(
@@ -199,6 +194,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     private function authorizeTranslationView()
     {
-        Gate::authorize('web.admin.translations.view', Auth::guard('admin')->user());
+        Gate::authorize('web.user.translations.view', Auth::user());
     }
 }

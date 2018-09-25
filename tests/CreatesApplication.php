@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use App\Models\Account\Admin\AdminGroup;
+use App\Models\Account\User\UserGroup;
 use App\Models\System\Language;
 use Illuminate\Contracts\Console\Kernel;
 
@@ -29,15 +29,15 @@ trait CreatesApplication
     /**
      * Create all Admin Groups
      */
-    protected function createAdminGroups()
+    protected function createUserGroups()
     {
-        if (AdminGroup::count() === 0) {
-            factory(AdminGroup::class)->states('bureaucrat')->create();
-            factory(AdminGroup::class)->states('sysop')->create();
-            factory(AdminGroup::class)->states('sichter')->create();
-            factory(AdminGroup::class)->states('mitarbeiter')->create();
-            factory(AdminGroup::class)->states('user')->create();
-            factory(AdminGroup::class)->states('editor')->create();
+        if (UserGroup::count() === 0) {
+            factory(UserGroup::class)->states('bureaucrat')->create();
+            factory(UserGroup::class)->states('sysop')->create();
+            factory(UserGroup::class)->states('sichter')->create();
+            factory(UserGroup::class)->states('mitarbeiter')->create();
+            factory(UserGroup::class)->states('user')->create();
+            factory(UserGroup::class)->states('editor')->create();
         }
     }
 

@@ -44,15 +44,15 @@ class CreateVehiclesTable extends Migration
                 $table->timestamps();
 
                 $table->unique('cig_id');
-                $table->foreign('manufacturer_id')->references('id')->on('manufacturers')->onDelete('cascade');
+                $table->foreign('manufacturer_id')->references('id')->on('manufacturers');
                 $table->foreign('production_status_id')->references('id')->on('production_statuses')->onDelete(
                     'cascade'
                 );
                 $table->foreign('production_note_id')->references('id')->on('production_notes')->onDelete(
                     'cascade'
                 );
-                $table->foreign('size_id')->references('id')->on('vehicle_sizes')->onDelete('cascade');
-                $table->foreign('type_id')->references('id')->on('vehicle_types')->onDelete('cascade');
+                $table->foreign('size_id')->references('id')->on('vehicle_sizes');
+                $table->foreign('type_id')->references('id')->on('vehicle_types');
             }
         );
     }

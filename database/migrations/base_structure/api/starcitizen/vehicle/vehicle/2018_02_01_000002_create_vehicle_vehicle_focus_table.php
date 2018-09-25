@@ -20,8 +20,8 @@ class CreateVehicleVehicleFocusTable extends Migration
                 $table->unsignedInteger('focus_id');
 
                 $table->primary(['vehicle_id', 'focus_id'], 'vehicle_focus_primary');
-                $table->foreign('vehicle_id')->references('id')->on('vehicles')->onDelete('cascade');
-                $table->foreign('focus_id')->references('id')->on('vehicle_foci')->onDelete('cascade');
+                $table->foreign('vehicle_id')->references('id')->on('vehicles');
+                $table->foreign('focus_id')->references('id')->on('vehicle_foci');
             }
         );
     }

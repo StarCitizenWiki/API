@@ -22,8 +22,8 @@ class CreateStarsystemTranslationsTable extends Migration
                 $table->text('translation');
                 $table->timestamps();
 
-                $table->foreign('starsystem_id')->references('id')->on('starsystems')->onDelete('cascade');
-                $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
+                $table->foreign('starsystem_id')->references('id')->on('starsystems');
+                $table->foreign('locale_code')->references('locale_code')->on('languages');
 
                 $table->unique(['locale_code', 'starsystem_id'], 'starsystem_translation_primary');
             }

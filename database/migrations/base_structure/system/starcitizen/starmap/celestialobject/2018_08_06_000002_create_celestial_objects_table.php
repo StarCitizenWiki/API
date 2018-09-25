@@ -62,8 +62,8 @@ class CreateCelestialObjectsTable extends Migration
                 $table->foreign('subtype_id')->references('id')->on('celestial_object_subtypes')->onDelete(
                     'cascade'
                 )->nullable();
-                $table->foreign('affiliation_id')->references('id')->on('affiliations')->onDelete('cascade')->nullable();
-                $table->foreign('starsystem_id')->references('id')->on('starsystems')->onDelete('cascade')->nullable();
+                $table->foreign('affiliation_id')->references('id')->on('affiliations')->nullable();
+                $table->foreign('starsystem_id')->references('id')->on('starsystems')->nullable();
 
                 $table->unique('cig_id');
                 $table->unique('code');

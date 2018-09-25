@@ -36,11 +36,11 @@ class CreateJumppointsTable extends Migration
                 $table->timestamps();
 
                 $table->unique('cig_id');
-                $table->foreign('entry_id')->references('id')->on('celestial_objects')->onDelete('cascade');
-                $table->foreign('exit_id')->references('id')->on('celestial_objects')->onDelete('cascade');
+                $table->foreign('entry_id')->references('id')->on('celestial_objects');
+                $table->foreign('exit_id')->references('id')->on('celestial_objects');
 
-                $table->foreign('entry_system_id')->references('id')->on('starsystems')->onDelete('cascade');
-                $table->foreign('exit_system_id')->references('id')->on('starsystems')->onDelete('cascade');
+                $table->foreign('entry_system_id')->references('id')->on('starsystems');
+                $table->foreign('exit_system_id')->references('id')->on('starsystems');
             }
         );
     }

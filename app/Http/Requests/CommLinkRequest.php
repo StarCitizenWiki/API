@@ -15,7 +15,7 @@ class CommLinkRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::guard('admin')->check();
+        return Auth::check();
     }
 
     /**
@@ -41,7 +41,7 @@ class CommLinkRequest extends FormRequest
             }
         }
 
-        if (Auth::guard('admin')->user()->can('web.admin.rsi.comm-links.update_settings')) {
+        if (Auth::user()->can('web.user.rsi.comm-links.update_settings')) {
             $rules['version'] = 'required|string|regex:/\d{4}\-\d{2}\-\d{2}\_\d{6}\.html/';
         }
 

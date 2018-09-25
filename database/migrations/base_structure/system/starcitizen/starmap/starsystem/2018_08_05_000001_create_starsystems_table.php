@@ -37,7 +37,7 @@ class CreateStarsystemsTable extends Migration
                 $table->unsignedInteger('affiliation_id')->nullable();
                 $table->timestamps();
 
-                $table->foreign('affiliation_id')->references('id')->on('affiliations')->onDelete('cascade');
+                $table->foreign('affiliation_id')->references('id')->on('affiliations');
             }
         );
     }

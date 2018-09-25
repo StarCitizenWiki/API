@@ -18,7 +18,7 @@ class ManufacturerTranslationRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::guard('admin')->check();
+        return Auth::check();
     }
 
     /**

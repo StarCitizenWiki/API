@@ -22,8 +22,8 @@ class CreateCelestialObjectTranslationsTable extends Migration
                 $table->text('translation');
                 $table->timestamps();
 
-                $table->foreign('celestial_object_id')->references('id')->on('celestial_objects')->onDelete('cascade');
-                $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
+                $table->foreign('celestial_object_id')->references('id')->on('celestial_objects');
+                $table->foreign('locale_code')->references('locale_code')->on('languages');
 
                 $table->unique(['locale_code', 'celestial_object_id'], 'celestial_object_translation_primary');
             }

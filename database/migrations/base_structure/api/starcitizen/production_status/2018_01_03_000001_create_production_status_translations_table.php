@@ -23,8 +23,8 @@ class CreateProductionStatusTranslationsTable extends Migration
                 $table->timestamps();
 
                 $table->unique(['locale_code', 'production_status_id'], 'production_status_translations_primary');
-                $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
-                $table->foreign('production_status_id')->references('id')->on('production_statuses')->onDelete('cascade');
+                $table->foreign('locale_code')->references('locale_code')->on('languages');
+                $table->foreign('production_status_id')->references('id')->on('production_statuses');
             }
         );
     }

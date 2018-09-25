@@ -5,5 +5,11 @@
   "created_at": "Erstelldatum",
   "translation": "Übersetzung",
   "title": "Titel",
-  "url": "URL"
+  "url": "URL",
+
+  "bureaucrat": "Bürokrat",
+  "sysop": "Administrator",
+  "editor": "Editor",
+  "mitarbeiter": "Mitarbeiter",
+  "sichter": "Sichter"
 }

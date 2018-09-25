@@ -32,9 +32,9 @@ class CreateCommLinksTable extends Migration
                 $table->timestamps();
 
 
-                $table->foreign('channel_id')->references('id')->on('comm_link_channels')->onDelete('cascade');
-                $table->foreign('category_id')->references('id')->on('comm_link_categories')->onDelete('cascade');
-                $table->foreign('series_id')->references('id')->on('comm_link_series')->onDelete('cascade');
+                $table->foreign('channel_id')->references('id')->on('comm_link_channels');
+                $table->foreign('category_id')->references('id')->on('comm_link_categories');
+                $table->foreign('series_id')->references('id')->on('comm_link_series');
             }
         );
     }

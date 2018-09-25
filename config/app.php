@@ -163,7 +163,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        App\Providers\Web\Admin\AuthServiceProvider::class,
+        App\Providers\Web\User\AuthRepositoryServiceProvider::class,
 
         Jackiedo\LogReader\LogReaderServiceProvider::class,
     ],

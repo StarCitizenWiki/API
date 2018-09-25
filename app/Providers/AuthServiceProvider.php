@@ -2,17 +2,17 @@
 
 namespace App\Providers;
 
-use App\Models\Account\Admin\Admin;
-use App\Models\Account\Admin\AdminGroup;
-use App\Policies\Web\Admin\Admin\AdminPolicy;
-use App\Policies\Web\Admin\DashboardPolicy;
-use App\Policies\Web\Admin\License\LicensePolicy;
-use App\Policies\Web\Admin\Notification\NotificationPolicy;
-use App\Policies\Web\Admin\Rsi\CommLink\CommLinkPolicy;
-use App\Policies\Web\Admin\StarCitizen\Manufacturer\ManufacturerPolicy;
-use App\Policies\Web\Admin\StarCitizen\Vehicle\VehiclePolicy;
-use App\Policies\Web\Admin\TranslationPolicy;
-use App\Policies\Web\Admin\User\UserPolicy;
+use App\Models\Account\User\User;
+use App\Models\Account\User\UserGroup;
+use App\Policies\Web\User\Account\AccountPolicy;
+use App\Policies\Web\User\License\LicensePolicy;
+use App\Policies\Web\User\User\UserPolicy;
+use App\Policies\Web\User\DashboardPolicy;
+use App\Policies\Web\User\Notification\NotificationPolicy;
+use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
+use App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy;
+use App\Policies\Web\User\StarCitizen\Vehicle\VehiclePolicy;
+use App\Policies\Web\User\TranslationPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -40,35 +40,35 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * Admin Gates
          */
-        Gate::resource('web.admin.dashboard', DashboardPolicy::class);
-        Gate::resource('web.admin.admins', AdminPolicy::class);
-        Gate::resource('web.admin.license', LicensePolicy::class);
-        Gate::resource('web.admin.translations', TranslationPolicy::class);
+        Gate::resource('web.user.dashboard', DashboardPolicy::class);
+        Gate::resource('web.user.account', AccountPolicy::class);
+        Gate::resource('web.user.license', LicensePolicy::class);
+        Gate::resource('web.user.translations', TranslationPolicy::class);
 
         /**
          * Internals = Datenbank IDs, etc.
          */
         Gate::define(
-            'web.admin.internals.view',
-            function (Admin $admin) {
-                return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
+            'web.user.internals.view',
+            function (User $admin) {
+                return $admin->getHighestPermissionLevel() >= UserGroup::SYSOP;
             }
         );
 
-        Gate::resource('web.admin.notifications', NotificationPolicy::class);
-        Gate::resource('web.admin.users', UserPolicy::class);
+        Gate::resource('web.user.notifications', NotificationPolicy::class);
+        Gate::resource('web.user.users', UserPolicy::class);
 
         /**
          * Star Citizen
          */
-        Gate::resource('web.admin.starcitizen.manufacturers', ManufacturerPolicy::class);
-        Gate::resource('web.admin.starcitizen.vehicles', VehiclePolicy::class);
+        Gate::resource('web.user.starcitizen.manufacturers', ManufacturerPolicy::class);
+        Gate::resource('web.user.starcitizen.vehicles', VehiclePolicy::class);
 
         /**
          * RSI
          */
-        Gate::resource('web.admin.rsi.comm-links', CommLinkPolicy::class);
-        Gate::define('web.admin.rsi.comm-links.update_settings', 'App\Policies\Web\Admin\Rsi\CommLink\CommLinkPolicy@updateSettings');
-        Gate::define('web.admin.rsi.comm-links.preview', 'App\Policies\Web\Admin\Rsi\CommLink\CommLinkPolicy@preview');
+        Gate::resource('web.user.rsi.comm-links', CommLinkPolicy::class);
+        Gate::define('web.user.rsi.comm-links.update_settings', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@updateSettings');
+        Gate::define('web.user.rsi.comm-links.preview', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@preview');
     }
 }

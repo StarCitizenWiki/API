@@ -1,15 +1,8 @@
-@if (Auth::guest())
-    @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])
-        @component('components.elements.icon')
-            sign-in
-        @endcomponent
-        @lang('Login')
-    @endcomponent
-@else
+@auth
     @component('components.navs.nav_element', [
-        'route' => route('web.user.account.index'),
-        'class' => 'mr-2',
-    ])
+    'route' => route('web.user.account.show'),
+    'class' => 'mr-2',
+])
         @component('components.elements.icon', ['class' => 'mr-1'])
             user-circle
         @endcomponent
@@ -33,7 +26,14 @@
         @endcomponent
         @lang('Logout')
     @endcomponent
-@endif
+@else
+    @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])
+        @component('components.elements.icon')
+            sign-in
+        @endcomponent
+        @lang('Login')
+    @endcomponent
+@endauth
 
 @component('components.navs.nav_element', ['contentClass' => 'small'])
     @slot('options')

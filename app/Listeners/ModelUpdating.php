@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Auth;
  */
 class ModelUpdating
 {
-    private const ADMIN_GUARD = 'admin';
-
     /**
      * @var \Illuminate\Database\Eloquent\Model
      */
@@ -39,7 +37,7 @@ class ModelUpdating
             [
                 'type' => $this->getChangelogType(),
                 'changelog' => $this->getChangelogData(),
-                'admin_id' => $this->getCreatorId(),
+                'user_id' => $this->getCreatorId(),
                 'created_at' => $createdAt,
             ]
         );
@@ -117,12 +115,6 @@ class ModelUpdating
      */
     private function getCreatorId(): int
     {
-        $id = 0;
-
-        if (Auth::guard(self::ADMIN_GUARD)->check()) {
-            $id = Auth::guard(self::ADMIN_GUARD)->user()->provider_id;
-        }
-
-        return (int) $id;
+        return (int) (Auth::check() ? Auth::id() : 0);
     }
 }

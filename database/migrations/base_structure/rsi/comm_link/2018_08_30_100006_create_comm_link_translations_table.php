@@ -23,8 +23,8 @@ class CreateCommLinkTranslationsTable extends Migration
                 $table->timestamps();
 
                 $table->unique(['locale_code', 'comm_link_id'], 'comm_link_translations_primary');
-                $table->foreign('locale_code')->references('locale_code')->on('languages')->onDelete('cascade');
-                $table->foreign('comm_link_id')->references('id')->on('comm_links')->onDelete('cascade');
+                $table->foreign('locale_code')->references('locale_code')->on('languages');
+                $table->foreign('comm_link_id')->references('id')->on('comm_links');
             }
         );
 
