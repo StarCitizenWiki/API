@@ -55,7 +55,5 @@ class ParseCommLinkDownload implements ShouldQueue
                 }
             }
         );
-
-        event(new CommLinkChangedEvent());
     }
 }
