@@ -25,7 +25,7 @@ class ShipControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    protected const BASE_API_ENDPOINT = '/api/vehicles/ships';
+    protected const BASE_API_ENDPOINT = '/api/ships';
 
     /**
      * {@inheritdoc}

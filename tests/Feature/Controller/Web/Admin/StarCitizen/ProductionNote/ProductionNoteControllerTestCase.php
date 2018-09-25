@@ -31,7 +31,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
      */
     public function testIndex()
     {
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.starcitizen.production_notes.index'));
+        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.starcitizen.production-notes.index'));
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
 
         if ($response->status() === Response::HTTP_OK) {
@@ -59,7 +59,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
         $productionNote->translations()->save(factory(ProductionNoteTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.starcitizen.production_notes.edit', $productionNote->getRouteKey())
+            route('web.admin.starcitizen.production-notes.edit', $productionNote->getRouteKey())
         );
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
 
@@ -78,7 +78,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
     public function testEditNotFound()
     {
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.starcitizen.production_notes.edit', static::MODEL_ID_NOT_EXISTENT)
+            route('web.admin.starcitizen.production-notes.edit', static::MODEL_ID_NOT_EXISTENT)
         );
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
@@ -104,7 +104,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
         $productionNote->translations()->save(factory(ProductionNoteTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.starcitizen.production_notes.update', $productionNote->getRouteKey()),
+            route('web.admin.starcitizen.production-notes.update', $productionNote->getRouteKey()),
             [
                 'en_EN' => 'Vehicle ProductionNote translation',
                 'de_DE' => 'Translation Deutsch',
@@ -124,7 +124,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
     public function testUpdateNotFound()
     {
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.starcitizen.production_notes.update', static::MODEL_ID_NOT_EXISTENT),
+            route('web.admin.starcitizen.production-notes.update', static::MODEL_ID_NOT_EXISTENT),
             [
                 'en_EN' => 'Production Notes translation',
                 'de_DE' => 'Translation Deutsch',

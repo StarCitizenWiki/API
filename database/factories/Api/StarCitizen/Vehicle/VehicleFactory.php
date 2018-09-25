@@ -37,10 +37,13 @@ $factory->define(
             factory(\App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation::class)->make()
         );
 
+        $name = $faker->unique()->userName;
+        $slug = str_slug($name);
+
         return [
             'cig_id' => $cigId++,
-            'name' => $faker->userName,
-            'slug' => $faker->slug,
+            'name' => $name,
+            'slug' => $slug,
             'manufacturer_id' => $manufacturer->id,
             'production_status_id' => $productionStatus->id,
             'production_note_id' => $productionNote->id,
@@ -97,7 +100,7 @@ $factory->state(
                 'translation',
                 'ground'
             )->firstOrFail();
-            $type = $type->vehicleType;
+            $type = $type->type;
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
             $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\Type::class)->create();

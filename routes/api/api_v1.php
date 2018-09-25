@@ -48,12 +48,12 @@ $api->group(
                 $api->group(
                     [
                         'namespace' => 'GroundVehicle',
-                        'prefix' => 'ground_vehicles',
+                        'prefix' => 'ground-vehicles',
                     ],
                     function ($api) {
-                        $api->get('/', ['as' => 'api.v1.starcitizen.vehicles.ground_vehicles.all', 'uses' => 'GroundVehicleController@index']);
-                        $api->get('{ground_vehicle}', ['as' => 'api.v1.starcitizen.vehicles.ground_vehicles.show', 'uses' => 'GroundVehicleController@show']);
-                        $api->post('/search', ['as' => 'api.v1.starcitizen.vehicles.ground_vehicles.search', 'uses' => 'GroundVehicleController@search']);
+                        $api->get('/', ['as' => 'api.v1.starcitizen.vehicles.ground-vehicles.all', 'uses' => 'GroundVehicleController@index']);
+                        $api->get('{ground_vehicle}', ['as' => 'api.v1.starcitizen.vehicles.ground-vehicles.show', 'uses' => 'GroundVehicleController@show']);
+                        $api->post('/search', ['as' => 'api.v1.starcitizen.vehicles.ground-vehicles.search', 'uses' => 'GroundVehicleController@search']);
                     }
                 );
             }

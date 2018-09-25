@@ -6,7 +6,7 @@ $factory->define(
     \App\Models\Api\StarCitizen\Vehicle\Focus\Focus::class,
     function (Faker $faker) {
         return [
-            'slug' => $faker->slug,
+            'slug' => $faker->unique()->slug,
         ];
     }
 );

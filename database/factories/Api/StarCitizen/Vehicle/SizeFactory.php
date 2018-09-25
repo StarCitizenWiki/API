@@ -6,7 +6,7 @@ $factory->define(
     \App\Models\Api\StarCitizen\Vehicle\Size\Size::class,
     function (Faker $faker) {
         return [
-            'slug' => $faker->slug,
+            'slug' => $faker->unique()->slug,
         ];
     }
 );

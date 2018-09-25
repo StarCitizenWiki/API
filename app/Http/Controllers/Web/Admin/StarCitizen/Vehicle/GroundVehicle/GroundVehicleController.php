@@ -34,9 +34,9 @@ class GroundVehicleController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.ground-vehicles.index',
+            'admin.starcitizen.vehicles.ground_vehicles.index',
             [
-                'ground-vehicles' => GroundVehicle::all(),
+                'groundVehicles' => GroundVehicle::all(),
             ]
         );
     }
@@ -56,9 +56,9 @@ class GroundVehicleController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.ground-vehicles.edit',
+            'admin.starcitizen.vehicles.ground_vehicles.edit',
             [
-                'ground_vehicle' => $groundVehicle,
+                'groundVehicle' => $groundVehicle,
             ]
         );
     }

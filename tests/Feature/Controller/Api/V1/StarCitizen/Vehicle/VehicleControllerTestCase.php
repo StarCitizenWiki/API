@@ -161,6 +161,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
         $vehicle = factory(Vehicle::class)->state(static::DEFAULT_VEHICLE_TYPE)->create(
             [
                 'name' => $name,
+                'slug' => str_slug($name),
             ]
         );
         $vehicle->translations()->save(factory(VehicleTranslation::class)->make());

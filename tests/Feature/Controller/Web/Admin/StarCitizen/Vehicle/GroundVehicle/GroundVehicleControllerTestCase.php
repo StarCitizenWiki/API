@@ -32,7 +32,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      */
     public function testIndex()
     {
-        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.starcitizen.vehicles.ground_vehicles.index'));
+        $response = $this->actingAs($this->admin, 'admin')->get(route('web.admin.starcitizen.vehicles.ground-vehicles.index'));
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
 
         if ($response->status() === Response::HTTP_OK) {
@@ -62,7 +62,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
         $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.starcitizen.vehicles.ground_vehicles.edit', $groundVehicle->getRouteKey())
+            route('web.admin.starcitizen.vehicles.ground-vehicles.edit', $groundVehicle->getRouteKey())
         );
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
 
@@ -87,7 +87,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
     public function testEditNotFound()
     {
         $response = $this->actingAs($this->admin, 'admin')->get(
-            route('web.admin.starcitizen.vehicles.ground_vehicles.edit', static::MODEL_ID_NOT_EXISTENT)
+            route('web.admin.starcitizen.vehicles.ground-vehicles.edit', static::MODEL_ID_NOT_EXISTENT)
         );
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
@@ -115,7 +115,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
         $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.starcitizen.vehicles.ground_vehicles.update', $groundVehicle->getRouteKey()),
+            route('web.admin.starcitizen.vehicles.ground-vehicles.update', $groundVehicle->getRouteKey()),
             [
                 'en_EN' => 'GroundVehicle translation',
                 'de_DE' => 'Translation Deutsch',
@@ -142,7 +142,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
         $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
-            route('web.admin.starcitizen.vehicles.ground_vehicles.update', static::MODEL_ID_NOT_EXISTENT),
+            route('web.admin.starcitizen.vehicles.ground-vehicles.update', static::MODEL_ID_NOT_EXISTENT),
             [
                 'en_EN' => 'GroundVehicle translation',
                 'de_DE' => 'Translation Deutsch',

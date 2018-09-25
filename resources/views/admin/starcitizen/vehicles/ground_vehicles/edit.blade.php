@@ -1,7 +1,7 @@
 @extends('admin.layouts.default_wide')
 
 @section('title')
-    @lang('Fahrzeug') {{ $ground_vehicle->name}} @lang('bearbeiten')
+    @lang('Fahrzeug') {{ $groundVehicle->name}} @lang('bearbeiten')
 @endsection
 
 @section('content')
@@ -11,7 +11,7 @@
                 'class' => 'mb-4',
             ])
                 @slot('title')
-                    <h4 class="mb-0">@lang('Fahrzeugdaten') <small class="float-right mt-1">Letztes Update: {{ $ground_vehicle->updated_at->diffForHumans() }}</small></h4>
+                    <h4 class="mb-0">@lang('Fahrzeugdaten') <small class="float-right mt-1">Letztes Update: {{ $groundVehicle->updated_at->diffForHumans() }}</small></h4>
                 @endslot
                 @component('components.forms.form')
                         <div class="row">
@@ -21,7 +21,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Name'),
                                     'id' => 'name',
-                                    'value' => $ground_vehicle->name,
+                                    'value' => $groundVehicle->name,
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-2">
@@ -30,7 +30,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Hersteller'),
                                     'id' => 'manufacturer',
-                                    'value' => $ground_vehicle->manufacturer->name_short,
+                                    'value' => $groundVehicle->manufacturer->name_short,
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-3">
@@ -39,7 +39,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('CIG ID'),
                                     'id' => 'cig_id',
-                                    'value' => $ground_vehicle->cig_id,
+                                    'value' => $groundVehicle->cig_id,
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-3">
@@ -48,7 +48,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Chassis ID'),
                                     'id' => 'chassis_id',
-                                    'value' => $ground_vehicle->chassis_id,
+                                    'value' => $groundVehicle->chassis_id,
                                 ])@endcomponent
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Produktionsstatus'),
                                     'id' => 'status',
-                                    'value' => $ground_vehicle->productionStatus->english()->translation,
+                                    'value' => $groundVehicle->productionStatus->english()->translation,
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-6">
@@ -69,7 +69,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Produktionsnotiz'),
                                     'id' => 'note',
-                                    'value' => $ground_vehicle->productionNote->english()->translation,
+                                    'value' => $groundVehicle->productionNote->english()->translation,
                                 ])@endcomponent
                             </div>
                         </div>
@@ -83,7 +83,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Größe'),
                                     'id' => 'size',
-                                    'value' => $ground_vehicle->size->english()->translation,
+                                    'value' => $groundVehicle->size->english()->translation,
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-3">
@@ -92,7 +92,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Typ'),
                                     'id' => 'type',
-                                    'value' => $ground_vehicle->type->english()->translation,
+                                    'value' => $groundVehicle->type->english()->translation,
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-2">
@@ -101,7 +101,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Länge'),
                                     'id' => 'length',
-                                    'value' => $ground_vehicle->length.' m',
+                                    'value' => $groundVehicle->length.' m',
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-2">
@@ -110,7 +110,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Breite'),
                                     'id' => 'beam',
-                                    'value' => $ground_vehicle->beam.' m',
+                                    'value' => $groundVehicle->beam.' m',
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-2">
@@ -119,7 +119,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Höhe'),
                                     'id' => 'height',
-                                    'value' => $ground_vehicle->height.' m',
+                                    'value' => $groundVehicle->height.' m',
                                 ])@endcomponent
                             </div>
                         </div>
@@ -131,7 +131,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Frachtkapazität'),
                                     'id' => 'cargo',
-                                    'value' => ($ground_vehicle->cargo_capacity ?? '-').' SCU',
+                                    'value' => ($groundVehicle->cargo_capacity ?? '-').' SCU',
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-3">
@@ -140,7 +140,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Mass'),
                                     'id' => 'mass',
-                                    'value' => $ground_vehicle->mass.' Kg',
+                                    'value' => $groundVehicle->mass.' Kg',
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-3">
@@ -149,7 +149,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Min. Besatzung'),
                                     'id' => 'crew_min',
-                                    'value' => $ground_vehicle->min_crew,
+                                    'value' => $groundVehicle->min_crew,
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-3">
@@ -158,7 +158,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Max. Besatzung'),
                                     'id' => 'crew_max',
-                                    'value' => $ground_vehicle->max_crew,
+                                    'value' => $groundVehicle->max_crew,
                                 ])@endcomponent
                             </div>
                         </div>
@@ -172,7 +172,7 @@
                                     'id' => 'focus',
                                 ])
                                     @slot('value')
-                                        @forelse($ground_vehicle->foci as $focus){{--
+                                        @forelse($groundVehicle->foci as $focus){{--
                                             --}}{{ $focus->english()->translation }}, {{--
                                         --}}@empty{{--
                                             --}}-{{--
@@ -187,7 +187,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('SCM Geschwindigkeit'),
                                     'id' => 'scm',
-                                    'value' => $ground_vehicle->scm_speed.' m/s',
+                                    'value' => $groundVehicle->scm_speed.' m/s',
                                 ])@endcomponent
                             </div>
                         </div>
@@ -198,7 +198,7 @@
 
         <div class="col-12 col-xl-6">
             @component('components.forms.form', [
-                'action' => route('web.admin.starcitizen.vehicles.ground-vehicles.update', $ground_vehicle->getRouteKey()),
+                'action' => route('web.admin.starcitizen.vehicles.ground-vehicles.update', $groundVehicle->getRouteKey()),
                 'method' => 'PATCH',
                 'class' => 'card'
             ])
@@ -207,7 +207,7 @@
                     <div class="card-body">
                         @include('components.errors')
                         @include('components.messages')
-                        @foreach($ground_vehicle->translationsCollection() as $key => $translation)
+                        @foreach($groundVehicle->translationsCollection() as $key => $translation)
                             @component('components.forms.form-group', [
                                 'inputType' => 'textarea',
                                 'label' => __('Beschreibung').' '.__($key),

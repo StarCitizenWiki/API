@@ -27,46 +27,46 @@
                 </thead>
                 <tbody>
 
-                @forelse($ground_vehicles as $ground_vehicle)
+                @forelse($groundVehicles as $groundVehicle)
                     <tr>
                         @can('web.admin.internals.view')
                             <td>
-                                {{ $ground_vehicle->id }}
+                                {{ $groundVehicle->id }}
                             </td>
                         @endcan
                         <td>
-                            {{ $ground_vehicle->cig_id }}
+                            {{ $groundVehicle->cig_id }}
                         </td>
                         <td>
-                            {{ $ground_vehicle->name }}
+                            {{ $groundVehicle->name }}
                         </td>
                         <td>
-                            {{ optional($ground_vehicle->manufacturer)->name_short }}
+                            {{ optional($groundVehicle->manufacturer)->name_short }}
                         </td>
                         <td>
-                            @foreach($ground_vehicle->foci as $focus)
+                            @foreach($groundVehicle->foci as $focus)
                                 {{ $focus->english()->translation }}<br>
                             @endforeach
                         </td>
                         <td>
-                            {{ $ground_vehicle->type->english()->translation ?? 'None' }}
+                            {{ $groundVehicle->type->english()->translation ?? 'None' }}
                         </td>
                         <td>
-                            {{ $ground_vehicle->productionStatus->english()->translation }}
+                            {{ $groundVehicle->productionStatus->english()->translation }}
                         </td>
                         <td>
-                            {{ optional($ground_vehicle->productionNote)->english()->translation ?? 'None' }}
+                            {{ optional($groundVehicle->productionNote)->english()->translation ?? 'None' }}
                         </td>
-                        <td data-order="{{ $ground_vehicle->updated_at->timestamp }}">
-                            {{ $ground_vehicle->updated_at->diffForHumans() }}
+                        <td data-order="{{ $groundVehicle->updated_at->timestamp }}">
+                            {{ $groundVehicle->updated_at->diffForHumans() }}
                         </td>
                         @can('web.admin.starcitizen.vehicles.update')
                             <td class="text-center">
                                 @component('components.edit_delete_block')
                                     @slot('edit_url')
-                                        {{ route('web.admin.starcitizen.vehicles.ground-vehicles.edit', $ground_vehicle->getRouteKey()) }}
+                                        {{ route('web.admin.starcitizen.vehicles.ground-vehicles.edit', $groundVehicle->getRouteKey()) }}
                                     @endslot
-                                    {{ $ground_vehicle->getRouteKey() }}
+                                    {{ $groundVehicle->getRouteKey() }}
                                 @endcomponent
                             </td>
                         @endcan

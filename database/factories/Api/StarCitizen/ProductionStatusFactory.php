@@ -6,7 +6,7 @@ $factory->define(
     \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus::class,
     function (Faker $faker) {
         return [
-            'slug' => $faker->slug(2),
+            'slug' => $faker->unique()->slug(2),
         ];
     }
 );
