@@ -3,14 +3,14 @@
 use Faker\Generator as Faker;
 
 $factory->define(
-    \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize::class,
+    \App\Models\Api\StarCitizen\Vehicle\Size\Size::class,
     function (Faker $faker) {
         return [];
     }
 );
 
 $factory->define(
-    \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSizeTranslation::class,
+    \App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation::class,
     function (Faker $faker) {
         return [
             'locale_code' => 'en_EN',

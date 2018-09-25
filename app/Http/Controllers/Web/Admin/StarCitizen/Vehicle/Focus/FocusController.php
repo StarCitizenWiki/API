@@ -1,19 +1,19 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size;
+namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
+use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\System\Language;
 
 /**
- * Class VehicleSizeController
+ * Class VehicleFocusController
  */
-class VehicleSizeController extends Controller
+class FocusController extends Controller
 {
     /**
-     * VehicleSizeController constructor.
+     * VehicleFocusController constructor.
      */
     public function __construct()
     {
@@ -34,11 +34,11 @@ class VehicleSizeController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.sizes.index',
+            'admin.starcitizen.vehicles.foci.index',
             [
-                'translations' => VehicleSize::all(),
+                'translations' => Focus::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.vehicles.sizes.edit',
+                'editRoute' => 'web.admin.starcitizen.vehicles.foci.edit',
             ]
         );
     }
@@ -46,22 +46,22 @@ class VehicleSizeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize $size
+     * @param \App\Models\Api\StarCitizen\Vehicle\Focus\Focus $focus
      *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function edit(VehicleSize $size)
+    public function edit(Focus $focus)
     {
         $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.sizes.edit',
+            'admin.starcitizen.vehicles.foci.edit',
             [
-                'translation' => $size,
-                'updateRoute' => 'web.admin.starcitizen.vehicles.sizes.update',
+                'translation' => $focus,
+                'updateRoute' => 'web.admin.starcitizen.vehicles.foci.update',
             ]
         );
     }
@@ -69,14 +69,14 @@ class VehicleSizeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\TranslationRequest                $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize $size
+     * @param \App\Http\Requests\TranslationRequest           $request
+     * @param \App\Models\Api\StarCitizen\Vehicle\Focus\Focus $focus
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(TranslationRequest $request, VehicleSize $size)
+    public function update(TranslationRequest $request, Focus $focus)
     {
         $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -84,16 +84,16 @@ class VehicleSizeController extends Controller
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {
-            $size->translations()->updateOrCreate(
+            $focus->translations()->updateOrCreate(
                 ['locale_code' => $localeCode],
                 ['translation' => $translation]
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.sizes.index')->withMessages(
+        return redirect()->route('web.admin.starcitizen.vehicles.foci.index')->withMessages(
             [
                 'success' => [
-                    __('crud.updated', ['type' => __('Fahrzeuggröße')]),
+                    __('crud.updated', ['type' => __('Fahrzeugfokus')]),
                 ],
             ]
         );

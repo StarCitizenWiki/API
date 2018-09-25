@@ -1,25 +1,27 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\StarCitizen\Vehicle\Size;
+namespace App\Models\Api\StarCitizen\Vehicle\Type;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
 
 /**
- * Vehicle Size Translations Model
+ * Vehicle Type Translations Model
  */
-class VehicleSizeTranslation extends Translation
+class TypeTranslation extends Translation
 {
+    protected $table = 'vehicle_type_translations';
+
     protected $fillable = [
         'locale_code',
-        'vehicle_size_id',
+        'vehicle_type_id',
         'translation',
     ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function vehicleSize()
+    public function vehicleType()
     {
-        return $this->belongsTo(VehicleSize::class);
+        return $this->belongsTo(Type::class);
     }
 }

@@ -9,13 +9,24 @@ use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 /**
  * Vehicle Focus Model
  */
-class VehicleFocus extends HasTranslations
+class Focus extends HasTranslations
 {
     use VehicleRelations;
     use ObfuscatedRouteKey;
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @var string
+     */
+    protected $table = 'vehicle_foci';
+
+    /**
+     * @var array
+     */
     protected $with = [
         'translations',
     ];
@@ -25,6 +36,6 @@ class VehicleFocus extends HasTranslations
      */
     public function translations()
     {
-        return $this->hasMany(VehicleFocusTranslation::class);
+        return $this->hasMany(FocusTranslation::class);
     }
 }

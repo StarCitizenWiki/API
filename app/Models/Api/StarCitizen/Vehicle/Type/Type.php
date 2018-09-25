@@ -1,21 +1,32 @@
 <?php declare(strict_types = 1);
 
-namespace App\Models\Api\StarCitizen\Vehicle\Size;
+namespace App\Models\Api\StarCitizen\Vehicle\Type;
 
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
+use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 
 /**
- * Vehicle Size Model
+ * Vehicle Type Model
  */
-class VehicleSize extends HasTranslations
+class Type extends HasTranslations
 {
     use VehicleRelations;
     use ObfuscatedRouteKey;
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @var string
+     */
+    protected $table = 'vehicle_types';
+
+    /**
+     * @var array
+     */
     protected $with = [
         'translations',
     ];
@@ -25,6 +36,6 @@ class VehicleSize extends HasTranslations
      */
     public function translations()
     {
-        return $this->hasMany(VehicleSizeTranslation::class);
+        return $this->hasMany(TypeTranslation::class);
     }
 }

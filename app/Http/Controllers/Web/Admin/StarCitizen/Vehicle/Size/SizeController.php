@@ -1,19 +1,19 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type;
+namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
+use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\System\Language;
 
 /**
- * Class VehicleTypeController
+ * Class VehicleSizeController
  */
-class VehicleTypeController extends Controller
+class SizeController extends Controller
 {
     /**
-     * VehicleTypeController constructor.
+     * VehicleSizeController constructor.
      */
     public function __construct()
     {
@@ -34,11 +34,11 @@ class VehicleTypeController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.types.index',
+            'admin.starcitizen.vehicles.sizes.index',
             [
-                'translations' => VehicleType::all(),
+                'translations' => Size::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.vehicles.types.edit',
+                'editRoute' => 'web.admin.starcitizen.vehicles.sizes.edit',
             ]
         );
     }
@@ -46,22 +46,22 @@ class VehicleTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType $type
+     * @param \App\Models\Api\StarCitizen\Vehicle\Size\Size $size
      *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function edit(VehicleType $type)
+    public function edit(Size $size)
     {
         $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.types.edit',
+            'admin.starcitizen.vehicles.sizes.edit',
             [
-                'translation' => $type,
-                'updateRoute' => 'web.admin.starcitizen.vehicles.types.update',
+                'translation' => $size,
+                'updateRoute' => 'web.admin.starcitizen.vehicles.sizes.update',
             ]
         );
     }
@@ -69,14 +69,14 @@ class VehicleTypeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\TranslationRequest                $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType $type
+     * @param \App\Http\Requests\TranslationRequest         $request
+     * @param \App\Models\Api\StarCitizen\Vehicle\Size\Size $size
      *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(TranslationRequest $request, VehicleType $type)
+    public function update(TranslationRequest $request, Size $size)
     {
         $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -84,16 +84,16 @@ class VehicleTypeController extends Controller
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {
-            $type->translations()->updateOrCreate(
+            $size->translations()->updateOrCreate(
                 ['locale_code' => $localeCode],
                 ['translation' => $translation]
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.types.index')->withMessages(
+        return redirect()->route('web.admin.starcitizen.vehicles.sizes.index')->withMessages(
             [
                 'success' => [
-                    __('crud.updated', ['type' => __('Fahrzeugtyp')]),
+                    __('crud.updated', ['type' => __('Fahrzeuggröße')]),
                 ],
             ]
         );

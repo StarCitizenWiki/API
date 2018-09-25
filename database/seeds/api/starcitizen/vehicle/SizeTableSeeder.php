@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class VehicleSizeTableSeeder extends Seeder
+class SizeTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.

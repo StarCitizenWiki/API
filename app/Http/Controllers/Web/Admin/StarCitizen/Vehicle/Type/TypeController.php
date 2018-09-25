@@ -1,19 +1,19 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus;
+namespace App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
+use App\Models\Api\StarCitizen\Vehicle\Type\Type;
 use App\Models\System\Language;
 
 /**
- * Class VehicleFocusController
+ * Class VehicleTypeController
  */
-class VehicleFocusController extends Controller
+class TypeController extends Controller
 {
     /**
-     * VehicleFocusController constructor.
+     * VehicleTypeController constructor.
      */
     public function __construct()
     {
@@ -34,11 +34,11 @@ class VehicleFocusController extends Controller
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.foci.index',
+            'admin.starcitizen.vehicles.types.index',
             [
-                'translations' => VehicleFocus::all(),
+                'translations' => Type::all(),
                 'languages' => Language::all(),
-                'editRoute' => 'web.admin.starcitizen.vehicles.foci.edit',
+                'editRoute' => 'web.admin.starcitizen.vehicles.types.edit',
             ]
         );
     }
@@ -46,22 +46,22 @@ class VehicleFocusController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $focus
+     * @param \App\Models\Api\StarCitizen\Vehicle\Type\Type $type
      *
      * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function edit(VehicleFocus $focus)
+    public function edit(Type $type)
     {
         $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
-            'admin.starcitizen.vehicles.foci.edit',
+            'admin.starcitizen.vehicles.types.edit',
             [
-                'translation' => $focus,
-                'updateRoute' => 'web.admin.starcitizen.vehicles.foci.update',
+                'translation' => $type,
+                'updateRoute' => 'web.admin.starcitizen.vehicles.types.update',
             ]
         );
     }
@@ -69,14 +69,14 @@ class VehicleFocusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\TranslationRequest                  $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $focus
+     * @param \App\Http\Requests\TranslationRequest         $request
+     * @param \App\Models\Api\StarCitizen\Vehicle\Type\Type $type
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(TranslationRequest $request, VehicleFocus $focus)
+    public function update(TranslationRequest $request, Type $type)
     {
         $this->authorize('web.admin.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -84,16 +84,16 @@ class VehicleFocusController extends Controller
         $data = $request->validated();
 
         foreach ($data as $localeCode => $translation) {
-            $focus->translations()->updateOrCreate(
+            $type->translations()->updateOrCreate(
                 ['locale_code' => $localeCode],
                 ['translation' => $translation]
             );
         }
 
-        return redirect()->route('web.admin.starcitizen.vehicles.foci.index')->withMessages(
+        return redirect()->route('web.admin.starcitizen.vehicles.types.index')->withMessages(
             [
                 'success' => [
-                    __('crud.updated', ['type' => __('Fahrzeugfokus')]),
+                    __('crud.updated', ['type' => __('Fahrzeugtyp')]),
                 ],
             ]
         );

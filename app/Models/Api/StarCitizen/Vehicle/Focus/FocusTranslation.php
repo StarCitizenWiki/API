@@ -7,8 +7,10 @@ use App\Models\System\Translation\AbstractTranslation as Translation;
 /**
  * Vehicle Focus Translation Model
  */
-class VehicleFocusTranslation extends Translation
+class FocusTranslation extends Translation
 {
+    protected $table = 'vehicle_focus_translations';
+
     protected $fillable = [
         'locale_code',
         'vehicle_focus_id',
@@ -20,6 +22,6 @@ class VehicleFocusTranslation extends Translation
      */
     public function vehicleFocus()
     {
-        return $this->belongsTo(VehicleFocus::class);
+        return $this->belongsTo(Focus::class);
     }
 }
