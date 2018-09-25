@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('web.admin.starcitizen.vehicles.ground_vehicles.index'),
+    'route' => route('web.admin.starcitizen.vehicles.ground-vehicles.index'),
 ])
     <div class="row">
         <div class="col-1">

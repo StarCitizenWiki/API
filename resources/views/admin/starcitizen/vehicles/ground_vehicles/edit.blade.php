@@ -198,7 +198,7 @@
 
         <div class="col-12 col-xl-6">
             @component('components.forms.form', [
-                'action' => route('web.admin.starcitizen.vehicles.ground_vehicles.update', $ground_vehicle->getRouteKey()),
+                'action' => route('web.admin.starcitizen.vehicles.ground-vehicles.update', $ground_vehicle->getRouteKey()),
                 'method' => 'PATCH',
                 'class' => 'card'
             ])

@@ -50,8 +50,8 @@ Route::group(
                             Route::resources(
                                 [
                                     'manufacturers' => 'Manufacturer\ManufacturerController',
-                                    'production_statuses' => 'ProductionStatus\ProductionStatusController',
-                                    'production_notes' => 'ProductionNote\ProductionNoteController',
+                                    'production-statuses' => 'ProductionStatus\ProductionStatusController',
+                                    'production-notes' => 'ProductionNote\ProductionNoteController',
                                 ]
                             );
 
@@ -78,7 +78,7 @@ Route::group(
                                         Route::resources(
                                             [
                                                 'ships' => 'Ship\ShipController',
-                                                'ground_vehicles' => 'GroundVehicle\GroundVehicleController',
+                                                'ground-vehicles' => 'GroundVehicle\GroundVehicleController',
                                                 'sizes' => 'Size\SizeController',
                                                 'foci' => 'Focus\FocusController',
                                                 'types' => 'Type\TypeController',

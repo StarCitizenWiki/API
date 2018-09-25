@@ -64,7 +64,7 @@
                             <td class="text-center">
                                 @component('components.edit_delete_block')
                                     @slot('edit_url')
-                                        {{ route('web.admin.starcitizen.vehicles.ground_vehicles.edit', $ground_vehicle->getRouteKey()) }}
+                                        {{ route('web.admin.starcitizen.vehicles.ground-vehicles.edit', $ground_vehicle->getRouteKey()) }}
                                     @endslot
                                     {{ $ground_vehicle->getRouteKey() }}
                                 @endcomponent

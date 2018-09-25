@@ -18,7 +18,7 @@
         <tr>
             @can('web.admin.internals.view')
                 <td>
-                    {{ $translation->getRouteKey() }}
+                    {{ $translation->id }}
                 </td>
             @endcan
             @foreach($translation->translationsCollection() as $translationObject)

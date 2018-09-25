@@ -89,7 +89,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
         return $manufacturer->groundVehicles->map(
             function ($groundVehicle) {
                 return app('api.url')->version('v1')->route(
-                    'api.v1.starcitizen.vehicles.ground_vehicles.show',
+                    'api.v1.starcitizen.vehicles.ground-vehicles.show',
                     [$groundVehicle->getRouteKey()]
                 );
             }

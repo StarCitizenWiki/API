@@ -29,7 +29,7 @@
                     <tr>
                         @can('web.admin.internals.view')
                             <td>
-                                {{ $manufacturer->getRouteKey() }}
+                                {{ $manufacturer->id }}
                             </td>
                         @endcan
                         <td>

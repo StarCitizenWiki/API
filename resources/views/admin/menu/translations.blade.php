@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('web.admin.starcitizen.production_statuses.index'),
+    'route' => route('web.admin.starcitizen.production-statuses.index'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('web.admin.starcitizen.production_notes.index'),
+    'route' => route('web.admin.starcitizen.production-notes.index'),
 ])
     <div class="row">
         <div class="col-1">
