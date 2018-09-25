@@ -8,6 +8,7 @@
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Ship;
 
+use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
@@ -154,6 +155,19 @@ class ShipControllerTestCase extends StarCitizenTestCase
         $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\User\Account\AccountController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(ShipController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth');
+
+        $reflectedClass = new \ReflectionClass(ShipController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

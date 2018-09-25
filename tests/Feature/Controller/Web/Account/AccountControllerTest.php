@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Controller\Web\Account;
 
+use App\Http\Controllers\Web\User\Account\AccountController;
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
 use Tests\TestCase;
@@ -46,6 +47,19 @@ class AccountControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('web.api.index'));
         $response->assertStatus(403);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\User\Account\AccountController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(AccountController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth');
+
+        $reflectedClass = new \ReflectionClass(AccountController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**

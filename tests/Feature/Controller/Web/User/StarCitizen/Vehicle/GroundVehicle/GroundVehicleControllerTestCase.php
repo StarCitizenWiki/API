@@ -8,6 +8,7 @@
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\GroundVehicle;
 
+use App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
@@ -152,6 +153,19 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
         $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\User\Account\AccountController
+     */
+    public function testConstructor()
+    {
+        $controller = $this->getMockBuilder(GroundVehicleController::class)->disableOriginalConstructor()->getMock();
+        $controller->expects($this->once())->method('middleware')->with('auth');
+
+        $reflectedClass = new \ReflectionClass(GroundVehicleController::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invoke($controller);
     }
 
     /**
