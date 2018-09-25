@@ -8,9 +8,9 @@
 
 namespace Tests\Feature\Controller\Web\Admin\StarCitizen\Vehicle\Size;
 
-use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController;
-use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
-use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSizeTranslation;
+use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\SizeController;
+use App\Models\Api\StarCitizen\Vehicle\Size\Size;
+use App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\Admin\StarCitizen\StarCitizenTestCase;
@@ -27,7 +27,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Index
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController::index
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\SizeController::index
      */
     public function testIndex()
     {
@@ -50,13 +50,13 @@ class SizeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Edit
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController::edit
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\SizeController::edit
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize $vehicleSize */
-        $vehicleSize = factory(VehicleSize::class)->create();
-        $vehicleSize->translations()->save(factory(VehicleSizeTranslation::class)->make());
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $vehicleSize */
+        $vehicleSize = factory(Size::class)->create();
+        $vehicleSize->translations()->save(factory(SizeTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->get(
             route('web.admin.starcitizen.vehicles.sizes.edit', $vehicleSize->getRouteKey())
@@ -73,7 +73,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Edit
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController::edit
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\SizeController::edit
      */
     public function testEditNotFound()
     {
@@ -91,7 +91,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Update
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController::update
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\SizeController::update
      *
      * @covers \App\Http\Requests\TranslationRequest
      *
@@ -99,9 +99,9 @@ class SizeControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize $vehicleSize */
-        $vehicleSize = factory(VehicleSize::class)->create();
-        $vehicleSize->translations()->save(factory(VehicleSizeTranslation::class)->make());
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $vehicleSize */
+        $vehicleSize = factory(Size::class)->create();
+        $vehicleSize->translations()->save(factory(SizeTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
             route('web.admin.starcitizen.vehicles.sizes.update', $vehicleSize->getRouteKey()),
@@ -119,7 +119,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Update
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController::update
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\SizeController::update
      */
     public function testUpdateNotFound()
     {
@@ -137,14 +137,14 @@ class SizeControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\VehicleSizeController
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Size\SizeController
      */
     public function testConstructor()
     {
-        $controller = $this->getMockBuilder(VehicleSizeController::class)->disableOriginalConstructor()->getMock();
+        $controller = $this->getMockBuilder(SizeController::class)->disableOriginalConstructor()->getMock();
         $controller->expects($this->once())->method('middleware')->with('auth:admin');
 
-        $reflectedClass = new \ReflectionClass(VehicleSizeController::class);
+        $reflectedClass = new \ReflectionClass(SizeController::class);
         $constructor = $reflectedClass->getConstructor();
         $constructor->invoke($controller);
     }
@@ -156,9 +156,9 @@ class SizeControllerTestCase extends StarCitizenTestCase
     protected function setUp()
     {
         parent::setUp();
-        factory(VehicleSize::class, 10)->create()->each(
-            function (VehicleSize $vehicleSize) {
-                $vehicleSize->translations()->save(factory(VehicleSizeTranslation::class)->make());
+        factory(Size::class, 10)->create()->each(
+            function (Size $vehicleSize) {
+                $vehicleSize->translations()->save(factory(SizeTranslation::class)->make());
             }
         );
     }

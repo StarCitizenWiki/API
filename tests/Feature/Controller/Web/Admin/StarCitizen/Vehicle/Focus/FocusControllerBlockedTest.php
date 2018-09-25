@@ -15,7 +15,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\Admin\TranslationPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus<extended>
+ * @covers \App\Models\Api\StarCitizen\Vehicle\Focus\Focus<extended>
  */
 class FocusControllerBlockedTest extends FocusControllerTestCase
 {

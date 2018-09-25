@@ -6,9 +6,9 @@ use App\Events\ModelUpdating;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
-use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
-use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
+use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\Api\StarCitizen\Vehicle\Size\Size;
+use App\Models\Api\StarCitizen\Vehicle\Type\Type;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
@@ -83,7 +83,7 @@ class Vehicle extends HasTranslations
      */
     public function foci()
     {
-        return $this->belongsToMany(VehicleFocus::class, 'vehicle_vehicle_focus');
+        return $this->belongsToMany(Focus::class, 'vehicle_vehicle_focus');
     }
 
     /**
@@ -123,7 +123,7 @@ class Vehicle extends HasTranslations
      */
     public function type()
     {
-        return $this->belongsTo(VehicleType::class, 'vehicle_type_id');
+        return $this->belongsTo(Type::class, 'vehicle_type_id');
     }
 
     /**
@@ -133,7 +133,7 @@ class Vehicle extends HasTranslations
      */
     public function size()
     {
-        return $this->belongsTo(VehicleSize::class, 'vehicle_size_id');
+        return $this->belongsTo(Size::class, 'vehicle_size_id');
     }
 
     /**

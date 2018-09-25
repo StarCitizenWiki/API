@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ProductionNoteTableSeeder::class);
 
         /** Vehicles */
-        $this->call(VehicleSizeTableSeeder::class);
+        $this->call(SizeTableSeeder::class);
 
         if (App::environment() === 'local') {
             $this->call(NotificationTableSeeder::class);

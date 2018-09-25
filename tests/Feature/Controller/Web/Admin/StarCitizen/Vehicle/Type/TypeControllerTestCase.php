@@ -8,9 +8,9 @@
 
 namespace Tests\Feature\Controller\Web\Admin\StarCitizen\Vehicle\Type;
 
-use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController;
-use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
-use App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation;
+use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\TypeController;
+use App\Models\Api\StarCitizen\Vehicle\Type\Type;
+use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\Admin\StarCitizen\StarCitizenTestCase;
@@ -27,7 +27,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Index
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController::index
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\TypeController::index
      */
     public function testIndex()
     {
@@ -50,13 +50,13 @@ class TypeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Edit
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController::edit
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\TypeController::edit
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType $vehicleType */
-        $vehicleType = factory(VehicleType::class)->create();
-        $vehicleType->translations()->save(factory(VehicleTypeTranslation::class)->make());
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $vehicleType */
+        $vehicleType = factory(Type::class)->create();
+        $vehicleType->translations()->save(factory(TypeTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->get(
             route('web.admin.starcitizen.vehicles.types.edit', $vehicleType->getRouteKey())
@@ -73,7 +73,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Edit
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController::edit
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\TypeController::edit
      */
     public function testEditNotFound()
     {
@@ -91,7 +91,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Update
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController::update
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\TypeController::update
      *
      * @covers \App\Http\Requests\TranslationRequest
      *
@@ -99,9 +99,9 @@ class TypeControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType $vehicleType */
-        $vehicleType = factory(VehicleType::class)->create();
-        $vehicleType->translations()->save(factory(VehicleTypeTranslation::class)->make());
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $vehicleType */
+        $vehicleType = factory(Type::class)->create();
+        $vehicleType->translations()->save(factory(TypeTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
             route('web.admin.starcitizen.vehicles.types.update', $vehicleType->getRouteKey()),
@@ -119,7 +119,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
     /**
      * Test Update
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController::update
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\TypeController::update
      */
     public function testUpdateNotFound()
     {
@@ -137,14 +137,14 @@ class TypeControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\VehicleTypeController
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Type\TypeController
      */
     public function testConstructor()
     {
-        $controller = $this->getMockBuilder(VehicleTypeController::class)->disableOriginalConstructor()->getMock();
+        $controller = $this->getMockBuilder(TypeController::class)->disableOriginalConstructor()->getMock();
         $controller->expects($this->once())->method('middleware')->with('auth:admin');
 
-        $reflectedClass = new \ReflectionClass(VehicleTypeController::class);
+        $reflectedClass = new \ReflectionClass(TypeController::class);
         $constructor = $reflectedClass->getConstructor();
         $constructor->invoke($controller);
     }
@@ -156,9 +156,9 @@ class TypeControllerTestCase extends StarCitizenTestCase
     protected function setUp()
     {
         parent::setUp();
-        factory(VehicleType::class, 10)->create()->each(
-            function (VehicleType $vehicleType) {
-                $vehicleType->translations()->save(factory(VehicleTypeTranslation::class)->make());
+        factory(Type::class, 10)->create()->each(
+            function (Type $vehicleType) {
+                $vehicleType->translations()->save(factory(TypeTranslation::class)->make());
             }
         );
     }

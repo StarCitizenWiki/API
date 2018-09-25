@@ -22,19 +22,19 @@ $factory->define(
             factory(\App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation::class)->make()
         );
 
-        $vehicleSize = factory(\App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize::class)->create();
+        $vehicleSize = factory(\App\Models\Api\StarCitizen\Vehicle\Size\Size::class)->create();
         $vehicleSize->translations()->save(
-            factory(\App\Models\Api\StarCitizen\Vehicle\Size\VehicleSizeTranslation::class)->make()
+            factory(\App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation::class)->make()
         );
 
-        $vehicleType = factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleType::class)->create();
+        $vehicleType = factory(\App\Models\Api\StarCitizen\Vehicle\Type\Type::class)->create();
         $vehicleType->translations()->save(
-            factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation::class)->make()
+            factory(\App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation::class)->make()
         );
 
-        $vehicleFocus = factory(\App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus::class)->create();
+        $vehicleFocus = factory(\App\Models\Api\StarCitizen\Vehicle\Focus\Focus::class)->create();
         $vehicleFocus->translations()->save(
-            factory(\App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation::class)->make()
+            factory(\App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation::class)->make()
         );
 
         return [
@@ -91,17 +91,17 @@ $factory->state(
     'ground_vehicle',
     function (Faker $faker) {
         try {
-            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation $type */
-            $type = \App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation::where(
+            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation $type */
+            $type = \App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation::where(
                 'translation',
                 'ground'
             )->firstOrFail();
             $type = $type->vehicleType;
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType $type */
-            $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleType::class)->create();
+            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
+            $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\Type::class)->create();
             $type->translations()->save(
-                factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation::class)->make(
+                factory(\App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation::class)->make(
                     [
                         'locale_code' => 'en_EN',
                         'translation' => 'ground',
@@ -121,9 +121,9 @@ $factory->state(
     \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle::class,
     'ship',
     function () {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType $type */
-        $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleType::class)->create();
-        $type->translations()->save(factory(\App\Models\Api\StarCitizen\Vehicle\Type\VehicleTypeTranslation::class)->make());
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
+        $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\Type::class)->create();
+        $type->translations()->save(factory(\App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation::class)->make());
 
         return [
             'vehicle_type_id' => $type->id,

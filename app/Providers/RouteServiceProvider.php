@@ -6,9 +6,9 @@ use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
-use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
-use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
+use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\Api\StarCitizen\Vehicle\Size\Size;
+use App\Models\Api\StarCitizen\Vehicle\Type\Type;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
@@ -188,9 +188,9 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $this->authorizeTranslationView();
 
-                $id = $this->decodeId($id, VehicleFocus::class);
+                $id = $this->decodeId($id, Focus::class);
 
-                return VehicleFocus::findOrFail($id);
+                return Focus::findOrFail($id);
             }
         );
 
@@ -199,9 +199,9 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $this->authorizeTranslationView();
 
-                $id = $this->decodeId($id, VehicleSize::class);
+                $id = $this->decodeId($id, Size::class);
 
-                return VehicleSize::findOrFail($id);
+                return Size::findOrFail($id);
             }
         );
 
@@ -210,9 +210,9 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 $this->authorizeTranslationView();
 
-                $id = $this->decodeId($id, VehicleType::class);
+                $id = $this->decodeId($id, Type::class);
 
-                return VehicleType::findOrFail($id);
+                return Type::findOrFail($id);
             }
         );
 

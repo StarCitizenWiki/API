@@ -70,15 +70,15 @@ return [
         /**
          * Vehicles
          */
-        \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus::class => [
+        \App\Models\Api\StarCitizen\Vehicle\Focus\Focus::class => [
             'salt' => 'star-citizen.wiki_focus',
             'length' => 4,
         ],
-        \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize::class => [
+        \App\Models\Api\StarCitizen\Vehicle\Size\Size::class => [
             'salt' => 'star-citizen.wiki_size',
             'length' => 4,
         ],
-        \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType::class => [
+        \App\Models\Api\StarCitizen\Vehicle\Type\Type::class => [
             'salt' => 'star-citizen.wiki_type',
             'length' => 4,
         ],

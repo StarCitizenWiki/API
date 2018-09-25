@@ -8,9 +8,9 @@
 
 namespace Tests\Feature\Controller\Web\Admin\StarCitizen\Vehicle\Focus;
 
-use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController;
-use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocusTranslation;
+use App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\FocusController;
+use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\Admin\StarCitizen\StarCitizenTestCase;
@@ -27,7 +27,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
     /**
      * Test Index
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController::index
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\FocusController::index
      */
     public function testIndex()
     {
@@ -50,13 +50,13 @@ class FocusControllerTestCase extends StarCitizenTestCase
     /**
      * Test Edit
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController::edit
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\FocusController::edit
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $vehicleFocus */
-        $vehicleFocus = factory(VehicleFocus::class)->create();
-        $vehicleFocus->translations()->save(factory(VehicleFocusTranslation::class)->make());
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\Focus $vehicleFocus */
+        $vehicleFocus = factory(Focus::class)->create();
+        $vehicleFocus->translations()->save(factory(FocusTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->get(
             route('web.admin.starcitizen.vehicles.foci.edit', $vehicleFocus->getRouteKey())
@@ -73,7 +73,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
     /**
      * Test Edit
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController::edit
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\FocusController::edit
      */
     public function testEditNotFound()
     {
@@ -91,7 +91,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
     /**
      * Test Update
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController::update
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\FocusController::update
      *
      * @covers \App\Http\Requests\TranslationRequest
      *
@@ -99,9 +99,9 @@ class FocusControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus $vehicleFocus */
-        $vehicleFocus = factory(VehicleFocus::class)->create();
-        $vehicleFocus->translations()->save(factory(VehicleFocusTranslation::class)->make());
+        /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\Focus $vehicleFocus */
+        $vehicleFocus = factory(Focus::class)->create();
+        $vehicleFocus->translations()->save(factory(FocusTranslation::class)->make());
 
         $response = $this->actingAs($this->admin, 'admin')->patch(
             route('web.admin.starcitizen.vehicles.foci.update', $vehicleFocus->getRouteKey()),
@@ -119,7 +119,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
     /**
      * Test Update
      *
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController::update
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\FocusController::update
      */
     public function testUpdateNotFound()
     {
@@ -137,14 +137,14 @@ class FocusControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\VehicleFocusController
+     * @covers \App\Http\Controllers\Web\Admin\StarCitizen\Vehicle\Focus\FocusController
      */
     public function testConstructor()
     {
-        $controller = $this->getMockBuilder(VehicleFocusController::class)->disableOriginalConstructor()->getMock();
+        $controller = $this->getMockBuilder(FocusController::class)->disableOriginalConstructor()->getMock();
         $controller->expects($this->once())->method('middleware')->with('auth:admin');
 
-        $reflectedClass = new \ReflectionClass(VehicleFocusController::class);
+        $reflectedClass = new \ReflectionClass(FocusController::class);
         $constructor = $reflectedClass->getConstructor();
         $constructor->invoke($controller);
     }
@@ -156,9 +156,9 @@ class FocusControllerTestCase extends StarCitizenTestCase
     protected function setUp()
     {
         parent::setUp();
-        factory(VehicleFocus::class, 10)->create()->each(
-            function (VehicleFocus $vehicleFocus) {
-                $vehicleFocus->translations()->save(factory(VehicleFocusTranslation::class)->make());
+        factory(Focus::class, 10)->create()->each(
+            function (Focus $vehicleFocus) {
+                $vehicleFocus->translations()->save(factory(FocusTranslation::class)->make());
             }
         );
     }

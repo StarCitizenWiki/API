@@ -14,7 +14,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\Admin\TranslationPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize<extended>
+ * @covers \App\Models\Api\StarCitizen\Vehicle\Size\Size<extended>
  */
 class SizeControllerSysopTest extends SizeControllerTestCase
 {

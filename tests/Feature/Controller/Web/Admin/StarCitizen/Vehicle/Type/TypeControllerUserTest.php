@@ -14,7 +14,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\Admin\TranslationPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType<extended>
+ * @covers \App\Models\Api\StarCitizen\Vehicle\Type\Type<extended>
  */
 class TypeControllerUserTest extends TypeControllerTestCase
 {
