@@ -31,7 +31,6 @@ $api->group(
         $api->group(
             [
                 'namespace' => 'Vehicle',
-                'prefix' => 'vehicles',
             ],
             function ($api) {
                 $api->group(
