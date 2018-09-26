@@ -122,17 +122,3 @@
         </div>
     @endcomponent
 @endsection
-
-@section('body__after')
-    @parent
-    <script>
-      tinymce.init({
-        selector: '#de_DE',
-        menubar: 'undo',
-        toolbar: 'undo redo',
-        branding: false,
-        skin_url: '/css/skin/lightgray',
-        min_height: 500,
-      });
-    </script>
-@endsection

@@ -2,9 +2,9 @@
 @section('P__title')
     @parent
     @hasSection('title')
-        @yield('title') - Star Citizen Wiki Api Admin
+        @yield('title') - Star Citizen Wiki Api
     @else
-        Star Citizen Wiki Api Admin
+        Star Citizen Wiki Api
     @endif
 @endsection
 
@@ -27,7 +27,11 @@
 
 @section('sidebar__pre')
     @parent
-    <a href="{{ route('web.user.dashboard') }}">
+    <a href="@if(Auth::check() && Auth::user()->isAdmin())
+    {{ route('web.user.dashboard') }}
+    @else
+    {{ route('web.user.account.index') }}
+    @endif">
         <img src="{{ asset('media/images/Star_Citizen_Wiki_Logo_White.png') }}"
              class="d-block mx-auto my-5 img-fluid"
              style="max-width: 100px;">
@@ -44,47 +48,7 @@
 @section('topNav--class', 'bg-blue-grey')
 
 @section('topNav__content')
-    @auth
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="admin_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{ Auth::user()->username }}
-            </a>
-            <div class="dropdown-menu" aria-labelledby="admin_dropdown">
-                <a class="dropdown-item" href="{{ route('web.user.account.show') }}">
-                    @component('components.elements.icon', ['class' => 'mr-1'])
-                        user
-                    @endcomponent
-                    @lang('Account')
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    @component('components.forms.form', [
-                        'id' => 'logout-form',
-                        'action' => route('web.user.auth.logout'),
-                        'class' => 'd-none',
-                    ])
-                    @endcomponent
-                    @component('components.elements.icon', ['class' => 'mr-1'])
-                        sign-out
-                    @endcomponent
-                    @lang('Logout')
-                </a>
-            </div>
-        </li>
-        @component('components.navs.nav_element', ['contentClass' => 'small'])
-            @slot('options')
-                style="padding-top: 0.7rem; cursor: default"
-            @endslot
-            v{{ config('app.version') }}
-        @endcomponent
-    @else
-        @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])
-            @component('components.elements.icon')
-                sign-in
-            @endcomponent
-            @lang('Login')
-        @endcomponent
-    @endauth
+    @include('api.menu.login_logout')
 @endsection
 
 

@@ -93,9 +93,7 @@
                 </div>
             </div>
             <div class="card-footer d-flex">
-                @unless($notification->trashed())
-                    <button class="btn btn-outline-danger" name="delete">@lang('Löschen')</button>
-                @endunless
+                <button class="btn btn-outline-danger" name="delete">@lang('Löschen')</button>
                 <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
             </div>
         </div>

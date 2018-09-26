@@ -8,8 +8,6 @@
 import './bootstrap';
 import 'datatables.net-bs4';
 import { library, dom } from '@fortawesome/fontawesome-svg-core'
-import tinymce from 'tinymce/tinymce';
-import 'tinymce/themes/modern/theme';
 
 import {
   faBook,
@@ -29,6 +27,8 @@ import {
   faDesktop,
   faDotCircle,
   faEnvelope,
+  faExclamation,
+  faExclamationTriangle,
   faExpandAlt,
   faExternalLink,
   faEye,
@@ -36,6 +36,7 @@ import {
   faHome,
   faIdCard,
   faImage,
+  faInfo,
   faIndustry,
   faMinus,
   faPencil,
@@ -54,8 +55,7 @@ import {
   faUser,
   faUserCircle,
   faUserPlus,
-  faUsers,
-  faUsersCrown
+  faUsers
 } from '@fortawesome/pro-light-svg-icons'
 
 import {
@@ -82,6 +82,8 @@ library.add(
   faDesktop,
   faDotCircle,
   faEnvelope,
+  faExclamation,
+  faExclamationTriangle,
   faExpandAlt,
   faExternalLink,
   faEye,
@@ -89,6 +91,7 @@ library.add(
   faHome,
   faIdCard,
   faImage,
+  faInfo,
   faIndustry,
   faMinus,
   faPencil,
@@ -107,8 +110,7 @@ library.add(
   faUser,
   faUserCircle,
   faUserPlus,
-  faUsers,
-  faUsersCrown
+  faUsers
 )
 
 library.add(

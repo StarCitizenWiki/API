@@ -34,9 +34,6 @@
                     <a href="ts3server://ts.star-citizen.wiki" class="text-italic">Teamspeak-Server</a>!
                 </p>
             </div>
-            @if (Auth::guest() && config('app.registration_enabled'))
-                <a href="{{ route('web.user.auth.register_form') }}" class="mt-4 btn btn-outline-primary">@lang('Registrieren')</a>
-            @endif
         </div>
     </div>
 @endsection

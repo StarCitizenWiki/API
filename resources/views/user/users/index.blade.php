@@ -36,7 +36,7 @@
                             </td>
                         @endcan
                         <td>
-                            <a href="{{ config('api.wiki_url') }}/Benutzer:{{ $user->username }}" target="_blank">{{ $user->username }}</a>
+                            <a href="{{ $user->userNameWikiLink() }}" target="_blank">{{ $user->username }}</a>
                         </td>
                         <td>
                             {{ $user->email }}

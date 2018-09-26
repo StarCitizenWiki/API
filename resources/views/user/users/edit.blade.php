@@ -107,6 +107,23 @@
 
                 <hr>
 
+                <h6>Einstellungen:</h6>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="no_api_throttle" name="no_api_throttle" aria-describedby="no_api_throttle_help_block" @if($user->settings->isUnthrottled()) checked @endif>
+                                <label class="custom-control-label" for="no_api_throttle">@lang('Deaktiviertes Rate-Limiting')</label>
+                                <small id="no_api_throttle_help_block" class="form-text text-muted">
+                                    @lang('Deaktiviere das Rate-Limiting bei Api Anfragen für diesen Benutzer')
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
                 <h6>Aktive Sessions:</h6>
                 <div class="row">
                     <div class="col-12">
@@ -125,7 +142,7 @@
                 <hr>
 
                 <h6>Hinweis:</h6>
-                @unless($user->isBlocked())
+                @unless($user->blocked)
                     <p class="mb-0">
                         Durch den Klick auf <i>Blockieren</i> wird der Nutzer ausgeloggt und blockiert.<br>
                         Dies blockiert den Nutzer allerdings <i>nicht</i> auf dem Wiki:
@@ -140,12 +157,12 @@
                 @endunless
             </div>
             <div class="card-footer d-flex">
-                @if($user->isBlocked())
+                @if($user->blocked)
                     <button class="btn btn-outline-success" name="restore">@lang('Freischalten')</button>
                 @else
                     <button class="btn btn-outline-danger" name="block">@lang('Blockieren')</button>
                 @endif
-                <button class="btn btn-outline-success ml-auto" name="save">@lang('Speichern')</button>
+                <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
             </div>
         </div>
     @endcomponent

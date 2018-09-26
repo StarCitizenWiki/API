@@ -79,11 +79,9 @@
                                     @slot('edit_url')
                                         {{ route('web.user.notifications.edit', $notification->getRouteKey()) }}
                                     @endslot
-                                    @unless($notification->trashed())
-                                        @slot('delete_url')
-                                            {{ route('web.user.notifications.destroy', $notification->getRouteKey()) }}
-                                        @endslot
-                                    @endunless
+                                    @slot('delete_url')
+                                        {{ route('web.user.notifications.destroy', $notification->getRouteKey()) }}
+                                    @endslot
                                     {{ $notification->getRouteKey() }}
                                 @endcomponent
                             </td>

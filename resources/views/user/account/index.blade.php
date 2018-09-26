@@ -45,18 +45,21 @@
 
             <hr>
 
-            <h6 class="card-title">API-Daten:</h6>
+            <h6 class="card-title">Api-Daten:</h6>
             @component('components.forms.form-group', [
                 'id' => 'api_token',
-                'inputOptions' => 'readonly',
                 'value' => $user->api_token,
-                'label' => __('Api Key'),
-            ])@endcomponent
+                'label' => __('Api Schlüssel'),
+            ])
+                @slot('inputOptions')
+                    readonly onClick="this.select();"
+                @endslot
+            @endcomponent
 
             <hr>
 
             <h6 class="card-title">Einstellungen:</h6>
-            @if(true||$user->isEditor())
+            @if($user->isEditor()||true)
                 <div class="row">
                     <div class="col-12 col-lg-6">
                         <div class="form-group">
@@ -83,7 +86,7 @@
                 </div>
             @endif
             <div class="row">
-                <div class="col-12 col-lg-6">
+                <div class="col-12">
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="api_notifications" name="api_notifications" aria-describedby="api_notification_help_block" @if($user->settings->receiveApiNotifications()) checked @endif>
