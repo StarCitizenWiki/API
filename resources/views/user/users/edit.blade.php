@@ -13,6 +13,7 @@
             <div class="card-body">
                 @include('components.errors')
                 @include('components.messages')
+                <h6>Stammdaten:</h6>
                 <div class="row">
                     <div class="col-12 col-lg-2">
                         @component('components.forms.form-group', [
@@ -103,7 +104,27 @@
                         ])@endcomponent
                     </div>
                 </div>
+
                 <hr>
+
+                <h6>Aktive Sessions:</h6>
+                <div class="row">
+                    <div class="col-12">
+                        @forelse($user->sessions as $session)
+                            <p>
+                                {{ \Carbon\Carbon::createFromTimestamp($session->last_activity)->format('d.m.Y H:i') }}
+                                &mdash;
+                                {{ $session->user_agent }}
+                            </p>
+                        @empty
+                            @lang('Keine aktiven Sessions vorhanden')
+                        @endforelse
+                    </div>
+                </div>
+
+                <hr>
+
+                <h6>Hinweis:</h6>
                 @unless($user->isBlocked())
                     <p class="mb-0">
                         Durch den Klick auf <i>Blockieren</i> wird der Nutzer ausgeloggt und blockiert.<br>

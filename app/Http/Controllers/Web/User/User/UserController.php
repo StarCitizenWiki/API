@@ -81,6 +81,10 @@ class UserController extends Controller
         $this->authorize('web.user.users.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        if ($request->has('block')) {
+            return $this->block($user);
+        }
+
         $data = $request->validate(
             [
                 self::API_TOKEN => "required|min:60|max:60|string|unique:users,api_token,{$user->id}",
@@ -97,6 +101,31 @@ class UserController extends Controller
             [
                 'success' => [
                     __('crud.updated', ['type' => __('Benutzer')]),
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @param \App\Models\Account\User\User $user
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    private function block(User $user): RedirectResponse
+    {
+        $this->authorize('web.user.users.delete');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        $user->sessions()->delete();
+        $user->blocked = true;
+        $user->save();
+
+        return redirect(route('web.user.users.edit', $user->getRouteKey()))->withMessages(
+            [
+                'warning' => [
+                    __('crud.blocked', ['type' => __('Benutzer')]),
                 ],
             ]
         );

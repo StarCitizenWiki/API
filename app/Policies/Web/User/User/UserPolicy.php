@@ -37,4 +37,16 @@ class UserPolicy extends BaseAdminPolicy
     {
         return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
     }
+
+    /**
+     * Admin delete
+     *
+     * @param \App\Models\Account\User\User $user
+     *
+     * @return bool
+     */
+    public function delete(User $user)
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+    }
 }

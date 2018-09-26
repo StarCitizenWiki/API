@@ -2,11 +2,11 @@
 
 namespace App\Models\Account\User;
 
-use App\Models\System\Session;
 use App\Models\System\ModelChangelog;
+use App\Models\System\Session;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscateRouteKey;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscateRouteKey;
 
 /**
  * Class Admin
@@ -45,12 +45,16 @@ class User extends Authenticatable
         'last_login',
     ];
 
+    protected $casts = [
+        'blocked' => 'bool',
+    ];
+
     /**
      * @return bool
      */
     public function isBlocked(): bool
     {
-        return (bool) $this->blocked;
+        return $this->blocked;
     }
 
     /**
@@ -69,6 +73,14 @@ class User extends Authenticatable
         $group = $this->groups()->where('name', 'editor')->first();
 
         return null !== $group;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->getHighestPermissionLevel() >= UserGroup::SYSOP;
     }
 
     /**
@@ -92,7 +104,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Returns only Admins with 'bureaucrat' or 'sysop' group
+     * Returns only Users with 'bureaucrat' or 'sysop' group
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -102,7 +114,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Returns only Admins with 'editor' group
+     * Returns only Users with 'editor' group
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -124,7 +136,7 @@ class User extends Authenticatable
      */
     public function settings()
     {
-        return $this->hasOne(UserSetting::class);
+        return $this->hasOne(UserSetting::class)->withDefault();
     }
 
     /**

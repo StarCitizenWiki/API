@@ -126,9 +126,7 @@ class LoginController extends Controller
         /** @var \App\Models\Account\User\User $user */
         $user = Auth::user();
 
-        $accepted = optional($user->settings)->editor_license_accepted ?? false;
-
-        if ($user->isEditor() && !$accepted) {
+        if ($user->isEditor() && !$user->settings->editorLicenseAccepted()) {
             return redirect()->route('web.user.license.show');
         }
 

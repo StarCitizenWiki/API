@@ -32,6 +32,7 @@ Route::group(
                     ->group(
                         function () {
                             Route::get('account', 'AccountController@show')->name('show');
+                            Route::patch('account', 'AccountController@update')->name('update');
                         }
                     );
                 Route::namespace('License')
