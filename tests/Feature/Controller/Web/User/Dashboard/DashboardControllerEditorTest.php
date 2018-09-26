@@ -19,7 +19,7 @@ use Mockery;
 class DashboardControllerEditorTest extends DashboardControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
-        'show' => \Illuminate\Http\Response::HTTP_OK,
+        'show' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
     ];
 
     /**

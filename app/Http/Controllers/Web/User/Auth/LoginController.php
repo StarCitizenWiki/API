@@ -31,7 +31,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    public $redirectTo = '/dashboard';
+    public $redirectTo = '/account';
 
     /**
      * @var \App\Contracts\Web\User\AuthRepositoryInterface
@@ -127,7 +127,7 @@ class LoginController extends Controller
         $user = Auth::user();
 
         if ($user->isEditor() && !$user->settings->editorLicenseAccepted()) {
-            return redirect()->route('web.user.license.show');
+            return redirect()->route('web.user.license.index');
         }
 
         return redirect()->intended($this->redirectTo);

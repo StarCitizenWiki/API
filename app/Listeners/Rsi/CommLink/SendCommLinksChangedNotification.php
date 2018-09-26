@@ -22,7 +22,7 @@ class SendCommLinksChangedNotification
     public function handle(CommLinksChangedEvent $event)
     {
         /** @var \Illuminate\Database\Eloquent\Collection $admins */
-        $admins = User::query()->whereHas('adminGroup')->whereNotNull('email')->get();
+        $admins = User::query()->whereNotNull('email')->whereHas('adminGroup')->get();
 
         Notification::send($admins, new CommLinksChangedNotification($event->commLinks));
     }

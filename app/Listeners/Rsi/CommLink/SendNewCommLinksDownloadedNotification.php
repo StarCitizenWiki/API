@@ -21,7 +21,12 @@ class SendNewCommLinksDownloadedNotification
      */
     public function handle(NewCommLinksDownloaded $event)
     {
-        $admins = User::query()->whereHas('editorGroup')->orWhereHas('adminGroup')->whereNotNull('email')->get();
+        $admins = User::query()
+            ->whereNotNull('email')
+            ->whereHas('editorGroup')
+            ->whereHas('receiveCommLinkNotifications')
+            ->orWhereHas('adminGroup')
+            ->get();
 
         Notification::send($admins, new NewCommLinksDownloadedNotification($event->commLinks));
     }

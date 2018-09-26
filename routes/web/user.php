@@ -24,14 +24,14 @@ Route::group(
         Route::group(
             [],
             function () {
-                Route::get('dashboard', 'DashboardController@show')->name('dashboard');
+                Route::get('dashboard', 'DashboardController@index')->name('dashboard');
 
 
                 Route::namespace('Account')
                     ->name('account.')
                     ->group(
                         function () {
-                            Route::get('account', 'AccountController@show')->name('show');
+                            Route::get('account', 'AccountController@index')->name('index');
                             Route::patch('account', 'AccountController@update')->name('update');
                         }
                     );
@@ -39,7 +39,7 @@ Route::group(
                     ->name('license.')
                     ->group(
                         function () {
-                            Route::get('editor-license', 'LicenseController@show')->name('show');
+                            Route::get('editor-license', 'LicenseController@index')->name('index');
                             Route::post('editor-license', 'LicenseController@accept')->name('accept');
                         }
                     );

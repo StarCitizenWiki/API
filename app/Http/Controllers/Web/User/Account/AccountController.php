@@ -25,12 +25,12 @@ class AccountController extends Controller
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function show()
+    public function index()
     {
         $this->authorize('web.user.account.view');
 
         return view(
-            'user.profile.index',
+            'user.account.index',
             [
                 'user' => Auth::user(),
             ]

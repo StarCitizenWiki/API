@@ -24,7 +24,7 @@ abstract class AbstractBaseUserPolicy
      */
     public function before(User $user, $ability)
     {
-        if ($user->isBlocked()) {
+        if ($user->blocked) {
             return false;
         }
     }

@@ -29,7 +29,7 @@ class DashboardController extends Controller
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function show(): View
+    public function index(): View
     {
         $this->authorize('web.user.dashboard.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));

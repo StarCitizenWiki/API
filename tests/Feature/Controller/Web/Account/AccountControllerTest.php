@@ -23,7 +23,7 @@ class AccountControllerTest extends TestCase
      */
     public function testIndexView()
     {
-        $response = $this->actingAs($this->user)->get(route('web.user.account.show'));
+        $response = $this->actingAs($this->user)->get(route('web.user.account.index'));
         $response->assertOk()->assertSee($this->user->name);
     }
 
@@ -34,7 +34,7 @@ class AccountControllerTest extends TestCase
     {
         $user = factory(User::class)->states('blocked')->create();
 
-        $response = $this->actingAs($user)->get(route('web.user.account.show'));
+        $response = $this->actingAs($user)->get(route('web.user.account.index'));
         $response->assertStatus(403);
     }
 

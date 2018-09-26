@@ -24,7 +24,7 @@ class LicenseControllerTestCase extends UserTestCase
      */
     public function testShow()
     {
-        $response = $this->actingAs($this->user)->get(route('web.user.license.show'));
+        $response = $this->actingAs($this->user)->get(route('web.user.license.index'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['show']);
 
@@ -61,7 +61,7 @@ class LicenseControllerTestCase extends UserTestCase
         );
 
         $response = $this->actingAs($this->user)->followingRedirects()->get(
-            route('web.user.license.show')
+            route('web.user.license.index')
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['show_accepted']);

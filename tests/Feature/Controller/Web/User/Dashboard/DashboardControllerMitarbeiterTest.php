@@ -14,7 +14,7 @@ use App\Models\Account\User\UserGroup;
 class DashboardControllerMitarbeiterTest extends DashboardControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
-        'show' => \Illuminate\Http\Response::HTTP_OK,
+        'show' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
     ];
 
     /**

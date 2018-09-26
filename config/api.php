@@ -235,20 +235,8 @@ return [
     'throttle' => [
         'limit_unauthenticated' => env('THROTTLE_GUEST_REQUESTS', 10),
         'period_unauthenticated' => env('THROTTLE_PERIOD', 1),
-    ],
 
-    'log' => [
-        'error' => [
-            'danger_hour' => 10,
-            'danger_day' => 20,
-            'warning_hour' => 5,
-            'warning_day' => 10,
-        ],
-        'warning' => [
-            'danger_hour' => 20,
-            'danger_day' => 40,
-            'warning_hour' => 10,
-            'warning_day' => 20,
-        ],
+        'limit_authenticated' => env('THROTTLE_REQUESTS', 60),
+        'period_authenticated' => env('THROTTLE_PERIOD', 1),
     ],
 ];

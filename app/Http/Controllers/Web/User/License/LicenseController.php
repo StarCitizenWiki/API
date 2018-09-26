@@ -27,13 +27,13 @@ class LicenseController extends Controller
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function show()
+    public function index()
     {
         $this->authorize('web.user.license.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        if (optional(Auth::user()->settings)->editor_license_accepted === true) {
-            return redirect()->route('web.user.dashboard');
+        if (Auth::user()->settings->editorLicenseAccepted()) {
+            return redirect()->route('web.user.account.index');
         }
 
         return view('user.license.show');
@@ -57,10 +57,13 @@ class LicenseController extends Controller
         $user = Auth::user();
         $user->settings()->updateOrCreate(
             [
+                'user_id' => $user->id,
+            ],
+            [
                 'editor_license_accepted' => true,
             ]
         );
 
-        return redirect()->route('web.user.dashboard');
+        return redirect()->route('web.user.account.index');
     }
 }

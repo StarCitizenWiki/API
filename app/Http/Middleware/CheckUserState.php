@@ -23,7 +23,7 @@ class CheckUserState
         /** @var \App\Models\Account\User\User $user */
         $user = $request->user();
 
-        if (!is_null($user) && $user->isBlocked()) {
+        if (!is_null($user) && $user->blocked) {
             app('Log')::notice(
                 'Request from blacklisted User',
                 [

@@ -41,7 +41,7 @@ class NotificationController extends Controller
         return view(
             'user.notifications.index',
             [
-                'notifications' => Notification::withTrashed()->orderByDesc('created_at')->simplePaginate(100),
+                'notifications' => Notification::orderByDesc('created_at')->simplePaginate(100),
             ]
         );
     }
@@ -165,11 +165,12 @@ class NotificationController extends Controller
         $this->processPublishedAt($data);
 
         $resendEmail = (bool) array_pull($data, 'resend_email', false);
-        $notification->update($data);
 
-        if (true === $resendEmail || ($notification->output_email === false && $data['output_email'] === true)) {
+        if (($notification->output_email === false && $data['output_email'] === true && !$notification->expired()) || true === $resendEmail) {
             $this->dispatchJob($notification);
         }
+
+        $notification->update($data);
 
         return redirect()->route(self::ADMIN_NOTIFICATION_INDEX)->withMessages(
             [
@@ -240,7 +241,6 @@ class NotificationController extends Controller
     private function dispatchJob(Notification $notification)
     {
         $job = (new SendNotificationEmail($notification));
-
 
         if (!is_null($this->jobDelay)) {
             $job->delay($this->jobDelay);

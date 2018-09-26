@@ -50,14 +50,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * @return bool
-     */
-    public function isBlocked(): bool
-    {
-        return $this->blocked;
-    }
-
-    /**
      * @return int Highest Permission Level
      */
     public function getHighestPermissionLevel(): int
@@ -110,7 +102,7 @@ class User extends Authenticatable
      */
     public function adminGroup()
     {
-        return $this->belongsToMany(UserGroup::class)->admin();
+        return $this->groups()->admin();
     }
 
     /**
@@ -120,7 +112,7 @@ class User extends Authenticatable
      */
     public function editorGroup()
     {
-        return $this->belongsToMany(UserGroup::class)->editor();
+        return $this->groups()->editor();
     }
 
     /**
@@ -137,6 +129,22 @@ class User extends Authenticatable
     public function settings()
     {
         return $this->hasOne(UserSetting::class)->withDefault();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function receiveApiNotifications()
+    {
+        return $this->settings()->receiveApiNotifications();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function receiveCommLinkNotifications()
+    {
+        return $this->settings()->receiveCommLinkNotifications();
     }
 
     /**

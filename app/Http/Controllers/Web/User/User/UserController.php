@@ -97,6 +97,17 @@ class UserController extends Controller
             ]
         );
 
+        if ($request->has('no_api_throttle')) {
+            $user->settings()->updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                ],
+                [
+                    'no_api_throttle' => true,
+                ]
+            );
+        }
+
         return redirect(route('web.user.users.edit', $user->getRouteKey()))->withMessages(
             [
                 'success' => [

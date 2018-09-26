@@ -42,11 +42,7 @@ class SendNotificationEmail implements ShouldQueue
      */
     public function handle()
     {
-        $users = User::all()->where(
-            'receive_notification_level',
-            '<=',
-            $this->notification->level
-        );
+        $users = User::query()->whereHas('receiveApiNotifications')->get();
 
         Mail::to($users)->queue(new NotificationEmail($this->notification));
     }

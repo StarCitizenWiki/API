@@ -4,8 +4,6 @@ return [
 
     'version' => '0.0.1',
 
-    'registration_enabled' => env('REGISTRATION_ENABLED', false),
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
