@@ -19,7 +19,7 @@ use App\Models\Account\User\UserGroup;
 class NotificationControllerMitarbeiterTest extends NotificationControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
-        'index' => \Illuminate\Http\Response::HTTP_OK,
+        'index' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
 
         'create' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
 
