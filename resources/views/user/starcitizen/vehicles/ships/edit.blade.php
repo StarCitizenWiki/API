@@ -15,7 +15,7 @@
                 @endslot
                 @component('components.forms.form')
                     <div class="row">
-                        <div class="col-12 col-lg-4">
+                        <div class="col-12 col-md-12 col-lg-4 col-xl-12 col-xxl-4">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -24,7 +24,7 @@
                                 'value' => $ship->name,
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-2">
+                        <div class="col-12 col-md-4 col-lg-2 col-xl-6 col-xxl-4">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -33,7 +33,7 @@
                                 'value' => $ship->manufacturer->name_short,
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-4 col-lg-3 col-xl-3 col-xxl-2">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -42,7 +42,7 @@
                                 'value' => $ship->cig_id,
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-4 col-lg-3 col-xl-3 col-xxl-2">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -51,9 +51,7 @@
                                 'value' => $ship->chassis_id,
                             ])@endcomponent
                         </div>
-                    </div>
 
-                    <div class="row">
                         <div class="col-12 col-lg-6">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
@@ -63,7 +61,7 @@
                                 'value' => $ship->productionStatus->english()->translation,
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-6">
+                        <div class="col-12 col-lg-6 col-xl-6">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -77,7 +75,7 @@
                     <hr>
 
                     <div class="row">
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -86,7 +84,7 @@
                                 'value' => $ship->size->english()->translation,
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -95,7 +93,8 @@
                                 'value' => $ship->type->english()->translation,
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-2">
+
+                        <div class="col-12 col-md-4 col-lg-2 col-xl-4 col-xxl-2">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -104,7 +103,7 @@
                                 'value' => $ship->length.' m',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-2">
+                        <div class="col-12 col-md-4 col-lg-2 col-xl-4 col-xxl-2">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -113,7 +112,7 @@
                                 'value' => $ship->beam.' m',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-2">
+                        <div class="col-12 col-md-4 col-lg-2 col-xl-4 col-xxl-2">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -125,7 +124,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -134,7 +133,7 @@
                                 'value' => ($ship->cargo_capacity ?? '-').' SCU',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -143,7 +142,8 @@
                                 'value' => $ship->mass.' Kg',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -152,7 +152,7 @@
                                 'value' => $ship->min_crew,
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -164,7 +164,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12 col-lg-6">
+                        <div class="col-12 col-lg-6 col-xl-12">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -185,7 +185,7 @@
                     <hr>
 
                     <div class="row">
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-6">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -194,7 +194,7 @@
                                 'value' => $ship->scm_speed.' m/s',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-md-6 col-lg-5 col-xl-6">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -203,7 +203,7 @@
                                 'value' => $ship->afterburner_speed.' m/s',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-2">
+                        <div class="col-12 col-md-4 col-lg-4">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -212,7 +212,7 @@
                                 'value' => ($ship->pitch_max ?? '-').' deg/s',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-2">
+                        <div class="col-12 col-md-4 col-lg-4">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -221,7 +221,7 @@
                                 'value' => ($ship->yaw_max ?? '-').' deg/s',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-2">
+                        <div class="col-12 col-md-4 col-lg-4">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -233,7 +233,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-lg-4">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -242,7 +242,7 @@
                                 'value' => ($ship->x_axis_acceleration ?? '-').' m/s²',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-lg-4">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',
@@ -251,7 +251,7 @@
                                 'value' => ($ship->y_axis_acceleration ?? '-').' m/s²',
                             ])@endcomponent
                         </div>
-                        <div class="col-12 col-lg-3">
+                        <div class="col-12 col-lg-4">
                             @component('components.forms.form-group', [
                                 'inputType' => 'text',
                                 'inputOptions' => 'readonly',

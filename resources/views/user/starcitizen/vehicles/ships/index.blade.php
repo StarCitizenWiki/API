@@ -84,5 +84,7 @@
 
 @section('body__after')
     @parent
-    @include('components.init_dataTables')
+    @if(count($ships) > 0)
+        @include('components.init_dataTables')
+    @endunless
 @endsection

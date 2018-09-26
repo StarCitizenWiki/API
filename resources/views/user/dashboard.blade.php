@@ -4,158 +4,9 @@
 
 {{-- Page Content --}}
 @section('content')
-    <section class="row equal-height">
-        @can('web.user.notifications.create')
-            <div class="col-12 col-xl-6 mb-4">
-                @component('user.components.card', [
-                    'class' => 'bg-dark',
-                    'titleClass' => 'text-light',
-                    'icon' => 'bullhorn',
-                    'contentClass' => 'bg-white pb-md-0',
-                    'title' => __('Benachrichtigung erstellen'),
-                ])
-                    @include('components.errors')
-                    @component('components.forms.form', [
-                        'class' => 'row',
-                        'method' => 'POST',
-                        'action' => route('web.user.notifications.store'),
-                    ])
-                        <div class="col-12 col-md-7 order-2 order-lg-1">
-                            @component('components.forms.form-group', [
-                                'inputType' => 'textarea',
-                                'label' => __('Notification'),
-                                'id' => 'content',
-                                'rows' => 5,
-                            ])@endcomponent
-                            <button class="btn btn-outline-secondary">@lang('Erstellen')</button>
-                        </div>
-                        <div class="col-12 col-md-5 order-1 order-lg-2">
-                            @component('components.forms.form-group', [
-                                'inputType' => 'select',
-                                'inputClass' => 'custom-select w-100',
-                                'label' => __('Typ'),
-                                'id' => 'level',
-                            ])
-                                @slot('selectOptions')
-                                    <option value="0">@lang('Info')</option>
-                                    <option value="1">@lang('Warnung')</option>
-                                    <option value="2">@lang('Fehler')</option>
-                                    <option value="3">@lang('Kritisch')</option>
-                                @endslot
-                            @endcomponent
-
-                            @component('components.forms.form-group', [
-                                'inputType' => 'datetime-local',
-                                'label' => __('Ablaufdatum'),
-                                'id' => 'expired_at',
-                                'value' => \Carbon\Carbon::now()->addDay()->format("Y-m-d\TH:i"),
-                                'inputOptions' => 'min='.\Carbon\Carbon::now()->format("Y-m-d\TH:i"),
-                            ])
-
-                            @endcomponent
-
-                            <div class="form-group">
-                                <span class="d-block">@lang('Ausgabetyp'):</span>
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="status" name="output[]"
-                                           value="status" checked>
-                                    <label class="custom-control-label" for="status">@lang('Statusseite')</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="index" name="output[]"
-                                           value="index">
-                                    <label class="custom-control-label" for="index">@lang('Startseite')</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="email" name="output[]"
-                                           value="email">
-                                    <label class="custom-control-label" for="email">@lang('E-Mail')</label>
-                                </div>
-                            </div>
-                        </div>
-                    @endcomponent
-                @endcomponent
-            </div>
-        @endcan
-
-        @can('web.user.notifications.view')
-            <div class="col-12 col-xl-6 mb-4">
-                @component('user.components.card', [
-                    'class' => 'bg-dark text-light',
-                    'icon' => 'comment',
-                    'contentClass' => 'bg-white text-dark text-center p-2 p-xxl-2 table-responsive',
-                ])
-                    @slot('title')
-                        @lang('Aktive Benachrichtigungen')
-                        <small class="float-right mt-1">
-                            <a href="{{ route('web.user.notifications.index') }}" class="text-light">
-                                @component('components.elements.icon')
-                                    external-link
-                                @endcomponent
-                            </a>
-                        </small>
-                    @endslot
-                    <table class="table table-sm mb-0 text-left border-top-0">
-                        <tr>
-                            <th>@lang('Typ')</th>
-                            <th>@lang('Inhalt')</th>
-                            <th>@lang('Ablaufdatum')</th>
-                            <th>@lang('Ausgabe')</th>
-                            @can('web.user.notifications.update')
-                                <th>&nbsp;</th>
-                            @endcan
-                        </tr>
-                        @forelse($notifications['last'] as $notification)
-                            <tr>
-                                <td class="text-{{ $notification->getBootstrapClass() }}">@lang(\App\Models\Api\Notification::NOTIFICATION_LEVEL_TYPES[$notification->level])</td>
-                                <td title="{{ $notification->content }}">
-                                    {{ str_limit($notification->content, 40) }}
-                                </td>
-                                <td title="{{ $notification->expired_at->format('d.m.Y H:i:s') }}">
-                                    <span class="d-none d-xl-block">{{ $notification->expired_at->format('d.m.Y') }}</span>
-                                    <span class="d-block d-xl-none">{{ $notification->expired_at->format('d.m.Y H:i:s') }}</span>
-                                </td>
-                                <td>
-                                    @if($notification->output_status)
-                                        @component('components.elements.icon', ['class' => 'mr-2'])
-                                            desktop
-                                        @endcomponent
-                                    @endif
-                                    @if($notification->output_email)
-                                        @component('components.elements.icon', ['class' => 'mr-2'])
-                                            envelope
-                                        @endcomponent
-                                    @endif
-                                    @if($notification->output_index)
-                                        @component('components.elements.icon')
-                                            bullhorn
-                                        @endcomponent
-                                    @endif
-                                </td>
-                                @can('web.user.notifications.update')
-                                    <td class="text-center">
-                                        <a href="{{ route('web.user.notifications.edit', $notification->getRouteKey()) }}">
-                                            @component('components.elements.icon')
-                                                pencil
-                                            @endcomponent
-                                        </a>
-                                    </td>
-                                @endcan
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4">@lang('Keine Benachrichtigungen vorhanden')</td>
-                            </tr>
-                        @endforelse
-                    </table>
-                @endcomponent
-            </div>
-        @endcan
-    </section>
-
     @can('web.user.users.view')
         <section class="row equal-height">
-            <div class="col-12 col-md-5 col-xl-3 mb-4">
+            <div class="col-12 col-md-12 col-lg-6 col-xl-3 mb-4">
                 @component('user.components.card', [
                     'class' => 'bg-dark text-light',
                     'icon' => 'users',
@@ -200,7 +51,7 @@
                 @endcomponent
             </div>
 
-            <div class="col-12 col-md-7 col-xl-6 mb-4">
+            <div class="col-12 col-md-12 col-lg-6 col-xl-6 mb-4">
                 @component('user.components.card', [
                     'class' => 'bg-dark text-light',
                     'contentClass' => 'bg-white text-dark p-2 table-responsive',
@@ -223,7 +74,7 @@
                                 @can('web.user.internals.view')
                                     <td>{{ $user->getRouteKey() }}</td>
                                 @endcan
-                                <td title="{{ $user->email }}">{{ $user->name }}</td>
+                                <td title="{{ $user->email }}">{{ $user->username }}</td>
                                 <td>{{ $user->created_at }}</td>
                                 @can('web.user.users.update')
                                     <td class="text-center">

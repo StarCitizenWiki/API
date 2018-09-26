@@ -6,7 +6,7 @@
         @component('components.elements.icon', ['class' => 'mr-1'])
             user-circle
         @endcomponent
-        @lang('Account')
+        {{ Auth::user()->username }}
     @endcomponent
 
     @component('components.navs.nav_element', ['route' => route('web.user.auth.logout')])

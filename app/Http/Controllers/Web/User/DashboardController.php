@@ -55,15 +55,10 @@ class DashboardController extends Controller
             ],
         ];
 
-        $notifications = [
-            'last' => Notification::notExpired()->take(7)->orderByDesc('created_at')->get(),
-        ];
-
         return view(
             'user.dashboard',
             [
                 'users' => $users,
-                'notifications' => $notifications,
             ]
         );
     }

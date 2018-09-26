@@ -8,7 +8,7 @@
             @endcomponent
         </div>
         <div class="col">
-            @lang('Benachrichtigungen')
+            Benachrichti<wbr>gungen
         </div>
     </div>
 @endcomponent

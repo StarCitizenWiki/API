@@ -92,5 +92,7 @@
 
 @section('body__after')
     @parent
-    @include('components.init_dataTables')
+    @if(count($commLinks) > 0)
+        @include('components.init_dataTables')
+    @endunless
 @endsection

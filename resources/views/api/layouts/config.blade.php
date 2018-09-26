@@ -48,10 +48,6 @@
 
 @section('topNav__content')
     @include('api.menu.login_logout')
-
-    <div class="nav d-flex d-md-none flex-row flex-lg-column">
-        @include('api.menu.main')
-    </div>
 @endsection
 
 

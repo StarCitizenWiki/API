@@ -15,7 +15,7 @@
                 @endslot
                 @component('components.forms.form')
                         <div class="row">
-                            <div class="col-12 col-lg-4">
+                            <div class="col-12 col-md-12 col-lg-4 col-xl-12 col-xxl-4">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -24,7 +24,7 @@
                                     'value' => $groundVehicle->name,
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-2">
+                            <div class="col-12 col-md-4 col-lg-2 col-xl-6 col-xxl-4">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -33,7 +33,7 @@
                                     'value' => $groundVehicle->manufacturer->name_short,
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-md-4 col-lg-3 col-xl-3 col-xxl-2">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -42,7 +42,7 @@
                                     'value' => $groundVehicle->cig_id,
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-md-4 col-lg-3 col-xl-3 col-xxl-2">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -51,9 +51,7 @@
                                     'value' => $groundVehicle->chassis_id,
                                 ])@endcomponent
                             </div>
-                        </div>
 
-                        <div class="row">
                             <div class="col-12 col-lg-6">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
@@ -63,7 +61,7 @@
                                     'value' => $groundVehicle->productionStatus->english()->translation,
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-6 col-xl-6">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -77,7 +75,7 @@
                         <hr>
 
                         <div class="row">
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -86,7 +84,7 @@
                                     'value' => $groundVehicle->size->english()->translation,
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -95,7 +93,7 @@
                                     'value' => $groundVehicle->type->english()->translation,
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-2">
+                            <div class="col-12 col-md-4 col-lg-2 col-xl-4 col-xxl-2">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -104,7 +102,7 @@
                                     'value' => $groundVehicle->length.' m',
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-2">
+                            <div class="col-12 col-md-4 col-lg-2 col-xl-4 col-xxl-2">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -113,7 +111,7 @@
                                     'value' => $groundVehicle->beam.' m',
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-2">
+                            <div class="col-12 col-md-4 col-lg-2 col-xl-4 col-xxl-2">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -125,7 +123,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -134,7 +132,7 @@
                                     'value' => ($groundVehicle->cargo_capacity ?? '-').' SCU',
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -143,7 +141,7 @@
                                     'value' => $groundVehicle->mass.' Kg',
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -152,7 +150,7 @@
                                     'value' => $groundVehicle->min_crew,
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
