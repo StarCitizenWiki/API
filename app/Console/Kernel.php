@@ -108,7 +108,7 @@ class Kernel extends ConsoleKernel
      */
     private function scheduleShipMatrixJobs()
     {
-        $this->schedule->job(new DownloadShipMatrix())->weekly()->then(
+        $this->schedule->job(new DownloadShipMatrix())->hourly()->then(
             function () {
                 $this->schedule->job(new ParseShipMatrixDownload());
             }

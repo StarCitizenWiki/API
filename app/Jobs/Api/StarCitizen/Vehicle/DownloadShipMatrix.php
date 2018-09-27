@@ -4,7 +4,6 @@ namespace App\Jobs\Api\StarCitizen\Vehicle;
 
 use App\Exceptions\InvalidDataException;
 use App\Jobs\Api\StarCitizen\AbstractRSIDownloadData as RSIDownloadData;
-use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
 use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,6 +42,8 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
      * Execute the job.
      *
      * @return void
+     *
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function handle()
     {
@@ -51,40 +52,53 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
         $timestamp = now()->format("Y-m-d");
         $fileName = "shipmatrix_{$timestamp}.json";
 
+        $this->initClient();
+
+        try {
+            $response = $this->client->get(self::SHIPS_ENDPOINT);
+        } catch (ConnectException $e) {
+            app('Log')::critical(
+                'Could not connect to RSI Ship Matrix',
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
+
+            return;
+        }
+
+        try {
+            $response = $this->parseResponseBody((string) $response->getBody());
+        } catch (InvalidArgumentException $e) {
+            app('Log')::error(
+                'Ship Matrix data is not valid json',
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
+
+            return;
+        } catch (InvalidDataException $e) {
+            app('Log')::error($e->getMessage());
+
+            return;
+        }
+
+        $responseJsonData = json_encode($response->data);
+
+        if (Storage::disk(self::VEHICLES_DISK)->exists($fileName)) {
+            $localContent = Storage::disk(self::VEHICLES_DISK)->get($fileName);
+
+            if ($localContent !== $responseJsonData) {
+                app('Log')::info('Shipmatrix Content has changed today');
+                $this->force = true;
+                $timestamp = now()->format("Y-m-d_H-i");
+                $fileName = "shipmatrix_{$timestamp}.json";
+            }
+        }
+
         if ($this->force || !Storage::disk(self::VEHICLES_DISK)->exists($fileName)) {
-            $this->initClient();
-
-            try {
-                $response = $this->client->get(self::SHIPS_ENDPOINT);
-            } catch (ConnectException $e) {
-                app('Log')::critical(
-                    'Could not connect to RSI Ship Matrix',
-                    [
-                        'message' => $e->getMessage(),
-                    ]
-                );
-
-                return;
-            }
-
-            try {
-                $response = $this->parseResponseBody((string) $response->getBody());
-            } catch (InvalidArgumentException $e) {
-                app('Log')::error(
-                    'Ship Matrix data is not valid json',
-                    [
-                        'message' => $e->getMessage(),
-                    ]
-                );
-
-                return;
-            } catch (InvalidDataException $e) {
-                app('Log')::error($e->getMessage());
-
-                return;
-            }
-
-            Storage::disk(self::VEHICLES_DISK)->put($fileName, json_encode($response->data));
+            Storage::disk(self::VEHICLES_DISK)->put($fileName, $responseJsonData);
         }
 
         app('Log')::info('Ship Matrix Download finished');
