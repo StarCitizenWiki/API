@@ -26,6 +26,7 @@ class NewCommLinksDownloaded extends Mailable
     public function __construct(Collection $commLinks)
     {
         $this->commLinks = $commLinks;
+        $this->subject = 'Neue Comm Links vorhanden';
     }
 
     /**
