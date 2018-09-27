@@ -21,7 +21,7 @@ use Tests\TestCase;
  */
 class SendNewCommLinkNotificationTest extends TestCase
 {
-    private $admins;
+    private $users;
     private $editors;
     private $commLinks;
 
@@ -66,14 +66,22 @@ class SendNewCommLinkNotificationTest extends TestCase
         $this->createUserGroups();
 
         $this->admins = factory(User::class, 2)->create()->each(
-            function (User $admin) {
-                $admin->groups()->sync(UserGroup::where('name', 'sysop')->first()->id);
+            function (User $user) {
+                $user->groups()->sync(UserGroup::where('name', 'sysop')->first()->id);
             }
         );
 
         $this->editors = factory(User::class, 2)->create()->each(
-            function (User $admin) {
-                $admin->groups()->sync(UserGroup::where('name', 'editor')->first()->id);
+            function (User $user) {
+                $user->groups()->sync(UserGroup::where('name', 'editor')->first()->id);
+                $user->settings()->updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                    ],
+                    [
+                        'editor_receive_notifications' => true,
+                    ]
+                );
             }
         );
 

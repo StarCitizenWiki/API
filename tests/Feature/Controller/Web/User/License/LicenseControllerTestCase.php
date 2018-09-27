@@ -45,7 +45,7 @@ class LicenseControllerTestCase extends UserTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['accept']);
 
         if ($this->user->isEditor()) {
-            $response->assertViewIs('user.dashboard');
+            $response->assertViewIs('user.account.index');
         }
     }
 
@@ -67,7 +67,7 @@ class LicenseControllerTestCase extends UserTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['show_accepted']);
 
         if ($this->user->isEditor()) {
-            $response->assertViewIs('user.dashboard');
+            $response->assertViewIs('user.account.index');
         }
     }
 
@@ -96,7 +96,7 @@ class LicenseControllerTestCase extends UserTestCase
             if ($this->user->isEditor()) {
                 $response->assertViewIs('user.license.show');
             } else {
-                $response->assertViewIs('user.dashboard');
+                $response->assertViewIs('user.account.index');
             }
         }
     }
@@ -129,7 +129,7 @@ class LicenseControllerTestCase extends UserTestCase
         $response = $this->followingRedirects()->get(route('web.user.auth.login.callback'));
 
         if ($response->status() === Response::HTTP_OK) {
-            $response->assertViewIs('user.dashboard')->assertSee($this->user->username);
+            $response->assertViewIs('user.account.index')->assertSee($this->user->username);
         }
     }
 

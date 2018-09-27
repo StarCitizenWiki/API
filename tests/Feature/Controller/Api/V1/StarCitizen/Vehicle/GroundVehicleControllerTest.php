@@ -25,7 +25,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    protected const BASE_API_ENDPOINT = '/api/ground-vehicles';
+    protected const BASE_API_ENDPOINT = '/api/vehicles';
 
     /**
      * {@inheritdoc}

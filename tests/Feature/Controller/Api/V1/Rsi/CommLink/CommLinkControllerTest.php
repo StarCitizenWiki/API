@@ -89,6 +89,6 @@ class CommLinkControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        factory(CommLink::class, 10)->create();
+        factory(CommLink::class, 20)->create();
     }
 }

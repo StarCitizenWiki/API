@@ -56,6 +56,6 @@ class UserAuthTest extends UserTestCase
 
         $response = $this->followingRedirects()->get(route('web.user.auth.login.callback'));
 
-        $response->assertViewIs('user.dashboard')->assertSee($localUser->username);
+        $response->assertViewIs('user.account.index')->assertSee($localUser->username);
     }
 }
