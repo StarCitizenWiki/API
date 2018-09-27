@@ -1,7 +1,8 @@
-INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 1, 'Leichter Frachter', '2018-07-26 23:49:03', '2018-07-26 23:49:03');
-INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 2, 'Leichter Jäger', '2018-07-26 23:48:28', '2018-07-26 23:48:28');
-INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 3, 'Reisen', '2018-07-26 23:49:35', '2018-07-26 23:49:35');
+INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 1, 'Starter', '2018-07-26 23:49:03', '2018-07-26 23:49:03');
 INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 4, 'Pfadfinder', '2018-07-26 23:48:16', '2018-07-26 23:48:16');
+INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 2, 'Leichter Jäger', '2018-07-26 23:48:28', '2018-07-26 23:48:28');
+INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 1, 'Leichter Frachter', '2018-07-26 23:49:03', '2018-07-26 23:49:03');
+INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 3, 'Reisen', '2018-07-26 23:49:35', '2018-07-26 23:49:35');
 INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 5, 'Abriegelung', '2018-07-26 23:50:15', '2018-07-26 23:50:15');
 INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 6, 'Rennsport', '2018-07-26 23:50:30', '2018-07-26 23:50:30');
 INSERT INTO vehicle_focus_translations (locale_code, focus_id, translation, created_at, updated_at) VALUES ('de_DE', 7, 'Mittlerer Jäger', '2018-07-26 23:50:39', '2018-07-26 23:50:39');
