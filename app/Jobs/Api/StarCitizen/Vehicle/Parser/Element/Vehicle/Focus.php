@@ -19,6 +19,13 @@ class Focus extends BaseElement
 {
     private const VEHICLE_FOCUS = 'focus';
 
+    private const FOCI = [
+        'Gunship',
+        'Gun Ship',
+    ];
+
+    private const FOCUS_NORMALIZED = 'Gunship';
+
     /**
      * Generates an array of given vehicle foci ids
      *
@@ -28,7 +35,7 @@ class Focus extends BaseElement
     {
         app('Log')::debug('Getting Vehicle Foci IDs');
 
-        $rawFocus = $this->rawData->get(self::VEHICLE_FOCUS);
+        $rawFocus = $this->getNormalizedFocus();
 
         if (null === $rawFocus) {
             app('Log')::debug('Vehicle Focus not set in Matrix');
@@ -90,5 +97,21 @@ class Focus extends BaseElement
         );
 
         return $vehicleFocus;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    private function getNormalizedFocus()
+    {
+        $rawFocus = $this->rawData->get(self::VEHICLE_FOCUS);
+
+        if (null !== $rawFocus && is_string($rawFocus)) {
+            if (in_array($rawFocus, self::FOCI)) {
+                $rawFocus = self::FOCUS_NORMALIZED;
+            }
+        }
+
+        return $rawFocus;
     }
 }
