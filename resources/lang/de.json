@@ -11,5 +11,6 @@
   "sysop": "Administrator",
   "editor": "Editor",
   "mitarbeiter": "Mitarbeiter",
-  "sichter": "Sichter"
+  "sichter": "Sichter",
+  "user": "Benutzer"
 }

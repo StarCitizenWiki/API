@@ -39,7 +39,7 @@
                 'label' => __('Gruppen'),
             ])
                 @slot('value')
-                    {{ $user->groups->map(function($group) { return __($group->name); })->implode('name', ', ') }}
+                    {{ $user->groups->map(function($group) { return __($group->name); })->implode(', ') }}
                 @endslot
             @endcomponent
 
@@ -59,7 +59,7 @@
             <hr>
 
             <h6 class="card-title">Einstellungen:</h6>
-            @if($user->isEditor()||true)
+            @if($user->isEditor())
                 <div class="row">
                     <div class="col-12 col-lg-6">
                         <div class="form-group">

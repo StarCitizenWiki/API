@@ -86,7 +86,7 @@
                             'id' => 'groups',
                         ])
                         @slot('value')
-                            {{ $user->groups->map(function($group) { return __($group->name); })->implode('name', ', ') }}
+                            {{ $user->groups->map(function($group) { return __($group->name); })->implode(', ') }}
                         @endslot
                         @slot('inputOptions')
                                 readonly

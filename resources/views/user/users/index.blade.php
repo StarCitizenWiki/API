@@ -42,7 +42,7 @@
                             {{ $user->email }}
                         </td>
                         <td>
-                            {{ $user->groups->map(function($group) { return __($group->name); })->implode('name', ', ') }}
+                            {{ $user->groups->map(function($group) { return __($group->name); })->implode(', ') }}
                         </td>
                         <td>
                             {{ $user->blocked ? __('Ja') : __('Nein') }}
