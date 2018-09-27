@@ -13,9 +13,11 @@ use Tests\Feature\Controller\Api\ApiTestCase;
 /**
  * {@inheritdoc}
  *
- * @covers \App\Http\Controllers\Web\Api\CommLinkController<extended>
+ * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController<extended>
  *
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer<extended>
+ * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer<extended>
+ * @covers \App\Transformers\Api\V1\Rsi\CommLink\Link\LinkTransformer<extended>
  *
  * @covers \App\Models\Rsi\CommLink\CommLink<extended>
  */
@@ -47,6 +49,10 @@ class CommLinkControllerTest extends ApiTestCase
         'created_at',
     ];
 
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    private $commLinks;
 
     /**
      * Index Method Tests
@@ -81,6 +87,51 @@ class CommLinkControllerTest extends ApiTestCase
      * Show Method Tests
      */
 
+    /**
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
+     */
+    public function testShow()
+    {
+        $response = $this->get(
+            sprintf(
+                '%s/%s',
+                static::BASE_API_ENDPOINT,
+                $this->commLinks->first()->cig_id
+            )
+        );
+
+        $response->assertOk()
+            ->assertJsonStructure(
+                [
+                    'data' => $this->structure,
+                ]
+            )
+            ->assertJsonCount(
+                $this->commLinks->first()->images->count(),
+                'data.images.data'
+            )
+            ->assertJsonCount(
+                $this->commLinks->first()->links->count(),
+                'data.links.data'
+            );
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
+     */
+    public function testShowNotFound()
+    {
+        $response = $this->get(
+            sprintf(
+                '%s/%s',
+                static::BASE_API_ENDPOINT,
+                static::NOT_EXISTENT_ID
+            )
+        );
+
+        $response->assertNotFound();
+    }
+
 
     /**
      * Creates Faked Comm Links in DB
@@ -89,6 +140,6 @@ class CommLinkControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        factory(CommLink::class, 20)->create();
+        $this->commLinks = factory(CommLink::class, 20)->create();
     }
 }

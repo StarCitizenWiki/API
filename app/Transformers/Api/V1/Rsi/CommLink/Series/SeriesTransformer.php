@@ -25,7 +25,7 @@ class SeriesTransformer extends TransformerAbstract
         return [
             'name' => $series->name,
             'slug' => $series->slug,
-            'url' => app('api.url')->version('v1')->route(
+            'api_url' => app('api.url')->version('v1')->route(
                 'api.v1.rsi.comm-links.series.show',
                 [$series->getRouteKey()]
             ),

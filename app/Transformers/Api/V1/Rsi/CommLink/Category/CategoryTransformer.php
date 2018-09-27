@@ -25,7 +25,7 @@ class CategoryTransformer extends TransformerAbstract
         return [
             'name' => $category->name,
             'slug' => $category->slug,
-            'url' => app('api.url')->version('v1')->route(
+            'api_url' => app('api.url')->version('v1')->route(
                 'api.v1.rsi.comm-links.categories.show',
                 [$category->getRouteKey()]
             ),
