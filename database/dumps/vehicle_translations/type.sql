@@ -1,8 +1,8 @@
-INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 2, 'Mehrzweck', '2018-07-26 23:38:49', '2018-07-26 23:40:13');
-INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 3, 'Erkundung', '2018-07-26 23:36:39', '2018-07-26 23:36:39');
-INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 4, 'Transport', '2018-07-23 22:13:36', '2018-07-23 22:13:36');
-INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 5, 'Gefecht', '2018-07-26 23:33:21', '2018-07-26 23:33:30');
-INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 6, 'Wettkampf', '2018-07-26 23:33:40', '2018-07-26 23:33:40');
+INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 2, 'Erkundung', '2018-07-26 23:36:39', '2018-07-26 23:36:39');
+INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 3, 'Transport', '2018-07-23 22:13:36', '2018-07-23 22:13:36');
+INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 4, 'Gefecht', '2018-07-26 23:33:21', '2018-07-26 23:33:30');
+INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 5, 'Wettkampf', '2018-07-26 23:33:40', '2018-07-26 23:33:40');
+INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 6, 'Mehrzweck', '2018-07-26 23:38:49', '2018-07-26 23:40:13');
 INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 7, 'Unterstützung', '2018-07-26 23:33:59', '2018-07-26 23:33:59');
 INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 8, 'Gewerblich', '2018-07-26 23:34:38', '2018-07-26 23:34:38');
 INSERT INTO vehicle_type_translations (locale_code, type_id, translation, created_at, updated_at) VALUES ('de_DE', 9, 'Gelände', '2018-07-26 23:35:19', '2018-07-26 23:36:12');
