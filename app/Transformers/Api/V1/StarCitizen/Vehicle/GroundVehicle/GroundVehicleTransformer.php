@@ -26,6 +26,7 @@ class GroundVehicleTransformer extends VehicleTransformer
             'id' => $groundVehicle->cig_id,
             'chassis_id' => $groundVehicle->chassis_id,
             'name' => $groundVehicle->name,
+            'slug' => $groundVehicle->slug,
             'sizes' => [
                 'length' => $groundVehicle->length,
                 'beam' => $groundVehicle->beam,
@@ -50,6 +51,7 @@ class GroundVehicleTransformer extends VehicleTransformer
                 'code' => $groundVehicle->manufacturer->name_short,
                 'name' => $groundVehicle->manufacturer->name,
             ],
+            'updated_at' => $groundVehicle->updated_at->toDateTimeString(),
         ];
     }
 }

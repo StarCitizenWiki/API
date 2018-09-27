@@ -26,6 +26,7 @@ class ShipTransformer extends VehicleTransformer
             'id' => $ship->cig_id,
             'chassis_id' => $ship->chassis_id,
             'name' => $ship->name,
+            'slug' => $ship->slug,
             'sizes' => [
                 'length' => $ship->length,
                 'beam' => $ship->beam,
@@ -61,6 +62,7 @@ class ShipTransformer extends VehicleTransformer
                 'code' => $ship->manufacturer->name_short,
                 'name' => $ship->manufacturer->name,
             ],
+            'updated_at' => $ship->updated_at->toDateTimeString(),
         ];
     }
 }
