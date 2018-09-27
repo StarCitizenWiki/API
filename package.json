@@ -24,7 +24,5 @@
     "popper.js": "^1.14.4",
     "yarn": "^1.9.4"
   },
-  "dependencies": {
-    "tinymce": "^4.8.3"
-  }
+  "dependencies": {}
 }
