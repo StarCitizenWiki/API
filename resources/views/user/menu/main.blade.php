@@ -6,15 +6,17 @@
     @include('user.menu.app_links')
 @endcomponent
 
-@component('components.navs.sidebar_section', [
-    'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
-    'contentClass' => 'pl-3 pl-md-2',
-    'id' => 'm_admin',
-    'title' => __('Admin'),
-])
-    @include('user.menu.admin')
-@endcomponent
+@can('web.user.dashboard.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mb-md-2',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_admin',
+        'title' => __('Admin'),
+    ])
+        @include('user.menu.admin')
+    @endcomponent
+@endcan
 
 @can('web.user.notifications.view')
     @component('components.navs.sidebar_section', [
