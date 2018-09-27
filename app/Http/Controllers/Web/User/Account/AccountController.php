@@ -58,7 +58,7 @@ class AccountController extends Controller
             ]
         );
 
-        return redirect()->back()->withMessages(
+        return redirect()->route('web.user.account.index')->withMessages(
             [
                 'success' => [
                     __('crud.updated', ['type' => __('Einstellungen')]),
