@@ -45,17 +45,17 @@
                         </td>
                         <td>
                             @foreach($groundVehicle->foci as $focus)
-                                {{ $focus->english()->translation }}<br>
+                                {{ optional($focus->german())->translation }}<br>
                             @endforeach
                         </td>
                         <td>
-                            {{ $groundVehicle->type->german()->translation ?? __('Keine') }}
+                            {{ optional($groundVehicle->type->german())->translation ?? __('Keine') }}
                         </td>
                         <td>
-                            {{ $groundVehicle->productionStatus->german()->translation }}
+                            {{ optional($groundVehicle->productionStatus->german())->translation }}
                         </td>
                         <td>
-                            {{ optional($groundVehicle->productionNote)->german()->translation ?? __('Keine') }}
+                            {{ optional($groundVehicle->productionNote->german())->translation ?? __('Keine') }}
                         </td>
                         <td data-order="{{ $groundVehicle->updated_at->timestamp }}">
                             {{ $groundVehicle->updated_at->diffForHumans() }}

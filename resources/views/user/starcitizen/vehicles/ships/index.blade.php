@@ -45,17 +45,17 @@
                         </td>
                         <td>
                             @foreach($ship->foci as $focus)
-                                {{ $focus->english()->translation }}<br>
+                                {{ optional($focus->german())->translation ?? __('Keine') }}<br>
                             @endforeach
                         </td>
                         <td>
-                            {{ $ship->type->german()->translation ?? __('Keine') }}
+                            {{ optional($ship->type->german())->translation ?? __('Keine') }}
                         </td>
                         <td>
-                            {{ $ship->productionStatus->german()->translation }}
+                            {{ optional($ship->productionStatus->german())->translation ?? __('Keine') }}
                         </td>
                         <td>
-                            {{ optional($ship->productionNote)->german()->translation ?? __('Keine') }}
+                            {{ optional($ship->productionNote->german())->translation ?? __('Keine') }}
                         </td>
                         <td data-order="{{ $ship->updated_at->timestamp }}">
                             {{ $ship->updated_at->diffForHumans() }}
