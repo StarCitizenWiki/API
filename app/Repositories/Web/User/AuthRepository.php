@@ -57,6 +57,33 @@ class AuthRepository implements AuthRepositoryInterface
             return $authUser;
         }
 
+        return $this->createLocalUser($oauthUser, $provider);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function syncLocalUserGroups(User $oauthUser, UserModel $user): void
+    {
+        $groups = $oauthUser->user['groups'] ?? null;
+
+        if (is_array($groups)) {
+            $groupIDs = UserGroup::select('id')->whereIn('name', $groups)->get();
+
+            $user->groups()->sync($groupIDs);
+        }
+    }
+
+    /**
+     * Creates the local User Record
+     *
+     * @param \SocialiteProviders\Manager\OAuth1\User $oauthUser
+     * @param string                                  $provider
+     *
+     * @return \App\Models\Account\User\User
+     */
+    private function createLocalUser(User $oauthUser, string $provider)
+    {
         /** @var \App\Models\Account\User\User $localUser */
         $localUser = UserModel::create(
             [
@@ -72,19 +99,5 @@ class AuthRepository implements AuthRepositoryInterface
         $this->syncLocalUserGroups($oauthUser, $localUser);
 
         return $localUser;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function syncLocalUserGroups(User $oauthUser, UserModel $user): void
-    {
-        $groups = $oauthUser->user['groups'] ?? null;
-
-        if (is_array($groups)) {
-            $groupIDs = UserGroup::select('id')->whereIn('name', $groups)->get();
-
-            $user->groups()->sync($groupIDs);
-        }
     }
 }
