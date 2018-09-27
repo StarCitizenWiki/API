@@ -49,13 +49,13 @@
                             @endforeach
                         </td>
                         <td>
-                            {{ $groundVehicle->type->english()->translation ?? 'None' }}
+                            {{ $groundVehicle->type->german()->translation ?? __('Keine') }}
                         </td>
                         <td>
-                            {{ $groundVehicle->productionStatus->english()->translation }}
+                            {{ $groundVehicle->productionStatus->german()->translation }}
                         </td>
                         <td>
-                            {{ optional($groundVehicle->productionNote)->english()->translation ?? 'None' }}
+                            {{ optional($groundVehicle->productionNote)->german()->translation ?? __('Keine') }}
                         </td>
                         <td data-order="{{ $groundVehicle->updated_at->timestamp }}">
                             {{ $groundVehicle->updated_at->diffForHumans() }}
