@@ -20,14 +20,6 @@ use Illuminate\Http\Request;
 class ManufacturerController extends ApiController
 {
     /**
-     * {@inheritdoc}
-     */
-    protected const VALID_RELATIONS = [
-        'ships',
-        'groundVehicles',
-    ];
-
-    /**
      * ManufacturerController constructor.
      *
      * @param \Illuminate\Http\Request                                                  $request

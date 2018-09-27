@@ -11,7 +11,8 @@ namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\System\Translation\AbstractHasTranslations;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
-use Illuminate\Support\Collection;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -19,6 +20,11 @@ use League\Fractal\TransformerAbstract;
  */
 class ManufacturerTransformer extends TransformerAbstract implements LocaleAwareTransformerInterface
 {
+    protected $availableIncludes = [
+        'ships',
+        'vehicles',
+    ];
+
     private $localeCode;
 
     /**
@@ -40,60 +46,32 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
     {
         $translations = $this->getTranslation($manufacturer);
 
-        $manufacturerTransformed = [
+        return [
             'code' => $manufacturer->name_short,
             'name' => $manufacturer->name,
             'known_for' => $translations['known_for'],
             'description' => $translations['description'],
         ];
-
-        if ($manufacturer->relationLoaded('ships')) {
-            $manufacturerTransformed['ships'] = $this->getShipLinksForManufacturer($manufacturer);
-        }
-
-        if ($manufacturer->relationLoaded('groundVehicles')) {
-            $manufacturerTransformed['ground_vehicles'] = $this->getGroundVehicleLinksForManufacturer($manufacturer);
-        }
-
-        return $manufacturerTransformed;
     }
 
     /**
-     * Links Ships to Api Endpoints
-     *
      * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
      *
-     * @return \Illuminate\Support\Collection
+     * @return \League\Fractal\Resource\Collection
      */
-    private function getShipLinksForManufacturer(Manufacturer $manufacturer): Collection
+    public function includeShips(Manufacturer $manufacturer)
     {
-        return $manufacturer->ships->map(
-            function ($ship) {
-                return app('api.url')->version('v1')->route(
-                    'api.v1.starcitizen.vehicles.ships.show',
-                    [$ship->getRouteKey()]
-                );
-            }
-        );
+        return $this->collection($manufacturer->ships, new ShipLinkTransformer());
     }
 
     /**
-     * Links Ground Vehicles to Api Endpoints
-     *
      * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
      *
-     * @return \Illuminate\Support\Collection
+     * @return \League\Fractal\Resource\Collection
      */
-    private function getGroundVehicleLinksForManufacturer(Manufacturer $manufacturer): Collection
+    public function includeVehicles(Manufacturer $manufacturer)
     {
-        return $manufacturer->groundVehicles->map(
-            function ($groundVehicle) {
-                return app('api.url')->version('v1')->route(
-                    'api.v1.starcitizen.vehicles.ground-vehicles.show',
-                    [$groundVehicle->getRouteKey()]
-                );
-            }
-        );
+        return $this->collection($manufacturer->vehicles, new GroundVehicleLinkTransformer());
     }
 
     /**

@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
 use Carbon\Carbon;
 use Dingo\Api\Routing\Helpers;
+use Dingo\Api\Transformer\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -25,18 +26,12 @@ abstract class AbstractApiController extends Controller
 
     const INVALID_LOCALE_STRING = 'Locale Code \'%s\' is not valid';
 
-    const INVALID_RELATION_STRING = 'Relation \'%s\' does not exist';
+    const INVALID_RELATION_STRING = '\'%s\' does not exist';
 
     /**
      * Sprintf String which is used if no model was found
      */
     const NOT_FOUND_STRING = 'No Results for Query \'%s\'';
-
-    /**
-     * Array of valid Model Relations
-     * Set this in the corresponding controller
-     */
-    protected const VALID_RELATIONS = [];
 
     /**
      * Limit Get Parameter
@@ -52,22 +47,22 @@ abstract class AbstractApiController extends Controller
      * @var \Illuminate\Http\Request The API Request
      */
     protected $request;
+
     /**
      * @var \League\Fractal\TransformerAbstract The Default Transformer for index and show
      */
     protected $transformer;
+
     /**
      * @var array Parameter Errors
      */
     protected $errors = [];
-    /**
-     * @var array Parsed and validated relations
-     */
-    protected $validRelations = [];
+
     /**
      * @var int Pagination Limit, 0 = no pagination
      */
     protected $limit;
+
     /**
      * @var string Locale Code, set if Transformer implements LocaleAwareTransformerInterface
      */
@@ -82,6 +77,7 @@ abstract class AbstractApiController extends Controller
     {
         $this->request = $request;
         $this->processRequestParams();
+        app(Factory::class)->disableEagerLoading();
     }
 
     /**
@@ -104,11 +100,7 @@ abstract class AbstractApiController extends Controller
      */
     protected function getResponse($query)
     {
-        $query->with($this->validRelations);
-
         if ($query instanceof Model) {
-            $query->load($this->validRelations);
-
             return $this->response->item($query, $this->transformer)->setMeta($this->getMeta());
         }
 
@@ -136,8 +128,8 @@ abstract class AbstractApiController extends Controller
             $meta['errors'] = $this->errors;
         }
 
-        if (!empty(static::VALID_RELATIONS)) {
-            $meta['valid_relations'] = array_map('snake_case', static::VALID_RELATIONS);
+        if (!empty($this->transformer->getAvailableIncludes())) {
+            $meta['valid_relations'] = array_map('snake_case', $this->transformer->getAvailableIncludes());
         }
 
         return $meta;
@@ -161,7 +153,7 @@ abstract class AbstractApiController extends Controller
     }
 
     /**
-     * Processes the given 'with' model relation key
+     * Processes the given 'include' model relation key
      *
      * @param string|array $relations
      */
@@ -183,10 +175,8 @@ abstract class AbstractApiController extends Controller
             }
         )->each(
             function ($relation) {
-                if (in_array($relation, static::VALID_RELATIONS)) {
-                    $this->validRelations[] = $relation;
-                } else {
-                    $this->errors['with'][] = sprintf(static::INVALID_RELATION_STRING, snake_case($relation));
+                if (!in_array($relation, $this->transformer->getAvailableIncludes())) {
+                    $this->errors['include'][] = sprintf(static::INVALID_RELATION_STRING, snake_case($relation));
                 }
             }
         );
@@ -211,12 +201,12 @@ abstract class AbstractApiController extends Controller
     }
 
     /**
-     * Processes the 'with' Model Relations Request-Parameter
+     * Processes the 'include' Model Relations Request-Parameter
      */
     private function processIncludes()
     {
-        if ($this->request->has('with') && null !== $this->request->get('with', null)) {
-            $this->checkIncludes($this->request->get('with', []));
+        if ($this->request->has('include') && null !== $this->request->get('include', null)) {
+            $this->checkIncludes($this->request->get('include', []));
         }
     }
 
