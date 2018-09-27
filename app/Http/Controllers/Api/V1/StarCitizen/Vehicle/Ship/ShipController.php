@@ -41,7 +41,7 @@ class ShipController extends ApiController
         $ship = urldecode($ship);
 
         try {
-            $ship = Ship::where('name', $ship)->firstOrFail();
+            $ship = Ship::query()->where('name', $ship)->orWhere('slug', $ship)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $ship));
         }
@@ -69,7 +69,7 @@ class ShipController extends ApiController
     {
         $query = $this->request->get('query', '');
         $query = urldecode($query);
-        $queryBuilder = Ship::where('name', 'like', "%{$query}%");
+        $queryBuilder = Ship::query()->where('name', 'like', "%{$query}%")->orWhere('slug', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));

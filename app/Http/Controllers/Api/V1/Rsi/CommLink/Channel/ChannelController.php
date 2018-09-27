@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Transformers\Api\V1\Rsi\CommLink\Channel\ChannelTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 /**
@@ -56,7 +57,11 @@ class ChannelController extends ApiController
      */
     public function show(string $channel)
     {
-        $channel = Channel::query()->where('name', $channel)->orWhere('slug', $channel)->firstOrFail();
+        try {
+            $channel = Channel::query()->where('name', $channel)->orWhere('slug', $channel)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $channel));
+        }
 
         $this->transformer = new CommLinkTransformer();
 

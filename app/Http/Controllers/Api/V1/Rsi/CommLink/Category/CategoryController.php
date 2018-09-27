@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Transformers\Api\V1\Rsi\CommLink\Category\CategoryTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 /**
@@ -56,7 +57,11 @@ class CategoryController extends ApiController
      */
     public function show(string $category)
     {
-        $category = Category::query()->where('name', $category)->orWhere('slug', $category)->firstOrFail();
+        try {
+            $category = Category::query()->where('name', $category)->orWhere('slug', $category)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $category));
+        }
 
         $this->transformer = new CommLinkTransformer();
 

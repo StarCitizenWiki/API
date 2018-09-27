@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 /**
@@ -55,7 +56,12 @@ class CommLinkController extends ApiController
      */
     public function show(int $commLink)
     {
-        $commLink = CommLink::query()->where('cig_id', $commLink)->firstOrFail();
+        try {
+            $commLink = CommLink::query()->where('cig_id', $commLink)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $commLink));
+        }
+
         $this->transformer->setDefaultIncludes($this->transformer->getAvailableIncludes());
 
         return $this->getResponse($commLink);
