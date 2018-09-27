@@ -35,7 +35,7 @@ class Focus extends BaseElement
     {
         app('Log')::debug('Getting Vehicle Foci IDs');
 
-        $rawFocus = $this->getNormalizedFocus();
+        $rawFocus = $this->rawData->get(self::VEHICLE_FOCUS);
 
         if (null === $rawFocus) {
             app('Log')::debug('Vehicle Focus not set in Matrix');
@@ -51,6 +51,8 @@ class Focus extends BaseElement
         collect($vehicleFoci)->each(
             function ($vehicleFocus) use (&$vehicleFociIDs) {
                 try {
+                    $vehicleFocus = $this->getNormalizedFocus($vehicleFocus);
+
                     /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation $focus */
                     $focus = FocusTranslation::query()->where(
                         'translation',
@@ -100,12 +102,12 @@ class Focus extends BaseElement
     }
 
     /**
+     * @param string $rawFocus
+     *
      * @return mixed|string
      */
-    private function getNormalizedFocus()
+    private function getNormalizedFocus(string $rawFocus)
     {
-        $rawFocus = $this->rawData->get(self::VEHICLE_FOCUS);
-
         if (null !== $rawFocus && is_string($rawFocus)) {
             if (in_array($rawFocus, self::FOCI)) {
                 $rawFocus = self::FOCUS_NORMALIZED;
