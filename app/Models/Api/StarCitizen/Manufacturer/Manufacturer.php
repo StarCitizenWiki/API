@@ -32,6 +32,11 @@ class Manufacturer extends HasTranslations
         'translations',
     ];
 
+    protected $withCount = [
+        'ships',
+        'vehicles',
+    ];
+
     protected $perPage = 10;
 
     /**

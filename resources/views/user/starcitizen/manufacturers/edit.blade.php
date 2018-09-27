@@ -51,7 +51,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Raumschiffe'),
                                 'id' => 'ships',
-                                'value' => count($manufacturer->ships),
+                                'value' => $manufacturer->ships_count,
                             ])@endcomponent
                         </div>
                         <div class="col-12 col-lg-6">
@@ -60,7 +60,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Fahrzeuge'),
                                 'id' => 'vehicles',
-                                'value' => count($manufacturer->groundVehicles),
+                                'value' => $manufacturer->vehicles_count,
                             ])@endcomponent
                         </div>
                     </div>

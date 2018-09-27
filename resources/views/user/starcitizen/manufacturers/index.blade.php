@@ -42,10 +42,10 @@
                             {{ $manufacturer->name_short }}
                         </td>
                         <td>
-                            {{ count($manufacturer->ships) }}
+                            {{ $manufacturer->ships_count }}
                         </td>
                         <td>
-                            {{ count($manufacturer->groundVehicles) }}
+                            {{ $manufacturer->vehicles_count }}
                         </td>
                         @can('web.user.starcitizen.manufacturers.update')
                             <td class="text-center">
