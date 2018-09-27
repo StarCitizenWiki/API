@@ -41,10 +41,10 @@
                             {{ $commLink->title }}
                         </td>
                         <td>
-                            {{ count($commLink->images) }}
+                            {{ $commLink->images_count }}
                         </td>
                         <td>
-                            {{ count($commLink->links) }}
+                            {{ $commLink->links_count }}
                         </td>
                         <td>
                             {{ $commLink->english()->translation ? 'Ja' : 'Nein' }}

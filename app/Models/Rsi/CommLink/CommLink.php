@@ -50,6 +50,11 @@ class CommLink extends HasTranslations
         'links',
     ];
 
+    protected $withCount = [
+        'images',
+        'links',
+    ];
+
     /**
      * {@inheritdoc}
      */
