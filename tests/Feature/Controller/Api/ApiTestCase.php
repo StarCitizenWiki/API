@@ -14,7 +14,6 @@ use Tests\TestCase;
 /**
  * @covers \App\Providers\DingoTokenAuthProvider
  *
- * @covers \App\Http\Middleware\Api\UpdateTokenTimestamp
  * @covers \App\Http\Middleware\CheckUserState
  * @covers \App\Http\Middleware\PiwikTracking
  *
