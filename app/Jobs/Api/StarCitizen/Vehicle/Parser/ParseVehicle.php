@@ -131,7 +131,7 @@ class ParseVehicle implements ShouldQueue
         $fociIDsOld = $vehicle->foci->pluck('id');
         $fociIDs = $focus->getVehicleFociIDs();
 
-        if (!$vehicle->wasRecentlyCreated && !empty($fociIDsOld->diff($fociIDs))) {
+        if (!$vehicle->wasRecentlyCreated && count($fociIDsOld->diff($fociIDs)) > 0) {
             $changes = [
                 'foci' => [
                     'old' => $fociIDsOld,
@@ -141,6 +141,7 @@ class ParseVehicle implements ShouldQueue
 
             $vehicle->changelogs()->create(
                 [
+                    'type' => 'update',
                     'changelog' => json_encode($changes),
                 ]
             );
