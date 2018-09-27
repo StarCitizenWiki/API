@@ -26,7 +26,7 @@ trait HasVehicleRelationsTrait
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany Ground Vehicles
      */
-    public function groundVehicles()
+    public function vehicles()
     {
         return $this->hasMany(GroundVehicle::class);
     }

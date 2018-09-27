@@ -66,7 +66,7 @@ $api->group(
                 $api->group(
                     [
                         'namespace' => 'GroundVehicle',
-                        'prefix' => 'ground-vehicles',
+                        'prefix' => 'vehicles',
                     ],
                     function (\Dingo\Api\Routing\Router $api) {
                         $api->get(
