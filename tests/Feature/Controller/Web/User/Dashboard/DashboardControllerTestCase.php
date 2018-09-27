@@ -17,7 +17,7 @@ use Tests\Feature\Controller\Web\User\UserTestCase;
 class DashboardControllerTestCase extends UserTestCase
 {
     /**
-     * @covers \App\Http\Controllers\Web\User\DashboardController::show
+     * @covers \App\Http\Controllers\Web\User\DashboardController::index
      *
      * @covers \App\Policies\Web\User\DashboardPolicy::view
      */

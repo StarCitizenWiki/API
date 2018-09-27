@@ -19,7 +19,7 @@ class AccountControllerTest extends TestCase
     private $user;
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Account\AccountController::show
+     * @covers \App\Http\Controllers\Web\User\Account\AccountController::index
      */
     public function testIndexView()
     {
@@ -28,7 +28,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Account\AccountController::show
+     * @covers \App\Http\Controllers\Web\User\Account\AccountController::index
      */
     public function testBlockedUserAccessAccount()
     {
@@ -39,7 +39,7 @@ class AccountControllerTest extends TestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Account\AccountController::show
+     * @covers \App\Http\Controllers\Web\User\Account\AccountController::index
      */
     public function testBlockedUserAccessApiIndex()
     {

@@ -20,7 +20,7 @@ use Tests\Feature\Controller\Web\User\UserTestCase;
 class LicenseControllerTestCase extends UserTestCase
 {
     /**
-     * @covers \App\Http\Controllers\Web\User\License\LicenseController::show
+     * @covers \App\Http\Controllers\Web\User\License\LicenseController::index
      */
     public function testShow()
     {
@@ -50,7 +50,7 @@ class LicenseControllerTestCase extends UserTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\License\LicenseController::show
+     * @covers \App\Http\Controllers\Web\User\License\LicenseController::index
      */
     public function testShowAccepted()
     {
