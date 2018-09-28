@@ -10,3 +10,10 @@
 | simple approach to interacting with each command's IO methods.
 |
 */
+
+Artisan::command(
+    'download:missing-comm-links',
+    function () {
+        dispatch(app(\App\Jobs\Rsi\CommLink\DownloadMissingCommLinks::class));
+    }
+);

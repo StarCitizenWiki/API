@@ -66,8 +66,7 @@ class PageControllerTest extends TestCase
     {
         $response = $this->actingAs($this->user)->get(route('web.api.faq'));
         $response->assertOk()
-            ->assertViewIs('api.pages.faq')
-            ->assertSee(__('Keine Probleme gemeldet'));
+            ->assertViewIs('api.pages.faq');
     }
 
     /**
