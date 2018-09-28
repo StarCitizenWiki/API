@@ -1,30 +1,32 @@
 <?php declare(strict_types = 1);
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\ShipMatrix;
 
+use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix as DownloadShipMatrixJob;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 
 /**
- * Import given or latest shipmatrix file into db
+ * Start the Shipmatrix Download Job
  */
-class ImportShipMatrix extends Command
+class DownloadShipMatrix extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:shipmatrix {file? : File on Vehicle Disk to import}';
+    protected $signature = 'download:shipmatrix 
+                            {--f|force : Force Download, Overwrite File if exist} 
+                            {--i|import : Import Ships after Download}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import Shipmatrix File into the Database';
+    protected $description = 'Starts the Ship Matrix Download Job';
 
     /**
      * @var \Illuminate\Bus\Dispatcher
@@ -39,7 +41,6 @@ class ImportShipMatrix extends Command
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
-
         $this->dispatcher = $dispatcher;
     }
 
@@ -50,21 +51,16 @@ class ImportShipMatrix extends Command
      */
     public function handle()
     {
-        $this->info("Dispatching Ship Matrix Parsing Job");
-        if (null !== $this->argument('file')) {
-            $file = $this->argument('file');
+        $this->info('Dispatching Ship Matrix Download');
 
-            $this->info("Using File {$file}");
-            if (!Storage::disk('vehicles')->exists($file)) {
-                $path = Storage::disk('vehicles')->path('');
+        if ($this->option('force')) {
+            $this->info('Forcing Download');
+        }
 
-                $this->error("File {$file} does not exist in Path {$path}");
+        $this->dispatcher->dispatchNow(new DownloadShipMatrixJob($this->option('force')));
 
-                return false;
-            }
-
-            $this->dispatcher->dispatchNow(new ParseShipMatrixDownload($this->argument('file')));
-        } else {
+        if ($this->option('import')) {
+            $this->info('Starting Import');
             $this->dispatcher->dispatchNow(new ParseShipMatrixDownload());
         }
     }

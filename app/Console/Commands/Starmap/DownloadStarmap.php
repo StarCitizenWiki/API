@@ -1,32 +1,33 @@
 <?php declare(strict_types = 1);
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Starmap;
 
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats as DownloadStatsJob;
-use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
+use App\Jobs\Api\StarCitizen\Starmap\DownloadStarmap as DownloadStarmapJob;
+use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmapDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
 /**
- * Class DownloadStats
+ * Start Starmap Download Shop
  */
-class DownloadStats extends Command
+class DownloadStarmap extends Command
 {
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'download:stats
+    protected $signature = 'download:starmap 
                             {--f|force : Force Download, Overwrite File if exist} 
-                            {--i|import : Import Stats after Download}';
+                            {--i|import : Import System, Celestial Objects and Jumppoint Tunnel after Download}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Starts the Stats Download Job';
+    protected $description = 'Starts the Starmap Download Job';
 
     /**
      * @var \Illuminate\Bus\Dispatcher
@@ -41,7 +42,6 @@ class DownloadStats extends Command
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
-
         $this->dispatcher = $dispatcher;
     }
 
@@ -52,17 +52,17 @@ class DownloadStats extends Command
      */
     public function handle()
     {
-        $this->info("Dispatching Stats Download");
+        $this->info('Dispatching Starmap Download');
 
         if ($this->option('force')) {
             $this->info('Forcing Download');
         }
 
-        $this->dispatcher->dispatchNow(new DownloadStatsJob($this->option('force')));
+        $this->dispatcher->dispatchNow(new DownloadStarmapJob($this->option('force')));
 
         if ($this->option('import')) {
             $this->info('Starting Import');
-            $this->dispatcher->dispatchNow(new ParseStat());
+            $this->dispatcher->dispatchNow(new ParseStarmapDownload());
         }
     }
 }

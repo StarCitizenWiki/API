@@ -26,10 +26,12 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \App\Console\Commands\DownloadShipMatrix::class,
-        \App\Console\Commands\DownloadStats::class,
-        \App\Console\Commands\ImportShipMatrix::class,
-        \App\Console\Commands\ImportCommLinks::class,
+        \App\Console\Commands\ShipMatrix\DownloadShipMatrix::class,
+        \App\Console\Commands\ShipMatrix\ImportShipMatrix::class,
+
+        \App\Console\Commands\Stat\DownloadStats::class,
+
+        \App\Console\Commands\CommLink\ImportCommLinks::class,
     ];
     /**
      * @var \Illuminate\Console\Scheduling\Schedule
