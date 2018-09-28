@@ -85,6 +85,10 @@ class Kernel extends ConsoleKernel
         $this->schedule->job(app(DownloadMissingCommLinks::class))->hourly()->withoutOverlapping()->then(
             function () {
                 $missingOffset = optional(CommLink::orderByDesc('cig_id')->first())->cig_id ?? 0;
+                if ($missingOffset > 0) {
+                    $missingOffset++;
+                }
+
                 $this->schedule->job(new ParseCommLinkDownload($missingOffset));
             }
         )->then(
@@ -115,7 +119,5 @@ class Kernel extends ConsoleKernel
                 $this->schedule->job(new ParseShipMatrixDownload());
             }
         );
-
-        // TODO Stündlicher Check auf neue Schiffe
     }
 }
