@@ -93,7 +93,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\ProductionNote\ProductionNoteController::update
      *
-     * @covers \App\Http\Requests\TranslationRequest
+     * @covers \App\Http\Requests\System\TranslationRequest
      *
      * @covers \App\Models\System\ModelChangelog
      */

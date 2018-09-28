@@ -106,7 +106,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
      *
-     * @covers \App\Http\Requests\TranslationRequest
+     * @covers \App\Http\Requests\System\TranslationRequest
      *
      * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation
      * @covers \App\Models\System\ModelChangelog

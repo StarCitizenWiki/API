@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\User\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CommLinkRequest;
+use App\Http\Requests\Rsi\CommLink\CommLinkRequest;
 use App\Jobs\Rsi\CommLink\Parser\Element\Content;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
 use App\Models\Rsi\CommLink\CommLink;
@@ -120,8 +120,8 @@ class CommLinkController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\CommLinkRequest $request
-     * @param \App\Models\Rsi\CommLink\CommLink  $commLink
+     * @param \App\Http\Requests\Rsi\CommLink\CommLinkRequest $request
+     * @param \App\Models\Rsi\CommLink\CommLink               $commLink
      *
      * @return \Illuminate\Http\RedirectResponse
      *

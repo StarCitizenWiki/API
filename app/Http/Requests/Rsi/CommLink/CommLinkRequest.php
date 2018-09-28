@@ -1,15 +1,15 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Rsi\CommLink;
 
 use App\Models\System\Language;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Class ManufacturerTranslationRequest
+ * Comm Link Requests
  */
-class ManufacturerTranslationRequest extends FormRequest
+class CommLinkRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,16 +30,22 @@ class ManufacturerTranslationRequest extends FormRequest
     {
         $localeCodes = Language::all('locale_code')->keyBy('locale_code');
         $rule = '|string|min:1';
-        $rules = [];
+        $rules = [
+            'title' => 'required|string|min:1|max:255',
+            'url' => 'nullable|string|min:15|max:255',
+            'created_at' => 'required|date',
+        ];
 
         foreach ($localeCodes as $code => $language) {
             if (config('language.english') === $language->locale_code) {
-                $rules["description_{$code}"] = 'required'.$rule;
-                $rules["known_for_{$code}"] = 'required'.$rule;
+                $rules[$code] = 'required'.$rule;
             } else {
-                $rules["description_{$code}"] = 'present'.$rule;
-                $rules["known_for_{$code}"] = 'present'.$rule;
+                $rules[$code] = 'nullable'.$rule;
             }
+        }
+
+        if (Auth::user()->can('web.user.rsi.comm-links.update_settings')) {
+            $rules['version'] = 'required|string|regex:/\d{4}\-\d{2}\-\d{2}\_\d{6}\.html/';
         }
 
         return $rules;

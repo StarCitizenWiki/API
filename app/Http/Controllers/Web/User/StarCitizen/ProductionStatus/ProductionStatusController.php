@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\User\StarCitizen\ProductionStatus;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TranslationRequest;
+use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\System\Language;
 
@@ -69,7 +69,7 @@ class ProductionStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\TranslationRequest                         $request
+     * @param \App\Http\Requests\System\TranslationRequest                         $request
      * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus
      *
      * @return \Illuminate\Http\RedirectResponse

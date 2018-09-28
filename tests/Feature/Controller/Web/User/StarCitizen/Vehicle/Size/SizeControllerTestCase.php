@@ -93,7 +93,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Size\SizeController::update
      *
-     * @covers \App\Http\Requests\TranslationRequest
+     * @covers \App\Http\Requests\System\TranslationRequest
      *
      * @covers \App\Models\System\ModelChangelog
      */

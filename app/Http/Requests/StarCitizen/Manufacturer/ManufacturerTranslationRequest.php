@@ -1,15 +1,15 @@
 <?php declare(strict_types = 1);
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\StarCitizen\Manufacturer;
 
 use App\Models\System\Language;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Class TranslationRequest
+ * Class ManufacturerTranslationRequest
  */
-class TranslationRequest extends FormRequest
+class ManufacturerTranslationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -34,9 +34,11 @@ class TranslationRequest extends FormRequest
 
         foreach ($localeCodes as $code => $language) {
             if (config('language.english') === $language->locale_code) {
-                $rules[$code] = 'required'.$rule;
+                $rules["description_{$code}"] = 'required'.$rule;
+                $rules["known_for_{$code}"] = 'required'.$rule;
             } else {
-                $rules[$code] = 'present'.$rule;
+                $rules["description_{$code}"] = 'present'.$rule;
+                $rules["known_for_{$code}"] = 'present'.$rule;
             }
         }
 

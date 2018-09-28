@@ -103,7 +103,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Manufacturer\ManufacturerController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      *
-     * @covers \App\Http\Requests\ManufacturerTranslationRequest
+     * @covers \App\Http\Requests\StarCitizen\Manufacturer\ManufacturerTranslationRequest
      *
      * @covers \App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation
      * @covers \App\Models\System\ModelChangelog

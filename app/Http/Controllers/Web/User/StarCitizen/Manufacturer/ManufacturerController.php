@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\User\StarCitizen\Manufacturer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ManufacturerTranslationRequest;
+use App\Http\Requests\StarCitizen\Manufacturer\ManufacturerTranslationRequest;
 use App\Models\System\Language;
 use Dingo\Api\Dispatcher;
 use Illuminate\Contracts\View\View;
@@ -84,8 +84,8 @@ class ManufacturerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\ManufacturerTranslationRequest $request
-     * @param string                                            $manufacturer
+     * @param \App\Http\Requests\StarCitizen\Manufacturer\ManufacturerTranslationRequest $request
+     * @param string                                                                     $manufacturer
      *
      * @return \Illuminate\Http\RedirectResponse
      *

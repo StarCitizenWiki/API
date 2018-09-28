@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TranslationRequest;
+use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Dingo\Api\Dispatcher;
 use Illuminate\Contracts\View\View;
@@ -66,7 +66,7 @@ class ShipController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\TranslationRequest         $request
+     * @param \App\Http\Requests\System\TranslationRequest         $request
      * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
      *
      * @return \Illuminate\Http\RedirectResponse

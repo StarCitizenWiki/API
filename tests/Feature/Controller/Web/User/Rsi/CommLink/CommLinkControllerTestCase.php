@@ -106,7 +106,7 @@ EOF
     /**
      * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController::update
      *
-     * @covers \App\Http\Requests\CommLinkRequest
+     * @covers \App\Http\Requests\Rsi\CommLink\CommLinkRequest
      *
      * @covers \App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy::update
      *
@@ -134,7 +134,7 @@ EOF
     /**
      * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController::update
      *
-     * @covers \App\Http\Requests\CommLinkRequest
+     * @covers \App\Http\Requests\Rsi\CommLink\CommLinkRequest
      *
      * @covers \App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy::update
      *

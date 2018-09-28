@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\Size;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TranslationRequest;
+use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\System\Language;
 
@@ -69,7 +69,7 @@ class SizeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\TranslationRequest         $request
+     * @param \App\Http\Requests\System\TranslationRequest         $request
      * @param \App\Models\Api\StarCitizen\Vehicle\Size\Size $size
      *
      * @return \Illuminate\Http\Response

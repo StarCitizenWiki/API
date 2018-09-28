@@ -104,7 +104,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      *
-     * @covers \App\Http\Requests\TranslationRequest
+     * @covers \App\Http\Requests\System\TranslationRequest
      *
      * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation
      * @covers \App\Models\System\ModelChangelog
