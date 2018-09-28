@@ -16,7 +16,7 @@ class PageController extends Controller
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function showApiView(): View
+    public function index(): View
     {
         app('Log')::debug(make_name_readable(__FUNCTION__));
 

@@ -24,11 +24,10 @@ class UserControllerBureaucratTest extends UserControllerTestCase
         'edit' => Response::HTTP_OK,
         'edit_not_found' => Response::HTTP_NOT_FOUND,
 
-        'update' => Response::HTTP_FOUND,
+        'update' => Response::HTTP_OK,
         'update_not_found' => Response::HTTP_NOT_FOUND,
 
-        'delete' => Response::HTTP_FOUND,
-        'delete_not_found' => Response::HTTP_NOT_FOUND,
+        'block' => Response::HTTP_OK,
     ];
 
     /**

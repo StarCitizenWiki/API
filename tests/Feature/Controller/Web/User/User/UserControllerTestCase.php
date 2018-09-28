@@ -9,6 +9,7 @@ namespace Tests\Feature\Controller\Web\User\User;
 
 use App\Http\Controllers\Web\User\User\UserController;
 use App\Models\Account\User\User;
+use App\Models\Account\User\UserGroup;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -75,7 +76,59 @@ class UserControllerTestCase extends UserTestCase
      */
     public function testUpdate()
     {
-        $this->markTestIncomplete();
+        /** @var \App\Models\Account\User\User $user */
+        $user = factory(User::class)->create();
+
+        $response = $this->followingRedirects()->actingAs($this->user)->patch(
+            route('web.user.users.update', $user->getRouteKey()),
+            [
+                'api_token' => $user->api_token,
+                'no_api_throttle' => 'on',
+            ]
+        );
+
+        $user = User::find($user->id);
+
+        $response->assertStatus(static::RESPONSE_STATUSES['update']);
+
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertViewIs('user.users.edit')
+                ->assertSee(__('crud.updated', ['type' => __('Benutzer')]))
+                ->assertSee($user->username)
+                ->assertSee(__('Blockieren'));
+
+            $this->assertTrue($user->settings->isUnthrottled());
+        }
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Web\User\User\UserController::update
+     * @covers \App\Http\Controllers\Web\User\User\UserController::block
+     */
+    public function testBlock()
+    {
+        /** @var \App\Models\Account\User\User $user */
+        $user = factory(User::class)->create();
+
+        $response = $this->followingRedirects()->actingAs($this->user)->patch(
+            route('web.user.users.update', $user->getRouteKey()),
+            [
+                'block' => true,
+            ]
+        );
+
+        $user = User::find($user->id);
+
+        $response->assertStatus(static::RESPONSE_STATUSES['block']);
+
+        if ($response->status() === Response::HTTP_OK) {
+            $response->assertViewIs('user.users.edit')
+                ->assertSee(__('crud.blocked', ['type' => __('Benutzer')]))
+                ->assertSee($user->username)
+                ->assertSee(__('Freischalten'));
+
+            $this->assertTrue($user->blocked);
+        }
     }
 
     /**
@@ -83,7 +136,11 @@ class UserControllerTestCase extends UserTestCase
      */
     public function testUpdateNotFound()
     {
-        $this->markTestIncomplete();
+        $response = $this->actingAs($this->user)->patch(
+            route('web.user.users.update', self::MODEL_ID_NOT_EXISTENT),
+            []
+        );
+        $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
 
 

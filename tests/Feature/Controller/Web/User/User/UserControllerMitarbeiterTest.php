@@ -27,8 +27,7 @@ class UserControllerMitarbeiterTest extends UserControllerTestCase
         'update' => Response::HTTP_FORBIDDEN,
         'update_not_found' => Response::HTTP_FORBIDDEN,
 
-        'delete' => Response::HTTP_FORBIDDEN,
-        'delete_not_found' => Response::HTTP_FORBIDDEN,
+        'block' => Response::HTTP_FORBIDDEN,
     ];
 
     /**
