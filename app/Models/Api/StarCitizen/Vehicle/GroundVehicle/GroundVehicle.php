@@ -23,10 +23,7 @@ class GroundVehicle extends Vehicle
         static::addGlobalScope(
             'type',
             function (Builder $builder) {
-                // TODO Refactor to eliminate DB call?
-                $type = TypeTranslation::where('translation', 'ground')->first();
-
-                $builder->where('type_id', '=', optional($type)->type_id);
+                $builder->has('groundVehicles');
             }
         );
     }

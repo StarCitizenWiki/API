@@ -138,6 +138,26 @@ class Vehicle extends HasTranslations
     }
 
     /**
+     * Ships
+     *
+     * @return mixed
+     */
+    public function ships()
+    {
+        return $this->type()->ship();
+    }
+
+    /**
+     * Ground Vehicles
+     *
+     * @return mixed
+     */
+    public function groundVehicles()
+    {
+        return $this->type()->groundVehicle();
+    }
+
+    /**
      * Use Vehicle Class in Children
      *
      * @return string
