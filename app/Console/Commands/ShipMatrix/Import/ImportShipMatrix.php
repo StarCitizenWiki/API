@@ -4,10 +4,8 @@ namespace App\Console\Commands\ShipMatrix\Import;
 
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Import given or latest shipmatrix file into db
