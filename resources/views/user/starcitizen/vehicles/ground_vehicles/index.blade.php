@@ -44,18 +44,20 @@
                             {{ optional($groundVehicle->manufacturer)->name_short }}
                         </td>
                         <td>
-                            @foreach($groundVehicle->foci as $focus)
-                                {{ optional($focus->german())->translation }}<br>
-                            @endforeach
+                            {{
+                                $groundVehicle->foci->transform(function(\App\Models\Api\StarCitizen\Vehicle\Focus\Focus $focus) {
+                                    return optional($focus->german())->translation ?? $focus->english()->translation ?? __('Keiner');
+                                })->implode(', ')
+                            }}
                         </td>
                         <td>
-                            {{ optional($groundVehicle->type->german())->translation ?? __('Keine') }}
+                            {{ optional($groundVehicle->type->german())->translation ?? $groundVehicle->type->english()->translation ?? __('Keiner') }}
                         </td>
                         <td>
-                            {{ optional($groundVehicle->productionStatus->german())->translation }}
+                            {{ optional($groundVehicle->productionStatus->german())->translation ?? $groundVehicle->productionStatus->english()->translation ?? __('Keiner') }}
                         </td>
                         <td>
-                            {{ optional($groundVehicle->productionNote->german())->translation ?? __('Keine') }}
+                            {{ optional($groundVehicle->productionNote->german())->translation ?? $groundVehicle->productionNote->english()->translation ?? __('Keine') }}
                         </td>
                         <td data-order="{{ $groundVehicle->updated_at->timestamp }}">
                             {{ $groundVehicle->updated_at->diffForHumans() }}

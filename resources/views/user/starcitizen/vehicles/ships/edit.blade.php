@@ -11,7 +11,9 @@
                 'class' => 'mb-4',
             ])
                 @slot('title')
-                    <h4 class="mb-0">@lang('Schiffsdaten') <small class="float-right mt-1">Letztes Update: {{ $ship->updated_at->diffForHumans() }}</small></h4>
+                    <h4 class="mb-0">@lang('Schiffsdaten')
+                        <small class="float-right mt-1">Letztes Update: {{ $ship->updated_at->diffForHumans() }}</small>
+                    </h4>
                 @endslot
                 @component('components.forms.form')
                     <div class="row">
@@ -58,7 +60,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Produktionsstatus'),
                                 'id' => 'status',
-                                'value' => $ship->productionStatus->english()->translation,
+                                'value' => optional($ship->productionStatus->german())->translation ?? $ship->productionStatus->english()->translation,
                             ])@endcomponent
                         </div>
                         <div class="col-12 col-lg-6 col-xl-6">
@@ -67,7 +69,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Produktionsnotiz'),
                                 'id' => 'note',
-                                'value' => $ship->productionNote->english()->translation,
+                                'value' => optional($ship->productionNote->german())->translation ?? $ship->productionNote->english()->translation,
                             ])@endcomponent
                         </div>
                     </div>
@@ -81,7 +83,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Größe'),
                                 'id' => 'size',
-                                'value' => $ship->size->english()->translation,
+                                'value' => optional($ship->size->german())->translation ?? $ship->size->english()->translation,
                             ])@endcomponent
                         </div>
                         <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
@@ -90,7 +92,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Typ'),
                                 'id' => 'type',
-                                'value' => $ship->type->english()->translation,
+                                'value' => optional($ship->type->german())->translation ?? $ship->type->english()->translation,
                             ])@endcomponent
                         </div>
 
@@ -172,11 +174,11 @@
                                 'id' => 'focus',
                             ])
                                 @slot('value')
-                                    @forelse($ship->foci as $focus){{--
-                                        --}}{{ $focus->english()->translation }}, {{--
-                                    --}}@empty{{--
-                                        --}}-{{--
-                                    --}}@endforelse
+                                    {{
+                                        $ship->foci->transform(function(\App\Models\Api\StarCitizen\Vehicle\Focus\Focus $focus) {
+                                            return optional($focus->german())->translation ?? $focus->english()->translation ?? __('Keiner');
+                                        })->implode(', ')
+                                    }}
                                 @endslot
                             @endcomponent
                         </div>

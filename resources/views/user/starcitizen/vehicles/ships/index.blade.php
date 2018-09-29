@@ -44,18 +44,20 @@
                             {{ optional($ship->manufacturer)->name_short }}
                         </td>
                         <td>
-                            @foreach($ship->foci as $focus)
-                                {{ optional($focus->german())->translation ?? __('Keine') }}<br>
-                            @endforeach
+                            {{
+                                $ship->foci->transform(function(\App\Models\Api\StarCitizen\Vehicle\Focus\Focus $focus) {
+                                    return optional($focus->german())->translation ?? $focus->english()->translation ?? __('Keiner');
+                                })->implode(', ')
+                            }}
                         </td>
                         <td>
-                            {{ optional($ship->type->german())->translation ?? __('Keine') }}
+                            {{ optional($ship->type->german())->translation ?? $ship->type->english()->translation ?? __('Keiner') }}
                         </td>
                         <td>
-                            {{ optional($ship->productionStatus->german())->translation ?? __('Keine') }}
+                            {{ optional($ship->productionStatus->german())->translation ?? $ship->productionStatus->english()->translation ?? __('Keiner') }}
                         </td>
                         <td>
-                            {{ optional($ship->productionNote->german())->translation ?? __('Keine') }}
+                            {{ optional($ship->productionNote->german())->translation ?? $ship->productionNote->english()->translation ?? __('Keine') }}
                         </td>
                         <td data-order="{{ $ship->updated_at->timestamp }}">
                             {{ $ship->updated_at->diffForHumans() }}
