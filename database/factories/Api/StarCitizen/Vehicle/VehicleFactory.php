@@ -95,15 +95,15 @@ $factory->state(
     'ground_vehicle',
     function (Faker $faker) {
         try {
-            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation $type */
-            $type = \App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation::where(
-                'translation',
-                'ground'
-            )->firstOrFail();
-            $type = $type->type;
+            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
+            $type = \App\Models\Api\StarCitizen\Vehicle\Type\Type::where('slug', 'ground')->firstorFail();
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
-            $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\Type::class)->create();
+            $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\Type::class)->create(
+                [
+                    'slug' => 'ground',
+                ]
+            );
             $type->translations()->save(
                 factory(\App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation::class)->make(
                     [
