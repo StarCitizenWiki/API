@@ -101,6 +101,8 @@ EOF
                 ->assertSee(__('Lesen'))
                 ->assertSee(__('Speichern'));
         }
+
+        Storage::disk('comm_links')->delete("{$this->commLink->cig_id}/{$this->commLink->file}");
     }
 
     /**
