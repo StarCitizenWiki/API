@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use Dingo\Api\Dispatcher;
+use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
+use App\Models\System\ModelChangelog;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ShipsController
@@ -55,10 +55,25 @@ class ShipController extends Controller
         $this->authorize('web.user.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        /** @var \Illuminate\Support\Collection $changelog */
+        $changelog = $ship->changelogs;
+        $ship->translations->each(
+            function (VehicleTranslation $translation) use (&$changelog) {
+                $translation->changelogs->each(
+                    function (ModelChangelog $transChange) use (&$changelog) {
+                        $changelog->push($transChange);
+                    }
+                );
+            }
+        );
+
+        $changelog = $changelog->sortByDesc('created_at');
+
         return view(
             'user.starcitizen.vehicles.ships.edit',
             [
                 'ship' => $ship,
+                'changelogs' => $changelog,
             ]
         );
     }
@@ -66,7 +81,7 @@ class ShipController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\System\TranslationRequest         $request
+     * @param \App\Http\Requests\System\TranslationRequest  $request
      * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
      *
      * @return \Illuminate\Http\RedirectResponse

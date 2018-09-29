@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
-use Dingo\Api\Dispatcher;
+use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
+use App\Models\System\ModelChangelog;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class GroundVehicleController
@@ -55,10 +55,25 @@ class GroundVehicleController extends Controller
         $this->authorize('web.user.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        /** @var \Illuminate\Support\Collection $changelog */
+        $changelog = $groundVehicle->changelogs;
+        $groundVehicle->translations->each(
+            function (VehicleTranslation $translation) use (&$changelog) {
+                $translation->changelogs->each(
+                    function (ModelChangelog $transChange) use (&$changelog) {
+                        $changelog->push($transChange);
+                    }
+                );
+            }
+        );
+
+        $changelog = $changelog->sortByDesc('created_at');
+
         return view(
             'user.starcitizen.vehicles.ground_vehicles.edit',
             [
                 'groundVehicle' => $groundVehicle,
+                'changelogs' => $changelog,
             ]
         );
     }
@@ -66,7 +81,7 @@ class GroundVehicleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\System\TranslationRequest                           $request
+     * @param \App\Http\Requests\System\TranslationRequest                    $request
      * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
      *
      * @return \Illuminate\Http\RedirectResponse
@@ -85,7 +100,10 @@ class GroundVehicleController extends Controller
             );
         }
 
-        return redirect()->route('web.user.starcitizen.vehicles.ground-vehicles.edit', $groundVehicle->getRouteKey())->withMessages(
+        return redirect()->route(
+            'web.user.starcitizen.vehicles.ground-vehicles.edit',
+            $groundVehicle->getRouteKey()
+        )->withMessages(
             [
                 'success' => [
                     __('crud.updated', ['type' => __('Fahrzeug')]),
