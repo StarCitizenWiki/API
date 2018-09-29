@@ -155,7 +155,7 @@
                                     @endif
                                 @endif
                                 <a href="{{ optional($changelog->admin)->userNameWikiLink() ?? '#' }}" target="_blank">
-                                    {{ optional($changelog->admin)->username ?? 'Import Script' }}
+                                    {{ optional($changelog->admin)->username ?? config('app.name') }}
                                 </a>
                                 <span>
                                     {{ $changelog->created_at->diffForHumans() }} &mdash; {{ $changelog->created_at->format('d.m.Y H:i') }}
