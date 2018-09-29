@@ -35,7 +35,7 @@
                             </td>
                         @endcan
                         <td>
-                            <a href="{{ $commLink->url ?? "https://robertsspaceindustries.com/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">{{ $commLink->cig_id }}</a>
+                            <a href="{{config('api.rsi_url') }}{{ $commLink->url ?? "/SCW/{$commLink->cig_id}-API" }}" target="_blank">{{ $commLink->cig_id }}</a>
                         </td>
                         <td>
                             {{ $commLink->title }}
