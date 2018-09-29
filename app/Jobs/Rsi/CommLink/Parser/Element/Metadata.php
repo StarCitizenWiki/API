@@ -206,7 +206,7 @@ class Metadata extends BaseElement
      */
     private function extractSeries(): void
     {
-        $seriesId = 1;
+        $seriesId = Series::first()->id;
 
         if ($this->commLink->filter(self::SERIES_SELECTOR)->count() > 0) {
             $series = $this->commLink->filter(self::SERIES_SELECTOR)->text();

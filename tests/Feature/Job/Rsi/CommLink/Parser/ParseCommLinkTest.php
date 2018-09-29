@@ -8,9 +8,12 @@
 namespace Tests\Feature\Job\Rsi\CommLink\Parser;
 
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
+use App\Models\Rsi\CommLink\Category\Category;
+use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link\Link;
+use App\Models\Rsi\CommLink\Series\Series;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -286,7 +289,7 @@ EOL;
         $this->assertCount(2, Image::all());
         $this->assertCount(2, Link::all());
 
-        Storage::disk('comm_links')->delete('1/1.html');
+        Storage::disk('comm_links')->delete('1');
     }
 
     /**
@@ -296,23 +299,8 @@ EOL;
     {
         parent::setUp();
         $this->createSystemLanguages();
-        Artisan::call(
-            'db:seed',
-            [
-                '--class' => 'CategoryTableSeeder',
-            ]
-        );
-        Artisan::call(
-            'db:seed',
-            [
-                '--class' => 'ChannelTableSeeder',
-            ]
-        );
-        Artisan::call(
-            'db:seed',
-            [
-                '--class' => 'SeriesTableSeeder',
-            ]
-        );
+        factory(Category::class)->create();
+        factory(Series::class)->create();
+        factory(Channel::class)->create();
     }
 }
