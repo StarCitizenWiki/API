@@ -238,7 +238,7 @@ class CommLinkController extends Controller
     {
         $versionData = [];
         collect($versions)->each(
-            function ($version) use ($versionData, $currentVersion) {
+            function ($version) use (&$versionData, $currentVersion) {
                 $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
 
                 if ("{$version}.html" === $currentVersion) {
