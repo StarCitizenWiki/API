@@ -82,7 +82,7 @@
                     </div>
                     <div class="tab-pane fade" id="nav-de_DE" role="tabpanel" aria-labelledby="nav-de_DE-tab">
                         <div class="form-group">
-                            <textarea class="form-control edit-content" name="de_DE" id="de_DE">{!! old('de_DE') ?? optional($commLink->german())->translation !!}</textarea>
+                            <textarea class="form-control edit-content" disabled name="de_DE" id="de_DE">{!! old('de_DE') ?? optional($commLink->german())->translation !!}</textarea>
                         </div>
                     </div>
                     @can('web.user.rsi.comm-links.update_settings')
