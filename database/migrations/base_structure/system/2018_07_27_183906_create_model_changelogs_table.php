@@ -18,13 +18,15 @@ class CreateModelChangelogsTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
-                $table->json('changelog')->nullable();
+                //$table->json('changelog')->nullable();
                 $table->unsignedInteger('user_id');
                 $table->unsignedInteger('changelog_id');
                 $table->string('changelog_type');
                 $table->timestamps();
             }
         );
+
+        DB::statement("ALTER TABLE model_changelogs ADD COLUMN changelog LONGBLOB null AFTER type");
     }
 
     /**
