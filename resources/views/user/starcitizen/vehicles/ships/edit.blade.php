@@ -302,7 +302,7 @@
             @endcomponent
 
             <div class="card mt-3">
-                <h4 class="card-header">Änderungen:</h4>
+                <h4 class="card-header">Änderungen</h4>
                 <div class="card-body">
                     @forelse($changelogs as $changelog)
                         <ul>
@@ -326,7 +326,9 @@
                                         @endunless
                                     @endif
                                 @endif
-                                <span>{{ config('app.name') }}</span>
+                                <a href="{{ optional($changelog->admin)->userNameWikiLink() ?? '#' }}" target="_blank">
+                                    {{ optional($changelog->admin)->username ?? config('app.name') }}
+                                </a>
                                 <span>
                                     {{ $changelog->created_at->diffForHumans() }} &mdash; {{ $changelog->created_at->format('d.m.Y H:i') }}
                                 </span>
