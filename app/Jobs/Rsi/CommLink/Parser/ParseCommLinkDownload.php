@@ -43,7 +43,7 @@ class ParseCommLinkDownload implements ShouldQueue
      */
     public function handle()
     {
-        $commLinks = CommLink::all();
+        $commLinks = CommLink::query()->get();
         $commLinks = $commLinks->keyBy('cig_id');
 
         collect(Storage::disk('comm_links')->directories())->each(

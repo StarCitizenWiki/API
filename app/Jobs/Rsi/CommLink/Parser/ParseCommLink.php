@@ -83,6 +83,8 @@ class ParseCommLink implements ShouldQueue
      */
     public function handle()
     {
+        app('Log')::debug("Parsing Comm Link {$this->commLinkId}");
+
         $content = Storage::disk('comm_links')->get($this->filePath());
         $this->crawler = new Crawler();
         $this->crawler->addHtmlContent($content, 'UTF-8');

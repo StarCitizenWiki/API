@@ -2,16 +2,12 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CommLink\Download\ReDownloadCommLinks;
+use App\Console\Commands\CommLink\Import\ImportMissingCommLinks;
+use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
+use App\Console\Commands\Stat\Import\ImportStats;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
-use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
-use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
-use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
-use App\Jobs\Rsi\CommLink\DownloadMissingCommLinks;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
-use App\Jobs\Rsi\CommLink\ReDownloadDbCommLinks;
-use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -26,12 +22,14 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \App\Console\Commands\ShipMatrix\DownloadShipMatrix::class,
-        \App\Console\Commands\ShipMatrix\ImportShipMatrix::class,
+        \App\Console\Commands\ShipMatrix\Import\ImportShipMatrix::class,
 
-        \App\Console\Commands\Stat\DownloadStats::class,
+        \App\Console\Commands\Stat\Import\ImportStats::class,
 
-        \App\Console\Commands\CommLink\ImportCommLinks::class,
+        \App\Console\Commands\CommLink\Import\ImportCommLinks::class,
+        \App\Console\Commands\CommLink\Import\ImportMissingCommLinks::class,
+
+        \App\Console\Commands\CommLink\Download\ReDownloadCommLinks::class,
     ];
     /**
      * @var \Illuminate\Console\Scheduling\Schedule
@@ -69,11 +67,7 @@ class Kernel extends ConsoleKernel
      */
     private function scheduleStatJobs()
     {
-        $this->schedule->job(new DownloadStats())->dailyAt('20:00')->then(
-            function () {
-                $this->schedule->job(new ParseStat());
-            }
-        );
+        $this->schedule->command(ImportStats::class, ['--download'])->dailyAt('20:00');
     }
 
     /**
@@ -82,27 +76,14 @@ class Kernel extends ConsoleKernel
     private function scheduleCommLinkJobs()
     {
         /** Check for new Comm Links */
-        $this->schedule->job(app(DownloadMissingCommLinks::class))->hourly()->withoutOverlapping()->then(
-            function () {
-                $missingOffset = optional(CommLink::orderByDesc('cig_id')->first())->cig_id ?? 0;
-                if ($missingOffset > 0) {
-                    $missingOffset++;
-                }
-
-                $this->schedule->job(new ParseCommLinkDownload($missingOffset));
-            }
-        )->then(
+        $this->schedule->command(ImportMissingCommLinks::class)->hourly()->after(
             function () {
                 $this->events->dispatch(new NewCommLinksDownloaded());
             }
         );
 
         /** Re-Download all Comm Links monthly */
-        $this->schedule->job(new ReDownloadDbCommLinks())->monthly()->then(
-            function () {
-                $this->schedule->job(new ParseCommLinkDownload());
-            }
-        )->then(
+        $this->schedule->command(ReDownloadCommLinks::class)->monthly()->after(
             function () {
                 $this->events->dispatch(new CommLinksChangedEvent());
             }
@@ -114,10 +95,6 @@ class Kernel extends ConsoleKernel
      */
     private function scheduleShipMatrixJobs()
     {
-        $this->schedule->job(new DownloadShipMatrix())->hourly()->then(
-            function () {
-                $this->schedule->job(new ParseShipMatrixDownload());
-            }
-        );
+        $this->schedule->command(ImportShipMatrix::class, ['--download'])->twiceDaily();
     }
 }

@@ -1,32 +1,32 @@
 <?php declare(strict_types = 1);
 
-namespace App\Console\Commands\ShipMatrix;
+namespace App\Console\Commands\ShipMatrix\Import;
 
-use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix as DownloadShipMatrixJob;
+use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
+use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 /**
- * Start the Shipmatrix Download Job
+ * Import given or latest shipmatrix file into db
  */
-class DownloadShipMatrix extends Command
+class ImportShipMatrix extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'download:shipmatrix 
-                            {--f|force : Force Download, Overwrite File if exist} 
-                            {--i|import : Import Ships after Download}';
+    protected $signature = 'import:shipmatrix {--d|download : Download Shipmatrix}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Starts the Ship Matrix Download Job';
+    protected $description = 'Import Shipmatrix File into the Database';
 
     /**
      * @var \Illuminate\Bus\Dispatcher
@@ -41,26 +41,26 @@ class DownloadShipMatrix extends Command
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
+
         $this->dispatcher = $dispatcher;
     }
 
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
-        $this->info('Dispatching Ship Matrix Download');
-
-        if ($this->option('force')) {
-            $this->info('Forcing Download');
-        }
-
-        $this->dispatcher->dispatchNow(new DownloadShipMatrixJob($this->option('force')));
-
-        if ($this->option('import')) {
-            $this->info('Starting Import');
+        if ($this->option('download')) {
+            $this->info('Downloading Ship Matrix and starting import');
+            DownloadShipMatrix::withChain(
+                [
+                    new ParseShipMatrixDownload(),
+                ]
+            )->dispatch();
+        } else {
+            $this->info('Dispatching Ship Matrix Parsing Job');
             $this->dispatcher->dispatchNow(new ParseShipMatrixDownload());
         }
     }

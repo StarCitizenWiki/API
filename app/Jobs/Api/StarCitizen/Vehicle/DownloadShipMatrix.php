@@ -42,15 +42,10 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
      * Execute the job.
      *
      * @return void
-     *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function handle()
     {
         app('Log')::info('Starting Ship Matrix Download Job');
-
-        $timestamp = now()->format("Y-m-d");
-        $fileName = "shipmatrix_{$timestamp}.json";
 
         $this->initClient();
 
@@ -63,6 +58,8 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
                     'message' => $e->getMessage(),
                 ]
             );
+
+            $this->fail($e);
 
             return;
         }
@@ -86,21 +83,22 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
 
         $responseJsonData = json_encode($response->data);
 
-        if (Storage::disk(self::VEHICLES_DISK)->exists($fileName)) {
-            $localContent = Storage::disk(self::VEHICLES_DISK)->get($fileName);
-
-            if ($localContent !== $responseJsonData) {
-                app('Log')::info('Shipmatrix Content has changed today');
-                $this->force = true;
-                $timestamp = now()->format("Y-m-d_H-i");
-                $fileName = "shipmatrix_{$timestamp}.json";
-            }
-        }
-
-        if ($this->force || !Storage::disk(self::VEHICLES_DISK)->exists($fileName)) {
-            Storage::disk(self::VEHICLES_DISK)->put($fileName, $responseJsonData);
-        }
+        Storage::disk(self::VEHICLES_DISK)->put($this->getFileName(), $responseJsonData);
 
         app('Log')::info('Ship Matrix Download finished');
+    }
+
+    /**
+     * Generates the Shipmatrix Filename
+     *
+     * @return string
+     */
+    private function getFileName(): string
+    {
+        $dirName = now()->format("Y-m-d");
+        $fileTimeStamp = now()->format("Y-m-d_H-i");
+        $filename = "shipmatrix_{$fileTimeStamp}.json";
+
+        return "{$dirName}/{$filename}";
     }
 }

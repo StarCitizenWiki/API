@@ -59,12 +59,13 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 
         try {
             $dbId = CommLink::orderByDesc('cig_id')->firstOrFail()->cig_id;
+            $dbId++;
         } catch (ModelNotFoundException $e) {
             $dbId = self::FIRST_COMM_LINK_ID;
         }
 
         for ($id = $dbId; $id <= $latestPostId; $id++) {
-            dispatch(new DownloadCommLink(($id)))->onQueue('comm_links');
+            dispatch(new DownloadCommLink(($id)));
         }
     }
 

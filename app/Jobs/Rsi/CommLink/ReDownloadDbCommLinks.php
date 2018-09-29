@@ -36,7 +36,7 @@ class ReDownloadDbCommLinks implements ShouldQueue
         }
 
         for ($id = self::FIRST_COMM_LINK_ID; $id <= $latestDbPost->cig_id; $id++) {
-            dispatch(new DownloadCommLink(($id)))->onQueue('comm_links');
+            dispatch(new DownloadCommLink(($id)));
         }
     }
 }

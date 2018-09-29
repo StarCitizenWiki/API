@@ -35,15 +35,7 @@ class ParseShipMatrixDownload implements ShouldQueue
         if (null !== $shipMatrixFileName) {
             $this->shipMatrixFileName = $shipMatrixFileName;
         } else {
-            $diskPath = Storage::disk('vehicles')->path('');
-            $files = scandir($diskPath, SCANDIR_SORT_DESCENDING);
-
-            if (is_array($files) && starts_with($files[0], 'shipmatrix')) {
-                $this->shipMatrixFileName = $files[0];
-            } else {
-                app('Log')::error('No Shipmatrix File on Disk \'vehicles\' found');
-                $this->fail();
-            }
+            $this->setShipMatrixFileName();
         }
     }
 
@@ -83,5 +75,27 @@ class ParseShipMatrixDownload implements ShouldQueue
                 dispatch(new ParseVehicle(new Collection($vehicle)));
             }
         );
+    }
+
+    /**
+     * Tries to auto generate the Shipmatrix Filename to use
+     */
+    private function setShipMatrixFileName()
+    {
+        $diskPath = Storage::disk('vehicles')->path('');
+        $directories = scandir($diskPath, SCANDIR_SORT_DESCENDING);
+
+        if (!isset($directories[0])) {
+            $this->fail(new InvalidArgumentException('No Shipmatrix directories found'));
+        } else {
+            $files = scandir(sprintf('%s/%s', $diskPath, $directories[0]), SCANDIR_SORT_DESCENDING);
+
+            if (is_array($files) && starts_with($files[0], 'shipmatrix')) {
+                $this->shipMatrixFileName = sprintf('%s/%s', $directories[0], $files[0]);
+            } else {
+                app('Log')::error('No Shipmatrix File on Disk \'vehicles\' found');
+                $this->fail();
+            }
+        }
     }
 }

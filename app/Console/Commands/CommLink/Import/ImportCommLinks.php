@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Console\Commands\CommLink;
+namespace App\Console\Commands\CommLink\Import;
 
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use Illuminate\Bus\Dispatcher;
