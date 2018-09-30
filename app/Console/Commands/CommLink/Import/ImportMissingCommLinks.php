@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\CommLink\Import;
 
-use App\Jobs\Rsi\CommLink\DownloadMissingCommLinks;
+use App\Jobs\Rsi\CommLink\Download\DownloadMissingCommLinks;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use App\Models\Rsi\CommLink\CommLink;
 use Goutte\Client;
