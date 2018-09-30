@@ -162,8 +162,6 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         App\Providers\Web\User\AuthRepositoryServiceProvider::class,
-
-        Jackiedo\LogReader\LogReaderServiceProvider::class,
     ],
 
     /*
@@ -197,7 +195,6 @@ return [
         'Hashids' => Vinkla\Hashids\Facades\Hashids::class,
         'Lang' => Illuminate\Support\Facades\Lang::class,
         'Log' => Illuminate\Support\Facades\Log::class,
-        'LogReader' => Jackiedo\LogReader\Facades\LogReader::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
         'Password' => Illuminate\Support\Facades\Password::class,

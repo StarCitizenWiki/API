@@ -16,7 +16,6 @@
         "fabpot/goutte": "^3.2",
         "fideloper/proxy": "~4.0",
         "guzzlehttp/guzzle": "^6.3",
-        "jackiedo/log-reader": "2.*",
         "laravel/framework": "5.7.*",
         "laravel/socialite": "^3.0",
         "piwik/piwik-php-tracker": "^1.2",
