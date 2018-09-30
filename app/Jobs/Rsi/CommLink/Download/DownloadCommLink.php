@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\Rsi\CommLink;
+namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use Carbon\Carbon;
@@ -46,6 +46,13 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      */
     public function handle()
     {
+        app('Log')::info(
+            "Downloading Comm Link with ID {$this->postId}",
+            [
+                'id' => $this->postId,
+            ]
+        );
+
         $this->initClient();
         $scraper = new Client();
         $scraper->setClient($this->client);
@@ -64,7 +71,12 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
         }
 
         if (!str_contains($content, 'id="post"')) {
-            app('Log')::info("Comm-Link with ID {$this->postId} does not exist");
+            app('Log')::info(
+                "Comm-Link with ID {$this->postId} does not exist",
+                [
+                    'id' => $this->postId,
+                ]
+            );
 
             return;
         }

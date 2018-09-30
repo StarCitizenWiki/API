@@ -71,7 +71,12 @@ class ParseVehicle implements ShouldQueue
      */
     public function handle()
     {
-        app('Log')::info("Parsing Vehicle {$this->rawData->get(self::VEHICLE_NAME)}");
+        app('Log')::info(
+            "Parsing Vehicle {$this->rawData->get(self::VEHICLE_NAME)}",
+            [
+                'vehicle' => $this->rawData->get(self::VEHICLE_NAME),
+            ]
+        );
 
         /** @var \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle */
         $vehicle = Vehicle::query()->updateOrCreate(

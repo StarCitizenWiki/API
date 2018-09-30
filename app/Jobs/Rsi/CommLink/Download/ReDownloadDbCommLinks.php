@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\Rsi\CommLink;
+namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Bus\Queueable;
@@ -28,6 +28,8 @@ class ReDownloadDbCommLinks implements ShouldQueue
      */
     public function handle()
     {
+        app('Log')::info('Re-Downloading all DB Comm Links');
+
         $latestDbPost = CommLink::orderBy('cig_id')->first();
         if (null === $latestDbPost) {
             $this->fail(new \InvalidArgumentException('No Comm Links in DB Found'));

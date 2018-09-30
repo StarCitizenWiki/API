@@ -1,9 +1,8 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\Rsi\CommLink;
+namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use App\Models\Rsi\CommLink\CommLink;
 use Goutte\Client;
 use Illuminate\Bus\Queueable;
@@ -49,6 +48,8 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
      */
     public function handle()
     {
+        app('Log')::info('Starting Missing Comm Links Download Job');
+
         $this->initClient();
         $this->scraper->setClient($this->client);
 
@@ -56,6 +57,12 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         $crawler = $this->scraper->request('GET', self::COMM_LINK_BASE_URL);
         $latestPost = $crawler->filter('.hub-blocks > a')->first();
         $latestPostId = $this->extractLatestPostId($latestPost);
+        app('Log')::info(
+            "Latest Comm Link ID is: {$latestPostId}",
+            [
+                'id' => $latestPostId,
+            ]
+        );
 
         try {
             $dbId = CommLink::orderByDesc('cig_id')->firstOrFail()->cig_id;
@@ -63,6 +70,13 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         } catch (ModelNotFoundException $e) {
             $dbId = self::FIRST_COMM_LINK_ID;
         }
+
+        app('Log')::info(
+            "Latest DB Comm Link ID is: {$dbId}",
+            [
+                'id' => $dbId,
+            ]
+        );
 
         for ($id = $dbId; $id <= $latestPostId; $id++) {
             dispatch(new DownloadCommLink(($id)));

@@ -83,7 +83,15 @@ class ParseCommLink implements ShouldQueue
      */
     public function handle()
     {
-        app('Log')::debug("Parsing Comm Link {$this->commLinkId}");
+        app('Log')::info(
+            "Parsing Comm Link with ID {$this->commLinkId}",
+            [
+                'id' => $this->commLinkId,
+                'file' => $this->file,
+                'comm_link_already_in_db' => $this->commLinkModel !== null,
+                'force_import' => $this->forceImport === true,
+            ]
+        );
 
         $content = Storage::disk('comm_links')->get($this->filePath());
         $this->crawler = new Crawler();
