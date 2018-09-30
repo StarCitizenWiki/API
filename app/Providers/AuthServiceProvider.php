@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
 use App\Policies\Web\User\Account\AccountPolicy;
+use App\Policies\Web\User\Changelog\ChangelogPolicy;
 use App\Policies\Web\User\License\LicensePolicy;
 use App\Policies\Web\User\User\UserPolicy;
 use App\Policies\Web\User\DashboardPolicy;
@@ -44,6 +45,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::resource('web.user.account', AccountPolicy::class);
         Gate::resource('web.user.license', LicensePolicy::class);
         Gate::resource('web.user.translations', TranslationPolicy::class);
+        Gate::resource('web.user.changelogs', ChangelogPolicy::class);
 
         /**
          * Internals = Datenbank IDs, etc.

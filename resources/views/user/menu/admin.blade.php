@@ -31,3 +31,20 @@
         </div>
     @endcomponent
 @endcan
+
+@can('web.user.changelogs.view')
+    @component('components.navs.nav_element', [
+        'route' => route('web.user.changelogs.index'),
+    ])
+        <div class="row">
+            <div class="col-1">
+                @component('components.elements.icon')
+                    pencil
+                @endcomponent
+            </div>
+            <div class="col">
+                @lang('Änderungen')
+            </div>
+        </div>
+    @endcomponent
+@endcan

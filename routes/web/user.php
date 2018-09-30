@@ -48,6 +48,7 @@ Route::group(
                     [
                         'notifications' => 'Notification\NotificationController',
                         'users' => 'User\UserController',
+                        'changelogs' => 'Changelog\ChangelogController',
                     ]
                 );
 
