@@ -127,6 +127,8 @@ Route::group(
                                         Route::get('series/{series}', 'Series\SeriesController@show')->name(
                                             'series.show'
                                         );
+
+                                        Route::get('images', 'Image\ImageController@index')->name('images.index');
                                     }
                                 );
 

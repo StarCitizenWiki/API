@@ -57,3 +57,18 @@
         </div>
     </div>
 @endcomponent
+
+@component('components.navs.nav_element', [
+    'route' => route('web.user.rsi.comm-links.images.index'),
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                books
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Bilder')
+        </div>
+    </div>
+@endcomponent
