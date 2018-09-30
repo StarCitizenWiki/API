@@ -15,6 +15,12 @@ class Image extends Model
     protected $fillable = [
         'src',
         'alt',
+        'local',
+        'dir',
+    ];
+
+    protected $casts = [
+        'local' => 'boolean',
     ];
 
     /**
@@ -22,6 +28,16 @@ class Image extends Model
      */
     public function commLinks()
     {
-        return $this->belongsToMany(CommLink::class);
+        return $this->belongsToMany(CommLink::class, 'comm_link_image', 'comm_link_image_id', 'comm_link_id');
+    }
+
+    /**
+     * Image Name
+     *
+     * @return string
+     */
+    public function getNameAttribute()
+    {
+        return array_last(explode('/', $this->src));
     }
 }
