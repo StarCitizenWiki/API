@@ -10,6 +10,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Dispatch Downloading of Comm Link Images
+ */
 class DownloadCommLinkImages implements ShouldQueue
 {
     use Dispatchable;
@@ -31,7 +34,7 @@ class DownloadCommLinkImages implements ShouldQueue
             function (Collection $images) {
                 $images->each(
                     function (Image $image) {
-                        dispatch(new DownloadCommLinkImage($image));
+                        dispatch(new DownloadCommLinkImage($image))->onQueue('comm_link_images');
                     }
                 );
             }

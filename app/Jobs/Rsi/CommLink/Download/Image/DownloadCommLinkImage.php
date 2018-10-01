@@ -12,6 +12,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Download One Comm Link Image
+ */
 class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
 {
     use Dispatchable;
