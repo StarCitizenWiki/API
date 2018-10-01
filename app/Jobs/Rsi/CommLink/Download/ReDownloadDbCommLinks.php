@@ -37,6 +37,13 @@ class ReDownloadDbCommLinks implements ShouldQueue
             return;
         }
 
+        app('Log')::info(
+            "Latest DB Comm Link CIG ID: {$latestDbPost->cig_id}",
+            [
+                'cig_id' => $latestDbPost->cig_id,
+            ]
+        );
+
         for ($id = self::FIRST_COMM_LINK_ID; $id <= $latestDbPost->cig_id; $id++) {
             dispatch(new DownloadCommLink(($id)));
         }
