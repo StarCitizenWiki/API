@@ -30,7 +30,7 @@ class ReDownloadDbCommLinks implements ShouldQueue
     {
         app('Log')::info('Re-Downloading all DB Comm Links');
 
-        $latestDbPost = CommLink::orderBy('cig_id')->first();
+        $latestDbPost = CommLink::query()->orderByDesc('cig_id')->first();
         if (null === $latestDbPost) {
             $this->fail(new \InvalidArgumentException('No Comm Links in DB Found'));
 
