@@ -59,6 +59,11 @@ return [
             'root' => storage_path('app/comm_links'),
         ],
 
+        'comm_link_images' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/comm_link_images'),
+        ],
+
         'api' => [
             'driver' => 'local',
             'root' => storage_path('app/api'),

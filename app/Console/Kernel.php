@@ -8,6 +8,7 @@ use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
 use App\Console\Commands\Stat\Import\ImportStats;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
+use App\Jobs\Rsi\CommLink\Download\Image\DownloadCommLinkImages;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -30,6 +31,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CommLink\Import\ImportMissingCommLinks::class,
 
         \App\Console\Commands\CommLink\Download\ReDownloadCommLinks::class,
+        \App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages::class,
     ];
     /**
      * @var \Illuminate\Console\Scheduling\Schedule
@@ -88,6 +90,9 @@ class Kernel extends ConsoleKernel
                 $this->events->dispatch(new CommLinksChangedEvent());
             }
         );
+
+        /** Download Comm Link Images */
+        $this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
     }
 
     /**
