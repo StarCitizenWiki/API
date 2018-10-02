@@ -4,7 +4,9 @@ namespace App\Jobs\Rsi\CommLink\Download\Image;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\Image\Image;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\ServerException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -55,8 +57,8 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
         $this->initClient();
 
         try {
-            $response = $this->client->get($this->image->src);
-        } catch (ConnectException $e) {
+            $response = $this->client->get($this->image->url);
+        } catch (ConnectException | ServerException $e) {
             app('Log')::critical(
                 'Could not connect to RSI Website',
                 [
@@ -65,6 +67,22 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
             );
 
             $this->fail($e);
+
+            return;
+        } catch (ClientException $e) {
+            app('Log')::info(
+                "Could not download Comm Link Image {$this->image->name}",
+                [
+                    'url' => $this->image->url,
+                ]
+            );
+
+            $this->image->update(
+                [
+                    'local' => false,
+                    'dir' => 'NOT_FOUND',
+                ]
+            );
 
             return;
         }
@@ -90,9 +108,9 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
     private function generateLocalDirName(): string
     {
         try {
-            return bin2hex(random_bytes(10));
+            return bin2hex(random_bytes(7));
         } catch (\Exception $e) {
-            return str_random(10);
+            return str_random(14);
         }
     }
 }
