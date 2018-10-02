@@ -23,7 +23,8 @@ class ImageTransformer extends TransformerAbstract
     public function transform(Image $image): array
     {
         return [
-            'src' => $image->src,
+            'rsi_url' => $image->url,
+            'api_url' => $image->local ? asset("storage/comm_link_images/{$image->dir}/{$image->name}") : null,
             'alt' => $image->alt,
         ];
     }
