@@ -29,7 +29,7 @@ class DownloadCommLinkImages implements ShouldQueue
     {
         app('Log')::info('Starting Comm Link Image download');
 
-        Image::query()->where('local', false)->chunk(
+        Image::query()->where('local', false)->where('dir', '!=', 'NOT_FOUND')->chunk(
             100,
             function (Collection $images) {
                 $images->each(
