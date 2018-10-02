@@ -40,4 +40,20 @@ class Image extends Model
     {
         return array_last(explode('/', $this->src));
     }
+
+    /**
+     * Generates a downloadable image link
+     *
+     * @return string
+     */
+    public function getUrlAttribute()
+    {
+        $url = config('api.rsi_url');
+
+        if (!starts_with($this->src, 'media') && !starts_with($this->src, 'rsi')) {
+            $url = 'https://media.robertsspaceindustries.com';
+        }
+
+        return sprintf('%s%s', $url, $this->src);
+    }
 }
