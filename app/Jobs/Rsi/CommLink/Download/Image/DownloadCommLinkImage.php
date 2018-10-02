@@ -79,7 +79,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
 
             $this->image->update(
                 [
-                    'local' => false,
+                    'local' => true,
                     'dir' => 'NOT_FOUND',
                 ]
             );
@@ -87,7 +87,10 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        $localDirName = $this->generateLocalDirName();
+        $localDirName = $this->image->dir;
+        if (null === $this->image->dir) {
+            $localDirName = $this->generateLocalDirName();
+        }
 
         Storage::disk('comm_link_images')->put(
             sprintf('%s/%s', $localDirName, $this->image->name),

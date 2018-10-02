@@ -22,6 +22,8 @@ class Image extends BaseElement
         'media.robertsspaceindustries.com',
     ];
 
+    private const RSI_MEDIA_DIR_HASH_LENGTH = 14;
+
     /**
      * Post Background CSS Selector
      */
@@ -72,6 +74,7 @@ class Image extends BaseElement
                     [
                         'src' => $this->cleanText($src),
                         'alt' => $this->cleanText($image['alt']),
+                        'dir' => $this->getDirHash($src),
                     ]
                 )->id;
             }
@@ -136,5 +139,24 @@ class Image extends BaseElement
         $src = trim(ltrim($src, '/'));
 
         return "/{$src}";
+    }
+
+    /**
+     * Try to get Original RSI Hash
+     *
+     * @param string $src
+     *
+     * @return null|string
+     */
+    private function getDirHash(string $src): ?string
+    {
+        $dir = str_replace('/media/', '', $src);
+        $dir = explode('/', $dir);
+
+        if (isset($dir[0]) && strlen($dir[0]) === self::RSI_MEDIA_DIR_HASH_LENGTH) {
+            return $dir[0];
+        }
+
+        return null;
     }
 }
