@@ -17,6 +17,11 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 class Image extends BaseElement
 {
+    private const RSI_DOMAINS = [
+        'robertsspaceindustries.com',
+        'media.robertsspaceindustries.com',
+    ];
+
     /**
      * Post Background CSS Selector
      */
@@ -50,20 +55,20 @@ class Image extends BaseElement
     public function getImageIds(): array
     {
         $this->extractImages();
+        $imageIDs = [];
 
-        $imageIds = [];
         $contentImages = collect($this->images);
-        $contentImages->each(
-            function ($image) use (&$imageIds) {
-                $src = $image['src'];
-                $pattern = '/media\/(\w+)\/(\w+)\//';
-                $src = preg_replace($pattern, 'media/$1/source/', $src);
+        $contentImages->filter(
+            function ($image) {
+                $host = parse_url($image['src'], PHP_URL_HOST);
 
-                if (null === parse_url($src, PHP_URL_HOST)) {
-                    $src = config('api.rsi_url').'/'.$src;
-                }
+                return null === $host || in_array($host, self::RSI_DOMAINS);
+            }
+        )->each(
+            function ($image) use (&$imageIDs) {
+                $src = $this->cleanImgSource($image['src']);
 
-                $imageIds[] = ImageModel::firstOrCreate(
+                $imageIDs[] = ImageModel::firstOrCreate(
                     [
                         'src' => $this->cleanText($src),
                         'alt' => $this->cleanText($image['alt']),
@@ -72,7 +77,7 @@ class Image extends BaseElement
             }
         );
 
-        return array_unique($imageIds);
+        return array_unique($imageIDs);
     }
 
     /**
@@ -87,7 +92,7 @@ class Image extends BaseElement
 
                 if (null !== $src && !empty($src)) {
                     $this->images[] = [
-                        'src' => ltrim(trim($src), '/'),
+                        'src' => trim($src),
                         'alt' => $crawler->attr('alt') ?? '',
                     ];
                 }
@@ -104,10 +109,32 @@ class Image extends BaseElement
                 }
 
                 $this->images[] = [
-                    'src' => ltrim(trim($src), '/'),
+                    'src' => trim($src),
                     'alt' => self::POST_BACKGROUND,
                 ];
             }
         }
+    }
+
+    /**
+     * Cleans the IMG SRC
+     *
+     * @param string $src IMG SRC
+     *
+     * @return string
+     */
+    private function cleanImgSource(string $src): string
+    {
+        $src = parse_url($src, PHP_URL_PATH);
+
+        $src = str_replace(['%20', '%0A'], '', $src);
+
+        $pattern = '/media\/(\w+)\/(\w+)\//';
+        $src = preg_replace($pattern, 'media/$1/source/', $src);
+
+        $src = str_replace('//', '/', $src);
+        $src = trim(ltrim($src, '/'));
+
+        return "/{$src}";
     }
 }
