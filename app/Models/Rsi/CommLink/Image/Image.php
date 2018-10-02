@@ -50,7 +50,7 @@ class Image extends Model
     {
         $url = config('api.rsi_url');
 
-        if (!starts_with($this->src, 'media') && !starts_with($this->src, 'rsi')) {
+        if (!starts_with($this->src, '/media') && !starts_with($this->src, '/rsi')) {
             $url = 'https://media.robertsspaceindustries.com';
         }
 
