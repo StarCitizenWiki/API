@@ -56,4 +56,18 @@ class Image extends Model
 
         return sprintf('%s%s', $url, $this->src);
     }
+
+    /**
+     * Returns a local or remote url if the image is local or remote
+     *
+     * @return string
+     */
+    public function getLocalOrRemoteUrl(): string
+    {
+        if ($this->local) {
+            return asset("storage/comm_link_images/{$this->dir}/{$this->name}");
+        }
+
+        return $this->url;
+    }
 }

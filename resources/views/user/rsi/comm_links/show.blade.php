@@ -82,7 +82,7 @@
                 </div>
                 <div class="tab-pane fade" id="nav-images" role="tabpanel" aria-labelledby="nav-images-tab">
                     @forelse($commLink->images as $image)
-                        <a class="" href="{{ $image->src }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->src) }}" class="img-thumbnail" style="max-width: 150px;"></a>
+                        <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->url) }}" class="img-thumbnail" style="max-width: 150px;"></a>
                     @empty
                         Keine Bilder vorhanden
                     @endforelse

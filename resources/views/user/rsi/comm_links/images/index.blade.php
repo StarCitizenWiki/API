@@ -7,11 +7,7 @@
     <div class="card-columns" style="column-count: 5">
         @foreach($images as $image)
             <div class="card">
-                @if($image->local)
-                    <a href="{{ asset("storage/comm_link_images/{$image->dir}/{$image->name}") }}" target="_blank" class="text-center d-block">
-                @else
-                    <a href="{{ $image->url }}" target="_blank" class="text-center d-block">
-                @endif
+                <a href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank" class="text-center d-block">
                     <img src="{{ config('api.rsi_url') }}{{ str_replace('source', 'post', $image->src) }}" alt="{{ $image->alt ?? __('Kein alt Text verfügbar') }}" class="card-img-top">
                 </a>
                 @unless(empty($image->alt))
