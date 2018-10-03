@@ -33,6 +33,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CommLink\Download\ReDownloadCommLinks::class,
         \App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages::class,
     ];
+
     /**
      * @var \Illuminate\Console\Scheduling\Schedule
      */

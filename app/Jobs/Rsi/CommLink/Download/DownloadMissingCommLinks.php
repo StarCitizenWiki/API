@@ -53,10 +53,19 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         $this->initClient();
         $this->scraper->setClient($this->client);
 
+        $postIDs = [];
+
         /** @var \Symfony\Component\DomCrawler\Crawler $crawler */
         $crawler = $this->scraper->request('GET', self::COMM_LINK_BASE_URL);
-        $latestPost = $crawler->filter('.hub-blocks > a')->first();
-        $latestPostId = $this->extractLatestPostId($latestPost);
+        $crawler->filter('#channel .hub-blocks')->each(
+            function (Crawler $crawler) use (&$postIDs) {
+                $link = $crawler->filter('a')->first();
+                $postIDs[] = $this->extractLatestPostId($link);
+            }
+        );
+
+        $latestPostId = max($postIDs);
+
         app('Log')::info(
             "Latest Comm Link ID is: {$latestPostId}",
             [
