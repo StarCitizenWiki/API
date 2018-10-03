@@ -15,6 +15,7 @@
                     <th>@lang('Benutzer')</th>
                     <th>@lang('Typ')</th>
                     <th>@lang('Model')</th>
+                    <th>@lang('Datum')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -38,6 +39,9 @@
                         </td>
                         <td>
                             {{ class_basename($changelog->changelog_type) }}
+                        </td>
+                        <td>
+                            {{ $changelog->created_at->diffForHumans() }}
                         </td>
                     </tr>
                 @empty
