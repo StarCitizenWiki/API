@@ -82,16 +82,15 @@ class ParseShipMatrixDownload implements ShouldQueue
      */
     private function setShipMatrixFileName()
     {
-        $diskPath = Storage::disk('vehicles')->path('');
-        $directories = scandir($diskPath, SCANDIR_SORT_DESCENDING);
+        $newestShipMatrixDir = array_last(Storage::disk('vehicles')->directories());
 
-        if (!isset($directories[0])) {
+        if (null === $newestShipMatrixDir) {
             $this->fail(new InvalidArgumentException('No Shipmatrix directories found'));
         } else {
-            $files = scandir(sprintf('%s/%s', $diskPath, $directories[0]), SCANDIR_SORT_DESCENDING);
+            $file = array_last(Storage::disk('vehicles')->files($newestShipMatrixDir));
 
-            if (is_array($files) && starts_with($files[0], 'shipmatrix')) {
-                $this->shipMatrixFileName = sprintf('%s/%s', $directories[0], $files[0]);
+            if (null !== $file && str_contains($file, 'shipmatrix')) {
+                $this->shipMatrixFileName = $file;
             } else {
                 app('Log')::error('No Shipmatrix File on Disk \'vehicles\' found');
                 $this->fail();
