@@ -20,7 +20,7 @@
         <div class="card-body">
             {{-- TODO Update Text, Link zum Wiki Artikel --}}
             @lang('Durch den Klick auf "Bestätigen" bestätigst du, dass jegliche von dir übersetzten Texte der Allgemeinheit frei zur Verfügung stehen, und du keine Rechte an diesen hast.')
-            <a href="{{ config('api.wiki_url') }}/Star_Citizen_Wiki:Editorenlizenz" class="text-light-grey d-block">@lang('Mehr Informationen') <i class="fal fa-external-link fa-sm" data-fa-transform="up-3"></i></a>
+            <a href="{{ config('api.wiki_url') }}/Star_Citizen_Wiki:Übersetzungsvereinbarung" class="text-light-grey d-block">@lang('Mehr Informationen') <i class="fal fa-external-link fa-sm" data-fa-transform="up-3"></i></a>
         </div>
         <div class="card-footer d-flex">
             @component('components.forms.form', [

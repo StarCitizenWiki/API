@@ -78,7 +78,7 @@
                                 <input type="checkbox" class="custom-control-input" id="editor_license_accepted" name="editor_license_accepted" aria-describedby="license_help_block" @if($user->settings->editorLicenseAccepted()) checked disabled @endif>
                                 <label class="custom-control-label" for="editor_license_accepted">@lang('Editor Lizenz akzeptieren')</label>
                                 <small id="license_help_block" class="form-text text-muted">
-                                    <a href="{{ config('api.wiki_url') }}/Star_Citizen_Wiki:Editorenlizenz" target="_blank">@lang('Weitere Informationen')</a>
+                                    <a href="{{ config('api.wiki_url') }}/Star_Citizen_Wiki:Übersetzungsvereinbarung" target="_blank">@lang('Weitere Informationen')</a>
                                 </small>
                             </div>
                         </div>
