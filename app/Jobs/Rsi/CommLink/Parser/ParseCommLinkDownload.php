@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
-use App\Events\Rsi\CommLink\CommLinksChanged as CommLinkChangedEvent;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -49,9 +48,11 @@ class ParseCommLinkDownload implements ShouldQueue
         collect(Storage::disk('comm_links')->directories())->each(
             function ($commLinkDir) use ($commLinks) {
                 if (intval($commLinkDir) >= $this->offset) {
-                    $file = scandir(Storage::disk('comm_links')->path($commLinkDir), SCANDIR_SORT_DESCENDING)[0];
+                    $file = array_last(Storage::disk('comm_links')->files($commLinkDir));
 
-                    dispatch(new ParseCommLink(intval($commLinkDir), $file, $commLinks->get($commLinkDir, null)));
+                    if (null !== $file) {
+                        dispatch(new ParseCommLink(intval($commLinkDir), $file, $commLinks->get($commLinkDir, null)));
+                    }
                 }
             }
         );
