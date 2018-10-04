@@ -18,6 +18,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "laravel/framework": "5.7.*",
         "laravel/socialite": "^3.0",
+        "mediawiki/oauthclient": "^0.1.2",
         "piwik/piwik-php-tracker": "^1.2",
         "socialiteproviders/manager": "^3.3",
         "starcitizenwiki/socialite-provider": "^1.0",
