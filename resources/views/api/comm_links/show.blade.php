@@ -50,8 +50,8 @@
                     Quellenangabe: <var>Übersetzung aus der Star Citizen Wiki API ({{ route('web.api.comm-link.show', $commLink) }})</var>
                     @if(null !== $commLink->german())
                         <br>
-                        Übersetzt durch: <a href="{{ $commLink->german()->changelogs()->where('type', 'creation')->first()->admin->userNameWikiLink() }}" target="_blank" class="text-white">
-                            {{ $commLink->german()->changelogs()->where('type', 'creation')->first()->admin->username }}
+                        Übersetzt durch: <a href="{{ $commLink->german()->changelogs()->where('type', 'creation')->first()->user->userNameWikiLink() }}" target="_blank" class="text-white">
+                            {{ $commLink->german()->changelogs()->where('type', 'creation')->first()->user->username }}
                         </a>
                     @endif
                 </div>
