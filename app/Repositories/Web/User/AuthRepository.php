@@ -11,6 +11,7 @@ namespace App\Repositories\Web\User;
 use App\Contracts\Web\User\AuthRepositoryInterface;
 use App\Models\Account\User\User as UserModel;
 use App\Models\Account\User\UserGroup;
+use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Facades\Socialite;
 use SocialiteProviders\Manager\OAuth1\User;
 
@@ -42,6 +43,8 @@ class AuthRepository implements AuthRepositoryInterface
     {
         /** @var \App\Models\Account\User\User $authUser */
         $authUser = UserModel::query()->where('provider_id', $oauthUser->id)->where('provider', $provider)->first();
+        Session::put('oauth.user_token', $oauthUser->token);
+        Session::put('oauth.user_secret', $oauthUser->tokenSecret);
 
         if ($authUser) {
             $this->syncLocalUserGroups($oauthUser, $authUser);
