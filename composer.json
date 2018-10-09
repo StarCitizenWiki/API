@@ -22,6 +22,7 @@
         "piwik/piwik-php-tracker": "^1.2",
         "socialiteproviders/manager": "^3.3",
         "starcitizenwiki/socialite-provider": "^1.0",
+        "starcitizenwiki/mediawikiapi": "dev-develop",
         "vinkla/hashids": "^5.0"
     },
     "require-dev": {
@@ -73,9 +74,17 @@
             "@php artisan package:discover"
         ]
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git"
+        }
+    ],
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
