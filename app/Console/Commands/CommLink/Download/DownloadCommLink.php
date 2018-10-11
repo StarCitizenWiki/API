@@ -76,7 +76,7 @@ class DownloadCommLink extends Command
 
         if ($this->option('import')) {
             $this->info("\nImporting Comm Links");
-            $this->dispatcher->dispatch(new ParseCommLinkDownload($ids->min()));
+            $this->dispatcher->dispatch(new ParseCommLinkDownload((int) $ids->min()));
         }
     }
 }
