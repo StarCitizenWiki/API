@@ -24,7 +24,7 @@ class CreateProductionNoteTranslationsTable extends Migration
 
                 $table->unique(['locale_code', 'production_note_id'], 'production_note_translations_primary');
                 $table->foreign('locale_code')->references('locale_code')->on('languages');
-                $table->foreign('production_note_id')->references('id')->on('production_notes');
+                $table->foreign('production_note_id')->references('id')->on('production_notes')->onDelete('cascade');
             }
         );
     }

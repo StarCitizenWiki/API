@@ -25,7 +25,7 @@ class CreateManufacturerTranslationsTable extends Migration
 
                 $table->unique(['locale_code', 'manufacturer_id'], 'manufacturer_translations_primary');
                 $table->foreign('locale_code')->references('locale_code')->on('languages');
-                $table->foreign('manufacturer_id')->references('id')->on('manufacturers');
+                $table->foreign('manufacturer_id')->references('id')->on('manufacturers')->onDelete('cascade');
             }
         );
     }

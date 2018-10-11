@@ -22,8 +22,8 @@ class CreateCommLinkCommLinkImageTable extends Migration
                 $table->unsignedInteger('comm_link_id');
                 $table->unsignedInteger('comm_link_image_id');
 
-                $table->foreign('comm_link_id')->references('id')->on('comm_links');
-                $table->foreign('comm_link_image_id')->references('id')->on('comm_link_images');
+                $table->foreign('comm_link_id')->references('id')->on('comm_links')->onDelete('cascade');
+                $table->foreign('comm_link_image_id')->references('id')->on('comm_link_images')->onDelete('cascade');
             }
         );
     }

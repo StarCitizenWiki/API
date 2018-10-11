@@ -24,7 +24,7 @@ class CreateVehicleTypeTranslationsTable extends Migration
 
                 $table->unique(['locale_code', 'type_id'], 'vehicle_type_translations_primary');
                 $table->foreign('locale_code')->references('locale_code')->on('languages');
-                $table->foreign('type_id')->references('id')->on('vehicle_types');
+                $table->foreign('type_id')->references('id')->on('vehicle_types')->onDelete('cascade');
             }
         );
     }
