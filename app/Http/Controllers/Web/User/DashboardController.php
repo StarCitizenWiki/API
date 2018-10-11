@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account\User\User;
-use App\Models\Api\Notification;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 
