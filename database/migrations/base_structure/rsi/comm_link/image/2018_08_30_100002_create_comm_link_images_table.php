@@ -19,6 +19,8 @@ class CreateCommLinkImagesTable extends Migration
                 $table->increments('id');
                 $table->text('src');
                 $table->text('alt'); //Thanks RSI???
+                $table->boolean('local')->default(false);
+                $table->string('dir')->nullable();
                 $table->timestamps();
             }
         );
