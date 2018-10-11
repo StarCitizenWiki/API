@@ -30,7 +30,7 @@ class ImageController extends Controller
     {
         $this->authorize('web.user.rsi.comm-links.images.view');
 
-        $images = Image::query()->where('dir', 'NOT LIKE', 'NOT_FOUND')->paginate(20);
+        $images = Image::query()->where('dir', 'NOT LIKE', 'NOT_FOUND')->orderByDesc('id')->paginate(20);
 
         return view(
             'user.rsi.comm_links.images.index',
