@@ -204,6 +204,10 @@ class ParseCommLink implements ShouldQueue
      */
     private function filePath(): string
     {
+        if (starts_with($this->file, $this->commLinkId)) {
+            return $this->file;
+        }
+
         return "{$this->commLinkId}/{$this->file}";
     }
 
