@@ -23,12 +23,12 @@ class Metadata extends BaseElement
     /**
      * Channel CSS Selector
      */
-    private const CHANNEL_SELECTOR = '.title-bar .title h2';
+    private const CHANNEL_SELECTOR = '.title-bar .title h1';
 
     /**
      * Category CSS Selector
      */
-    private const CATEGORY_SELECTOR = '.title-bar .title h1';
+    private const CATEGORY_SELECTOR = '.title-bar .title h2';
 
     /**
      * Series CSS Selector
