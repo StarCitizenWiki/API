@@ -53,7 +53,7 @@ class AccountController extends Controller
                 'user_id' => Auth::id(),
             ],
             [
-                'editor_receive_emails' => $request->has('editor_receive_emails'),
+                'receive_comm_link_notifications' => $request->has('receive_comm_link_notifications'),
                 'receive_api_notifications' => $request->has('api_notifications'),
             ]
         );

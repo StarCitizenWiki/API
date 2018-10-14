@@ -21,8 +21,7 @@ use Tests\TestCase;
  */
 class SendNewCommLinkNotificationTest extends TestCase
 {
-    private $users;
-    private $editors;
+    private $admins;
     private $commLinks;
 
     /**
@@ -42,22 +41,6 @@ class SendNewCommLinkNotificationTest extends TestCase
     }
 
     /**
-     * @covers \App\Events\Rsi\CommLink\NewCommLinksDownloaded
-     * @covers \App\Listeners\Rsi\CommLink\SendNewCommLinksDownloadedNotification
-     * @covers \App\Notifications\Rsi\CommLink\NewCommLinksDownloaded
-     * @covers \App\Mail\Rsi\CommLink\NewCommLinksDownloaded
-     * @covers \App\Models\Account\User\User
-     */
-    public function testNotificationSendToEditors()
-    {
-        Notification::fake();
-
-        event(new NewCommLinksDownloadedEvent());
-
-        Notification::assertSentTo([$this->editors], NewCommLinksDownloadedNotification::class);
-    }
-
-    /**
      * Creates Admin Groups, Editors, Sysops, CommLinks
      */
     protected function setUp()
@@ -68,20 +51,6 @@ class SendNewCommLinkNotificationTest extends TestCase
         $this->admins = factory(User::class, 2)->create()->each(
             function (User $user) {
                 $user->groups()->sync(UserGroup::where('name', 'sysop')->first()->id);
-            }
-        );
-
-        $this->editors = factory(User::class, 2)->create()->each(
-            function (User $user) {
-                $user->groups()->sync(UserGroup::where('name', 'editor')->first()->id);
-                $user->settings()->updateOrCreate(
-                    [
-                        'user_id' => $user->id,
-                    ],
-                    [
-                        'editor_receive_notifications' => true,
-                    ]
-                );
             }
         );
 

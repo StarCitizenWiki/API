@@ -28,23 +28,13 @@ class CommLinkRequest extends FormRequest
      */
     public function rules()
     {
-        $localeCodes = Language::all('locale_code')->keyBy('locale_code');
-        $rule = '|string|min:1';
         $rules = [
             'title' => 'required|string|min:1|max:255',
             'url' => 'nullable|string|min:15|max:255',
             'created_at' => 'required|date',
         ];
 
-        foreach ($localeCodes as $code => $language) {
-            if (config('language.english') === $language->locale_code) {
-                $rules[$code] = 'required'.$rule;
-            } else {
-                $rules[$code] = 'nullable'.$rule;
-            }
-        }
-
-        if (Auth::user()->can('web.user.rsi.comm-links.update_settings')) {
+        if (Auth::user()->can('web.user.rsi.comm-links.update')) {
             $rules['version'] = 'required|string|regex:/\d{4}\-\d{2}\-\d{2}\_\d{6}\.html/';
         }
 

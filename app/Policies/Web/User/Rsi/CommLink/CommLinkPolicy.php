@@ -35,18 +35,6 @@ class CommLinkPolicy extends BaseAdminPolicy
      */
     public function update(User $user)
     {
-        return $user->isEditor() || $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
-    }
-
-    /**
-     * Update Comm Link Settings
-     *
-     * @param \App\Models\Account\User\User $user
-     *
-     * @return bool
-     */
-    public function updateSettings(User $user)
-    {
         return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
     }
 

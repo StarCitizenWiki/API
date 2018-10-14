@@ -63,14 +63,9 @@
                         <a class="nav-item nav-link active" id="nav-en_EN-tab" data-toggle="tab" href="#nav-en_EN" role="tab" aria-controls="nav-en_EN" aria-selected="true">
                             @lang('en_EN')
                         </a>
-                        <a class="nav-item nav-link" id="nav-de_DE-tab" data-toggle="tab" href="#nav-de_DE" role="tab" aria-controls="nav-de_DE" aria-selected="false">
-                            @lang('de_DE')
-                        </a>
-                        @can('web.user.rsi.comm-links.update_settings')
                         <a class="nav-item nav-link" id="nav-settings-tab" data-toggle="tab" href="#nav-settings" role="tab" aria-controls="nav-settings" aria-selected="false">
                             @lang('Einstellungen')
                         </a>
-                        @endcan
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tab-translations">
@@ -80,12 +75,7 @@
                             {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : $commLink->english()->translation !!}
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="nav-de_DE" role="tabpanel" aria-labelledby="nav-de_DE-tab">
-                        <div class="form-group">
-                            <textarea class="form-control edit-content" disabled name="de_DE" id="de_DE">{!! old('de_DE') ?? optional($commLink->german())->translation !!}</textarea>
-                        </div>
-                    </div>
-                    @can('web.user.rsi.comm-links.update_settings')
+
                     <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
                         <div class="alert alert-warning text-center mb-3">
                             @lang('Achtung, durch das Klicken auf Speichern wird die ausgewählte Version des Comm Links importiert!')
@@ -112,7 +102,6 @@
                             </div>
                         </div>
                     </div>
-                    @endcan
                 </div>
             </div>
             <div class="card-footer d-flex">

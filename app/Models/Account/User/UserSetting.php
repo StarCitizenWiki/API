@@ -11,15 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 class UserSetting extends Model
 {
     protected $fillable = [
-        'editor_license_accepted',
-        'editor_receive_emails',
+        'receive_comm_link_notifications',
         'receive_api_notifications',
         'no_api_throttle',
     ];
 
     protected $casts = [
-        'editor_license_accepted' => 'boolean',
-        'editor_receive_emails' => 'boolean',
+        'receive_comm_link_notifications' => 'boolean',
         'receive_api_notifications' => 'boolean',
         'no_api_throttle' => 'boolean',
     ];
@@ -47,23 +45,15 @@ class UserSetting extends Model
      */
     public function scopeReceiveCommLinkNotifications(Builder $query)
     {
-        $query->where('editor_receive_emails', true);
+        $query->where('receive_comm_link_notifications', true);
     }
 
     /**
      * @return bool
      */
-    public function editorLicenseAccepted(): bool
+    public function receiveCommLinkNotifications(): bool
     {
-        return $this->editor_license_accepted ?? false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function editorReceiveEmails(): bool
-    {
-        return $this->editor_receive_emails ?? false;
+        return $this->receive_comm_link_notifications ?? false;
     }
 
     /**

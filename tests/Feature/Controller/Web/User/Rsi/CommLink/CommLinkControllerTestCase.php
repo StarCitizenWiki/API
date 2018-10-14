@@ -148,7 +148,7 @@ EOF
     public function testUpdateVersion()
     {
         // TODO Refactor?
-        if (!$this->user->can('web.user.rsi.comm-links.update_settings')) {
+        if (!$this->user->can('web.user.rsi.comm-links.update')) {
             $this->markTestSkipped('Admin has no Version Update Permissions');
 
             return;

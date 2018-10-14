@@ -135,7 +135,7 @@ class CommLinkController extends Controller
         $data = $request->validated();
 
         if (isset($data['version']) && $data['version'] !== $commLink->file) {
-            $this->authorize('web.user.rsi.comm-links.update_settings');
+            $this->authorize('web.user.rsi.comm-links.update');
             $message = __('Comm Link Import gestartet');
 
             dispatch(new ParseCommLink($commLink->cig_id, $data['version'], $commLink, true));
@@ -144,20 +144,11 @@ class CommLinkController extends Controller
 
             $commLink->update(
                 [
-                    'title' => array_pull($data, 'title'),
-                    'url' => array_pull($data, 'url'),
-                    'created_at' => array_pull($data, 'created_at'),
+                    'title' => $data['title'],
+                    'url' => $data['url'],
+                    'created_at' => $data['created_at'],
                 ]
             );
-
-            foreach ($data as $localeCode => $translation) {
-                if (config('language.english') !== $localeCode && null !== $translation) {
-                    $commLink->translations()->updateOrCreate(
-                        ['locale_code' => $localeCode],
-                        ['translation' => $translation]
-                    );
-                }
-            }
 
             $message = __('crud.updated', ['type' => __('Comm Link')]);
         }

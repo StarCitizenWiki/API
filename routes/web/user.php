@@ -35,14 +35,6 @@ Route::group(
                             Route::patch('account', 'AccountController@update')->name('update');
                         }
                     );
-                Route::namespace('License')
-                    ->name('license.')
-                    ->group(
-                        function () {
-                            Route::get('editor-license', 'LicenseController@index')->name('index');
-                            Route::post('editor-license', 'LicenseController@accept')->name('accept');
-                        }
-                    );
 
                 Route::resources(
                     [

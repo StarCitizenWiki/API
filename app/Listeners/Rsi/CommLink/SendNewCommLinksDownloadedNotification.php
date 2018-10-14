@@ -8,7 +8,7 @@ use App\Notifications\Rsi\CommLink\NewCommLinksDownloaded as NewCommLinksDownloa
 use Illuminate\Support\Facades\Notification;
 
 /**
- * Send Notification top Admins (Sysop, Bureaucrat) and Editors
+ * Send Notification to Admins (Sysop, Bureaucrat) or Users with Receive Comm Link Notification Flag
  */
 class SendNewCommLinksDownloadedNotification
 {
@@ -24,7 +24,6 @@ class SendNewCommLinksDownloadedNotification
         if ($event->commLinks->count() > 0) {
             $admins = User::query()
                 ->whereNotNull('email')
-                ->whereHas('editorGroup')
                 ->whereHas('receiveCommLinkNotifications')
                 ->orWhereHas('adminGroup')
                 ->get();

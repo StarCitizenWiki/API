@@ -77,15 +77,6 @@ $factory->state(
 
 $factory->state(
     App\Models\Account\User\UserGroup::class,
-    'editor',
-    [
-        'name' => 'editor',
-        'permission_level' => 0,
-    ]
-);
-
-$factory->state(
-    App\Models\Account\User\UserGroup::class,
     'user',
     [
         'name' => 'user',

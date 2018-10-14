@@ -60,16 +60,6 @@ class User extends Authenticatable
     /**
      * @return bool
      */
-    public function isEditor(): bool
-    {
-        $group = $this->groups()->where('name', 'editor')->first();
-
-        return null !== $group;
-    }
-
-    /**
-     * @return bool
-     */
     public function isAdmin(): bool
     {
         return $this->getHighestPermissionLevel() >= UserGroup::SYSOP;
@@ -103,16 +93,6 @@ class User extends Authenticatable
     public function adminGroup()
     {
         return $this->groups()->admin();
-    }
-
-    /**
-     * Returns only Users with 'editor' group
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function editorGroup()
-    {
-        return $this->groups()->editor();
     }
 
     /**

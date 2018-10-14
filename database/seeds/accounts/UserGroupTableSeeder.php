@@ -26,12 +26,6 @@ class UserGroupTableSeeder extends Seeder
         );
         DB::table(self::TBL_GROUPS)->insert(
             [
-                self::ATTR_NAME             => 'editor',
-                self::ATTR_PERMISSION_LEVEL => 0,
-            ]
-        );
-        DB::table(self::TBL_GROUPS)->insert(
-            [
                 self::ATTR_NAME             => 'mitarbeiter',
                 self::ATTR_PERMISSION_LEVEL => 1,
             ]

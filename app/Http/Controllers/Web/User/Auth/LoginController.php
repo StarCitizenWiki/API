@@ -117,19 +117,12 @@ class LoginController extends Controller
     }
 
     /**
-     * Redirect to Accept Licence View if Editor has not accepted the licence
+     * Redirect to Intended Route or Account
      *
      * @return \Illuminate\Http\RedirectResponse
      */
     protected function authenticated()
     {
-        /** @var \App\Models\Account\User\User $user */
-        $user = Auth::user();
-
-        if ($user->isEditor() && !$user->settings->editorLicenseAccepted()) {
-            return redirect()->route('web.user.license.index');
-        }
-
         return redirect()->intended($this->redirectTo);
     }
 }

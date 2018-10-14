@@ -31,11 +31,6 @@ class UserGroup extends Model
     const MITARBEITER = 1;
 
     /**
-     * Comm Link Editor
-     */
-    const EDITOR = 0;
-
-    /**
      * Registrierter Account
      */
     const USER = 0;
@@ -56,15 +51,5 @@ class UserGroup extends Model
     public function scopeAdmin(Builder $query)
     {
         $query->where('name', 'bureaucrat')->orWhere('name', 'sysop');
-    }
-
-    /**
-     * Scope that targets only Editors
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     */
-    public function scopeEditor(Builder $query)
-    {
-        $query->where('name', 'editor');
     }
 }

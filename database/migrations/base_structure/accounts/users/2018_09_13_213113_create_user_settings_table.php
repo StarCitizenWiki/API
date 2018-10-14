@@ -18,8 +18,7 @@ class CreateUserSettingsTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->unsignedInteger('user_id')->unique();
-                $table->boolean('editor_license_accepted')->default(false);
-                $table->boolean('editor_receive_emails')->default(true);
+                $table->boolean('receive_comm_link_notifications')->default(true);
                 $table->boolean('receive_api_notifications')->default(false);
                 $table->boolean('no_api_throttle')->default(false);
                 $table->timestamps();

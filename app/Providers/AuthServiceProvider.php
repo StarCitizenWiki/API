@@ -44,7 +44,6 @@ class AuthServiceProvider extends ServiceProvider
          */
         Gate::resource('web.user.dashboard', DashboardPolicy::class);
         Gate::resource('web.user.account', AccountPolicy::class);
-        Gate::resource('web.user.license', LicensePolicy::class);
         Gate::resource('web.user.translations', TranslationPolicy::class);
         Gate::resource('web.user.changelogs', ChangelogPolicy::class);
 
@@ -71,7 +70,6 @@ class AuthServiceProvider extends ServiceProvider
          * RSI
          */
         Gate::resource('web.user.rsi.comm-links', CommLinkPolicy::class);
-        Gate::define('web.user.rsi.comm-links.update_settings', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@updateSettings');
         Gate::define('web.user.rsi.comm-links.preview', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@preview');
 
         Gate::resource('web.user.rsi.comm-links.images', ImagePolicy::class);

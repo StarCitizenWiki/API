@@ -37,24 +37,34 @@
                     <a class="nav-item nav-link active" id="nav-en_EN-tab" data-toggle="tab" href="#nav-en_EN" role="tab" aria-controls="nav-en_EN" aria-selected="true">
                         @lang('en_EN')
                     </a>
-                    <a class="nav-item nav-link" id="nav-de_DE-tab" data-toggle="tab" href="#nav-de_DE" role="tab" aria-controls="nav-de_DE" aria-selected="false">
-                        @lang('de_DE')
+
+                    <a class="nav-item nav-link" id="nav-de_DE-tab" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}" aria-selected="false" target="_blank">
+                        @lang('de_DE') <i class="fal fa-external-link fa-sm"></i>
                     </a>
+
                     <a class="nav-item nav-link" id="nav-links-tab" data-toggle="tab" href="#nav-links" role="tab" aria-controls="nav-links" aria-selected="false">
                         @lang('Links') <span class="badge badge-primary">{{ count($commLink->links) }}</span>
                     </a>
+
                     <a class="nav-item nav-link" id="nav-images-tab" data-toggle="tab" href="#nav-images" role="tab" aria-controls="nav-images" aria-selected="false">
                         @lang('Bilder') <span class="badge badge-primary">{{ count($commLink->images) }}</span>
                     </a>
+
                     <a class="nav-item nav-link" id="nav-meta-tab" data-toggle="tab" href="#nav-meta" role="tab" aria-controls="nav-meta" aria-selected="false">
                         @lang('Metadaten')
                     </a>
+
                     <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#nav-changelog" role="tab" aria-controls="nav-changelog" aria-selected="false">
                         @lang('Verlauf')
                     </a>
+
+                    <a class="nav-item nav-link" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}?veaction=edit" aria-selected="false">
+                        @lang('Bearbeiten') <i class="fal fa-external-link fa-sm"></i>
+                    </a>
+
                     @can('web.user.rsi.comm-links.update')
                     <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.user.rsi.comm-links.edit', $commLink->getRouteKey()) }}">
-                        @lang('Bearbeiten')
+                        @lang('Einstellungen')
                     </a>
                     @endcan
                 </div>
@@ -64,13 +74,7 @@
                 <div class="tab-pane fade show active" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
                     {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : $commLink->english()->translation !!}
                 </div>
-                <div class="tab-pane fade" id="nav-de_DE" role="tabpanel" aria-labelledby="nav-de_DE-tab">
-                    <div class="alert alert-warning text-center">
-                        @lang('Achtung! Durch das Benutzen des Textes stimmst du der Star Citizen Wiki Übersetzungsvereinbarung zu.')
-                        <a href="{{ config('api.wiki_url') }}/Star_Citizen_Wiki:%C3%9Cbersetzungsvereinbarung">@lang('Weitere Informationen hier')</a>
-                    </div>
-                    {!! optional($commLink->german())->translation ?? 'Nicht vorhanden' !!}
-                </div>
+
                 <div class="tab-pane fade" id="nav-links" role="tabpanel" aria-labelledby="nav-links-tab">
                     <ul>
                         @forelse($commLink->links as $link)
@@ -80,6 +84,7 @@
                         @endforelse
                     </ul>
                 </div>
+
                 <div class="tab-pane fade" id="nav-images" role="tabpanel" aria-labelledby="nav-images-tab">
                     @forelse($commLink->images as $image)
                         <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->url) }}" class="img-thumbnail" style="max-width: 150px;"></a>
@@ -87,6 +92,7 @@
                         Keine Bilder vorhanden
                     @endforelse
                 </div>
+
                 <div class="tab-pane fade" id="nav-meta" role="tabpanel" aria-labelledby="nav-meta-tab">
                     <table class="table mb-0">
                         <tr>
@@ -135,6 +141,7 @@
                         </tr>
                     </table>
                 </div>
+
                 <div class="tab-pane fade" id="nav-changelog" role="tabpanel" aria-labelledby="nav-changelog-tab">
                     @component('user.components.changelog_list', [
                         'changelogs' => $changelogs,
