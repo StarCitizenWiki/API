@@ -1,6 +1,6 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Comm Link').' - '.$commLink->title.' bearbeiten')
+@section('title', __('Comm-Link').' - '.$commLink->title.' bearbeiten')
 
 @section('content')
     @component('components.forms.form', [
@@ -9,7 +9,7 @@
         'class' => 'card',
     ])
         <div class="wrapper">
-            <h4 class="card-header">@lang('Comm Link bearbeiten')</h4>
+            <h4 class="card-header">@lang('Comm-Link bearbeiten')</h4>
             <div class="card-body">
                 @include('components.errors')
                 <div class="row">
@@ -78,7 +78,7 @@
 
                     <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
                         <div class="alert alert-warning text-center mb-3">
-                            @lang('Achtung, durch das Klicken auf Speichern wird die ausgewählte Version des Comm Links importiert!')
+                            @lang('Achtung, durch das Klicken auf Speichern wird die ausgewählte Version des Comm-Links importiert!')
                         </div>
                         <div class="row">
                             <div class="col-12 col-lg-6 col-xl-3">

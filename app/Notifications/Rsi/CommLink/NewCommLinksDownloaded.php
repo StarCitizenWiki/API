@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Notifications\Notification;
 
 /**
- * Notification for sending newly downloaded Comm Links to Admins and those who want to be notified
+ * Notification for sending newly downloaded Comm-Links to Admins and those who want to be notified
  */
 class NewCommLinksDownloaded extends Notification
 {

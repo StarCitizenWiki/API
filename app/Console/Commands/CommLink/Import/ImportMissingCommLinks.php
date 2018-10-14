@@ -22,7 +22,7 @@ class ImportMissingCommLinks extends Command
      *
      * @var string
      */
-    protected $description = 'Import Missing Comm Links';
+    protected $description = 'Import Missing Comm-Links';
 
     /**
      * Execute the console command.

@@ -75,7 +75,7 @@ class ChannelControllerTestCase extends UserTestCase
 
     /**
      * {@inheritdoc}
-     * Creates needed Comm Link Channel
+     * Creates needed Comm-Link Channel
      */
     protected function setUp()
     {

@@ -75,7 +75,7 @@ class CategoryControllerTestCase extends UserTestCase
 
     /**
      * {@inheritdoc}
-     * Creates needed Comm Link Category
+     * Creates needed Comm-Link Category
      */
     protected function setUp()
     {

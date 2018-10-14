@@ -17,14 +17,14 @@ class DownloadCommLink extends Command
      *
      * @var string
      */
-    protected $signature = 'download:comm-link {id* : Comm Link ID(s)} {--i|import : Import Comm Link after Download}';
+    protected $signature = 'download:comm-link {id* : Comm-Link ID(s)} {--i|import : Import Comm-Link after Download}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Download Comm Links with given IDs';
+    protected $description = 'Download Comm-Links with given IDs';
 
     /**
      * @var \Illuminate\Bus\Dispatcher
@@ -50,7 +50,7 @@ class DownloadCommLink extends Command
      */
     public function handle()
     {
-        $this->info('Downloading specified Comm Links');
+        $this->info('Downloading specified Comm-Links');
         $ids = collect($this->argument('id'));
 
         $ids = $ids->filter(
@@ -75,7 +75,7 @@ class DownloadCommLink extends Command
         $bar->finish();
 
         if ($this->option('import')) {
-            $this->info("\nImporting Comm Links");
+            $this->info("\nImporting Comm-Links");
             $this->dispatcher->dispatch(new ParseCommLinkDownload((int) $ids->min()));
         }
     }

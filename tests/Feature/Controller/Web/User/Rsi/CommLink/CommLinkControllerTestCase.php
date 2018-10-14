@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
 /**
- * Class Comm Link Controller Test Case
+ * Class Comm-Link Controller Test Case
  */
 class CommLinkControllerTestCase extends UserTestCase
 {
@@ -97,7 +97,7 @@ EOF
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
         if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('user.rsi.comm_links.edit')
-                ->assertSee(__('Comm Link bearbeiten'))
+                ->assertSee(__('Comm-Link bearbeiten'))
                 ->assertSee(__('Lesen'))
                 ->assertSee(__('Speichern'));
         }
@@ -175,7 +175,7 @@ EOF
             Bus::assertDispatched(ParseCommLink::class);
 
             $response->assertViewIs('user.rsi.comm_links.show')
-                ->assertSee(__('Comm Link Import gestartet'));
+                ->assertSee(__('Comm-Link Import gestartet'));
         }
     }
 
@@ -233,7 +233,7 @@ EOF
 
     /**
      * {@inheritdoc}
-     * Creates needed Comm Link
+     * Creates needed Comm-Link
      */
     protected function setUp()
     {

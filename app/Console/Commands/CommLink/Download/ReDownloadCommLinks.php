@@ -23,7 +23,7 @@ class ReDownloadCommLinks extends Command
      *
      * @var string
      */
-    protected $description = 'Re-Downloads all Comm Links and parses them';
+    protected $description = 'Re-Downloads all Comm-Links and parses them';
 
     /**
      * Execute the console command.

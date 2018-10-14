@@ -5,7 +5,7 @@ namespace App\Models\Rsi\CommLink;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Simple Model to hold changed Comm Links
+ * Simple Model to hold changed Comm-Links
  */
 class CommLinksChanged extends Model
 {
@@ -22,7 +22,7 @@ class CommLinksChanged extends Model
     ];
 
     /**
-     * The Associated Comm Link
+     * The Associated Comm-Link
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

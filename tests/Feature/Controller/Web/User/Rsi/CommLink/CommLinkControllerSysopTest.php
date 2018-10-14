@@ -6,7 +6,7 @@ use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
 
 /**
- * Class Comm Link Controller Test
+ * Class Comm-Link Controller Test
  *
  * @covers \App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy<extended>
  *

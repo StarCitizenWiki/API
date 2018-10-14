@@ -12,7 +12,7 @@ use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Comm Link Category
+ * Comm-Link Category
  */
 class Category extends Model
 {

@@ -39,7 +39,7 @@ class CommLinkPolicy extends BaseAdminPolicy
     }
 
     /**
-     * Preview Comm Link Version
+     * Preview Comm-Link Version
      *
      * @param \App\Models\Account\User\User $user
      *

@@ -15,7 +15,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Download One Comm Link Image
+ * Download One Comm-Link Image
  */
 class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
 {
@@ -47,7 +47,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
     public function handle()
     {
         app('Log')::info(
-            "Downloading Comm Link Image {$this->image->name}",
+            "Downloading Comm-Link Image {$this->image->name}",
             [
                 'id' => $this->image->id,
                 'src' => $this->image->src,
@@ -71,7 +71,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
             return;
         } catch (ClientException $e) {
             app('Log')::info(
-                "Could not download Comm Link Image {$this->image->name}",
+                "Could not download Comm-Link Image {$this->image->name}",
                 [
                     'url' => $this->image->url,
                 ]

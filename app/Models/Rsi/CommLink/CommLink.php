@@ -18,7 +18,7 @@ use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
- * Comm Link
+ * Comm-Link
  */
 class CommLink extends HasTranslations
 {

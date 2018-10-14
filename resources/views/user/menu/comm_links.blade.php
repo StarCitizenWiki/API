@@ -8,7 +8,7 @@
             @endcomponent
         </div>
         <div class="col">
-            @lang('Comm Links')
+            @lang('Comm-Links')
         </div>
     </div>
 @endcomponent

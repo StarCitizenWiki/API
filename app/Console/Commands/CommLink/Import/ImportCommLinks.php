@@ -7,7 +7,7 @@ use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
 /**
- * Import all Downloaded Comm Links
+ * Import all Downloaded Comm-Links
  */
 class ImportCommLinks extends Command
 {
@@ -51,7 +51,7 @@ class ImportCommLinks extends Command
      */
     public function handle()
     {
-        $this->info("Dispatching Comm Link Import");
+        $this->info("Dispatching Comm-Link Import");
         $offset = intval($this->argument('offset'));
         if ($offset > 0) {
             if ($offset < self::FIRST_COMM_LINK_ID) {

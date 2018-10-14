@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 class CommLinkController extends ApiController
 {
     /**
-     * Comm Link Transformer
+     * Comm-Link Transformer
      *
      * @var \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer
      */
@@ -38,7 +38,7 @@ class CommLinkController extends ApiController
     }
 
     /**
-     * Ausgabe aller Comm Links
+     * Ausgabe aller Comm-Links
      *
      * @return \Dingo\Api\Http\Response
      */

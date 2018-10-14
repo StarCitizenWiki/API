@@ -13,7 +13,7 @@ use DOMXPath;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Comm Link Content Parser
+ * Comm-Link Content Parser
  */
 class Content extends BaseElement
 {
@@ -33,7 +33,7 @@ class Content extends BaseElement
     }
 
     /**
-     * Tries to extract the Comm Link Content as Text
+     * Tries to extract the Comm-Link Content as Text
      *
      * @param string $filter Content Element class/id
      *
@@ -117,7 +117,7 @@ class Content extends BaseElement
     }
 
     /**
-     * Checks if Comm Link Page is a Ship Page
+     * Checks if Comm-Link Page is a Ship Page
      * Ship Pages are wrapped in a '#layout-system' Div
      *
      * @return bool

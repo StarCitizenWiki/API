@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Re-Downloads a new Version of an existing Comm Link
+ * Re-Downloads a new Version of an existing Comm-Link
  */
 class ReDownloadDbCommLinks implements ShouldQueue
 {
@@ -28,17 +28,17 @@ class ReDownloadDbCommLinks implements ShouldQueue
      */
     public function handle()
     {
-        app('Log')::info('Re-Downloading all DB Comm Links');
+        app('Log')::info('Re-Downloading all DB Comm-Links');
 
         $latestDbPost = CommLink::query()->orderByDesc('cig_id')->first();
         if (null === $latestDbPost) {
-            $this->fail(new \InvalidArgumentException('No Comm Links in DB Found'));
+            $this->fail(new \InvalidArgumentException('No Comm-Links in DB Found'));
 
             return;
         }
 
         app('Log')::info(
-            "Latest DB Comm Link CIG ID: {$latestDbPost->cig_id}",
+            "Latest DB Comm-Link CIG ID: {$latestDbPost->cig_id}",
             [
                 'cig_id' => $latestDbPost->cig_id,
             ]

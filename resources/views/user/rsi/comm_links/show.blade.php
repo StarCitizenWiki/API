@@ -1,6 +1,6 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Comm Link').' - '.$commLink->title)
+@section('title', __('Comm-Link').' - '.$commLink->title)
 
 @section('head__content')
     @parent
@@ -146,7 +146,7 @@
                     @component('user.components.changelog_list', [
                         'changelogs' => $changelogs,
                     ])
-                        Comm Link
+                        Comm-Link
                     @endcomponent
                 </div>
             </div>

@@ -11,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Dispatch Downloading of Comm Link Images
+ * Dispatch Downloading of Comm-Link Images
  */
 class DownloadCommLinkImages implements ShouldQueue
 {
@@ -27,7 +27,7 @@ class DownloadCommLinkImages implements ShouldQueue
      */
     public function handle()
     {
-        app('Log')::info('Starting Comm Link Image download');
+        app('Log')::info('Starting Comm-Link Image download');
 
         Image::query()->where('local', false)->chunk(
             100,

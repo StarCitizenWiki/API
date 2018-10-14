@@ -75,7 +75,7 @@ class SeriesControllerTestCase extends UserTestCase
 
     /**
      * {@inheritdoc}
-     * Creates needed Comm Link Series
+     * Creates needed Comm-Link Series
      */
     protected function setUp()
     {

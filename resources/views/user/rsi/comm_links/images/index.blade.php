@@ -1,9 +1,9 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Comm Link Bilder'))
+@section('title', __('Comm-Link Bilder'))
 
 @section('content')
-    <h3>Comm Link Bilder</h3>
+    <h3>Comm-Link Bilder</h3>
     <div class="card-columns" style="column-count: 5">
         @foreach($images as $image)
             <div class="card">
@@ -27,7 +27,7 @@
                 </ul>
                 <div class="card-footer">
                     <a data-toggle="collapse" href="#comm_link_container_{{ $loop->index }}" role="button" aria-expanded="false" aria-controls="comm_link_container_{{ $loop->index }}">
-                        @lang('Comm Links anzeigen')
+                        @lang('Comm-Links anzeigen')
                     </a>
                 </div>
             </div>

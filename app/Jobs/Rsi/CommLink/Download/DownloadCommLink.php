@@ -47,7 +47,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     public function handle()
     {
         app('Log')::info(
-            "Downloading Comm Link with ID {$this->postId}",
+            "Downloading Comm-Link with ID {$this->postId}",
             [
                 'id' => $this->postId,
             ]

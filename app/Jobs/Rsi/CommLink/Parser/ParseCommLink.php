@@ -27,17 +27,17 @@ class ParseCommLink implements ShouldQueue
     use SerializesModels;
 
     /**
-     * Comm Link Post CSS Selector
+     * Comm-Link Post CSS Selector
      */
     const POST_SELECTOR = '#post';
 
     /**
-     * @var int Comm Link ID
+     * @var int Comm-Link ID
      */
     private $commLinkId;
 
     /**
-     * @var string File in the Comm Link ID Folder
+     * @var string File in the Comm-Link ID Folder
      */
     private $file;
 
@@ -61,9 +61,9 @@ class ParseCommLink implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param int                                    $id          Comm Link ID
+     * @param int                                    $id          Comm-Link ID
      * @param string                                 $file        Current File Name
-     * @param \App\Models\Rsi\CommLink\CommLink|null $commLink    Optional Comm Link Model to update
+     * @param \App\Models\Rsi\CommLink\CommLink|null $commLink    Optional Comm-Link Model to update
      * @param bool                                   $forceImport Flag to Force Import from current file
      */
     public function __construct(int $id, string $file, ?CommLink $commLink = null, bool $forceImport = false)
@@ -84,7 +84,7 @@ class ParseCommLink implements ShouldQueue
     public function handle()
     {
         app('Log')::info(
-            "Parsing Comm Link with ID {$this->commLinkId}",
+            "Parsing Comm-Link with ID {$this->commLinkId}",
             [
                 'id' => $this->commLinkId,
                 'file' => $this->file,
@@ -113,7 +113,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Updates or Creates a Comm Link Model and populates it
+     * Updates or Creates a Comm-Link Model and populates it
      */
     private function createCommLink()
     {
@@ -139,7 +139,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Creates the Comm Link Dara Array from Metadata
+     * Creates the Comm-Link Dara Array from Metadata
      *
      * @return array
      */
@@ -160,7 +160,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Adds or Updates the default english Translation to the Comm Link
+     * Adds or Updates the default english Translation to the Comm-Link
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
@@ -178,7 +178,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Syncs extracted Comm Link Image Ids
+     * Syncs extracted Comm-Link Image Ids
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
@@ -189,7 +189,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Syncs extrated Comm Link Link Ids
+     * Syncs extrated Comm-Link Link Ids
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
@@ -200,7 +200,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * @return string Path to Comm Link File
+     * @return string Path to Comm-Link File
      */
     private function filePath(): string
     {
@@ -208,7 +208,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Checks if Content of current Comm Link has Changed
+     * Checks if Content of current Comm-Link has Changed
      * Updates Metadata
      */
     private function checkCommLinkForChanges()

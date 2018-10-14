@@ -1,10 +1,10 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Comm Links'))
+@section('title', __('Comm-Links'))
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">@lang('Comm Links')</h4>
+        <h4 class="card-header">@lang('Comm-Links')</h4>
         <div class="card-body px-0 table-responsive">
             <table class="table table-striped mb-0" data-order='[[ 0, "desc" ]]'>
                 <thead>
@@ -80,7 +80,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="12">@lang('Keine Comm Links vorhanden')</td>
+                        <td colspan="12">@lang('Keine Comm-Links vorhanden')</td>
                     </tr>
                 @endforelse
                 </tbody>

@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Dispatches a ParseCommLink Job for the newest file in every Comm Link Folder
+ * Dispatches a ParseCommLink Job for the newest file in every Comm-Link Folder
  */
 class ParseCommLinkDownload implements ShouldQueue
 {

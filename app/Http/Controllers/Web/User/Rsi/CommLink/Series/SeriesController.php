@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Series\Series;
 
 /**
- * Comm Link Series
+ * Comm-Link Series
  */
 class SeriesController extends Controller
 {
@@ -40,7 +40,7 @@ class SeriesController extends Controller
     }
 
     /**
-     * Get all Comm Links in a given Series
+     * Get all Comm-Links in a given Series
      *
      * @param \App\Models\Rsi\CommLink\Series\Series $series
      *

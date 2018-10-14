@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 /**
- * Test Notification for changed Comm Links
+ * Test Notification for changed Comm-Links
  */
 class CommLinkChangedTest extends TestCase
 {

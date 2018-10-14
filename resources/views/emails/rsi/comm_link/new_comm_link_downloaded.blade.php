@@ -1,5 +1,5 @@
 @component('mail::message')
-# Neu importierte Comm Links:
+# Neu importierte Comm-Links:
 
 @component('mail::panel')
 <ul>

@@ -13,7 +13,7 @@ use App\Models\Rsi\CommLink\Image\Image as ImageModel;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Extracts and Creates Image Models from Comm Link Contents
+ * Extracts and Creates Image Models from Comm-Link Contents
  */
 class Image extends BaseElement
 {

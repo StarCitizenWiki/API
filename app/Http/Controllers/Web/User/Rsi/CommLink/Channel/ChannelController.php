@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Channel\Channel;
 
 /**
- * Comm Link Channel Controller
+ * Comm-Link Channel Controller
  */
 class ChannelController extends Controller
 {
@@ -40,7 +40,7 @@ class ChannelController extends Controller
     }
 
     /**
-     * Get all Comm Links of a given Channel
+     * Get all Comm-Links of a given Channel
      *
      * @param \App\Models\Rsi\CommLink\Channel\Channel $channel
      *

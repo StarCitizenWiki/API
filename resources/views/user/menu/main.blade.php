@@ -84,7 +84,7 @@
         'titleClass' => 'text-muted pb-0',
         'contentClass' => 'pl-3 pl-md-2',
         'id' => 'm_comm_links',
-        'title' => __('Comm Link'),
+        'title' => __('Comm-Link'),
     ])
         @include('user.menu.comm_links')
     @endcomponent

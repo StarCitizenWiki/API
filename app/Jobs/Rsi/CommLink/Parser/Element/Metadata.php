@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Comm Link Metadata Parser
+ * Comm-Link Metadata Parser
  */
 class Metadata extends BaseElement
 {
@@ -41,7 +41,7 @@ class Metadata extends BaseElement
     private const CREATED_AT_SELECTOR = '.title-section .details div:nth-of-type(3) p';
 
     /**
-     * Default Creation Date no Date was found in the Comm Link
+     * Default Creation Date no Date was found in the Comm-Link
      */
     private const DEFAULT_CREATION_DATE = '2012-01-01 00:00:00';
 
@@ -88,7 +88,7 @@ class Metadata extends BaseElement
     }
 
     /**
-     * Extracts the Comm Link title from the <title> Element
+     * Extracts the Comm-Link title from the <title> Element
      */
     private function extractTitle(): void
     {
@@ -131,7 +131,7 @@ class Metadata extends BaseElement
     }
 
     /**
-     * Tries to get the original Comm Link URL from the 'Add-Comment' Link
+     * Tries to get the original Comm-Link URL from the 'Add-Comment' Link
      */
     private function extractOriginalUrl(): void
     {
@@ -149,7 +149,7 @@ class Metadata extends BaseElement
     }
 
     /**
-     * Tries to Extract the Comm Link Channel
+     * Tries to Extract the Comm-Link Channel
      * Defaults to 'Undefined' if not found
      */
     private function extractChannel(): void
@@ -175,7 +175,7 @@ class Metadata extends BaseElement
     }
 
     /**
-     * Tries to Extract the Comm Link Category
+     * Tries to Extract the Comm-Link Category
      * Defaults to 'Undefined' if not found
      */
     private function extractCategory(): void
@@ -201,7 +201,7 @@ class Metadata extends BaseElement
     }
 
     /**
-     * Tries to Extract the Comm Link Series
+     * Tries to Extract the Comm-Link Series
      * Defaults to 'None' if not found
      */
     private function extractSeries(): void

@@ -48,7 +48,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
      */
     public function handle()
     {
-        app('Log')::info('Starting Missing Comm Links Download Job');
+        app('Log')::info('Starting Missing Comm-Links Download Job');
 
         $this->initClient();
         $this->scraper->setClient($this->client);
@@ -67,7 +67,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         $latestPostId = max($postIDs);
 
         app('Log')::info(
-            "Latest Comm Link ID is: {$latestPostId}",
+            "Latest Comm-Link ID is: {$latestPostId}",
             [
                 'id' => $latestPostId,
             ]
@@ -80,7 +80,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         }
 
         app('Log')::info(
-            "Latest DB Comm Link ID is: {$dbId}",
+            "Latest DB Comm-Link ID is: {$dbId}",
             [
                 'id' => $dbId,
             ]

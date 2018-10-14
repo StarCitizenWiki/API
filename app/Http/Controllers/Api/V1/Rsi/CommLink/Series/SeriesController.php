@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 class SeriesController extends ApiController
 {
     /**
-     * Comm Link Transformer
+     * Comm-Link Transformer
      *
      * @var \App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer
      */

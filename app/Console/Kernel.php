@@ -76,25 +76,25 @@ class Kernel extends ConsoleKernel
     }
 
     /**
-     * Comm Link related Jobs
+     * Comm-Link related Jobs
      */
     private function scheduleCommLinkJobs()
     {
-        /** Check for new Comm Links */
+        /** Check for new Comm-Links */
         $this->schedule->command(ImportMissingCommLinks::class)->hourly()->after(
             function () {
                 $this->events->dispatch(new NewCommLinksDownloaded());
             }
         );
 
-        /** Re-Download all Comm Links monthly */
+        /** Re-Download all Comm-Links monthly */
         $this->schedule->command(ReDownloadCommLinks::class)->monthly()->after(
             function () {
                 $this->events->dispatch(new CommLinksChangedEvent());
             }
         );
 
-        /** Download Comm Link Images */
+        /** Download Comm-Link Images */
         $this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
     }
 

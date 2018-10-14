@@ -1,6 +1,6 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Comm Link').' - '.$commLink->title.' - Vorschau: '.$version)
+@section('title', __('Comm-Link').' - '.$commLink->title.' - Vorschau: '.$version)
 
 @section('head__content')
     @parent

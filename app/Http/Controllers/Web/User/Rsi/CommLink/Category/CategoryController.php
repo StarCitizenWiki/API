@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Category\Category;
 
 /**
- * Comm Link Category Controller
+ * Comm-Link Category Controller
  */
 class CategoryController extends Controller
 {
@@ -40,7 +40,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Get All Comm Links in a given Category
+     * Get All Comm-Links in a given Category
      *
      * @param \App\Models\Rsi\CommLink\Category\Category $category
      *

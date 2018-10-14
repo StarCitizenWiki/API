@@ -6,7 +6,7 @@ use App\Jobs\Rsi\CommLink\Download\Image\DownloadCommLinkImages as DownloadCommL
 use Illuminate\Console\Command;
 
 /**
- * Command Wrapper for Download Comm Link Job
+ * Command Wrapper for Download Comm-Link Job
  */
 class DownloadCommLinkImages extends Command
 {
@@ -22,7 +22,7 @@ class DownloadCommLinkImages extends Command
      *
      * @var string
      */
-    protected $description = 'Dispatch Download of Comm Link Images';
+    protected $description = 'Dispatch Download of Comm-Link Images';
 
     /**
      * Execute the console command.

@@ -140,7 +140,7 @@ class ChannelLinkControllerTest extends ApiTestCase
 
 
     /**
-     * Creates Faked Comm Links in DB
+     * Creates Faked Comm-Links in DB
      */
     protected function setUp()
     {

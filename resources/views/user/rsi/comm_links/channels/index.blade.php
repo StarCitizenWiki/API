@@ -1,10 +1,10 @@
 @extends('user.layouts.default')
 
-@section('title', __('Comm Link Channel'))
+@section('title', __('Comm-Link Channel'))
 
 @section('content')
     <div class="card">
-        <h4 class="card-header">@lang('Comm Link Channel')</h4>
+        <h4 class="card-header">@lang('Comm-Link Channel')</h4>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-12 col-lg-6 mx-auto">

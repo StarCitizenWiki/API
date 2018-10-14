@@ -13,7 +13,7 @@ use App\Models\Rsi\CommLink\Link\Link as LinkModel;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Extracts and Creates Link Models from Comm Link Contents
+ * Extracts and Creates Link Models from Comm-Link Contents
  */
 class Link extends BaseElement
 {

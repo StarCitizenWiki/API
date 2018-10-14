@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Comm Link Requests
+ * Comm-Link Requests
  */
 class CommLinkRequest extends FormRequest
 {

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Comm Link Controller
+ * Comm-Link Controller
  */
 class CommLinkController extends Controller
 {
@@ -136,7 +136,7 @@ class CommLinkController extends Controller
 
         if (isset($data['version']) && $data['version'] !== $commLink->file) {
             $this->authorize('web.user.rsi.comm-links.update');
-            $message = __('Comm Link Import gestartet');
+            $message = __('Comm-Link Import gestartet');
 
             dispatch(new ParseCommLink($commLink->cig_id, $data['version'], $commLink, true));
         } else {
@@ -150,7 +150,7 @@ class CommLinkController extends Controller
                 ]
             );
 
-            $message = __('crud.updated', ['type' => __('Comm Link')]);
+            $message = __('crud.updated', ['type' => __('Comm-Link')]);
         }
 
         return redirect()->route('web.user.rsi.comm-links.show', $commLink->getRouteKey())->withMessages(
@@ -163,7 +163,7 @@ class CommLinkController extends Controller
     }
 
     /**
-     * Preview a Comm Link Version
+     * Preview a Comm-Link Version
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      * @param string                            $version
@@ -195,7 +195,7 @@ class CommLinkController extends Controller
     }
 
     /**
-     * Returns all Comm Link Version Files in a Comm Link Folder
+     * Returns all Comm-Link Version Files in a Comm-Link Folder
      *
      * @param int $commLinkCigId
      *
@@ -218,7 +218,7 @@ class CommLinkController extends Controller
     }
 
     /**
-     * Parses Comm Link Version Names to a Human readable String, creates Data array to use in views
+     * Parses Comm-Link Version Names to a Human readable String, creates Data array to use in views
      *
      * @param array  $versions
      * @param string $currentVersion

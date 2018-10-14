@@ -8,7 +8,7 @@ use App\Notifications\Rsi\CommLink\NewCommLinksDownloaded as NewCommLinksDownloa
 use Illuminate\Support\Facades\Notification;
 
 /**
- * Send Notification to Admins (Sysop, Bureaucrat) or Users with Receive Comm Link Notification Flag
+ * Send Notification to Admins (Sysop, Bureaucrat) or Users with Receive Comm-Link Notification Flag
  */
 class SendNewCommLinksDownloadedNotification
 {

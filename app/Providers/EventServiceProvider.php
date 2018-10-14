@@ -33,7 +33,7 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         /**
-         * Comm Links
+         * Comm-Links
          */
         NewCommLinksDownloaded::class => [
             SendNewCommLinksDownloadedNotification::class,
