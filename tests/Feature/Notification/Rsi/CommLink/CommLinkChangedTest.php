@@ -41,7 +41,7 @@ class CommLinkChangedTest extends TestCase
     }
 
     /**
-     * Creates Admin Groups, Editors, Sysops, CommLinks
+     * Creates Admin Groups, Sysops, CommLinks
      */
     protected function setUp()
     {
