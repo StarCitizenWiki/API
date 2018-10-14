@@ -117,6 +117,23 @@ class Image extends BaseElement
                 ];
             }
         }
+
+        preg_match_all(
+            "/source:\s?\'(https\:\/\/(?:media\.)?robertsspaceindustries\.com.*?)\'/",
+            $this->commLink->html(),
+            $matches
+        );
+
+        if (!empty($matches[1])) {
+            collect($matches[1])->each(
+                function ($src) {
+                    $this->images[] = [
+                        'src' => trim($src),
+                        'alt' => '',
+                    ];
+                }
+            );
+        }
     }
 
     /**

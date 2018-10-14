@@ -67,22 +67,23 @@ class Content extends BaseElement
      */
     private function cleanContent(string $content): string
     {
-        $content = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $content);
-        $content = strip_tags($content, '<p><br><table><tbody><td><tfoot><th><thead><tr>');
-        $content = $this->stripTagAttributes($content);
-        $content = trim(
-            preg_replace(
-                ['/\R+/', '/[\ |\t]+/'],
-                ["\n", ' '],
-                $content
-            )
-        );
-        $content = nl2br($content, false);
-        $content = preg_replace('/\<p\>(?:(?:\&nbsp\;|\ | )*(?:<br\s*\/?>)*\s*)?\<\/p\>/i', '', $content);
-        $content = preg_replace('/(?:\<br>\s?)+/i', '<br>', $content);
-        $content = preg_replace('/^\s*(?:<br\s*\/?>\s*)*/is', '', $content);
+        $content = preg_replace('/^[\s\r\n]+/m', '', $content);
+        //$content = $this->stripTagAttributes($content);
+        $content = $this->removeElements($content);
 
-        return preg_replace('/\s*(?:<br\s*\/?>\s*)*$/is', '', $content);
+        $content = preg_replace('/\s+/S', " ", $content);
+        $content = trim(strip_tags($content, '<p><br><h1><h2><h3><h4><h5><h6>'));
+        $content = preg_replace('/<\/h([1-6])>/', "</h$1>\n\n", $content);
+        $content = preg_replace('/<p><\/p>/', '', $content);
+        $content = str_replace('</p>', "</p>\n\n", $content);
+        $content = preg_replace('/(?:<br>\n?){2,}+/m', '<br>', $content);
+        $content = str_replace('<br>', "\n", $content);
+
+        $content = strip_tags($content);
+        $content = preg_replace('/^ +/m', '', $content);
+        $content = str_replace(['&nbsp;', "\xc2\xa0"], '', $content);
+
+        return trim($content);
     }
 
     /**
@@ -95,12 +96,18 @@ class Content extends BaseElement
     private function stripTagAttributes(string $html): string
     {
         $dom = new DOMDocument();
+        $dom->preserveWhiteSpace = false;
 
         libxml_use_internal_errors(true);
-        $success = $dom->loadHTML(
-            mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-        );
+        try {
+            $success = $dom->loadHTML(
+                mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
+                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+            );
+        } catch (\ErrorException $e) {
+            return '';
+        }
+
         libxml_use_internal_errors(false);
 
         if (!$success) {
@@ -114,6 +121,131 @@ class Content extends BaseElement
         }
 
         return $dom->saveHTML();
+    }
+
+    /**
+     * Removes problematic HTML Elements
+     *
+     * @param string $html
+     *
+     * @return string
+     */
+    private function removeElements(string $html)
+    {
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($html);
+
+        $crawler = $this->removeScriptElements($crawler);
+        $crawler = $this->removeStoreSections($crawler);
+        $crawler = $this->removeSupElements($crawler);
+        $crawler = $this->removeCommentsContainer($crawler);
+        $crawler = $this->removeAudioVideoElements($crawler);
+
+        return $crawler->html();
+    }
+
+    /**
+     * Removes all script Elements
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     *
+     * @return \Symfony\Component\DomCrawler\Crawler
+     */
+    private function removeScriptElements(Crawler $crawler)
+    {
+        $crawler->filter('script')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        return $crawler;
+    }
+
+    /**
+     * Removes Store Sections from Special Ship Pages
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     *
+     * @return \Symfony\Component\DomCrawler\Crawler
+     */
+    private function removeStoreSections(Crawler $crawler)
+    {
+        $crawler->filter('section')->each(
+            function (Crawler $crawler) {
+                if (str_contains($crawler->text(), 'USD')) { //Disgusting
+                    $node = $crawler->getNode(0);
+                    $node->parentNode->removeChild($node);
+                }
+            }
+        );
+
+        return $crawler;
+    }
+
+    /**
+     * Removes Annotation Elements
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     *
+     * @return \Symfony\Component\DomCrawler\Crawler
+     */
+    private function removeSupElements(Crawler $crawler)
+    {
+        $crawler->filter('sup')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        return $crawler;
+    }
+
+    /**
+     * Removes the Comment container
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     *
+     * @return \Symfony\Component\DomCrawler\Crawler
+     */
+    private function removeCommentsContainer(Crawler $crawler)
+    {
+        $crawler->filter('.wrapper.force-one-column')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        return $crawler;
+    }
+
+    /**
+     * Remove Audio/Video Elements
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     *
+     * @return \Symfony\Component\DomCrawler\Crawler
+     */
+    private function removeAudioVideoElements(Crawler $crawler)
+    {
+        $crawler->filter('audio')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        $crawler->filter('video')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        return $crawler;
     }
 
     /**

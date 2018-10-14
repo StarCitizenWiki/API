@@ -32,6 +32,7 @@ class Kernel extends ConsoleKernel
 
         \App\Console\Commands\CommLink\Download\DownloadCommLink::class,
 
+        \App\Console\Commands\CommLink\Download\DownloadCommLinks::class,
         \App\Console\Commands\CommLink\Download\ReDownloadCommLinks::class,
         \App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages::class,
     ];

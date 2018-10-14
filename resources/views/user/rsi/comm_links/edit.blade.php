@@ -72,7 +72,7 @@
                     <div class="tab-pane fade show active" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
                         <div class="form-group">
                             <textarea class="form-control-plaintext d-none" id="en_EN" name="en_EN">Placeholder</textarea>
-                            {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : $commLink->english()->translation !!}
+                            {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}
                         </div>
                     </div>
 

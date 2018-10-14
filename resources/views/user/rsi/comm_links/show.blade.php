@@ -39,7 +39,7 @@
                     </a>
 
                     <a class="nav-item nav-link" id="nav-de_DE-tab" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}" aria-selected="false" target="_blank">
-                        @lang('de_DE') <i class="fal fa-external-link fa-sm"></i>
+                        @lang('de_DE') <i class="fal fa-external-link fa-sm" data-fa-transform="up-2"></i>
                     </a>
 
                     <a class="nav-item nav-link" id="nav-links-tab" data-toggle="tab" href="#nav-links" role="tab" aria-controls="nav-links" aria-selected="false">
@@ -59,7 +59,7 @@
                     </a>
 
                     <a class="nav-item nav-link" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}?veaction=edit" aria-selected="false">
-                        @lang('Bearbeiten') <i class="fal fa-external-link fa-sm"></i>
+                        @lang('Bearbeiten') <i class="fal fa-external-link fa-sm" data-fa-transform="up-2"></i>
                     </a>
 
                     @can('web.user.rsi.comm-links.update')
@@ -72,7 +72,7 @@
 
             <div class="tab-content" id="nav-tab-translations">
                 <div class="tab-pane fade show active" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                    {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : $commLink->english()->translation !!}
+                    {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}
                 </div>
 
                 <div class="tab-pane fade" id="nav-links" role="tabpanel" aria-labelledby="nav-links-tab">

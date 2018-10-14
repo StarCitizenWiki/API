@@ -54,6 +54,15 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
             ]
         );
 
+        $localDirName = $this->image->dir;
+        if (null === $this->image->dir) {
+            $localDirName = $this->generateLocalDirName();
+        }
+
+        if (Storage::disk('comm_link_images')->exists(sprintf('%s/%s', $localDirName, $this->image->name))) {
+            return;
+        }
+
         $this->initClient();
 
         try {
@@ -85,11 +94,6 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
             );
 
             return;
-        }
-
-        $localDirName = $this->image->dir;
-        if (null === $this->image->dir) {
-            $localDirName = $this->generateLocalDirName();
         }
 
         Storage::disk('comm_link_images')->put(

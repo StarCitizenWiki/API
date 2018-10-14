@@ -33,10 +33,10 @@
 
             <div class="tab-content" id="nav-tab-translations">
                 <div class="tab-pane fade show active" id="nav-preview" role="tabpanel" aria-labelledby="nav-preview-tab">
-                    {!! empty($preview) ? 'Nicht vorhanden' : $preview !!}
+                    {!! empty($preview) ? 'Nicht vorhanden' : nl2br($preview) !!}
                 </div>
                 <div class="tab-pane fade" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                    {!! optional($commLink->english())->translation ?? 'Nicht vorhanden' !!}
+                    {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}
                 </div>
             </div>
         </div>
