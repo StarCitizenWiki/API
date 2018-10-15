@@ -8,8 +8,6 @@
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
 use App\Jobs\Rsi\CommLink\Parser\Element\AbstractBaseElement as BaseElement;
-use DOMDocument;
-use DOMXPath;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -67,60 +65,45 @@ class Content extends BaseElement
      */
     private function cleanContent(string $content): string
     {
-        $content = preg_replace('/^[\s\r\n]+/m', '', $content);
-        //$content = $this->stripTagAttributes($content);
         $content = $this->removeElements($content);
 
-        $content = preg_replace('/\s+/S', " ", $content);
-        $content = trim(strip_tags($content, '<p><br><h1><h2><h3><h4><h5><h6>'));
-        $content = preg_replace('/<\/h([1-6])>/', "</h$1>\n\n", $content);
+        // Remove empty p Tags
         $content = preg_replace('/<p><\/p>/', '', $content);
+
+        // Remove Multiline Breaks
+        //$content = preg_replace('/^\s+/m', '', $content);
+
+        // Replace multiple Whitespaces with one
+        $content = preg_replace('/\s+/S', " ", $content);
+
+        // Remove all Tags except p, br and headings
+        $content = trim(strip_tags($content, '<p><br><h1><h2><h3><h4><h5><h6>'));
+
+        // Add New Line to ending heading tags
+        $content = preg_replace('/<\/h([1-6])>/', "</h$1>\n", $content);
+
+        // Add New Lines to ending p tags
         $content = str_replace('</p>', "</p>\n\n", $content);
+
+        // Replace multiple br with one
         $content = preg_replace('/(?:<br>\n?){2,}+/m', '<br>', $content);
+
+        // Replace br with new line
         $content = str_replace('<br>', "\n", $content);
 
+        // Remove all tags
         $content = strip_tags($content);
+
+        // Remove Non breaking Spaces with normal space
+        $content = str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
+
+        // Replace multiple spaces with one
+        $content = preg_replace('/\ +/', ' ', $content);
+
+        // Trim each Start of Line
         $content = preg_replace('/^ +/m', '', $content);
-        $content = str_replace(['&nbsp;', "\xc2\xa0"], '', $content);
 
         return trim($content);
-    }
-
-    /**
-     * Removes all Attributes from Tags, so only pure tags are left
-     *
-     * @param string $html
-     *
-     * @return string Cleaned html
-     */
-    private function stripTagAttributes(string $html): string
-    {
-        $dom = new DOMDocument();
-        $dom->preserveWhiteSpace = false;
-
-        libxml_use_internal_errors(true);
-        try {
-            $success = $dom->loadHTML(
-                mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
-                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-            );
-        } catch (\ErrorException $e) {
-            return '';
-        }
-
-        libxml_use_internal_errors(false);
-
-        if (!$success) {
-            return '';
-        }
-
-        $xpath = new DOMXPath($dom);
-        $nodes = $xpath->query('//@*');
-        foreach ($nodes as $node) {
-            $node->parentNode->removeAttribute($node->nodeName);
-        }
-
-        return $dom->saveHTML();
     }
 
     /**
@@ -140,6 +123,7 @@ class Content extends BaseElement
         $crawler = $this->removeSupElements($crawler);
         $crawler = $this->removeCommentsContainer($crawler);
         $crawler = $this->removeAudioVideoElements($crawler);
+        $crawler = $this->removeCommonElements($crawler);
 
         return $crawler->html();
     }
@@ -239,6 +223,68 @@ class Content extends BaseElement
         );
 
         $crawler->filter('video')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        $crawler->filter('img')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        return $crawler;
+    }
+
+    /**
+     * Remove Common Comm Link Elements
+     * .clearfix, .cboth (clear both), image links, .centerimage, hr, c-slider
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     *
+     * @return \Symfony\Component\DomCrawler\Crawler
+     */
+    private function removeCommonElements(Crawler $crawler)
+    {
+        $crawler->filter('.clearfix')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        $crawler->filter('.cboth')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        $crawler->filter('a.image')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        $crawler->filter('.centerimage')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        $crawler->filter('hr')->each(
+            function (Crawler $crawler) {
+                $node = $crawler->getNode(0);
+                $node->parentNode->removeChild($node);
+            }
+        );
+
+        $crawler->filter('c-slider')->each(
             function (Crawler $crawler) {
                 $node = $crawler->getNode(0);
                 $node->parentNode->removeChild($node);
