@@ -18,10 +18,23 @@ return [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),
     ],
+
     'mediawiki' => [
         'client_id' => env('WIKI_OAUTH_ID'),
         'client_secret' => env('WIKI_OAUTH_SECRET'),
         'redirect' => 'oob',
         'url' => env('WIKI_URL'),
+    ],
+
+    'wiki_translations' => [
+        'access_token' => env('WIKI_TRANS_OAUTH_ACCESS_TOKEN'),
+        'access_secret' => env('WIKI_TRANS_OAUTH_ACCESS_SECRET'),
+
+        'consumer_token' => env('WIKI_TRANS_OAUTH_CONSUMER_TOKEN'),
+        'consumer_secret' => env('WIKI_TRANS_OAUTH_CONSUMER_SECRET'),
+    ],
+
+    'deepl' => [
+        'auth_key' => env('DEEPL_AUTH_KEY'),
     ],
 ];

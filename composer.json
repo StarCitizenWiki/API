@@ -12,7 +12,6 @@
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
-        "chriskonnertz/deeply": "^1.6",
         "dingo/api": "2.0.0-alpha2",
         "fabpot/goutte": "^3.2",
         "fideloper/proxy": "~4.0",
@@ -22,6 +21,7 @@
         "mediawiki/oauthclient": "^0.1.2",
         "piwik/piwik-php-tracker": "^1.2",
         "socialiteproviders/manager": "^3.3",
+        "starcitizenwiki/deeply": "dev-master",
         "starcitizenwiki/mediawikiapi": "dev-develop",
         "starcitizenwiki/socialite-provider": "^1.0",
         "vinkla/hashids": "^5.0"
@@ -79,6 +79,10 @@
         {
             "type": "vcs",
             "url":  "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "https://git.octofox.de/StarCitizenWiki/deeply.git"
         }
     ],
     "config": {
