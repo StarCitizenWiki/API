@@ -33,31 +33,6 @@ abstract class AbstractHasTranslations extends Model
     }
 
     /**
-     * Get a Translation of a given locale
-     *
-     * @param string $localeCode
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-    public function ofLanguage(string $localeCode)
-    {
-        return $this->translations()->ofLanguage($localeCode)->first();
-    }
-
-    /**
-     * Group Translations by Locale Code
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function getTranslationsAttribute()
-    {
-        /** @var \Illuminate\Support\Collection $col */
-        $col = $this->getRelationValue('translations');
-
-        return $col->keyBy('locale_code');
-    }
-
-    /**
      * Translations Right Joined with Languages
      *
      * @return \Illuminate\Support\Collection

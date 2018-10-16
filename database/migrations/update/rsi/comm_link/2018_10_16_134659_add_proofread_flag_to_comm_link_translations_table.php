@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommLinksChangedTable extends Migration
+class AddProofreadFlagToCommLinkTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,10 @@ class CreateCommLinksChangedTable extends Migration
      */
     public function up()
     {
-        Schema::create(
-            'comm_links_changed',
+        Schema::table(
+            'comm_link_translations',
             function (Blueprint $table) {
-                $table->increments('id');
-                $table->unsignedInteger('comm_link_id');
-                $table->boolean('had_content');
-                $table->enum('type', ['update', 'creation', 'translation']);
-
-                $table->timestamps();
+                $table->boolean('proofread')->after('comm_link_id')->default(false);
             }
         );
     }
@@ -33,6 +28,11 @@ class CreateCommLinksChangedTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('comm_links_changed');
+        Schema::table(
+            'comm_link_translations',
+            function (Blueprint $table) {
+                $table->dropColumn('proofread');
+            }
+        );
     }
 }
