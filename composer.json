@@ -78,6 +78,10 @@
         {
             "type": "vcs",
             "url":  "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git"
         }
     ],
     "config": {
