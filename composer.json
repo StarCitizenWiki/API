@@ -23,7 +23,7 @@
         "socialiteproviders/manager": "^3.3",
         "starcitizenwiki/deeply": "dev-master",
         "starcitizenwiki/mediawikiapi": "dev-develop",
-        "starcitizenwiki/socialite-provider": "^1.0",
+        "starcitizenwiki/socialite-provider": "^1.2",
         "vinkla/hashids": "^5.0"
     },
     "require-dev": {

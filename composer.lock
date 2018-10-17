@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "213b4a6c778870256095d06fb35aec4f",
+    "content-hash": "81e39ecbd6a8a18dacd877110ab2be23",
     "packages": [
         {
             "name": "dingo/api",
@@ -2123,7 +2123,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/deeply.git",
-                "reference": "53c092888d5c8bf3571651513b26d5a0d1869ddf"
+                "reference": "ced2ab3f51b941dcab2c67c951f786eb06b838c6"
             },
             "require": {
                 "ext-curl": "*",
@@ -2173,7 +2173,7 @@
                 "translate",
                 "translation"
             ],
-            "time": "2018-10-16T16:00:51+00:00"
+            "time": "2018-10-16T16:17:30+00:00"
         },
         {
             "name": "starcitizenwiki/mediawikiapi",
@@ -2181,7 +2181,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git",
-                "reference": "886f8f686624f0e47911fe23ec0343a73fb7db68"
+                "reference": "23aa988e003defea2b68873c7f0195bb686374e6"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
@@ -2221,14 +2221,14 @@
                 }
             ],
             "description": "Laravel Package to interact with a Mediawiki Installation through the API, authenticated via OAuth",
-            "time": "2018-10-16T11:01:37+00:00"
+            "time": "2018-10-17T14:43:09+00:00"
         },
         {
             "name": "starcitizenwiki/socialite-provider",
             "version": "v1.2.0",
             "source": {
                 "type": "git",
-                "url": "https://git.octofox.de/StarCitizenWiki/SocialiteProvider",
+                "url": "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git",
                 "reference": "9acfc2a2ed8c6a9b38d1c736e818191f8cebbb2e"
             },
             "require": {
