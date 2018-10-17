@@ -36,12 +36,12 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
         $manager = app('mediawikiapi.manager');
 
         $manager->setConsumerFromCredentials(
-            (string) config('services.wiki_translations.access_token'),
-            (string) config('services.wiki_translations.access_secret')
-        );
-        $manager->setTokenFromCredentials(
             (string) config('services.wiki_translations.consumer_token'),
             (string) config('services.wiki_translations.consumer_secret')
+        );
+        $manager->setTokenFromCredentials(
+            (string) config('services.wiki_translations.access_token'),
+            (string) config('services.wiki_translations.access_secret')
         );
 
         $config = $this->getCommLinkConfig();
