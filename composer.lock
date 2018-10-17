@@ -2123,10 +2123,11 @@
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/deeply.git",
-                "reference": "ef33f09f4024960fffe13787e3bbc19d0300c63e"
+                "reference": "83ceb6b464281e59575c242474d57b9656ff8420"
             },
             "require": {
                 "ext-curl": "*",
+                "ext-mbstring": "*",
                 "guzzlehttp/guzzle": "^6.3",
                 "php": ">=7.1"
             },
@@ -2173,7 +2174,7 @@
                 "translate",
                 "translation"
             ],
-            "time": "2018-10-17T20:45:52+00:00"
+            "time": "2018-10-17T21:44:45+00:00"
         },
         {
             "name": "starcitizenwiki/mediawikiapi",
