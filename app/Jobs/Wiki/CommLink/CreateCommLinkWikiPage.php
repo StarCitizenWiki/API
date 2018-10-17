@@ -11,17 +11,14 @@ use Illuminate\Queue\SerializesModels;
 use StarCitizenWiki\MediaWikiApi\Exceptions\ApiErrorException;
 
 /**
- * Creates a Comm Link on a Wiki
+ * Creates a Comm-Link on a Wiki
  */
-class CreateCommLinkPage implements ShouldQueue
+class CreateCommLinkWikiPage implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-
-    private const TEMPLATE_CLEANUP = '{{cleanup}}';
-    private const TEMPLATE_COMM_LINK = '{{Comm-Link}}';
 
     /**
      * @var \App\Models\Rsi\CommLink\CommLink
@@ -29,13 +26,20 @@ class CreateCommLinkPage implements ShouldQueue
     private $commLink;
 
     /**
+     * @var string
+     */
+    private $template;
+
+    /**
      * Create a new job instance.
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param string                            $template The Template to include before every translation
      */
-    public function __construct(CommLink $commLink)
+    public function __construct(CommLink $commLink, string $template)
     {
         $this->commLink = $commLink;
+        $this->template = $template;
     }
 
     /**
@@ -45,16 +49,19 @@ class CreateCommLinkPage implements ShouldQueue
      */
     public function handle()
     {
+        app('Log')::info("Creating Wiki Page 'Comm-Link:{$this->commLink->cig_id}'");
+
         try {
             app('mediawikiapi')->edit("Comm-Link:{$this->commLink->cig_id}")->text(
                 sprintf(
-                    "%s\n<noinclude>%s</noinclude>\n%s",
-                    self::TEMPLATE_CLEANUP,
-                    self::TEMPLATE_COMM_LINK,
+                    "%s\n%s",
+                    $this->template,
                     $this->commLink->german()->translation
                 )
-            )->summary("Importing Comm-Link Translation {$this->commLink->cig_id}")->request();
+            )->summary("Importing Comm-Link Translation {$this->commLink->cig_id}")->createOnly()->request();
         } catch (ApiErrorException $e) {
+            app('Log')::error('Could not get an CSRF Token', $e->getResponse()->getErrors());
+
             $this->fail($e);
 
             return;

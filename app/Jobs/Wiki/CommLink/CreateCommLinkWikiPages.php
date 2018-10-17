@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Jobs\Rsi\CommLink\Translate;
+namespace App\Jobs\Wiki\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
@@ -12,27 +12,15 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Translate new Comm-Links
+ * Create Comm-Link Wiki Pages
  */
-class TranslateCommLinks implements ShouldQueue
+class CreateCommLinkWikiPages implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
     use GetCommLinkWikiPageInfo;
-
-    private $offset;
-
-    /**
-     * Create a new job instance.
-     *
-     * @param int $offset
-     */
-    public function __construct(int $offset = 0)
-    {
-        $this->offset = $offset;
-    }
 
     /**
      * Execute the job.
@@ -41,7 +29,7 @@ class TranslateCommLinks implements ShouldQueue
      */
     public function handle()
     {
-        app('Log')::info('Starting Comm-Link Translations');
+        app('Log')::info('Starting creation of Comm-Link Wiki Pages');
 
         $manager = app('mediawikiapi.manager');
 
@@ -54,29 +42,26 @@ class TranslateCommLinks implements ShouldQueue
             (string) config('services.wiki_translations.consumer_secret')
         );
 
-        CommLink::query()->where('cig_id', '>=', $this->offset)->chunk(
+        $config = $this->getCommLinkConfig();
+        app('Log')::debug('Current config:', $config);
+
+        CommLink::query()->chunk(
             100,
-            function (Collection $commLinks) {
+            function (Collection $commLinks) use ($config) {
                 $commLinks = $commLinks->filter(
                     function (CommLink $commLink) {
-                        return !empty($commLink->english()->translation);
+                        return $commLink->german() !== null;
                     }
                 );
 
-                try {
-                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks);
-                } catch (\RuntimeException $e) {
-                    app('Log')::error($e->getMessage());
-
-                    $this->fail($e);
-                }
+                $wikiPages = $this->getPageInfoForCommLinks($commLinks);
 
                 $commLinks->each(
-                    function (CommLink $commLink) use ($pageInfoCollection) {
-                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
+                    function (CommLink $commLink) use ($wikiPages, $config) {
+                        $wikiPage = $wikiPages->get($commLink->cig_id, []);
 
                         if (isset($wikiPage['missing'])) {
-                            dispatch(new TranslateCommLink($commLink));
+                            dispatch(new CreateCommLinkWikiPage($commLink, $config['template']));
                         }
                     }
                 );

@@ -1,25 +1,27 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Jobs\Wiki\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
+use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse;
-use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
+/**
+ * Update the Proof Read Status of Comm-Link Translations
+ */
 class UpdateCommLinkProofReadStatus implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use GetCommLinkWikiPageInfo;
 
-    const CLEANUP_CATEGORY = 'Beitragsüberprüfung';
     const CATEGORIES = 'categories';
 
     /**
@@ -29,6 +31,8 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
      */
     public function handle()
     {
+        app('Log')::info('Starting Update of Proofread Status');
+
         $manager = app('mediawikiapi.manager');
 
         $manager->setConsumerFromCredentials(
@@ -40,49 +44,48 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
             (string) config('services.wiki_translations.consumer_secret')
         );
 
+        $config = $this->getCommLinkConfig();
+
         CommLink::query()->chunk(
             100,
-            function (Collection $commLinks) {
+            function (Collection $commLinks) use ($config) {
                 $commLinks = $commLinks->filter(
                     function (CommLink $commLink) {
                         return !empty($commLink->english()->translation);
                     }
-                );
-
-                $pages = $commLinks->map(
+                )->filter(
                     function (CommLink $commLink) {
-                        return sprintf('%s:%d', 'Comm-Link', $commLink->cig_id);
-                    }
-                )->implode('|');
-
-
-                $res = $this->getMediaWikiQuery($pages);
-
-
-                $res = collect($res->getQuery()['pages'])->keyBy(
-                    function (array $value) {
-                        return str_replace('Comm-Link:', '', $value['title']);
+                        return $commLink->german() !== null;
                     }
                 );
+
+                try {
+                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks);
+                } catch (\RuntimeException $e) {
+                    app('Log')::error($e->getMessage());
+
+                    $this->fail($e);
+                }
 
                 $commLinks->each(
-                    function (CommLink $commLink) use ($res) {
-                        $wikiPage = $res->get($commLink->cig_id, []);
+                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
                         if (isset($wikiPage[self::CATEGORIES])) {
                             $proofread = true;
                             collect($wikiPage[self::CATEGORIES])->each(
-                                function (array $category) use (&$proofread) {
-                                    if (str_contains($category['title'], self::CLEANUP_CATEGORY)) {
+                                function (array $category) use (&$proofread, $config) {
+                                    if (str_contains($category['title'], $config['category'])) {
                                         $proofread = false;
                                     }
                                 }
                             );
 
-                            $commLink->translations()->updateOrCreate(
+                            $commLink->translations()->where(
                                 [
                                     'locale_code' => 'de_DE',
-                                ],
+                                ]
+                            )->update(
                                 [
                                     'proofread' => $proofread,
                                 ]
@@ -92,31 +95,5 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
                 );
             }
         );
-    }
-
-    /**
-     * Query the Wiki for given Pages
-     *
-     * @param string $pages
-     *
-     * @return \StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse
-     */
-    private function getMediaWikiQuery(string $pages): MediaWikiResponse
-    {
-        $res = MediaWikiApi::query()->prop('info')->prop(self::CATEGORIES)->titles($pages)->request();
-
-        if ($res->hasErrors()) {
-            $this->fail(
-                new \RuntimeException(
-                    sprintf(
-                        '%s: "%s"',
-                        'MediaWiki Api Result has Error(s)',
-                        collect($res->getErrors())->implode('code', ', ')
-                    )
-                )
-            );
-        }
-
-        return $res;
     }
 }

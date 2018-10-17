@@ -240,7 +240,7 @@ class Content extends BaseElement
     }
 
     /**
-     * Remove Common Comm Link Elements
+     * Remove Common Comm-Link Elements
      * .clearfix, .cboth (clear both), image links, .centerimage, hr, c-slider
      *
      * @param \Symfony\Component\DomCrawler\Crawler $crawler

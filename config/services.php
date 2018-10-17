@@ -27,11 +27,11 @@ return [
     ],
 
     'wiki_translations' => [
-        'access_token' => env('WIKI_TRANS_OAUTH_ACCESS_TOKEN'),
-        'access_secret' => env('WIKI_TRANS_OAUTH_ACCESS_SECRET'),
-
         'consumer_token' => env('WIKI_TRANS_OAUTH_CONSUMER_TOKEN'),
         'consumer_secret' => env('WIKI_TRANS_OAUTH_CONSUMER_SECRET'),
+
+        'access_token' => env('WIKI_TRANS_OAUTH_ACCESS_TOKEN'),
+        'access_secret' => env('WIKI_TRANS_OAUTH_ACCESS_SECRET'),
     ],
 
     'deepl' => [

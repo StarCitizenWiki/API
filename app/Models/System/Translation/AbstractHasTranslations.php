@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
  */
 abstract class AbstractHasTranslations extends Model
 {
+    private const LOCALE_CODE = 'locale_code';
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -21,7 +23,7 @@ abstract class AbstractHasTranslations extends Model
      */
     public function english()
     {
-        return $this->translations()->english()->first();
+        return $this->translations->keyBy(self::LOCALE_CODE)->get('en_EN', null);
     }
 
     /**
@@ -29,7 +31,7 @@ abstract class AbstractHasTranslations extends Model
      */
     public function german()
     {
-        return $this->translations()->german()->first();
+        return $this->translations->keyBy(self::LOCALE_CODE)->get('de_DE', null);
     }
 
     /**
@@ -53,6 +55,6 @@ abstract class AbstractHasTranslations extends Model
             }
         )->get();
 
-        return $collection->keyBy('locale_code');
+        return $collection->keyBy(self::LOCALE_CODE);
     }
 }

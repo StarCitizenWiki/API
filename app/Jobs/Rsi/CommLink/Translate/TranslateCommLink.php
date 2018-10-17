@@ -3,7 +3,6 @@
 namespace App\Jobs\Rsi\CommLink\Translate;
 
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinksChanged;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,6 +10,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
 
+/**
+ * Translate a single Comm-Link
+ */
 class TranslateCommLink implements ShouldQueue
 {
     use Dispatchable;
@@ -37,10 +39,14 @@ class TranslateCommLink implements ShouldQueue
      */
     public function handle()
     {
+        app('Log')::info("Translating Comm-Link with ID {$this->commLink->cig_id}");
+
         if (null === optional($this->commLink->german())->translation) {
             try {
                 $translation = DeepLyFacade::translate($this->commLink->english()->translation, 'DE', 'EN');
             } catch (\Exception $e) {
+                app('Log')::warning(sprintf('%s: %s', 'Translation failed with Message', $e->getMessage()));
+
                 $this->fail($e);
 
                 return;
@@ -56,13 +62,5 @@ class TranslateCommLink implements ShouldQueue
                 ]
             );
         }
-
-        CommLinksChanged::create(
-            [
-                'comm_link_id' => $this->commLink->id,
-                'had_content' => false,
-                'type' => 'translation',
-            ]
-        );
     }
 }

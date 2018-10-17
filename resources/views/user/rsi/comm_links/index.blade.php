@@ -49,8 +49,21 @@
                         <td>
                             {{ $commLink->english()->translation ? 'Ja' : 'Nein' }}
                         </td>
-                        <td class="text-{{ optional($commLink->german())->translation ? 'success' : 'danger' }}">
-                            {{ optional($commLink->german())->translation ? 'Ja' : 'Nein' }}
+                        @php
+                            if (null !== $commLink->german()) {
+                                $status = 'warning';
+                                $text = 'Automatisch';
+                                if ($commLink->german()->proofread === 1) {
+                                    $status = 'success';
+                                    $text = 'Ja';
+                                }
+                            } else {
+                                $status = 'danger';
+                                $text = 'Nein';
+                            }
+                        @endphp
+                        <td class="text-{{ $status }}">
+                            {{ $text }}
                         </td>
                         <td>
                             {{ $commLink->channel->name }}
