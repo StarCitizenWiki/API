@@ -2225,11 +2225,11 @@
         },
         {
             "name": "starcitizenwiki/socialite-provider",
-            "version": "v1.3",
+            "version": "v1.4",
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git",
-                "reference": "aa12856a96bf8a399e299068b1d22394f76fd17c"
+                "reference": "c2fa278223ee20381af0fac364dcd7aa091d3a1b"
             },
             "require": {
                 "php": ">=7.1",
@@ -2251,7 +2251,7 @@
                 }
             ],
             "description": "MediaWiki OAuth1 Provider for Laravel Socialite",
-            "time": "2018-10-17T20:35:45+00:00"
+            "time": "2018-10-17T20:49:02+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
