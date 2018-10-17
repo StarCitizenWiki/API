@@ -2123,7 +2123,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/deeply.git",
-                "reference": "ced2ab3f51b941dcab2c67c951f786eb06b838c6"
+                "reference": "ef33f09f4024960fffe13787e3bbc19d0300c63e"
             },
             "require": {
                 "ext-curl": "*",
@@ -2173,7 +2173,7 @@
                 "translate",
                 "translation"
             ],
-            "time": "2018-10-16T16:17:30+00:00"
+            "time": "2018-10-17T20:45:52+00:00"
         },
         {
             "name": "starcitizenwiki/mediawikiapi",
@@ -2181,7 +2181,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git",
-                "reference": "23aa988e003defea2b68873c7f0195bb686374e6"
+                "reference": "cb3d5b45bd1e029460806827e6a51863f848a99c"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
@@ -2221,15 +2221,15 @@
                 }
             ],
             "description": "Laravel Package to interact with a Mediawiki Installation through the API, authenticated via OAuth",
-            "time": "2018-10-17T14:43:09+00:00"
+            "time": "2018-10-17T20:40:58+00:00"
         },
         {
             "name": "starcitizenwiki/socialite-provider",
-            "version": "v1.2.0",
+            "version": "v1.3",
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git",
-                "reference": "9acfc2a2ed8c6a9b38d1c736e818191f8cebbb2e"
+                "reference": "aa12856a96bf8a399e299068b1d22394f76fd17c"
             },
             "require": {
                 "php": ">=7.1",
@@ -2241,7 +2241,6 @@
                     "SocialiteProviders\\MediaWiki\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2252,7 +2251,7 @@
                 }
             ],
             "description": "MediaWiki OAuth1 Provider for Laravel Socialite",
-            "time": "2018-10-05T13:15:10+00:00"
+            "time": "2018-10-17T20:35:45+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
