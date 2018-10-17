@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e8e0a8fd65845911eadc0fe7c87f26f1",
+    "content-hash": "213b4a6c778870256095d06fb35aec4f",
     "packages": [
         {
             "name": "dingo/api",
@@ -1108,16 +1108,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.47",
+            "version": "1.0.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "a11e4a75f256bdacf99d20780ce42d3b8272975c"
+                "reference": "a6ded5b2f6055e2db97b4b859fdfca2b952b78aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/a11e4a75f256bdacf99d20780ce42d3b8272975c",
-                "reference": "a11e4a75f256bdacf99d20780ce42d3b8272975c",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/a6ded5b2f6055e2db97b4b859fdfca2b952b78aa",
+                "reference": "a6ded5b2f6055e2db97b4b859fdfca2b952b78aa",
                 "shasum": ""
             },
             "require": {
@@ -1188,7 +1188,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2018-09-14T15:30:29+00:00"
+            "time": "2018-10-15T13:53:10+00:00"
         },
         {
             "name": "league/fractal",
@@ -1754,16 +1754,16 @@
         },
         {
             "name": "piwik/piwik-php-tracker",
-            "version": "1.4.0",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/piwik/piwik-php-tracker.git",
-                "reference": "f9a0168c87f01f2d5de95029a1ba0d1fd6c3d5ab"
+                "url": "https://github.com/matomo-org/matomo-php-tracker.git",
+                "reference": "3b31a6366fdf1f39520d7cbf858967f309d89275"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/piwik/piwik-php-tracker/zipball/f9a0168c87f01f2d5de95029a1ba0d1fd6c3d5ab",
-                "reference": "f9a0168c87f01f2d5de95029a1ba0d1fd6c3d5ab",
+                "url": "https://api.github.com/repos/matomo-org/matomo-php-tracker/zipball/3b31a6366fdf1f39520d7cbf858967f309d89275",
+                "reference": "3b31a6366fdf1f39520d7cbf858967f309d89275",
                 "shasum": ""
             },
             "type": "library",
@@ -1790,7 +1790,7 @@
                 "piwik",
                 "tracker"
             ],
-            "time": "2017-11-09T03:20:23+00:00"
+            "time": "2018-10-12T00:37:52+00:00"
         },
         {
             "name": "psr/container",
@@ -2118,18 +2118,80 @@
             "time": "2017-11-20T08:42:57+00:00"
         },
         {
+            "name": "starcitizenwiki/deeply",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://git.octofox.de/StarCitizenWiki/deeply.git",
+                "reference": "53c092888d5c8bf3571651513b26d5a0d1869ddf"
+            },
+            "require": {
+                "ext-curl": "*",
+                "guzzlehttp/guzzle": "^6.3",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "5.7"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "StarCitizenWiki\\DeepLy\\Integrations\\Laravel\\DeepLyServiceProvider"
+                    ],
+                    "aliases": {
+                        "DeepLy": "StarCitizenWiki\\DeepLy\\Integrations\\Laravel\\DeepLyFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "StarCitizenWiki\\DeepLy\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chris Konnertz"
+                },
+                {
+                    "name": "FoXFTW"
+                }
+            ],
+            "description": "DeepLy is a PHP client for the DeepL.com translation API",
+            "keywords": [
+                "api",
+                "client",
+                "deepl",
+                "deeply",
+                "english",
+                "french",
+                "german",
+                "language",
+                "translate",
+                "translation"
+            ],
+            "time": "2018-10-16T16:00:51+00:00"
+        },
+        {
             "name": "starcitizenwiki/mediawikiapi",
             "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git",
-                "reference": "2d900268fa69866a55073450b2546b50de810ee3"
+                "reference": "886f8f686624f0e47911fe23ec0343a73fb7db68"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
                 "mediawiki/oauthclient": "^0.1.2",
                 "php": "^7.2",
                 "starcitizenwiki/socialite-provider": "^1.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "~1.0",
+                "phpunit/phpunit": "^7.0"
             },
             "type": "library",
             "extra": {
@@ -2147,6 +2209,11 @@
                     "StarCitizenWiki\\MediaWikiApi\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "StarCitizenWiki\\MediaWikiApi\\Tests\\": "tests/"
+                }
+            },
             "authors": [
                 {
                     "name": "Hannes",
@@ -2154,7 +2221,7 @@
                 }
             ],
             "description": "Laravel Package to interact with a Mediawiki Installation through the API, authenticated via OAuth",
-            "time": "2018-10-09T15:29:04+00:00"
+            "time": "2018-10-16T11:01:37+00:00"
         },
         {
             "name": "starcitizenwiki/socialite-provider",
@@ -4595,16 +4662,16 @@
         },
         {
             "name": "laravel/tinker",
-            "version": "v1.0.7",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/tinker.git",
-                "reference": "e3086ee8cb1f54a39ae8dcb72d1c37d10128997d"
+                "reference": "cafbf598a90acde68985660e79b2b03c5609a405"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/tinker/zipball/e3086ee8cb1f54a39ae8dcb72d1c37d10128997d",
-                "reference": "e3086ee8cb1f54a39ae8dcb72d1c37d10128997d",
+                "url": "https://api.github.com/repos/laravel/tinker/zipball/cafbf598a90acde68985660e79b2b03c5609a405",
+                "reference": "cafbf598a90acde68985660e79b2b03c5609a405",
                 "shasum": ""
             },
             "require": {
@@ -4654,7 +4721,7 @@
                 "laravel",
                 "psysh"
             ],
-            "time": "2018-05-17T13:42:07+00:00"
+            "time": "2018-10-12T19:39:35+00:00"
         },
         {
             "name": "mockery/mockery",
@@ -5050,16 +5117,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "6.0.8",
+            "version": "6.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "848f78b3309780fef7ec8c4666b7ab4e6b09b22f"
+                "reference": "0685fb6a43aed1b2e09804d1aaf17144c82861f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/848f78b3309780fef7ec8c4666b7ab4e6b09b22f",
-                "reference": "848f78b3309780fef7ec8c4666b7ab4e6b09b22f",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/0685fb6a43aed1b2e09804d1aaf17144c82861f8",
+                "reference": "0685fb6a43aed1b2e09804d1aaf17144c82861f8",
                 "shasum": ""
             },
             "require": {
@@ -5083,7 +5150,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.0-dev"
+                    "dev-master": "6.1-dev"
                 }
             },
             "autoload": {
@@ -5109,7 +5176,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2018-10-04T03:41:23+00:00"
+            "time": "2018-10-16T05:37:37+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -5386,23 +5453,23 @@
         },
         {
             "name": "psy/psysh",
-            "version": "v0.9.8",
+            "version": "v0.9.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bobthecow/psysh.git",
-                "reference": "ed3c32c4304e1a678a6e0f9dc11dd2d927d89555"
+                "reference": "9aaf29575bb8293206bb0420c1e1c87ff2ffa94e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/ed3c32c4304e1a678a6e0f9dc11dd2d927d89555",
-                "reference": "ed3c32c4304e1a678a6e0f9dc11dd2d927d89555",
+                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/9aaf29575bb8293206bb0420c1e1c87ff2ffa94e",
+                "reference": "9aaf29575bb8293206bb0420c1e1c87ff2ffa94e",
                 "shasum": ""
             },
             "require": {
                 "dnoegel/php-xdg-base-dir": "0.1",
                 "ext-json": "*",
                 "ext-tokenizer": "*",
-                "jakub-onderka/php-console-highlighter": "0.3.*",
+                "jakub-onderka/php-console-highlighter": "0.3.*|0.4.*",
                 "nikic/php-parser": "~1.3|~2.0|~3.0|~4.0",
                 "php": ">=5.4.0",
                 "symfony/console": "~2.3.10|^2.4.2|~3.0|~4.0",
@@ -5456,7 +5523,7 @@
                 "interactive",
                 "shell"
             ],
-            "time": "2018-09-05T11:40:09+00:00"
+            "time": "2018-10-13T15:16:03+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -6286,6 +6353,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "starcitizenwiki/deeply": 20,
         "starcitizenwiki/mediawikiapi": 20
     },
     "prefer-stable": true,

@@ -173,6 +173,7 @@ class ParseCommLink implements ShouldQueue
             ],
             [
                 'translation' => $contentParser->getContent(),
+                'proofread' => true,
             ]
         );
     }

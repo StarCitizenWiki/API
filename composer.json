@@ -21,8 +21,9 @@
         "mediawiki/oauthclient": "^0.1.2",
         "piwik/piwik-php-tracker": "^1.2",
         "socialiteproviders/manager": "^3.3",
-        "starcitizenwiki/socialite-provider": "^1.0",
+        "starcitizenwiki/deeply": "dev-master",
         "starcitizenwiki/mediawikiapi": "dev-develop",
+        "starcitizenwiki/socialite-provider": "^1.0",
         "vinkla/hashids": "^5.0"
     },
     "require-dev": {
@@ -82,6 +83,10 @@
         {
             "type": "vcs",
             "url":  "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "https://git.octofox.de/StarCitizenWiki/deeply.git"
         }
     ],
     "config": {

@@ -48,6 +48,7 @@ class CommLink extends HasTranslations
         'series',
         'images',
         'links',
+        'translations',
     ];
 
     protected $withCount = [

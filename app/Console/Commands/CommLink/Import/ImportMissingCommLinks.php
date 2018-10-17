@@ -4,6 +4,8 @@ namespace App\Console\Commands\CommLink\Import;
 
 use App\Jobs\Rsi\CommLink\Download\DownloadMissingCommLinks;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
+use App\Jobs\Wiki\CommLink\CreateCommLinkWikiPages;
 use App\Models\Rsi\CommLink\CommLink;
 use Goutte\Client;
 use Illuminate\Console\Command;
@@ -39,6 +41,8 @@ class ImportMissingCommLinks extends Command
         DownloadMissingCommLinks::withChain(
             [
                 new ParseCommLinkDownload($missingOffset),
+                new TranslateCommLinks($missingOffset),
+                new CreateCommLinkWikiPages(),
             ]
         )->dispatch(new Client(), $missingOffset);
     }
