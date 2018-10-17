@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use StarCitizenWiki\MediaWikiApi\Exceptions\ApiErrorException;
+use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
  * Creates a Comm-Link on a Wiki
@@ -59,7 +60,7 @@ class CreateCommLinkWikiPage implements ShouldQueue
         app('Log')::info("Creating Wiki Page 'Comm-Link:{$this->commLink->cig_id}'");
 
         try {
-            app('mediawikiapi')->edit("Comm-Link:{$this->commLink->cig_id}")->text(
+            MediaWikiApi::edit("Comm-Link:{$this->commLink->cig_id}")->text(
                 sprintf(
                     "%s\n%s",
                     $this->template,
