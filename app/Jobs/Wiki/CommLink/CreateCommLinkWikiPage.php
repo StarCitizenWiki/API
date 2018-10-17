@@ -31,14 +31,21 @@ class CreateCommLinkWikiPage implements ShouldQueue
     private $template;
 
     /**
+     * @var string CSRF Token
+     */
+    private $token;
+
+    /**
      * Create a new job instance.
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param string                            $token
      * @param string                            $template The Template to include before every translation
      */
-    public function __construct(CommLink $commLink, string $template)
+    public function __construct(CommLink $commLink, string $token, string $template)
     {
         $this->commLink = $commLink;
+        $this->token = $token;
         $this->template = $template;
     }
 
@@ -58,7 +65,11 @@ class CreateCommLinkWikiPage implements ShouldQueue
                     $this->template,
                     $this->commLink->german()->translation
                 )
-            )->summary("Importing Comm-Link Translation {$this->commLink->cig_id}")->createOnly()->request();
+            )
+                ->summary("Importing Comm-Link Translation {$this->commLink->cig_id}")
+                ->csrfToken($this->token)
+                ->createOnly()
+                ->request();
         } catch (ApiErrorException $e) {
             app('Log')::error('Could not get an CSRF Token', $e->getResponse()->getErrors());
 

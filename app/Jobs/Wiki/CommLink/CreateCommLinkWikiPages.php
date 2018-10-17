@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
  * Create Comm-Link Wiki Pages
@@ -42,7 +43,16 @@ class CreateCommLinkWikiPages implements ShouldQueue
             (string) config('services.wiki_translations.access_secret')
         );
 
+        $token = MediaWikiApi::query()->meta('tokens')->request();
+        if ($token->hasErrors()) {
+            $this->fail(new \RuntimeException('Token retrieval failed'));
+        }
+
+        $token = $token->getQuery()['tokens']['csrftoken'];
+
         $config = $this->getCommLinkConfig();
+        $config['token'] = $token;
+
         app('Log')::debug('Current config:', $config);
 
         CommLink::query()->chunk(
@@ -64,7 +74,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                         $wikiPage = $wikiPages->get($commLink->cig_id, []);
 
                         if (isset($wikiPage['missing'])) {
-                            dispatch(new CreateCommLinkWikiPage($commLink, $config['template']));
+                            dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
                         }
                     }
                 );

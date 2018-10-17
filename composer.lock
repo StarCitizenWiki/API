@@ -2181,7 +2181,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git",
-                "reference": "dcc6f16c6874e482d00697d02c44d7e3dfe12946"
+                "reference": "8a6e624d6b760bd477863bebf311b22841416906"
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
@@ -2221,7 +2221,7 @@
                 }
             ],
             "description": "Laravel Package to interact with a Mediawiki Installation through the API, authenticated via OAuth",
-            "time": "2018-10-17T20:55:53+00:00"
+            "time": "2018-10-17T21:11:21+00:00"
         },
         {
             "name": "starcitizenwiki/socialite-provider",
