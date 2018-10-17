@@ -54,7 +54,10 @@ class CreateCommLinkWikiPages implements ShouldQueue
                     }
                 );
 
-                $wikiPages = $this->getPageInfoForCommLinks($commLinks);
+                $wikiPages = [];
+                if ($commLinks->count() > 0) {
+                    $wikiPages = $this->getPageInfoForCommLinks($commLinks);
+                }
 
                 $commLinks->each(
                     function (CommLink $commLink) use ($wikiPages, $config) {

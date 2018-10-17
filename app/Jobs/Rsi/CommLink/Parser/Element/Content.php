@@ -103,7 +103,7 @@ class Content extends BaseElement
         // Trim each Start of Line
         $content = preg_replace('/^ +/m', '', $content);
 
-        return trim($content);
+        return trim(html_entity_decode($content));
     }
 
     /**
