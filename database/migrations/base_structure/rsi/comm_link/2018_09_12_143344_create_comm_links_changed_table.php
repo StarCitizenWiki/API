@@ -19,7 +19,7 @@ class CreateCommLinksChangedTable extends Migration
                 $table->increments('id');
                 $table->unsignedInteger('comm_link_id');
                 $table->boolean('had_content');
-                $table->enum('type', ['update', 'creation', 'translation']);
+                $table->enum('type', ['update', 'creation']);
 
                 $table->timestamps();
             }
