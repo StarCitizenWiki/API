@@ -64,14 +64,19 @@ class CreateCommLinkWikiPages implements ShouldQueue
                     }
                 );
 
-                $wikiPages = [];
-                if ($commLinks->count() > 0) {
-                    $wikiPages = $this->getPageInfoForCommLinks($commLinks);
+                try {
+                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
+                } catch (\RuntimeException $e) {
+                    app('Log')::error($e->getMessage());
+
+                    $this->fail($e);
+
+                    return;
                 }
 
                 $commLinks->each(
-                    function (CommLink $commLink) use ($wikiPages, $config) {
-                        $wikiPage = $wikiPages->get($commLink->cig_id, []);
+                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
                         if (isset($wikiPage['missing'])) {
                             dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));

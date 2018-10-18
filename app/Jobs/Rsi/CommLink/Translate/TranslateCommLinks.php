@@ -64,11 +64,13 @@ class TranslateCommLinks implements ShouldQueue
                 );
 
                 try {
-                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks);
+                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
                 } catch (\RuntimeException $e) {
                     app('Log')::error($e->getMessage());
 
                     $this->fail($e);
+
+                    return;
                 }
 
                 $commLinks->each(
@@ -76,7 +78,7 @@ class TranslateCommLinks implements ShouldQueue
                         $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
                         if (isset($wikiPage['missing'])) {
-                            dispatch(new TranslateCommLink($commLink));
+                            //dispatch(new TranslateCommLink($commLink));
                         }
                     }
                 );

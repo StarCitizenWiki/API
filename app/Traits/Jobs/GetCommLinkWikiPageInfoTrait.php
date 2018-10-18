@@ -16,16 +16,24 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 trait GetCommLinkWikiPageInfoTrait
 {
     /**
+     * MediaWiki API Query with Authentication
+     *
+     * @var bool
+     */
+    private $queryWithAuth = false;
+
+    /**
      * Gets Page Info for given Comm-Links keyed by CIG ID
      *
      * @param \Illuminate\Support\Collection $commLinks
+     * @param bool                           $queryWithAuth
      *
      * @return \Illuminate\Support\Collection
-     *
-     * @throws \RuntimeException
      */
-    private function getPageInfoForCommLinks(Collection $commLinks)
+    private function getPageInfoForCommLinks(Collection $commLinks, bool $queryWithAuth = false)
     {
+        $this->queryWithAuth = $queryWithAuth;
+
         $pages = $commLinks->map(
             function (CommLink $commLink) {
                 return sprintf('%s:%d', 'Comm-Link', $commLink->cig_id);
@@ -34,8 +42,13 @@ trait GetCommLinkWikiPageInfoTrait
 
 
         $res = $this->getMediaWikiQuery($pages);
+        $query = $res->getQuery();
 
-        return collect($res->getQuery()['pages'])->keyBy(
+        if (!isset($query['pages'])) {
+            return new Collection();
+        }
+
+        return collect($query['pages'])->keyBy(
             function (array $value) {
                 return str_replace('Comm-Link:', '', $value['title']);
             }
@@ -48,12 +61,16 @@ trait GetCommLinkWikiPageInfoTrait
      * @param string $pages
      *
      * @return \StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse
-     *
-     * @throws \RuntimeException
      */
     private function getMediaWikiQuery(string $pages): MediaWikiResponse
     {
-        $response = MediaWikiApi::query()->prop('info')->prop('categories')->titles($pages)->request();
+        $response = MediaWikiApi::query()->prop('info')->prop('categories')->titles($pages);
+
+        if ($this->queryWithAuth) {
+            $response->withAuthentication();
+        }
+
+        $response = $response->request();
 
         if ($response->hasErrors()) {
             $this->formatApiError($response);
