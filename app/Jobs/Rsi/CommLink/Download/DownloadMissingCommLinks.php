@@ -59,10 +59,12 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         $crawler = $this->scraper->request('GET', self::COMM_LINK_BASE_URL);
         $crawler->filter('#channel .hub-blocks')->each(
             function (Crawler $crawler) use (&$postIDs) {
-                $link = $crawler->filter('a')->first();
+                $link = $crawler->filter('a:not(.restricted)')->first();
                 $postIDs[] = $this->extractLatestPostId($link);
             }
         );
+
+        dd($postIDs);
 
         $latestPostId = max($postIDs);
 
@@ -101,6 +103,11 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     private function extractLatestPostId(Crawler $link): int
     {
         $linkHref = $link->attr('href');
+
+        if (null === $linkHref) {
+            return 0;
+        }
+
         $linkHref = explode('/', $linkHref);
         $linkHref = end($linkHref);
         $linkHref = explode('-', $linkHref);
