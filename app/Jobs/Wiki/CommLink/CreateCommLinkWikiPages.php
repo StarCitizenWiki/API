@@ -45,7 +45,13 @@ class CreateCommLinkWikiPages implements ShouldQueue
 
         $token = MediaWikiApi::query()->meta('tokens')->request();
         if ($token->hasErrors()) {
-            $this->fail(new \RuntimeException('Token retrieval failed'));
+            $this->fail(
+                new \RuntimeException(
+                    sprintf('%s: %s', 'Token retrieval failed', collect($token->getErrors())->implode('code', ', '))
+                )
+            );
+
+            return;
         }
 
         $token = $token->getQuery()['tokens']['csrftoken'];
