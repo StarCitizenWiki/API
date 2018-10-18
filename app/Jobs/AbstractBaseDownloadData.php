@@ -6,7 +6,10 @@
 
 namespace App\Jobs;
 
+use Goutte\Client as GoutteClient;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
+use Symfony\Component\BrowserKit\Cookie;
 
 /**
  * Base Class for Download Data Jobs
@@ -19,20 +22,42 @@ abstract class AbstractBaseDownloadData
     /**
      * @var \GuzzleHttp\Client
      */
-    protected $client;
+    protected static $client;
+
+    /**
+     * @var \GuzzleHttp\Cookie\CookieJar
+     */
+    protected static $cookieJar;
+
+    /**
+     * @var \Goutte\Client
+     */
+    protected static $scraper;
 
     /**
      * Inits the Guzzle Client
+     *
+     * @param bool $withTokenHeader
      */
-    protected function initClient(): void
+    protected function initClient(bool $withTokenHeader = true): void
     {
-        $this->client = new Client(
-            [
+        if (null === self::$client) {
+            self::$cookieJar = new CookieJar();
+
+            $config = [
                 'base_uri' => config('api.rsi_url'),
                 'timeout' => 60.0,
-                'headers' => ['X-RSI-Token' => self::RSI_TOKEN],
-            ]
-        );
+                'cookies' => self::$cookieJar,
+            ];
+
+            if ($withTokenHeader) {
+                $config['headers'] = [
+                    'X-RSI-Token' => self::RSI_TOKEN,
+                ];
+            }
+
+            self::$client = new Client($config);
+        }
     }
 
     /**
@@ -75,5 +100,68 @@ abstract class AbstractBaseDownloadData
         }
 
         return true;
+    }
+
+    /**
+     * Logs a User into the RSI Webseite
+     *
+     * @return \stdClass Response JSON
+     */
+    protected function getRsiAuthCookie()
+    {
+        $res = self::$client->post(
+            'api/account/signin',
+            [
+                'form_params' => [
+                    'username' => config('services.rsi_account.username'),
+                    'password' => config('services.rsi_account.password'),
+                ],
+                'cookies' => self::$cookieJar,
+            ]
+        );
+
+        $response = \GuzzleHttp\json_decode($res->getBody()->getContents());
+
+        if ($response->success !== 1) {
+            dd($response);
+            throw new \InvalidArgumentException('Login was not successful');
+        }
+
+        return $response;
+    }
+
+    /**
+     * Add Guzzle Cookies to Goutte
+     *
+     * @param \Goutte\Client $client
+     *
+     * @return \Goutte\Client
+     */
+    protected function addGuzzleCookiesToScraper(GoutteClient $client)
+    {
+        foreach (self::$cookieJar->toArray() as $cookie) {
+            $client->getCookieJar()->set(
+                new Cookie($cookie['Name'], $cookie['Value'], null, $cookie['Path'], $cookie['Domain'])
+            );
+        }
+
+        return $client;
+    }
+
+    /**
+     * Create a Scraper if it does not exist
+     *
+     * @param bool $withAuth
+     */
+    protected function makeScraper(bool $withAuth = false)
+    {
+        if (null === self::$scraper) {
+            $this->initClient(false);
+            self::$scraper = new Client();
+            self::$scraper->setClient(self::$client);
+            if ($withAuth) {
+                $this->addGuzzleCookiesToScraper(self::$scraper);
+            }
+        }
     }
 }

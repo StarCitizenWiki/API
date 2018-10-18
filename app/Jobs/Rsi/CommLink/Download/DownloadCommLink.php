@@ -4,7 +4,6 @@ namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use Carbon\Carbon;
-use Goutte\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -29,14 +28,18 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      */
     private $postId;
 
+    private $skipExisting;
+
     /**
      * Create a new job instance.
      *
-     * @param int $id
+     * @param int  $id
+     * @param bool $skipExisting
      */
-    public function __construct(int $id)
+    public function __construct(int $id, bool $skipExisting = false)
     {
         $this->postId = $id;
+        $this->skipExisting = $skipExisting;
     }
 
     /**
@@ -46,6 +49,17 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      */
     public function handle()
     {
+        if (Storage::disk('comm_links')->exists($this->postId) && $this->skipExisting) {
+            app('Log')::debug(
+                "Skipping existing Comm-Link {$this->postId}",
+                [
+                    'id' => $this->postId,
+                ]
+            );
+
+            return;
+        }
+
         app('Log')::info(
             "Downloading Comm-Link with ID {$this->postId}",
             [
@@ -53,11 +67,11 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             ]
         );
 
-        $this->initClient();
-        $scraper = new Client();
-        $scraper->setClient($this->client);
+        if (null === self::$scraper) {
+            $this->makeScraper(true);
+        }
 
-        $response = $scraper->request(
+        $response = self::$scraper->request(
             'GET',
             sprintf('%s/%s/%d-IMPORT', self::COMM_LINK_BASE_URL, 'SCW', $this->postId)
         );
@@ -70,7 +84,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        if (!str_contains($content, 'id="post"')) {
+        if (!str_contains($content, 'id="post"') && !str_contains($content, 'id="subscribers"')) {
             app('Log')::info(
                 "Comm-Link with ID {$this->postId} does not exist",
                 [

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\CommLink\Download;
 
+use App\Jobs\Rsi\CommLink\Download\DownloadCommLink as DownloadCommLinkJob;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
-use App\Jobs\Rsi\CommLink\Download\DownloadCommLink as DownloadCommLinkJob;
 
 /**
  * Class DownloadCommLink
@@ -17,7 +17,9 @@ class DownloadCommLink extends Command
      *
      * @var string
      */
-    protected $signature = 'download:comm-link {id* : Comm-Link ID(s)} {--i|import : Import Comm-Link after Download}';
+    protected $signature = 'download:comm-link  {id* : Comm-Link ID(s)} 
+                                                {--i|import : Import Comm-Link after Download} 
+                                                {--o|overwrite : Overwrite existing Comm-Links}';
 
     /**
      * The console command description.
@@ -67,14 +69,14 @@ class DownloadCommLink extends Command
 
         $ids->each(
             function (int $id) use ($bar) {
-                $this->dispatcher->dispatch(new DownloadCommLinkJob($id));
+                $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $this->hasOption('overwrite') === true));
                 $bar->advance();
             }
         );
 
         $bar->finish();
 
-        if ($this->option('import')) {
+        if ($this->hasOption('import') === true) {
             $this->info("\nImporting Comm-Links");
             $this->dispatcher->dispatch(new ParseCommLinkDownload((int) $ids->min()));
         }

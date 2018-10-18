@@ -30,6 +30,6 @@ class DownloadCommLinks extends Command
     public function handle()
     {
         $this->info('Downloading all Comm-Links');
-        dispatch(new DownloadMissingCommLinks(new Client()));
+        dispatch(new DownloadMissingCommLinks());
     }
 }

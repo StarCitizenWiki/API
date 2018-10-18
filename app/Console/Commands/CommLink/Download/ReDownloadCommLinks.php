@@ -16,7 +16,7 @@ class ReDownloadCommLinks extends Command
      *
      * @var string
      */
-    protected $signature = 'download:new-comm-link-versions';
+    protected $signature = 'download:new-comm-link-versions {--s|skip : Skip existing Comm-Links}';
 
     /**
      * The console command description.
@@ -36,6 +36,6 @@ class ReDownloadCommLinks extends Command
             [
                 new ParseCommLinkDownload(),
             ]
-        )->dispatch();
+        )->dispatch($this->hasOption('skip') === true);
     }
 }

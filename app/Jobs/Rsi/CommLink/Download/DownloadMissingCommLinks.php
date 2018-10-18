@@ -27,21 +27,6 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
 
     /**
-     * @var \Goutte\Client
-     */
-    private $scraper;
-
-    /**
-     * Create a new job instance.
-     *
-     * @param \Goutte\Client $client
-     */
-    public function __construct(Client $client)
-    {
-        $this->scraper = $client;
-    }
-
-    /**
      * Execute the job.
      *
      * @return void
@@ -50,21 +35,23 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     {
         app('Log')::info('Starting Missing Comm-Links Download Job');
 
-        $this->initClient();
-        $this->scraper->setClient($this->client);
+        $this->initClient(false);
+        $this->getRsiAuthCookie();
+
+        self::$scraper = new Client();
+        self::$scraper->setClient(self::$client);
+        $this->addGuzzleCookiesToScraper(self::$scraper);
 
         $postIDs = [];
 
         /** @var \Symfony\Component\DomCrawler\Crawler $crawler */
-        $crawler = $this->scraper->request('GET', self::COMM_LINK_BASE_URL);
-        $crawler->filter('#channel .hub-blocks')->each(
+        $crawler = self::$scraper->request('GET', self::COMM_LINK_BASE_URL);
+        $crawler->filter('#channel .hub-blocks .hub-block')->each(
             function (Crawler $crawler) use (&$postIDs) {
-                $link = $crawler->filter('a:not(.restricted)')->first();
+                $link = $crawler->filter('a');
                 $postIDs[] = $this->extractLatestPostId($link);
             }
         );
-
-        dd($postIDs);
 
         $latestPostId = max($postIDs);
 
@@ -89,7 +76,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         );
 
         for ($id = $dbId; $id <= $latestPostId; $id++) {
-            dispatch(new DownloadCommLink(($id)));
+            dispatch(new DownloadCommLink($id));
         }
     }
 

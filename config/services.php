@@ -37,4 +37,9 @@ return [
     'deepl' => [
         'auth_key' => env('DEEPL_AUTH_KEY'),
     ],
+
+    'rsi_account' => [
+        'username' => env('RSI_USERNAME'),
+        'password' => env('RSI_PASSWORD'),
+    ],
 ];
