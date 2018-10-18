@@ -70,7 +70,7 @@ class Image extends BaseElement
             function ($image) use (&$imageIDs) {
                 $src = $this->cleanImgSource($image['src']);
 
-                $imageIDs[] = ImageModel::firstOrCreate(
+                $imageIDs[] = ImageModel::query()->firstOrCreate(
                     [
                         'src' => $this->cleanText($src),
                         'alt' => $this->cleanText($image['alt']),
@@ -89,7 +89,12 @@ class Image extends BaseElement
      */
     private function extractImages(): void
     {
-        $this->commLink->filter(ParseCommLink::POST_SELECTOR)->filterXPath('//img')->each(
+        $filter = ParseCommLink::POST_SELECTOR;
+        if ($this->isSubscriberPage($this->commLink)) {
+            $filter = '#subscribers .album-wrapper';
+        }
+
+        $this->commLink->filter($filter)->filterXPath('//img')->each(
             function (Crawler $crawler) {
                 $src = $crawler->attr('src');
 

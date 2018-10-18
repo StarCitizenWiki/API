@@ -7,6 +7,8 @@
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
+use Symfony\Component\DomCrawler\Crawler;
+
 /**
  * Base Methods for Elements
  */
@@ -22,5 +24,30 @@ abstract class AbstractBaseElement
     protected function cleanText(string $string): string
     {
         return trim(preg_replace('/\R/', '', $string));
+    }
+
+    /**
+     * Checks if Comm-Link Page is a Ship Page
+     * Ship Pages are wrapped in a '#layout-system' Div
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $commLink
+     *
+     * @return bool
+     */
+    protected function isSpecialPage(Crawler $commLink): bool
+    {
+        return $commLink->filter('#layout-system')->count() === 1;
+    }
+
+    /**
+     * Checks if Comm-Link Page is a Subscriber Article
+     *
+     * @param \Symfony\Component\DomCrawler\Crawler $commLink
+     *
+     * @return bool
+     */
+    protected function isSubscriberPage(Crawler $commLink): bool
+    {
+        return $commLink->filter('div#subscribers')->count() === 1;
     }
 }

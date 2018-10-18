@@ -41,8 +41,12 @@ class Content extends BaseElement
      */
     public function getContent(string $filter = '.segment'): string
     {
-        if ($this->isSpecialPage()) {
+        if ($this->isSpecialPage($this->commLink)) {
             $filter = '#layout-system';
+        } elseif ($this->isSubscriberPage($this->commLink)) {
+            //$filter = '.album-wrapper';
+
+            return '';
         }
 
         $content = '';
@@ -292,16 +296,5 @@ class Content extends BaseElement
         );
 
         return $crawler;
-    }
-
-    /**
-     * Checks if Comm-Link Page is a Ship Page
-     * Ship Pages are wrapped in a '#layout-system' Div
-     *
-     * @return bool
-     */
-    private function isSpecialPage(): bool
-    {
-        return $this->commLink->filter('#layout-system')->count() === 1;
     }
 }

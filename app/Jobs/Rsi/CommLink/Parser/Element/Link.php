@@ -50,7 +50,7 @@ class Link extends BaseElement
         $contentLinks = collect($this->links);
         $contentLinks->each(
             function ($link) use (&$linkIds) {
-                $linkIds[] = LinkModel::firstOrCreate(
+                $linkIds[] = LinkModel::query()->firstOrCreate(
                     [
                         'href' => $this->cleanText($link['href']),
                         'text' => $this->cleanText($link['text']),

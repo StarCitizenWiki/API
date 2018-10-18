@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.debug') && config('app.env') === 'local') {
             DB::listen(
                 function (QueryExecuted $query) {
-                    app('Log')::debug($query->sql);
+                    //app('Log')::debug($query->sql);
                 }
             );
         }

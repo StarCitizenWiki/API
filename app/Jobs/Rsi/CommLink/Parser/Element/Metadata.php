@@ -51,6 +51,11 @@ class Metadata extends BaseElement
     private const RSI_DEFAULT_TITLE_ENDING = ' - Roberts Space Industries | Follow the development of Star Citizen and Squadron 42';
 
     /**
+     * Subscriber Channel
+     */
+    private const SUBSCRIBER = 'Subscriber';
+
+    /**
      * @var \Symfony\Component\DomCrawler\Crawler
      */
     private $commLink;
@@ -92,6 +97,12 @@ class Metadata extends BaseElement
      */
     private function extractTitle(): void
     {
+        if ($this->isSubscriberPage($this->commLink)) {
+            $this->extractSubscriberPageTitle();
+
+            return;
+        }
+
         try {
             $title = $this->commLink->filterXPath('//title')->text();
         } catch (\InvalidArgumentException $e) {
@@ -113,6 +124,20 @@ class Metadata extends BaseElement
                 $title
             )
         );
+
+        $this->metaData->put('title', $this->cleanText($title));
+    }
+
+    /**
+     * Extracts the Comm-Link title for a Subscriber Page
+     */
+    private function extractSubscriberPageTitle(): void
+    {
+        try {
+            $title = $this->commLink->filter('.title-section h2')->first()->text();
+        } catch (\InvalidArgumentException $e) {
+            $title = 'No Title Found';
+        }
 
         $this->metaData->put('title', $this->cleanText($title));
     }
@@ -156,13 +181,17 @@ class Metadata extends BaseElement
     {
         $channelId = 1;
 
-        if ($this->commLink->filter(self::CHANNEL_SELECTOR)->count() > 0) {
-            $channel = $this->commLink->filter(self::CHANNEL_SELECTOR)->text();
+        if ($this->commLink->filter(self::CHANNEL_SELECTOR)->count() > 0 || $this->isSubscriberPage($this->commLink)) {
+            if ($this->isSubscriberPage($this->commLink)) {
+                $channel = self::SUBSCRIBER;
+            } else {
+                $channel = $this->commLink->filter(self::CHANNEL_SELECTOR)->text();
+            }
 
             if (!empty($channel)) {
                 $channel = $this->cleanText($channel);
 
-                $channelId = Channel::firstOrCreate(
+                $channelId = Channel::query()->firstOrCreate(
                     [
                         'name' => $channel,
                         'slug' => str_slug($channel, '-'),
@@ -188,7 +217,7 @@ class Metadata extends BaseElement
             if (!empty($category)) {
                 $category = $this->cleanText($category);
 
-                $categoryId = Category::firstOrCreate(
+                $categoryId = Category::query()->firstOrCreate(
                     [
                         'name' => $category,
                         'slug' => str_slug($category, '-'),
@@ -206,7 +235,7 @@ class Metadata extends BaseElement
      */
     private function extractSeries(): void
     {
-        $seriesId = Series::first()->id;
+        $seriesId = Series::query()->first()->id;
 
         if ($this->commLink->filter(self::SERIES_SELECTOR)->count() > 0) {
             $series = $this->commLink->filter(self::SERIES_SELECTOR)->text();
@@ -214,7 +243,7 @@ class Metadata extends BaseElement
             if (!empty($series)) {
                 $series = $this->cleanText($series);
 
-                $seriesId = Series::firstOrCreate(
+                $seriesId = Series::query()->firstOrCreate(
                     [
                         'name' => $series,
                         'slug' => str_slug($series, '-'),
