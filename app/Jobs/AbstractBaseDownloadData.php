@@ -157,7 +157,7 @@ abstract class AbstractBaseDownloadData
     {
         if (null === self::$scraper) {
             $this->initClient(false);
-            self::$scraper = new Client();
+            self::$scraper = new GoutteClient();
             self::$scraper->setClient(self::$client);
             if ($withAuth) {
                 $this->addGuzzleCookiesToScraper(self::$scraper);
