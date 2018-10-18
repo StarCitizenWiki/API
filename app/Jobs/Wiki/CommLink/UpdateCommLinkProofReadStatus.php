@@ -60,11 +60,13 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
                 );
 
                 try {
-                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks);
+                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
                 } catch (\RuntimeException $e) {
                     app('Log')::error($e->getMessage());
 
                     $this->fail($e);
+
+                    return;
                 }
 
                 $commLinks->each(
