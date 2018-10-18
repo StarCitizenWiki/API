@@ -78,7 +78,7 @@ class TranslateCommLinks implements ShouldQueue
                         $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
                         if (isset($wikiPage['missing'])) {
-                            //dispatch(new TranslateCommLink($commLink));
+                            dispatch(new TranslateCommLink($commLink));
                         }
                     }
                 );
