@@ -60,7 +60,7 @@ class CreateCommLinkWikiPage implements ShouldQueue
         app('Log')::info("Creating Wiki Page 'Comm-Link:{$this->commLink->cig_id}'");
 
         try {
-            MediaWikiApi::edit("Comm-Link:{$this->commLink->cig_id}")->text(
+            $response = MediaWikiApi::edit("Comm-Link:{$this->commLink->cig_id}")->text(
                 sprintf(
                     "%s\n%s",
                     $this->template,
@@ -69,6 +69,7 @@ class CreateCommLinkWikiPage implements ShouldQueue
             )
                 ->summary("Importing Comm-Link Translation {$this->commLink->cig_id}")
                 ->csrfToken($this->token)
+                ->markBotEdit()
                 ->createOnly()
                 ->request();
         } catch (ApiErrorException $e) {
@@ -78,5 +79,7 @@ class CreateCommLinkWikiPage implements ShouldQueue
 
             return;
         }
+
+        app('Log')::debug('Wiki Page Response:', $response->getBody());
     }
 }
