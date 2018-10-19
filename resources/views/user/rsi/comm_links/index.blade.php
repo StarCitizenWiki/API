@@ -60,6 +60,10 @@
                             } else {
                                 $status = 'danger';
                                 $text = 'Nein';
+                                if (empty($commLink->english()->translation)) {
+                                    $status = 'normal';
+                                    $text = '-';
+                                }
                             }
                         @endphp
                         <td class="text-{{ $status }}">
