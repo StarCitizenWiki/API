@@ -66,7 +66,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
         $this->initClient();
 
         try {
-            $response = $this->client->get($this->image->url);
+            $response = self::$client->get($this->image->url);
         } catch (ConnectException | ServerException $e) {
             app('Log')::critical(
                 'Could not connect to RSI Website',
