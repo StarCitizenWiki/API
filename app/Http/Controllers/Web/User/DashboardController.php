@@ -7,6 +7,7 @@ use App\Models\Account\User\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
 
 /**
@@ -14,11 +15,11 @@ use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
  */
 class DashboardController extends Controller
 {
+    const DEEPL_STATS_CACHE_KEY = 'deepl_stats';
+
     /**
      * AdminController constructor.
      */
-    const DEEPL_STATS_CACHE_KEY = 'deepl_stats';
-
     public function __construct()
     {
         parent::__construct();
@@ -42,6 +43,7 @@ class DashboardController extends Controller
             [
                 'users' => $this->getUserStats(),
                 'deepl' => $this->getDeeplStats(),
+                'jobs' => $this->getQueueStats(),
             ]
         );
     }
@@ -113,5 +115,28 @@ class DashboardController extends Controller
         Cache::put(self::DEEPL_STATS_CACHE_KEY, $stats, 1);
 
         return $stats;
+    }
+
+    /**
+     * Simple Queue Stat Counts
+     *
+     * @return array
+     */
+    private function getQueueStats()
+    {
+        $jobs = DB::table('jobs')->get();
+        $jobsFailed = DB::table('failed_jobs')->count();
+
+        $active = $jobs->filter(
+            function (\stdClass $job) {
+                return null !== $job->reserved_at;
+            }
+        );
+
+        return [
+            'all' => number_format($jobs->count(), 0, ',', '.'),
+            'active' => number_format($active->count(), 0, ',', '.'),
+            'failed' => number_format($jobsFailed, 0, ',', '.'),
+        ];
     }
 }

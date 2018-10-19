@@ -8,9 +8,8 @@
         <section class="row equal-height">
             <div class="col-12 col-md-12 col-lg-6 col-xl-3 mb-4">
                 @component('user.components.card', [
-                    'class' => 'bg-dark text-light',
                     'icon' => 'users',
-                    'contentClass' => 'bg-white text-dark p-2 table-responsive',
+                    'contentClass' => 'table-responsive',
                 ])
                     @slot('title')
                         @lang('Benutzer') ({{ $users['overall'] }})
@@ -53,8 +52,7 @@
 
             <div class="col-12 col-md-12 col-lg-6 col-xl-6 mb-4">
                 @component('user.components.card', [
-                    'class' => 'bg-dark text-light',
-                    'contentClass' => 'bg-white text-dark p-2 table-responsive',
+                    'contentClass' => 'table-responsive',
                     'title' => __('Benutzerübersicht'),
                     'icon' => 'table',
                 ])
@@ -92,14 +90,12 @@
             </div>
         </section>
     @endcan
-    <section class="row">
+    <section class="row equal-height">
         <div class="col-12 col-md-12 col-lg-6 col-xl-3 mb-4">
             @component('user.components.card', [
-                'class' => 'bg-dark text-light',
-                'contentClass' => 'bg-white text-dark p-2 table-responsive',
                 'title' => __('DeepL Statistik'),
             ])
-                <dl class="mb-2">
+                <dl class="mb-0">
                     <dt>@lang('Übersetzungszeichenlimit'):</dt>
                     <dd>{{ number_format($deepl['usage']['limit'], 0, ',', '.') }}</dd>
 
@@ -107,11 +103,27 @@
                     <dd>{{ number_format($deepl['usage']['count'], 0, ',', '.') }}</dd>
 
                     <dt class="mb-1">@lang('Genutzt diesen Monat'):</dt>
-                    <dd class="progress">
-                        <div class="progress-bar {{ $deepl['bar']['style'] }}" role="progressbar" style="width: {{ $deepl['bar']['width'] }}%" aria-valuenow="{{ $deepl['usage']['count'] }}" aria-valuemin="0" aria-valuemax="{{ $deepl['usage']['limit'] }}">
+                    <dd class="progress mb-0">
+                        <div class="progress-bar {{ $deepl['bar']['style'] }}" title="{{ $deepl['bar']['width'] }}%" role="progressbar" style="width: {{ $deepl['bar']['width'] }}%" aria-valuenow="{{ $deepl['usage']['count'] }}" aria-valuemin="0" aria-valuemax="{{ $deepl['usage']['limit'] }}">
                             {{ round($deepl['bar']['width']) }}%
                         </div>
                     </dd>
+                </dl>
+            @endcomponent
+        </div>
+        <div class="col-12 col-md-12 col-lg-6 col-xl-3 mb-4">
+            @component('user.components.card', [
+                'title' => __('Jobs'),
+            ])
+                <dl class="mb-0">
+                    <dt>@lang('Alle'):</dt>
+                    <dd>{{ $jobs['all'] }}</dd>
+
+                    <dt>@lang('Aktiv'):</dt>
+                    <dd>{{ $jobs['active'] }}</dd>
+
+                    <dt>@lang('Fehlgeschlagen'):</dt>
+                    <dd class="mb-0">{{ $jobs['failed'] }}</dd>
                 </dl>
             @endcomponent
         </div>
