@@ -55,7 +55,7 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
             $this->initClient();
 
             try {
-                $response = $this->client->post(
+                $response = self::$client->post(
                     self::STATS_ENDPOINT,
                     [
                         'json' => [

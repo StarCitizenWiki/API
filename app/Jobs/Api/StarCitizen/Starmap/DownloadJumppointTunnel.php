@@ -70,7 +70,7 @@ class DownloadJumppointTunnel extends BaseDownloadData implements ShouldQueue
      */
     private function getJsonArrayFromStarmap(string $uri): array
     {
-        $response = $this->client->request('POST', config('api.rsi_url').'/starmap/'.$uri);
+        $response = self::$client->request('POST', config('api.rsi_url').'/starmap/'.$uri);
 
         return json_decode($response->getBody()->getContents(), true);
     }

@@ -50,7 +50,7 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
         $this->initClient();
 
         try {
-            $response = $this->client->get(self::SHIPS_ENDPOINT);
+            $response = self::$client->get(self::SHIPS_ENDPOINT);
         } catch (ConnectException $e) {
             app('Log')::critical(
                 'Could not connect to RSI Ship Matrix',

@@ -100,7 +100,7 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
     private function setBootup(string $timestamp): void
     {
         try {
-            $response = $this->client->post(self::STARSYSTEM_BOOTUP_ENDPOINT);
+            $response = self::$client->post(self::STARSYSTEM_BOOTUP_ENDPOINT);
         } catch (ConnectException $e) {
             app('Log')::critical(
                 'Could not connect to RSI Starmap Bootup',
@@ -159,7 +159,7 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
             $system = $system['code'];
 
             try {
-                $response = $this->client->post(self::STARSYSTEM_ENDPOINT.$system);
+                $response = self::$client->post(self::STARSYSTEM_ENDPOINT.$system);
             } catch (ConnectException $e) {
                 app('Log')::critical(
                     'Could not connect to RSI Starmap '.$system,
