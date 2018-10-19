@@ -9,6 +9,8 @@ namespace Tests\Feature\Controller\Web\User\Dashboard;
 
 use App\Http\Controllers\Web\User\DashboardController;
 use Illuminate\Http\Response;
+use StarCitizenWiki\DeepLy\DeepLy;
+use StarCitizenWiki\DeepLy\ResponseBag\UsageBag;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
 /**
@@ -23,6 +25,14 @@ class DashboardControllerTestCase extends UserTestCase
      */
     public function testShow()
     {
+        $mock = \Mockery::mock(DeepLy::class);
+        $mock->shouldReceive('getUsage')->zeroOrMoreTimes()->andReturn(
+            new UsageBag(
+                json_decode('{"character_count": 180000, "character_limit": 1250000}')
+            )
+        );
+        $this->app->instance('deeply', $mock);
+
         $response = $this->actingAs($this->user)->followingRedirects()->get(route('web.user.dashboard'));
         $response->assertStatus(static::RESPONSE_STATUSES['show']);
 
