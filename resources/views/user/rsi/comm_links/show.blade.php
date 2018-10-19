@@ -34,7 +34,7 @@
             @include('components.messages')
             <nav class="mb-3">
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link active" id="nav-en_EN-tab" data-toggle="tab" href="#nav-en_EN" role="tab" aria-controls="nav-en_EN" aria-selected="true">
+                    <a class="nav-item nav-link active" id="nav-en_EN-tab" data-toggle="tab" href="#english" role="tab" aria-controls="english" aria-selected="true">
                         @lang('en_EN')
                     </a>
 
@@ -42,19 +42,19 @@
                         @lang('de_DE') <i class="fal fa-external-link fa-sm" data-fa-transform="up-2"></i>
                     </a>
 
-                    <a class="nav-item nav-link" id="nav-links-tab" data-toggle="tab" href="#nav-links" role="tab" aria-controls="nav-links" aria-selected="false">
+                    <a class="nav-item nav-link" id="nav-links-tab" data-toggle="tab" href="#links" role="tab" aria-controls="links" aria-selected="false">
                         @lang('Links') <span class="badge badge-primary">{{ count($commLink->links) }}</span>
                     </a>
 
-                    <a class="nav-item nav-link" id="nav-images-tab" data-toggle="tab" href="#nav-images" role="tab" aria-controls="nav-images" aria-selected="false">
+                    <a class="nav-item nav-link" id="nav-images-tab" data-toggle="tab" href="#images" role="tab" aria-controls="images" aria-selected="false">
                         @lang('Bilder') <span class="badge badge-primary">{{ count($commLink->images) }}</span>
                     </a>
 
-                    <a class="nav-item nav-link" id="nav-meta-tab" data-toggle="tab" href="#nav-meta" role="tab" aria-controls="nav-meta" aria-selected="false">
+                    <a class="nav-item nav-link" id="nav-meta-tab" data-toggle="tab" href="#meta" role="tab" aria-controls="meta" aria-selected="false">
                         @lang('Metadaten')
                     </a>
 
-                    <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#nav-changelog" role="tab" aria-controls="nav-changelog" aria-selected="false">
+                    <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#changelog" role="tab" aria-controls="changelog" aria-selected="false">
                         @lang('Verlauf')
                     </a>
 
@@ -71,11 +71,11 @@
             </nav>
 
             <div class="tab-content" id="nav-tab-translations">
-                <div class="tab-pane fade show active" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
+                <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="nav-en_EN-tab">
                     {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}
                 </div>
 
-                <div class="tab-pane fade" id="nav-links" role="tabpanel" aria-labelledby="nav-links-tab">
+                <div class="tab-pane fade" id="links" role="tabpanel" aria-labelledby="nav-links-tab">
                     <ul>
                         @forelse($commLink->links as $link)
                             <li><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> &mdash; {{ $link->href }}</li>
@@ -85,7 +85,7 @@
                     </ul>
                 </div>
 
-                <div class="tab-pane fade" id="nav-images" role="tabpanel" aria-labelledby="nav-images-tab">
+                <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="nav-images-tab">
                     @forelse($commLink->images as $image)
                         <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->url) }}" class="img-thumbnail" style="max-width: 150px;"></a>
                     @empty
@@ -93,7 +93,7 @@
                     @endforelse
                 </div>
 
-                <div class="tab-pane fade" id="nav-meta" role="tabpanel" aria-labelledby="nav-meta-tab">
+                <div class="tab-pane fade" id="meta" role="tabpanel" aria-labelledby="nav-meta-tab">
                     <table class="table mb-0">
                         <tr>
                             <th class="border-top-0">ID</th>
@@ -142,7 +142,7 @@
                     </table>
                 </div>
 
-                <div class="tab-pane fade" id="nav-changelog" role="tabpanel" aria-labelledby="nav-changelog-tab">
+                <div class="tab-pane fade" id="changelog" role="tabpanel" aria-labelledby="nav-changelog-tab">
                     @component('user.components.changelog_list', [
                         'changelogs' => $changelogs,
                     ])
@@ -152,4 +152,28 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('body__after')
+    @parent
+    <script>
+      $(document).ready(() => {
+        let url = location.href.replace(/\/$/, '')
+
+        if (location.hash) {
+          const hash = url.split('#')
+          $('#nav-tab a[href="#' + hash[1] + '"]').tab('show')
+          url = location.href.replace(/\/#/, '#')
+          history.replaceState(null, null, url)
+        }
+
+        $('a[data-toggle="tab"]').on('click', function () {
+          let newUrl
+          const hash = $(this).attr('href')
+          newUrl = url.split('#')[0] + hash
+
+          history.replaceState(null, null, newUrl)
+        })
+      })
+    </script>
 @endsection
