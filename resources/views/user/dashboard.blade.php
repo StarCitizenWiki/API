@@ -72,7 +72,7 @@
                         @foreach($users['last'] as $user)
                             <tr>
                                 @can('web.user.internals.view')
-                                    <td>{{ $user->getRouteKey() }}</td>
+                                    <td>{{ $user->id }}</td>
                                 @endcan
                                 <td title="{{ $user->email }}">{{ $user->username }}</td>
                                 <td>{{ $user->created_at }}</td>
@@ -92,4 +92,28 @@
             </div>
         </section>
     @endcan
+    <section class="row">
+        <div class="col-12 col-md-12 col-lg-6 col-xl-3 mb-4">
+            @component('user.components.card', [
+                'class' => 'bg-dark text-light',
+                'contentClass' => 'bg-white text-dark p-2 table-responsive',
+                'title' => __('DeepL Statistik'),
+            ])
+                <dl class="mb-2">
+                    <dt>@lang('Übersetzungszeichenlimit'):</dt>
+                    <dd>{{ number_format($deepl['usage']['limit'], 0, ',', '.') }}</dd>
+
+                    <dt>@lang('Nutzung'):</dt>
+                    <dd>{{ number_format($deepl['usage']['count'], 0, ',', '.') }}</dd>
+
+                    <dt class="mb-1">@lang('Genutzt diesen Monat'):</dt>
+                    <dd class="progress">
+                        <div class="progress-bar {{ $deepl['bar']['style'] }}" role="progressbar" style="width: {{ $deepl['bar']['width'] }}%" aria-valuenow="{{ $deepl['usage']['count'] }}" aria-valuemin="0" aria-valuemax="{{ $deepl['usage']['limit'] }}">
+                            {{ round($deepl['bar']['width']) }}%
+                        </div>
+                    </dd>
+                </dl>
+            @endcomponent
+        </div>
+    </section>
 @endsection
