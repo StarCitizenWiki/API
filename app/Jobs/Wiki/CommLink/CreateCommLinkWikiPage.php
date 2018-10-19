@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Normalizer;
 use StarCitizenWiki\MediaWikiApi\Exceptions\ApiErrorException;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
@@ -60,11 +61,16 @@ class CreateCommLinkWikiPage implements ShouldQueue
         app('Log')::info("Creating Wiki Page 'Comm-Link:{$this->commLink->cig_id}'");
 
         try {
+            $text = $this->commLink->german()->translation;
+            if (!Normalizer::isNormalized($text)) {
+                $text = Normalizer::normalize($text);
+            }
+
             $response = MediaWikiApi::edit("Comm-Link:{$this->commLink->cig_id}")->text(
                 sprintf(
                     "%s\n%s",
                     $this->template,
-                    $this->commLink->german()->translation
+                    $text
                 )
             )
                 ->summary("Importing Comm-Link Translation {$this->commLink->cig_id}")
