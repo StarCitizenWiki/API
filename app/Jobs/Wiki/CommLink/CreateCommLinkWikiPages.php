@@ -4,6 +4,7 @@ namespace App\Jobs\Wiki\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
+use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,6 +23,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
     use Queueable;
     use SerializesModels;
     use GetCommLinkWikiPageInfo;
+    use LoginWikiBotAccount;
 
     /**
      * Execute the job.
@@ -32,16 +34,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
     {
         app('Log')::info('Starting creation of Comm-Link Wiki Pages');
 
-        $manager = app('mediawikiapi.manager');
-
-        $manager->setConsumerFromCredentials(
-            (string) config('services.wiki_translations.consumer_token'),
-            (string) config('services.wiki_translations.consumer_secret')
-        );
-        $manager->setTokenFromCredentials(
-            (string) config('services.wiki_translations.access_token'),
-            (string) config('services.wiki_translations.access_secret')
-        );
+        $this->loginWikiBotAccount();
 
         $token = MediaWikiApi::query()->meta('tokens')->request();
         if ($token->hasErrors()) {

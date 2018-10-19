@@ -4,6 +4,7 @@ namespace App\Jobs\Wiki\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
+use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,6 +22,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
     use Queueable;
     use SerializesModels;
     use GetCommLinkWikiPageInfo;
+    use LoginWikiBotAccount;
 
     const CATEGORIES = 'categories';
 
@@ -33,16 +35,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
     {
         app('Log')::info('Starting Update of Proofread Status');
 
-        $manager = app('mediawikiapi.manager');
-
-        $manager->setConsumerFromCredentials(
-            (string) config('services.wiki_translations.consumer_token'),
-            (string) config('services.wiki_translations.consumer_secret')
-        );
-        $manager->setTokenFromCredentials(
-            (string) config('services.wiki_translations.access_token'),
-            (string) config('services.wiki_translations.access_secret')
-        );
+        $this->loginWikiBotAccount();
 
         $config = $this->getCommLinkConfig();
 
