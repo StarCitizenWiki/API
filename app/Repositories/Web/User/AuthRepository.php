@@ -25,7 +25,11 @@ class AuthRepository implements AuthRepositoryInterface
      */
     public function startAuth()
     {
-        return Socialite::with('mediawiki')->stateless(false)->redirect();
+        try {
+            return Socialite::with('mediawiki')->stateless(false)->redirect();
+        } catch (\Exception $e) {
+            return view('errors.503');
+        }
     }
 
     /**
