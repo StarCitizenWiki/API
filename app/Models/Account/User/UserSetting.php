@@ -51,22 +51,6 @@ class UserSetting extends Model
     /**
      * @return bool
      */
-    public function receiveCommLinkNotifications(): bool
-    {
-        return $this->receive_comm_link_notifications ?? false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function receiveApiNotifications(): bool
-    {
-        return $this->receive_api_notifications ?? false;
-    }
-
-    /**
-     * @return bool
-     */
     public function isUnthrottled(): bool
     {
         return $this->no_api_throttle ?? false;

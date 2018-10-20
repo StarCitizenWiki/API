@@ -112,19 +112,19 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return bool
      */
     public function receiveApiNotifications()
     {
-        return $this->settings()->receiveApiNotifications();
+        return $this->settings->receive_api_notifications;
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return bool
      */
     public function receiveCommLinkNotifications()
     {
-        return $this->settings()->receiveCommLinkNotifications();
+        return $this->settings->receive_comm_link_notifications;
     }
 
     /**
