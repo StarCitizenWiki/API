@@ -7,6 +7,7 @@ use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -42,7 +43,12 @@ class SendNotificationEmail implements ShouldQueue
      */
     public function handle()
     {
-        $users = User::query()->whereHas('receiveApiNotifications')->get();
+        $users = User::query()->whereHas(
+            'settings',
+            function (Builder $query) {
+                $query->where('receive_api_notifications', true);
+            }
+        )->get();
 
         Mail::to($users)->queue(new NotificationEmail($this->notification));
     }

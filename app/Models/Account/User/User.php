@@ -116,7 +116,7 @@ class User extends Authenticatable
      */
     public function receiveApiNotifications()
     {
-        return $this->settings->receive_api_notifications;
+        return $this->settings->receive_api_notifications ?? false;
     }
 
     /**
@@ -124,7 +124,7 @@ class User extends Authenticatable
      */
     public function receiveCommLinkNotifications()
     {
-        return $this->settings->receive_comm_link_notifications;
+        return $this->settings->receive_comm_link_notifications ?? false;
     }
 
     /**

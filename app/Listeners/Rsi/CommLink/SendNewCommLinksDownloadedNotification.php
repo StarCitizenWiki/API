@@ -5,6 +5,7 @@ namespace App\Listeners\Rsi\CommLink;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Models\Account\User\User;
 use App\Notifications\Rsi\CommLink\NewCommLinksDownloaded as NewCommLinksDownloadedNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -24,7 +25,12 @@ class SendNewCommLinksDownloadedNotification
         if ($event->commLinks->count() > 0) {
             $admins = User::query()
                 ->whereNotNull('email')
-                ->whereHas('receiveCommLinkNotifications')
+                ->whereHas(
+                    'settings',
+                    function (Builder $query) {
+                        $query->where('receive_comm_link_notifications', true);
+                    }
+                )
                 ->orWhereHas('adminGroup')
                 ->get();
 

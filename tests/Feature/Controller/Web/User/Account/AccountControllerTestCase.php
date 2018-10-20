@@ -61,7 +61,7 @@ class AccountControllerTestCase extends UserTestCase
                 ->assertSee(__('crud.updated', ['type' => __('Einstellungen')]))
                 ->assertSee($this->user->username);
 
-            $this->assertTrue(User::find($this->user->id)->settings->receiveApiNotifications());
+            $this->assertTrue(User::find($this->user->id)->receiveApiNotifications());
         }
     }
 
