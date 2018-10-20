@@ -7,6 +7,7 @@ use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
 use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -24,7 +25,8 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
     use GetCommLinkWikiPageInfo;
     use LoginWikiBotAccount;
 
-    const CATEGORIES = 'categories';
+    private const CATEGORIES = 'categories';
+    private const LOCALE_CODE = 'locale_code';
 
     /**
      * Execute the job.
@@ -39,19 +41,14 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
 
         $config = $this->getCommLinkConfig();
 
-        CommLink::query()->chunk(
+        CommLink::query()->whereHas(
+            'translations',
+            function (Builder $query) {
+                $query->where(self::LOCALE_CODE, 'de_DE')->whereRaw("translation <> ''");
+            }
+        )->chunk(
             100,
             function (Collection $commLinks) use ($config) {
-                $commLinks = $commLinks->filter(
-                    function (CommLink $commLink) {
-                        return !empty($commLink->english()->translation);
-                    }
-                )->filter(
-                    function (CommLink $commLink) {
-                        return $commLink->german() !== null;
-                    }
-                );
-
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
                 } catch (\RuntimeException $e) {
@@ -78,7 +75,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
 
                             $commLink->translations()->where(
                                 [
-                                    'locale_code' => 'de_DE',
+                                    self::LOCALE_CODE => 'de_DE',
                                 ]
                             )->update(
                                 [

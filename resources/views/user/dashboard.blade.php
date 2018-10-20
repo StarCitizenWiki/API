@@ -170,6 +170,7 @@
                                     @slot('inputOptions')
                                         pattern="[\d{5,}\,?\s?]+" title="12663, 12664, ..." placeholder="12663, 12664, ..."
                                     @endslot
+                                    <small>Zu importierende Comm-Link IDs eingeben</small>
                                 @endcomponent
                                 <button class="btn btn-block btn-outline-secondary">Comm-Links Herunterladen</button>
                             @endcomponent

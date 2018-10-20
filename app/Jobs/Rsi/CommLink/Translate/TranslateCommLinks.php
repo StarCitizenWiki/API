@@ -7,6 +7,7 @@ use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
 use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -47,15 +48,14 @@ class TranslateCommLinks implements ShouldQueue
 
         $this->loginWikiBotAccount();
 
-        CommLink::query()->where('cig_id', '>=', $this->offset)->chunk(
+        CommLink::query()->whereHas(
+            'translations',
+            function (Builder $query) {
+                $query->where('locale_code', 'en_EN')->whereRaw("translation <> ''");
+            }
+        )->where('cig_id', '>=', $this->offset)->chunk(
             100,
             function (Collection $commLinks) {
-                $commLinks = $commLinks->filter(
-                    function (CommLink $commLink) {
-                        return !empty($commLink->english()->translation);
-                    }
-                );
-
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
                 } catch (\RuntimeException $e) {
