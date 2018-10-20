@@ -19,6 +19,8 @@
                     <th>@lang('Blockiert')</th>
                     <th>@lang('Provider')</th>
                     <th>@lang('Änderungen')</th>
+                    <th title="@lang('API Benachrichtigungen')">@lang('API')</th>
+                    <th title="@lang('CommLink Benachrichtigungen')">@lang('CommLinks')</th>
                     <th>@lang('Letzter Login')</th>
                     <th data-orderable="false">&nbsp;</th>
                 </tr>
@@ -52,6 +54,20 @@
                         </td>
                         <td>
                             {{ $user->changelogs_count }}
+                        </td>
+                        <td>
+                            @if($user->receiveApiNotifications())
+                            &check;
+                            @else
+                            &cross;
+                            @endif
+                        </td>
+                        <td>
+                            @if($user->receiveCommLinkNotifications())
+                            &check;
+                            @else
+                            &cross;
+                            @endif
                         </td>
                         <td title="{{ $user->last_login->format('d.m.Y H:i:s') }}">
                             {{ $user->last_login->diffForHumans() }}
