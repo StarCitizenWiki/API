@@ -25,7 +25,31 @@ Route::group(
             [],
             function () {
                 Route::get('dashboard', 'DashboardController@index')->name('dashboard');
+                Route::name('dashboard.')
+                    ->prefix('dashboard')
+                    ->group(
+                        function () {
+                            Route::post(
+                                'translate-comm-links',
+                                'DashboardController@startCommLinkTranslationJob'
+                            )->name('translate-comm-links');
 
+                            Route::post(
+                                'create-wiki-pages',
+                                'DashboardController@startCommLinkWikiPageCreationJob'
+                            )->name('create-wiki-pages');
+
+                            Route::post(
+                                'download-comm-link-images',
+                                'DashboardController@startCommLinkIMageDownloadJob'
+                            )->name('download-comm-link-images');
+
+                            Route::post(
+                                'download-comm-links',
+                                'DashboardController@startCommLinkDownloadJob'
+                            )->name('download-comm-links');
+                        }
+                    );
 
                 Route::namespace('Account')
                     ->name('account.')
@@ -101,24 +125,14 @@ Route::group(
                                 ->prefix('comm-links')
                                 ->group(
                                     function () {
-                                        Route::get('categories', 'Category\CategoryController@index')->name(
-                                            'categories.index'
-                                        );
-                                        Route::get('categories/{category}', 'Category\CategoryController@show')->name(
-                                            'categories.show'
-                                        );
+                                        Route::get('categories', 'Category\CategoryController@index')->name('categories.index');
+                                        Route::get('categories/{category}', 'Category\CategoryController@show')->name('categories.show');
 
-                                        Route::get('channels', 'Channel\ChannelController@index')->name(
-                                            'channels.index'
-                                        );
-                                        Route::get('channels/{channel}', 'Channel\ChannelController@show')->name(
-                                            'channels.show'
-                                        );
+                                        Route::get('channels', 'Channel\ChannelController@index')->name('channels.index');
+                                        Route::get('channels/{channel}', 'Channel\ChannelController@show')->name('channels.show');
 
                                         Route::get('series', 'Series\SeriesController@index')->name('series.index');
-                                        Route::get('series/{series}', 'Series\SeriesController@show')->name(
-                                            'series.show'
-                                        );
+                                        Route::get('series/{series}', 'Series\SeriesController@show')->name('series.show');
 
                                         Route::get('images', 'Image\ImageController@index')->name('images.index');
                                     }

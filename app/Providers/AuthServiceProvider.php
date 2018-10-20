@@ -7,6 +7,7 @@ use App\Models\Account\User\UserGroup;
 use App\Policies\Web\User\Account\AccountPolicy;
 use App\Policies\Web\User\Changelog\ChangelogPolicy;
 use App\Policies\Web\User\DashboardPolicy;
+use App\Policies\Web\User\Job\JobPolicy;
 use App\Policies\Web\User\Notification\NotificationPolicy;
 use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
 use App\Policies\Web\User\Rsi\CommLink\Image\ImagePolicy;
@@ -45,6 +46,12 @@ class AuthServiceProvider extends ServiceProvider
         Gate::resource('web.user.account', AccountPolicy::class);
         Gate::resource('web.user.translations', TranslationPolicy::class);
         Gate::resource('web.user.changelogs', ChangelogPolicy::class);
+        Gate::resource('web.user.jobs', JobPolicy::class, [
+            'start_translation' => 'startCommLinkTranslationJob',
+            'start_wiki_page_creation' => 'startCommLinkWikiPageCreationJob',
+            'start_image_download' => 'startCommLinkImageDownloadJob',
+            'start_download' => 'startCommLinkDownloadJob',
+        ]);
 
         /**
          * Internals = Datenbank IDs, etc.

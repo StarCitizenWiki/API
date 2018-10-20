@@ -4,9 +4,11 @@
 
 {{-- Page Content --}}
 @section('content')
+    @include('components.errors')
+    @include('components.messages')
     @can('web.user.users.view')
         <section class="row equal-height">
-            <div class="col-12 col-md-12 col-lg-6 col-xl-3 mb-4">
+            <div class="col-12 col-md-12 col-lg-6 col-xl-4 mb-4">
                 @component('user.components.card', [
                     'icon' => 'users',
                     'contentClass' => 'table-responsive',
@@ -50,7 +52,7 @@
                 @endcomponent
             </div>
 
-            <div class="col-12 col-md-12 col-lg-6 col-xl-6 mb-4">
+            <div class="col-12 col-md-12 col-lg-6 col-xl-8 mb-4">
                 @component('user.components.card', [
                     'contentClass' => 'table-responsive',
                     'title' => __('Benutzerübersicht'),
@@ -62,6 +64,9 @@
                                 <th>@lang('ID')</th>
                             @endcan
                             <th>@lang('Name')</th>
+                            <th title="@lang('API Benachrichtigungen')">@lang('API')</th>
+                            <th title="@lang('CommLink Benachrichtigungen')">@lang('CommLinks')</th>
+                            <th>@lang('Letzter Login')</th>
                             <th>@lang('Registriert')</th>
                             @can('web.user.users.update')
                                 <th>&nbsp;</th>
@@ -73,7 +78,22 @@
                                     <td>{{ $user->id }}</td>
                                 @endcan
                                 <td title="{{ $user->email }}">{{ $user->username }}</td>
+                                <td>
+                                    @if($user->receiveApiNotifications())
+                                        &check;
+                                    @else
+                                        &cross;
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($user->receiveCommLinkNotifications())
+                                        &check;
+                                    @else
+                                        &cross;
+                                    @endif
+                                </td>
                                 <td>{{ $user->created_at }}</td>
+                                <td>{{ $user->last_login }}</td>
                                 @can('web.user.users.update')
                                     <td class="text-center">
                                         <a href="{{ route('web.user.users.edit', $user->getRouteKey()) }}">
@@ -111,7 +131,54 @@
                 </dl>
             @endcomponent
         </div>
-        <div class="col-12 col-md-12 col-lg-6 col-xl-3 mb-4">
+
+        <div class="col-12 col-md-12 col-lg-6 col-xl-6 mb-4">
+                    @component('user.components.card', [
+                        'title' => __('Comm-Link Jobs'),
+                    ])
+                    <div class="row">
+                        <div class="col-12 col-xl-5">
+                            @component('components.forms.form', [
+                                'action' => route('web.user.dashboard.translate-comm-links'),
+                                'class' => 'mb-3',
+                            ])
+                                <button class="btn btn-block btn-outline-secondary">Comm-Links Übersetzen</button>
+                            @endcomponent
+                            @component('components.forms.form', [
+                                'action' => route('web.user.dashboard.create-wiki-pages'),
+                                'class' => 'mb-3',
+                            ])
+                                <button class="btn btn-block btn-outline-secondary">Comm-Link Wiki Seiten erstellen</button>
+                            @endcomponent
+                            @component('components.forms.form', [
+                                'action' => route('web.user.dashboard.download-comm-link-images'),
+                            ])
+                                <button class="btn btn-block btn-outline-secondary">Comm-Link Bilder herunterladen</button>
+                            @endcomponent
+                        </div>
+
+                        <div class="col-12 col-xl-7">
+                            @component('components.forms.form', [
+                                'action' => route('web.user.dashboard.download-comm-links'),
+                                'class' => 'mb-3',
+                            ])
+                                @component('components.forms.form-group', [
+                                    'inputType' => 'text',
+                                    'label' => __('Comm-Link IDs'),
+                                    'id' => 'ids',
+                                ])
+                                    @slot('inputOptions')
+                                        pattern="[\d{5,}\,?\s?]+" title="12663, 12664, ..." placeholder="12663, 12664, ..."
+                                    @endslot
+                                @endcomponent
+                                <button class="btn btn-block btn-outline-secondary">Comm-Links Herunterladen</button>
+                            @endcomponent
+                        </div>
+                    </div>
+            @endcomponent
+        </div>
+
+        <div class="col-12 col-md-12 col-lg-6 col-xl-2 mb-4">
             @component('user.components.card', [
                 'title' => __('Jobs'),
             ])
