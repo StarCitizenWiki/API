@@ -8,7 +8,7 @@
         @foreach($images as $image)
             <div class="card">
                 <a href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank" class="text-center d-block">
-                    <img src="{{ config('api.rsi_url') }}{{ str_replace('source', 'post', $image->src) }}" alt="{{ empty($image->alt) ? __('Kein alt Text verfügbar') : $image->alt }}" class="card-img-top">
+                    <img src="{{ str_replace('source', 'post', $image->url) }}" alt="{{ empty($image->alt) ? __('Kein alt Text verfügbar') : $image->alt }}" class="card-img-top">
                 </a>
                 @unless(empty($image->alt))
                 <div class="card-body">
