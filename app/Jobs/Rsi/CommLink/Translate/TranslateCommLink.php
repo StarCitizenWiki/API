@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use StarCitizenWiki\DeepLy\Exceptions\TextLengthException;
 use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
 
 /**
@@ -44,7 +45,11 @@ class TranslateCommLink implements ShouldQueue
         if (null === optional($this->commLink->german())->translation) {
             try {
                 $translation = DeepLyFacade::translate($this->commLink->english()->translation, 'DE', 'EN');
-            } catch (\Exception $e) {
+            } catch (TextLengthException $e) {
+                app('Log')::warning($e->getMessage());
+
+                return;
+            } catch (\InvalidArgumentException $e) {
                 app('Log')::warning(sprintf('%s: %s', 'Translation failed with Message', $e->getMessage()));
 
                 $this->fail($e);
