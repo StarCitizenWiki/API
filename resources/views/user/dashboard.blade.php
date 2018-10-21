@@ -92,8 +92,8 @@
                                         &cross;
                                     @endif
                                 </td>
-                                <td>{{ $user->created_at }}</td>
                                 <td>{{ $user->last_login }}</td>
+                                <td>{{ $user->created_at }}</td>
                                 @can('web.user.users.update')
                                     <td class="text-center">
                                         <a href="{{ route('web.user.users.edit', $user->getRouteKey()) }}">
