@@ -68,7 +68,7 @@ class DashboardController extends Controller
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [
                 'success' => [
-                    __('Überstzung gestartet'),
+                    __('Übersetzung gestartet'),
                 ],
             ]
         );
