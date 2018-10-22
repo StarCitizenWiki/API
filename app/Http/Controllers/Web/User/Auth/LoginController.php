@@ -105,6 +105,18 @@ class LoginController extends Controller
     }
 
     /**
+     * @return string
+     */
+    public function getRedirectTo(): string
+    {
+        if (Auth::user()->isAdmin()) {
+            return '/dashboard';
+        }
+
+        return $this->redirectTo;
+    }
+
+    /**
      * Redirect to Login Form
      *
      * @param \Illuminate\Http\Request $request
@@ -123,6 +135,6 @@ class LoginController extends Controller
      */
     protected function authenticated()
     {
-        return redirect()->intended($this->redirectTo);
+        return redirect()->intended($this->getRedirectTo());
     }
 }

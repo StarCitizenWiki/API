@@ -56,6 +56,10 @@ class UserAuthTest extends UserTestCase
 
         $response = $this->followingRedirects()->get(route('web.user.auth.login.callback'));
 
-        $response->assertViewIs('user.account.index')->assertSee($localUser->username);
+        if ($localUser->isAdmin()) {
+            $response->assertViewIs('user.dashboard');
+        } else {
+            $response->assertViewIs('user.account.index')->assertSee($localUser->username);
+        }
     }
 }
