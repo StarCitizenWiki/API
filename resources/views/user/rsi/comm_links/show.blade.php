@@ -66,6 +66,9 @@
                     <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.user.rsi.comm-links.edit', $commLink->getRouteKey()) }}">
                         @lang('Einstellungen')
                     </a>
+                    <a class="nav-item nav-link" id="nav-deepl-tab" aria-selected="false" data-toggle="tab" href="#deepl" role="tab" aria-controls="deepl">
+                        @lang('DeepL Übersetzung')
+                    </a>
                     @endcan
                 </div>
             </nav>
@@ -149,6 +152,12 @@
                         Comm-Link
                     @endcomponent
                 </div>
+
+                @can('web.user.rsi.comm-links.update')
+                    <div class="tab-pane fade" id="deepl" role="tabpanel" aria-labelledby="nav-deepl-tab">
+                        {!! empty($commLink->german()->translation) ? 'Nicht vorhanden' : nl2br($commLink->german()->translation) !!}
+                    </div>
+                @endcan
             </div>
         </div>
     </div>
