@@ -2,6 +2,12 @@
 
 @section('title', 'Be right back.')
 
-@section('content')
-    @lang('🚀 Wartungsarbeiten')
+@section('top')
+    @lang('Wartungsarbeiten')
+@endsection
+
+@section('style')
+    body {
+        background: url('{{ asset('media/images/errors/503.jpg') }}');
+    }
 @endsection
