@@ -40,7 +40,6 @@ trait GetCommLinkWikiPageInfoTrait
             }
         )->implode('|');
 
-
         $res = $this->getMediaWikiQuery($pages);
         $query = $res->getQuery();
 
@@ -64,7 +63,7 @@ trait GetCommLinkWikiPageInfoTrait
      */
     private function getMediaWikiQuery(string $pages): MediaWikiResponse
     {
-        $response = MediaWikiApi::query()->prop('info')->prop('categories')->titles($pages);
+        $response = MediaWikiApi::query()->prop('info')->prop('categories')->cllimit(-1)->titles($pages);
 
         if ($this->queryWithAuth) {
             $response->withAuthentication();
