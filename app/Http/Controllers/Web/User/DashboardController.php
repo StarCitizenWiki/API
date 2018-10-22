@@ -114,7 +114,7 @@ class DashboardController extends Controller
 
         $stats = [
             'usage' => [
-                'limit' => $deeplUsage['character_limit'] === -1 ? $e->getMessage() : number_format(
+                'limit' => $deeplUsage['character_limit'] === -1 ? __('Fehler bei der Datenabfrage') : number_format(
                     $deeplUsage['character_limit'],
                     0,
                     ',',
