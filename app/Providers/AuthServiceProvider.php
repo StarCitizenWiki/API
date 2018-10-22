@@ -51,6 +51,7 @@ class AuthServiceProvider extends ServiceProvider
             'start_wiki_page_creation' => 'startCommLinkWikiPageCreationJob',
             'start_image_download' => 'startCommLinkImageDownloadJob',
             'start_download' => 'startCommLinkDownloadJob',
+            'start_proofread_update' => 'startCommLinkProofReadStatusUpdateJob',
         ]);
 
         /**

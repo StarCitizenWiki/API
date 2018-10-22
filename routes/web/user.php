@@ -31,23 +31,29 @@ Route::group(
                         function () {
                             Route::post(
                                 'translate-comm-links',
-                                'DashboardController@startCommLinkTranslationJob'
+                                'Job\Rsi\CommLink\JobController@startCommLinkTranslationJob'
                             )->name('translate-comm-links');
 
                             Route::post(
-                                'create-wiki-pages',
-                                'DashboardController@startCommLinkWikiPageCreationJob'
-                            )->name('create-wiki-pages');
-
-                            Route::post(
                                 'download-comm-link-images',
-                                'DashboardController@startCommLinkIMageDownloadJob'
+                                'Job\Rsi\CommLink\JobController@startCommLinkImageDownloadJob'
                             )->name('download-comm-link-images');
 
                             Route::post(
                                 'download-comm-links',
-                                'DashboardController@startCommLinkDownloadJob'
+                                'Job\Rsi\CommLink\JobController@startCommLinkDownloadJob'
                             )->name('download-comm-links');
+
+
+                            Route::post(
+                                'create-wiki-pages',
+                                'Job\Wiki\CommLink\JobController@startCommLinkWikiPageCreationJob'
+                            )->name('create-wiki-pages');
+
+                            Route::post(
+                                'update-proofread-status',
+                                'Job\Wiki\CommLink\JobController@startCommLinkProofReadStatusUpdateJob'
+                            )->name('update-proofread-status');
                         }
                     );
 

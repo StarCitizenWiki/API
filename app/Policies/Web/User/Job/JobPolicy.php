@@ -53,4 +53,14 @@ class JobPolicy extends BaseUserPolicy
     {
         return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
     }
+
+    /**
+     * @param \App\Models\Account\User\User $user
+     *
+     * @return bool
+     */
+    public function startCommLinkProofReadStatusUpdateJob(User $user)
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+    }
 }

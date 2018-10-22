@@ -7,10 +7,9 @@ use App\Models\Account\User\User;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use StarCitizenWiki\DeepLy\HttpClient\CallException;
 use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
 
 /**
@@ -19,7 +18,6 @@ use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
 class DashboardController extends Controller
 {
     private const DEEPL_STATS_CACHE_KEY = 'deepl_stats';
-    private const DASHBOARD_ROUTE = 'web.user.dashboard';
 
     /**
      * AdminController constructor.
@@ -49,122 +47,6 @@ class DashboardController extends Controller
                 'deepl' => $this->getDeeplStats(),
                 'jobs' => $this->getQueueStats(),
                 'changelogs' => ModelChangelog::query()->orderByDesc('id')->take(5),
-            ]
-        );
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function startCommLinkTranslationJob()
-    {
-        $this->authorize('web.user.jobs.start_translation');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        Artisan::call('translate:comm-links');
-
-        return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
-            [
-                'success' => [
-                    __('Übersetzung gestartet'),
-                ],
-            ]
-        );
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function startCommLinkWikiPageCreationJob()
-    {
-        $this->authorize('web.user.jobs.start_wiki_page_creation');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        Artisan::call('wiki:create-comm-link-pages');
-
-        return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
-            [
-                'success' => [
-                    __('Seitenerstellung gestartet'),
-                ],
-            ]
-        );
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function startCommLinkImageDownloadJob()
-    {
-        $this->authorize('web.user.jobs.start_image_download');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        Artisan::call('download:comm-link-images');
-
-        return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
-            [
-                'success' => [
-                    __('Download gestartet'),
-                ],
-            ]
-        );
-    }
-
-    /**
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function startCommLinkDownloadJob(Request $request)
-    {
-        $this->authorize('web.user.jobs.start_download');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        $data = $request->validate(
-            [
-                'ids' => 'required|string|min:5',
-            ]
-        );
-
-        $ids = collect(explode(',', $data['ids']))->map(
-            function ($id) {
-                return trim($id);
-            }
-        )->filter(
-            function ($id) {
-                return is_numeric($id);
-            }
-        )->map(
-            function ($id) {
-                return (int) $id;
-            }
-        )->filter(
-            function (int $id) {
-                return $id >= 12663;
-            }
-        );
-
-        Artisan::call(
-            'download:comm-link',
-            [
-                'id' => $ids->toArray(),
-                '--import' => true,
-            ]
-        );
-
-        return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
-            [
-                'success' => [
-                    __('Comm-Link Download gestartet'),
-                ],
             ]
         );
     }
@@ -207,10 +89,18 @@ class DashboardController extends Controller
     private function getDeeplStats()
     {
         if (Cache::has(self::DEEPL_STATS_CACHE_KEY)) {
-            return Cache::get(self::DEEPL_STATS_CACHE_KEY);
+               return Cache::get(self::DEEPL_STATS_CACHE_KEY);
         }
 
-        $deeplUsage = DeepLyFacade::getUsage()->getResponse();
+        try {
+            $deeplUsage = DeepLyFacade::getUsage()->getResponse();
+        } catch (CallException $e) {
+            $deeplUsage = [
+                'character_count' => -1,
+                'character_limit' => -1,
+            ];
+        }
+
         $width = ($deeplUsage['character_count'] / $deeplUsage['character_limit']) * 100;
 
         $style = 'bg-success';
@@ -224,8 +114,13 @@ class DashboardController extends Controller
 
         $stats = [
             'usage' => [
-                'limit' => $deeplUsage['character_limit'],
-                'count' => $deeplUsage['character_count'],
+                'limit' => $deeplUsage['character_limit'] === -1 ? $e->getMessage() : number_format(
+                    $deeplUsage['character_limit'],
+                    0,
+                    ',',
+                    '.'
+                ),
+                'count' => number_format($deeplUsage['character_count'], 0, ',', '.'),
             ],
             'bar' => [
                 'width' => $width,
