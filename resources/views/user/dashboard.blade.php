@@ -117,10 +117,10 @@
             ])
                 <dl class="mb-0">
                     <dt>@lang('Übersetzungszeichenlimit'):</dt>
-                    <dd>{{ number_format($deepl['usage']['limit'], 0, ',', '.') }}</dd>
+                    <dd>{{ $deepl['usage']['limit'] }}</dd>
 
                     <dt>@lang('Nutzung'):</dt>
-                    <dd>{{ number_format($deepl['usage']['count'], 0, ',', '.') }}</dd>
+                    <dd>{{ $deepl['usage']['count'] }}</dd>
 
                     <dt class="mb-1">@lang('Genutzt diesen Monat'):</dt>
                     <dd class="progress mb-0">
@@ -142,18 +142,25 @@
                                 'action' => route('web.user.dashboard.translate-comm-links'),
                                 'class' => 'mb-3',
                             ])
-                                <button class="btn btn-block btn-outline-secondary">Comm-Links Übersetzen</button>
+                                <button class="btn btn-block btn-outline-secondary">@lang('Comm-Links Übersetzen')</button>
                             @endcomponent
+                            @component('components.forms.form', [
+                                'action' => route('web.user.dashboard.download-comm-link-images'),
+                                'class' => 'mb-3',
+                            ])
+                                <button class="btn btn-block btn-outline-secondary">@lang('Comm-Link Bilder herunterladen')</button>
+                            @endcomponent
+
                             @component('components.forms.form', [
                                 'action' => route('web.user.dashboard.create-wiki-pages'),
                                 'class' => 'mb-3',
                             ])
-                                <button class="btn btn-block btn-outline-secondary">Comm-Link Wiki Seiten erstellen</button>
+                                <button class="btn btn-block btn-outline-secondary">@lang('Comm-Link Wiki Seiten erstellen')</button>
                             @endcomponent
                             @component('components.forms.form', [
-                                'action' => route('web.user.dashboard.download-comm-link-images'),
+                                'action' => route('web.user.dashboard.update-proofread-status'),
                             ])
-                                <button class="btn btn-block btn-outline-secondary">Comm-Link Bilder herunterladen</button>
+                                <button class="btn btn-block btn-outline-secondary">@lang('Lektorierungsstatus aktualisieren')</button>
                             @endcomponent
                         </div>
 
@@ -170,9 +177,9 @@
                                     @slot('inputOptions')
                                         pattern="[\d{5,}\,?\s?]+" title="12663, 12664, ..." placeholder="12663, 12664, ..."
                                     @endslot
-                                    <small>Zu importierende Comm-Link IDs eingeben</small>
+                                    <small>@lang('Zu importierende Comm-Link IDs eingeben')</small>
                                 @endcomponent
-                                <button class="btn btn-block btn-outline-secondary">Comm-Links Herunterladen</button>
+                                <button class="btn btn-block btn-outline-secondary">@lang('Comm-Links Herunterladen')</button>
                             @endcomponent
                         </div>
                     </div>
