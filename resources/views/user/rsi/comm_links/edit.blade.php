@@ -91,9 +91,11 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
+
                             <div class="col-12 col-lg-6 col-xl-3">
+                                <p class="mb-2">
+                                    @lang('Vorhandene Versionen'):
+                                </p>
                                 @foreach($versions as $version)
                                     @unless(starts_with($version['output'], 'Aktuell'))
                                         <a class="btn btn-block btn-outline-secondary" href="{{ route('web.user.rsi.comm-links.preview', [$commLink->getRouteKey(), $version['file_clean']]) }}">Vorschau Version vom {{ $version['output'] }}</a>

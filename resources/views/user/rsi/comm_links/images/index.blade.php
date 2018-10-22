@@ -4,6 +4,9 @@
 
 @section('content')
     <h3>Comm-Link Bilder</h3>
+    <div>
+        {{ $images->links() }}
+    </div>
     <div class="card-columns" style="column-count: 5">
         @foreach($images as $image)
             <div class="card">
