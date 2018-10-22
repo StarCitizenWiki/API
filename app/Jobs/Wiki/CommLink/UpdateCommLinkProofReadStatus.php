@@ -63,6 +63,8 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
                     function (CommLink $commLink) use ($pageInfoCollection, $config) {
                         $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
+                        app('Log')::info("Updating Proofread Status for Comm-Link: {$commLink->cig_id}");
+
                         if (isset($wikiPage[self::CATEGORIES])) {
                             $proofread = true;
                             collect($wikiPage[self::CATEGORIES])->each(
