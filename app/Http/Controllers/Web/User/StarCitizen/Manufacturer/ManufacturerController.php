@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class ManufacturerController extends Controller
 {
+    private const MANUFACTURER_PERMISSION = 'web.user.starcitizen.manufacturers.update';
+
     /**
      * @var \Dingo\Api\Dispatcher
      */
@@ -67,7 +69,7 @@ class ManufacturerController extends Controller
      */
     public function edit(string $manufacturer)
     {
-        $this->authorize('web.user.starcitizen.manufacturers.update');
+        $this->authorize(self::MANUFACTURER_PERMISSION);
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $manufacturer = $this->api->get("api/manufacturers/{$manufacturer}");
@@ -76,7 +78,7 @@ class ManufacturerController extends Controller
             'user.starcitizen.manufacturers.edit',
             [
                 'manufacturer' => $manufacturer,
-                'updateRoute' => 'web.user.starcitizen.manufacturers.update',
+                'updateRoute' => self::MANUFACTURER_PERMISSION,
             ]
         );
     }
@@ -93,7 +95,7 @@ class ManufacturerController extends Controller
      */
     public function update(ManufacturerTranslationRequest $request, string $manufacturer)
     {
-        $this->authorize('web.user.starcitizen.manufacturers.update');
+        $this->authorize(self::MANUFACTURER_PERMISSION);
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();

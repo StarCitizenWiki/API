@@ -34,7 +34,7 @@ class CategoryController extends Controller
         return view(
             'user.rsi.comm_links.categories.index',
             [
-                'categories' => Category::orderBy('name')->get(),
+                'categories' => Category::query()->orderBy('name')->get(),
             ]
         );
     }

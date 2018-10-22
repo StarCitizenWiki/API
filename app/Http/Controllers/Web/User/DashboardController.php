@@ -18,6 +18,8 @@ use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
 class DashboardController extends Controller
 {
     private const DEEPL_STATS_CACHE_KEY = 'deepl_stats';
+    private const DEEPL_CHARACTER_COUNT = 'character_count';
+    private const DEEPL_CHARACTER_LIMIT = 'character_limit';
 
     /**
      * AdminController constructor.
@@ -96,12 +98,12 @@ class DashboardController extends Controller
             $deeplUsage = DeepLyFacade::getUsage()->getResponse();
         } catch (CallException $e) {
             $deeplUsage = [
-                'character_count' => -1,
-                'character_limit' => -1,
+                self::DEEPL_CHARACTER_COUNT => -1,
+                self::DEEPL_CHARACTER_LIMIT => -1,
             ];
         }
 
-        $width = ($deeplUsage['character_count'] / $deeplUsage['character_limit']) * 100;
+        $width = ($deeplUsage[self::DEEPL_CHARACTER_COUNT] / $deeplUsage[self::DEEPL_CHARACTER_LIMIT]) * 100;
 
         $style = 'bg-success';
         if ($width >= 85) {
@@ -114,13 +116,13 @@ class DashboardController extends Controller
 
         $stats = [
             'usage' => [
-                'limit' => $deeplUsage['character_limit'] === -1 ? __('Fehler bei der Datenabfrage') : number_format(
-                    $deeplUsage['character_limit'],
+                'limit' => $deeplUsage[self::DEEPL_CHARACTER_LIMIT] === -1 ? __('Fehler bei der Datenabfrage') : number_format(
+                    $deeplUsage[self::DEEPL_CHARACTER_LIMIT],
                     0,
                     ',',
                     '.'
                 ),
-                'count' => number_format($deeplUsage['character_count'], 0, ',', '.'),
+                'count' => number_format($deeplUsage[self::DEEPL_CHARACTER_COUNT], 0, ',', '.'),
             ],
             'bar' => [
                 'width' => $width,

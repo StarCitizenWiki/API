@@ -41,7 +41,7 @@ class NotificationController extends Controller
         return view(
             'user.notifications.index',
             [
-                'notifications' => Notification::orderByDesc('created_at')->simplePaginate(100),
+                'notifications' => Notification::query()->orderByDesc('created_at')->simplePaginate(100),
             ]
         );
     }
@@ -85,6 +85,7 @@ class NotificationController extends Controller
      * @return $this|\Illuminate\Database\Eloquent\Model
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {

@@ -69,7 +69,7 @@ class SizeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\System\TranslationRequest         $request
+     * @param \App\Http\Requests\System\TranslationRequest  $request
      * @param \App\Models\Api\StarCitizen\Vehicle\Size\Size $size
      *
      * @return \Illuminate\Http\Response

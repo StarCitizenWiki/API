@@ -34,7 +34,7 @@ class SeriesController extends Controller
         return view(
             'user.rsi.comm_links.series.index',
             [
-                'series' => Series::orderBy('name')->get(),
+                'series' => Series::query()->orderBy('name')->get(),
             ]
         );
     }

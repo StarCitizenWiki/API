@@ -34,7 +34,7 @@ class ChannelController extends Controller
         return view(
             'user.rsi.comm_links.channels.index',
             [
-                'channels' => Channel::orderBy('name')->get(),
+                'channels' => Channel::query()->orderBy('name')->get(),
             ]
         );
     }

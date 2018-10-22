@@ -18,6 +18,8 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 class CommLinkController extends Controller
 {
+    const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.update';
+
     /**
      * CommLinkController constructor.
      */
@@ -39,7 +41,7 @@ class CommLinkController extends Controller
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $links = CommLink::orderByDesc('cig_id')->paginate(100);
+        $links = CommLink::query()->orderByDesc('cig_id')->paginate(100);
 
         return view(
             'user.rsi.comm_links.index',
@@ -63,8 +65,8 @@ class CommLinkController extends Controller
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $previous = CommLink::where('id', '<', $commLink->id)->orderBy('id', 'desc')->first(['cig_id']);
-        $next = CommLink::where('id', '>', $commLink->id)->orderBy('id')->first(['cig_id']);
+        $previous = CommLink::query()->where('id', '<', $commLink->id)->orderBy('id', 'desc')->first(['cig_id']);
+        $next = CommLink::query()->where('id', '>', $commLink->id)->orderBy('id')->first(['cig_id']);
 
         /** @var \Illuminate\Support\Collection $changelog */
         $changelog = $commLink->changelogs;
@@ -102,7 +104,7 @@ class CommLinkController extends Controller
      */
     public function edit(CommLink $commLink)
     {
-        $this->authorize('web.user.rsi.comm-links.update');
+        $this->authorize(self::COMM_LINK_PERMISSION);
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $versions = $this->getCommLinkVersions($commLink->cig_id);
@@ -129,13 +131,13 @@ class CommLinkController extends Controller
      */
     public function update(CommLinkRequest $request, CommLink $commLink)
     {
-        $this->authorize('web.user.rsi.comm-links.update');
+        $this->authorize(self::COMM_LINK_PERMISSION);
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 
         if (isset($data['version']) && $data['version'] !== $commLink->file) {
-            $this->authorize('web.user.rsi.comm-links.update');
+            $this->authorize(self::COMM_LINK_PERMISSION);
             $message = __('Comm-Link Import gestartet');
 
             dispatch(new ParseCommLink($commLink->cig_id, $data['version'], $commLink, true));
