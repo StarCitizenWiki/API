@@ -18,7 +18,7 @@
                             @php
                                 $str = [];
                                 foreach($changelog->changelog['changes'] as $key => $change) {
-                                    $str[] = ucfirst($key).": {$change['old']} &rarr; {$change['new']}";
+                                    $str[] = ucfirst($key).": ".wordwrap($change['old'], 40, "&hellip")." &rarr; ".wordwrap($change['new'], 40, "&hellip").";
                                 }
                                 $str = implode('<br>', $str);
                             @endphp
