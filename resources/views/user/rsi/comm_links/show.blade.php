@@ -38,9 +38,11 @@
                         @lang('en_EN')
                     </a>
 
+                    @unless(empty($commLink->english()->translation))
                     <a class="nav-item nav-link" id="nav-de_DE-tab" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}" aria-selected="false" target="_blank">
                         @lang('de_DE') <i class="fal fa-external-link fa-sm" data-fa-transform="up-2"></i>
                     </a>
+                    @endunless
 
                     <a class="nav-item nav-link" id="nav-links-tab" data-toggle="tab" href="#links" role="tab" aria-controls="links" aria-selected="false">
                         @lang('Links') <span class="badge badge-primary">{{ count($commLink->links) }}</span>
