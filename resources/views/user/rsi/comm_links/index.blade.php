@@ -2,11 +2,25 @@
 
 @section('title', __('Comm-Links'))
 
+@section('head__content')
+    @parent
+    <style>
+
+
+        span ul {
+            margin-bottom: 0;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="card">
-        <h4 class="card-header">@lang('Comm-Links')</h4>
+        <div class="card-header d-flex">
+            <h4 class="mb-0 pt-1">@lang('Comm-Links')</h4>
+            <span class="d-flex ml-auto">{{ $commLinks->links() }}</span>
+        </div>
         <div class="card-body px-0 table-responsive">
-            <table class="table table-striped mb-0" data-order='[[ 0, "desc" ]]'>
+            <table class="table table-striped mb-0" data-order='[[ 0, "desc" ]]' data-page-length="50" data-length-menu='[ [25, 50, 100, -1], [25, 50, 100, "Alle"] ]'>
                 <thead>
                 <tr>
                     @can('web.user.internals.view')
@@ -78,7 +92,7 @@
                         <td>
                             {{ $commLink->series->name }}
                         </td>
-                        <td title="{{ $commLink->created_at->format('d.m.Y') }}" data-search="{{ $commLink->created_at->format('d.m.Y') }}">
+                        <td data-content="{{ $commLink->created_at->format('d.m.Y') }}" data-toggle="popover" data-search="{{ $commLink->created_at->format('d.m.Y') }}" data-sort="{{ $commLink->created_at->timestamp }}">
                             {{ $commLink->created_at->diffForHumans() }}
                         </td>
                         <td class="text-center">
