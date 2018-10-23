@@ -69,7 +69,7 @@
                             &cross;
                             @endif
                         </td>
-                        <td title="{{ $user->last_login->format('d.m.Y H:i:s') }}">
+                        <td data-content="{{ $user->last_login->format('d.m.Y H:i:s') }}" data-toggle="popover">
                             {{ $user->last_login->diffForHumans() }}
                         </td>
                         <td class="text-center">

@@ -1,4 +1,3 @@
-
 //window._ = require('lodash');
 
 /**
@@ -8,10 +7,18 @@
  */
 
 try {
-    window.$ = window.jQuery = require('jquery');
+  window.$ = window.jQuery = require('jquery')
 
-    window.Popper = require('popper.js').default;
-    require('bootstrap');
+  window.Popper = require('popper.js').default
+  require('bootstrap')
+
+  $(function () {
+    $('[data-toggle="popover"]').popover({
+      container: 'body',
+      placement: 'top',
+      trigger: 'hover',
+    })
+  })
 } catch (e) {}
 
 /**
@@ -30,14 +37,14 @@ try {
  * a simple convenience so we don't have to attach every token manually.
  */
 /**
-let token = document.head.querySelector('meta[name="csrf-token"]');
+ let token = document.head.querySelector('meta[name="csrf-token"]');
 
-if (token) {
+ if (token) {
     window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
 } else {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
-*/
+ */
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

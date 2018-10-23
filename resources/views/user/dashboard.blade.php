@@ -77,7 +77,9 @@
                                 @can('web.user.internals.view')
                                     <td>{{ $user->id }}</td>
                                 @endcan
-                                <td title="{{ $user->email }}">{{ $user->username }}</td>
+                                <td title="E-Mail" data-content="{{ $user->email }}" data-toggle="popover">
+                                    {{ $user->username }}
+                                </td>
                                 <td>
                                     @if($user->receiveApiNotifications())
                                         &check;
@@ -92,8 +94,12 @@
                                         &cross;
                                     @endif
                                 </td>
-                                <td title="{{ $user->last_login->format('d.m.Y H:i:s') }}">{{ $user->last_login->diffForHumans() }}</td>
-                                <td title="{{ $user->created_at->format('d.m.Y H:i:s') }}">{{ $user->created_at->diffForHumans() }}</td>
+                                <td data-content="{{ $user->last_login->format('d.m.Y H:i:s') }}" data-toggle="popover">
+                                    {{ $user->last_login->diffForHumans() }}
+                                </td>
+                                <td data-content="{{ $user->created_at->format('d.m.Y H:i:s') }}" data-toggle="popover">
+                                    {{ $user->created_at->diffForHumans() }}
+                                </td>
                                 @can('web.user.users.update')
                                     <td class="text-center">
                                         <a href="{{ route('web.user.users.edit', $user->getRouteKey()) }}">
@@ -124,7 +130,15 @@
 
                     <dt class="mb-1">@lang('Genutzt diesen Monat'):</dt>
                     <dd class="progress mb-0">
-                        <div class="progress-bar {{ $deepl['bar']['style'] }}" title="{{ $deepl['bar']['width'] }}%" role="progressbar" style="width: {{ $deepl['bar']['width'] }}%" aria-valuenow="{{ $deepl['usage']['count'] }}" aria-valuemin="0" aria-valuemax="{{ $deepl['usage']['limit'] }}">
+                        <div class="progress-bar {{ $deepl['bar']['style'] }}"
+                             data-content="{{ $deepl['bar']['width'] }}%"
+                             role="progressbar"
+                             style="width: {{ $deepl['bar']['width'] }}%"
+                             aria-valuenow="{{ $deepl['usage']['count'] }}"
+                             aria-valuemin="0"
+                             aria-valuemax="{{ $deepl['usage']['limit'] }}"
+                             data-toggle="popover"
+                        >
                             {{ round($deepl['bar']['width']) }}%
                         </div>
                     </dd>

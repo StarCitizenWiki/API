@@ -14,7 +14,21 @@
                     importiert von
                 @else
                     @unless(empty($changelog->changelog->get('changes', [])))
-                        <span title="{{ implode(array_keys($changelog->changelog->get('changes', [])), ', ') }}"><u>aktualisiert</u></span> durch
+                        <span
+                            @php
+                                $str = [];
+                                foreach($changelog->changelog['changes'] as $key => $change) {
+                                    $str[] = ucfirst($key).": {$change['old']} &rarr; {$change['new']}";
+                                }
+                                $str = implode('<br>', $str);
+                            @endphp
+                            title="Änderungen"
+                            data-content="{!! $str !!}"
+                            data-toggle="popover"
+                            data-html="true"
+                        >
+                            <u>aktualisiert</u>
+                        </span> durch
                     @else
                         aktualisiert durch
                     @endunless

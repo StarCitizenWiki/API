@@ -34,13 +34,31 @@
                                 {{ config('app.name') }}
                             @endunless
                         </td>
-                        <td>
-                            {{ __($changelog->type) }}
+                        <td
+                        @if($changelog->type === 'update')
+                            @php
+                            $str = [];
+                            foreach($changelog->changelog['changes'] as $key => $change) {
+                                $str[] = ucfirst($key).": {$change['old']} &rarr; {$change['new']}";
+                            }
+                            $str = implode('<br>', $str);
+                            @endphp
+                            title="Änderungen"
+                            data-content="{!! $str !!}"
+                            data-toggle="popover"
+                            data-html="true"
+                        @endif
+                        >
+                            @if($changelog->type === 'update')
+                                <u style="cursor: pointer;">{{ __($changelog->type) }}</u>
+                            @else
+                                {{ __($changelog->type) }}
+                            @endif
                         </td>
                         <td>
                             {{ class_basename($changelog->changelog_type) }}
                         </td>
-                        <td>
+                        <td data-content="{{ $changelog->created_at->format('d.m.Y H:i:s') }}" data-toggle="popover">
                             {{ $changelog->created_at->diffForHumans() }}
                         </td>
                     </tr>
