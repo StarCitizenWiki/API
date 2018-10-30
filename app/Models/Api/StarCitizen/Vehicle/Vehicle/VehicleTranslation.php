@@ -2,7 +2,7 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
-use App\Models\Api\Translation\AbstractTranslation as Translation;
+use App\Models\System\Translation\AbstractTranslation as Translation;
 
 /**
  * Ship Translations Model
@@ -21,15 +21,5 @@ class VehicleTranslation extends Translation
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);
-    }
-
-    /**
-     * Associate Translations with the Vehicle
-     *
-     * @return string
-     */
-    public function getMorphClass()
-    {
-        return Vehicle::class;
     }
 }

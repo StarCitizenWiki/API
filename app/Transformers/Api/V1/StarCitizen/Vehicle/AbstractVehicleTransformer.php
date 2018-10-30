@@ -8,27 +8,13 @@
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
-use App\Transformers\Api\LocaleAwareTransformerInterface as LocaleAwareTransformer;
-use League\Fractal\TransformerAbstract;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 /**
  * Class AbstractVehicleTransformer
  */
-abstract class AbstractVehicleTransformer extends TransformerAbstract implements LocaleAwareTransformer
+abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
 {
-    private $localeCode;
-
-    /**
-     * Set the Locale
-     *
-     * @param string $localeCode
-     */
-    public function setLocale(string $localeCode)
-    {
-        $this->localeCode = $localeCode;
-    }
 
     /**
      * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
@@ -98,42 +84,5 @@ abstract class AbstractVehicleTransformer extends TransformerAbstract implements
     protected function getSizeTranslations(Vehicle $vehicle)
     {
         return $this->getTranslation($vehicle->size);
-    }
-
-    /**
-     * If a valid locale code is set this function will return the corresponding translation or use english as a fallback
-     * @Todo Generate Array with translations that used the english fallback
-     *
-     * @param \App\Models\Api\Translation\AbstractHasTranslations $model
-     *
-     * @return array|string the Translation
-     */
-    private function getTranslation(HasTranslations $model)
-    {
-        app('Log')::debug(
-            "Relation translations for Model ".get_class($model)." is loaded: {$model->relationLoaded('translations')}"
-        );
-
-        $translations = [];
-
-        $model->translations->each(
-            function ($translation) use (&$translations) {
-                if (null !== $this->localeCode) {
-                    if ($translation->locale_code === $this->localeCode ||
-                        (empty($translations) && $translation->locale_code === config('language.english'))) {
-                        $translations = $translation->translation;
-                    } else {
-                        // Translation already found, exit loop
-                        return false;
-                    }
-
-                    return $translation;
-                } else {
-                    $translations[$translation->locale_code] = $translation->translation;
-                }
-            }
-        );
-
-        return $translations;
     }
 }

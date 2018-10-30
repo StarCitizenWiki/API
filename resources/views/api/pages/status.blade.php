@@ -1,20 +1,17 @@
 @extends('api.layouts.default')
 
 {{-- Page Title --}}
-@section('title', __('Status'))
+@section('title', 'Api'.' '.__('Status'))
 
 {{-- Page Content --}}
 @section('content')
     <div class="card status">
-        <h4 class="card-header">@lang('Status')</h4>
+        <h4 class="card-header">Api @lang('Status')</h4>
         <div class="card-body">
             @forelse($notifications as $notification)
                 <div class="card @if($notification->expired()) text-muted @else bg-{{ $notification->getBootstrapClass() }}@endif mb-4">
                     <h4 class="card-header @if($notification->expired()) text-muted @else text-light @endif">
                         @component('components.elements.icon', ['class' => 'mr-2'])
-                            @slot('options')
-                                data-fa-transform="up-2"
-                            @endslot
                             {{ $notification->getIcon() }}
                         @endcomponent
                         @lang($notification->getLevelAsText())
@@ -28,9 +25,6 @@
                 <div class="card bg-success mb-4">
                     <h4 class="card-header text-light">
                         @component('components.elements.icon', ['class' => 'mr-2'])
-                            @slot('options')
-                                data-fa-transform="up-2"
-                            @endslot
                             check-circle
                         @endcomponent
                         @lang('Keine Probleme gemeldet')

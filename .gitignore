@@ -12,3 +12,4 @@ composer.phar
 /_ide_helper.php
 /.phpstorm.meta.php
 /.phpunit.result.cache
+/packages

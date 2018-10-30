@@ -3,7 +3,7 @@
 namespace App\Models\Api\StarCitizen\Manufacturer;
 
 use App\Events\ModelUpdating;
-use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 
@@ -17,6 +17,9 @@ class Manufacturer extends HasTranslations
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
+
     ];
 
     protected $fillable = [
@@ -27,6 +30,11 @@ class Manufacturer extends HasTranslations
 
     protected $with = [
         'translations',
+    ];
+
+    protected $withCount = [
+        'ships',
+        'vehicles',
     ];
 
     protected $perPage = 10;
@@ -40,12 +48,10 @@ class Manufacturer extends HasTranslations
     }
 
     /**
-     * Key by which the api searches
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    public function getRouteKey()
+    public function getRouteKeyName()
     {
-        return urlencode($this->name_short);
+        return 'name_short';
     }
 }

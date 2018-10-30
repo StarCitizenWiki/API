@@ -43,15 +43,8 @@
 {{-- Main Content --}}
 @section('topNav--class', 'bg-blue-grey')
 
-@section('topNav__title', 'Star Citizen Wiki Api')
-@section('topNav__title--class', 'd-md-none')
-
 @section('topNav__content')
     @include('api.menu.login_logout')
-
-    <div class="nav d-flex d-md-none flex-row flex-lg-column">
-        @include('api.menu.main')
-    </div>
 @endsection
 
 

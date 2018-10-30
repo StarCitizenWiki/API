@@ -1,0 +1,6 @@
+INSERT INTO vehicle_size_translations (locale_code, size_id, translation, created_at, updated_at) VALUES ('de_DE', 2, 'Klein', '2018-07-26 21:16:59', '2018-07-26 21:17:15');
+INSERT INTO vehicle_size_translations (locale_code, size_id, translation, created_at, updated_at) VALUES ('de_DE', 3, 'Groß', '2018-07-26 21:17:23', '2018-07-26 21:17:23');
+INSERT INTO vehicle_size_translations (locale_code, size_id, translation, created_at, updated_at) VALUES ('de_DE', 4, 'Mittel', '2018-07-26 21:17:46', '2018-07-26 21:17:46');
+INSERT INTO vehicle_size_translations (locale_code, size_id, translation, created_at, updated_at) VALUES ('de_DE', 5, 'Kapitalklasse', '2018-07-26 22:13:33', '2018-07-26 23:41:05');
+INSERT INTO vehicle_size_translations (locale_code, size_id, translation, created_at, updated_at) VALUES ('de_DE', 6, 'Beiboot', '2018-07-26 22:33:59', '2018-07-26 23:44:56');
+INSERT INTO vehicle_size_translations (locale_code, size_id, translation, created_at, updated_at) VALUES ('de_DE', 7, 'Fahrzeug', '2018-07-26 22:14:18', '2018-07-27 16:41:44');

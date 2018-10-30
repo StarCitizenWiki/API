@@ -1,0 +1,5 @@
+INSERT INTO production_status_translations (locale_code, production_status_id, translation, created_at, updated_at) VALUES ('de_DE', 2, 'Flugbereit', '2018-07-26 23:28:04', '2018-07-26 23:30:36');
+INSERT INTO production_status_translations (locale_code, production_status_id, translation, created_at, updated_at) VALUES ('de_DE', 3, 'Angekündigt', '2018-07-26 23:28:16', '2018-07-26 23:30:40');
+INSERT INTO production_status_translations (locale_code, production_status_id, translation, created_at, updated_at) VALUES ('de_DE', 4, 'Bereit', '2018-07-26 23:29:48', '2018-07-26 23:30:44');
+INSERT INTO production_status_translations (locale_code, production_status_id, translation, created_at, updated_at) VALUES ('de_DE', 5, 'Im Konzept', '2018-07-26 23:29:56', '2018-07-26 23:30:49');
+INSERT INTO production_status_translations (locale_code, production_status_id, translation, created_at, updated_at) VALUES ('de_DE', 6, 'In Produktion', '2018-07-26 23:30:02', '2018-07-26 23:30:54');

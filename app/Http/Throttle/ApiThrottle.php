@@ -25,7 +25,7 @@ class ApiThrottle extends Throttle
      */
     public function match(Container $container)
     {
-        if (app(Auth::class)->check(true) && app(Auth::class)->user()->isUnthrottled()) {
+        if (app(Auth::class)->check(true) && app(Auth::class)->user()->settings->isUnthrottled()) {
             return false;
         }
 
@@ -38,8 +38,7 @@ class ApiThrottle extends Throttle
     public function getExpires()
     {
         if (app(Auth::class)->check(true)) {
-            // TODO default Period 1 Minute?
-            return 1;
+            return config('api.throttle.period_authenticated');
         }
 
         return parent::getExpires();
@@ -51,7 +50,7 @@ class ApiThrottle extends Throttle
     public function getLimit()
     {
         if (app(Auth::class)->check(true)) {
-            return app(Auth::class)->user()->requests_per_minute;
+            return config('api.throttle.limit_authenticated');
         }
 
         return parent::getLimit();

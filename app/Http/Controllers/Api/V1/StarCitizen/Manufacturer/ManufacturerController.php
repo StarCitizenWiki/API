@@ -15,18 +15,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 /**
- * Manufacturer API Controller
+ * Hersteller API
  */
 class ManufacturerController extends ApiController
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected const VALID_RELATIONS = [
-        'ships',
-        'groundVehicles',
-    ];
-
     /**
      * ManufacturerController constructor.
      *
@@ -40,8 +32,7 @@ class ManufacturerController extends ApiController
     }
 
     /**
-     * All Manufacturers
-     * TODO Blueprint Documentation
+     * Alle Hersteller
      *
      * @return \Dingo\Api\Http\Response
      */
@@ -51,8 +42,7 @@ class ManufacturerController extends ApiController
     }
 
     /**
-     * A Single Manufacturer
-     * TODO Blueprint Documentation
+     * Einzelner Hersteller
      *
      * @param string $manufacturer
      *
@@ -63,7 +53,10 @@ class ManufacturerController extends ApiController
         $manufacturer = urldecode($manufacturer);
 
         try {
-            $manufacturer = Manufacturer::where('name_short', $manufacturer)->orWhere('name', $manufacturer)->firstOrFail();
+            $manufacturer = Manufacturer::where('name_short', $manufacturer)->orWhere(
+                'name',
+                $manufacturer
+            )->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $manufacturer));
         }

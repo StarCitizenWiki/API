@@ -6,8 +6,8 @@
 
 namespace App\Jobs\StarCitizen\Starmap;
 
-use App\Jobs\AbstractBaseDownloadData;
-use App\Models\Api\StarCitizen\Starmap\Jumppoint;
+use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
+use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class DownloadJumppointTunnel
  */
-class DownloadJumppointTunnel extends AbstractBaseDownloadData implements ShouldQueue
+class DownloadJumppointTunnel extends BaseDownloadData implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -65,10 +65,12 @@ class DownloadJumppointTunnel extends AbstractBaseDownloadData implements Should
      * @param string $uri
      *
      * @return array
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function getJsonArrayFromStarmap(string $uri): array
     {
-        $response = $this->client->request('POST', config('api.rsi_url').'/starmap/'.$uri);
+        $response = self::$client->request('POST', config('api.rsi_url').'/starmap/'.$uri);
 
         return json_decode($response->getBody()->getContents(), true);
     }

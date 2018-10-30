@@ -11,6 +11,7 @@ import { library, dom } from '@fortawesome/fontawesome-svg-core'
 
 import {
   faBook,
+  faBooks,
   faBuilding,
   faBullhorn,
   faCar,
@@ -21,16 +22,21 @@ import {
   faCloud,
   faCogs,
   faComment,
+  faCommentAlt,
   faCrosshairs,
   faDesktop,
   faDotCircle,
   faEnvelope,
+  faExclamation,
+  faExclamationTriangle,
   faExpandAlt,
   faExternalLink,
+  faEye,
   faGlobe,
   faHome,
   faIdCard,
   faImage,
+  faInfo,
   faIndustry,
   faMinus,
   faPencil,
@@ -42,13 +48,14 @@ import {
   faSignOut,
   faStickyNote,
   faStopCircle,
+  faTag,
   faTable,
   faTachometer,
   faTrashAlt,
   faUser,
   faUserCircle,
   faUserPlus,
-  faUsers,
+  faUsers
 } from '@fortawesome/pro-light-svg-icons'
 
 import {
@@ -59,6 +66,7 @@ import {
 
 library.add(
   faBook,
+  faBooks,
   faBuilding,
   faBullhorn,
   faCar,
@@ -69,16 +77,21 @@ library.add(
   faCloud,
   faCogs,
   faComment,
+  faCommentAlt,
   faCrosshairs,
   faDesktop,
   faDotCircle,
   faEnvelope,
+  faExclamation,
+  faExclamationTriangle,
   faExpandAlt,
   faExternalLink,
+  faEye,
   faGlobe,
   faHome,
   faIdCard,
   faImage,
+  faInfo,
   faIndustry,
   faMinus,
   faPencil,
@@ -90,6 +103,7 @@ library.add(
   faSignOut,
   faStickyNote,
   faStopCircle,
+  faTag,
   faTable,
   faTachometer,
   faTrashAlt,
@@ -106,3 +120,4 @@ library.add(
 )
 
 dom.watch()
+

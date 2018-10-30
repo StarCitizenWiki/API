@@ -16,16 +16,16 @@ use Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle\VehicleControllerTestCas
  * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
  * @covers \App\Models\Api\StarCitizen\ProductionNote\ProductionNote<extended>
  * @covers \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Type\VehicleType<extended>
+ * @covers \App\Models\Api\StarCitizen\Vehicle\Focus\Focus<extended>
+ * @covers \App\Models\Api\StarCitizen\Vehicle\Size\Size<extended>
+ * @covers \App\Models\Api\StarCitizen\Vehicle\Type\Type<extended>
  */
 class ShipControllerTest extends VehicleControllerTestCase
 {
     /**
      * {@inheritdoc}
      */
-    protected const BASE_API_ENDPOINT = '/api/vehicles/ships';
+    protected const BASE_API_ENDPOINT = '/api/ships';
 
     /**
      * {@inheritdoc}

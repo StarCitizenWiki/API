@@ -170,7 +170,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
 
         $response = $this->get(
             sprintf(
-                '%s/%s?with=%s',
+                '%s/%s?include=%s',
                 static::BASE_API_ENDPOINT,
                 $name,
                 'ships'
@@ -184,7 +184,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     'meta' => [],
                 ]
             )
-            ->assertJsonCount($manufacturer->ships()->count(), 'data.ships')
+            ->assertJsonCount($manufacturer->ships()->count(), 'data.ships.data')
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
@@ -204,16 +204,16 @@ class ManufacturerControllerTest extends StarCitizenTestCase
             factory(Vehicle::class, 5)->state('ship')->make()
         );
 
-        $manufacturer->groundVehicles()->saveMany(
+        $manufacturer->vehicles()->saveMany(
             factory(Vehicle::class, 5)->state('ground_vehicle')->make()
         );
 
         $response = $this->get(
             sprintf(
-                '%s/%s?with=%s',
+                '%s/%s?include=%s',
                 static::BASE_API_ENDPOINT,
                 urlencode($name),
-                'ships,ground_vehicles'
+                'ships,vehicles'
             )
         );
 
@@ -224,8 +224,8 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     'meta' => [],
                 ]
             )
-            ->assertJsonCount($manufacturer->ships()->count(), 'data.ships')
-            ->assertJsonCount($manufacturer->groundVehicles()->count(), 'data.ground_vehicles')
+            ->assertJsonCount($manufacturer->ships()->count(), 'data.ships.data')
+            ->assertJsonCount($manufacturer->vehicles()->count(), 'data.vehicles.data')
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
@@ -238,7 +238,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     {
         $response = $this->get(
             sprintf(
-                '%s?with=%s',
+                '%s?include=%s',
                 static::BASE_API_ENDPOINT,
                 'invalid'
             )
@@ -252,7 +252,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     ],
                     'meta' => [
                         'errors' => [
-                            'with',
+                            'include',
                         ],
                     ],
                 ]

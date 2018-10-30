@@ -30,7 +30,6 @@ class StarCitizenTestCase extends ApiTestCase
                 '%s/%s',
                 static::BASE_API_ENDPOINT,
                 urlencode($name)
-
             )
         );
 

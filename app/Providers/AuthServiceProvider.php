@@ -2,8 +2,19 @@
 
 namespace App\Providers;
 
-use App\Models\Account\Admin\Admin;
-use App\Models\Account\Admin\AdminGroup;
+use App\Models\Account\User\User;
+use App\Models\Account\User\UserGroup;
+use App\Policies\Web\User\Account\AccountPolicy;
+use App\Policies\Web\User\Changelog\ChangelogPolicy;
+use App\Policies\Web\User\DashboardPolicy;
+use App\Policies\Web\User\Job\JobPolicy;
+use App\Policies\Web\User\Notification\NotificationPolicy;
+use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
+use App\Policies\Web\User\Rsi\CommLink\Image\ImagePolicy;
+use App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy;
+use App\Policies\Web\User\StarCitizen\Vehicle\VehiclePolicy;
+use App\Policies\Web\User\TranslationPolicy;
+use App\Policies\Web\User\User\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -31,23 +42,43 @@ class AuthServiceProvider extends ServiceProvider
         /**
          * Admin Gates
          */
-        Gate::define('web.admin.dashboard.view', 'App\Policies\Web\Admin\AdminPolicy@viewDashboard');
+        Gate::resource('web.user.dashboard', DashboardPolicy::class);
+        Gate::resource('web.user.account', AccountPolicy::class);
+        Gate::resource('web.user.translations', TranslationPolicy::class);
+        Gate::resource('web.user.changelogs', ChangelogPolicy::class);
+        Gate::resource('web.user.jobs', JobPolicy::class, [
+            'start_translation' => 'startCommLinkTranslationJob',
+            'start_wiki_page_creation' => 'startCommLinkWikiPageCreationJob',
+            'start_image_download' => 'startCommLinkImageDownloadJob',
+            'start_download' => 'startCommLinkDownloadJob',
+            'start_proofread_update' => 'startCommLinkProofReadStatusUpdateJob',
+        ]);
 
         /**
          * Internals = Datenbank IDs, etc.
          */
-        Gate::define('web.admin.internals.view', function (Admin $admin) {
-            return $admin->getHighestPermissionLevel() >= AdminGroup::SYSOP;
-        });
+        Gate::define(
+            'web.user.internals.view',
+            function (User $admin) {
+                return $admin->getHighestPermissionLevel() >= UserGroup::SYSOP;
+            }
+        );
 
-        Gate::resource('web.admin.notifications', 'App\Policies\Web\Admin\Notification\NotificationPolicy');
-        Gate::resource('web.admin.users', 'App\Policies\Web\Admin\User\UserPolicy');
+        Gate::resource('web.user.notifications', NotificationPolicy::class);
+        Gate::resource('web.user.users', UserPolicy::class);
 
         /**
          * Star Citizen
          */
-        Gate::resource('web.admin.starcitizen.translations', 'App\Policies\Web\Admin\StarCitizen\TranslationPolicy');
-        Gate::resource('web.admin.starcitizen.manufacturers', 'App\Policies\Web\Admin\StarCitizen\Manufacturer\ManufacturerPolicy');
-        Gate::resource('web.admin.starcitizen.vehicles', 'App\Policies\Web\Admin\StarCitizen\Vehicle\VehiclePolicy');
+        Gate::resource('web.user.starcitizen.manufacturers', ManufacturerPolicy::class);
+        Gate::resource('web.user.starcitizen.vehicles', VehiclePolicy::class);
+
+        /**
+         * RSI
+         */
+        Gate::resource('web.user.rsi.comm-links', CommLinkPolicy::class);
+        Gate::define('web.user.rsi.comm-links.preview', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@preview');
+
+        Gate::resource('web.user.rsi.comm-links.images', ImagePolicy::class);
     }
 }

@@ -15,12 +15,10 @@ use App\Traits\HasModelChangelogTrait as ModelChangelog;
  */
 class Notification extends Model
 {
-    use SoftDeletes;
     use ObfuscatedRouteKey;
     use ModelChangelog;
 
     public const NOTIFICATION_LEVEL_TYPES = [
-        -1 => 'no notifications',
         0 => 'info',
         1 => 'warning',
         2 => 'error',
@@ -54,6 +52,8 @@ class Notification extends Model
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
     ];
 
     /**

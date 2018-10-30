@@ -6,16 +6,19 @@ use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
-use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
-use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
+use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\Api\StarCitizen\Vehicle\Size\Size;
+use App\Models\Api\StarCitizen\Vehicle\Type\Type;
+use App\Models\Rsi\CommLink\Category\Category;
+use App\Models\Rsi\CommLink\Channel\Channel;
+use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Series\Series;
 use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Vinkla\Hashids\Facades\Hashids;
 
 /**
@@ -112,11 +115,6 @@ class RouteServiceProvider extends ServiceProvider
                                     ->namespace('Api')
                                     ->group(base_path('routes/web/api.php'));
 
-                                Route::name('admin.')
-                                    ->namespace('Admin')
-                                    ->prefix('admin')
-                                    ->group(base_path('routes/web/admin.php'));
-
                                 Route::name('user.')
                                     ->namespace('User')
                                     ->group(base_path('routes/web/user.php'));
@@ -137,10 +135,10 @@ class RouteServiceProvider extends ServiceProvider
             function ($id) {
                 // TODO unschöne Lösung. Implicit Model Binding läuft vor Policies -> Geblockter User bekommt für nicht existierendes Model 404 Fehler statt 403
                 // Mögliche Lösung: Model Typehint aus Controller entfernen und Model explizit aus DB holen
-                Gate::authorize('web.admin.users.view', Auth::guard('admin')->user());
+                Gate::authorize('web.user.users.view', Auth::user());
                 $id = $this->decodeId($id, User::class);
 
-                return User::withTrashed()->findOrFail($id);
+                return User::findOrFail($id);
             }
         );
         Route::bind(
@@ -163,53 +161,6 @@ class RouteServiceProvider extends ServiceProvider
                 $id = $this->decodeId($id, ProductionNote::class);
 
                 return ProductionNote::findOrFail($id);
-            }
-        );
-
-        Route::bind(
-            'production_status',
-            function ($id) {
-                $this->authorizeTranslationView();
-
-                $id = $this->decodeId($id, ProductionStatus::class);
-
-                return ProductionStatus::findOrFail($id);
-            }
-        );
-
-        /**
-         * Vehicles
-         */
-        Route::bind(
-            'focus',
-            function ($id) {
-                $this->authorizeTranslationView();
-
-                $id = $this->decodeId($id, VehicleFocus::class);
-
-                return VehicleFocus::findOrFail($id);
-            }
-        );
-
-        Route::bind(
-            'size',
-            function ($id) {
-                $this->authorizeTranslationView();
-
-                $id = $this->decodeId($id, VehicleSize::class);
-
-                return VehicleSize::findOrFail($id);
-            }
-        );
-
-        Route::bind(
-            'type',
-            function ($id) {
-                $this->authorizeTranslationView();
-
-                $id = $this->decodeId($id, VehicleType::class);
-
-                return VehicleType::findOrFail($id);
             }
         );
     }
@@ -243,6 +194,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     private function authorizeTranslationView()
     {
-        Gate::authorize('web.admin.starcitizen.translations.view', Auth::guard('admin')->user());
+        Gate::authorize('web.user.translations.view', Auth::user());
     }
 }

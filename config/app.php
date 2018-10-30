@@ -2,9 +2,7 @@
 
 return [
 
-    'version' => '0.0.1',
-
-    'registration_enabled' => env('REGISTRATION_ENABLED', false),
+    'version' => '0.0.2',
 
     /*
     |--------------------------------------------------------------------------
@@ -153,7 +151,7 @@ return [
         /*
          * Package Service Providers...
          */
-        //
+        SocialiteProviders\Manager\ServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -163,9 +161,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        App\Providers\Web\Admin\AuthServiceProvider::class,
-
-        Jackiedo\LogReader\LogReaderServiceProvider::class,
+        App\Providers\Web\User\AuthRepositoryServiceProvider::class,
     ],
 
     /*
@@ -199,7 +195,6 @@ return [
         'Hashids' => Vinkla\Hashids\Facades\Hashids::class,
         'Lang' => Illuminate\Support\Facades\Lang::class,
         'Log' => Illuminate\Support\Facades\Log::class,
-        'LogReader' => Jackiedo\LogReader\Facades\LogReader::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
         'Password' => Illuminate\Support\Facades\Password::class,

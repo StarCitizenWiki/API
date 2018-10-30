@@ -2,76 +2,136 @@
 
 namespace App\Models\Account\User;
 
-use App\Events\ModelUpdating;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\System\ModelChangelog;
+use App\Models\System\Session;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscateRouteKey;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /**
- * Class User
+ * Class Admin
  */
 class User extends Authenticatable
 {
     use Notifiable;
-    use SoftDeletes;
-    use CanResetPassword;
-    use ModelChangelog;
-    use ObfuscatedRouteKey;
+    use ObfuscateRouteKey;
 
-    const STATE_DEFAULT = 0;
-    const STATE_UNTHROTTLED = 1;
-    const STATE_BLOCKED = 2;
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-    ];
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'name',
+        'username',
         'email',
+        'blocked',
+        'provider',
+        'provider_id',
         'api_token',
-        'password',
-        'requests_per_minute',
-        'last_login',
-        'notes',
-        'api_token_last_used',
-        'receive_notification_level',
-        'state',
     ];
+
+    protected $with = [
+        'groups',
+        'settings',
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
      * @var array
      */
     protected $hidden = [
-        'password',
+        'remember_token',
+    ];
+
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'last_login',
+    ];
+
+    protected $casts = [
+        'blocked' => 'bool',
     ];
 
     /**
-     * Checks if the whitelisted flag is set to true
-     *
-     * @return bool
+     * @return int Highest Permission Level
      */
-    public function isUnthrottled(): bool
+    public function getHighestPermissionLevel(): int
     {
-        return (int) $this->state === static::STATE_UNTHROTTLED;
+        return $this->groups->first()->permission_level;
     }
 
     /**
-     * Checks if the blacklisted flag is set to true
-     *
      * @return bool
      */
-    public function isBlocked(): bool
+    public function isAdmin(): bool
     {
-        return (int) $this->state === static::STATE_BLOCKED;
+        return $this->getHighestPermissionLevel() >= UserGroup::SYSOP;
+    }
+
+    /**
+     * Associated Changelogs
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function changelogs()
+    {
+        return $this->hasMany(ModelChangelog::class);
+    }
+
+    /**
+     * Function that generates a Link to the Wiki User
+     *
+     * @return string
+     */
+    public function userNameWikiLink()
+    {
+        return sprintf('%s/Benutzer:%s', config('api.wiki_url'), $this->username);
+    }
+
+    /**
+     * Returns only Users with 'bureaucrat' or 'sysop' group
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function adminGroup()
+    {
+        return $this->groups()->admin();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function groups()
+    {
+        return $this->belongsToMany(UserGroup::class)->orderByDesc('permission_level');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function settings()
+    {
+        return $this->hasOne(UserSetting::class)->withDefault();
+    }
+
+    /**
+     * @return bool
+     */
+    public function receiveApiNotifications()
+    {
+        return $this->settings->receive_api_notifications ?? false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function receiveCommLinkNotifications()
+    {
+        return $this->settings->receive_comm_link_notifications ?? false;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function sessions()
+    {
+        return $this->hasMany(Session::class, 'user_id', 'id');
     }
 }

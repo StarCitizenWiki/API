@@ -16,7 +16,7 @@
     </div>
 
     <div class="card">
-        <img src="https://cdn.star-citizen.wiki/images/thumb/4/4f/BANU_Merchantman_auf_Landeplattform_Mya_Markt.jpg/800px-BANU_Merchantman_auf_Landeplattform_Mya_Markt.jpg" class="card-img-top">
+        <img src="{{ asset('media/images/api_index.jpg') }}" class="card-img-top">
         <div class="card-body">
             <h4 class="card-title">@lang('Das Projekt')</h4>
             <div class="card-text">
@@ -29,14 +29,11 @@
                     @lang('Wir suchen immer engagierte Leute für unser Projekt.')
                 </p>
                 <p>
-                    <a href="mailto:info@star-citizen.wiki" class="text-italic">@lang('Schreib')</a>
+                    <a href="mailto:info@star-citizen.wiki" class="font-italic">@lang('Schreib')</a>
                     @lang('uns, oder besuch uns auf unserem')
-                    <a href="ts3server://ts.star-citizen.wiki" class="text-italic">Teamspeak-Server</a>!
+                    <a href="ts3server://ts.star-citizen.wiki" class="font-italic">Teamspeak-Server</a>!
                 </p>
             </div>
-            @if (Auth::guest() && config('app.registration_enabled'))
-                <a href="{{ route('web.user.auth.register_form') }}" class="mt-4 btn btn-outline-primary">@lang('Registrieren')</a>
-            @endif
         </div>
     </div>
 @endsection

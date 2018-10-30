@@ -2,7 +2,7 @@
 
 namespace App\Models\Api\StarCitizen\Manufacturer;
 
-use App\Models\Api\Translation\AbstractTranslation as Translation;
+use App\Models\System\Translation\AbstractTranslation as Translation;
 
 /**
  * Manufacturer Translations
@@ -22,15 +22,5 @@ class ManufacturerTranslation extends Translation
     public function manufacturer()
     {
         return $this->belongsTo(Manufacturer::class);
-    }
-
-    /**
-     * Associate Translations with Parent Model
-     *
-     * @return string
-     */
-    public function getMorphClass()
-    {
-        return Manufacturer::class;
     }
 }

@@ -6,4 +6,5 @@ return [
     'updated' => ':Type aktualisiert',
     'deleted' => ':Type gelöscht',
     'not_found' => ':Type nicht gefunden',
+    'blocked' => ':Type blockiert',
 ];

@@ -54,14 +54,24 @@ return [
             'visibility' => 'public',
         ],
 
+        'comm_links' => [
+            'driver' => 'local',
+            'root' => storage_path('app/comm_links'),
+        ],
+
+        'comm_link_images' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/comm_link_images'),
+        ],
+
         'api' => [
             'driver' => 'local',
             'root' => storage_path('app/api'),
         ],
 
-        'starmap' => [
+        'starsystem' => [
             'driver' => 'local',
-            'root' => storage_path('app/api/starmap'),
+            'root' => storage_path('app/api/starsystem'),
         ],
 
         'vehicles' => [

@@ -6,10 +6,10 @@ use App\Events\ModelUpdating;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\VehicleFocus;
-use App\Models\Api\StarCitizen\Vehicle\Size\VehicleSize;
-use App\Models\Api\StarCitizen\Vehicle\Type\VehicleType;
-use App\Models\Api\Translation\AbstractHasTranslations as HasTranslations;
+use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\Api\StarCitizen\Vehicle\Size\Size;
+use App\Models\Api\StarCitizen\Vehicle\Type\Type;
+use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
@@ -22,11 +22,12 @@ class Vehicle extends HasTranslations
     protected $fillable = [
         'cig_id',
         'name',
+        'slug',
         'manufacturer_id',
         'production_status_id',
         'production_note_id',
-        'vehicle_size_id',
-        'vehicle_type_id',
+        'size_id',
+        'type_id',
         'length',
         'beam',
         'height',
@@ -64,6 +65,8 @@ class Vehicle extends HasTranslations
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
     ];
 
     /**
@@ -81,7 +84,7 @@ class Vehicle extends HasTranslations
      */
     public function foci()
     {
-        return $this->belongsToMany(VehicleFocus::class, 'vehicle_vehicle_focus');
+        return $this->belongsToMany(Focus::class, 'vehicle_vehicle_focus');
     }
 
     /**
@@ -121,7 +124,7 @@ class Vehicle extends HasTranslations
      */
     public function type()
     {
-        return $this->belongsTo(VehicleType::class, 'vehicle_type_id');
+        return $this->belongsTo(Type::class);
     }
 
     /**
@@ -131,7 +134,27 @@ class Vehicle extends HasTranslations
      */
     public function size()
     {
-        return $this->belongsTo(VehicleSize::class, 'vehicle_size_id');
+        return $this->belongsTo(Size::class);
+    }
+
+    /**
+     * Ships
+     *
+     * @return mixed
+     */
+    public function ships()
+    {
+        return $this->type()->ship();
+    }
+
+    /**
+     * Ground Vehicles
+     *
+     * @return mixed
+     */
+    public function groundVehicles()
+    {
+        return $this->type()->groundVehicle();
     }
 
     /**
@@ -155,12 +178,10 @@ class Vehicle extends HasTranslations
     }
 
     /**
-     * Key by which the api searches
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    public function getRouteKey()
+    public function getRouteKeyName()
     {
-        return urlencode($this->name);
+        return 'slug';
     }
 }

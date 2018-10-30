@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->seedSystemTables();
         $this->seedAccountTables();
         $this->seedApiTables();
+        $this->seedRsiTables();
     }
 
     /**
@@ -32,8 +33,7 @@ class DatabaseSeeder extends Seeder
      */
     private function seedAccountTables()
     {
-        $this->call(AdminGroupTableSeeder::class);
-        $this->call(UserTableSeeder::class);
+        $this->call(UserGroupTableSeeder::class);
     }
 
     /**
@@ -49,10 +49,21 @@ class DatabaseSeeder extends Seeder
         $this->call(ProductionNoteTableSeeder::class);
 
         /** Vehicles */
-        $this->call(VehicleSizeTableSeeder::class);
+        $this->call(SizeTableSeeder::class);
+        $this->call(TypeTableSeeder::class);
 
         if (App::environment() === 'local') {
             $this->call(NotificationTableSeeder::class);
         }
+    }
+
+    /**
+     * Comm Links
+     */
+    private function seedRsiTables()
+    {
+        $this->call(CategoryTableSeeder::class);
+        $this->call(ChannelTableSeeder::class);
+        $this->call(SeriesTableSeeder::class);
     }
 }

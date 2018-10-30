@@ -1,18 +1,23 @@
 @extends('errors.layouts.default')
 
-@section('title', 'Server Error.')
+@section('title', '500 - Server Error.')
+
+@section('top', 500)
 
 @section('content')
-    😰 @lang('This should not have happened.')
+    @lang('This should not have happened')
+@endsection
+
+@section('style')
+    body {
+        background: url('{{ asset('media/images/errors/500.jpg') }}');
+    }
 @endsection
 
 @section('debug')
-    @if(config('app.debug') === true)
-        <pre style="margin: 1rem 0; text-align: left">
-Message: {{ $exception->getMessage() }}
-            <br>
+@if(isset($exception))
+Message: {{ $exception->getMessage() }}<br>
 Stack: <br>
 {!! $exception->getTraceAsString() !!}
-        </pre>
-    @endif
+@endif
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Models\System;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -11,4 +12,14 @@ class Language extends Model
 {
     protected $primaryKey = 'locale_code';
     public $incrementing = false;
+
+    public function scopeGerman(Builder $query)
+    {
+        return $query->where('local_code', 'de_DE');
+    }
+
+    public function scopeEnglish(Builder $query)
+    {
+        return $query->where('local_code', 'en_EN');
+    }
 }

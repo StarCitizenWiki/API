@@ -9,16 +9,22 @@
     "type": "project",
     "require": {
         "php": ">=7.2",
+        "ext-dom": "*",
         "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-intl": "*",
         "dingo/api": "2.0.0-alpha2",
+        "fabpot/goutte": "^3.2",
         "fideloper/proxy": "~4.0",
         "guzzlehttp/guzzle": "^6.3",
-        "jackiedo/log-reader": "2.*",
-        "laravel/framework": "5.6.*",
+        "laravel/framework": "5.7.*",
         "laravel/socialite": "^3.0",
+        "mediawiki/oauthclient": "^0.1.2",
         "piwik/piwik-php-tracker": "^1.2",
         "socialiteproviders/manager": "^3.3",
-        "starcitizenwiki/socialite-provider": "^1.0",
+        "starcitizenwiki/deeply": "dev-master",
+        "starcitizenwiki/mediawikiapi": "dev-develop",
+        "starcitizenwiki/socialite-provider": "^1.2",
         "vinkla/hashids": "^5.0"
     },
     "require-dev": {
@@ -30,8 +36,8 @@
         "filp/whoops": "~2.0",
         "laravel/tinker": "~1.0",
         "mockery/mockery": "~1.0",
+        "nunomaduro/collision": "^2.0",
         "phpunit/phpunit": "^7.0",
-        "socialiteproviders/generators": "^4.1",
         "squizlabs/php_codesniffer": "2.*",
         "symfony/css-selector": "3.1.*",
         "symfony/dom-crawler": "3.1.*"
@@ -70,9 +76,25 @@
             "@php artisan package:discover"
         ]
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git"
+        },
+        {
+            "type": "vcs",
+            "url":  "https://git.octofox.de/StarCitizenWiki/deeply.git"
+        }
+    ],
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

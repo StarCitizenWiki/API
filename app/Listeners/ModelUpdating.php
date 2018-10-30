@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\ModelUpdating as ModelUpdateEvent;
+use App\Models\System\Translation\AbstractTranslation as Translation;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -10,7 +11,10 @@ use Illuminate\Support\Facades\Auth;
  */
 class ModelUpdating
 {
-    private const ADMIN_GUARD = 'admin';
+    /**
+     * @var \Illuminate\Database\Eloquent\Model
+     */
+    private $model;
 
     /**
      * Handle the event.
@@ -21,30 +25,96 @@ class ModelUpdating
      */
     public function handle(ModelUpdateEvent $event)
     {
-        /** @var \Illuminate\Database\Eloquent\Model $item */
-        $item = $event->model;
-        $changes = [];
-        foreach ($item->getDirty() as $key => $value) {
-            $original = $item->getOriginal($key);
-            $changes[$key] = [
-                'old' => $original,
-                'new' => (string) $value,
-            ];
+        $this->model = $event->model;
+
+        // TODO Hacky
+        $createdAt = now();
+        if ($this->model instanceof Translation) {
+            $createdAt = now()->addSecond();
         }
 
-        if (Auth::guard(self::ADMIN_GUARD)->check()) {
-            $changes['by'] = [
-                'id' => Auth::guard(self::ADMIN_GUARD)->user()->provider_id,
-                'name' => Auth::guard(self::ADMIN_GUARD)->user()->username,
-            ];
-        }
-
-        $item->changelogs()->create(
+        $this->model->changelogs()->create(
             [
-                'changelog' => json_encode($changes),
+                'type' => $this->getChangelogType(),
+                'changelog' => $this->getChangelogData(),
+                'user_id' => $this->getCreatorId(),
+                'created_at' => $createdAt,
             ]
         );
+    }
 
-        app('Log')::debug('Updated '.($item->getTable()), $changes);
+    /**
+     * Creates the Changelog Array
+     *
+     * @return array
+     */
+    private function getChangelogData(): ?array
+    {
+        $changelog = [];
+
+        $changes = $this->getChanges();
+
+        if (!empty($changes)) {
+            $changelog['changes'] = $this->getChanges();
+        }
+
+        if ($this->model instanceof Translation) {
+            $changelog['extra'] = [
+                'locale' => $this->model->locale_code,
+            ];
+        }
+
+        return empty($changelog) ? null : $changelog;
+    }
+
+    /**
+     * Returns the Changelog Type of this Model
+     *
+     * @return string
+     */
+    private function getChangelogType(): string
+    {
+        if ($this->model->wasRecentlyCreated) {
+            $type = 'creation';
+        } elseif (null !== $this->model->deleted_at) {
+            $type = 'deletion';
+        } else {
+            $type = 'update';
+        }
+
+        return $type;
+    }
+
+    /**
+     * @return array
+     */
+    private function getChanges(): array
+    {
+        $changes = [];
+
+        /** Don't create changes for Model Creations, since all Old values will be null */
+        if (!$this->model->wasRecentlyCreated && null === $this->model->deleted_at) {
+            collect($this->model->getDirty())->each(
+                function ($value, $key) use (&$changes) {
+                    $original = $this->model->getOriginal($key);
+                    $changes[$key] = [
+                        'old' => $original,
+                        'new' => (string) $value,
+                    ];
+                }
+            );
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Changing Admin ID
+     *
+     * @return int
+     */
+    private function getCreatorId(): int
+    {
+        return (int) (Auth::check() ? Auth::id() : 0);
     }
 }

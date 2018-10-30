@@ -26,16 +26,20 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            color: #dee2e6;
+            color: #fff;
             display: table;
             font-size: 1rem;
             font-weight: 400;
             line-height: 1.5;
+            background-attachment: fixed !important;
+            background-size: cover !important;
         }
 
         .container {
             text-align: center;
             margin-top: 6rem;
+            position: relative;
+            z-index: 1;
         }
 
         .content {
@@ -43,68 +47,45 @@
             display: inline-block;
         }
 
-        .card {
-            margin-top: 3rem;
-            border: 1px solid rgba(0, 0, 0, 0.125);
-        }
-
-        .card-body {
-            padding: 1.25rem;
-        }
-
-        .card-header {
-            padding: 0.75rem 2.25rem;
+        h1 {
+            font-size: 5em;
+            text-shadow: 0 0 20px #333;
             margin-bottom: 0;
-            background-color: rgba(0, 0, 0, 0.03);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            letter-spacing: 5px;
         }
 
-        h4 {
-            font-size: 1.5rem;
-            margin-top: 0;
+        h2 {
+            font-size: 3em;
+            text-shadow: 0 0 20px #333;
+            letter-spacing: 5px;
         }
 
-        .btn {
-            cursor: pointer;
-            display: block;
-            font-weight: 400;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.375rem 0.75rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            border-radius: 0;
-            -webkit-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-            text-decoration: none;
+        .debug {
+            margin-top: 5rem;
+            max-width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 1rem;
+            background: #333;
+            margin-bottom: 5rem;
+            text-align: left;
         }
 
-        .btn-secondary {
-            color: #fff;
-            background-color: #6c757d;
-            border-color: #6c757d;
-        }
+        @yield('style')
     </style>
 </head>
 <body>
     <div class="container">
         <div class="content">
-            <img src="/media/images/Star_Citizen_Wiki_Logo_White.png" style="max-width: 120px;">
-            <div class="card">
-                <h4 class="card-header">@yield('content')</h4>
-                <div class="card-body">
-                    @yield('debug')
-                    <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
-                </div>
+            <img src="{{ asset('media/images/Star_Citizen_Wiki_Logo_White.png') }}" style="max-width: 120px;">
+            <h1>@yield('top')</h1>
+            <h2>@yield('content')</h2>
+
+            @if(config('app.debug') === true)
+            <div class="debug">
+                @yield('debug')
             </div>
+            @endif
         </div>
     </div>
 </body>

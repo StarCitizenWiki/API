@@ -9,8 +9,10 @@
 namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\Api\Translation\AbstractHasTranslations;
+use App\Models\System\Translation\AbstractHasTranslations;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -18,6 +20,11 @@ use League\Fractal\TransformerAbstract;
  */
 class ManufacturerTransformer extends TransformerAbstract implements LocaleAwareTransformerInterface
 {
+    protected $availableIncludes = [
+        'ships',
+        'vehicles',
+    ];
+
     private $localeCode;
 
     /**
@@ -39,71 +46,39 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
     {
         $translations = $this->getTranslation($manufacturer);
 
-        $manufacturerTransformed = [
+        return [
             'code' => $manufacturer->name_short,
             'name' => $manufacturer->name,
             'known_for' => $translations['known_for'],
             'description' => $translations['description'],
         ];
-
-        if ($manufacturer->relationLoaded('ships')) {
-            $manufacturerTransformed['ships'] = $this->getShipLinksForManufacturer($manufacturer);
-        }
-
-        if ($manufacturer->relationLoaded('groundVehicles')) {
-            $manufacturerTransformed['ground_vehicles'] = $this->getGroundVehicleLinksForManufacturer($manufacturer);
-        }
-
-        return $manufacturerTransformed;
     }
 
     /**
-     * Links Ships to Api Endpoints
-     *
      * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
      *
-     * @return array
+     * @return \League\Fractal\Resource\Collection
      */
-    private function getShipLinksForManufacturer(Manufacturer $manufacturer): array
+    public function includeShips(Manufacturer $manufacturer)
     {
-        $ships = [];
-
-        foreach ($manufacturer->ships as $ship) {
-            $ships[] = app('api.url')->version('v1')->route(
-                'api.v1.starcitizen.vehicles.ships.show',
-                [$ship->getRouteKey()]
-            );
-        }
-
-        return $ships;
+        return $this->collection($manufacturer->ships, new ShipLinkTransformer());
     }
 
     /**
-     * Links Ground Vehicles to Api Endpoints
-     *
      * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
      *
-     * @return array
+     * @return \League\Fractal\Resource\Collection
      */
-    private function getGroundVehicleLinksForManufacturer(Manufacturer $manufacturer): array
+    public function includeVehicles(Manufacturer $manufacturer)
     {
-        $groundVehicles = [];
-
-        foreach ($manufacturer->groundVehicles as $groundVehicle) {
-            $groundVehicles[] = app('api.url')->version('v1')->route(
-                'api.v1.starcitizen.vehicles.ground_vehicles.show',
-                [$groundVehicle->getRouteKey()]
-            );
-        }
-
-        return $groundVehicles;
+        return $this->collection($manufacturer->vehicles, new GroundVehicleLinkTransformer());
     }
 
     /**
      * If a valid locale code is set this function will return the corresponding translation or use english as a fallback
      * @Todo Generate Array with translations that used the english fallback
      *
-     * @param \App\Models\Api\Translation\AbstractHasTranslations $model
+     * @param \App\Models\System\Translation\AbstractHasTranslations $model
      *
      * @return array|string the Translation
      */
@@ -121,8 +96,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
         $model->translations->each(
             function ($translation) use (&$translations) {
                 if (null !== $this->localeCode) {
-                    if ($translation->locale_code === $this->localeCode ||
-                        (empty($translations['known_for']) && $translation->locale_code === config(
+                    if ($translation->locale_code === $this->localeCode || (empty($translations['known_for']) && $translation->locale_code === config(
                                 'language.english'
                             ))) {
                         $translations = [
@@ -134,15 +108,15 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
                         return false;
                     }
 
+
                     return $translation;
                 } else {
                     $translations['known_for'][$translation->locale_code] = $translation->known_for;
-                    $translations['description'][$translation->locale_code] = $translation->known_for;
+                    $translations['description'][$translation->locale_code] = $translation->description;
                 }
             }
         );
 
         return $translations;
     }
-
 }

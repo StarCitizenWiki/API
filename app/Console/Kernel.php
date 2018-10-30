@@ -2,9 +2,14 @@
 
 namespace App\Console;
 
-use App\Console\Commands\ImportShipMatrix;
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
-use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
+use App\Console\Commands\CommLink\Download\ReDownloadCommLinks;
+use App\Console\Commands\CommLink\Import\ImportMissingCommLinks;
+use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
+use App\Console\Commands\Stat\Import\ImportStats;
+use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
+use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
+use App\Jobs\Rsi\CommLink\Download\Image\DownloadCommLinkImages;
+use App\Jobs\Wiki\CommLink\UpdateCommLinkProofReadStatus;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -19,10 +24,27 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \App\Console\Commands\DownloadShipMatrix::class,
-        \App\Console\Commands\DownloadStats::class,
-        ImportShipMatrix::class,
+        \App\Console\Commands\ShipMatrix\Import\ImportShipMatrix::class,
+
+        \App\Console\Commands\Stat\Import\ImportStats::class,
+
+        \App\Console\Commands\CommLink\Import\ImportCommLinks::class,
+        \App\Console\Commands\CommLink\Import\ImportMissingCommLinks::class,
+
+        \App\Console\Commands\CommLink\Download\DownloadCommLink::class,
+        \App\Console\Commands\CommLink\Download\DownloadCommLinks::class,
+        \App\Console\Commands\CommLink\Download\ReDownloadCommLinks::class,
+        \App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages::class,
+
+        \App\Console\Commands\CommLink\Translate\TranslateCommLinks::class,
+
+        \App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages::class,
     ];
+
+    /**
+     * @var \Illuminate\Console\Scheduling\Schedule
+     */
+    private $schedule;
 
     /**
      * Define the application's command schedule.
@@ -33,13 +55,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new DownloadStats())->dailyAt('20:00');
+        $this->schedule = $schedule;
 
-        $schedule->job(new DownloadShipMatrix())->weekly()->then(
-            function () {
-                $this->call('import:shipmatrix');
-            }
-        );
+        $this->scheduleStatJobs();
+        $this->scheduleShipMatrixJobs();
+        $this->scheduleCommLinkJobs();
     }
 
     /**
@@ -50,5 +70,47 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         require base_path('routes/console.php');
+    }
+
+    /**
+     * Stat related Jobs
+     */
+    private function scheduleStatJobs()
+    {
+        $this->schedule->command(ImportStats::class, ['--download'])->dailyAt('20:00');
+    }
+
+    /**
+     * Comm-Link related Jobs
+     */
+    private function scheduleCommLinkJobs()
+    {
+        /** Check for new Comm-Links */
+        $this->schedule->command(ImportMissingCommLinks::class)->hourly()->after(
+            function () {
+                $this->events->dispatch(new NewCommLinksDownloaded());
+            }
+        );
+
+        /** Re-Download all Comm-Links monthly */
+        $this->schedule->command(ReDownloadCommLinks::class)->monthly()->after(
+            function () {
+                $this->events->dispatch(new CommLinksChangedEvent());
+            }
+        );
+
+        /** Download Comm-Link Images */
+        $this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
+
+        /** Update Proof Read Status */
+        $this->schedule->job(UpdateCommLinkProofReadStatus::class)->daily()->withoutOverlapping();
+    }
+
+    /**
+     * Ship Matrix related Jobs
+     */
+    private function scheduleShipMatrixJobs()
+    {
+        $this->schedule->command(ImportShipMatrix::class, ['--download'])->twiceDaily();
     }
 }

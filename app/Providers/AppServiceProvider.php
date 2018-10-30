@@ -5,10 +5,13 @@ namespace App\Providers;
 use Carbon\Carbon;
 use FilesystemIterator;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 
 /**
  * Class AppServiceProvider
@@ -29,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.debug') && config('app.env') === 'local') {
             DB::listen(
                 function (QueryExecuted $query) {
-                    app('Log')::debug($query->sql);
+                    //app('Log')::debug($query->sql);
                 }
             );
         }
@@ -42,13 +45,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        /**
-         * Star Citizen Api Interfaces
-         */
-        $this->app->bind(
-            \App\Repositories\StarCitizen\Interfaces\StarmapRepositoryInterface::class,
-            \App\Repositories\StarCitizen\Api\v1\Starmap\StarmapRepository::class
-        );
     }
 
     /**
@@ -56,18 +52,18 @@ class AppServiceProvider extends ServiceProvider
      */
     private function loadMigrations()
     {
-        $dirs = [];
         $directoryIterator = new RecursiveDirectoryIterator(database_path('migrations'), FilesystemIterator::SKIP_DOTS);
-        $iteratorIterator = new RecursiveIteratorIterator($directoryIterator, RecursiveIteratorIterator::SELF_FIRST);
+        $migrationDirectories = new RecursiveIteratorIterator(
+            $directoryIterator, RecursiveIteratorIterator::SELF_FIRST
+        );
+        $migrationDirectories = collect($migrationDirectories);
 
-        foreach ($iteratorIterator as $filename) {
-            if ($filename->isDir()) {
-                $dirs[] = $filename;
+        $migrationDirectories->filter(
+            function (SplFileInfo $filename) {
+                return $filename->isDir();
             }
-        }
+        );
 
-        $dirs = array_sort($dirs);
-
-        $this->loadMigrationsFrom($dirs);
+        $this->loadMigrationsFrom($migrationDirectories->toArray());
     }
 }

@@ -7,7 +7,7 @@
 
 namespace App\Traits;
 
-use App\Models\Api\ModelChangelog;
+use App\Models\System\ModelChangelog;
 
 /**
  * Trait HasModelChangelogTrait
@@ -21,6 +21,6 @@ trait HasModelChangelogTrait
      */
     public function changelogs()
     {
-        return $this->morphMany(ModelChangelog::class, 'changelog');
+        return $this->morphMany(ModelChangelog::class, 'changelog')->orderByDesc('created_at');
     }
 }

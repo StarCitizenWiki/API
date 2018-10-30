@@ -9,8 +9,8 @@ $factory->define(
 
         return [
             'cig_id' => $cigId++,
-            'name' => $faker->userName,
-            'name_short' => strtoupper(str_random($faker->numberBetween(1, 10))),
+            'name' => $faker->unique()->userName,
+            'name_short' => $faker->unique()->userName,
         ];
     }
 );

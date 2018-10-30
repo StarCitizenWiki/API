@@ -8,19 +8,15 @@ $factory->define(
         static $id = 1;
 
         return [
-            'id' => $id++,
-            'name' => $faker->userName,
-            'email' => $faker->unique()->safeEmail,
+            'username' => $faker->userName,
+            'email' => $faker->email,
+            'blocked' => false,
+            'provider' => 'starcitizenwiki',
+            'provider_id' => $id++,
+            'last_login' => $faker->dateTime,
             'api_token' => str_random(60),
-            'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
-            'remember_token' => str_random(10),
-            'requests_per_minute' => 60,
-            'state' => \App\Models\Account\User\User::STATE_DEFAULT,
-            'receive_notification_level' => 1,
-            'notes' => '',
-            'last_login' => date('Y-m-d H:i:s'),
-            'created_at' => \Carbon\Carbon::now(),
-            'api_token_last_used' => \Carbon\Carbon::now(),
+            'created_at' => Carbon\Carbon::now(),
+            'updated_at' => Carbon\Carbon::now(),
         ];
     }
 );
@@ -29,22 +25,61 @@ $factory->state(
     \App\Models\Account\User\User::class,
     'blocked',
     [
-        'state' => \App\Models\Account\User\User::STATE_BLOCKED,
+        'blocked' => true,
+    ]
+);
+
+$factory->define(
+    App\Models\Account\User\UserGroup::class,
+    function (Faker $faker) {
+        return [
+            'name' => $faker->userName,
+            'permission_level' => $faker->numberBetween(0, 4),
+        ];
+    }
+);
+
+$factory->state(
+    App\Models\Account\User\UserGroup::class,
+    'bureaucrat',
+    [
+        'name' => 'bureaucrat',
+        'permission_level' => 4,
     ]
 );
 
 $factory->state(
-    \App\Models\Account\User\User::class,
-    'whitelisted',
+    App\Models\Account\User\UserGroup::class,
+    'sysop',
     [
-        'state' => \App\Models\Account\User\User::STATE_UNTHROTTLED,
+        'name' => 'sysop',
+        'permission_level' => 3,
     ]
 );
 
 $factory->state(
-    \App\Models\Account\User\User::class,
-    'deleted',
+    App\Models\Account\User\UserGroup::class,
+    'sichter',
     [
-        'deleted_at' => \Carbon\Carbon::now(),
+        'name' => 'sichter',
+        'permission_level' => 2,
+    ]
+);
+
+$factory->state(
+    App\Models\Account\User\UserGroup::class,
+    'mitarbeiter',
+    [
+        'name' => 'mitarbeiter',
+        'permission_level' => 1,
+    ]
+);
+
+$factory->state(
+    App\Models\Account\User\UserGroup::class,
+    'user',
+    [
+        'name' => 'user',
+        'permission_level' => 0,
     ]
 );
