@@ -148,7 +148,9 @@ class ParseVehicle implements ShouldQueue
                 [
                     'type' => 'update',
                     'user_id' => 0,
-                    'changelog' => json_encode($changes),
+                    'changelog' => [
+                        'changes' => $changes,
+                    ],
                 ]
             );
 
