@@ -26,5 +26,12 @@ class Ship extends Vehicle
                 $builder->has('ships');
             }
         );
+
+        static::addGlobalScope(
+            'size',
+            function (Builder $builder) {
+                $builder->has('ships');
+            }
+        );
     }
 }

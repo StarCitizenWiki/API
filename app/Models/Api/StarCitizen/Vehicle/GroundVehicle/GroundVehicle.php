@@ -26,5 +26,12 @@ class GroundVehicle extends Vehicle
                 $builder->has('groundVehicles');
             }
         );
+
+        static::addGlobalScope(
+            'size',
+            function (Builder $builder) {
+                $builder->orHas('groundVehicles');
+            }
+        );
     }
 }
