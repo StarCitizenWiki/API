@@ -130,7 +130,7 @@ class DashboardController extends Controller
             ],
         ];
 
-        Cache::put(self::DEEPL_STATS_CACHE_KEY, $stats, 1);
+        Cache::put(self::DEEPL_STATS_CACHE_KEY, $stats, 60);
 
         return $stats;
     }

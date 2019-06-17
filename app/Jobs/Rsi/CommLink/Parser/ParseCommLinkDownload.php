@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -48,11 +49,11 @@ class ParseCommLinkDownload implements ShouldQueue
         collect(Storage::disk('comm_links')->directories())->each(
             function ($commLinkDir) use ($commLinks) {
                 if (intval($commLinkDir) >= $this->offset) {
-                    $file = array_last(Storage::disk('comm_links')->files($commLinkDir));
+                    $file = Arr::last(Storage::disk('comm_links')->files($commLinkDir));
 
                     if (null !== $file) {
                         $file = preg_split('/\/|\\\/', $file);
-                        dispatch(new ParseCommLink(intval($commLinkDir), array_last($file), $commLinks->get($commLinkDir, null)));
+                        dispatch(new ParseCommLink(intval($commLinkDir), Arr::last($file), $commLinks->get($commLinkDir, null)));
                     }
                 }
             }
