@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AbstractApiController;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
+use Illuminate\Support\Str;
 
 /**
  * {@inheritdoc}
@@ -160,7 +161,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
      */
     public function testRelationInclude()
     {
-        $name = str_random(6);
+        $name = Str::random(6);
         $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
@@ -195,7 +196,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
      */
     public function testMultipleRelationInclude()
     {
-        $name = str_random(5);
+        $name = Str::random(5);
 
         $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
