@@ -18,11 +18,14 @@
     "datatables.net-bs4": "^1.10.19",
     "jquery": "^3.3.1",
     "jquery-slim": "^3.0.0",
-    "laravel-mix": "^2.1.14",
-    "laravel-mix-purgecss": "^2.2.3",
+    "laravel-mix": "^4.0.16",
+    "laravel-mix-purgecss": "^4.1.0",
     "lodash": "^4.17.11",
     "popper.js": "^1.14.4",
-    "yarn": "^1.9.4"
+    "resolve-url-loader": "^2.3.1",
+    "sass": "^1.21.0",
+    "sass-loader": "^7.1.0",
+    "vue-template-compiler": "^2.6.10"
   },
   "dependencies": {}
 }
