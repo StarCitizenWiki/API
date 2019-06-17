@@ -10,6 +10,7 @@ namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
+use Illuminate\Support\Str;
 use Tests\Feature\Controller\Api\V1\StarCitizen\StarCitizenTestCase;
 
 /**
@@ -161,7 +162,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
         $vehicle = factory(Vehicle::class)->state(static::DEFAULT_VEHICLE_TYPE)->create(
             [
                 'name' => $name,
-                'slug' => str_slug($name),
+                'slug' => Str::slug($name),
             ]
         );
         $vehicle->translations()->save(factory(VehicleTranslation::class)->make());

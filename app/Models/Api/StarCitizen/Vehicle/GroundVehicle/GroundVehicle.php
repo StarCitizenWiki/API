@@ -2,7 +2,6 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle\GroundVehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -20,17 +19,17 @@ class GroundVehicle extends Vehicle
     {
         parent::boot();
 
-        static::addGlobalScope(
-            'type',
-            function (Builder $builder) {
-                $builder->has('groundVehicles');
-            }
-        );
+        /*        static::addGlobalScope(
+                    'type',
+                    function (Builder $builder) {
+                        $builder->has('groundVehicles');
+                    }
+                );*/
 
         static::addGlobalScope(
             'size',
             function (Builder $builder) {
-                $builder->orHas('groundVehicles');
+                $builder->has('groundVehicles');
             }
         );
     }

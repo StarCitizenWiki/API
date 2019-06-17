@@ -38,7 +38,7 @@ $factory->define(
         );
 
         $name = $faker->unique()->userName;
-        $slug = str_slug($name);
+        $slug = \Illuminate\Support\Str::slug($name);
 
         return [
             'cig_id' => $cigId++,
@@ -97,6 +97,8 @@ $factory->state(
         try {
             /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
             $type = \App\Models\Api\StarCitizen\Vehicle\Type\Type::where('slug', 'ground')->firstorFail();
+            /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $size */
+            $size = \App\Models\Api\StarCitizen\Vehicle\Size\Size::where('slug', 'vehicle')->firstorFail();
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
             $type = factory(\App\Models\Api\StarCitizen\Vehicle\Type\Type::class)->create(
@@ -104,11 +106,17 @@ $factory->state(
                     'slug' => 'ground',
                 ]
             );
-            $type->translations()->save(
-                factory(\App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation::class)->make(
+            /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $type */
+            $size = factory(\App\Models\Api\StarCitizen\Vehicle\Size\Size::class)->create(
+                [
+                    'slug' => 'vehicle',
+                ]
+            );
+            $size->translations()->save(
+                factory(\App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation::class)->make(
                     [
                         'locale_code' => 'en_EN',
-                        'translation' => 'ground',
+                        'translation' => 'vehicle',
                     ]
                 )
             );
@@ -116,6 +124,7 @@ $factory->state(
 
         return [
             'type_id' => $type->id,
+            'size_id' => $size->id,
         ];
     }
 );
