@@ -174,7 +174,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      * {@inheritdoc}
      * Creates needed Ships
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         factory(Vehicle::class, 10)->state('ship')->create()->each(

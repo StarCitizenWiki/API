@@ -34,7 +34,7 @@ class UserTestCase extends TestCase
     /**
      * Sets up all needed Admin Groups and creates a Admin Model
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->createUserGroups();

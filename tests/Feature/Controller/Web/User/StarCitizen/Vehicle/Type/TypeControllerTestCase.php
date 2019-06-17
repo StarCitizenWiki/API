@@ -153,7 +153,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
      * {@inheritdoc}
      * Creates needed Vehicle types
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         factory(Type::class, 10)->create()->each(

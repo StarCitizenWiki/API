@@ -153,7 +153,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
      * {@inheritdoc}
      * Creates needed Production Notes
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         factory(ProductionNote::class, 10)->create()->each(

@@ -153,7 +153,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
      * {@inheritdoc}
      * Creates needed Production Statuss
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         factory(ProductionStatus::class, 10)->create()->each(

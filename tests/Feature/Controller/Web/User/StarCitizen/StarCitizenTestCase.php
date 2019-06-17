@@ -19,7 +19,7 @@ class StarCitizenTestCase extends UserTestCase
      * {@inheritdoc}
      * Adds needed System Languages for Translations
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->createSystemLanguages();

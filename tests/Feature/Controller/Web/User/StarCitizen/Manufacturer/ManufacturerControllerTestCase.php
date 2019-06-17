@@ -158,7 +158,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      * {@inheritdoc}
      * Creates needed Manufacturers
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         factory(Manufacturer::class, 10)->create()->each(

@@ -137,7 +137,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * Setup Vehicles
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->createSystemLanguages();

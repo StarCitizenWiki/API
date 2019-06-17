@@ -77,7 +77,7 @@ class ChannelControllerTestCase extends UserTestCase
      * {@inheritdoc}
      * Creates needed Comm-Link Channel
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->createSystemLanguages();

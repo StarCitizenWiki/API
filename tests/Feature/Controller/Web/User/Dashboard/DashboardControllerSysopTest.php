@@ -21,7 +21,7 @@ class DashboardControllerSysopTest extends DashboardControllerTestCase
      * {@inheritdoc}
      * Adds the specific group to the Admin model
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->user->groups()->sync(UserGroup::where('name', 'sysop')->first()->id);

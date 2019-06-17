@@ -21,7 +21,7 @@ class ChangelogControllerBureaucratTest extends ChangelogTestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->user->groups()->sync(UserGroup::where('name', 'bureaucrat')->first()->id);

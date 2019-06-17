@@ -243,7 +243,7 @@ class NotificationControllerTestCase extends UserTestCase
      * {@inheritdoc}
      * Creates needed Notifications
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->notifications = factory(Notification::class, 5)->states('active')->create();
