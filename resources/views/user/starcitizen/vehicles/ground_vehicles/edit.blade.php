@@ -58,7 +58,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Produktionsstatus'),
                                     'id' => 'status',
-                                    'value' => optional($groundVehicle->productionStatus->german())->translation ?? $groundVehicle->productionStatus->english()->translation,
+                                    'value' => optional($groundVehicle->productionStatus->german())->translation ?? optional($groundVehicle->productionStatus->english())->translation ?? '',
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-lg-6 col-xl-6">
@@ -67,7 +67,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Produktionsnotiz'),
                                     'id' => 'note',
-                                    'value' => optional($groundVehicle->productionNote->german())->translation ?? $groundVehicle->productionNote->english()->translation,
+                                    'value' => optional($groundVehicle->productionNote->german())->translation ?? optional($groundVehicle->productionNote->english())->translation ?? '',
                                 ])@endcomponent
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Größe'),
                                     'id' => 'size',
-                                    'value' => optional($groundVehicle->size->german())->translation ?? $groundVehicle->size->english()->translation,
+                                    'value' => optional($groundVehicle->size->german())->translation ?? optional($groundVehicle->size->english())->translation ?? '',
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
@@ -90,7 +90,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Typ'),
                                     'id' => 'type',
-                                    'value' => optional($groundVehicle->type->german())->translation ?? $groundVehicle->type->english()->translation,
+                                    'value' => optional($groundVehicle->type->german())->translation ?? optional($groundVehicle->type->english())->translation ?? '',
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-md-4 col-lg-2 col-xl-4 col-xxl-2">
@@ -172,7 +172,7 @@
                                     @slot('value')
                                         {{
                                             $groundVehicle->foci->transform(function(\App\Models\Api\StarCitizen\Vehicle\Focus\Focus $focus) {
-                                                return optional($focus->german())->translation ?? $focus->english()->translation ?? __('Keiner');
+                                                return optional($focus->german())->translation ?? optional($focus->english()->translation) ?? __('Keiner');
                                             })->implode(', ')
                                         }}
                                     @endslot

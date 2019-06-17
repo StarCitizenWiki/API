@@ -17,6 +17,7 @@
                         <th>@lang('Hersteller')</th>
                         <th>@lang('Fokus')</th>
                         <th>@lang('Typ')</th>
+                        <th>@lang('Größe')</th>
                         <th>@lang('Status')</th>
                         <th>@lang('Notiz')</th>
                         <th>@lang('Update')</th>
@@ -52,6 +53,9 @@
                         </td>
                         <td>
                             {{ optional($ship->type->german())->translation ?? $ship->type->english()->translation ?? __('Keiner') }}
+                        </td>
+                        <td>
+                            {{ optional($ship->size->german())->translation ?? $ship->size->english()->translation ?? __('Keiner') }}
                         </td>
                         <td>
                             {{ optional($ship->productionStatus->german())->translation ?? $ship->productionStatus->english()->translation ?? __('Keiner') }}

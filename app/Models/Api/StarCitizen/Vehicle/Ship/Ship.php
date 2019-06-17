@@ -20,13 +20,6 @@ class Ship extends Vehicle
         parent::boot();
 
         static::addGlobalScope(
-            'type',
-            function (Builder $builder) {
-                $builder->has('ships');
-            }
-        );
-
-        static::addGlobalScope(
             'size',
             function (Builder $builder) {
                 $builder->has('ships');

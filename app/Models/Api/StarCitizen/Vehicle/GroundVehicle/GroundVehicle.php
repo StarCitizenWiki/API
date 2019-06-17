@@ -19,13 +19,6 @@ class GroundVehicle extends Vehicle
     {
         parent::boot();
 
-        /*        static::addGlobalScope(
-                    'type',
-                    function (Builder $builder) {
-                        $builder->has('groundVehicles');
-                    }
-                );*/
-
         static::addGlobalScope(
             'size',
             function (Builder $builder) {
