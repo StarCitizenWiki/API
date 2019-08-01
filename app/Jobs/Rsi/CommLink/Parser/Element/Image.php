@@ -10,6 +10,7 @@ namespace App\Jobs\Rsi\CommLink\Parser\Element;
 use App\Jobs\Rsi\CommLink\Parser\Element\AbstractBaseElement as BaseElement;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
 use App\Models\Rsi\CommLink\Image\Image as ImageModel;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -117,7 +118,7 @@ class Image extends BaseElement
                 }
 
                 if (is_array($src)) {
-                    $src = array_shift($src);
+                    Log::alert('', $src);
                 }
 
                 $this->images[] = [
