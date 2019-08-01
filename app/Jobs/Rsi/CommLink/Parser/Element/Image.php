@@ -116,6 +116,10 @@ class Image extends BaseElement
                     $src = $src[1];
                 }
 
+                if (is_array($src)) {
+                    $src = $src[0];
+                }
+
                 $this->images[] = [
                     'src' => trim($src),
                     'alt' => self::POST_BACKGROUND,
