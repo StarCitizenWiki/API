@@ -387,6 +387,6 @@ class ParseVehicle implements ShouldQueue
      */
     private function getDescription()
     {
-        return $this->rawData->get(self::VEHICLE_DESCRIPTION);
+        return $this->rawData->get(self::VEHICLE_DESCRIPTION) ?? '';
     }
 }
