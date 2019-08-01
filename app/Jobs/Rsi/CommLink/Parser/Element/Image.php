@@ -117,7 +117,7 @@ class Image extends BaseElement
                 }
 
                 if (is_array($src)) {
-                    $src = $src[0];
+                    $src = array_shift($src);
                 }
 
                 $this->images[] = [
