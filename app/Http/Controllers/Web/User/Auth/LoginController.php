@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Auth;
 
@@ -9,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Class LoginController
+ * Class LoginController.
  */
 class LoginController extends Controller
 {
@@ -92,11 +94,14 @@ class LoginController extends Controller
     /**
      * Obtain the user information from GitHub.
      *
+     * @param Request $request
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function handleProviderCallback()
+    public function handleProviderCallback(Request $request)
     {
-        $user = $this->authRepository->getUserFromProvider();
+        $user = $this->authRepository->getUserFromProvider($request);
+
         $authUser = $this->authRepository->getOrCreateLocalUser($user, 'mediawiki');
 
         Auth::login($authUser);
@@ -117,7 +122,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Redirect to Login Form
+     * Redirect to Login Form.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -129,7 +134,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Redirect to Intended Route or Account
+     * Redirect to Intended Route or Account.
      *
      * @return \Illuminate\Http\RedirectResponse
      */
