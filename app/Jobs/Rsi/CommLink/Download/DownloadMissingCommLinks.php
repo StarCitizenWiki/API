@@ -76,7 +76,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         );
 
         for ($id = $dbId; $id <= $latestPostId; $id++) {
-            dispatch(new DownloadCommLink($id));
+            dispatch(new DownloadCommLink($id, true));
         }
     }
 
@@ -99,6 +99,6 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         $linkHref = end($linkHref);
         $linkHref = explode('-', $linkHref);
 
-        return intval($linkHref[0]);
+        return (int)$linkHref[0];
     }
 }

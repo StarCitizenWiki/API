@@ -8,7 +8,6 @@ use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
 use App\Console\Commands\Stat\Import\ImportStats;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
-use App\Jobs\Rsi\CommLink\Download\Image\DownloadCommLinkImages;
 use App\Jobs\Wiki\CommLink\UpdateCommLinkProofReadStatus;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -100,7 +99,7 @@ class Kernel extends ConsoleKernel
         );
 
         /** Download Comm-Link Images */
-        $this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
+        //$this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
 
         /** Update Proof Read Status */
         $this->schedule->job(UpdateCommLinkProofReadStatus::class)->daily()->withoutOverlapping();

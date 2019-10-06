@@ -158,12 +158,12 @@
                             ])
                                 <button class="btn btn-block btn-outline-secondary">@lang('Comm-Links Übersetzen')</button>
                             @endcomponent
-                            @component('components.forms.form', [
+{{--                            @component('components.forms.form', [
                                 'action' => route('web.user.dashboard.download-comm-link-images'),
                                 'class' => 'mb-3',
                             ])
                                 <button class="btn btn-block btn-outline-secondary">@lang('Comm-Link Bilder herunterladen')</button>
-                            @endcomponent
+                            @endcomponent--}}
 
                             @component('components.forms.form', [
                                 'action' => route('web.user.dashboard.create-wiki-pages'),

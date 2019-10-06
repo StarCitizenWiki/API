@@ -56,6 +56,10 @@ class CommLink extends HasTranslations
         'links',
     ];
 
+    protected $casts = [
+        'cig_id' => 'int',
+    ];
+
     /**
      * {@inheritdoc}
      */
