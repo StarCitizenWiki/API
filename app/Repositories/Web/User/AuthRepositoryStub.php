@@ -1,20 +1,22 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: Hanne
  * Date: 09.08.2018
- * Time: 11:00
+ * Time: 11:00.
  */
 
 namespace App\Repositories\Web\User;
 
-use App\Models\Account\User\User as UserModel;
+use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
 use App\Contracts\Web\User\AuthRepositoryInterface;
-use SocialiteProviders\Manager\OAuth1\User;
+use Illuminate\Http\Request;
 
 /**
- * Stub Implementation
+ * Stub Implementation.
  */
 class AuthRepositoryStub implements AuthRepositoryInterface
 {
@@ -29,7 +31,7 @@ class AuthRepositoryStub implements AuthRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getUserFromProvider()
+    public function getUserFromProvider(Request $request): User
     {
         return new User();
     }
@@ -37,15 +39,15 @@ class AuthRepositoryStub implements AuthRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getOrCreateLocalUser(User $oauthUser, string $provider): UserModel
+    public function getOrCreateLocalUser(User $oauthUser, string $provider): User
     {
-        $user = UserModel::where('username', 'Local Wiki Admin')->first();
+        $user = User::where('username', 'Local Wiki Admin')->first();
         if (null !== $user) {
             return $user;
         }
 
         /** @var \App\Models\Account\User\User $user */
-        $user = factory(UserModel::class)->create(
+        $user = factory(User::class)->create(
             [
                 'username' => 'Local Wiki Admin',
                 'email' => 'admin@example.com',
@@ -59,7 +61,7 @@ class AuthRepositoryStub implements AuthRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function syncLocalUserGroups(User $oauthUser, UserModel $user): void
+    public function syncLocalUserGroups(User $oauthUser, User $user): void
     {
         return;
     }
