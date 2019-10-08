@@ -14,7 +14,6 @@ use App\Contracts\Web\User\AuthRepositoryInterface;
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use MediaWiki\OAuthClient\Client;
@@ -51,7 +50,7 @@ class AuthRepository implements AuthRepositoryInterface
         try {
             [$authUrl, $requestToken] = $this->client->initiate();
         } catch (OAuthException $e) {
-            Log::error('Error in OAuth init request', $e->getMessage());
+            app('Log')::error(sprintf('Error in OAuth init request: %s', $e->getMessage()));
 
             return view('errors.503');
         }
@@ -71,7 +70,7 @@ class AuthRepository implements AuthRepositoryInterface
         try {
             $accessToken = $this->client->complete(Session::get('oauth.req_token'), $ver);
         } catch (OAuthException $e) {
-            Log::error('Error in retrieving OAuth User', $e->getMessage());
+            app('Log')::error(sprintf('Error in retrieving OAuth User: %s', $e->getMessage()));
 
             return abort(500);
         }
@@ -79,7 +78,7 @@ class AuthRepository implements AuthRepositoryInterface
         try {
             $ident = $this->client->identify($accessToken);
         } catch (OAuthException $e) {
-            Log::error('Error in completing OAuth User request', $e->getMessage());
+            app('Log')::error(sprintf('Error in completing OAuth User request: %s', $e->getMessage()));
 
             return abort(500);
         }
