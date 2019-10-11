@@ -1,8 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * User: Hannes
  * Date: 11.09.2018
- * Time: 17:38
+ * Time: 17:38.
  */
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
@@ -13,7 +15,7 @@ use App\Models\Rsi\CommLink\Image\Image as ImageModel;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Extracts and Creates Image Models from Comm-Link Contents
+ * Extracts and Creates Image Models from Comm-Link Contents.
  */
 class Image extends BaseElement
 {
@@ -22,10 +24,8 @@ class Image extends BaseElement
         'media.robertsspaceindustries.com',
     ];
 
-    private const RSI_MEDIA_DIR_HASH_LENGTH = 14;
-
     /**
-     * Post Background CSS Selector
+     * Post Background CSS Selector.
      */
     private const POST_BACKGROUND = '#post-background';
 
@@ -50,7 +50,7 @@ class Image extends BaseElement
     }
 
     /**
-     * Returns an array with image ids from the image table
+     * Returns an array with image ids from the image table.
      *
      * @return array Image IDs
      */
@@ -61,10 +61,10 @@ class Image extends BaseElement
 
         $contentImages = collect($this->images);
         $contentImages->filter(
-            function ($image) {
+            static function ($image) {
                 $host = parse_url($image['src'], PHP_URL_HOST);
 
-                return null === $host || in_array($host, self::RSI_DOMAINS);
+                return null === $host || in_array($host, self::RSI_DOMAINS, true);
             }
         )->each(
             function ($image) use (&$imageIDs) {
@@ -85,7 +85,7 @@ class Image extends BaseElement
 
     /**
      * Extracts all <img> Elements from the Crawler
-     * Saves src and alt attributes
+     * Saves src and alt attributes.
      */
     private function extractImages(): void
     {
@@ -126,7 +126,7 @@ class Image extends BaseElement
         }
 
         preg_match_all(
-            "/source:\s?\'(https\:\/\/(?:media\.)?robertsspaceindustries\.com.*?)\'/",
+            "/source:\s?'(https:\/\/(?:media\.)?robertsspaceindustries\.com.*?)'/",
             $this->commLink->html(),
             $matches
         );
@@ -144,7 +144,7 @@ class Image extends BaseElement
     }
 
     /**
-     * Cleans the IMG SRC
+     * Cleans the IMG SRC.
      *
      * @param string $src IMG SRC
      *
@@ -152,35 +152,39 @@ class Image extends BaseElement
      */
     private function cleanImgSource(string $src): string
     {
-        $src = parse_url($src, PHP_URL_PATH);
+        $srcUrlPath = parse_url($src, PHP_URL_PATH);
+        $srcUrlPath = str_replace(['%20', '%0A'], '', $srcUrlPath);
 
-        $src = str_replace(['%20', '%0A'], '', $src);
+        // if host is media.robertsspaceindustries.com
+        if (parse_url($src, PHP_URL_HOST) === self::RSI_DOMAINS[1]) {
+            $pattern = '/(\w+)\/(?:\w+)\.(\w+)/';
+            $replacement = '$1/source.$2';
+        } else {
+            $pattern = '/media\/(\w+)\/(\w+)\//';
+            $replacement = 'media/$1/source/';
+        }
 
-        $pattern = '/media\/(\w+)\/(\w+)\//';
-        $src = preg_replace($pattern, 'media/$1/source/', $src);
+        $srcUrlPath = preg_replace($pattern, $replacement, $srcUrlPath);
 
-        $src = str_replace('//', '/', $src);
-        $src = trim(ltrim($src, '/'));
+        $srcUrlPath = str_replace('//', '/', $srcUrlPath);
+        $srcUrlPath = trim(ltrim($srcUrlPath, '/'));
 
-        return "/{$src}";
+        return "/{$srcUrlPath}";
     }
 
     /**
-     * Try to get Original RSI Hash
+     * Try to get Original RSI Hash.
      *
      * @param string $src
      *
-     * @return null|string
+     * @return string|null
      */
     private function getDirHash(string $src): ?string
     {
-        $dir = str_replace('/media/', '', $src);
+        $src = substr($src, 1);
+        $dir = str_replace('media/', '', $src);
         $dir = explode('/', $dir);
 
-        if (isset($dir[0]) && strlen($dir[0]) === self::RSI_MEDIA_DIR_HASH_LENGTH) {
-            return $dir[0];
-        }
-
-        return null;
+        return $dir[0] ?? null;
     }
 }
