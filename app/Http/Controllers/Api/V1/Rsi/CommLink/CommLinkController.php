@@ -58,11 +58,17 @@ class CommLinkController extends ApiController
     {
         try {
             $commLink = CommLink::query()->where('cig_id', $commLink)->firstOrFail();
+            $commLink->append(['prev', 'next']);
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $commLink));
         }
 
         $this->transformer->setDefaultIncludes($this->transformer->getAvailableIncludes());
+
+        $this->extraMeta = [
+            'prev_id' => optional($commLink->prev)->cig_id ?? -1,
+            'next_id' => optional($commLink->next)->cig_id ?? -1,
+        ];
 
         return $this->getResponse($commLink);
     }

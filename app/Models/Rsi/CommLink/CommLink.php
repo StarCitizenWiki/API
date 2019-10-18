@@ -69,6 +69,27 @@ class CommLink extends HasTranslations
     }
 
     /**
+     * Previous Comm-Link
+     *
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     */
+    public function getPrevAttribute()
+    {
+        return CommLink::query()->where('id', '<', $this->id)->orderBy('id', 'desc')->first(['cig_id']);
+
+    }
+
+    /**
+     * Next Comm-Link
+     *
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     */
+    public function getNextAttribute()
+    {
+        return CommLink::query()->where('id', '>', $this->id)->orderBy('id')->first(['cig_id']);
+    }
+
+    /**
      * Channel Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
