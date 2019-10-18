@@ -55,28 +55,6 @@ class CreateCommLinkWikiPages implements ShouldQueue
 
         app('Log')::debug('Current config:', $config);
 
-        $createFunction = function (Collection $commLinks) use ($config) {
-            try {
-                $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-            } catch (\RuntimeException $e) {
-                app('Log')::error($e->getMessage());
-
-                $this->fail($e);
-
-                return;
-            }
-
-            $commLinks->each(
-                function (CommLink $commLink) use ($pageInfoCollection, $config) {
-                    $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
-
-                    if (isset($wikiPage['missing'])) {
-                        dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
-                    }
-                }
-            );
-        };
-
         CommLink::query()->whereHas(
             'translations',
             function (Builder $query) {
@@ -84,7 +62,27 @@ class CreateCommLinkWikiPages implements ShouldQueue
             }
         )->chunk(
             100,
-            $createFunction
+            function (Collection $commLinks) use ($config) {
+                try {
+                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
+                } catch (\RuntimeException $e) {
+                    app('Log')::error($e->getMessage());
+
+                    $this->fail($e);
+
+                    return;
+                }
+
+                $commLinks->each(
+                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
+
+                        if (isset($wikiPage['missing'])) {
+                            dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
+                        }
+                    }
+                );
+            }
         );
 
         $config = $this->getCommLinkConfig('Comm-Link:Subscriber-Header');
@@ -97,7 +95,27 @@ class CreateCommLinkWikiPages implements ShouldQueue
             }
         )->chunk(
             100,
-            $createFunction
+            function (Collection $commLinks) use ($config) {
+                try {
+                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
+                } catch (\RuntimeException $e) {
+                    app('Log')::error($e->getMessage());
+
+                    $this->fail($e);
+
+                    return;
+                }
+
+                $commLinks->each(
+                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
+
+                        if (isset($wikiPage['missing'])) {
+                            dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
+                        }
+                    }
+                );
+            }
         );
 
         $config = $this->getCommLinkConfig('Comm-Link:Press-Header');
@@ -110,7 +128,27 @@ class CreateCommLinkWikiPages implements ShouldQueue
             }
         )->chunk(
             100,
-            $createFunction
+            function (Collection $commLinks) use ($config) {
+                try {
+                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
+                } catch (\RuntimeException $e) {
+                    app('Log')::error($e->getMessage());
+
+                    $this->fail($e);
+
+                    return;
+                }
+
+                $commLinks->each(
+                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
+
+                        if (isset($wikiPage['missing'])) {
+                            dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
+                        }
+                    }
+                );
+            }
         );
     }
 }
