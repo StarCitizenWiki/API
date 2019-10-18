@@ -42,8 +42,8 @@ before_script:
   - docker-php-ext-install -j$(nproc) gd
 
   # Install & enable Xdebug for code coverage reports
-  - pecl install xdebug
-  - docker-php-ext-enable xdebug
+  #- pecl install xdebug
+  #- docker-php-ext-enable xdebug
 
   # Install Composer and project dependencies.
   - curl -sS https://getcomposer.org/installer | php
@@ -80,7 +80,8 @@ before_script:
 test:
   script:
   # run laravel tests
-  - php vendor/bin/phpunit --coverage-text --colors=never
+  #- php vendor/bin/phpunit --coverage-text --colors=never
+  - php vendor/bin/phpunit --colors=never
 
   # run frontend tests
   # if you have any task for testing frontend

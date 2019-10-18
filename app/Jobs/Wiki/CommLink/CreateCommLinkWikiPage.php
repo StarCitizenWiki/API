@@ -61,8 +61,9 @@ class CreateCommLinkWikiPage implements ShouldQueue
         app('Log')::info("Creating Wiki Page 'Comm-Link:{$this->commLink->cig_id}'");
 
         try {
-            $text = $this->commLink->german()->translation;
-            if (!Normalizer::isNormalized($text)) {
+            $text = optional($this->commLink->german())->translation;
+
+            if ($text !== null && !Normalizer::isNormalized($text)) {
                 $text = Normalizer::normalize($text);
             }
 
@@ -70,7 +71,7 @@ class CreateCommLinkWikiPage implements ShouldQueue
                 sprintf(
                     "%s\n%s",
                     $this->template,
-                    $text
+                    $text ?? ''
                 )
             )
                 ->summary("Importing Comm-Link Translation {$this->commLink->cig_id}")

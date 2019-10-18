@@ -55,6 +55,28 @@ class CreateCommLinkWikiPages implements ShouldQueue
 
         app('Log')::debug('Current config:', $config);
 
+        $createFunction = function (Collection $commLinks) use ($config) {
+            try {
+                $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
+            } catch (\RuntimeException $e) {
+                app('Log')::error($e->getMessage());
+
+                $this->fail($e);
+
+                return;
+            }
+
+            $commLinks->each(
+                function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                    $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
+
+                    if (isset($wikiPage['missing'])) {
+                        dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
+                    }
+                }
+            );
+        };
+
         CommLink::query()->whereHas(
             'translations',
             function (Builder $query) {
@@ -62,27 +84,33 @@ class CreateCommLinkWikiPages implements ShouldQueue
             }
         )->chunk(
             100,
-            function (Collection $commLinks) use ($config) {
-                try {
-                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (\RuntimeException $e) {
-                    app('Log')::error($e->getMessage());
+            $createFunction
+        );
 
-                    $this->fail($e);
+        $config = $this->getCommLinkConfig('Comm-Link:Subscriber-Header');
+        $config['token'] = $token;
 
-                    return;
-                }
-
-                $commLinks->each(
-                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
-                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
-
-                        if (isset($wikiPage['missing'])) {
-                            dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
-                        }
-                    }
-                );
+        CommLink::query()->whereHas(
+            'channel',
+            static function (Builder $query) {
+                $query->where('name', 'Subscriber');
             }
+        )->chunk(
+            100,
+            $createFunction
+        );
+
+        $config = $this->getCommLinkConfig('Comm-Link:Press-Header');
+        $config['token'] = $token;
+
+        CommLink::query()->whereHas(
+            'channel',
+            static function (Builder $query) {
+                $query->where('name', 'Press');
+            }
+        )->chunk(
+            100,
+            $createFunction
         );
     }
 }
