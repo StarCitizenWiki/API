@@ -19,9 +19,9 @@
             <a href="#" class="btn btn-outline-secondary disabled">@lang('Vorheriger')</a>
         @endunless
         @unless(null === $next)
-            <a href="{{ route('web.user.rsi.comm-links.show', $next) }}" class="btn btn-outline-secondary ml-auto">@lang('Nächste')</a>
+            <a href="{{ route('web.user.rsi.comm-links.show', $next) }}" class="btn btn-outline-secondary ml-auto">@lang('Nächster')</a>
         @else
-            <a href="#" class="btn btn-outline-secondary disabled ml-auto">@lang('Nächste')</a>
+            <a href="#" class="btn btn-outline-secondary disabled ml-auto">@lang('Nächster')</a>
         @endunless
     </div>
     <div class="card">
@@ -40,7 +40,7 @@
 
                     @unless(empty($commLink->english()->translation))
                     <a class="nav-item nav-link" id="nav-de_DE-tab" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}" aria-selected="false" target="_blank">
-                        @lang('de_DE') <i class="fal fa-external-link fa-sm" data-fa-transform="up-2"></i>
+                        @lang('de_DE') <em class="fal fa-external-link fa-sm" data-fa-transform="up-2"></em>
                     </a>
                     @endunless
 
@@ -61,12 +61,12 @@
                     </a>
 
                     <a class="nav-item nav-link" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}?veaction=edit" aria-selected="false">
-                        @lang('Bearbeiten') <i class="fal fa-external-link fa-sm" data-fa-transform="up-2"></i>
+                        @lang('Bearbeiten') <em class="fal fa-external-link fa-sm" data-fa-transform="up-2"></em>
                     </a>
 
                     @can('web.user.rsi.comm-links.update')
                     <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.user.rsi.comm-links.edit', $commLink->getRouteKey()) }}">
-                        @lang('Einstellungen')
+                        @lang('Metadaten') @lang('bearbeiten')
                     </a>
                     <a class="nav-item nav-link" id="nav-deepl-tab" aria-selected="false" data-toggle="tab" href="#deepl" role="tab" aria-controls="deepl">
                         @lang('DeepL Übersetzung')
@@ -92,7 +92,7 @@
 
                 <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="nav-images-tab">
                     @forelse($commLink->images as $image)
-                        <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->url) }}" class="img-thumbnail" style="max-width: 150px;"></a>
+                        <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->url) }}" alt="Comm-Link Image" class="img-thumbnail" style="max-width: 150px;"></a>
                     @empty
                         Keine Bilder vorhanden
                     @endforelse
@@ -169,19 +169,19 @@
     @parent
     <script>
       $(document).ready(() => {
-        let url = location.href.replace(/\/$/, '')
+        let url = location.href.replace(/\/$/, '');
 
         if (location.hash) {
-          const hash = url.split('#')
-          $('#nav-tab a[href="#' + hash[1] + '"]').tab('show')
-          url = location.href.replace(/\/#/, '#')
+          const hash = url.split('#');
+          $('#nav-tab a[href="#' + hash[1] + '"]').tab('show');
+          url = location.href.replace(/\/#/, '#');
           history.replaceState(null, null, url)
         }
 
         $('a[data-toggle="tab"]').on('click', function () {
-          let newUrl
-          const hash = $(this).attr('href')
-          newUrl = url.split('#')[0] + hash
+          let newUrl;
+          const hash = $(this).attr('href');
+          newUrl = url.split('#')[0] + hash;
 
           history.replaceState(null, null, newUrl)
         })

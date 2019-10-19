@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Rsi\CommLink;
 
@@ -6,19 +8,23 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\CommLinkRequest;
 use App\Jobs\Rsi\CommLink\Parser\Element\Content;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
+use App\Models\Rsi\CommLink\Category\Category;
+use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
+use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Comm-Link Controller
+ * Comm-Link Controller.
  */
 class CommLinkController extends Controller
 {
-    const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.update';
+    private const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.update';
 
     /**
      * CommLinkController constructor.
@@ -65,15 +71,12 @@ class CommLinkController extends Controller
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $previous = CommLink::query()->where('id', '<', $commLink->id)->orderBy('id', 'desc')->first(['cig_id']);
-        $next = CommLink::query()->where('id', '>', $commLink->id)->orderBy('id')->first(['cig_id']);
-
         /** @var \Illuminate\Support\Collection $changelog */
         $changelog = $commLink->changelogs;
         $commLink->translations->each(
-            function (CommLinkTranslation $translation) use (&$changelog) {
+            static function (CommLinkTranslation $translation) use (&$changelog) {
                 $translation->changelogs->each(
-                    function (ModelChangelog $transChange) use (&$changelog) {
+                    static function (ModelChangelog $transChange) use (&$changelog) {
                         $changelog->push($transChange);
                     }
                 );
@@ -87,8 +90,8 @@ class CommLinkController extends Controller
             [
                 'commLink' => $commLink,
                 'changelogs' => $changelog,
-                'prev' => $previous,
-                'next' => $next,
+                'prev' => $commLink->getPrevAttribute(),
+                'next' => $commLink->getNextAttribute(),
             ]
         );
     }
@@ -115,6 +118,9 @@ class CommLinkController extends Controller
             [
                 'commLink' => $commLink,
                 'versions' => $versionData,
+                'channels' => Channel::query()->get(),
+                'categories' => Category::query()->get(),
+                'series' => Series::query()->get(),
             ]
         );
     }
@@ -132,28 +138,23 @@ class CommLinkController extends Controller
     public function update(CommLinkRequest $request, CommLink $commLink)
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
+
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 
-        if (isset($data['version']) && $data['version'] !== $commLink->file) {
-            $this->authorize(self::COMM_LINK_PERMISSION);
-            $message = __('Comm-Link Import gestartet');
+        $commLink->update(
+            [
+                'title' => $data['title'],
+                'url' => $data['url'],
+                'created_at' => $data['created_at'],
+                'channel_id' => $data['channel'],
+                'category_id' => $data['category'],
+                'series_id' => $data['series'],
+            ]
+        );
 
-            dispatch(new ParseCommLink($commLink->cig_id, $data['version'], $commLink, true));
-        } else {
-            unset($data['version']);
-
-            $commLink->update(
-                [
-                    'title' => $data['title'],
-                    'url' => $data['url'],
-                    'created_at' => $data['created_at'],
-                ]
-            );
-
-            $message = __('crud.updated', ['type' => __('Comm-Link')]);
-        }
+        $message = __('crud.updated', ['type' => __('Comm-Link')]);
 
         return redirect()->route('web.user.rsi.comm-links.show', $commLink->getRouteKey())->withMessages(
             [
@@ -165,7 +166,7 @@ class CommLinkController extends Controller
     }
 
     /**
-     * Preview a Comm-Link Version
+     * Preview a Comm-Link Version.
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      * @param string                            $version
@@ -197,7 +198,7 @@ class CommLinkController extends Controller
     }
 
     /**
-     * Returns all Comm-Link Version Files in a Comm-Link Folder
+     * Returns all Comm-Link Version Files in a Comm-Link Folder.
      *
      * @param int $commLinkCigId
      *
@@ -207,7 +208,7 @@ class CommLinkController extends Controller
     {
         $versions = Storage::disk('comm_links')->files($commLinkCigId);
         $versions = array_map(
-            function ($value) {
+            static function ($value) {
                 $file = preg_split('#(?<=)[/\\\]#', $value)[1];
 
                 return str_replace('.html', '', $file);
@@ -220,7 +221,7 @@ class CommLinkController extends Controller
     }
 
     /**
-     * Parses Comm-Link Version Names to a Human readable String, creates Data array to use in views
+     * Parses Comm-Link Version Names to a Human readable String, creates Data array to use in views.
      *
      * @param array  $versions
      * @param string $currentVersion
@@ -231,7 +232,7 @@ class CommLinkController extends Controller
     {
         $versionData = [];
         collect($versions)->each(
-            function ($version) use (&$versionData, $currentVersion) {
+            static function ($version) use (&$versionData, $currentVersion) {
                 $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
 
                 if ("{$version}.html" === $currentVersion) {
