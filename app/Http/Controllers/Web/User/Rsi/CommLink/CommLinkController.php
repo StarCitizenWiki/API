@@ -118,9 +118,9 @@ class CommLinkController extends Controller
             [
                 'commLink' => $commLink,
                 'versions' => $versionData,
-                'channels' => Channel::query()->get(),
-                'categories' => Category::query()->get(),
-                'series' => Series::query()->get(),
+                'channels' => Channel::query()->orderBy('name')->get(),
+                'categories' => Category::query()->orderBy('name')->get(),
+                'series' => Series::query()->orderBy('name')->get(),
             ]
         );
     }
