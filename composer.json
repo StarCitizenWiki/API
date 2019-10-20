@@ -18,6 +18,7 @@
         "fabpot/goutte": "^3.2",
         "fideloper/proxy": "~4.0",
         "guzzlehttp/guzzle": "^6.3",
+        "jaymoulin/guzzlehttp-cloudflare": "^1.0",
         "laravel/framework": "5.8.*",
         "mediawiki/oauthclient": "^1.0",
         "starcitizenwiki/deeply": "dev-master",
