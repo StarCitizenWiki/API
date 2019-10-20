@@ -78,6 +78,18 @@
     @endcomponent
 @endcan
 
+@can('web.user.transcripts.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mb-md-2',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_transcripts',
+        'title' => __('Transkript'),
+    ])
+        @include('user.menu.transcripts')
+    @endcomponent
+@endcan
+
 @can('web.user.notifications.view')
     @component('components.navs.sidebar_section', [
         'class' => 'mb-5',

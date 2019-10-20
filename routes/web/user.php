@@ -2,14 +2,14 @@
 
 Route::group(
     [],
-    function () {
+    static function () {
         Route::namespace('Auth')
             ->name('auth.')
             ->group(
-                function () {
+                static function () {
                     Route::group(
                         [],
-                        function () {
+                        static function () {
                             Route::get('/login', 'LoginController@showLoginForm')->name('login');
                             Route::get('/login/start', 'LoginController@redirectToProvider')->name('login.start');
                             Route::get('/login/callback', 'LoginController@handleProviderCallback')->name(
@@ -23,12 +23,12 @@ Route::group(
 
         Route::group(
             [],
-            function () {
+            static function () {
                 Route::get('dashboard', 'DashboardController@index')->name('dashboard');
                 Route::name('dashboard.')
                     ->prefix('dashboard')
                     ->group(
-                        function () {
+                        static function () {
                             Route::post(
                                 'translate-comm-links',
                                 'Job\Rsi\CommLink\JobController@startCommLinkTranslationJob'
@@ -60,7 +60,7 @@ Route::group(
                 Route::namespace('Account')
                     ->name('account.')
                     ->group(
-                        function () {
+                        static function () {
                             Route::get('account', 'AccountController@index')->name('index');
                             Route::patch('account', 'AccountController@update')->name('update');
                         }
@@ -71,6 +71,7 @@ Route::group(
                         'notifications' => 'Notification\NotificationController',
                         'users' => 'User\UserController',
                         'changelogs' => 'Changelog\ChangelogController',
+                        'transcripts' => 'Transcript\TranscriptController',
                     ]
                 );
 
@@ -78,7 +79,7 @@ Route::group(
                     ->name('starcitizen.')
                     ->prefix('starcitizen')
                     ->group(
-                        function () {
+                        static function () {
                             Route::resources(
                                 [
                                     'manufacturers' => 'Manufacturer\ManufacturerController',
@@ -91,7 +92,7 @@ Route::group(
                                 ->name('starmap.')
                                 ->namespace('Starmap')
                                 ->group(
-                                    function () {
+                                    static function () {
                                         Route::resources(
                                             [
                                                 'system' => 'Starsystem\StarsystemController',
@@ -106,7 +107,7 @@ Route::group(
                                 ->name('vehicles.')
                                 ->namespace('Vehicle')
                                 ->group(
-                                    function () {
+                                    static function () {
                                         Route::resources(
                                             [
                                                 'ships' => 'Ship\ShipController',
@@ -125,12 +126,12 @@ Route::group(
                     ->name('rsi.')
                     ->prefix('rsi')
                     ->group(
-                        function () {
+                        static function () {
                             Route::namespace('CommLink')
                                 ->name('comm-links.')
                                 ->prefix('comm-links')
                                 ->group(
-                                    function () {
+                                    static function () {
                                         Route::get('categories', 'Category\CategoryController@index')->name('categories.index');
                                         Route::get('categories/{category}', 'Category\CategoryController@show')->name('categories.show');
 

@@ -1,13 +1,16 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\System\Translation;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
- * Base Translation Class which holds Language Query Scopes
+ * Base Translation Class which holds Language Query Scopes.
  */
 abstract class AbstractHasTranslations extends Model
 {
@@ -21,7 +24,7 @@ abstract class AbstractHasTranslations extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function english()
+    public function english(): ?Model
     {
         return $this->translations->keyBy(self::LOCALE_CODE)->get('en_EN', null);
     }
@@ -29,29 +32,29 @@ abstract class AbstractHasTranslations extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function german()
+    public function german(): ?Model
     {
         return $this->translations->keyBy(self::LOCALE_CODE)->get('de_DE', null);
     }
 
     /**
-     * Translations Right Joined with Languages
+     * Translations Right Joined with Languages.
      *
      * @return \Illuminate\Support\Collection
      */
     public function translationsCollection(): Collection
     {
-        $table = str_singular($this->getTable()).'_translations';
+        $table = Str::singular($this->getTable()).'_translations';
 
         $collection = DB::table($table)->select('*')->rightJoin(
             'languages',
             function ($join) use ($table) {
-                /** @var $join \Illuminate\Database\Query\JoinClause */
+                /* @var $join \Illuminate\Database\Query\JoinClause */
                 $join->on(
                     "{$table}.locale_code",
                     '=',
                     'languages.locale_code'
-                )->where($table.'.'.str_singular($this->getForeignKey()), '=', $this->getKey());
+                )->where($table.'.'.Str::singular($this->getForeignKey()), '=', $this->getKey());
             }
         )->get();
 

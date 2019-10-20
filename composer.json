@@ -13,6 +13,7 @@
         "ext-intl": "*",
         "ext-json": "*",
         "ext-libxml": "*",
+        "ext-simplexml": "*",
         "dingo/api": "2.2.3",
         "fabpot/goutte": "^3.2",
         "fideloper/proxy": "~4.0",
