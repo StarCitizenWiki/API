@@ -85,9 +85,9 @@
                         @endif
                         <td class="text-center">
                             @component('components.edit_delete_block')
-                                {{-- @slot('show_url')
+                                @slot('show_url')
                                     {{ route('web.user.transcripts.show', $transcript->getRouteKey()) }}
-                                @endslot --}}
+                                @endslot
                                 @can('web.user.transcripts.update')
                                     @slot('edit_url')
                                         {{ route('web.user.transcripts.edit', $transcript->getRouteKey()) }}

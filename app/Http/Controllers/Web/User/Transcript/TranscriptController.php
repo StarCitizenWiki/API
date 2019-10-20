@@ -10,6 +10,7 @@ use App\Http\Requests\Transcript\TranscriptUpdateRequest;
 use App\Models\Rsi\Video\VideoFormat;
 use App\Models\Transcript\Transcript;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -50,6 +51,30 @@ class TranscriptController extends Controller
             'user.transcripts.index',
             [
                 'transcripts' => $transcripts,
+            ]
+        );
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param Transcript $transcript
+     *
+     * @return Factory|View
+     *
+     * @throws AuthorizationException
+     */
+    public function show(Transcript $transcript)
+    {
+        $this->authorize('web.user.transcripts.view');
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        return view(
+            'user.transcripts.show',
+            [
+                'transcript' => $transcript,
+                'prev' => $transcript->getPrevAttribute(),
+                'next' => $transcript->getNextAttribute(),
             ]
         );
     }
