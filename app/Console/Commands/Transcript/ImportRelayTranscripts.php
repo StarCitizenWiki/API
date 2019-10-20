@@ -12,7 +12,7 @@ class ImportRelayTranscripts extends Command
      *
      * @var string
      */
-    protected $signature = 'import:relay-transcripts';
+    protected $signature = 'import:relay-transcripts {startPage=0 : Feed Start Page}';
 
     /**
      * The console command description.
@@ -28,6 +28,10 @@ class ImportRelayTranscripts extends Command
      */
     public function handle(): void
     {
-        dispatch(new ImportMissingTranscripts());
+        if (null === $this->argument('startPage')) {
+            dispatch(new ImportMissingTranscripts());
+        } else {
+            dispatch(new ImportMissingTranscripts((int) $this->argument('startPage')));
+        }
     }
 }

@@ -31,6 +31,18 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
     private const BASE_URL = 'https://relay.sc/feed/transcripts/atom';
     private const SOURCE_URL = 'source_url';
 
+    private $startPage;
+
+    /**
+     * ImportMissingTranscripts constructor.
+     *
+     * @param int|null $startPage Feed Start Page
+     */
+    public function __construct(int $startPage = null)
+    {
+        $this->startPage = $startPage;
+    }
+
     /**
      * Execute the job.
      */
@@ -40,7 +52,13 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
 
         $this->initClient();
 
-        $this->importTranscripts(self::BASE_URL);
+        if (null === $this->startPage) {
+            $url = self::BASE_URL;
+        } else {
+            $url = sprintf('%s/p%d', self::BASE_URL, $this->startPage);
+        }
+
+        $this->importTranscripts($url);
 
         app('Log')::info('Transcripts imported');
     }
