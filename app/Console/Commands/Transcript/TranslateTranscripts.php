@@ -30,6 +30,6 @@ class TranslateTranscripts extends Command
     public function handle(): void
     {
         $this->info('Dispatching Transcript Translation');
-        dispatch(new \App\Jobs\Relay\Transcript\Translate\TranslateTranscripts());
+        dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts());
     }
 }
