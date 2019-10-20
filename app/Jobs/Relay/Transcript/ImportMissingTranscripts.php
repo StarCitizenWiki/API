@@ -92,7 +92,7 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
             app('Log')::debug(sprintf('Next url exists, loading more transcripts from %s', $next));
             // Don't trigger CF
             try {
-                $sleep = random_int(500, 1500);
+                $sleep = random_int(1000, 10000);
             } catch (Exception $e) {
                 $sleep = 1000;
             }
