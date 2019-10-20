@@ -46,7 +46,7 @@
                         @lang('Metadaten')
                     </a>
 
-                    <a class="nav-item nav-link" href="{{ route('web.user.transcripts.show', $transcript->getRouteKey()) }}" aria-selected="false">
+                    <a class="nav-item nav-link" href="{{ route('web.user.transcripts.edit', $transcript->getRouteKey()) }}" aria-selected="false">
                         @lang('Bearbeiten')
                     </a>
 
