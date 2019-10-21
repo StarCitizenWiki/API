@@ -22,21 +22,35 @@ class TranslateTranscripts implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    private $limit;
+
+    /**
+     * TranslateTranscripts constructor.
+     *
+     * @param int $limit Max translation jobs to run
+     */
+    public function __construct(int $limit = 0)
+    {
+        $this->limit = $limit;
+    }
+
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
         app('Log')::info('Starting Transcript Translations');
 
+        $jobLimit = 0 === $this->limit ? PHP_INT_MAX : $this->limit;
+        $count = 0;
+
         Transcript::query()->chunk(
             100,
-            static function (Collection $transcripts) {
+            static function (Collection $transcripts) use ($jobLimit, &$count) {
                 $transcripts->each(
-                    static function (Transcript $transcript) {
-                        if (null === optional($transcript->german())->translation) {
+                    static function (Transcript $transcript) use ($jobLimit, &$count) {
+                        if ($count < $jobLimit && null === optional($transcript->german())->translation) {
+                            ++$count;
                             dispatch(new TranslateTranscript($transcript));
                         }
                     }
