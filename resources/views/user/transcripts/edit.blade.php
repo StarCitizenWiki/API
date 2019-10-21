@@ -93,7 +93,7 @@
                             'inputType' => 'date',
                             'label' => __('Veröffentlichung'),
                             'id' => 'published_at',
-                            'value' => $transcript->created_at ? $transcript->created_at->format('Y-m-d') : $transcript->published_at->format('Y-m-d'),
+                            'value' => $transcript->published_at ? $transcript->published_at->format('Y-m-d') : $transcript->created_at->format('Y-m-d'),
                         ])
                         @endcomponent
                     </div>

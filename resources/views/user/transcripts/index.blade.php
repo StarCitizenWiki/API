@@ -18,7 +18,7 @@
             <span class="d-flex ml-auto">{{ $transcripts->links() }}</span>
         </div>
         <div class="card-body px-0 table-responsive">
-            <table class="table table-striped mb-0" data-order='[[ 0, "desc" ]]' data-page-length="50" data-length-menu='[ [25, 50, 100, -1], [25, 50, 100, "Alle"] ]'>
+            <table class="table table-striped mb-0" data-page-length="50" data-length-menu='[ [25, 50, 100, -1], [25, 50, 100, "Alle"] ]'>
                 <thead>
                 <tr>
                     @can('web.user.internals.view')
