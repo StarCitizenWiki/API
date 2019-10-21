@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b1dace6d6e1931215a7d7d8cd0a2ef60",
+    "content-hash": "3d9182ebb32bd7f1a6fa7bcdb858c54e",
     "packages": [
         {
             "name": "dingo/api",
@@ -1765,6 +1765,71 @@
             "time": "2019-10-05T15:52:23+00:00"
         },
         {
+            "name": "octfx/deeply",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/octfx/DeepLy.git",
+                "reference": "90c4c455f0d498cddb3ee8b7356d2fd5ca5a406b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/octfx/DeepLy/zipball/90c4c455f0d498cddb3ee8b7356d2fd5ca5a406b",
+                "reference": "90c4c455f0d498cddb3ee8b7356d2fd5ca5a406b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "^6.3",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "5.7"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Octfx\\DeepLy\\Integrations\\Laravel\\DeepLyServiceProvider"
+                    ],
+                    "aliases": {
+                        "DeepLy": "Octfx\\DeepLy\\Integrations\\Laravel\\DeepLyFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Octfx\\DeepLy\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chris Konnertz"
+                },
+                {
+                    "name": "Octfx"
+                }
+            ],
+            "description": "DeepLy is a PHP client for the DeepL.com translation API",
+            "keywords": [
+                "api",
+                "client",
+                "deepl",
+                "deeply",
+                "english",
+                "french",
+                "german",
+                "language",
+                "translate",
+                "translation"
+            ],
+            "time": "2019-10-21T15:13:07+00:00"
+        },
+        {
             "name": "opis/closure",
             "version": "3.4.0",
             "source": {
@@ -2381,65 +2446,6 @@
                 "uuid"
             ],
             "time": "2018-07-19T23:38:55+00:00"
-        },
-        {
-            "name": "starcitizenwiki/deeply",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://git.octofox.de/StarCitizenWiki/deeply.git",
-                "reference": "e11c9c84ca18b216106d143ac5c203ed219b0238"
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-mbstring": "*",
-                "guzzlehttp/guzzle": "^6.3",
-                "php": ">=7.1"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "5.7"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "StarCitizenWiki\\DeepLy\\Integrations\\Laravel\\DeepLyServiceProvider"
-                    ],
-                    "aliases": {
-                        "DeepLy": "StarCitizenWiki\\DeepLy\\Integrations\\Laravel\\DeepLyFacade"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "StarCitizenWiki\\DeepLy\\": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Konnertz"
-                },
-                {
-                    "name": "FoXFTW"
-                }
-            ],
-            "description": "DeepLy is a PHP client for the DeepL.com translation API",
-            "keywords": [
-                "api",
-                "client",
-                "deepl",
-                "deeply",
-                "english",
-                "french",
-                "german",
-                "language",
-                "translate",
-                "translation"
-            ],
-            "time": "2018-10-20T12:24:44+00:00"
         },
         {
             "name": "starcitizenwiki/mediawikiapi",
@@ -7090,7 +7096,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "starcitizenwiki/deeply": 20,
         "starcitizenwiki/mediawikiapi": 20,
         "escapestudios/symfony2-coding-standard": 20
     },

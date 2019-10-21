@@ -21,7 +21,7 @@
         "jaymoulin/guzzlehttp-cloudflare": "^1.0",
         "laravel/framework": "5.8.*",
         "mediawiki/oauthclient": "^1.0",
-        "starcitizenwiki/deeply": "dev-master",
+        "octfx/deeply": "^3.0",
         "starcitizenwiki/mediawikiapi": "dev-develop",
         "vinkla/hashids": "^6.0"
     },
@@ -82,10 +82,6 @@
         {
             "type": "vcs",
             "url":  "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "https://git.octofox.de/StarCitizenWiki/deeply.git"
         }
     ],
     "config": {
