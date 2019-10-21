@@ -1,20 +1,22 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * User: Hannes
  * Date: 08.08.2018
- * Time: 13:23
+ * Time: 13:23.
  */
 
 namespace Tests\Feature\Controller\Web\User\Dashboard;
 
 use App\Http\Controllers\Web\User\DashboardController;
 use Illuminate\Http\Response;
-use StarCitizenWiki\DeepLy\DeepLy;
-use StarCitizenWiki\DeepLy\ResponseBag\UsageBag;
+use Octfx\DeepLy\DeepLy;
+use Octfx\DeepLy\ResponseBag\UsageBag;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
 /**
- * Class AbstractBaseAdminControllerTest
+ * Class AbstractBaseAdminControllerTest.
  */
 class DashboardControllerTestCase extends UserTestCase
 {
@@ -23,7 +25,7 @@ class DashboardControllerTestCase extends UserTestCase
      *
      * @covers \App\Policies\Web\User\DashboardPolicy::view
      */
-    public function testShow()
+    public function testShow(): void
     {
         $mock = \Mockery::mock(DeepLy::class);
         $mock->shouldReceive('getUsage')->zeroOrMoreTimes()->andReturn(
@@ -36,7 +38,7 @@ class DashboardControllerTestCase extends UserTestCase
         $response = $this->actingAs($this->user)->followingRedirects()->get(route('web.user.dashboard'));
         $response->assertStatus(static::RESPONSE_STATUSES['show']);
 
-        if ($response->status() === Response::HTTP_OK) {
+        if (Response::HTTP_OK === $response->status()) {
             $response->assertViewIs('user.dashboard');
         }
     }
@@ -44,7 +46,7 @@ class DashboardControllerTestCase extends UserTestCase
     /**
      * @covers \App\Http\Controllers\Web\User\DashboardController
      */
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $controller = $this->getMockBuilder(DashboardController::class)->disableOriginalConstructor()->getMock();
         $controller->expects($this->once())->method('middleware')->with('auth');
