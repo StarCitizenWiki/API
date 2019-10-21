@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User;
 
@@ -9,11 +11,11 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use StarCitizenWiki\DeepLy\HttpClient\CallException;
-use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
+use Octfx\DeepLy\HttpClient\CallException;
+use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
 
 /**
- * Class DashboardController
+ * Class DashboardController.
  */
 class DashboardController extends Controller
 {
@@ -31,7 +33,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Returns the Dashboard View
+     * Returns the Dashboard View.
      *
      * @return \Illuminate\Contracts\View\View
      *
@@ -55,7 +57,7 @@ class DashboardController extends Controller
 
     /**
      * User Stats
-     * New Registrations and Logins
+     * New Registrations and Logins.
      *
      * @return array
      */
@@ -84,14 +86,14 @@ class DashboardController extends Controller
     }
 
     /**
-     * Deepl Usage Stats
+     * Deepl Usage Stats.
      *
      * @return array
      */
-    private function getDeeplStats()
+    private function getDeeplStats(): array
     {
         if (Cache::has(self::DEEPL_STATS_CACHE_KEY)) {
-               return Cache::get(self::DEEPL_STATS_CACHE_KEY);
+            return Cache::get(self::DEEPL_STATS_CACHE_KEY);
         }
 
         try {
@@ -116,7 +118,7 @@ class DashboardController extends Controller
 
         $stats = [
             'usage' => [
-                'limit' => $deeplUsage[self::DEEPL_CHARACTER_LIMIT] === -1 ? __('Fehler bei der Datenabfrage') : number_format(
+                'limit' => -1 === $deeplUsage[self::DEEPL_CHARACTER_LIMIT] ? __('Fehler bei der Datenabfrage') : number_format(
                     $deeplUsage[self::DEEPL_CHARACTER_LIMIT],
                     0,
                     ',',
@@ -136,17 +138,17 @@ class DashboardController extends Controller
     }
 
     /**
-     * Simple Queue Stat Counts
+     * Simple Queue Stat Counts.
      *
      * @return array
      */
-    private function getQueueStats()
+    private function getQueueStats(): array
     {
         $jobs = DB::table('jobs')->get();
         $jobsFailed = DB::table('failed_jobs')->count();
 
         $active = $jobs->filter(
-            function (\stdClass $job) {
+            static function (\stdClass $job) {
                 return null !== $job->reserved_at;
             }
         );

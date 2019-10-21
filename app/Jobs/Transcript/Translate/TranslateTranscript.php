@@ -11,8 +11,12 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use InvalidArgumentException;
-use StarCitizenWiki\DeepLy\Exceptions\TextLengthException;
-use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
+use Octfx\DeepLy\Exceptions\AuthenticationException;
+use Octfx\DeepLy\Exceptions\QuotaException;
+use Octfx\DeepLy\Exceptions\RateLimitedException;
+use Octfx\DeepLy\Exceptions\TextLengthException;
+use Octfx\DeepLy\HttpClient\CallException;
+use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
 
 /**
  * Translate a singleTranscript.
@@ -64,11 +68,23 @@ class TranslateTranscript implements ShouldQueue
             } else {
                 $translation = DeepLyFacade::translate($english, 'DE', 'EN');
             }
+        } catch (QuotaException $e) {
+            app('Log')::warning('Deepl Quote exceeded!');
+
+            $this->fail($e);
+
+            return;
+        } catch (RateLimitedException $e) {
+            app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
+
+            $this->release(60);
+
+            return;
         } catch (TextLengthException $e) {
             app('Log')::warning($e->getMessage());
 
             return;
-        } catch (InvalidArgumentException $e) {
+        } catch (CallException | AuthenticationException | InvalidArgumentException $e) {
             app('Log')::warning(sprintf('%s: %s', 'Translation failed with Message', $e->getMessage()));
 
             $this->fail($e);
