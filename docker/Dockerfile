@@ -37,7 +37,7 @@ VOLUME /opt/api/storage/app
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        #git \
+        git \
         #zip \
         libcurl4-gnutls-dev \
         libicu-dev \
