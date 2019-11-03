@@ -30,7 +30,6 @@ FROM php:7.3-apache
 
 COPY --from=intermediate /API /opt/api
 COPY --from=intermediate /API/docker/vhost.conf /etc/apache2/sites-available/000-default.conf
-COPY --from=intermediate /root/.ssh /root/.ssh
 COPY --from=intermediate /API/docker/start.sh /usr/local/bin/start
 
 VOLUME /opt/api/storage/logs
