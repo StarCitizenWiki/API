@@ -77,11 +77,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url":  "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git"
+            "url":  "https://github.com/StarCitizenWiki/LaravelMediawikiApi.git"
         }
     ],
     "config": {
