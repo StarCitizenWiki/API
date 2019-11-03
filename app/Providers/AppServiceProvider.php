@@ -1,20 +1,21 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Providers;
 
 use Carbon\Carbon;
 use FilesystemIterator;
 use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
+use URL;
 
 /**
- * Class AppServiceProvider
+ * Class AppServiceProvider.
  */
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,9 +30,13 @@ class AppServiceProvider extends ServiceProvider
 
         Carbon::setLocale(config('app.locale'));
 
-        if (config('app.debug') && config('app.env') === 'local') {
+        if ('production' === config('app.env')) {
+            URL::forceScheme('https');
+        }
+
+        if (config('app.debug') && 'local' === config('app.env')) {
             DB::listen(
-                function (QueryExecuted $query) {
+                static function (QueryExecuted $query) {
                     //app('Log')::debug($query->sql);
                 }
             );
@@ -48,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Loads migrations in Sub-folders
+     * Loads migrations in Sub-folders.
      */
     private function loadMigrations()
     {
