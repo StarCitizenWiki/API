@@ -17,7 +17,7 @@ if [ "$role" = "app" ]; then
 elif [ "$role" = "queue" ]; then
 
     echo "Running the queue..."
-    php /opt/api/artisan queue:work --verbose --tries=3 --timeout=90
+    php /opt/api/artisan queue:work --verbose --tries=3 --timeout=90 --sleep=10 --memory=512
 
 elif [ "$role" = "scheduler" ]; then
 
