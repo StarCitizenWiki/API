@@ -90,7 +90,8 @@ COPY ./docker/start.sh /usr/local/bin/start
 
 COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
 COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20180731/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20180731/
-COPY --from=extensions /usr/lib/x86_64-linux-gnu/libzip.so /usr/lib/x86_64-linux-gnu/libzip.so
+
+RUN sed -i "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini
 
 VOLUME /opt/api/storage/logs
 VOLUME /opt/api/storage/app
