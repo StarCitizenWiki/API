@@ -61,9 +61,9 @@ COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20180731/b
 
 LABEL stage=intermediate
 
-WORKDIR /app
+WORKDIR /api
 
-COPY composer.json composer.lock /app/
+COPY composer.json composer.lock /api/
 
 # install git
 RUN apt-get update && \
@@ -78,13 +78,13 @@ RUN /usr/bin/composer install --no-dev \
    --no-interaction \
    --no-scripts
 
-COPY docker /app
+COPY / /api
 RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 
 ### Final Image
 FROM php:7.3-apache
 
-COPY --from=api / /opt/api
+COPY --from=api /api /opt/api
 COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY ./docker/start.sh /usr/local/bin/start
 
