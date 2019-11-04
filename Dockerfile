@@ -91,10 +91,9 @@ COPY ./docker/start.sh /usr/local/bin/start
 COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
 COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20180731/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20180731/
 
-RUN mv /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini && \
-    sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
-    sed -i -e "s/memory_limit = 128M/memory_limit = 512M/" /usr/local/etc/php/php.ini && \
-    sed -i -e "s/max_execution_time = 30/max_execution_time = 60/" /usr/local/etc/php/php.ini
+RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
+    echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
+    echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini
 
 VOLUME /opt/api/storage/logs
 VOLUME /opt/api/storage/app
