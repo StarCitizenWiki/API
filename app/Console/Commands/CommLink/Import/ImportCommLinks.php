@@ -64,7 +64,7 @@ class ImportCommLinks extends Command
             $this->info("Starting at Comm-Link ID {$offset}");
         }
 
-        $arg = $this->hasArgument('sync-images-only') ? 'syncimageids' : 'parse';
+        $arg = $this->hasOption('sync-images-only') ? 'syncimageids' : 'parse';
 
         $this->dispatcher->dispatch(new ParseCommLinkDownload($offset, $arg));
     }
