@@ -89,6 +89,13 @@ class Image extends BaseElement
      */
     private function extractImages(): void
     {
+        $this->extractImgTags();
+        $this->extractPostBackground();
+        $this->extractSourceAttrs();
+        $this->extractCssBackgrounds();
+    }
+
+    private function extractImgTags() {
         $filter = ParseCommLink::POST_SELECTOR;
         if ($this->isSubscriberPage($this->commLink)) {
             $filter = '#subscribers .album-wrapper';
@@ -106,7 +113,9 @@ class Image extends BaseElement
                 }
             }
         );
+    }
 
+    private function extractPostBackground() {
         if ($this->commLink->filter(self::POST_BACKGROUND)->count() > 0) {
             $background = $this->commLink->filter(self::POST_BACKGROUND);
             $src = $background->attr('style');
@@ -124,9 +133,30 @@ class Image extends BaseElement
                 }
             }
         }
+    }
 
+    private function extractSourceAttrs() {
         preg_match_all(
             "/source:\s?'(https:\/\/(?:media\.)?robertsspaceindustries\.com.*?)'/",
+            $this->commLink->html(),
+            $matches
+        );
+
+        if (!empty($matches[1])) {
+            collect($matches[1])->each(
+                function ($src) {
+                    $this->images[] = [
+                        'src' => trim($src),
+                        'alt' => '',
+                    ];
+                }
+            );
+        }
+    }
+
+    private function extractCssBackgrounds() {
+        preg_match_all(
+            "/url\([\"'](\/media\/\w+\/\w+\/[\w\-.]+\.jpg)[\"']\)/",
             $this->commLink->html(),
             $matches
         );

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Import;
 
@@ -7,7 +9,7 @@ use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
 /**
- * Import all Downloaded Comm-Links
+ * Import all Downloaded Comm-Links.
  */
 class ImportCommLinks extends Command
 {
@@ -18,7 +20,8 @@ class ImportCommLinks extends Command
      *
      * @var string
      */
-    protected $signature = 'import:comm-links {offset=0 : Comm-Link start ID}';
+    protected $signature = 'import:comm-links {offset=0 : Comm-Link start ID} 
+                                              {--sync-images-only : Only sync images}';
 
     /**
      * The console command description.
@@ -51,8 +54,8 @@ class ImportCommLinks extends Command
      */
     public function handle()
     {
-        $this->info("Dispatching Comm-Link Import");
-        $offset = intval($this->argument('offset'));
+        $this->info('Dispatching Comm-Link Import');
+        $offset = (int) $this->argument('offset');
         if ($offset > 0) {
             if ($offset < self::FIRST_COMM_LINK_ID) {
                 $offset = self::FIRST_COMM_LINK_ID + $offset;
@@ -61,6 +64,8 @@ class ImportCommLinks extends Command
             $this->info("Starting at Comm-Link ID {$offset}");
         }
 
-        $this->dispatcher->dispatch(new ParseCommLinkDownload($offset));
+        $arg = $this->hasArgument('sync-images-only') ? 'syncimageids' : 'parse';
+
+        $this->dispatcher->dispatch(new ParseCommLinkDownload($offset, $arg));
     }
 }
