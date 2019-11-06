@@ -10,6 +10,7 @@ use App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages;
 use App\Console\Commands\CommLink\Download\ReDownloadCommLinks;
 use App\Console\Commands\CommLink\Import\ImportCommLinks;
 use App\Console\Commands\CommLink\Import\ImportMissingCommLinks;
+use App\Console\Commands\CommLink\SyncImageIds;
 use App\Console\Commands\CommLink\Translate\TranslateCommLinks;
 use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
 use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
@@ -48,6 +49,8 @@ class Kernel extends ConsoleKernel
         TranslateCommLinks::class,
 
         CreateCommLinkWikiPages::class,
+
+        SyncImageIds::class,
 
         ImportRelayTranscripts::class,
         TranslateTranscripts::class,

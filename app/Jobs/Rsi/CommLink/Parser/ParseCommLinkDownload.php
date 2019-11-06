@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
-use App\Jobs\CommLink\SyncImageIds;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,20 +29,13 @@ class ParseCommLinkDownload implements ShouldQueue
     private $offset;
 
     /**
-     * @var string Job mode parse or syncimageids
-     */
-    private $mode;
-
-    /**
      * Create a new job instance.
      *
-     * @param int    $offset Directory Offset
-     * @param string $mode
+     * @param int $offset Directory Offset
      */
-    public function __construct(int $offset = 0, string $mode = 'parse')
+    public function __construct(int $offset = 0)
     {
         $this->offset = $offset;
-        $this->mode = $mode;
     }
 
     /**
@@ -63,11 +55,7 @@ class ParseCommLinkDownload implements ShouldQueue
                         $file = preg_split('/\/|\\\/', $file);
                         $commLink = $commLinks->get((int) $commLinkDir, null);
 
-                        if ('parse' === $this->mode) {
-                            dispatch(new ParseCommLink((int) $commLinkDir, Arr::last($file), $commLink));
-                        } elseif (null !== $commLink) {
-                            dispatch(new SyncImageIds((int) $commLinkDir, $commLink->file, $commLink));
-                        }
+                        dispatch(new ParseCommLink((int) $commLinkDir, Arr::last($file), $commLink));
                     }
                 }
             }
