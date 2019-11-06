@@ -61,12 +61,12 @@ class ParseCommLinkDownload implements ShouldQueue
 
                     if (null !== $file) {
                         $file = preg_split('/\/|\\\/', $file);
-                        $commLink = $commLinks->get($commLinkDir, null);
+                        $commLink = $commLinks->get((int) $commLinkDir, null);
 
                         if ('parse' === $this->mode) {
                             dispatch(new ParseCommLink((int) $commLinkDir, Arr::last($file), $commLink));
                         } elseif (null !== $commLink) {
-                            dispatch(new SyncImageIds((int) $commLinkDir, Arr::last($file), $commLink));
+                            dispatch(new SyncImageIds((int) $commLinkDir, $commLink->file, $commLink));
                         }
                     }
                 }
