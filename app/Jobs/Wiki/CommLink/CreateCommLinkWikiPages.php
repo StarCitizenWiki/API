@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Wiki\CommLink;
 
@@ -12,10 +14,11 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use RuntimeException;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
- * Create Comm-Link Wiki Pages
+ * Create Comm-Link Wiki Pages.
  */
 class CreateCommLinkWikiPages implements ShouldQueue
 {
@@ -40,7 +43,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
         $token = MediaWikiApi::query()->meta('tokens')->request();
         if ($token->hasErrors()) {
             $this->fail(
-                new \RuntimeException(
+                new RuntimeException(
                     sprintf('%s: %s', 'Token retrieval failed', collect($token->getErrors())->implode('code', ', '))
                 )
             );
@@ -65,10 +68,8 @@ class CreateCommLinkWikiPages implements ShouldQueue
             function (Collection $commLinks) use ($config) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (\RuntimeException $e) {
+                } catch (RuntimeException $e) {
                     app('Log')::error($e->getMessage());
-
-                    $this->fail($e);
 
                     return;
                 }
@@ -98,10 +99,8 @@ class CreateCommLinkWikiPages implements ShouldQueue
             function (Collection $commLinks) use ($config) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (\RuntimeException $e) {
+                } catch (RuntimeException $e) {
                     app('Log')::error($e->getMessage());
-
-                    $this->fail($e);
 
                     return;
                 }
@@ -131,10 +130,8 @@ class CreateCommLinkWikiPages implements ShouldQueue
             function (Collection $commLinks) use ($config) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (\RuntimeException $e) {
+                } catch (RuntimeException $e) {
                     app('Log')::error($e->getMessage());
-
-                    $this->fail($e);
 
                     return;
                 }
