@@ -157,7 +157,7 @@ class Image extends BaseElement
     private function extractCssBackgrounds() {
         preg_match_all(
             "/url\([\"'](\/media\/\w+\/\w+\/[\w\-.]+\.\w+)[\"']\)/",
-            $this->commLink->html(),
+            $this->commLink->filterXPath('//head')->html(),
             $matches
         );
 
