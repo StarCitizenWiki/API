@@ -43,7 +43,7 @@ class ImportCommLink extends Command
         $id = (int) $this->argument('id');
 
         try {
-            $commLink = CommLink::query()->findOrFail($id);
+            $commLink = CommLink::query()->findOrFail($id, 'cig_id');
         } catch (ModelNotFoundException $e) {
             $this->error('Comm-Link does not exist in DB.');
 
