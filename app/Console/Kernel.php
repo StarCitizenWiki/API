@@ -8,6 +8,7 @@ use App\Console\Commands\CommLink\Download\DownloadCommLink;
 use App\Console\Commands\CommLink\Download\DownloadCommLinks;
 use App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages;
 use App\Console\Commands\CommLink\Download\ReDownloadCommLinks;
+use App\Console\Commands\CommLink\Import\ImportCommLink;
 use App\Console\Commands\CommLink\Import\ImportCommLinks;
 use App\Console\Commands\CommLink\Import\ImportMissingCommLinks;
 use App\Console\Commands\CommLink\SyncImageIds;
@@ -39,6 +40,7 @@ class Kernel extends ConsoleKernel
         ImportStats::class,
 
         ImportCommLinks::class,
+        ImportCommLink::class,
         ImportMissingCommLinks::class,
 
         DownloadCommLink::class,
