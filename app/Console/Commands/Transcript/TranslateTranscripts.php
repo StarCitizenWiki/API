@@ -30,7 +30,7 @@ class TranslateTranscripts extends Command
     public function handle(): void
     {
         $this->info('Dispatching Transcript Translation');
-        if (null === $this->argument('startPage')) {
+        if (!$this->hasArgument('limit')) {
             dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts());
         } else {
             dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts((int) $this->argument('limit')));
