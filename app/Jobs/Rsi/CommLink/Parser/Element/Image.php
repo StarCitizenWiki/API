@@ -99,6 +99,8 @@ class Image extends BaseElement
         $filter = ParseCommLink::POST_SELECTOR;
         if ($this->isSubscriberPage($this->commLink)) {
             $filter = '#subscribers .album-wrapper';
+        } elseif ($this->isSpecialPage($this->commLink)) {
+            $filter = ParseCommLink::SPECIAL_PAGE_SELECTOR;
         }
 
         $this->commLink->filter($filter)->filterXPath('//img')->each(
