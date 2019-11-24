@@ -93,6 +93,29 @@ class Image extends BaseElement
         $this->extractPostBackground();
         $this->extractSourceAttrs();
         $this->extractCssBackgrounds();
+
+        if ($this->isSpecialPage($this->commLink)) {
+            $this->commLink->filterXPath('//template')->each(
+                function (Crawler $crawler) {
+                    preg_match_all(
+                        "/'(https:\/\/(?:media\.)?robertsspaceindustries\.com.*?)'/",
+                        $crawler->html(),
+                        $matches
+                    );
+
+                    if (!empty($matches[1])) {
+                        collect($matches[1])->each(
+                            function ($src) {
+                                $this->images[] = [
+                                    'src' => trim($src),
+                                    'alt' => '',
+                                ];
+                            }
+                        );
+                    }
+                }
+            );
+        }
     }
 
     private function extractImgTags() {
