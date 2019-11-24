@@ -38,6 +38,8 @@ class ParseCommLink implements ShouldQueue
      */
     public const SUBSCRIBERS_SELECTOR = '#subscribers';
 
+    public const SPECIAL_PAGE_SELECTOR = '#layout-system';
+
     /**
      * @var int Comm-Link ID
      */
@@ -106,8 +108,9 @@ class ParseCommLink implements ShouldQueue
 
         $post = $this->crawler->filter(self::POST_SELECTOR);
         $subscribers = $this->crawler->filter(self::SUBSCRIBERS_SELECTOR);
+        $specialPage = $this->crawler->filter(self::SPECIAL_PAGE_SELECTOR);
 
-        if (0 === $post->count() && 0 === $subscribers->count()) {
+        if (0 === $post->count() && 0 === $subscribers->count() && 0 === $specialPage->count()) {
             app('Log')::info("Comm-Link with id {$this->commLinkId} has no content");
 
             return;
