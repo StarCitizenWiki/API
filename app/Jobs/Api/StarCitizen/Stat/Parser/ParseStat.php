@@ -34,7 +34,7 @@ class ParseStat implements ShouldQueue
     public function __construct(?string $statFileName = null)
     {
         if (null === $statFileName) {
-            $timestamp = now()->format("Y-m-d");
+            $timestamp = now()->format('Y-m-d');
             $statFileName = "stats_{$timestamp}.json";
         }
 
@@ -46,7 +46,7 @@ class ParseStat implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Parsing Stat Download');
         $year = now()->year;
@@ -84,7 +84,7 @@ class ParseStat implements ShouldQueue
             [
                 'funds' => number_format((float) $funds, 2, '.', ''),
                 'fans' => $stat->fans,
-                'fleet' => $stat->fleet,
+                'fleet' => $stat->fleet ?? $stat->fans,
             ]
         );
     }
