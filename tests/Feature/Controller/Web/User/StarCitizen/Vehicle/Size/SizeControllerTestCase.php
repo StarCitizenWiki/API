@@ -153,7 +153,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
      * {@inheritdoc}
      * Creates needed Vehicle sizes
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         factory(Size::class, 10)->create()->each(

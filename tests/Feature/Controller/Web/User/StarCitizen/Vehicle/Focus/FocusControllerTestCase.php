@@ -153,7 +153,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
      * {@inheritdoc}
      * Creates needed Vehicle Foci
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         factory(Focus::class, 10)->create()->each(

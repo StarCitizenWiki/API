@@ -79,11 +79,13 @@ trait GetCommLinkWikiPageInfoTrait
     }
 
     /**
+     * @param string $page
+     *
      * @return array
      */
-    private function getCommLinkConfig(): array
+    private function getCommLinkConfig(string $page = 'Comm-Link:Translation-Header'): array
     {
-        $response = MediaWikiApi::parse()->page('Comm-Link:Translation-Header')->prop('wikitext')->request();
+        $response = MediaWikiApi::parse()->page($page)->prop('wikitext')->request();
 
         if ($response->hasErrors()) {
             $this->formatApiError($response);

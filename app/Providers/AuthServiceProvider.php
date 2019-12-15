@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Providers;
 
@@ -9,6 +11,7 @@ use App\Policies\Web\User\Changelog\ChangelogPolicy;
 use App\Policies\Web\User\DashboardPolicy;
 use App\Policies\Web\User\Job\JobPolicy;
 use App\Policies\Web\User\Notification\NotificationPolicy;
+use App\Policies\Web\User\Transcript\TranscriptPolicy;
 use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
 use App\Policies\Web\User\Rsi\CommLink\Image\ImagePolicy;
 use App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy;
@@ -19,7 +22,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Class AuthServiceProvider
+ * Class AuthServiceProvider.
  */
 class AuthServiceProvider extends ServiceProvider
 {
@@ -39,7 +42,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        /**
+        /*
          * Admin Gates
          */
         Gate::resource('web.user.dashboard', DashboardPolicy::class);
@@ -54,12 +57,12 @@ class AuthServiceProvider extends ServiceProvider
             'start_proofread_update' => 'startCommLinkProofReadStatusUpdateJob',
         ]);
 
-        /**
+        /*
          * Internals = Datenbank IDs, etc.
          */
         Gate::define(
             'web.user.internals.view',
-            function (User $admin) {
+            static function (User $admin) {
                 return $admin->getHighestPermissionLevel() >= UserGroup::SYSOP;
             }
         );
@@ -67,18 +70,23 @@ class AuthServiceProvider extends ServiceProvider
         Gate::resource('web.user.notifications', NotificationPolicy::class);
         Gate::resource('web.user.users', UserPolicy::class);
 
-        /**
+        /*
          * Star Citizen
          */
         Gate::resource('web.user.starcitizen.manufacturers', ManufacturerPolicy::class);
         Gate::resource('web.user.starcitizen.vehicles', VehiclePolicy::class);
 
-        /**
+        /*
          * RSI
          */
         Gate::resource('web.user.rsi.comm-links', CommLinkPolicy::class);
         Gate::define('web.user.rsi.comm-links.preview', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@preview');
 
         Gate::resource('web.user.rsi.comm-links.images', ImagePolicy::class);
+
+        /*
+         * Transcripts
+         */
+        Gate::resource('web.user.transcripts', TranscriptPolicy::class);
     }
 }

@@ -1,7 +1,9 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * User: Keonie
- * Date: 13.08.2017 17:57
+ * Date: 13.08.2017 17:57.
  */
 
 namespace App\Jobs;
@@ -13,29 +15,29 @@ use Symfony\Component\BrowserKit\Cookie;
 
 /**
  * Base Class for Download Data Jobs
- * Class AbstractBaseDownloadData
+ * Class AbstractBaseDownloadData.
  */
 abstract class AbstractBaseDownloadData
 {
     public const RSI_TOKEN = 'STAR-CITIZEN.WIKI_DE_API_REQUEST';
 
     /**
-     * @var \GuzzleHttp\Client
+     * @var Client
      */
     protected static $client;
 
     /**
-     * @var \GuzzleHttp\Cookie\CookieJar
+     * @var CookieJar
      */
     protected static $cookieJar;
 
     /**
-     * @var \Goutte\Client
+     * @var GoutteClient
      */
     protected static $scraper;
 
     /**
-     * Inits the Guzzle Client
+     * Inits the Guzzle Client.
      *
      * @param bool $withTokenHeader
      */
@@ -50,7 +52,7 @@ abstract class AbstractBaseDownloadData
                 'cookies' => self::$cookieJar,
             ];
 
-            if ($withTokenHeader) {
+            if (true === $withTokenHeader) {
                 $config['headers'] = [
                     'X-RSI-Token' => self::RSI_TOKEN,
                 ];
@@ -63,7 +65,7 @@ abstract class AbstractBaseDownloadData
     /**
      * Check if Data is successful, and if Data contains the check Array values in is structure
      * e.g. for check ['data, 'resultset'], data hs to contain the key 'data' with an array value,
-     * which contains a key with 'resultset'
+     * which contains a key with 'resultset'.
      *
      * @param array $data  Checked Array
      * @param array $check List of Keys that are checked
@@ -72,7 +74,7 @@ abstract class AbstractBaseDownloadData
      */
     protected function checkIfDataCanBeProcessed($data, $check): bool
     {
-        if (is_array($data) && $data['success'] === 1) {
+        if (is_array($data) && 1 === $data['success']) {
             return $this->checkArrayStructure($data, $check);
         }
 
@@ -80,14 +82,14 @@ abstract class AbstractBaseDownloadData
     }
 
     /**
-     * Recursive Check of Array Structure
+     * Recursive Check of Array Structure.
      *
      * @param array $data  Checked Array
      * @param array $check List of Keys that are checked
      *
      * @return bool true when all Elements of $check in $data, otherwise false
      */
-    protected function checkArrayStructure($data, $check)
+    protected function checkArrayStructure($data, $check): bool
     {
         if (!empty($check) && !empty($data)) {
             if (array_key_exists($check[0], $data)) {
@@ -103,11 +105,11 @@ abstract class AbstractBaseDownloadData
     }
 
     /**
-     * Logs a User into the RSI Webseite
+     * Logs a User into the RSI Webseite.
      *
      * @return \stdClass Response JSON
      */
-    protected function getRsiAuthCookie()
+    protected function getRsiAuthCookie(): \stdClass
     {
         $res = self::$client->post(
             'api/account/signin',
@@ -122,7 +124,7 @@ abstract class AbstractBaseDownloadData
 
         $response = \GuzzleHttp\json_decode($res->getBody()->getContents());
 
-        if ($response->success !== 1) {
+        if (1 !== $response->success) {
             dd($response);
             throw new \InvalidArgumentException('Login was not successful');
         }
@@ -131,13 +133,13 @@ abstract class AbstractBaseDownloadData
     }
 
     /**
-     * Add Guzzle Cookies to Goutte
+     * Add Guzzle Cookies to Goutte.
      *
-     * @param \Goutte\Client $client
+     * @param GoutteClient $client
      *
-     * @return \Goutte\Client
+     * @return GoutteClient
      */
-    protected function addGuzzleCookiesToScraper(GoutteClient $client)
+    protected function addGuzzleCookiesToScraper(GoutteClient $client): GoutteClient
     {
         foreach (self::$cookieJar->toArray() as $cookie) {
             $client->getCookieJar()->set(
@@ -149,11 +151,11 @@ abstract class AbstractBaseDownloadData
     }
 
     /**
-     * Create a Scraper if it does not exist
+     * Create a Scraper if it does not exist.
      *
      * @param bool $withAuth
      */
-    protected function makeScraper(bool $withAuth = false)
+    protected function makeScraper(bool $withAuth = false): void
     {
         if (null === self::$scraper) {
             $this->initClient(false);

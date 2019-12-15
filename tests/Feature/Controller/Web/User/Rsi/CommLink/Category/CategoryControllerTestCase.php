@@ -77,7 +77,7 @@ class CategoryControllerTestCase extends UserTestCase
      * {@inheritdoc}
      * Creates needed Comm-Link Category
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->createSystemLanguages();

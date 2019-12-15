@@ -147,7 +147,10 @@ class ParseVehicle implements ShouldQueue
             $vehicle->changelogs()->create(
                 [
                     'type' => 'update',
-                    'changelog' => json_encode($changes),
+                    'user_id' => 0,
+                    'changelog' => [
+                        'changes' => $changes,
+                    ],
                 ]
             );
 
@@ -384,6 +387,6 @@ class ParseVehicle implements ShouldQueue
      */
     private function getDescription()
     {
-        return $this->rawData->get(self::VEHICLE_DESCRIPTION);
+        return $this->rawData->get(self::VEHICLE_DESCRIPTION) ?? '';
     }
 }

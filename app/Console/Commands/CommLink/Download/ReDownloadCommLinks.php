@@ -36,6 +36,6 @@ class ReDownloadCommLinks extends Command
             [
                 new ParseCommLinkDownload(),
             ]
-        )->dispatch($this->hasOption('skip') === true);
+        )->dispatch(true);
     }
 }

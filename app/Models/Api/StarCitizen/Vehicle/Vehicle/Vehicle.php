@@ -144,7 +144,7 @@ class Vehicle extends HasTranslations
      */
     public function ships()
     {
-        return $this->type()->ship();
+        return $this->size()->ship();
     }
 
     /**
@@ -154,7 +154,7 @@ class Vehicle extends HasTranslations
      */
     public function groundVehicles()
     {
-        return $this->type()->groundVehicle();
+        return $this->size()->groundVehicle();
     }
 
     /**

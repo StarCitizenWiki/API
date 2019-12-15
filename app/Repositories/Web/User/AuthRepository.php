@@ -1,62 +1,106 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: Hanne
  * Date: 09.08.2018
- * Time: 11:00
+ * Time: 11:00.
  */
 
 namespace App\Repositories\Web\User;
 
 use App\Contracts\Web\User\AuthRepositoryInterface;
-use App\Models\Account\User\User as UserModel;
+use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Laravel\Socialite\Facades\Socialite;
-use SocialiteProviders\Manager\OAuth1\User;
+use Illuminate\Support\Str;
+use MediaWiki\OAuthClient\Client;
+use MediaWiki\OAuthClient\ClientConfig;
+use MediaWiki\OAuthClient\Consumer;
+use MediaWiki\OAuthClient\Exception as OAuthException;
 
 /**
- * Mediawiki Bridge
+ * Mediawiki Bridge.
  */
 class AuthRepository implements AuthRepositoryInterface
 {
+    /**
+     * @var \MediaWiki\OAuthClient\Client
+     */
+    private $client;
+
+    /**
+     * Creates the OAuth Client.
+     */
+    public function __construct()
+    {
+        $conf = new ClientConfig(sprintf('%s/%s', config('services.mediawiki.url'), 'index.php?title=Special:OAuth'));
+        $conf->setConsumer(new Consumer(config('services.mediawiki.client_id'), config('services.mediawiki.client_secret')));
+
+        $this->client = new Client($conf);
+    }
+
     /**
      * {@inheritdoc}
      */
     public function startAuth()
     {
         try {
-            return Socialite::with('mediawiki')->stateless(false)->redirect();
-        } catch (\Exception $e) {
+            [$authUrl, $requestToken] = $this->client->initiate();
+        } catch (OAuthException $e) {
+            app('Log')::error(sprintf('Error in OAuth init request: %s', $e->getMessage()));
+
             return view('errors.503');
         }
+
+        Session::put('oauth.req_token', $requestToken);
+
+        return redirect($authUrl);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUserFromProvider()
+    public function getUserFromProvider(Request $request): User
     {
-        return Socialite::with('mediawiki')->stateless(false)->user();
+        $ver = $request->get('oauth_verifier');
+
+        try {
+            $accessToken = $this->client->complete(Session::get('oauth.req_token'), $ver);
+        } catch (OAuthException $e) {
+            app('Log')::error(sprintf('Error in retrieving OAuth User: %s', $e->getMessage()));
+
+            return abort(500);
+        }
+
+        try {
+            $ident = $this->client->identify($accessToken);
+        } catch (OAuthException $e) {
+            app('Log')::error(sprintf('Error in completing OAuth User request: %s', $e->getMessage()));
+
+            return abort(500);
+        }
+
+        return $this->userDetails($ident);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getOrCreateLocalUser(User $oauthUser, string $provider): UserModel
+    public function getOrCreateLocalUser(User $oauthUser, string $provider): User
     {
         /** @var \App\Models\Account\User\User $authUser */
-        $authUser = UserModel::query()->where('provider_id', $oauthUser->id)->where('provider', $provider)->first();
-        Session::put('oauth.user_token', $oauthUser->token);
-        Session::put('oauth.user_secret', $oauthUser->tokenSecret);
+        $authUser = User::query()->where('provider_id', $oauthUser->id)->where('provider', $provider)->first();
 
         if ($authUser) {
             $this->syncLocalUserGroups($oauthUser, $authUser);
 
-            if ($authUser->email !== $oauthUser->getEmail()) {
+            if ($authUser->email !== $oauthUser->email) {
                 $authUser->update(
                     [
-                        'email' => $oauthUser->getEmail(),
+                        'email' => $oauthUser->email,
                     ]
                 );
             }
@@ -70,9 +114,9 @@ class AuthRepository implements AuthRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function syncLocalUserGroups(User $oauthUser, UserModel $user): void
+    public function syncLocalUserGroups(User $oauthUser, User $user): void
     {
-        $groups = $oauthUser->user['groups'] ?? null;
+        $groups = $oauthUser->extra['groups'] ?? null;
 
         if (is_array($groups)) {
             $groupIDs = UserGroup::select('id')->whereIn('name', $groups)->get();
@@ -82,29 +126,52 @@ class AuthRepository implements AuthRepositoryInterface
     }
 
     /**
-     * Creates the local User Record
+     * Creates the local User Record.
      *
-     * @param \SocialiteProviders\Manager\OAuth1\User $oauthUser
-     * @param string                                  $provider
+     * @param \App\Models\Account\User\User $oauthUser
+     * @param string                        $provider
      *
      * @return \App\Models\Account\User\User
      */
-    private function createLocalUser(User $oauthUser, string $provider)
+    private function createLocalUser(User $oauthUser, string $provider): User
     {
         /** @var \App\Models\Account\User\User $localUser */
-        $localUser = UserModel::create(
+        $localUser = User::create(
             [
                 'username' => $oauthUser->username,
-                'email' => $oauthUser->getEmail(),
+                'email' => $oauthUser->email,
                 'blocked' => $oauthUser->blocked,
-                'provider_id' => $oauthUser->getId(),
+                'provider_id' => $oauthUser->id,
                 'provider' => $provider,
-                'api_token' => str_random(60),
+                'api_token' => Str::random(60),
             ]
         );
 
         $this->syncLocalUserGroups($oauthUser, $localUser);
 
         return $localUser;
+    }
+
+    /**
+     * @param \stdClass $data OAuth user data
+     *
+     * @return User
+     */
+    private function userDetails($data): User
+    {
+        $user = new User();
+        $user->id = $data->sub;
+        $user->email = optional($data)->email;
+        $user->username = $data->username;
+        $user->blocked = $data->blocked;
+
+        $user->extra = [
+            'groups' => $data->groups,
+            'rights' => $data->rights,
+            'grants' => optional($data)->grants,
+            'editcount' => $data->editcount,
+        ];
+
+        return $user;
     }
 }

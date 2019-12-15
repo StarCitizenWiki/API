@@ -35,6 +35,10 @@ class UserGroup extends Model
      */
     const USER = 0;
 
+    protected $casts = [
+        'permission_level' => 'int'
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

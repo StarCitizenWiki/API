@@ -14,6 +14,7 @@ use Dingo\Api\Routing\Helpers;
 use Dingo\Api\Transformer\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /**
  * Base Controller that has Dingo Helpers
@@ -67,6 +68,11 @@ abstract class AbstractApiController extends Controller
      * @var string Locale Code, set if Transformer implements LocaleAwareTransformerInterface
      */
     protected $localeCode;
+
+    /**
+     * @var array Extra Metadata to include
+     */
+    protected $extraMeta = [];
 
     /**
      * AbstractApiController constructor.
@@ -132,7 +138,7 @@ abstract class AbstractApiController extends Controller
             $meta['valid_relations'] = array_map('snake_case', $this->transformer->getAvailableIncludes());
         }
 
-        return $meta;
+        return array_merge($meta, $this->extraMeta);
     }
 
     /**
@@ -171,7 +177,7 @@ abstract class AbstractApiController extends Controller
             }
         )->transform(
             function ($relation) {
-                return camel_case($relation);
+                return Str::camel($relation);
             }
         )->each(
             function ($relation) {

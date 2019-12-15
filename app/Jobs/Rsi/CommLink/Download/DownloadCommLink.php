@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Download;
 
@@ -10,9 +12,10 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
- * Downloads the Whole Page Content
+ * Downloads the Whole Page Content.
  */
 class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 {
@@ -84,7 +87,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        if (!str_contains($content, 'id="post"') && !str_contains($content, 'id="subscribers"')) {
+        if (!Str::contains($content, 'id="post"') && !Str::contains($content, 'id="subscribers"') && !Str::contains($content, 'id="layout-system"')) {
             app('Log')::info(
                 "Comm-Link with ID {$this->postId} does not exist",
                 [
@@ -101,7 +104,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     }
 
     /**
-     * Strips the X-RSI Token from the Page
+     * Strips the X-RSI Token from the Page.
      *
      * @param string $content
      *

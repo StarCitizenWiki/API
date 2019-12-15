@@ -13,6 +13,7 @@ use App\Models\Api\Notification;
 use Carbon\Carbon;
 use Dingo\Api\Http\Response;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
 /**
@@ -89,7 +90,7 @@ class NotificationControllerTestCase extends UserTestCase
         $response = $this->actingAs($this->user)->post(
             route('web.user.notifications.store'),
             [
-                'content' => str_random(100),
+                'content' => Str::random(100),
                 'level' => rand(0, 3),
                 'expired_at' => Carbon::now()->addDay(),
                 'output' => [
@@ -118,7 +119,7 @@ class NotificationControllerTestCase extends UserTestCase
         $response = $this->actingAs($this->user)->post(
             route('web.user.notifications.store'),
             [
-                'content' => str_random(100),
+                'content' => Str::random(100),
                 'level' => 3,
                 'expired_at' => Carbon::now()->addDay(),
                 'output' => [
@@ -150,7 +151,7 @@ class NotificationControllerTestCase extends UserTestCase
         $response = $this->actingAs($this->user)->patch(
             route('web.user.notifications.update', $notification->getRouteKey()),
             [
-                'content' => str_random(100),
+                'content' => Str::random(100),
                 'level' => rand(0, 3),
                 'expired_at' => Carbon::now()->addDay(),
                 'published_at' => $notification->published_at,
@@ -187,7 +188,7 @@ class NotificationControllerTestCase extends UserTestCase
         $response = $this->actingAs($this->user)->patch(
             route('web.user.notifications.update', $notification->getRouteKey()),
             [
-                'content' => str_random(100),
+                'content' => Str::random(100),
                 'level' => rand(0, 3),
                 'expired_at' => Carbon::now()->addDay(),
                 'published_at' => $notification->published_at,
@@ -243,7 +244,7 @@ class NotificationControllerTestCase extends UserTestCase
      * {@inheritdoc}
      * Creates needed Notifications
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->notifications = factory(Notification::class, 5)->states('active')->create();

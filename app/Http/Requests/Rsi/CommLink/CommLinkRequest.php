@@ -1,13 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Requests\Rsi\CommLink;
 
-use App\Models\System\Language;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Comm-Link Requests
+ * Comm-Link Requests.
  */
 class CommLinkRequest extends FormRequest
 {
@@ -16,9 +17,9 @@ class CommLinkRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        return Auth::check();
+        return Auth::check() && Auth::user()->can('web.user.rsi.comm-links.update');
     }
 
     /**
@@ -26,18 +27,16 @@ class CommLinkRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
-        $rules = [
+        return [
             'title' => 'required|string|min:1|max:255',
             'url' => 'nullable|string|min:15|max:255',
             'created_at' => 'required|date',
+            'channel' => 'required|string|exists:comm_link_channels,id',
+            'series' => 'required|string|exists:comm_link_series,id',
+            'category' => 'required|string|exists:comm_link_categories,id',
+            //'version' => 'required|string|regex:/\d{4}\-\d{2}\-\d{2}\_\d{6}\.html/',
         ];
-
-        if (Auth::user()->can('web.user.rsi.comm-links.update')) {
-            $rules['version'] = 'required|string|regex:/\d{4}\-\d{2}\-\d{2}\_\d{6}\.html/';
-        }
-
-        return $rules;
     }
 }

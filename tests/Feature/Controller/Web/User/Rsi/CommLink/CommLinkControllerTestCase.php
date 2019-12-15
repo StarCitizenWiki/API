@@ -1,8 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * User: Hannes
  * Date: 07.08.2018
- * Time: 11:52
+ * Time: 11:52.
  */
 
 namespace Tests\Feature\Controller\Web\User\Rsi\CommLink;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
 /**
- * Class Comm-Link Controller Test Case
+ * Class Comm-Link Controller Test Case.
  */
 class CommLinkControllerTestCase extends UserTestCase
 {
@@ -30,12 +32,12 @@ class CommLinkControllerTestCase extends UserTestCase
      * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController::index
      * @covers \App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy::view
      */
-    public function testIndex()
+    public function testIndex(): void
     {
         $response = $this->actingAs($this->user)->get(route('web.user.rsi.comm-links.index'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
-        if ($response->status() === Response::HTTP_OK) {
+        if (Response::HTTP_OK === $response->status()) {
             $response->assertViewIs('user.rsi.comm_links.index')->assertSee($this->commLink->title);
         }
     }
@@ -44,14 +46,14 @@ class CommLinkControllerTestCase extends UserTestCase
      * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController::show
      * @covers \App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy::view
      */
-    public function testShow()
+    public function testShow(): void
     {
         $response = $this->actingAs($this->user)->get(
             route('web.user.rsi.comm-links.show', $this->commLink->getRouteKey())
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['show']);
-        if ($response->status() === Response::HTTP_OK) {
+        if (Response::HTTP_OK === $response->status()) {
             $response->assertViewIs('user.rsi.comm_links.show')
                 ->assertSee($this->commLink->title)
                 ->assertSee(__('en_EN'))
@@ -70,7 +72,7 @@ class CommLinkControllerTestCase extends UserTestCase
      *
      * @covers \App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy::update
      */
-    public function testEdit()
+    public function testEdit(): void
     {
         Storage::disk('comm_links')->put(
             "{$this->commLink->cig_id}/{$this->commLink->file}",
@@ -95,7 +97,7 @@ EOF
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
-        if ($response->status() === Response::HTTP_OK) {
+        if (Response::HTTP_OK === $response->status()) {
             $response->assertViewIs('user.rsi.comm_links.edit')
                 ->assertSee(__('Comm-Link bearbeiten'))
                 ->assertSee(__('Lesen'))
@@ -117,7 +119,7 @@ EOF
      * @covers \App\Events\ModelUpdating
      * @covers \App\Listeners\ModelUpdating
      */
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $response = $this->actingAs($this->user)->patch(
             route('web.user.rsi.comm-links.update', $this->commLink),
@@ -127,6 +129,9 @@ EOF
                 'created_at' => $this->commLink->created_at,
                 'de_DE' => 'Deutscher Text',
                 'en_EN' => 'Bla',
+                'channel' => $this->commLink->channel->id,
+                'series' => $this->commLink->series->id,
+                'category' => $this->commLink->category->id,
             ]
         );
 
@@ -145,14 +150,11 @@ EOF
      * @covers \App\Events\ModelUpdating
      * @covers \App\Listeners\ModelUpdating
      */
-    public function testUpdateVersion()
+    public function testUpdateVersion(): void
     {
-        // TODO Refactor?
-        if (!$this->user->can('web.user.rsi.comm-links.update')) {
-            $this->markTestSkipped('Admin has no Version Update Permissions');
+        $this->markTestSkipped();
 
-            return;
-        }
+        return;
 
         Bus::fake();
 
@@ -164,14 +166,14 @@ EOF
                 'created_at' => $this->commLink->created_at,
                 'de_DE' => 'Deutscher Text',
                 'en_EN' => 'Bla',
-
+                'changeVersion' => '',
                 'version' => '2012-01-01_000000.html',
             ]
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_version']);
 
-        if ($response->status() === Response::HTTP_OK) {
+        if (Response::HTTP_OK === $response->status()) {
             Bus::assertDispatched(ParseCommLink::class);
 
             $response->assertViewIs('user.rsi.comm_links.show')
@@ -184,7 +186,7 @@ EOF
      *
      * @covers \App\Jobs\Rsi\CommLink\Parser\Element\Content
      */
-    public function testPreview()
+    public function testPreview(): void
     {
         $version = '2012-01-01_000000';
 
@@ -212,7 +214,7 @@ EOF
 
         $response->assertStatus(static::RESPONSE_STATUSES['preview']);
 
-        if ($response->status() === Response::HTTP_OK) {
+        if (Response::HTTP_OK === $response->status()) {
             $response->assertViewIs('user.rsi.comm_links.preview')
                 ->assertSee(__('Preview Content'));
         }
@@ -221,7 +223,7 @@ EOF
     /**
      * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController
      */
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $controller = $this->getMockBuilder(CommLinkController::class)->disableOriginalConstructor()->getMock();
         $controller->expects($this->once())->method('middleware')->with('auth');
@@ -233,9 +235,9 @@ EOF
 
     /**
      * {@inheritdoc}
-     * Creates needed Comm-Link
+     * Creates needed Comm-Link.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->createSystemLanguages();

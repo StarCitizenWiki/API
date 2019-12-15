@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
@@ -8,10 +10,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Dispatches a ParseCommLink Job for the newest file in every Comm-Link Folder
+ * Dispatches a ParseCommLink Job for the newest file in every Comm-Link Folder.
  */
 class ParseCommLinkDownload implements ShouldQueue
 {
@@ -23,7 +26,7 @@ class ParseCommLinkDownload implements ShouldQueue
     /**
      * @var int Offset to start parsing from
      */
-    private $offset = 0;
+    private $offset;
 
     /**
      * Create a new job instance.
@@ -37,8 +40,6 @@ class ParseCommLinkDownload implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle()
     {
@@ -47,12 +48,14 @@ class ParseCommLinkDownload implements ShouldQueue
 
         collect(Storage::disk('comm_links')->directories())->each(
             function ($commLinkDir) use ($commLinks) {
-                if (intval($commLinkDir) >= $this->offset) {
-                    $file = array_last(Storage::disk('comm_links')->files($commLinkDir));
+                if ((int) $commLinkDir >= $this->offset) {
+                    $file = Arr::last(Storage::disk('comm_links')->files($commLinkDir));
 
                     if (null !== $file) {
                         $file = preg_split('/\/|\\\/', $file);
-                        dispatch(new ParseCommLink(intval($commLinkDir), array_last($file), $commLinks->get($commLinkDir, null)));
+                        $commLink = $commLinks->get((int) $commLinkDir, null);
+
+                        dispatch(new ParseCommLink((int) $commLinkDir, Arr::last($file), $commLink));
                     }
                 }
             }

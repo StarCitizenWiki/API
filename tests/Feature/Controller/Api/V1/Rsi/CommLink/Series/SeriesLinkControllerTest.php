@@ -142,7 +142,7 @@ class SeriesLinkControllerTest extends ApiTestCase
     /**
      * Creates Faked Comm-Links in DB
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

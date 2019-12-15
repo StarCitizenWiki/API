@@ -172,7 +172,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      * {@inheritdoc}
      * Creates needed GroundVehicles
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         factory(Vehicle::class, 10)->state('ground_vehicle')->create()->each(

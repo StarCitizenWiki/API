@@ -2,7 +2,7 @@
 
 return [
 
-    'version' => '0.0.2',
+    'version' => '0.0.3',
 
     /*
     |--------------------------------------------------------------------------
@@ -151,7 +151,6 @@ return [
         /*
          * Package Service Providers...
          */
-        SocialiteProviders\Manager\ServiceProvider::class,
 
         /*
          * Application Service Providers...

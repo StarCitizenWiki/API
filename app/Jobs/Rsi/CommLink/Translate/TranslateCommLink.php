@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Translate;
 
@@ -8,11 +10,17 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use StarCitizenWiki\DeepLy\Exceptions\TextLengthException;
-use StarCitizenWiki\DeepLy\Integrations\Laravel\DeepLyFacade;
+use InvalidArgumentException;
+use Octfx\DeepLy\DeepLy;
+use Octfx\DeepLy\Exceptions\AuthenticationException;
+use Octfx\DeepLy\Exceptions\QuotaException;
+use Octfx\DeepLy\Exceptions\RateLimitedException;
+use Octfx\DeepLy\Exceptions\TextLengthException;
+use Octfx\DeepLy\HttpClient\CallException;
+use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
 
 /**
- * Translate a single Comm-Link
+ * Translate a single Comm-Link.
  */
 class TranslateCommLink implements ShouldQueue
 {
@@ -21,17 +29,15 @@ class TranslateCommLink implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const DEEPL_MAX_LENGTH = 30000;
-
     /**
-     * @var \App\Models\Rsi\CommLink\CommLink
+     * @var CommLink
      */
     private $commLink;
 
     /**
      * Create a new job instance.
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      */
     public function __construct(CommLink $commLink)
     {
@@ -43,7 +49,7 @@ class TranslateCommLink implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info("Translating Comm-Link with ID {$this->commLink->cig_id}");
 
@@ -52,20 +58,31 @@ class TranslateCommLink implements ShouldQueue
             $translation = '';
 
             try {
-                if (mb_strlen($english) > self::DEEPL_MAX_LENGTH) {
-                    foreach ($this->strSplitUnicode($english, self::DEEPL_MAX_LENGTH) as $chunk) {
+                if (mb_strlen($english) > DeepLy::MAX_TRANSLATION_TEXT_LEN) {
+                    foreach ($this->strSplitUnicode($english, DeepLy::MAX_TRANSLATION_TEXT_LEN) as $chunk) {
                         $chunkTranslation = DeepLyFacade::translate($chunk, 'DE', 'EN');
                         $translation .= " {$chunkTranslation}";
                     }
                 } else {
                     $translation = DeepLyFacade::translate($english, 'DE', 'EN');
                 }
+            } catch (QuotaException $e) {
+                app('Log')::warning('Deepl Quote exceeded!');
 
+                $this->fail($e);
+
+                return;
+            } catch (RateLimitedException $e) {
+                app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
+
+                $this->release(60);
+
+                return;
             } catch (TextLengthException $e) {
                 app('Log')::warning($e->getMessage());
 
                 return;
-            } catch (\InvalidArgumentException $e) {
+            } catch (CallException | AuthenticationException | InvalidArgumentException $e) {
                 app('Log')::warning(sprintf('%s: %s', 'Translation failed with Message', $e->getMessage()));
 
                 $this->fail($e);
@@ -86,7 +103,7 @@ class TranslateCommLink implements ShouldQueue
     }
 
     /**
-     * Splits a Unicode String into the given length chunks
+     * Splits a Unicode String into the given length chunks.
      *
      * @param string $str
      * @param int    $length

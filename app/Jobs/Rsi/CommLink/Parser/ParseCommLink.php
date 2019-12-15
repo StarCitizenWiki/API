@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Parser;
 
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Parses the HTML File and extracts all needed Data
+ * Parses the HTML File and extracts all needed Data.
  */
 class ParseCommLink implements ShouldQueue
 {
@@ -27,14 +29,16 @@ class ParseCommLink implements ShouldQueue
     use SerializesModels;
 
     /**
-     * Comm-Link Post CSS Selector
+     * Comm-Link Post CSS Selector.
      */
-    const POST_SELECTOR = '#post';
+    public const POST_SELECTOR = '#post';
 
     /**
-     * Comm-Link Post CSS Selector
+     * Comm-Link Post CSS Selector.
      */
-    const SUBSCRIBERS_SELECTOR = '#subscribers';
+    public const SUBSCRIBERS_SELECTOR = '#subscribers';
+
+    public const SPECIAL_PAGE_SELECTOR = '#layout-system';
 
     /**
      * @var int Comm-Link ID
@@ -52,7 +56,7 @@ class ParseCommLink implements ShouldQueue
     private $commLinkModel;
 
     /**
-     * True if the given file content should be imported into the comm link model
+     * True if the given file content should be imported into the comm link model.
      *
      * @var bool
      */
@@ -93,8 +97,8 @@ class ParseCommLink implements ShouldQueue
             [
                 'id' => $this->commLinkId,
                 'file' => $this->file,
-                'comm_link_already_in_db' => $this->commLinkModel !== null,
-                'force_import' => $this->forceImport === true,
+                'comm_link_already_in_db' => null !== $this->commLinkModel,
+                'force_import' => true === $this->forceImport,
             ]
         );
 
@@ -104,8 +108,9 @@ class ParseCommLink implements ShouldQueue
 
         $post = $this->crawler->filter(self::POST_SELECTOR);
         $subscribers = $this->crawler->filter(self::SUBSCRIBERS_SELECTOR);
+        $specialPage = $this->crawler->filter(self::SPECIAL_PAGE_SELECTOR);
 
-        if ($post->count() === 0 && $subscribers->count() === 0) {
+        if (0 === $post->count() && 0 === $subscribers->count() && 0 === $specialPage->count()) {
             app('Log')::info("Comm-Link with id {$this->commLinkId} has no content");
 
             return;
@@ -119,7 +124,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Updates or Creates a Comm-Link Model and populates it
+     * Updates or Creates a Comm-Link Model and populates it.
      */
     private function createCommLink()
     {
@@ -145,7 +150,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Creates the Comm-Link Dara Array from Metadata
+     * Creates the Comm-Link Dara Array from Metadata.
      *
      * @return array
      */
@@ -166,7 +171,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Adds or Updates the default english Translation to the Comm-Link
+     * Adds or Updates the default english Translation to the Comm-Link.
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
@@ -185,7 +190,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Syncs extracted Comm-Link Image Ids
+     * Syncs extracted Comm-Link Image Ids.
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
@@ -196,7 +201,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Syncs extrated Comm-Link Link Ids
+     * Syncs extrated Comm-Link Link Ids.
      *
      * @param \App\Models\Rsi\CommLink\CommLink $commLink
      */
@@ -216,7 +221,7 @@ class ParseCommLink implements ShouldQueue
 
     /**
      * Checks if Content of current Comm-Link has Changed
-     * Updates Metadata
+     * Updates Metadata.
      */
     private function checkCommLinkForChanges()
     {
@@ -247,7 +252,7 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
-     * Checks if Local Content is Equal to DB Content
+     * Checks if Local Content is Equal to DB Content.
      *
      * @return bool
      */

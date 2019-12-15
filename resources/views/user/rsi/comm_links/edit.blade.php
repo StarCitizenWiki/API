@@ -20,11 +20,6 @@
                             'id' => 'title',
                             'value' => $commLink->title,
                         ])
-                            @slot('inputOptions')
-                                @if(strlen($commLink->title) > 4)
-                                    readonly
-                                @endif
-                            @endslot
                         @endcomponent
                     </div>
                     <div class="col-12 col-lg-4 col-xl-2">
@@ -32,13 +27,8 @@
                             'inputType' => 'date',
                             'label' => __('Veröffentlichung'),
                             'id' => 'created_at',
-                            'value' => $commLink->created_at->format("Y-m-d"),
+                            'value' => $commLink->created_at->format('Y-m-d'),
                         ])
-                            @slot('inputOptions')
-                                @if(!$commLink->created_at->eq('2012-01-01 00:00:00'))
-                                    readonly
-                                @endif
-                            @endslot
                         @endcomponent
                     </div>
                     <div class="col-12 col-lg-12 col-xl-4">
@@ -55,6 +45,62 @@
                                 placeholder="/comm-link/KATEGORIE/ID-TITEL"
                             @endslot
                         @endcomponent
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-lg-12 col-xl-2">
+                        @component('components.forms.form-group', [
+                            'inputType' => 'select',
+                            'label' => __('Channel'),
+                            'id' => 'channel',
+                        ])
+                            @slot('selectOptions')
+                                @foreach($channels as $channel)
+                                    <option value="{{ $channel->id }}"
+                                            @if($commLink->channel->name === $channel->name)
+                                            selected
+                                            @endif
+                                    >{{ $channel->name }}</option>
+                                @endforeach
+                            @endslot
+                        @endcomponent
+                    </div>
+                    <div class="col-12 col-lg-12 col-xl-2">
+                        @component('components.forms.form-group', [
+                            'inputType' => 'select',
+                            'label' => __('Kategorie'),
+                            'id' => 'category',
+                        ])
+                            @slot('selectOptions')
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                            @if($commLink->category->name === $category->name)
+                                            selected
+                                            @endif
+                                    >{{ $category->name }}</option>
+                                @endforeach
+                            @endslot
+                        @endcomponent
+                    </div>
+                    <div class="col-12 col-lg-12 col-xl-2">
+                        @component('components.forms.form-group', [
+                            'inputType' => 'select',
+                            'label' => __('Serie'),
+                            'id' => 'series',
+                        ])
+                            @slot('selectOptions')
+                                @foreach($series as $serie)
+                                    <option value="{{ $serie->id }}"
+                                            @if($commLink->series->name === $serie->name)
+                                            selected
+                                            @endif
+                                    >{{ $serie->name }}</option>
+                                @endforeach
+                            @endslot
+                        @endcomponent
+                    </div>
+                    <div class="col-12 col-lg-12 col-xl-2 mt-xl-4 pt-xl-2">
+                        <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
                     </div>
                 </div>
                 <hr>
@@ -84,7 +130,7 @@
                             <div class="col-12 col-lg-6 col-xl-3">
                                 <div class="form-group">
                                     <label for="version">Importierte Version:</label>
-                                    <select class="form-control" id="version" name="version">
+                                    <select class="form-control" id="version" name="version" disabled>
                                         @foreach($versions as $version)
                                             <option value="{{ $version['file'] }}" @if($version['file'] === $commLink->file) selected @endif>{{ $version['output'] }}</option>
                                         @endforeach
@@ -97,7 +143,7 @@
                                     @lang('Vorhandene Versionen'):
                                 </p>
                                 @foreach($versions as $version)
-                                    @unless(starts_with($version['output'], 'Aktuell'))
+                                    @unless(\Illuminate\Support\Str::startsWith($version['output'], 'Aktuell'))
                                         <a class="btn btn-block btn-outline-secondary" href="{{ route('web.user.rsi.comm-links.preview', [$commLink->getRouteKey(), $version['file_clean']]) }}">Vorschau Version vom {{ $version['output'] }}</a>
                                     @endunless
                                 @endforeach
@@ -108,7 +154,7 @@
             </div>
             <div class="card-footer d-flex">
                 <a href="{{ route('web.user.rsi.comm-links.show', $commLink->getRouteKey()) }}" class="btn btn-outline-primary">@lang('Lesen')</a>
-                <button class="btn btn-outline-secondary ml-auto" name="save">@lang('Speichern')</button>
+                <!--<button class="btn btn-outline-secondary ml-auto" name="changeVersion">@lang('Version ändern')</button>-->
             </div>
         </div>
     @endcomponent

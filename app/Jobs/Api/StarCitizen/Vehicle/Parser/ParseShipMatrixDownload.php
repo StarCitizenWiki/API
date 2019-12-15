@@ -8,8 +8,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use function GuzzleHttp\json_decode;
 
@@ -82,14 +84,14 @@ class ParseShipMatrixDownload implements ShouldQueue
      */
     private function setShipMatrixFileName()
     {
-        $newestShipMatrixDir = array_last(Storage::disk('vehicles')->directories());
+        $newestShipMatrixDir = Arr::last(Storage::disk('vehicles')->directories());
 
         if (null === $newestShipMatrixDir) {
             $this->fail(new InvalidArgumentException('No Shipmatrix directories found'));
         } else {
-            $file = array_last(Storage::disk('vehicles')->files($newestShipMatrixDir));
+            $file = Arr::last(Storage::disk('vehicles')->files($newestShipMatrixDir));
 
-            if (null !== $file && str_contains($file, 'shipmatrix')) {
+            if (null !== $file && Str::contains($file, 'shipmatrix')) {
                 $this->shipMatrixFileName = $file;
             } else {
                 app('Log')::error('No Shipmatrix File on Disk \'vehicles\' found');

@@ -1,8 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * User: Hannes
  * Date: 11.09.2018
- * Time: 17:49
+ * Time: 17:49.
  */
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
@@ -10,12 +12,12 @@ namespace App\Jobs\Rsi\CommLink\Parser\Element;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Base Methods for Elements
+ * Base Methods for Elements.
  */
 abstract class AbstractBaseElement
 {
     /**
-     * Removes all new lines and trims the string
+     * Removes all new lines and trims the string.
      *
      * @param string $string
      *
@@ -28,7 +30,7 @@ abstract class AbstractBaseElement
 
     /**
      * Checks if Comm-Link Page is a Ship Page
-     * Ship Pages are wrapped in a '#layout-system' Div
+     * Ship Pages are wrapped in a '#layout-system' Div.
      *
      * @param \Symfony\Component\DomCrawler\Crawler $commLink
      *
@@ -36,11 +38,11 @@ abstract class AbstractBaseElement
      */
     protected function isSpecialPage(Crawler $commLink): bool
     {
-        return $commLink->filter('#layout-system')->count() === 1;
+        return 1 === $commLink->filter('#layout-system')->count();
     }
 
     /**
-     * Checks if Comm-Link Page is a Subscriber Article
+     * Checks if Comm-Link Page is a Subscriber Article.
      *
      * @param \Symfony\Component\DomCrawler\Crawler $commLink
      *
@@ -48,6 +50,6 @@ abstract class AbstractBaseElement
      */
     protected function isSubscriberPage(Crawler $commLink): bool
     {
-        return $commLink->filter('div#subscribers')->count() === 1;
+        return 1 === $commLink->filter('div#subscribers')->count();
     }
 }

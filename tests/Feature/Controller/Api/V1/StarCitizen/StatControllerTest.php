@@ -99,7 +99,7 @@ class StatControllerTest extends ApiTestCase
     /**
      * Creates Faked Stats in DB
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

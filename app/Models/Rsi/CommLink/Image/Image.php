@@ -4,6 +4,8 @@ namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 /**
  * Class Image
@@ -38,7 +40,7 @@ class Image extends Model
      */
     public function getNameAttribute()
     {
-        return array_last(explode('/', $this->src));
+        return Arr::last(explode('/', $this->src));
     }
 
     /**
@@ -50,7 +52,7 @@ class Image extends Model
     {
         $url = config('api.rsi_url');
 
-        if (!starts_with($this->src, ['/media', '/rsi', '/layoutscache'])) {
+        if (!Str::startsWith($this->src, ['/media', '/rsi', '/layoutscache'])) {
             $url = 'https://media.robertsspaceindustries.com';
         }
 

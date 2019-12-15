@@ -10,35 +10,33 @@
     "require": {
         "php": ">=7.2",
         "ext-dom": "*",
+        "ext-intl": "*",
         "ext-json": "*",
         "ext-libxml": "*",
-        "ext-intl": "*",
-        "dingo/api": "2.0.0-alpha2",
+        "ext-simplexml": "*",
+        "dingo/api": "2.2.3",
         "fabpot/goutte": "^3.2",
         "fideloper/proxy": "~4.0",
         "guzzlehttp/guzzle": "^6.3",
-        "laravel/framework": "5.7.*",
-        "laravel/socialite": "^3.0",
-        "mediawiki/oauthclient": "^0.1.2",
-        "piwik/piwik-php-tracker": "^1.2",
-        "socialiteproviders/manager": "^3.3",
-        "starcitizenwiki/deeply": "dev-master",
+        "jaymoulin/guzzlehttp-cloudflare": "^1.0",
+        "laravel/framework": "5.8.*",
+        "mediawiki/oauthclient": "^1.0",
+        "octfx/deeply": "^3.0",
         "starcitizenwiki/mediawikiapi": "dev-develop",
-        "starcitizenwiki/socialite-provider": "^1.2",
-        "vinkla/hashids": "^5.0"
+        "vinkla/hashids": "^6.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.3",
         "caouecs/laravel-lang": "^3.0",
         "doctrine/dbal": "^2.5",
-        "escapestudios/symfony2-coding-standard": "~2.0",
-        "fzaninotto/faker": "~1.4",
+        "escapestudios/symfony2-coding-standard": "3.x-dev",
         "filp/whoops": "~2.0",
+        "fzaninotto/faker": "~1.4",
         "laravel/tinker": "~1.0",
         "mockery/mockery": "~1.0",
         "nunomaduro/collision": "^2.0",
         "phpunit/phpunit": "^7.0",
-        "squizlabs/php_codesniffer": "2.*",
+        "squizlabs/php_codesniffer": "3.*",
         "symfony/css-selector": "3.1.*",
         "symfony/dom-crawler": "3.1.*"
     },
@@ -79,15 +77,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url":  "https://git.octofox.de/StarCitizenWiki/laravel-mediawiki-api.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "https://git.octofox.de/StarCitizenWiki/SocialiteProvider.git"
-        },
-        {
-            "type": "vcs",
-            "url":  "https://git.octofox.de/StarCitizenWiki/deeply.git"
+            "url":  "https://github.com/StarCitizenWiki/LaravelMediawikiApi.git"
         }
     ],
     "config": {

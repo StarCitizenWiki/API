@@ -35,7 +35,7 @@ class ProductionNoteControllerSichterTest extends ProductionNoteControllerTestCa
      * {@inheritdoc}
      * Adds the specific group to the Admin model
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->user->groups()->sync(UserGroup::where('name', 'sichter')->first()->id);

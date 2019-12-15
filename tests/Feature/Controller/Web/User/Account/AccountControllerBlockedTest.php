@@ -28,7 +28,7 @@ class AccountControllerBlockedTest extends AccountControllerTestCase
      * {@inheritdoc}
      * Adds the specific group to the User model
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->user = factory(User::class)->state('blocked')->create();

@@ -2,7 +2,6 @@
 
 namespace App\Models\Api\StarCitizen\Vehicle\Ship;
 
-use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -21,7 +20,7 @@ class Ship extends Vehicle
         parent::boot();
 
         static::addGlobalScope(
-            'type',
+            'size',
             function (Builder $builder) {
                 $builder->has('ships');
             }

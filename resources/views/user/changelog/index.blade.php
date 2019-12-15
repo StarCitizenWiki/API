@@ -39,7 +39,11 @@
                             @php
                             $str = [];
                             foreach($changelog->changelog['changes'] as $key => $change) {
-                                $str[] = ucfirst($key).": ".str_limit($change['old'], 40, "&hellip;")." &rarr; ".str_limit($change['new'], 40, "&hellip;");
+                                if (is_array($change['old'])) {
+                                    $str[] = ucfirst($key).": ".implode(', ', $change['old'])." &rarr; ".implode(', ', $change['new']);
+                                } else {
+                                    $str[] = ucfirst($key).": ".str_limit($change['old'], 40, "&hellip;")." &rarr; ".str_limit($change['new'], 40, "&hellip;");
+                                }
                             }
                             $str = implode('<br>', $str);
                             @endphp

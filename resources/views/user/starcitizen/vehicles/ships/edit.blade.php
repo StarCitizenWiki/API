@@ -60,7 +60,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Produktionsstatus'),
                                 'id' => 'status',
-                                'value' => optional($ship->productionStatus->german())->translation ?? $ship->productionStatus->english()->translation,
+                                'value' => optional($ship->productionStatus->german())->translation ?? optional($ship->productionStatus->english())->translation ?? '',
                             ])@endcomponent
                         </div>
                         <div class="col-12 col-lg-6 col-xl-6">
@@ -69,7 +69,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Produktionsnotiz'),
                                 'id' => 'note',
-                                'value' => optional($ship->productionNote->german())->translation ?? $ship->productionNote->english()->translation,
+                                'value' => optional($ship->productionNote->german())->translation ?? optional($ship->productionNote->english())->translation ?? '',
                             ])@endcomponent
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Größe'),
                                 'id' => 'size',
-                                'value' => optional($ship->size->german())->translation ?? $ship->size->english()->translation,
+                                'value' => optional($ship->size->german())->translation ?? optional($ship->size->english())->translation ?? '',
                             ])@endcomponent
                         </div>
                         <div class="col-12 col-md-6 col-lg-3 col-xl-6 col-xxl-3">
@@ -92,7 +92,7 @@
                                 'inputOptions' => 'readonly',
                                 'label' => __('Typ'),
                                 'id' => 'type',
-                                'value' => optional($ship->type->german())->translation ?? $ship->type->english()->translation,
+                                'value' => optional($ship->type->german())->translation ?? optional($ship->type->english())->translation ?? '',
                             ])@endcomponent
                         </div>
 
@@ -176,7 +176,7 @@
                                 @slot('value')
                                     {{
                                         $ship->foci->transform(function(\App\Models\Api\StarCitizen\Vehicle\Focus\Focus $focus) {
-                                            return optional($focus->german())->translation ?? $focus->english()->translation ?? __('Keiner');
+                                            return optional($focus->german())->translation ?? optional($focus->english())->translation ?? __('Keiner');
                                         })->implode(', ')
                                     }}
                                 @endslot

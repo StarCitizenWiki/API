@@ -77,7 +77,7 @@ class SeriesControllerTestCase extends UserTestCase
      * {@inheritdoc}
      * Creates needed Comm-Link Series
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->createSystemLanguages();
