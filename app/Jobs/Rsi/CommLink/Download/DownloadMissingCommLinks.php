@@ -35,8 +35,8 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     {
         app('Log')::info('Starting Missing Comm-Links Download Job');
 
-        $this->initClient(false);
-        $this->getRsiAuthCookie();
+        $this->initClient();
+        #$this->getRsiAuthCookie();
 
         self::$scraper = new Client();
         self::$scraper->setClient(self::$client);
