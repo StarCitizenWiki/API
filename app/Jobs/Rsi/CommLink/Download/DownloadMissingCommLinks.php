@@ -53,6 +53,13 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
             }
         );
 
+        if (empty($postIDs)) {
+            app('Log')::info("Could not retrieve latest Comm-Link ID, retrying in 1 minute.");
+            $this->release(60);
+
+            return;
+        }
+
         $latestPostId = max($postIDs);
 
         app('Log')::info(
