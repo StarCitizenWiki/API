@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t scw-api:5.8 .
+docker build -t scw-api:7.0 .
