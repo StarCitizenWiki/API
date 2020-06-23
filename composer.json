@@ -18,7 +18,6 @@
         "fabpot/goutte": "^3.3.0",
         "fideloper/proxy": "^4.4.0",
         "guzzlehttp/guzzle": "^6.5.5",
-        "jaymoulin/guzzlehttp-cloudflare": "^1.1.1",
         "laravel/framework": "^7.0",
         "laravel/ui": "^2.0",
         "mediawiki/oauthclient": "^1.1.0",
