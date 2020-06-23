@@ -40,6 +40,7 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
      */
     public function __construct(int $startPage = null)
     {
+        throw new \RuntimeException('Cloudflare bypass missing.');
         $this->startPage = $startPage;
     }
 
