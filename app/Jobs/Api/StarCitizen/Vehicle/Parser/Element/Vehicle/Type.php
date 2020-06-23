@@ -11,6 +11,7 @@ use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\AbstractBaseElement as BaseE
 use App\Models\Api\StarCitizen\Vehicle\Type\Type as VehicleType;
 use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Str;
 
 /**
  * Class Type
@@ -62,7 +63,7 @@ class Type extends BaseElement
         /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
         $type = VehicleType::create(
             [
-                'slug' => str_slug($this->rawData->get(self::VEHICLE_TYPE)),
+                'slug' => Str::slug($this->rawData->get(self::VEHICLE_TYPE)),
             ]
         );
 

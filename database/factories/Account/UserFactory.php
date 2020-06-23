@@ -14,7 +14,7 @@ $factory->define(
             'provider' => 'starcitizenwiki',
             'provider_id' => $id++,
             'last_login' => $faker->dateTime,
-            'api_token' => str_random(60),
+            'api_token' => \Illuminate\Support\Str::random(60),
             'created_at' => Carbon\Carbon::now(),
             'updated_at' => Carbon\Carbon::now(),
         ];

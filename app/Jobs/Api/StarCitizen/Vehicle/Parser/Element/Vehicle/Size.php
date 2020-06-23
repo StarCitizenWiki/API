@@ -11,6 +11,7 @@ use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\AbstractBaseElement as BaseE
 use App\Models\Api\StarCitizen\Vehicle\Size\Size as VehicleSize;
 use App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Str;
 
 /**
  * Class Size
@@ -62,7 +63,7 @@ class Size extends BaseElement
         /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $size */
         $size = VehicleSize::create(
             [
-                'slug' => str_slug($this->rawData->get(self::VEHICLE_SIZE)),
+                'slug' => Str::slug($this->rawData->get(self::VEHICLE_SIZE)),
             ]
         );
 

@@ -11,6 +11,7 @@ use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\AbstractBaseElement as BaseE
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus as ProductionStatusModel;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Str;
 
 /**
  * Class ProductionStatus
@@ -62,7 +63,7 @@ class ProductionStatus extends BaseElement
         /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
         $productionStatus = ProductionStatusModel::create(
             [
-                'slug' => str_slug($this->rawData->get(self::PRODUCTION_STATUS)),
+                'slug' => Str::slug($this->rawData->get(self::PRODUCTION_STATUS)),
             ]
         );
 
