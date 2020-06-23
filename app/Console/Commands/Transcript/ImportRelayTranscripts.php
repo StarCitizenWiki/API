@@ -24,14 +24,16 @@ class ImportRelayTranscripts extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
         if (null === $this->argument('startPage')) {
             dispatch(new ImportMissingTranscripts());
         } else {
             dispatch(new ImportMissingTranscripts((int) $this->argument('startPage')));
         }
+
+        return 0;
     }
 }

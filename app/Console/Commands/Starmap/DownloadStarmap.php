@@ -48,9 +48,9 @@ class DownloadStarmap extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Dispatching Starmap Download');
 
@@ -64,5 +64,7 @@ class DownloadStarmap extends Command
             $this->info('Starting Import');
             $this->dispatcher->dispatchNow(new ParseStarmapDownload());
         }
+
+        return 0;
     }
 }

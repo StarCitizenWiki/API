@@ -25,11 +25,13 @@ class DownloadCommLinks extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Downloading all Comm-Links');
         dispatch(new DownloadMissingCommLinks());
+
+        return 0;
     }
 }

@@ -11,6 +11,7 @@ use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\AbstractBaseElement as BaseE
 use App\Models\Api\StarCitizen\Vehicle\Focus\Focus as VehicleFocus;
 use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Str;
 
 /**
  * Class Focus
@@ -87,7 +88,7 @@ class Focus extends BaseElement
         /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\Focus $vehicleFocus */
         $vehicleFocus = VehicleFocus::create(
             [
-                'slug' => str_slug($focus),
+                'slug' => Str::slug($focus),
             ]
         );
 

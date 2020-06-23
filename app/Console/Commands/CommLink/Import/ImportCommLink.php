@@ -30,14 +30,14 @@ class ImportCommLink extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         if (!$this->hasArgument('id')) {
             $this->error('Comm-Link ID missing.');
 
-            return;
+            return 1;
         }
 
         $id = (int) $this->argument('id');
@@ -47,11 +47,13 @@ class ImportCommLink extends Command
         } catch (ModelNotFoundException $e) {
             $this->error('Comm-Link does not exist in DB.');
 
-            return;
+            return 1;
         }
 
         $file = basename(Arr::last(Storage::disk('comm_links')->files($id)));
 
         dispatch(new ParseCommLink($id, $file, $commLink, true));
+
+        return 0;
     }
 }

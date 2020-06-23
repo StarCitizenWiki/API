@@ -1,6 +1,6 @@
 <div class="card {{ $class ?? '' }}" {{ $options ?? '' }}>
     @if(isset($title))
-        @if(starts_with($title, '#'))
+        @if(\Illuminate\Support\Str::startsWith($title, '#'))
             <h4 class="card-header {{ $titleClass ?? '' }}">
                 @if(isset($icon))
                     @component('components.elements.icon', [

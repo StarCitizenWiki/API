@@ -25,12 +25,12 @@ class TranslateCommLinks extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Dispatching Comm-Link Translation');
-        $offset = intval($this->argument('offset'));
+        $offset = (int) $this->argument('offset');
         if ($offset > 0) {
             if ($offset < self::FIRST_COMM_LINK_ID) {
                 $offset = self::FIRST_COMM_LINK_ID + $offset;
@@ -40,5 +40,7 @@ class TranslateCommLinks extends Command
         }
 
         dispatch(new \App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks($offset));
+
+        return 0;
     }
 }

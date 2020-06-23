@@ -25,9 +25,9 @@ class TranslateTranscripts extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
         $this->info('Dispatching Transcript Translation');
         if (!$this->hasArgument('limit')) {
@@ -35,5 +35,7 @@ class TranslateTranscripts extends Command
         } else {
             dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts((int) $this->argument('limit')));
         }
+
+        return 0;
     }
 }

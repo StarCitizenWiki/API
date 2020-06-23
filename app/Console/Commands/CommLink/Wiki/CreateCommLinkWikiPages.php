@@ -23,12 +23,14 @@ class CreateCommLinkWikiPages extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Dispatching Comm-Link Wiki Page Creation');
 
         dispatch(new \App\Jobs\Wiki\CommLink\CreateCommLinkWikiPages());
+
+        return 0;
     }
 }

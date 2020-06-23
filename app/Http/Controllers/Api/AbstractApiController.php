@@ -23,16 +23,16 @@ abstract class AbstractApiController extends Controller
 {
     use Helpers;
 
-    const INVALID_LIMIT_STRING = 'Limit has to be greater than 0';
+    public const INVALID_LIMIT_STRING = 'Limit has to be greater than 0';
 
-    const INVALID_LOCALE_STRING = 'Locale Code \'%s\' is not valid';
+    public const INVALID_LOCALE_STRING = 'Locale Code \'%s\' is not valid';
 
-    const INVALID_RELATION_STRING = '\'%s\' does not exist';
+    public const INVALID_RELATION_STRING = '\'%s\' does not exist';
 
     /**
      * Sprintf String which is used if no model was found
      */
-    const NOT_FOUND_STRING = 'No Results for Query \'%s\'';
+    public const NOT_FOUND_STRING = 'No Results for Query \'%s\'';
 
     /**
      * Limit Get Parameter
@@ -135,7 +135,7 @@ abstract class AbstractApiController extends Controller
         }
 
         if (!empty($this->transformer->getAvailableIncludes())) {
-            $meta['valid_relations'] = array_map('snake_case', $this->transformer->getAvailableIncludes());
+            $meta['valid_relations'] = array_map('Illuminate\Support\Str::snake', $this->transformer->getAvailableIncludes());
         }
 
         return array_merge($meta, $this->extraMeta);
@@ -182,7 +182,7 @@ abstract class AbstractApiController extends Controller
         )->each(
             function ($relation) {
                 if (!in_array($relation, $this->transformer->getAvailableIncludes())) {
-                    $this->errors['include'][] = sprintf(static::INVALID_RELATION_STRING, snake_case($relation));
+                    $this->errors['include'][] = sprintf(static::INVALID_RELATION_STRING, Str::snake($relation));
                 }
             }
         );

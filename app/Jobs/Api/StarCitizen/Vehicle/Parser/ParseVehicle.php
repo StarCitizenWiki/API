@@ -15,6 +15,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Class AbstractParseVehicle
@@ -185,7 +186,7 @@ class ParseVehicle implements ShouldQueue
      */
     private function getSlug(): string
     {
-        return str_slug($this->getName());
+        return Str::slug($this->getName());
     }
 
     /**

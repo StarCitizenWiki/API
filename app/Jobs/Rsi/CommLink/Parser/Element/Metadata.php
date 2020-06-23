@@ -13,6 +13,7 @@ use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\Series\Series;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -194,7 +195,7 @@ class Metadata extends BaseElement
                 $channelId = Channel::query()->firstOrCreate(
                     [
                         'name' => $channel,
-                        'slug' => str_slug($channel, '-'),
+                        'slug' => Str::slug($channel, '-'),
                     ]
                 )->id;
             }
@@ -220,7 +221,7 @@ class Metadata extends BaseElement
                 $categoryId = Category::query()->firstOrCreate(
                     [
                         'name' => $category,
-                        'slug' => str_slug($category, '-'),
+                        'slug' => Str::slug($category, '-'),
                     ]
                 )->id;
             }
@@ -246,7 +247,7 @@ class Metadata extends BaseElement
                 $seriesId = Series::query()->firstOrCreate(
                     [
                         'name' => $series,
-                        'slug' => str_slug($series, '-'),
+                        'slug' => Str::slug($series, '-'),
                     ]
                 )->id;
             }

@@ -35,8 +35,8 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     {
         app('Log')::info('Starting Missing Comm-Links Download Job');
 
-        $this->initClient(false);
-        $this->getRsiAuthCookie();
+        $this->initClient();
+        #$this->getRsiAuthCookie();
 
         self::$scraper = new Client();
         self::$scraper->setClient(self::$client);
@@ -52,6 +52,13 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
                 $postIDs[] = $this->extractLatestPostId($link);
             }
         );
+
+        if (empty($postIDs)) {
+            app('Log')::info("Could not retrieve latest Comm-Link ID, retrying in 1 minute.");
+            $this->release(60);
+
+            return;
+        }
 
         $latestPostId = max($postIDs);
 

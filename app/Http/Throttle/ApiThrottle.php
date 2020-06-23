@@ -25,11 +25,7 @@ class ApiThrottle extends Throttle
      */
     public function match(Container $container)
     {
-        if (app(Auth::class)->check(true) && app(Auth::class)->user()->settings->isUnthrottled()) {
-            return false;
-        }
-
-        return true;
+        return !(app(Auth::class)->check(true) && app(Auth::class)->user()->settings->isUnthrottled());
     }
 
     /**

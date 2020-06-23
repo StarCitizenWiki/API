@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Download One Comm-Link Image
@@ -117,7 +118,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
         try {
             return bin2hex(random_bytes(7));
         } catch (\Exception $e) {
-            return str_random(14);
+            return Str::random(14);
         }
     }
 }
