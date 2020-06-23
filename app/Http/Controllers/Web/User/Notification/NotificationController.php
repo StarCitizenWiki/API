@@ -7,6 +7,7 @@ use App\Jobs\Web\SendNotificationEmail;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
 /**
@@ -165,7 +166,7 @@ class NotificationController extends Controller
         $data['expired_at'] = Carbon::parse($request->get('expired_at'));
         $this->processPublishedAt($data);
 
-        $resendEmail = (bool) array_pull($data, 'resend_email', false);
+        $resendEmail = (bool) Arr::pull($data, 'resend_email', false);
 
         if (($notification->output_email === false && $data['output_email'] === true && !$notification->expired()) || true === $resendEmail) {
             $this->dispatchJob($notification);
@@ -216,7 +217,7 @@ class NotificationController extends Controller
             'output_index' => false,
         ];
 
-        foreach (array_pull($data, 'output') as $type) {
+        foreach (Arr::pull($data, 'output') as $type) {
             $data['output_'.$type] = true;
         }
 
