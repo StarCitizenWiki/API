@@ -2330,12 +2330,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/StarCitizenWiki/LaravelMediawikiApi.git",
-                "reference": "b809ff4827c13429a54bd13d5eaf57032f60599e"
+                "reference": "415c5f8b9bb5a9ab4b868e04fcecd619ed69f490"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/StarCitizenWiki/LaravelMediawikiApi/zipball/b809ff4827c13429a54bd13d5eaf57032f60599e",
-                "reference": "b809ff4827c13429a54bd13d5eaf57032f60599e",
+                "url": "https://api.github.com/repos/StarCitizenWiki/LaravelMediawikiApi/zipball/415c5f8b9bb5a9ab4b868e04fcecd619ed69f490",
+                "reference": "415c5f8b9bb5a9ab4b868e04fcecd619ed69f490",
                 "shasum": ""
             },
             "require": {
