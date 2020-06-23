@@ -28,14 +28,16 @@ class ReDownloadCommLinks extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         ReDownloadDbCommLinks::withChain(
             [
                 new ParseCommLinkDownload(),
             ]
         )->dispatch(true);
+
+        return 0;
     }
 }

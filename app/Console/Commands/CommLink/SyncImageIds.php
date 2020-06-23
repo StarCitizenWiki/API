@@ -43,9 +43,9 @@ class SyncImageIds extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Dispatching Comm-Link Image Sync');
         $offset = (int) $this->argument('offset');
@@ -58,5 +58,7 @@ class SyncImageIds extends Command
         }
 
         $this->dispatcher->dispatch(new \App\Jobs\CommLink\SyncImageIds($offset));
+
+        return 0;
     }
 }

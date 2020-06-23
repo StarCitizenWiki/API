@@ -29,9 +29,9 @@ class ImportMissingCommLinks extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $missingOffset = optional(CommLink::query()->orderByDesc('cig_id')->first())->cig_id ?? 0;
         if ($missingOffset > 0) {
@@ -45,5 +45,7 @@ class ImportMissingCommLinks extends Command
                 new CreateCommLinkWikiPages(),
             ]
         )->dispatch(new Client(), $missingOffset);
+
+        return 0;
     }
 }

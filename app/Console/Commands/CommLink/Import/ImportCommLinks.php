@@ -49,9 +49,9 @@ class ImportCommLinks extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Dispatching Comm-Link Import');
         $offset = (int) $this->argument('offset');
@@ -64,5 +64,7 @@ class ImportCommLinks extends Command
         }
 
         $this->dispatcher->dispatch(new ParseCommLinkDownload($offset));
+
+        return 0;
     }
 }

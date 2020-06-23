@@ -46,9 +46,9 @@ class ImportStats extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         if ($this->option('download')) {
             $this->info('Downloading Stats and starting import');
@@ -61,5 +61,7 @@ class ImportStats extends Command
             $this->info('Starting Stat Import');
             $this->dispatcher->dispatchNow(new ParseStat());
         }
+
+        return 0;
     }
 }

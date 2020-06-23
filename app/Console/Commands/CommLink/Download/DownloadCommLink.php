@@ -48,9 +48,9 @@ class DownloadCommLink extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Downloading specified Comm-Links');
         $ids = collect($this->argument('id'));
@@ -80,5 +80,7 @@ class DownloadCommLink extends Command
             $this->info("\nImporting Comm-Links");
             $this->dispatcher->dispatch(new ParseCommLinkDownload((int) $ids->min()));
         }
+
+        return 0;
     }
 }
