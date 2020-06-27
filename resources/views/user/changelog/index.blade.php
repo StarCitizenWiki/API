@@ -42,7 +42,7 @@
                                 if (is_array($change['old'])) {
                                     $str[] = ucfirst($key).": ".implode(', ', $change['old'])." &rarr; ".implode(', ', $change['new']);
                                 } else {
-                                    $str[] = ucfirst($key).": ".str_limit($change['old'], 40, "&hellip;")." &rarr; ".str_limit($change['new'], 40, "&hellip;");
+                                    $str[] = ucfirst($key).": ".\Illuminate\Support\Str::limit($change['old'], 40, "&hellip;")." &rarr; ".\Illuminate\Support\Str::limit($change['new'], 40, "&hellip;");
                                 }
                             }
                             $str = implode('<br>', $str);
