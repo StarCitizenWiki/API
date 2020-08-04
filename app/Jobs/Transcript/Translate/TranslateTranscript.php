@@ -33,7 +33,7 @@ class TranslateTranscript implements ShouldQueue
     /**
      * @var Transcript
      */
-    private $transcript;
+    private Transcript $transcript;
 
     /**
      * Create a new job instance.
@@ -61,7 +61,7 @@ class TranslateTranscript implements ShouldQueue
 
         try {
             if (mb_strlen($english) > self::DEEPL_MAX_LENGTH) {
-                foreach ($this->strSplitUnicode($english, self::DEEPL_MAX_LENGTH) as $chunk) {
+                foreach (str_split_unicode($english, self::DEEPL_MAX_LENGTH) as $chunk) {
                     $chunkTranslation = DeepLyFacade::translate($chunk, 'DE', 'EN');
                     $translation .= " {$chunkTranslation}";
                 }
@@ -101,27 +101,5 @@ class TranslateTranscript implements ShouldQueue
                 'proofread' => false,
             ]
         );
-    }
-
-    /**
-     * Splits a Unicode String into the given length chunks.
-     *
-     * @param string $str
-     * @param int    $length
-     *
-     * @return array|array[]|false|string[]
-     */
-    private function strSplitUnicode(string $str, int $length = 1)
-    {
-        $tmp = preg_split('~~u', $str, -1, PREG_SPLIT_NO_EMPTY);
-        if ($length > 1) {
-            $chunks = array_chunk($tmp, $length);
-            foreach ($chunks as $i => $chunk) {
-                $chunks[$i] = implode('', (array) $chunk);
-            }
-            $tmp = $chunks;
-        }
-
-        return $tmp;
     }
 }
