@@ -16,7 +16,7 @@ class TranslationRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return Auth::check();
     }
@@ -26,7 +26,7 @@ class TranslationRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $localeCodes = Language::all('locale_code')->keyBy('locale_code');
         $rule = '|string|min:1';

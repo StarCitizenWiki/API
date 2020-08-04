@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 27.09.2018
- * Time: 10:31
- */
 
 namespace App\Transformers\Api\V1\Rsi\CommLink\Category;
 
@@ -16,7 +11,7 @@ use League\Fractal\TransformerAbstract;
 class CategoryTransformer extends TransformerAbstract
 {
     /**
-     * @param \App\Models\Rsi\CommLink\Category\Category $category
+     * @param Category $category
      *
      * @return array
      */

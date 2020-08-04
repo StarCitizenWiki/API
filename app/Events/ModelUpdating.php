@@ -14,12 +14,12 @@ class ModelUpdating
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $model;
+    public Model $model;
 
     /**
      * Create a new event instance.
      *
-     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param Model $model
      */
     public function __construct(Model $model)
     {

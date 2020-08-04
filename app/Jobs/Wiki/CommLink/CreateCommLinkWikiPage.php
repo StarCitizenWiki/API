@@ -9,7 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Normalizer;
-use StarCitizenWiki\MediaWikiApi\Exceptions\ApiErrorException;
+use RuntimeException;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
@@ -23,26 +23,26 @@ class CreateCommLinkWikiPage implements ShouldQueue
     use SerializesModels;
 
     /**
-     * @var \App\Models\Rsi\CommLink\CommLink
+     * @var CommLink
      */
-    private $commLink;
+    private CommLink $commLink;
 
     /**
      * @var string
      */
-    private $template;
+    private string $template;
 
     /**
      * @var string CSRF Token
      */
-    private $token;
+    private string $token;
 
     /**
      * Create a new job instance.
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
-     * @param string                            $token
-     * @param string                            $template The Template to include before every translation
+     * @param CommLink $commLink
+     * @param string   $token
+     * @param string   $template The Template to include before every translation
      */
     public function __construct(CommLink $commLink, string $token, string $template)
     {
@@ -56,7 +56,7 @@ class CreateCommLinkWikiPage implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info("Creating Wiki Page 'Comm-Link:{$this->commLink->cig_id}'");
 
@@ -79,7 +79,7 @@ class CreateCommLinkWikiPage implements ShouldQueue
                 ->markBotEdit()
                 ->createOnly()
                 ->request();
-        } catch (ApiErrorException $e) {
+        } catch (RuntimeException $e) {
             app('Log')::error('Could not get an CSRF Token', $e->getResponse()->getErrors());
 
             $this->fail($e);

@@ -19,11 +19,11 @@ class ModelUpdating
     /**
      * Handle the event.
      *
-     * @param \App\Events\ModelUpdating $event
+     * @param ModelUpdateEvent $event
      *
      * @return void
      */
-    public function handle(ModelUpdateEvent $event)
+    public function handle(ModelUpdateEvent $event): void
     {
         $this->model = $event->model;
 

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Stat\Stat;
 use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
+use Dingo\Api\Http\Response;
 use Illuminate\Http\Request;
+use League\Fractal\TransformerAbstract;
 
 /**
  * Stat API
@@ -17,15 +19,15 @@ class StatController extends ApiController
     /**
      * StatsRepository
      *
-     * @var \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer
+     * @var StatTransformer
      */
-    protected $transformer;
+    protected TransformerAbstract $transformer;
 
     /**
      * StatsAPIController constructor.
      *
-     * @param \Illuminate\Http\Request                                  $request
-     * @param \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer $transformer
+     * @param Request         $request
+     * @param StatTransformer $transformer
      */
     public function __construct(Request $request, StatTransformer $transformer)
     {
@@ -36,9 +38,9 @@ class StatController extends ApiController
     /**
      * Ausgabe der aktuellen Statistik
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function latest()
+    public function latest(): Response
     {
         $stat = Stat::orderByDesc('created_at')->first();
 
@@ -48,9 +50,9 @@ class StatController extends ApiController
     /**
      * Ausgabe aller Statistiken
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         $stats = Stat::orderByDesc('created_at');
 

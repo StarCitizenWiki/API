@@ -1,10 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 09.08.2018
- * Time: 16:13
- */
 
 namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 
@@ -13,6 +7,7 @@ use App\Models\System\Translation\AbstractHasTranslations;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
+use League\Fractal\Resource\Collection;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -38,7 +33,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
+     * @param Manufacturer $manufacturer
      *
      * @return array
      */
@@ -55,9 +50,9 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
+     * @param Manufacturer $manufacturer
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeShips(Manufacturer $manufacturer)
     {
@@ -65,9 +60,9 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer
+     * @param Manufacturer $manufacturer
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeVehicles(Manufacturer $manufacturer)
     {

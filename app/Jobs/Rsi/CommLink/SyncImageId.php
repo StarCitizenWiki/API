@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace App\Jobs\CommLink;
+namespace App\Jobs\Rsi\CommLink;
 
 use App\Jobs\Rsi\CommLink\Parser\Element\Image;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;

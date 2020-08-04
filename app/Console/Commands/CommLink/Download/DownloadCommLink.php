@@ -56,11 +56,11 @@ class DownloadCommLink extends Command
         $ids = collect($this->argument('id'));
 
         $ids = $ids->filter(
-            function ($id) {
+            static function ($id) {
                 return is_numeric($id);
             }
         )->filter(
-            function ($id) {
+            static function ($id) {
                 return (int) $id >= 12663;
             }
         );

@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Web\User\Changelog;
 
 use App\Http\Controllers\Controller;
 use App\Models\System\ModelChangelog;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
 
 /**
  * Model Changelogs
@@ -20,9 +23,9 @@ class ChangelogController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function index()
     {

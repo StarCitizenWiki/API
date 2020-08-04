@@ -35,7 +35,7 @@ trait GetCommLinkWikiPageInfoTrait
         $this->queryWithAuth = $queryWithAuth;
 
         $pages = $commLinks->map(
-            function (CommLink $commLink) {
+            static function (CommLink $commLink) {
                 return sprintf('%s:%d', 'Comm-Link', $commLink->cig_id);
             }
         )->implode('|');

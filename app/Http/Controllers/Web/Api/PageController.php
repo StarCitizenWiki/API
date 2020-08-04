@@ -14,7 +14,7 @@ class PageController extends Controller
     /**
      * Returns the API Index View
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function index(): View
     {
@@ -40,7 +40,7 @@ class PageController extends Controller
     /**
      * Returns the API FAQ View
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function showFaqView(): View
     {
@@ -50,7 +50,7 @@ class PageController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function showStatusView(): View
     {

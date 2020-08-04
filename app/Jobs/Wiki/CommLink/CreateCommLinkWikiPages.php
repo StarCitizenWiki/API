@@ -34,16 +34,19 @@ class CreateCommLinkWikiPages implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Starting creation of Comm-Link Wiki Pages');
 
         $this->loginWikiBotAccount();
 
         $token = MediaWikiApi::query()->meta('tokens')->request();
+
         if ($token->hasErrors()) {
             app('Log')::info(sprintf('%s: %s', 'Token retrieval failed', collect($token->getErrors())->implode('code', ', ')));
             $this->release(300);
+            $this->delete();
+
             return;
         }
 
@@ -56,7 +59,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
 
         CommLink::query()->whereHas(
             'translations',
-            function (Builder $query) {
+            static function (Builder $query) {
                 $query->where('locale_code', 'de_DE')->whereRaw("translation <> ''");
             }
         )->chunk(
@@ -71,7 +74,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                 }
 
                 $commLinks->each(
-                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                    static function (CommLink $commLink) use ($pageInfoCollection, $config) {
                         $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
                         if (isset($wikiPage['missing'])) {
@@ -102,7 +105,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                 }
 
                 $commLinks->each(
-                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                    static function (CommLink $commLink) use ($pageInfoCollection, $config) {
                         $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
                         if (isset($wikiPage['missing'])) {
@@ -133,7 +136,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                 }
 
                 $commLinks->each(
-                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                    static function (CommLink $commLink) use ($pageInfoCollection, $config) {
                         $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
                         if (isset($wikiPage['missing'])) {

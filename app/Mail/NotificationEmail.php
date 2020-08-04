@@ -16,12 +16,12 @@ class NotificationEmail extends Mailable implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $notification;
+    public Notification $notification;
 
     /**
      * Create a new message instance.
      *
-     * @param \App\Models\Api\Notification $notification
+     * @param Notification $notification
      */
     public function __construct(Notification $notification)
     {
@@ -33,7 +33,7 @@ class NotificationEmail extends Mailable implements ShouldQueue
      *
      * @return $this
      */
-    public function build()
+    public function build(): self
     {
         $this->subject('Star Citizen Wiki API - Notification');
 

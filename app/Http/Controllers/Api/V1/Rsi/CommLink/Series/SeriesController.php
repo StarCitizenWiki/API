@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 27.09.2018
- * Time: 10:29
- */
 
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink\Series;
 
@@ -11,8 +6,10 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer;
+use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use League\Fractal\TransformerAbstract;
 
 /**
  * Class Series Controller
@@ -22,15 +19,15 @@ class SeriesController extends ApiController
     /**
      * Comm-Link Transformer
      *
-     * @var \App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer
+     * @var SeriesTransformer
      */
-    protected $transformer;
+    protected TransformerAbstract $transformer;
 
     /**
      * StatsAPIController constructor.
      *
-     * @param \Illuminate\Http\Request                                       $request
-     * @param \App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer $transformer
+     * @param Request           $request
+     * @param SeriesTransformer $transformer
      */
     public function __construct(Request $request, SeriesTransformer $transformer)
     {
@@ -41,9 +38,9 @@ class SeriesController extends ApiController
     /**
      * Ausgabe aller Serien
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         $categories = Series::query()->orderBy('name');
 
@@ -53,9 +50,9 @@ class SeriesController extends ApiController
     /**
      * @param string $series
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function show(string $series)
+    public function show(string $series): Response
     {
         try {
             $series = Series::query()->where('name', $series)->orWhere('slug', $series)->firstOrFail();

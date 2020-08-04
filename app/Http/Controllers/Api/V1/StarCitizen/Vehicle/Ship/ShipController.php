@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
+use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -17,8 +18,8 @@ class ShipController extends ApiController
     /**
      * ShipController constructor.
      *
-     * @param \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer $transformer
-     * @param \Illuminate\Http\Request                                          $request
+     * @param ShipTransformer $transformer
+     * @param Request         $request
      */
     public function __construct(ShipTransformer $transformer, Request $request)
     {
@@ -34,9 +35,9 @@ class ShipController extends ApiController
      *
      * @param string $ship
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function show(string $ship)
+    public function show(string $ship): Response
     {
         $ship = urldecode($ship);
 
@@ -53,9 +54,9 @@ class ShipController extends ApiController
      * Alle Raumschiffe
      * Ausgabe aller Raumschiffe der Ship Matrix paginiert
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         return $this->getResponse(Ship::query());
     }
@@ -63,9 +64,9 @@ class ShipController extends ApiController
     /**
      * Search Endpoint
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function search()
+    public function search(): Response
     {
         $query = $this->request->get('query', '');
         $query = urldecode($query);

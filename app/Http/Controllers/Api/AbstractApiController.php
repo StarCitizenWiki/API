@@ -1,20 +1,18 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 26.07.2018
- * Time: 12:52
- */
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
 use Carbon\Carbon;
+use Dingo\Api\Http\Response;
 use Dingo\Api\Routing\Helpers;
 use Dingo\Api\Transformer\Factory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use League\Fractal\TransformerAbstract;
 
 /**
  * Base Controller that has Dingo Helpers
@@ -45,39 +43,39 @@ abstract class AbstractApiController extends Controller
     private const LOCALE = 'locale';
 
     /**
-     * @var \Illuminate\Http\Request The API Request
+     * @var Request The API Request
      */
-    protected $request;
+    protected Request $request;
 
     /**
-     * @var \League\Fractal\TransformerAbstract The Default Transformer for index and show
+     * @var TransformerAbstract The Default Transformer for index and show
      */
-    protected $transformer;
+    protected TransformerAbstract $transformer;
 
     /**
      * @var array Parameter Errors
      */
-    protected $errors = [];
+    protected array $errors = [];
 
     /**
      * @var int Pagination Limit, 0 = no pagination
      */
-    protected $limit;
+    protected int $limit;
 
     /**
      * @var string Locale Code, set if Transformer implements LocaleAwareTransformerInterface
      */
-    protected $localeCode;
+    protected string $localeCode;
 
     /**
      * @var array Extra Metadata to include
      */
-    protected $extraMeta = [];
+    protected array $extraMeta = [];
 
     /**
      * AbstractApiController constructor.
      *
-     * @param \Illuminate\Http\Request $request API Request
+     * @param Request $request API Request
      */
     public function __construct(Request $request)
     {
@@ -100,11 +98,11 @@ abstract class AbstractApiController extends Controller
      * Creates the API Response, Collection if no pagination, Paginator if a limit is set
      * Item if a single model is given
      *
-     * @param \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model $query
+     * @param Builder|Model $query
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    protected function getResponse($query)
+    protected function getResponse($query): Response
     {
         if ($query instanceof Model) {
             return $this->response->item($query, $this->transformer)->setMeta($this->getMeta());
@@ -148,7 +146,7 @@ abstract class AbstractApiController extends Controller
      */
     protected function setLocale(string $localeCode)
     {
-        if (in_array($localeCode, config('language.codes'))) {
+        if (in_array($localeCode, config('language.codes'), true)) {
             $this->localeCode = $localeCode;
             if ($this->transformer instanceof LocaleAwareTransformerInterface) {
                 $this->transformer->setLocale($localeCode);
@@ -163,7 +161,7 @@ abstract class AbstractApiController extends Controller
      *
      * @param string|array $relations
      */
-    protected function checkIncludes($relations)
+    protected function checkIncludes($relations): void
     {
         if (!is_array($relations)) {
             $relations = explode(',', $relations);
@@ -172,16 +170,16 @@ abstract class AbstractApiController extends Controller
         $relations = collect($relations);
 
         $relations->transform(
-            function ($relation) {
+            static function ($relation) {
                 return trim($relation);
             }
         )->transform(
-            function ($relation) {
+            static function ($relation) {
                 return Str::camel($relation);
             }
         )->each(
             function ($relation) {
-                if (!in_array($relation, $this->transformer->getAvailableIncludes())) {
+                if (!in_array($relation, $this->transformer->getAvailableIncludes(), true)) {
                     $this->errors['include'][] = sprintf(static::INVALID_RELATION_STRING, Str::snake($relation));
                 }
             }
@@ -191,7 +189,7 @@ abstract class AbstractApiController extends Controller
     /**
      * Processes the 'limit' Request-Parameter
      */
-    private function processLimit()
+    private function processLimit(): void
     {
         if ($this->request->has(self::LIMIT) && null !== $this->request->get(self::LIMIT, null)) {
             $itemLimit = (int) $this->request->get(self::LIMIT);
@@ -209,7 +207,7 @@ abstract class AbstractApiController extends Controller
     /**
      * Processes the 'include' Model Relations Request-Parameter
      */
-    private function processIncludes()
+    private function processIncludes(): void
     {
         if ($this->request->has('include') && null !== $this->request->get('include', null)) {
             $this->checkIncludes($this->request->get('include', []));
@@ -219,7 +217,7 @@ abstract class AbstractApiController extends Controller
     /**
      * Processes the 'locale' Request-Parameter
      */
-    private function processLocale()
+    private function processLocale(): void
     {
         if ($this->request->has(self::LOCALE) && null !== $this->request->get(self::LOCALE, null)) {
             $this->setLocale($this->request->get(self::LOCALE));
