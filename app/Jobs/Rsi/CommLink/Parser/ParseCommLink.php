@@ -11,6 +11,7 @@ use App\Jobs\Rsi\CommLink\Parser\Element\Metadata;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinksChanged;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -43,37 +44,37 @@ class ParseCommLink implements ShouldQueue
     /**
      * @var int Comm-Link ID
      */
-    private $commLinkId;
+    private int $commLinkId;
 
     /**
      * @var string File in the Comm-Link ID Folder
      */
-    private $file;
+    private string $file;
 
     /**
-     * @var \App\Models\Rsi\CommLink\CommLink
+     * @var CommLink|null
      */
-    private $commLinkModel;
+    private ?CommLink $commLinkModel;
 
     /**
      * True if the given file content should be imported into the comm link model.
      *
      * @var bool
      */
-    private $forceImport;
+    private bool $forceImport;
 
     /**
-     * @var \Symfony\Component\DomCrawler\Crawler
+     * @var Crawler
      */
-    private $crawler;
+    private Crawler $crawler;
 
     /**
      * Create a new job instance.
      *
-     * @param int                                    $id          Comm-Link ID
-     * @param string                                 $file        Current File Name
-     * @param \App\Models\Rsi\CommLink\CommLink|null $commLink    Optional Comm-Link Model to update
-     * @param bool                                   $forceImport Flag to Force Import from current file
+     * @param int           $id          Comm-Link ID
+     * @param string        $file        Current File Name
+     * @param CommLink|null $commLink    Optional Comm-Link Model to update
+     * @param bool          $forceImport Flag to Force Import from current file
      */
     public function __construct(int $id, string $file, ?CommLink $commLink = null, bool $forceImport = false)
     {
@@ -88,7 +89,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @return void
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function handle()
     {
@@ -128,7 +129,7 @@ class ParseCommLink implements ShouldQueue
      */
     private function createCommLink()
     {
-        /** @var \App\Models\Rsi\CommLink\CommLink $commLink */
+        /** @var CommLink $commLink */
         $commLink = CommLink::updateOrCreate(
             [
                 'cig_id' => $this->commLinkId,
@@ -173,7 +174,7 @@ class ParseCommLink implements ShouldQueue
     /**
      * Adds or Updates the default english Translation to the Comm-Link.
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      */
     private function addEnglishCommLinkTranslation(CommLink $commLink)
     {
@@ -192,7 +193,7 @@ class ParseCommLink implements ShouldQueue
     /**
      * Syncs extracted Comm-Link Image Ids.
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      */
     private function syncImageIds(CommLink $commLink)
     {
@@ -203,7 +204,7 @@ class ParseCommLink implements ShouldQueue
     /**
      * Syncs extrated Comm-Link Link Ids.
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      */
     private function syncLinkIds(CommLink $commLink)
     {
