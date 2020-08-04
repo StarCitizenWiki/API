@@ -68,7 +68,7 @@ class TranslateCommLink implements ShouldQueue
             $translation = '';
             $formality = 'less';
 
-            if (in_array($this->commLink->category()->name, $this->formalCategories, true)) {
+            if (in_array($this->commLink->category->name, $this->formalCategories, true)) {
                 $formality = 'more';
             }
 
