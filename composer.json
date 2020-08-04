@@ -21,7 +21,7 @@
         "laravel/framework": "^7.0",
         "laravel/ui": "^2.0",
         "mediawiki/oauthclient": "^1.1.0",
-        "octfx/deeply": "^3.0",
+        "octfx/deeply": "^3.0.2",
         "starcitizenwiki/mediawikiapi": "dev-develop",
         "vinkla/hashids": "^8.1.0"
     },
@@ -75,12 +75,6 @@
             "@php artisan package:discover"
         ]
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url":  "https://github.com/StarCitizenWiki/LaravelMediawikiApi.git"
-        }
-    ],
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
