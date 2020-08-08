@@ -58,9 +58,9 @@ abstract class AbstractApiController extends Controller
     protected array $errors = [];
 
     /**
-     * @var int Pagination Limit, 0 = no pagination
+     * @var ?int Pagination Limit, 0 = no pagination
      */
-    protected int $limit;
+    protected ?int $limit;
 
     /**
      * @var string Locale Code, set if Transformer implements LocaleAwareTransformerInterface
