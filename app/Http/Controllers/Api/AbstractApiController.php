@@ -60,7 +60,7 @@ abstract class AbstractApiController extends Controller
     /**
      * @var ?int Pagination Limit, 0 = no pagination
      */
-    protected ?int $limit;
+    protected $limit;
 
     /**
      * @var string Locale Code, set if Transformer implements LocaleAwareTransformerInterface
