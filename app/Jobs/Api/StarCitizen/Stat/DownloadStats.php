@@ -48,7 +48,7 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
         app('Log')::info('Starting Stats Download Job.');
 
         $year = now()->year;
-        $timestamp = now()->format("Y-m-d");
+        $timestamp = now()->format('Y-m-d');
         $fileName = "stats_{$timestamp}.json";
 
         if ($this->force || !Storage::disk(self::STATS_DISK)->exists(sprintf('%d/%s', $year, $fileName))) {

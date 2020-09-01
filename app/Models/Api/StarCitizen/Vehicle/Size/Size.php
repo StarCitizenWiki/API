@@ -30,7 +30,6 @@ class Size extends HasTranslations
      */
     protected $table = 'vehicle_sizes';
 
-
     /**
      * @var array
      */

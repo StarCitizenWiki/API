@@ -11,6 +11,9 @@ use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\Api\StarCitizen\Vehicle\Type\Type;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Abstract Vehicle Class
@@ -70,7 +73,7 @@ class Vehicle extends HasTranslations
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function translations()
     {
@@ -80,7 +83,7 @@ class Vehicle extends HasTranslations
     /**
      * The Vehicle Foci
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function foci()
     {
@@ -90,7 +93,7 @@ class Vehicle extends HasTranslations
     /**
      * The Vehicle Manufacturer
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function manufacturer()
     {
@@ -100,7 +103,7 @@ class Vehicle extends HasTranslations
     /**
      * The Vehicle Production Status
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function productionStatus()
     {
@@ -110,7 +113,7 @@ class Vehicle extends HasTranslations
     /**
      * The Vehicle Production Note
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function productionNote()
     {
@@ -120,7 +123,7 @@ class Vehicle extends HasTranslations
     /**
      * The Vehicle Role Type
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function type()
     {
@@ -130,7 +133,7 @@ class Vehicle extends HasTranslations
     /**
      * The Vehicle Size
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function size()
     {
