@@ -10,6 +10,7 @@ namespace App\Traits\Jobs;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Support\Collection;
+use RuntimeException;
 use StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
@@ -112,11 +113,11 @@ trait GetCommLinkWikiPageInfoTrait
      */
     private function formatApiError(MediaWikiResponse $response)
     {
-        throw new \RuntimeException(
+        throw new RuntimeException(
             sprintf(
                 '%s: "%s"',
                 'MediaWiki Api Result has Error(s)',
-                collect($response->getErrors())->implode('code', ', ')
+                implode(', ', $response->getErrors())
             )
         );
     }
