@@ -388,6 +388,6 @@ class ParseVehicle implements ShouldQueue
      */
     private function getDescription()
     {
-        return strip_tags($this->rawData->get(self::VEHICLE_DESCRIPTION, ''));
+        return strip_tags($this->rawData->get(self::VEHICLE_DESCRIPTION, '') ?? '');
     }
 }
