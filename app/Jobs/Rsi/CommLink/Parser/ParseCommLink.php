@@ -231,12 +231,13 @@ class ParseCommLink implements ShouldQueue
         if ($this->contentHasChanged()) {
             $hadContent = true;
             if (null === optional($this->commLinkModel->english())->translation) {
-                $this->addEnglishCommLinkTranslation($this->commLinkModel);
                 $hadContent = false;
             } else {
                 // Don't update the current File if Content has Changed and Translation is not null
                 unset($data['file']);
             }
+
+            $this->addEnglishCommLinkTranslation($this->commLinkModel);
 
             CommLinksChanged::create(
                 [
@@ -260,6 +261,10 @@ class ParseCommLink implements ShouldQueue
     private function contentHasChanged()
     {
         $contentParser = new Content($this->crawler);
+
+        if ($contentParser->getContent() === '') {
+            return '';
+        }
 
         return $contentParser->getContent() !== optional($this->commLinkModel->english())->translation;
     }
