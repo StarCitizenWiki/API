@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Web\User\Rsi\CommLink;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\CommLinkRequest;
 use App\Jobs\Rsi\CommLink\Parser\Element\Content;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
@@ -15,9 +14,11 @@ use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
+use SebastianBergmann\Diff\Differ;
+use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
+
 
 /**
  * Comm-Link Controller.
@@ -71,12 +72,30 @@ class CommLinkController extends Controller
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        $builder = new StrictUnifiedDiffOutputBuilder([
+            'collapseRanges'      => true, // ranges of length one are rendered with the trailing `,1`
+            'commonLineThreshold' => 3,    // number of same lines before ending a new hunk and creating a new one (if needed)
+            'contextLines'        => 3,    // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
+            'fromFile'            => $commLink->file,
+            'fromFileDate'        => '',
+            'toFile'              => $commLink->file,
+            'toFileDate'          => '',
+        ]);
+
+        $differ = new Differ($builder);
         /** @var \Illuminate\Support\Collection $changelog */
         $changelog = $commLink->changelogs;
         $commLink->translations->each(
-            static function (CommLinkTranslation $translation) use (&$changelog) {
+            static function (CommLinkTranslation $translation) use (&$changelog, $differ) {
                 $translation->changelogs->each(
-                    static function (ModelChangelog $transChange) use (&$changelog) {
+                    static function (ModelChangelog $transChange) use (&$changelog, $differ) {
+                        if (isset($transChange->changelog['changes']['translation'])) {
+                            $transChange->diff = nl2br($differ->diff(
+                                $transChange->changelog['changes']['translation']['old'],
+                                $transChange->changelog['changes']['translation']['new'],
+                            ));
+                        }
+
                         $changelog->push($transChange);
                     }
                 );

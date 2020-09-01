@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-    <div class="d-flex mb-3">
+    <div class="d-flex mb-3 nav-bar">
         @unless(null === $prev)
             <a href="{{ route('web.user.rsi.comm-links.show', $prev) }}" class="btn btn-outline-secondary">@lang('Vorheriger')</a>
         @else
@@ -153,6 +153,15 @@
                     ])
                         Comm-Link
                     @endcomponent
+
+                    <hr>
+                    <h4>Textänderungen</h4>
+                    @foreach($changelogs->filter(function($value, $key) {
+                        return $value->type === 'update' && !empty($value->diff);
+                    }) as $changelog)
+                        <p class="mt-4">{{ $changelog->created_at }}</p>
+                        <p style="font-family: monospace" class="mt-2">{!! $changelog->diff !!}</p>
+                    @endforeach
                 </div>
 
                 @can('web.user.rsi.comm-links.update')
@@ -168,6 +177,13 @@
 @section('body__after')
     @parent
     <script>
+        const updateNavHash = (hash) => {
+            const links = document.querySelectorAll('.nav-bar a');
+            links.forEach(link => {
+                link.href = link.href.split('#')[0] + hash;
+            });
+        }
+
       $(document).ready(() => {
         let url = location.href.replace(/\/$/, '');
 
@@ -175,13 +191,15 @@
           const hash = url.split('#');
           $('#nav-tab a[href="#' + hash[1] + '"]').tab('show');
           url = location.href.replace(/\/#/, '#');
-          history.replaceState(null, null, url)
+          history.replaceState(null, null, url);
+          updateNavHash('#'+hash[1]);
         }
 
         $('a[data-toggle="tab"]').on('click', function () {
           let newUrl;
           const hash = $(this).attr('href');
           newUrl = url.split('#')[0] + hash;
+          updateNavHash(hash);
 
           history.replaceState(null, null, newUrl)
         })
