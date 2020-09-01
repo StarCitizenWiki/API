@@ -152,8 +152,7 @@ class Image extends BaseElement
 
         $this->commLink->filter($filter)->filterXPath('//c-feature')->each(
             function (Crawler $crawler) {
-
-                $src = trim($crawler->attr('background-url'));
+                $src = trim($crawler->attr('background-url') ?? '');
 
                 if (empty($src)) {
                     return;
