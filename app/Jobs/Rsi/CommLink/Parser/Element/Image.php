@@ -90,6 +90,7 @@ class Image extends BaseElement
     private function extractImages(): void
     {
         $this->extractImgTags();
+        $this->extractCFeatureTemplateImages();
         $this->extractPostBackground();
         $this->extractSourceAttrs();
         $this->extractCssBackgrounds();
@@ -140,7 +141,34 @@ class Image extends BaseElement
         );
     }
 
-    private function extractPostBackground() {
+    private function extractCFeatureTemplateImages()
+    {
+        $filter = ParseCommLink::POST_SELECTOR;
+        if ($this->isSubscriberPage($this->commLink)) {
+            $filter = '#subscribers .album-wrapper';
+        } elseif ($this->isSpecialPage($this->commLink)) {
+            $filter = ParseCommLink::SPECIAL_PAGE_SELECTOR;
+        }
+
+        $this->commLink->filter($filter)->filterXPath('//c-feature')->each(
+            function (Crawler $crawler) {
+
+                $src = trim($crawler->attr('background-url'));
+
+                if (empty($src)) {
+                    return;
+                }
+
+                $this->images[] = [
+                    'src' => $src,
+                    'alt' => 'c-feature',
+                ];
+            }
+        );
+    }
+
+    private function extractPostBackground()
+    {
         if ($this->commLink->filter(self::POST_BACKGROUND)->count() > 0) {
             $background = $this->commLink->filter(self::POST_BACKGROUND);
             $src = $background->attr('style');
