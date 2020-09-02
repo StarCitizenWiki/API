@@ -153,15 +153,18 @@
                     ])
                         Comm-Link
                     @endcomponent
-
-                    <hr>
-                    <h4>Textänderungen</h4>
-                    @foreach($changelogs->filter(function($value, $key) {
-                        return $value->type === 'update' && !empty($value->diff);
-                    }) as $changelog)
-                        <p class="mt-4">{{ $changelog->created_at }}</p>
-                        <p style="font-family: monospace" class="mt-2">{!! $changelog->diff !!}</p>
-                    @endforeach
+                    @unless($commLink->textChanges === 0)
+                        <hr>
+                        <h4>Textänderungen</h4>
+                        @foreach($changelogs->filter(static function($value, $key) {
+                            return $value->type === 'update' && !empty($value->diff);
+                        }) as $changelog)
+                            <div class="mt-4">
+                                <h6>{{ $commLink->created_at->format('d.m.Y H:i:s') }} -> {{ $changelog->created_at->format('d.m.Y H:i:s') }}</h6>
+                                <pre class="mt-2 bg-light p-3" id="change-{{ $changelog->getRouteKey() }}"><code>{{ $changelog->diff }}</code></pre>
+                            </div>
+                        @endforeach
+                    @endunless
                 </div>
 
                 @can('web.user.rsi.comm-links.update')

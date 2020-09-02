@@ -10,15 +10,18 @@ use App\Jobs\Rsi\CommLink\Parser\Element\Content;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use Symfony\Component\DomCrawler\Crawler;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
-
 
 /**
  * Comm-Link Controller.
@@ -39,16 +42,16 @@ class CommLinkController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function index()
     {
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $links = CommLink::query()->orderByDesc('cig_id')->paginate(500);
+        $links = CommLink::query()->withCount(['changelogs', 'translationChangelogs'])->orderByDesc('cig_id')->paginate(500);
 
         return view(
             'user.rsi.comm_links.index',
@@ -61,54 +64,58 @@ class CommLinkController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function show(CommLink $commLink)
     {
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $builder = new StrictUnifiedDiffOutputBuilder([
-            'collapseRanges'      => true, // ranges of length one are rendered with the trailing `,1`
-            'commonLineThreshold' => 3,    // number of same lines before ending a new hunk and creating a new one (if needed)
-            'contextLines'        => 3,    // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
-            'fromFile'            => $commLink->file,
-            'fromFileDate'        => '',
-            'toFile'              => $commLink->file,
-            'toFileDate'          => '',
-        ]);
+        $commLink->load('translationChangelogs');
 
-        $differ = new Differ($builder);
-        /** @var \Illuminate\Support\Collection $changelog */
-        $changelog = $commLink->changelogs;
-        $commLink->translations->each(
-            static function (CommLinkTranslation $translation) use (&$changelog, $differ) {
-                $translation->changelogs->each(
-                    static function (ModelChangelog $transChange) use (&$changelog, $differ) {
-                        if (isset($transChange->changelog['changes']['translation'])) {
-                            $transChange->diff = nl2br($differ->diff(
-                                $transChange->changelog['changes']['translation']['old'],
-                                $transChange->changelog['changes']['translation']['new'],
-                            ));
-                        }
+        /** @var Collection $changelogs */
+        $changelogs = $commLink->changelogs;
 
-                        $changelog->push($transChange);
-                    }
-                );
+        $changelogs = $changelogs->merge($commLink->translationChangelogs);
+
+        $commLink->textChanges = 0;
+
+        $changelogs->each(static function (ModelChangelog $changelog) use ($commLink)  {
+            if (!isset($changelog->changelog['changes']['translation'])) {
+                return;
             }
-        );
 
-        $changelog = $changelog->sortByDesc('created_at');
+            $commLink->textChanges++;
+
+            $builder = new StrictUnifiedDiffOutputBuilder([
+                'collapseRanges'      => true,
+                'commonLineThreshold' => 1,    // number of same lines before ending a new hunk and creating a new one (if needed)
+                'contextLines'        => 0,    // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
+                'fromFile'            => $commLink->created_at->toString(),
+                'fromFileDate'        => '',
+                'toFile'              => $changelog->created_at->toString(),
+                'toFileDate'          => '',
+            ]);
+
+            $differ = new Differ($builder);
+
+            $changelog->diff = ($differ->diff(
+                $changelog->changelog['changes']['translation']['old'],
+                $changelog->changelog['changes']['translation']['new'],
+            ));
+        });
+
+        $changelogs = $changelogs->sortByDesc('created_at');
 
         return view(
             'user.rsi.comm_links.show',
             [
                 'commLink' => $commLink,
-                'changelogs' => $changelog,
+                'changelogs' => $changelogs,
                 'prev' => $commLink->getPrevAttribute(),
                 'next' => $commLink->getNextAttribute(),
             ]
@@ -118,11 +125,11 @@ class CommLinkController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function edit(CommLink $commLink)
     {
@@ -148,11 +155,11 @@ class CommLinkController extends Controller
      * Update the specified resource in storage.
      *
      * @param \App\Http\Requests\Rsi\CommLink\CommLinkRequest $request
-     * @param \App\Models\Rsi\CommLink\CommLink               $commLink
+     * @param CommLink                                        $commLink
      *
      * @return \Illuminate\Http\RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function update(CommLinkRequest $request, CommLink $commLink)
     {
@@ -187,13 +194,13 @@ class CommLinkController extends Controller
     /**
      * Preview a Comm-Link Version.
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
-     * @param string                            $version
+     * @param CommLink $commLink
+     * @param string   $version
      *
-     * @return \Illuminate\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws AuthorizationException
+     * @throws FileNotFoundException
      */
     public function preview(CommLink $commLink, string $version)
     {
