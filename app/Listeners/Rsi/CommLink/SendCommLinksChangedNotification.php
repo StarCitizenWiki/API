@@ -5,6 +5,7 @@ namespace App\Listeners\Rsi\CommLink;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Models\Account\User\User;
 use App\Notifications\Rsi\CommLink\CommLinksChanged as CommLinksChangedNotification;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Notification;
 
 /**
@@ -15,13 +16,13 @@ class SendCommLinksChangedNotification
     /**
      * Handle the event.
      *
-     * @param  \App\Events\Rsi\CommLink\CommLinksChanged $event
+     * @param CommLinksChangedEvent $event
      *
      * @return void
      */
-    public function handle(CommLinksChangedEvent $event)
+    public function handle(CommLinksChangedEvent $event): void
     {
-        /** @var \Illuminate\Database\Eloquent\Collection $admins */
+        /** @var Collection $admins */
         $admins = User::query()->whereNotNull('email')->whereHas('adminGroup')->get();
 
         Notification::send($admins, new CommLinksChangedNotification($event->commLinks));

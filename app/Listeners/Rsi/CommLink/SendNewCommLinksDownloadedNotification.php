@@ -16,7 +16,7 @@ class SendNewCommLinksDownloadedNotification
     /**
      * Handle the event.
      *
-     * @param  \App\Events\Rsi\CommLink\NewCommLinksDownloaded $event
+     * @param NewCommLinksDownloaded $event
      *
      * @return void
      */
@@ -27,7 +27,7 @@ class SendNewCommLinksDownloadedNotification
                 ->whereNotNull('email')
                 ->whereHas(
                     'settings',
-                    function (Builder $query) {
+                    static function (Builder $query) {
                         $query->where('receive_comm_link_notifications', true);
                     }
                 )

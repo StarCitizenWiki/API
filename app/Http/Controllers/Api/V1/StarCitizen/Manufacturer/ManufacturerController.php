@@ -1,16 +1,11 @@
 <?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 09.08.2018
- * Time: 16:03
- */
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Manufacturer;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer;
+use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -22,8 +17,8 @@ class ManufacturerController extends ApiController
     /**
      * ManufacturerController constructor.
      *
-     * @param \Illuminate\Http\Request                                                  $request
-     * @param \App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer $transformer
+     * @param Request                 $request
+     * @param ManufacturerTransformer $transformer
      */
     public function __construct(Request $request, ManufacturerTransformer $transformer)
     {
@@ -34,9 +29,9 @@ class ManufacturerController extends ApiController
     /**
      * Alle Hersteller
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         return $this->getResponse(Manufacturer::query());
     }
@@ -46,9 +41,9 @@ class ManufacturerController extends ApiController
      *
      * @param string $manufacturer
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function show(string $manufacturer)
+    public function show(string $manufacturer): Response
     {
         $manufacturer = urldecode($manufacturer);
 
@@ -67,9 +62,9 @@ class ManufacturerController extends ApiController
     /**
      * Search Endpoint
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function search()
+    public function search(): Response
     {
         $query = $this->request->get('query');
         $query = urldecode($query);

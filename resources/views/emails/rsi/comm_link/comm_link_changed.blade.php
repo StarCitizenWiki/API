@@ -7,7 +7,11 @@ Dies sind Comm-Links, welche bisher keinen Inhalt hatten.
 <ul>
     @forelse($withoutContent as $item)
         <li>
-            {{ $item->commLink->cig_id }}: {{ $item->commLink->title }} &mdash; <a href="{{ route('web.user.rsi.comm-links.show', $item->commLink->cig_id) }}">Link</a>
+            {{ $item->commLink->cig_id }}: {{ $item->commLink->title }}
+            <span style="float: right">
+                <a href="{{ route('web.user.rsi.comm-links.show', $item->commLink->cig_id) }}">API</a> &mdash;
+                <a href="{{ config('services.mediawiki.url') }}/Comm-Link:{{ $item->commLink->cig_id }}">Wiki</a>
+            </span>
         </li>
     @empty
         <li>Keine Comm-Links geändert</li>
@@ -24,7 +28,11 @@ Dies sind Comm-Links, dessen Inhalt geändert wurden.
 <ul>
     @forelse($withContent as $item)
         <li>
-            {{ $item->commLink->cig_id }}: {{ $item->commLink->title }} &mdash; <a href="{{ route('web.user.rsi.comm-links.show', $item->commLink->cig_id) }}">Link</a>
+            {{ $item->commLink->cig_id }}: {{ $item->commLink->title }}
+            <span style="float: right">
+                <a href="{{ route('web.user.rsi.comm-links.show', $item->commLink->cig_id) }}">API</a> &mdash;
+                <a href="{{ config('services.mediawiki.url') }}/Comm-Link:{{ $item->commLink->cig_id }}">Wiki</a>
+            </span>
         </li>
     @empty
         <li>Keine Comm-Links geändert</li>

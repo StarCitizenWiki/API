@@ -125,7 +125,6 @@ abstract class AbstractBaseDownloadData
         $response = \GuzzleHttp\json_decode($res->getBody()->getContents());
 
         if (1 !== $response->success) {
-            dd($response);
             throw new \InvalidArgumentException('Login was not successful');
         }
 
@@ -159,8 +158,10 @@ abstract class AbstractBaseDownloadData
     {
         if (null === self::$scraper) {
             $this->initClient(false);
+
             self::$scraper = new GoutteClient();
             self::$scraper->setClient(self::$client);
+
             if ($withAuth) {
                 $this->addGuzzleCookiesToScraper(self::$scraper);
             }

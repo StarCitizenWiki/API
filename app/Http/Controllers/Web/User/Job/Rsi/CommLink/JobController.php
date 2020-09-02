@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Web\User\Job\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
@@ -14,9 +16,9 @@ class JobController extends Controller
     private const DASHBOARD_ROUTE = 'web.user.dashboard';
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function startCommLinkTranslationJob()
     {
@@ -35,9 +37,9 @@ class JobController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function startCommLinkImageDownloadJob()
     {
@@ -58,9 +60,9 @@ class JobController extends Controller
     /**
      * @param \Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function startCommLinkDownloadJob(Request $request)
     {
@@ -74,19 +76,19 @@ class JobController extends Controller
         );
 
         $ids = collect(explode(',', $data['ids']))->map(
-            function ($id) {
+            static function ($id) {
                 return trim($id);
             }
         )->filter(
-            function ($id) {
+            static function ($id) {
                 return is_numeric($id);
             }
         )->map(
-            function ($id) {
+            static function ($id) {
                 return (int) $id;
             }
         )->filter(
-            function (int $id) {
+            static function (int $id) {
                 return $id >= 12663;
             }
         );

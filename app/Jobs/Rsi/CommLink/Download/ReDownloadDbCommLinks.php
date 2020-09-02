@@ -59,7 +59,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
         );
 
         $this->initClient(false);
-        $this->getRsiAuthCookie();
+        //$this->getRsiAuthCookie();
 
         self::$scraper = new Client();
         self::$scraper->setClient(self::$client);

@@ -154,6 +154,15 @@ Route::group(
                                 'comm-links/{comm_link}/{version}/preview',
                                 'CommLink\CommLinkController@preview'
                             )->name('comm-links.preview');
+
+                            Route::namespace('Stat')
+                                ->name('stat.')
+
+                                ->group(
+                                    static function() {
+                                        Route::get('stats', 'StatController@index')->name('index');
+                                    }
+                                );
                         }
                     );
             }

@@ -32,7 +32,17 @@ class TranslateCommLink implements ShouldQueue
     /**
      * @var CommLink
      */
-    private $commLink;
+    private CommLink $commLink;
+
+    /**
+     * List of categories that should be translated more formally
+     *
+     * @var array|string[]
+     */
+    private array $formalCategories = [
+        'Lore',
+        'Short Stories',
+    ];
 
     /**
      * Create a new job instance.
@@ -56,15 +66,20 @@ class TranslateCommLink implements ShouldQueue
         if (null === optional($this->commLink->german())->translation) {
             $english = $this->commLink->english()->translation;
             $translation = '';
+            $formality = 'less';
+
+            if (in_array($this->commLink->category->name, $this->formalCategories, true)) {
+                $formality = 'more';
+            }
 
             try {
                 if (mb_strlen($english) > DeepLy::MAX_TRANSLATION_TEXT_LEN) {
-                    foreach ($this->strSplitUnicode($english, DeepLy::MAX_TRANSLATION_TEXT_LEN) as $chunk) {
-                        $chunkTranslation = DeepLyFacade::translate($chunk, 'DE', 'EN');
+                    foreach (str_split_unicode($english, DeepLy::MAX_TRANSLATION_TEXT_LEN) as $chunk) {
+                        $chunkTranslation = DeepLyFacade::translate($chunk, 'DE', 'EN', $formality);
                         $translation .= " {$chunkTranslation}";
                     }
                 } else {
-                    $translation = DeepLyFacade::translate($english, 'DE', 'EN');
+                    $translation = DeepLyFacade::translate($english, 'DE', 'EN', $formality);
                 }
             } catch (QuotaException $e) {
                 app('Log')::warning('Deepl Quote exceeded!');
@@ -100,27 +115,5 @@ class TranslateCommLink implements ShouldQueue
                 ]
             );
         }
-    }
-
-    /**
-     * Splits a Unicode String into the given length chunks.
-     *
-     * @param string $str
-     * @param int    $length
-     *
-     * @return array|array[]|false|string[]
-     */
-    private function strSplitUnicode(string $str, int $length = 1)
-    {
-        $tmp = preg_split('~~u', $str, -1, PREG_SPLIT_NO_EMPTY);
-        if ($length > 1) {
-            $chunks = array_chunk($tmp, $length);
-            foreach ($chunks as $i => $chunk) {
-                $chunks[$i] = join('', (array) $chunk);
-            }
-            $tmp = $chunks;
-        }
-
-        return $tmp;
     }
 }

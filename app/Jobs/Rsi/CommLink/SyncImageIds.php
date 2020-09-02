@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\CommLink;
+namespace App\Jobs\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Bus\Queueable;

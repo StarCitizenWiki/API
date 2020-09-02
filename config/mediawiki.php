@@ -17,4 +17,8 @@ return [
             'secret' => 'oauth_secret',
         ],
     ],
+
+    'request' => [
+        'timeout' => 10.0,
+    ],
 ];

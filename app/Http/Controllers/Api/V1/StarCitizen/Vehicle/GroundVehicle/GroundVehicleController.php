@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
+use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -17,8 +18,8 @@ class GroundVehicleController extends ApiController
     /**
      * ShipController constructor.
      *
-     * @param \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer $transformer
-     * @param \Illuminate\Http\Request                                                            $request
+     * @param GroundVehicleTransformer $transformer
+     * @param Request                  $request
      */
     public function __construct(GroundVehicleTransformer $transformer, Request $request)
     {
@@ -34,9 +35,9 @@ class GroundVehicleController extends ApiController
      *
      * @param string $groundVehicle
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function show(string $groundVehicle)
+    public function show(string $groundVehicle): Response
     {
         $groundVehicle = urldecode($groundVehicle);
 
@@ -53,9 +54,9 @@ class GroundVehicleController extends ApiController
      * Alle Bodenfahrzeuge
      * Ausgabe aller Bodenfahrzeuge der Ship Matrix paginiert
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         return $this->getResponse(GroundVehicle::query());
     }
@@ -63,9 +64,9 @@ class GroundVehicleController extends ApiController
     /**
      * Search Endpoint
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function search()
+    public function search(): Response
     {
         $query = $this->request->get('query', '');
         $query = urldecode($query);

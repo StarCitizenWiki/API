@@ -16,12 +16,12 @@ class NewCommLinksDownloaded extends Mailable
     use Queueable;
     use SerializesModels;
 
-    private $commLinks;
+    private Collection $commLinks;
 
     /**
      * Create a new message instance.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $commLinks
+     * @param Collection $commLinks
      */
     public function __construct(Collection $commLinks)
     {
@@ -34,7 +34,7 @@ class NewCommLinksDownloaded extends Mailable
      *
      * @return $this
      */
-    public function build()
+    public function build(): self
     {
         return $this->markdown(
             'emails.rsi.comm_link.new_comm_link_downloaded',

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs\Relay\Transcript\Import;
+namespace App\Jobs\Relay\Transcript;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Transcript\Transcript;

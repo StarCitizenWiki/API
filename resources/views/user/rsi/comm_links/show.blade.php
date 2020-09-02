@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-    <div class="d-flex mb-3">
+    <div class="d-flex mb-3 nav-bar">
         @unless(null === $prev)
             <a href="{{ route('web.user.rsi.comm-links.show', $prev) }}" class="btn btn-outline-secondary">@lang('Vorheriger')</a>
         @else
@@ -57,7 +57,11 @@
                     </a>
 
                     <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#changelog" role="tab" aria-controls="changelog" aria-selected="false">
-                        @lang('Verlauf')
+                        @lang('Aktualisierungen')
+                    </a>
+
+                    <a class="nav-item nav-link" id="nav-textchanges-tab" data-toggle="tab" href="#textchanges" role="tab" aria-controls="textchanges" aria-selected="false">
+                        @lang('Textänderungen')
                     </a>
 
                     <a class="nav-item nav-link" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}?veaction=edit" aria-selected="false">
@@ -155,6 +159,19 @@
                     @endcomponent
                 </div>
 
+                <div class="tab-pane fade" id="textchanges" role="tabpanel" aria-labelledby="nav-textchanges-tab">
+                    @forelse($changelogs->filter(static function($value, $key) {
+                        return $value->type === 'update' && !empty($value->diff);
+                    }) as $changelog)
+                        <div class="mt-4">
+                            <h6>{{ $commLink->created_at->format('d.m.Y H:i:s') }} -> {{ $changelog->created_at->format('d.m.Y H:i:s') }}</h6>
+                            <pre class="mt-2 bg-light p-3" id="change-{{ $changelog->getRouteKey() }}"><code>{{ $changelog->diff }}</code></pre>
+                        </div>
+                    @empty
+                        <p>Keine Textänderungen vorhanden</p>
+                    @endforelse
+                </div>
+
                 @can('web.user.rsi.comm-links.update')
                     <div class="tab-pane fade" id="deepl" role="tabpanel" aria-labelledby="nav-deepl-tab">
                         {!! empty($commLink->german()->translation) ? 'Nicht vorhanden' : nl2br($commLink->german()->translation) !!}
@@ -168,6 +185,13 @@
 @section('body__after')
     @parent
     <script>
+        const updateNavHash = (hash) => {
+            const links = document.querySelectorAll('.nav-bar a');
+            links.forEach(link => {
+                link.href = link.href.split('#')[0] + hash;
+            });
+        }
+
       $(document).ready(() => {
         let url = location.href.replace(/\/$/, '');
 
@@ -175,13 +199,15 @@
           const hash = url.split('#');
           $('#nav-tab a[href="#' + hash[1] + '"]').tab('show');
           url = location.href.replace(/\/#/, '#');
-          history.replaceState(null, null, url)
+          history.replaceState(null, null, url);
+          updateNavHash('#'+hash[1]);
         }
 
         $('a[data-toggle="tab"]').on('click', function () {
           let newUrl;
           const hash = $(this).attr('href');
           newUrl = url.split('#')[0] + hash;
+          updateNavHash(hash);
 
           history.replaceState(null, null, newUrl)
         })

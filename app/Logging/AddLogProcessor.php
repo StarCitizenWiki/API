@@ -1,13 +1,9 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 08.02.2018
- * Time: 16:41
- */
 
 namespace App\Logging;
 
 use App\Logging\Processors\UserInfoProcessor;
+use Monolog\Logger;
 use Monolog\Processor\WebProcessor;
 
 /**
@@ -16,7 +12,7 @@ use Monolog\Processor\WebProcessor;
 class AddLogProcessor
 {
     /**
-     * @param \Monolog\Logger $monolog
+     * @param Logger $monolog
      */
     public function __invoke($monolog)
     {

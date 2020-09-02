@@ -1,17 +1,14 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 27.09.2018
- * Time: 10:29
- */
 
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
+use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use League\Fractal\TransformerAbstract;
 
 /**
  * Class CommLinkController
@@ -21,15 +18,15 @@ class CommLinkController extends ApiController
     /**
      * Comm-Link Transformer
      *
-     * @var \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer
+     * @var CommLinkTransformer
      */
-    protected $transformer;
+    protected TransformerAbstract $transformer;
 
     /**
      * StatsAPIController constructor.
      *
-     * @param \Illuminate\Http\Request                                  $request
-     * @param \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer $transformer
+     * @param Request             $request
+     * @param CommLinkTransformer $transformer
      */
     public function __construct(Request $request, CommLinkTransformer $transformer)
     {
@@ -40,9 +37,9 @@ class CommLinkController extends ApiController
     /**
      * Ausgabe aller Comm-Links
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         $stats = CommLink::orderByDesc('cig_id');
 
@@ -52,9 +49,9 @@ class CommLinkController extends ApiController
     /**
      * @param int $commLink
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function show(int $commLink)
+    public function show(int $commLink): Response
     {
         try {
             $commLink = CommLink::query()->where('cig_id', $commLink)->firstOrFail();

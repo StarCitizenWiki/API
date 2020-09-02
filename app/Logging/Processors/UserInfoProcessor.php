@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 17.07.2017
- * Time: 16:54
- */
 
 namespace App\Logging\Processors;
 

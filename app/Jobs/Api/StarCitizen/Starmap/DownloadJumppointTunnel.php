@@ -4,7 +4,7 @@
  * Date: 03.08.2017 16:49
  */
 
-namespace App\Jobs\StarCitizen\Starmap;
+namespace App\Jobs\Api\StarCitizen\Starmap;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;

@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Account\User\User;
 use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -13,14 +15,14 @@ class CheckUserState
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        /** @var \App\Models\Account\User\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         if (!is_null($user) && $user->blocked) {

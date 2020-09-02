@@ -15,21 +15,18 @@ class CommLinksChanged extends Mailable
     use Queueable;
     use SerializesModels;
 
-    private $commLinks;
-
-    private $commLinksWithoutContent;
-    private $commLinksWithContent;
+    private Collection $commLinksWithoutContent;
+    private Collection $commLinksWithContent;
 
     /**
      * Create a new message instance.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $commLinks
+     * @param Collection $commLinks
      */
     public function __construct(Collection $commLinks)
     {
-        $this->commLinks = $commLinks;
-        $this->commLinksWithoutContent = $this->commLinks->where('had_content', '=', false);
-        $this->commLinksWithContent = $this->commLinks->where('had_content', '=', true);
+        $this->commLinksWithoutContent = $commLinks->where('had_content', '=', false);
+        $this->commLinksWithContent = $commLinks->where('had_content', '=', true);
     }
 
     /**

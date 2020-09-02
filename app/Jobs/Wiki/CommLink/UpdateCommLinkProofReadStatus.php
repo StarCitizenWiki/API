@@ -43,7 +43,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
 
         CommLink::query()->whereHas(
             'translations',
-            function (Builder $query) {
+            static function (Builder $query) {
                 $query->where(self::LOCALE_CODE, 'de_DE')->whereRaw("translation <> ''");
             }
         )->chunk(
@@ -60,7 +60,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
                 }
 
                 $commLinks->each(
-                    function (CommLink $commLink) use ($pageInfoCollection, $config) {
+                    static function (CommLink $commLink) use ($pageInfoCollection, $config) {
                         $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
                         app('Log')::info("Updating Proofread Status for Comm-Link: {$commLink->cig_id}");
@@ -70,7 +70,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
                         if (isset($wikiPage[self::CATEGORIES])) {
                             $proofread = true;
                             collect($wikiPage[self::CATEGORIES])->each(
-                                function (array $category) use (&$proofread, $config) {
+                                static function (array $category) use (&$proofread, $config) {
                                     if (str_contains($category['title'], $config['category'])) {
                                         $proofread = false;
                                     }

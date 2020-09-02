@@ -1,15 +1,11 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 27.09.2018
- * Time: 10:31
- */
 
 namespace App\Transformers\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Link\LinkTransformer;
+use League\Fractal\Resource\Collection;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -23,7 +19,7 @@ class CommLinkTransformer extends TransformerAbstract
     ];
 
     /**
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      *
      * @return array
      */
@@ -47,9 +43,9 @@ class CommLinkTransformer extends TransformerAbstract
     }
 
     /**
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeImages(CommLink $commLink)
     {
@@ -59,9 +55,9 @@ class CommLinkTransformer extends TransformerAbstract
     }
 
     /**
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeLinks(CommLink $commLink)
     {
@@ -73,7 +69,7 @@ class CommLinkTransformer extends TransformerAbstract
     /**
      * If no URL is set a default url will be returned
      *
-     * @param \App\Models\Rsi\CommLink\CommLink $commLink
+     * @param CommLink $commLink
      *
      * @return string
      */
