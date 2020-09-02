@@ -31,6 +31,12 @@
                     <th>@lang('Bilder')</th>
                     <th>@lang('Links')</th>
                     <th>@lang('Inhalt')</th>
+                    <th title="@lang('Änderungen')">@component('components.elements.icon')
+                            @slot('options')
+                                data-fa-transform="up-2"
+                            @endslot
+                            pencil
+                        @endcomponent</th>
                     <th>@lang('Übersetzt')</th>
                     <th>@lang('Channel')</th>
                     <th>@lang('Kategorie')</th>
@@ -62,6 +68,9 @@
                         </td>
                         <td>
                             {{ $commLink->english()->translation ? 'Ja' : 'Nein' }}
+                        </td>
+                        <td>
+                            {{ $commLink->translation_changelogs_count + $commLink->changelogs_count }}
                         </td>
                         @php
                             if (null !== $commLink->german()) {
