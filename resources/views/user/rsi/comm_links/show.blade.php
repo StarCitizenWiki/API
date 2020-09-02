@@ -57,7 +57,11 @@
                     </a>
 
                     <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#changelog" role="tab" aria-controls="changelog" aria-selected="false">
-                        @lang('Verlauf')
+                        @lang('Aktualisierungen')
+                    </a>
+
+                    <a class="nav-item nav-link" id="nav-textchanges-tab" data-toggle="tab" href="#textchanges" role="tab" aria-controls="textchanges" aria-selected="false">
+                        @lang('Textänderungen')
                     </a>
 
                     <a class="nav-item nav-link" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}?veaction=edit" aria-selected="false">
@@ -153,18 +157,19 @@
                     ])
                         Comm-Link
                     @endcomponent
-                    @unless($commLink->textChanges === 0)
-                        <hr>
-                        <h4>Textänderungen</h4>
-                        @foreach($changelogs->filter(static function($value, $key) {
-                            return $value->type === 'update' && !empty($value->diff);
-                        }) as $changelog)
-                            <div class="mt-4">
-                                <h6>{{ $commLink->created_at->format('d.m.Y H:i:s') }} -> {{ $changelog->created_at->format('d.m.Y H:i:s') }}</h6>
-                                <pre class="mt-2 bg-light p-3" id="change-{{ $changelog->getRouteKey() }}"><code>{{ $changelog->diff }}</code></pre>
-                            </div>
-                        @endforeach
-                    @endunless
+                </div>
+
+                <div class="tab-pane fade" id="textchanges" role="tabpanel" aria-labelledby="nav-textchanges-tab">
+                    @forelse($changelogs->filter(static function($value, $key) {
+                        return $value->type === 'update' && !empty($value->diff);
+                    }) as $changelog)
+                        <div class="mt-4">
+                            <h6>{{ $commLink->created_at->format('d.m.Y H:i:s') }} -> {{ $changelog->created_at->format('d.m.Y H:i:s') }}</h6>
+                            <pre class="mt-2 bg-light p-3" id="change-{{ $changelog->getRouteKey() }}"><code>{{ $changelog->diff }}</code></pre>
+                        </div>
+                    @empty
+                        <p>Keine Textänderungen vorhanden</p>
+                    @endforelse
                 </div>
 
                 @can('web.user.rsi.comm-links.update')
