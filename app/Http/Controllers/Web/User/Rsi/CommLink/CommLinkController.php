@@ -51,7 +51,7 @@ class CommLinkController extends Controller
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $links = CommLink::query()->withCount(['changelogs', 'translationChangelogs'])->orderByDesc('cig_id')->paginate(500);
+        $links = CommLink::query()->orderByDesc('cig_id')->paginate(500);
 
         return view(
             'user.rsi.comm_links.index',
