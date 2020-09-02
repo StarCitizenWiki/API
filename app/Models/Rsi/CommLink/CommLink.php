@@ -158,6 +158,11 @@ class CommLink extends HasTranslations
      */
     public function translationChangelogs(): HasManyThrough
     {
-        return $this->hasManyThrough(\App\Models\System\ModelChangelog::class, CommLinkTranslation::class, 'comm_link_id', 'changelog_id');
+        return $this->hasManyThrough(
+            \App\Models\System\ModelChangelog::class,
+            CommLinkTranslation::class,
+            'comm_link_id',
+            'changelog_id'
+        )->where('changelog_type', CommLinkTranslation::class);
     }
 }
