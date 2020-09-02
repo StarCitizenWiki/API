@@ -30,6 +30,18 @@
 @endcomponent
 --}}
 
+@can('web.user.rsi.stats.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mb-md-2',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_stats',
+        'title' => __('Statistiken'),
+    ])
+        @include('user.menu.stats')
+    @endcomponent
+@endcan
+
 @can('web.user.rsi.comm-links.view')
     @component('components.navs.sidebar_section', [
         'class' => 'mb-md-2',

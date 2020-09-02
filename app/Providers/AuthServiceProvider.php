@@ -11,6 +11,7 @@ use App\Policies\Web\User\Changelog\ChangelogPolicy;
 use App\Policies\Web\User\DashboardPolicy;
 use App\Policies\Web\User\Job\JobPolicy;
 use App\Policies\Web\User\Notification\NotificationPolicy;
+use App\Policies\Web\User\Rsi\Stat\StatPolicy;
 use App\Policies\Web\User\Transcript\TranscriptPolicy;
 use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
 use App\Policies\Web\User\Rsi\CommLink\Image\ImagePolicy;
@@ -83,6 +84,8 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('web.user.rsi.comm-links.preview', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@preview');
 
         Gate::resource('web.user.rsi.comm-links.images', ImagePolicy::class);
+
+        Gate::resource('web.user.rsi.stats', StatPolicy::class);
 
         /*
          * Transcripts
