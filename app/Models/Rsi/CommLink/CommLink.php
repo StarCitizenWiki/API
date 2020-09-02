@@ -16,6 +16,12 @@ use App\Models\Rsi\CommLink\Link\Link;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Comm-Link
@@ -63,7 +69,7 @@ class CommLink extends HasTranslations
     /**
      * {@inheritdoc}
      */
-    public function getRouteKeyName()
+    public function getRouteKeyName(): string
     {
         return 'cig_id';
     }
@@ -71,7 +77,7 @@ class CommLink extends HasTranslations
     /**
      * Previous Comm-Link
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     * @return Builder|Model|object|null
      */
     public function getPrevAttribute()
     {
@@ -82,7 +88,7 @@ class CommLink extends HasTranslations
     /**
      * Next Comm-Link
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     * @return Builder|Model|object|null
      */
     public function getNextAttribute()
     {
@@ -92,9 +98,9 @@ class CommLink extends HasTranslations
     /**
      * Channel Model
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function channel()
+    public function channel(): BelongsTo
     {
         return $this->belongsTo(Channel::class);
     }
@@ -102,9 +108,9 @@ class CommLink extends HasTranslations
     /**
      * Category Model
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
@@ -112,9 +118,9 @@ class CommLink extends HasTranslations
     /**
      * Series Model
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function series()
+    public function series(): BelongsTo
     {
         return $this->belongsTo(Series::class);
     }
@@ -122,9 +128,9 @@ class CommLink extends HasTranslations
     /**
      * Images Collection
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
-    public function images()
+    public function images(): BelongsToMany
     {
         return $this->belongsToMany(Image::class, 'comm_link_image', 'comm_link_id', 'comm_link_image_id');
     }
@@ -132,18 +138,26 @@ class CommLink extends HasTranslations
     /**
      * Links Collection
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
-    public function links()
+    public function links(): BelongsToMany
     {
         return $this->belongsToMany(Link::class, 'comm_link_link', 'comm_link_id', 'comm_link_link_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function translations()
+    public function translations(): HasMany
     {
         return $this->hasMany(CommLinkTranslation::class);
+    }
+
+    /**
+     * @return HasManyThrough
+     */
+    public function translationChangelogs(): HasManyThrough
+    {
+        return $this->hasManyThrough(\App\Models\System\ModelChangelog::class, CommLinkTranslation::class, 'comm_link_id', 'changelog_id');
     }
 }
