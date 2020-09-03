@@ -63,6 +63,7 @@ import {
   faFacebook,
   faTwitter,
   faTeamspeak,
+  faGithub
 } from '@fortawesome/free-brands-svg-icons'
 
 library.add(
@@ -118,7 +119,8 @@ library.add(
 library.add(
   faFacebook,
   faTwitter,
-  faTeamspeak
+  faTeamspeak,
+  faGithub
 )
 
 dom.watch()
