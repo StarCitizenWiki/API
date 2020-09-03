@@ -1,4 +1,9 @@
 @auth
+    @component('components.navs.nav_element', [
+        'route' => route('web.user.dashboard')
+    ])
+        @lang('Dashboard')
+    @endcomponent
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="admin_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {{ Auth::user()->username }}
