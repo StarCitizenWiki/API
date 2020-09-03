@@ -54,7 +54,7 @@ class StatController extends Controller
                 'fleet' => $data->pluck('fleet')->toJson(),
                 'fans' => $data->pluck('fans')->toJson(),
                 'active' => $every,
-                'from' => $from->format('Y-m-d'),
+                'from' => optional($from)->format('Y-m-d'),
             ]
         );
     }
