@@ -44,11 +44,7 @@ class ManufacturerController extends Controller
         $this->authorize('web.user.starcitizen.manufacturers.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $manufacturers = $this->api->with(
-            [
-                'limit' => 0,
-            ]
-        )->get("api/manufacturers");
+        $manufacturers = $this->api->get('api/manufacturers', ['limit' => 0]);
 
         return view(
             'user.starcitizen.manufacturers.index',
