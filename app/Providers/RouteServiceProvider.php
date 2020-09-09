@@ -84,10 +84,10 @@ class RouteServiceProvider extends ServiceProvider
                 'namespace' => $this->namespace.'\Api\V1',
                 'middleware' => 'api',
             ],
-            function (ApiRouter $api) {
+            static function (ApiRouter $api) {
                 $api->group(
                     [],
-                    function (ApiRouter $api) {
+                    static function (ApiRouter $api) {
                         require base_path('routes/api/api_v1.php');
                     }
                 );
