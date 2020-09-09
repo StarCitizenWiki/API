@@ -13,15 +13,18 @@ use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
+use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Symfony\Component\DomCrawler\Crawler;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Comm-Link Controller.
@@ -31,27 +34,47 @@ class CommLinkController extends Controller
     private const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.update';
 
     /**
-     * CommLinkController constructor.
+     * @var Dispatcher
      */
-    public function __construct()
+    private Dispatcher $api;
+
+    /**
+     * CommLinkController constructor.
+     *
+     * @param Dispatcher $dispatcher
+     */
+    public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
         $this->middleware('auth');
+        $this->api = $dispatcher;
+        $this->api->be(Auth::user());
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @param Request $request
+     *
+     * @return View
      *
      * @throws AuthorizationException
      */
-    public function index()
+    public function index(Request $request): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $links = CommLink::query()->orderByDesc('cig_id')->paginate(500);
+        $options = [
+            'limit' => 250,
+        ];
+
+        if ($request->has('page')) {
+            $options['page'] = $request->get('page');
+        }
+
+        $links = $this->api->get('api/comm-links', $options);
+        $links->withPath('/rsi/comm-links');
 
         return view(
             'user.rsi.comm_links.index',
@@ -66,11 +89,11 @@ class CommLinkController extends Controller
      *
      * @param CommLink $commLink
      *
-     * @return Response
+     * @return View
      *
      * @throws AuthorizationException
      */
-    public function show(CommLink $commLink)
+    public function show(CommLink $commLink): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -127,11 +150,11 @@ class CommLinkController extends Controller
      *
      * @param CommLink $commLink
      *
-     * @return Response
+     * @return View
      *
      * @throws AuthorizationException
      */
-    public function edit(CommLink $commLink)
+    public function edit(CommLink $commLink): View
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -154,14 +177,14 @@ class CommLinkController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\Rsi\CommLink\CommLinkRequest $request
-     * @param CommLink                                        $commLink
+     * @param CommLinkRequest $request
+     * @param CommLink        $commLink
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */
-    public function update(CommLinkRequest $request, CommLink $commLink)
+    public function update(CommLinkRequest $request, CommLink $commLink): RedirectResponse
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
 

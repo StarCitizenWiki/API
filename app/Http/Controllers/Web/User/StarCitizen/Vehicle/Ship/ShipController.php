@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
-use App\Models\System\ModelChangelog;
+use Dingo\Api\Dispatcher;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ShipsController
@@ -15,28 +18,39 @@ use Illuminate\Contracts\View\View;
 class ShipController extends Controller
 {
     /**
-     * ShipsController constructor.
+     * @var Dispatcher
      */
-    public function __construct()
+    private Dispatcher $api;
+
+    /**
+     * ShipsController constructor.
+     *
+     * @param Dispatcher $dispatcher
+     */
+    public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
         $this->middleware('auth');
+        $this->api = $dispatcher;
+        $this->api->be(Auth::user());
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function index(): View
     {
         $this->authorize('web.user.starcitizen.vehicles.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        $ships = $this->api->get('api/ships', ['limit' => 0]);
+
         return view(
             'user.starcitizen.vehicles.ships.index',
             [
-                'ships' => Ship::all(),
+                'ships' => $ships,
             ]
         );
     }
@@ -44,36 +58,29 @@ class ShipController extends Controller
     /**
      * Display Ship data, edit Translations
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
+     * @param Ship $ship
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function edit(Ship $ship)
+    public function edit(Ship $ship): View
     {
         $this->authorize('web.user.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        /** @var \Illuminate\Support\Collection $changelog */
-        $changelog = $ship->changelogs;
-        $ship->translations->each(
-            function (VehicleTranslation $translation) use (&$changelog) {
-                $translation->changelogs->each(
-                    function (ModelChangelog $transChange) use (&$changelog) {
-                        $changelog->push($transChange);
-                    }
-                );
-            }
-        );
+        /** @var Collection $changelogs */
+        $changelogs = $ship->changelogs;
 
-        $changelog = $changelog->sortByDesc('created_at');
+        $changelogs = $changelogs->merge($ship->translationChangelogs);
+
+        $changelogs = $changelogs->sortByDesc('created_at');
 
         return view(
             'user.starcitizen.vehicles.ships.edit',
             [
                 'ship' => $ship,
-                'changelogs' => $changelog,
+                'changelogs' => $changelogs,
             ]
         );
     }
@@ -81,14 +88,14 @@ class ShipController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\System\TranslationRequest  $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
+     * @param TranslationRequest $request
+     * @param Ship               $ship
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function update(TranslationRequest $request, Ship $ship)
+    public function update(TranslationRequest $request, Ship $ship): RedirectResponse
     {
         $this->authorize('web.user.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));

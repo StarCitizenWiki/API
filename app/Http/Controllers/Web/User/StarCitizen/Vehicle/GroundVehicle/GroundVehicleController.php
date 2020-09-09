@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
-use App\Models\System\ModelChangelog;
+use Dingo\Api\Dispatcher;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class GroundVehicleController
@@ -15,28 +18,39 @@ use Illuminate\Contracts\View\View;
 class GroundVehicleController extends Controller
 {
     /**
-     * ShipsController constructor.
+     * @var Dispatcher
      */
-    public function __construct()
+    private Dispatcher $api;
+
+    /**
+     * ShipsController constructor.
+     *
+     * @param Dispatcher $dispatcher
+     */
+    public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
         $this->middleware('auth');
+        $this->api = $dispatcher;
+        $this->api->be(Auth::user());
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function index(): View
     {
         $this->authorize('web.user.starcitizen.vehicles.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        $vehicles = $this->api->get('api/vehicles', ['limit' => 0]);
+
         return view(
             'user.starcitizen.vehicles.ground_vehicles.index',
             [
-                'groundVehicles' => GroundVehicle::all(),
+                'groundVehicles' => $vehicles,
             ]
         );
     }
@@ -44,36 +58,29 @@ class GroundVehicleController extends Controller
     /**
      * Display Ship data, edit Translations
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
+     * @param GroundVehicle $groundVehicle
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function edit(GroundVehicle $groundVehicle)
+    public function edit(GroundVehicle $groundVehicle): View
     {
         $this->authorize('web.user.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        /** @var \Illuminate\Support\Collection $changelog */
-        $changelog = $groundVehicle->changelogs;
-        $groundVehicle->translations->each(
-            function (VehicleTranslation $translation) use (&$changelog) {
-                $translation->changelogs->each(
-                    function (ModelChangelog $transChange) use (&$changelog) {
-                        $changelog->push($transChange);
-                    }
-                );
-            }
-        );
+        /** @var Collection $changelogs */
+        $changelogs = $groundVehicle->changelogs;
 
-        $changelog = $changelog->sortByDesc('created_at');
+        $changelogs = $changelogs->merge($groundVehicle->translationChangelogs);
+
+        $changelogs = $changelogs->sortByDesc('created_at');
 
         return view(
             'user.starcitizen.vehicles.ground_vehicles.edit',
             [
                 'groundVehicle' => $groundVehicle,
-                'changelogs' => $changelog,
+                'changelogs' => $changelogs,
             ]
         );
     }
@@ -81,14 +88,14 @@ class GroundVehicleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\System\TranslationRequest                    $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
+     * @param TranslationRequest $request
+     * @param GroundVehicle      $groundVehicle
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function update(TranslationRequest $request, GroundVehicle $groundVehicle)
+    public function update(TranslationRequest $request, GroundVehicle $groundVehicle): RedirectResponse
     {
         $this->authorize('web.user.starcitizen.vehicles.update');
         $data = $request->validated();
