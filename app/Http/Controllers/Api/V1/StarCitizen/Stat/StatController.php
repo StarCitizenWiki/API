@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Stat\Stat;
 use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
-use Illuminate\Http\Request;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -26,8 +26,8 @@ class StatController extends ApiController
     /**
      * StatsAPIController constructor.
      *
-     * @param Request         $request
-     * @param StatTransformer $transformer
+     * @param Request $request
+     * @param StatTransformer         $transformer
      */
     public function __construct(Request $request, StatTransformer $transformer)
     {

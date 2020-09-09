@@ -6,9 +6,9 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer;
+use Dingo\Api\Contract\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 use League\Fractal\TransformerAbstract;
 
 /**

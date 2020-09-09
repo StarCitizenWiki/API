@@ -7,7 +7,7 @@ use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Dingo\Api\Contract\Http\Request;
 
 /**
  * Hersteller API

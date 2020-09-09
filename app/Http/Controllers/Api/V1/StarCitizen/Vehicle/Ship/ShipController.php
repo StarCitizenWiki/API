@@ -7,7 +7,7 @@ use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Dingo\Api\Contract\Http\Request;
 
 /**
  * Raumschiff API

@@ -11,7 +11,7 @@ use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Dingo\Api\Contract\Http\Request;
 use InvalidArgumentException;
 
 /**

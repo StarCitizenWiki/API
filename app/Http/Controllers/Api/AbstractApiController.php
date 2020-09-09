@@ -10,7 +10,7 @@ use Dingo\Api\Routing\Helpers;
 use Dingo\Api\Transformer\Factory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
+use Dingo\Api\Contract\Http\Request;
 use Illuminate\Support\Str;
 use League\Fractal\TransformerAbstract;
 
@@ -79,7 +79,9 @@ abstract class AbstractApiController extends Controller
      */
     public function __construct(Request $request)
     {
+        parent::__construct();
         $this->request = $request;
+
         $this->processRequestParams();
         app(Factory::class)->disableEagerLoading();
     }

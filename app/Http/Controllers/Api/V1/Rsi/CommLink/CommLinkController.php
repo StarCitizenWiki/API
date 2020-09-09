@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -23,7 +23,7 @@ class CommLinkController extends ApiController
     protected TransformerAbstract $transformer;
 
     /**
-     * StatsAPIController constructor.
+     * CommLinkController constructor.
      *
      * @param Request             $request
      * @param CommLinkTransformer $transformer
@@ -41,9 +41,9 @@ class CommLinkController extends ApiController
      */
     public function index(): Response
     {
-        $stats = CommLink::orderByDesc('cig_id');
+        $commLinks = CommLink::query()->orderByDesc('cig_id');
 
-        return $this->getResponse($stats);
+        return $this->getResponse($commLinks);
     }
 
     /**

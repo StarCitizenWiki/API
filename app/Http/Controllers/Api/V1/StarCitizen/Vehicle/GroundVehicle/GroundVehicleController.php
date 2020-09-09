@@ -7,7 +7,7 @@ use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Dingo\Api\Contract\Http\Request;
 
 /**
  * Bodenfahrzeug API

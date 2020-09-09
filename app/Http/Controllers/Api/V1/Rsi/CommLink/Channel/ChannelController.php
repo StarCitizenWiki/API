@@ -8,7 +8,7 @@ use App\Transformers\Api\V1\Rsi\CommLink\Channel\ChannelTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Dingo\Api\Contract\Http\Request;
 use League\Fractal\TransformerAbstract;
 
 /**
