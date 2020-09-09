@@ -85,7 +85,9 @@ RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 ### Final Image
 FROM php:7.4-apache
 
-COPY --from=api /api /opt/api
+WORKDIR /var/www/html
+
+COPY --from=api /api /var/www/html
 COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY ./docker/start.sh /usr/local/bin/start
 
@@ -96,13 +98,13 @@ RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
     echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini
 
-VOLUME /opt/api/storage/logs
-VOLUME /opt/api/storage/app
+VOLUME /var/www/html/storage/logs
+VOLUME /var/www/html/storage/app
 
-RUN chown -R www-data:www-data /opt/api && \
+RUN chown -R www-data:www-data /var/www/html && \
     chmod u+x /usr/local/bin/start && \
-    chmod u+w /opt/api/storage && \
-    chmod g+w /opt/api/storage && \
+    chmod u+w /var/www/html/storage && \
+    chmod g+w /var/www/html/storage && \
     a2enmod rewrite
 
 CMD ["/usr/local/bin/start"]
