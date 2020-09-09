@@ -14,6 +14,7 @@ use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Abstract Vehicle Class
@@ -78,6 +79,19 @@ class Vehicle extends HasTranslations
     public function translations()
     {
         return $this->hasMany(VehicleTranslation::class);
+    }
+
+    /**
+     * @return HasManyThrough
+     */
+    public function translationChangelogs(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            \App\Models\System\ModelChangelog::class,
+            VehicleTranslation::class,
+            'vehicle_id',
+            'changelog_id'
+        )->where('changelog_type', VehicleTranslation::class);
     }
 
     /**
