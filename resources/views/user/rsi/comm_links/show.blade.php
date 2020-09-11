@@ -44,6 +44,10 @@
                     </a>
                     @endunless
 
+                    <a class="nav-item nav-link" id="nav-api-tab" href="{{ app('api.url')->version('v1')->route('api.v1.rsi.comm-links.show', $commLink->cig_id) }}" aria-selected="false" target="_blank">
+                        @lang('API') <em class="fal fa-external-link fa-sm" data-fa-transform="up-2"></em>
+                    </a>
+
                     <a class="nav-item nav-link" id="nav-links-tab" data-toggle="tab" href="#links" role="tab" aria-controls="links" aria-selected="false">
                         @lang('Links') <span class="badge badge-primary">{{ count($commLink->links) }}</span>
                     </a>
