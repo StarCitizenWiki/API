@@ -38,6 +38,7 @@ class CommLinkTransformer extends TransformerAbstract
             'series' => $commLink->series->name,
             'images' => $commLink->images_count,
             'links' => $commLink->links_count,
+            'comment_count' => $commLink->comment_count,
             'created_at' => $commLink->created_at->toDateString(),
         ];
     }
