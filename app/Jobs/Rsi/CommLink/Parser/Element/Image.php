@@ -84,6 +84,22 @@ class Image extends BaseElement
     }
 
     /**
+     * Try to get Original RSI Hash.
+     *
+     * @param string $src
+     *
+     * @return string|null
+     */
+    public function getDirHash(string $src): ?string
+    {
+        $src = substr($src, 1);
+        $dir = str_replace('media/', '', $src);
+        $dir = explode('/', $dir);
+
+        return $dir[0] ?? null;
+    }
+
+    /**
      * Extracts all <img> Elements from the Crawler
      * Saves src and alt attributes.
      */
@@ -252,21 +268,5 @@ class Image extends BaseElement
         $srcUrlPath = trim(ltrim($srcUrlPath, '/'));
 
         return "/{$srcUrlPath}";
-    }
-
-    /**
-     * Try to get Original RSI Hash.
-     *
-     * @param string $src
-     *
-     * @return string|null
-     */
-    private function getDirHash(string $src): ?string
-    {
-        $src = substr($src, 1);
-        $dir = str_replace('media/', '', $src);
-        $dir = explode('/', $dir);
-
-        return $dir[0] ?? null;
     }
 }

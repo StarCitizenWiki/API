@@ -10,6 +10,7 @@ use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use League\Fractal\TransformerAbstract;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Class CommLinkController
@@ -84,13 +85,17 @@ class CommLinkController extends ApiController
 
         $url = parse_url($url, PHP_URL_PATH);
 
-        if ($url === false) {
+        $parser = new \App\Jobs\Rsi\CommLink\Parser\Element\Image(new Crawler());
+
+        $dir = $parser->getDirHash($url);
+
+        if ($dir === false) {
             return [];
         }
 
         try {
             /** @var Image $image */
-            $image = Image::query()->where('src', $url)->firstOrFail();
+            $image = Image::query()->where('dir', $dir)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             return [];
         }
