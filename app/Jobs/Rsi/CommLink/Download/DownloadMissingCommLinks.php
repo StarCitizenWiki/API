@@ -44,7 +44,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 
         $postIDs = [];
 
-        /** @var \Symfony\Component\DomCrawler\Crawler $crawler */
+        /** @var Crawler $crawler */
         $crawler = self::$scraper->request('GET', self::COMM_LINK_BASE_URL);
         $crawler->filter('#channel .hub-blocks .hub-block')->each(
             function (Crawler $crawler) use (&$postIDs) {
@@ -54,7 +54,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         );
 
         if (empty($postIDs)) {
-            app('Log')::info("Could not retrieve latest Comm-Link ID, retrying in 1 minute.");
+            app('Log')::info('Could not retrieve latest Comm-Link ID, retrying in 1 minute.');
             $this->release(60);
 
             return;
@@ -70,7 +70,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         );
 
         try {
-            $dbId = CommLink::orderByDesc('cig_id')->firstOrFail()->cig_id++;
+            $dbId = CommLink::query()->orderByDesc('cig_id')->firstOrFail()->cig_id++;
         } catch (ModelNotFoundException $e) {
             $dbId = self::FIRST_COMM_LINK_ID;
         }
@@ -90,7 +90,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     /**
      * Extract latest Comm-Link id from Website
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $link
+     * @param Crawler $link
      *
      * @return int
      */

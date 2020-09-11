@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use RuntimeException;
 
 /**
  * Translate new Comm-Links
@@ -42,7 +43,7 @@ class TranslateCommLinks implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Starting Comm-Link Translations');
 
@@ -58,7 +59,7 @@ class TranslateCommLinks implements ShouldQueue
             function (Collection $commLinks) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (\RuntimeException $e) {
+                } catch (RuntimeException $e) {
                     app('Log')::error($e->getMessage());
 
                     $this->fail($e);

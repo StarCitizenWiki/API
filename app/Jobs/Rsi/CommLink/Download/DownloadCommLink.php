@@ -52,7 +52,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      */
     public function handle()
     {
-        if (Storage::disk('comm_links')->exists($this->postId) && $this->skipExisting) {
+        if ($this->skipExisting && Storage::disk('comm_links')->exists($this->postId)) {
             app('Log')::debug(
                 "Skipping existing Comm-Link {$this->postId}",
                 [

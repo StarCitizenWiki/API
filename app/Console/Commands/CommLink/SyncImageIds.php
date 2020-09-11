@@ -57,7 +57,7 @@ class SyncImageIds extends Command
             $this->info("Starting at Comm-Link ID {$offset}");
         }
 
-        $this->dispatcher->dispatch(new \App\Jobs\CommLink\SyncImageIds($offset));
+        $this->dispatcher->dispatch(new \App\Jobs\Rsi\CommLink\SyncImageIds($offset));
 
         return 0;
     }

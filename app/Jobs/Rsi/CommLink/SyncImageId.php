@@ -24,12 +24,12 @@ class SyncImageId implements ShouldQueue
     /**
      * @var CommLink
      */
-    private $commLink;
+    private CommLink $commLink;
 
     /**
      * @var Crawler
      */
-    private $crawler;
+    private Crawler $crawler;
 
     /**
      * Create a new job instance.

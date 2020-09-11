@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink;
 
@@ -35,7 +35,7 @@ class SyncImageIds implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle()
+    public function handle(): void
     {
         $commLinks = CommLink::query()->where('cig_id', '>=', $this->offset)->get();
 
