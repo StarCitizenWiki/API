@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Image\Image;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
@@ -68,5 +69,34 @@ class CommLinkController extends ApiController
         ];
 
         return $this->getResponse($commLink);
+    }
+
+    /**
+     * Performs a reverse image search
+     *
+     * @param Request $request
+     *
+     * @return array|Response
+     */
+    public function reverseSearchImage(Request $request)
+    {
+        $url = $request->get('src', '');
+
+        $url = parse_url($url, PHP_URL_PATH);
+
+        if ($url === false) {
+            return [];
+        }
+
+        try {
+            /** @var Image $image */
+            $image = Image::query()->where('src', $url)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return [];
+        }
+
+        $this->transformer->setDefaultIncludes($this->transformer->getAvailableIncludes());
+
+        return $this->getResponse(optional($image)->commLinks());
     }
 }

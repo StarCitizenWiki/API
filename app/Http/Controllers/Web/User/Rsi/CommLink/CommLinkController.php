@@ -16,6 +16,8 @@ use Carbon\Carbon;
 use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -242,6 +244,59 @@ class CommLinkController extends Controller
                 'commLink' => $commLink,
                 'version' => $version,
                 'preview' => $contentParser->getContent(),
+            ]
+        );
+    }
+
+    /**
+     * Reverse search view
+     *
+     * @return Application|Factory|View
+     * @throws AuthorizationException
+     */
+    public function reverseSearchImage()
+    {
+        $this->authorize(self::COMM_LINK_PERMISSION);
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        return view('user.rsi.comm_links.reverse_search_image');
+    }
+
+    /**
+     * Reverse searches a comm link by an image url
+     *
+     * @param Request $request
+     *
+     * @return Application|Factory|View
+     * @throws AuthorizationException
+     */
+    public function reverseSearchImagePost(Request $request)
+    {
+        $this->authorize(self::COMM_LINK_PERMISSION);
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        $options = [
+            'limit' => 250,
+        ];
+
+        if ($request->has('page')) {
+            $options['page'] = $request->get('page');
+        }
+
+        $links = $this->api
+            ->with(
+                array_merge(
+                    [
+                        'src' => $request->get('src'),
+                    ],
+                    $options
+                )
+            )->post('api/comm-links/reverse-search-image');
+
+        return view(
+            'user.rsi.comm_links.index',
+            [
+                'commLinks' => $links,
             ]
         );
     }

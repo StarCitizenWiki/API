@@ -114,9 +114,9 @@ abstract class AbstractApiController extends Controller
             return $this->response->collection($query->get(), $this->transformer)->setMeta($this->getMeta());
         }
 
-        $manufacturer = $query->paginate($this->limit);
+        $paginate = $query->paginate($this->limit);
 
-        return $this->response->paginator($manufacturer, $this->transformer)->setMeta($this->getMeta());
+        return $this->response->paginator($paginate, $this->transformer)->setMeta($this->getMeta());
     }
 
     /**

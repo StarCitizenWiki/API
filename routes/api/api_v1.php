@@ -13,8 +13,8 @@ $api->group(
                 'prefix' => 'stats',
             ],
             static function (Router $api) {
-                //$api->get('latest', ['as' => 'api.v1.starcitizen.stats.latest', 'uses' => 'StatController@latest']);
-                //$api->get('/', ['as' => 'api.v1.starcitizen.stats.all', 'uses' => 'StatController@index']);
+                $api->get('latest', ['as' => 'api.v1.starcitizen.stats.latest', 'uses' => 'StatController@latest']);
+                $api->get('/', ['as' => 'api.v1.starcitizen.stats.all', 'uses' => 'StatController@index']);
             }
         );
 
@@ -244,6 +244,13 @@ $api->group(
                     [
                         'as' => 'api.v1.rsi.comm-links.index',
                         'uses' => 'CommLinkController@index',
+                    ]
+                );
+                $api->post(
+                    '/reverse-search-image',
+                    [
+                        'as' => 'api.v1.rsi.comm-links.reverse-search-image',
+                        'uses' => 'CommLinkController@reverseSearchImage',
                     ]
                 );
                 $api->get(

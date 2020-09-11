@@ -17,7 +17,9 @@
     <div class="card">
         <div class="card-header d-flex">
             <h4 class="mb-0 pt-1">@lang('Comm-Links')</h4>
+            @unless(empty($commLinks))
             <span class="d-flex ml-auto">{{ $commLinks->links() }}</span>
+            @endunless
         </div>
         <div class="card-body px-0 table-responsive">
             <table class="table table-striped mb-0" data-order='[[ 0, "desc" ]]' data-page-length="50" data-length-menu='[ [25, 50, 100, -1], [25, 50, 100, "Alle"] ]'>
@@ -117,7 +119,9 @@
                 </tbody>
             </table>
         </div>
+        @unless(empty($commLinks))
         <div class="card-footer">{{ $commLinks->links() }}</div>
+        @endunless
     </div>
 @endsection
 
