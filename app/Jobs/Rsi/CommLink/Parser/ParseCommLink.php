@@ -91,7 +91,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @throws FileNotFoundException
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info(
             "Parsing Comm-Link with ID {$this->commLinkId}",
@@ -127,7 +127,7 @@ class ParseCommLink implements ShouldQueue
     /**
      * Updates or Creates a Comm-Link Model and populates it.
      */
-    private function createCommLink()
+    private function createCommLink(): void
     {
         /** @var CommLink $commLink */
         $commLink = CommLink::updateOrCreate(
@@ -155,7 +155,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @return array
      */
-    private function getCommLinkData()
+    private function getCommLinkData(): array
     {
         $metaData = (new Metadata($this->crawler))->getMetaData();
 
@@ -176,7 +176,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @param CommLink $commLink
      */
-    private function addEnglishCommLinkTranslation(CommLink $commLink)
+    private function addEnglishCommLinkTranslation(CommLink $commLink): void
     {
         $contentParser = new Content($this->crawler);
         $commLink->translations()->updateOrCreate(
@@ -195,7 +195,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @param CommLink $commLink
      */
-    private function syncImageIds(CommLink $commLink)
+    private function syncImageIds(CommLink $commLink): void
     {
         $imageParser = new Image($this->crawler);
         $commLink->images()->sync($imageParser->getImageIds());
@@ -206,7 +206,7 @@ class ParseCommLink implements ShouldQueue
      *
      * @param CommLink $commLink
      */
-    private function syncLinkIds(CommLink $commLink)
+    private function syncLinkIds(CommLink $commLink): void
     {
         $linkParser = new Link($this->crawler);
         $commLink->links()->sync($linkParser->getLinkIds());
@@ -224,7 +224,7 @@ class ParseCommLink implements ShouldQueue
      * Checks if Content of current Comm-Link has Changed
      * Updates Metadata.
      */
-    private function checkCommLinkForChanges()
+    private function checkCommLinkForChanges(): void
     {
         $data = $this->getCommLinkData();
 

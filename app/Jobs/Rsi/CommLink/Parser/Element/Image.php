@@ -1,11 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * User: Hannes
- * Date: 11.09.2018
- * Time: 17:38.
- */
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
@@ -30,19 +25,19 @@ class Image extends BaseElement
     private const POST_BACKGROUND = '#post-background';
 
     /**
-     * @var \Symfony\Component\DomCrawler\Crawler
+     * @var Crawler
      */
-    private $commLink;
+    private Crawler $commLink;
 
     /**
      * @var array Image Data Array
      */
-    private $images = [];
+    private array $images = [];
 
     /**
      * Image constructor.
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $commLinkDocument
+     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {
@@ -135,7 +130,8 @@ class Image extends BaseElement
         }
     }
 
-    private function extractImgTags() {
+    private function extractImgTags(): void
+    {
         $filter = ParseCommLink::POST_SELECTOR;
         if ($this->isSubscriberPage($this->commLink)) {
             $filter = '#subscribers .album-wrapper';
@@ -157,7 +153,7 @@ class Image extends BaseElement
         );
     }
 
-    private function extractCFeatureTemplateImages()
+    private function extractCFeatureTemplateImages(): void
     {
         $filter = ParseCommLink::POST_SELECTOR;
         if ($this->isSubscriberPage($this->commLink)) {
@@ -182,7 +178,7 @@ class Image extends BaseElement
         );
     }
 
-    private function extractPostBackground()
+    private function extractPostBackground(): void
     {
         if ($this->commLink->filter(self::POST_BACKGROUND)->count() > 0) {
             $background = $this->commLink->filter(self::POST_BACKGROUND);
@@ -203,7 +199,8 @@ class Image extends BaseElement
         }
     }
 
-    private function extractSourceAttrs() {
+    private function extractSourceAttrs(): void
+    {
         preg_match_all(
             "/source:\s?'(https:\/\/(?:media\.)?robertsspaceindustries\.com.*?)'/",
             $this->commLink->html(),
@@ -222,7 +219,8 @@ class Image extends BaseElement
         }
     }
 
-    private function extractCssBackgrounds() {
+    private function extractCssBackgrounds(): void
+    {
         preg_match_all(
             "/url\([\"'](\/media\/\w+\/\w+\/[\w\-.]+\.\w+)[\"']\)/",
             $this->commLink->filterXPath('//head')->html(),

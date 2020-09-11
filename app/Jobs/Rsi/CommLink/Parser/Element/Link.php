@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 11.09.2018
- * Time: 17:38
- */
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
@@ -18,19 +13,19 @@ use Symfony\Component\DomCrawler\Crawler;
 class Link extends BaseElement
 {
     /**
-     * @var \Symfony\Component\DomCrawler\Crawler
+     * @var Crawler
      */
-    private $commLink;
+    private Crawler $commLink;
 
     /**
      * @var array Link Data Array
      */
-    private $links = [];
+    private array $links = [];
 
     /**
      * Link constructor.
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $commLinkDocument
+     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {

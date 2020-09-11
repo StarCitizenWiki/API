@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 11.09.2018
- * Time: 17:52
- */
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
@@ -57,19 +52,19 @@ class Metadata extends BaseElement
     private const SUBSCRIBER = 'Subscriber';
 
     /**
-     * @var \Symfony\Component\DomCrawler\Crawler
+     * @var Crawler
      */
-    private $commLink;
+    private Crawler $commLink;
 
     /**
-     * @var \Illuminate\Support\Collection MetaData Collection
+     * @var Collection MetaData Collection
      */
-    private $metaData;
+    private Collection $metaData;
 
     /**
      * Metadata constructor.
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $commLinkDocument
+     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {
@@ -78,7 +73,7 @@ class Metadata extends BaseElement
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function getMetaData(): Collection
     {
@@ -150,7 +145,7 @@ class Metadata extends BaseElement
     {
         $count = 0;
         if ($this->commLink->filter('.comment-count')->count() > 0) {
-            $count = intval($this->commLink->filter('.comment-count')->first()->text());
+            $count = (int) $this->commLink->filter('.comment-count')->first()->text();
         }
 
         $this->metaData->put('comment_count', $count);

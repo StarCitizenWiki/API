@@ -41,7 +41,7 @@ class ParseCommLinkDownload implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle()
+    public function handle(): void
     {
         $commLinks = CommLink::query()->get();
         $commLinks = $commLinks->keyBy('cig_id');

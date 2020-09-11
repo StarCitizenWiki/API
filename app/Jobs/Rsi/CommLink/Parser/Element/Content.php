@@ -1,13 +1,10 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 11.09.2018
- * Time: 17:31
- */
+<?php
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
 use App\Jobs\Rsi\CommLink\Parser\Element\AbstractBaseElement as BaseElement;
+use Closure;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -16,18 +13,34 @@ use Symfony\Component\DomCrawler\Crawler;
 class Content extends BaseElement
 {
     /**
-     * @var \Symfony\Component\DomCrawler\Crawler
+     * @var Crawler
      */
-    private $commLink;
+    private Crawler $commLink;
+
+    /**
+     * Remove node closure
+     *
+     * @var Closure
+     */
+    private Closure $removeNode;
 
     /**
      * Content constructor.
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $commLinkDocument
+     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {
         $this->commLink = $commLinkDocument;
+
+        $this->removeNode = static function (Crawler $crawler) {
+            $node = $crawler->getNode(0);
+            if ($node !== null) {
+                $node->parentNode->removeChild($node);
+            }
+
+            return $crawler;
+        };
     }
 
     /**
@@ -72,40 +85,43 @@ class Content extends BaseElement
         $content = $this->removeElements($content);
 
         // Remove empty p Tags
-        $content = preg_replace('/<p><\/p>/', '', $content);
+        $content = preg_replace('/<p><\/p>/m', '', $content);
 
         // Remove Multiline Breaks
         //$content = preg_replace('/^\s+/m', '', $content);
 
         // Replace multiple Whitespaces with one
-        $content = preg_replace('/\s+/S', " ", $content);
+        $content = preg_replace('/\s+/Sm', ' ', $content);
 
         // Remove all Tags except p, br and headings
         $content = trim(strip_tags($content, '<p><br><h1><h2><h3><h4><h5><h6>'));
 
         // Add New Line to ending heading tags
-        $content = preg_replace('/<\/h([1-6])>/', "</h$1>\n", $content);
+        $content = preg_replace('/<\/h([1-6])>/m', "</h$1>\n", $content);
 
         // Add New Lines to ending p tags
-        $content = str_replace('</p>', "</p>\n\n", $content);
+        $content = (string) str_replace('</p>', "</p>\n\n", $content);
 
         // Replace multiple br with one
-        $content = preg_replace('/(?:<br>\n?){2,}+/m', '<br>', $content);
+        $content = preg_replace("/(?:<br>\n?){2,}+/m", '<br>', $content);
 
         // Replace br with new line
-        $content = str_replace('<br>', "\n", $content);
+        $content = (string) str_replace('<br>', "\n", $content);
 
         // Remove all tags
         $content = strip_tags($content);
 
         // Remove Non breaking Spaces with normal space
-        $content = str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
+        $content = (string) str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
 
         // Replace multiple spaces with one
-        $content = preg_replace('/\ +/', ' ', $content);
+        $content = preg_replace('/[ \t]+/m', ' ', $content);
 
         // Trim each Start of Line
-        $content = preg_replace('/^ +/m', '', $content);
+        $content = preg_replace('/^[ \t]+/m', '', $content);
+
+        // Remove Trailing whitespace
+        $content = preg_replace('/[ \t]+$/m', '', $content);
 
         return trim(html_entity_decode($content));
     }
@@ -117,7 +133,7 @@ class Content extends BaseElement
      *
      * @return string
      */
-    private function removeElements(string $html)
+    private function removeElements(string $html): string
     {
         $crawler = new Crawler();
         $crawler->addHtmlContent($html);
@@ -135,18 +151,13 @@ class Content extends BaseElement
     /**
      * Removes all script Elements
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     * @param Crawler $crawler
      *
-     * @return \Symfony\Component\DomCrawler\Crawler
+     * @return Crawler
      */
-    private function removeScriptElements(Crawler $crawler)
+    private function removeScriptElements(Crawler $crawler): Crawler
     {
-        $crawler->filter('script')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('script')->each($this->removeNode);
 
         return $crawler;
     }
@@ -154,17 +165,19 @@ class Content extends BaseElement
     /**
      * Removes Store Sections from Special Ship Pages
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     * @param Crawler $crawler
      *
-     * @return \Symfony\Component\DomCrawler\Crawler
+     * @return Crawler
      */
-    private function removeStoreSections(Crawler $crawler)
+    private function removeStoreSections(Crawler $crawler): Crawler
     {
         $crawler->filter('section')->each(
             function (Crawler $crawler) {
                 if (str_contains($crawler->text(), 'USD')) { //Disgusting
                     $node = $crawler->getNode(0);
-                    $node->parentNode->removeChild($node);
+                    if ($node !== null) {
+                        $node->parentNode->removeChild($node);
+                    }
                 }
             }
         );
@@ -175,18 +188,13 @@ class Content extends BaseElement
     /**
      * Removes Annotation Elements
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     * @param Crawler $crawler
      *
-     * @return \Symfony\Component\DomCrawler\Crawler
+     * @return Crawler
      */
-    private function removeSupElements(Crawler $crawler)
+    private function removeSupElements(Crawler $crawler): Crawler
     {
-        $crawler->filter('sup')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('sup')->each($this->removeNode);
 
         return $crawler;
     }
@@ -194,18 +202,13 @@ class Content extends BaseElement
     /**
      * Removes the Comment container
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     * @param Crawler $crawler
      *
-     * @return \Symfony\Component\DomCrawler\Crawler
+     * @return Crawler
      */
-    private function removeCommentsContainer(Crawler $crawler)
+    private function removeCommentsContainer(Crawler $crawler): Crawler
     {
-        $crawler->filter('.wrapper.force-one-column')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('.wrapper.force-one-column')->each($this->removeNode);
 
         return $crawler;
     }
@@ -213,32 +216,17 @@ class Content extends BaseElement
     /**
      * Remove Audio/Video Elements
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     * @param Crawler $crawler
      *
-     * @return \Symfony\Component\DomCrawler\Crawler
+     * @return Crawler
      */
-    private function removeAudioVideoElements(Crawler $crawler)
+    private function removeAudioVideoElements(Crawler $crawler): Crawler
     {
-        $crawler->filter('audio')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('audio')->each($this->removeNode);
 
-        $crawler->filter('video')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('video')->each($this->removeNode);
 
-        $crawler->filter('img')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('img')->each($this->removeNode);
 
         return $crawler;
     }
@@ -247,53 +235,23 @@ class Content extends BaseElement
      * Remove Common Comm-Link Elements
      * .clearfix, .cboth (clear both), image links, .centerimage, hr, c-slider
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $crawler
+     * @param Crawler $crawler
      *
-     * @return \Symfony\Component\DomCrawler\Crawler
+     * @return Crawler
      */
-    private function removeCommonElements(Crawler $crawler)
+    private function removeCommonElements(Crawler $crawler): Crawler
     {
-        $crawler->filter('.clearfix')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('.clearfix')->each($this->removeNode);
 
-        $crawler->filter('.cboth')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('.cboth')->each($this->removeNode);
 
-        $crawler->filter('a.image')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('a.image')->each($this->removeNode);
 
-        $crawler->filter('.centerimage')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('.centerimage')->each($this->removeNode);
 
-        $crawler->filter('hr')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('hr')->each($this->removeNode);
 
-        $crawler->filter('c-slider')->each(
-            function (Crawler $crawler) {
-                $node = $crawler->getNode(0);
-                $node->parentNode->removeChild($node);
-            }
-        );
+        $crawler->filter('c-slider')->each($this->removeNode);
 
         return $crawler;
     }
