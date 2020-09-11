@@ -62,7 +62,8 @@ class CommLinkController extends ApiController
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $commLink));
         }
 
-        $this->transformer->setDefaultIncludes($this->transformer->getAvailableIncludes());
+        // Don't include translation per default
+        $this->transformer->setDefaultIncludes(array_slice($this->transformer->getAvailableIncludes(), 0, 2));
 
         $this->extraMeta = [
             'prev_id' => optional($commLink->prev)->cig_id ?? -1,
