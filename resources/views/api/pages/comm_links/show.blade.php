@@ -90,13 +90,87 @@
                 </div>
 
                 <div class="tab-pane fade" id="meta" role="tabpanel" aria-labelledby="nav-meta-tab">
-                    @forelse($commLink->images as $image)
-                        <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->url) }}" alt="Comm-Link Image" class="img-thumbnail" style="max-width: 150px;"></a>
-                    @empty
-                        Keine Bilder vorhanden
-                    @endforelse
+                    <table class="table mb-0">
+                        <tr>
+                            <th class="border-top-0">ID</th>
+                            <td class="border-top-0">{{ $commLink->cig_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Veröffentlichung</th>
+                            <td>{{ $commLink->created_at->format('d.m.Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Kategorie</th>
+                            <td>
+                                <a href="{{ route('web.user.rsi.comm-links.categories.show', $commLink->category->getRouteKey()) }}">
+                                    {{ $commLink->category->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Channel</th>
+                            <td>
+                                <a href="{{ route('web.user.rsi.comm-links.channels.show', $commLink->channel->getRouteKey()) }}">
+                                    {{ $commLink->channel->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Serie</th>
+                            <td>
+                                <a href="{{ route('web.user.rsi.comm-links.series.show', $commLink->series->getRouteKey()) }}">
+                                    {{ $commLink->series->name }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Url</th>
+                            <td>
+                                <a href="https://robertsspaceindustries.com{{ $commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">
+                                    {{ $commLink->url ?? 'Keine Original URL vorhanden' }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Kommentare</th>
+                            <td>{{ $commLink->comment_count }}</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+@endsection
+
+@section('body__after')
+    @parent
+    <script>
+        const updateNavHash = (hash) => {
+            const links = document.querySelectorAll('.nav-bar a');
+            links.forEach(link => {
+                link.href = link.href.split('#')[0] + hash;
+            });
+        }
+
+        $(document).ready(() => {
+            let url = location.href.replace(/\/$/, '');
+
+            if (location.hash) {
+                const hash = url.split('#');
+                $('#nav-tab a[href="#' + hash[1] + '"]').tab('show');
+                url = location.href.replace(/\/#/, '#');
+                history.replaceState(null, null, url);
+                updateNavHash('#'+hash[1]);
+            }
+
+            $('a[data-toggle="tab"]').on('click', function () {
+                let newUrl;
+                const hash = $(this).attr('href');
+                newUrl = url.split('#')[0] + hash;
+                updateNavHash(hash);
+
+                history.replaceState(null, null, newUrl)
+            })
+        })
+    </script>
 @endsection
