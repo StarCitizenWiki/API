@@ -9,7 +9,7 @@ Dies sind Comm-Links, welche bisher keinen Inhalt hatten.
         <li>
             {{ $item->commLink->cig_id }}: {{ $item->commLink->title }}
             <span style="float: right">
-                <a href="{{ route('web.user.rsi.comm-links.show', $item->commLink->cig_id) }}">API</a> &mdash;
+                <a href="{{ route('web.api.comm-links.show', $item->commLink->cig_id) }}">API</a> &mdash;
                 <a href="{{ config('services.mediawiki.url') }}/Comm-Link:{{ $item->commLink->cig_id }}">Wiki</a>
             </span>
         </li>
@@ -30,7 +30,7 @@ Dies sind Comm-Links, dessen Inhalt geändert wurden.
         <li>
             {{ $item->commLink->cig_id }}: {{ $item->commLink->title }}
             <span style="float: right">
-                <a href="{{ route('web.user.rsi.comm-links.show', $item->commLink->cig_id) }}">API</a> &mdash;
+                <a href="{{ route('web.api.comm-links.show', $item->commLink->cig_id) }}">API</a> &mdash;
                 <a href="{{ config('services.mediawiki.url') }}/Comm-Link:{{ $item->commLink->cig_id }}">Wiki</a>
             </span>
         </li>
