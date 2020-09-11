@@ -63,7 +63,7 @@
                             {{ $commLink->links_count }}
                         </td>
                         <td>
-                            {{ $commLink->english()->translation ? 'Ja' : 'Nein' }}
+                            {{ optional($commLink->english())->translation ? 'Ja' : 'Nein' }}
                         </td>
                         @php
                             if (null !== $commLink->german()) {
