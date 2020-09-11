@@ -31,7 +31,7 @@ class CommLinkTransformer extends TransformerAbstract
             'rsi_url' => $this->getCommLinkUrl($commLink),
             'api_url' => app('api.url')->version('v1')->route(
                 'api.v1.rsi.comm-links.show',
-                [$commLink->cig_id]
+                [$commLink->getRouteKey()]
             ),
             'channel' => $commLink->channel->name,
             'category' => $commLink->category->name,
