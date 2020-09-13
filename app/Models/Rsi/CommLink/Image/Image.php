@@ -4,6 +4,8 @@ namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -26,11 +28,15 @@ class Image extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
-    public function commLinks()
+    public function commLinks(): BelongsToMany
     {
         return $this->belongsToMany(CommLink::class, 'comm_link_image', 'comm_link_image_id', 'comm_link_id');
+    }
+
+    public function hash(): HasOne {
+        return $this->hasOne(ImageHash::class, 'comm_link_image_id');
     }
 
     /**
@@ -38,7 +44,7 @@ class Image extends Model
      *
      * @return string
      */
-    public function getNameAttribute()
+    public function getNameAttribute(): string
     {
         return Arr::last(explode('/', $this->src));
     }
@@ -48,7 +54,7 @@ class Image extends Model
      *
      * @return string
      */
-    public function getUrlAttribute()
+    public function getUrlAttribute(): string
     {
         $url = config('api.rsi_url');
 

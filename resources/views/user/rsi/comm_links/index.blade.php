@@ -17,7 +17,7 @@
     <div class="card">
         <div class="card-header d-flex">
             <h4 class="mb-0 pt-1">@lang('Comm-Links')</h4>
-            @unless(empty($commLinks))
+            @unless(empty($commLinks) || !method_exists($commLinks, 'links'))
             <span class="d-flex ml-auto">{{ $commLinks->links() }}</span>
             @endunless
         </div>
@@ -38,6 +38,11 @@
                     <th>@lang('Kategorie')</th>
                     <th>@lang('Serie')</th>
                     <th>@lang('Veröffentlichung')</th>
+                    @if(isset($appends) && !empty($appends))
+                        @foreach($appends as $append)
+                            <th>{{$append}}</th>
+                        @endforeach
+                    @endif
                     <th data-orderable="false">&nbsp;</th>
                 </tr>
                 </thead>
@@ -97,6 +102,11 @@
                         <td data-content="{{ $commLink->created_at->format('d.m.Y') }}" data-toggle="popover" data-search="{{ $commLink->created_at->format('d.m.Y') }}" data-sort="{{ $commLink->created_at->timestamp }}">
                             {{ $commLink->created_at->diffForHumans() }}
                         </td>
+                            @if(isset($appends) && !empty($appends))
+                                @foreach($appends as $append)
+                                    <td>{{$commLink->$append}}</td>
+                                @endforeach
+                            @endif
                         <td class="text-center">
                             @component('components.edit_delete_block')
                                 @slot('show_url')
@@ -119,7 +129,7 @@
                 </tbody>
             </table>
         </div>
-        @unless(empty($commLinks))
+        @unless(empty($commLinks) || !method_exists($commLinks, 'links'))
         <div class="card-footer">{{ $commLinks->links() }}</div>
         @endunless
     </div>

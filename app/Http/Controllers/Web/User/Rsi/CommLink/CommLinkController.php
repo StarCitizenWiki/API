@@ -10,6 +10,7 @@ use App\Jobs\Rsi\CommLink\Parser\Element\Content;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
@@ -22,8 +23,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Jenssegers\ImageHash\ImageHash;
+use Jenssegers\ImageHash\Implementations\DifferenceHash;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
 use Symfony\Component\DomCrawler\Crawler;
@@ -270,7 +274,7 @@ class CommLinkController extends Controller
      * @return Application|Factory|View
      * @throws AuthorizationException
      */
-    public function reverseSearchImagePost(Request $request)
+    public function reverseSearchImageLinkPost(Request $request)
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -297,6 +301,55 @@ class CommLinkController extends Controller
             'user.rsi.comm_links.index',
             [
                 'commLinks' => $links,
+            ]
+        );
+    }
+
+    public function reverseSearchImagePost(Request $request)
+    {
+        $this->authorize(self::COMM_LINK_PERMISSION);
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        if (!$request->has('image')) {
+            abort(401);
+        }
+
+        $similarity = $request->get('similarity', 10);
+        if (!is_numeric($similarity)) {
+            $similarity = 10;
+        }
+
+        $hasher = new ImageHash(new DifferenceHash());
+
+        $bits = $hasher->hash($request->file('image'))->toBits();
+
+        $hashes = DB::table('comm_link_image_hashes')
+            ->select('comm_link_image_id')
+            ->selectRaw('BIT_COUNT(hash ^ b\''.$bits.'\') as hamming_distance')
+            ->having('hamming_distance', '<', $similarity)->get();
+
+        if ($hashes->isEmpty()) {
+            return redirect()->route('web.user.rsi.comm-links.reverse-search-image')->withMessages(
+                [
+                    'warning' => [
+                        'Keine Comm-Links gefunden.',
+                    ],
+                ]
+            );
+        }
+
+        $images = $hashes->map(function (object $data) {
+            $id = $data->comm_link_image_id;
+            $image = Image::query()->find($id);
+            $image->similarity = ((1 - $data->hamming_distance / 64) * 100);
+
+            return $image;
+        })->sortByDesc('similarity');
+
+        return view(
+            'user.rsi.comm_links.images.index_hashes',
+            [
+                'images' => $images,
             ]
         );
     }

@@ -8,6 +8,7 @@ use App\Console\Commands\CommLink\Download\DownloadCommLink;
 use App\Console\Commands\CommLink\Download\DownloadCommLinks;
 use App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages;
 use App\Console\Commands\CommLink\Download\ReDownloadCommLinks;
+use App\Console\Commands\CommLink\Image\CreateImageHashes;
 use App\Console\Commands\CommLink\Import\ImportCommLink;
 use App\Console\Commands\CommLink\Import\ImportCommLinks;
 use App\Console\Commands\CommLink\Import\ImportMissingCommLinks;
@@ -53,6 +54,7 @@ class Kernel extends ConsoleKernel
         CreateCommLinkWikiPages::class,
 
         SyncImageIds::class,
+        CreateImageHashes::class,
 
         ImportRelayTranscripts::class,
         TranslateTranscripts::class,

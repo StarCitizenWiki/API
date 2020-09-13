@@ -11,6 +11,7 @@ namespace App\Jobs;
 use Goutte\Client as GoutteClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use stdClass;
 use Symfony\Component\BrowserKit\Cookie;
 
 /**
@@ -72,7 +73,7 @@ abstract class AbstractBaseDownloadData
      *
      * @return bool true when all Elements of $check in $data and success = 1, otherwise false
      */
-    protected function checkIfDataCanBeProcessed($data, $check): bool
+    protected function checkIfDataCanBeProcessed(array $data, array $check): bool
     {
         if (is_array($data) && 1 === $data['success']) {
             return $this->checkArrayStructure($data, $check);
@@ -89,16 +90,16 @@ abstract class AbstractBaseDownloadData
      *
      * @return bool true when all Elements of $check in $data, otherwise false
      */
-    protected function checkArrayStructure($data, $check): bool
+    protected function checkArrayStructure(array $data, array $check): bool
     {
         if (!empty($check) && !empty($data)) {
             if (array_key_exists($check[0], $data)) {
                 $checkKey = array_shift($check);
 
                 return $this->checkArrayStructure($data[$checkKey], $check);
-            } else {
-                return false;
             }
+
+            return false;
         }
 
         return true;
@@ -107,9 +108,9 @@ abstract class AbstractBaseDownloadData
     /**
      * Logs a User into the RSI Webseite.
      *
-     * @return \stdClass Response JSON
+     * @return stdClass Response JSON
      */
-    protected function getRsiAuthCookie(): \stdClass
+    protected function getRsiAuthCookie(): stdClass
     {
         $res = self::$client->post(
             'api/account/signin',
