@@ -170,13 +170,7 @@ class CommLinkController extends ApiController
             ->get();
 
         if ($hashes->isEmpty()) {
-            return redirect()->route('web.user.rsi.comm-links.reverse-image-search')->withMessages(
-                [
-                    'warning' => [
-                        'Keine Comm-Links gefunden.',
-                    ],
-                ]
-            );
+            return $this->getResponse(collect([]));
         }
 
         $images = $hashes->map(

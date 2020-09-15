@@ -295,6 +295,16 @@ class CommLinkController extends Controller
                 )
             )->post('api/comm-links/reverse-image-link-search');
 
+        if (empty($links)) {
+            return redirect()->route('web.user.rsi.comm-links.reverse-image-search')->withMessages(
+                [
+                    'warning' => [
+                        'Keine Comm-Links gefunden.',
+                    ],
+                ]
+            );
+        }
+
         return view(
             'user.rsi.comm_links.index',
             [
