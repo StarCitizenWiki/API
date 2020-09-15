@@ -37,14 +37,14 @@ class AuthRepositoryStub implements AuthRepositoryInterface
      */
     public function getOrCreateLocalUser(User $oauthUser, string $provider): User
     {
-        $user = User::where('username', 'Local Wiki Admin')->first();
+        $user = User::query()->where('username', 'Local Wiki Admin')->first();
 
         if (null !== $user) {
             return $user;
         }
 
         /** @var User $user */
-        $user = User::class->create(
+        $user = User::query()->create(
             [
                 'username' => 'Local Wiki Admin',
                 'email' => 'admin@example.com',
@@ -58,7 +58,7 @@ class AuthRepositoryStub implements AuthRepositoryInterface
             ]
         );
 
-        $user->groups()->sync([UserGroup::where('name', 'bureaucrat')->first()->id]);
+        $user->groups()->sync([UserGroup::query()->where('name', 'bureaucrat')->first()->id]);
 
         return $user;
     }
