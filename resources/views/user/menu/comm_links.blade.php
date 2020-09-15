@@ -14,12 +14,12 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('web.user.rsi.comm-links.reverse-search-image'),
+    'route' => route('web.user.rsi.comm-links.reverse-image-search'),
 ])
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                circle
+                search
             @endcomponent
         </div>
         <div class="col">

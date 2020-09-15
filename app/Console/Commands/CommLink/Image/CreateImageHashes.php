@@ -1,0 +1,66 @@
+<?php declare(strict_types=1);
+
+namespace App\Console\Commands\CommLink\Image;
+
+use App\Jobs\Rsi\CommLink\Image\CreateImageHash;
+use App\Models\Rsi\CommLink\Image\Image;
+use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+
+class CreateImageHashes extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'comm-links:create-image-hashes';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Creates Image hashes for all downloaded Comm-Links';
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
+    public function handle(): int
+    {
+        $this->info('Creating Image Hashes');
+
+        $query = Image::query()
+            ->whereHas('commLinks')
+            ->whereDoesntHave('hash')
+            ->where(
+                function (Builder $query) {
+                    $query->orWhereRaw('LOWER(src) LIKE \'%.jpg\'')
+                        ->orWhereRaw('LOWER(src) LIKE \'%.jpeg\'')
+                        ->orWhereRaw('LOWER(src) LIKE \'%.png\'')
+                        ->orWhereRaw('LOWER(src) LIKE \'%.webp\'');
+                }
+            );
+
+        $bar = $this->output->createProgressBar($query->count());
+
+        $query->chunk(
+            100,
+            function (Collection $images) use ($bar) {
+                $images->each(
+                    function (Image $image) use ($bar) {
+                        dispatch(new CreateImageHash($image));
+                        $bar->advance();
+                    }
+                );
+            }
+        );
+
+        $bar->finish();
+
+        return 0;
+    }
+}

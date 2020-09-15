@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Web\User\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\CommLinkRequest;
+use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
+use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
 use App\Jobs\Rsi\CommLink\Parser\Element\Content;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
@@ -227,7 +229,7 @@ class CommLinkController extends Controller
      * @throws AuthorizationException
      * @throws FileNotFoundException
      */
-    public function preview(CommLink $commLink, string $version)
+    public function preview(CommLink $commLink, string $version): View
     {
         $this->authorize('web.user.rsi.comm-links.preview');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -254,7 +256,7 @@ class CommLinkController extends Controller
      * @return Application|Factory|View
      * @throws AuthorizationException
      */
-    public function reverseSearchImage()
+    public function reverseImageSearch()
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -263,14 +265,14 @@ class CommLinkController extends Controller
     }
 
     /**
-     * Reverse searches a comm link by an image url
+     * Reverse searches a comm-link by an image url
      *
-     * @param Request $request
+     * @param ReverseImageLinkSearchRequest $request
      *
      * @return Application|Factory|View
      * @throws AuthorizationException
      */
-    public function reverseSearchImagePost(Request $request)
+    public function reverseImageLinkSearchPost(ReverseImageLinkSearchRequest $request)
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -287,16 +289,53 @@ class CommLinkController extends Controller
             ->with(
                 array_merge(
                     [
-                        'src' => $request->get('src'),
+                        'url' => $request->get('url'),
                     ],
                     $options
                 )
-            )->post('api/comm-links/reverse-search-image');
+            )->post('api/comm-links/reverse-image-link-search');
 
         return view(
             'user.rsi.comm_links.index',
             [
                 'commLinks' => $links,
+            ]
+        );
+    }
+
+    /**
+     * Reverse searches a comm-link by an actual image file
+     *
+     * @param ReverseImageSearchRequest $request
+     *
+     * @return Application|Factory|View
+     * @throws AuthorizationException
+     */
+    public function reverseImageSearchPost(ReverseImageSearchRequest $request)
+    {
+        $this->authorize(self::COMM_LINK_PERMISSION);
+        app('Log')::debug(make_name_readable(__FUNCTION__));
+
+        $data = $request->validated();
+
+        $links = $this->api
+            ->with(
+                [
+                    'method' => $data['method'],
+                    'similarity' => $data['similarity'],
+                ]
+            )
+            ->attach(
+                [
+                    'image' => $data['image'],
+                ]
+            )
+            ->post('api/comm-links/reverse-image-search');
+
+        return view(
+            'user.rsi.comm_links.images.index_hashes',
+            [
+                'images' => $links,
             ]
         );
     }

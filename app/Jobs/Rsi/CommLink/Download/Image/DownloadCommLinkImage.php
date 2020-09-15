@@ -87,7 +87,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
 
             $this->image->update(
                 [
-                    'local' => true,
+                    'local' => false,
                     'dir' => 'NOT_FOUND',
                 ]
             );
