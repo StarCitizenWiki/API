@@ -59,7 +59,18 @@ class Image extends Model
                 'average_hash' => 'DEADBEEF',
                 'a_hash_1' => 0,
                 'a_hash_2' => 0,
-            ]);
+            ]
+            );
+    }
+
+    /**
+     * Check if the hash exists
+     *
+     * @return bool
+     */
+    public function isHashed(): bool
+    {
+        return $this->hash->perceptual_hash !== 'DEADBEEF';
     }
 
     /**
@@ -68,9 +79,10 @@ class Image extends Model
     public function metadata(): HasOne
     {
         return $this->hasOne(ImageMetadata::class, 'comm_link_image_id')
-            ->withDefault([
-                'size' => 0,
-                'mime' => 'undefined',
+            ->withDefault(
+                [
+                    'size' => 0,
+                    'mime' => 'undefined',
                 'last_modified' => Carbon::minValue(),
             ]);
     }

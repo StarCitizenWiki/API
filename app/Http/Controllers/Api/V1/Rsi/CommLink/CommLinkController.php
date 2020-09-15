@@ -102,14 +102,14 @@ class CommLinkController extends ApiController
         $dir = ImageParser::getDirHash($url);
 
         if ($dir === false) {
-            return [];
+            return $this->getResponse(collect([]));
         }
 
         try {
             /** @var Image $image */
             $image = Image::query()->where('dir', $dir)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            return [];
+            return $this->getResponse(collect([]));
         }
 
         $this->transformer->setDefaultIncludes($this->transformer->getAvailableIncludes());
