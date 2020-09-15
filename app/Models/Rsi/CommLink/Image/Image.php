@@ -35,7 +35,11 @@ class Image extends Model
         return $this->belongsToMany(CommLink::class, 'comm_link_image', 'comm_link_image_id', 'comm_link_id');
     }
 
-    public function hash(): HasOne {
+    /**
+     * @return HasOne
+     */
+    public function hash(): HasOne
+    {
         return $this->hasOne(ImageHash::class, 'comm_link_image_id');
     }
 
