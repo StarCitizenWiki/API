@@ -43,6 +43,9 @@ class ImportMissingCommLinks extends Command
                 new ParseCommLinkDownload($missingOffset),
                 new TranslateCommLinks($missingOffset),
                 new CreateCommLinkWikiPages(),
+                function () {
+                    $this->call('comm-links:create-image-hashes');
+                },
             ]
         )->dispatch(new Client(), $missingOffset);
 
