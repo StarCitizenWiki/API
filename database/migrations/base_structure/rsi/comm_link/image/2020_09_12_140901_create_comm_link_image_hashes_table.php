@@ -39,6 +39,7 @@ class CreateCommLinkImageHashesTable extends Migration
             $table->timestamps();
 
             $table->foreign('comm_link_image_id')->references('id')->on('comm_link_images')->onDelete('cascade');
+            $table->unique('comm_link_image_id');
         });
     }
 

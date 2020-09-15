@@ -36,6 +36,9 @@ class CreateImageHashes extends Command
         $query = Image::query()
             ->whereHas('commLinks')
             ->whereDoesntHave('hash')
+            ->whereHas('metadata', function (Builder $query) {
+                $query->where('size', '<', 1024 * 1024 * 10); // Max 10MB files
+            })
             ->where(
                 function (Builder $query) {
                     $query->orWhereRaw('LOWER(src) LIKE \'%.jpg\'')

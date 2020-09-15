@@ -3,6 +3,7 @@
 namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -27,6 +28,11 @@ class Image extends Model
         'local' => 'boolean',
     ];
 
+    protected $with = [
+        'hash',
+        'metadata',
+    ];
+
     /**
      * @return BelongsToMany
      */
@@ -40,7 +46,33 @@ class Image extends Model
      */
     public function hash(): HasOne
     {
-        return $this->hasOne(ImageHash::class, 'comm_link_image_id');
+        return $this->hasOne(ImageHash::class, 'comm_link_image_id')
+            ->withDefault([
+                'perceptual_hash' => 'DEADBEEF',
+                'p_hash_1' => 0,
+                'p_hash_2' => 0,
+
+                'difference_hash' => 'DEADBEEF',
+                'd_hash_1' => 0,
+                'd_hash_2' => 0,
+
+                'average_hash' => 'DEADBEEF',
+                'a_hash_1' => 0,
+                'a_hash_2' => 0,
+            ]);
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function metadata(): HasOne
+    {
+        return $this->hasOne(ImageMetadata::class, 'comm_link_image_id')
+            ->withDefault([
+                'size' => 0,
+                'mime' => 'undefined',
+                'last_modified' => Carbon::minValue(),
+            ]);
     }
 
     /**
