@@ -93,7 +93,7 @@ abstract class AbstractApiController extends Controller
     protected function processRequestParams()
     {
         $this->processLimit();
-        $this->processIncludes();
+        //$this->processIncludes();
         $this->processLocale();
     }
 
