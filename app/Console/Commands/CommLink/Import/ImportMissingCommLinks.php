@@ -24,7 +24,7 @@ class ImportMissingCommLinks extends Command
      *
      * @var string
      */
-    protected $description = 'Import Missing Comm-Links';
+    protected $description = 'Downloads missing Comm-Links. Creates Wiki-Pages and metadata.';
 
     /**
      * Execute the console command.
@@ -45,6 +45,9 @@ class ImportMissingCommLinks extends Command
                 new CreateCommLinkWikiPages(),
                 function () {
                     $this->call('comm-links:create-image-hashes');
+                },
+                function () {
+                    $this->call('comm-links:create-image-metadata');
                 },
             ]
         )->dispatch(new Client(), $missingOffset);

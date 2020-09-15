@@ -11,6 +11,6 @@ class ImageHashesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::unprepared(file_get_contents(database_path('dumps/images/hashes_1_-_24008.sql')));
+        DB::unprepared(file_get_contents(database_path('dumps/images/hashes_1_-_24636.sql')));
     }
 }

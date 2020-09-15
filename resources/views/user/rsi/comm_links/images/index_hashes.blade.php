@@ -15,8 +15,13 @@
                     Ähnlichkeit {{ $image->similarity }}%
 
                     @unless(empty($image->alt))
-                        <br>Bildbeschreibung: {{ $image->alt }}
+                        <br>Bildbeschreibung: {{ $image->alt }}<br>
                     @endunless
+                    <span class="badge badge-info" title="{{ $image->metadata->size }} bytes">{{ __('Größe') }}: {{ round($image->metadata->size / (1024 * 1024), 2) }} MB</span>
+                    <span class="badge badge-{{ $image->metadata->mime_class }}">{{ __('Typ') }}: {{ $image->metadata->mime }}</span>
+                    <span class="badge badge-secondary last-modified" title="{{ __('Kopiert Datum bei Klick') }}"
+                          data-last-modified="{{ $image->metadata->last_modified->toDateTimeString() }}"
+                          style="cursor:pointer;">{{ __('Zuletzt geändert') }}: {{ $image->metadata->last_modified->format('d.m.Y H:i:s') }}</span>
                 </div>
 
                 <ul class="list-group list-group-flush" id="comm_link_container_{{ $loop->index }}">
@@ -32,4 +37,17 @@
             </div>
         @endforeach
     </div>
+@endsection
+
+@section('body__after')
+    @parent
+    <script>
+        (() => {
+            document.querySelectorAll('.badge.last-modified').forEach(entry => {
+                entry.addEventListener('click', () => {
+                    navigator.clipboard.writeText(entry.dataset.lastModified);
+                });
+            });
+        })();
+    </script>
 @endsection
