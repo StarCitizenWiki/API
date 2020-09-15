@@ -13,10 +13,14 @@ RUN apt-get update && \
         zlib1g-dev \
         libxml2-dev \
         libexpat1-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libwebp-dev \
         libbz2-dev \
         libgmp3-dev \
         libldap2-dev \
         unixodbc-dev \
+        libpng-dev \
         libpq-dev \
         libaspell-dev \
         libsnmp-dev \
@@ -40,6 +44,10 @@ RUN docker-php-ext-install bcmath && \
     docker-php-ext-install tokenizer && \
     docker-php-ext-install xml && \
     docker-php-ext-install zip
+
+RUN set -eux; \
+	docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp; \
+	docker-php-ext-install -j "$(nproc)" gd
 
 RUN echo '\
 opcache.enable=1\n\
@@ -93,6 +101,13 @@ COPY ./docker/start.sh /usr/local/bin/start
 
 COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
 COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libwebp-dev \
+        libpng-dev
 
 RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
