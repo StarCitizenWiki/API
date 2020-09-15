@@ -12,10 +12,10 @@
                     <img src="{{ str_replace('source', 'post', $image->url) }}" alt="{{ empty($image->alt) ? __('Kein alt Text verfügbar') : $image->alt }}" class="card-img-top">
                 </a>
                 <div class="card-body">
-                    Ähnlichkeit {{ $image->similarity }}%
+                    <p>Ähnlichkeit {{ $image->similarity }}%</p>
 
                     @unless(empty($image->alt))
-                        <br>Bildbeschreibung: {{ $image->alt }}<br>
+                        <p>Bildbeschreibung: {{ $image->alt }}</p>>
                     @endunless
                     <span class="badge badge-info" title="{{ $image->metadata->size }} bytes">{{ __('Größe') }}: {{ round($image->metadata->size / (1024 * 1024), 2) }} MB</span>
                     <span class="badge badge-{{ $image->metadata->mime_class }}">{{ __('Typ') }}: {{ $image->metadata->mime }}</span>
