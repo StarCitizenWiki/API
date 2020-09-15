@@ -63,13 +63,13 @@ class Image extends BaseElement
             }
         )->each(
             function ($image) use (&$imageIDs) {
-                $src = $this->cleanImgSource($image['src']);
+                $src = self::cleanImgSource($image['src']);
 
                 $imageIDs[] = ImageModel::query()->firstOrCreate(
                     [
                         'src' => $this->cleanText($src),
                         'alt' => $this->cleanText($image['alt']),
-                        'dir' => $this->getDirHash($src),
+                        'dir' => self::getDirHash($src),
                     ]
                 )->id;
             }
@@ -85,13 +85,42 @@ class Image extends BaseElement
      *
      * @return string|null
      */
-    public function getDirHash(string $src): ?string
+    public static function getDirHash(string $src): ?string
     {
         $src = substr($src, 1);
         $dir = str_replace('media/', '', $src);
         $dir = explode('/', $dir);
 
         return $dir[0] ?? null;
+    }
+
+    /**
+     * Cleans the IMG SRC.
+     *
+     * @param string $src IMG SRC
+     *
+     * @return string
+     */
+    public static function cleanImgSource(string $src): string
+    {
+        $srcUrlPath = parse_url($src, PHP_URL_PATH);
+        $srcUrlPath = str_replace(['%20', '%0A'], '', $srcUrlPath);
+
+        // if host is media.robertsspaceindustries.com
+        if (parse_url($src, PHP_URL_HOST) === self::RSI_DOMAINS[1]) {
+            $pattern = '/(\w+)\/(?:\w+)\.(\w+)/';
+            $replacement = '$1/source.$2';
+        } else {
+            $pattern = '/media\/(\w+)\/(\w+)\//';
+            $replacement = 'media/$1/source/';
+        }
+
+        $srcUrlPath = preg_replace($pattern, $replacement, $srcUrlPath);
+
+        $srcUrlPath = str_replace('//', '/', $srcUrlPath);
+        $srcUrlPath = trim(ltrim($srcUrlPath, '/'));
+
+        return "/{$srcUrlPath}";
     }
 
     /**
@@ -237,34 +266,5 @@ class Image extends BaseElement
                 }
             );
         }
-    }
-
-    /**
-     * Cleans the IMG SRC.
-     *
-     * @param string $src IMG SRC
-     *
-     * @return string
-     */
-    private function cleanImgSource(string $src): string
-    {
-        $srcUrlPath = parse_url($src, PHP_URL_PATH);
-        $srcUrlPath = str_replace(['%20', '%0A'], '', $srcUrlPath);
-
-        // if host is media.robertsspaceindustries.com
-        if (parse_url($src, PHP_URL_HOST) === self::RSI_DOMAINS[1]) {
-            $pattern = '/(\w+)\/(?:\w+)\.(\w+)/';
-            $replacement = '$1/source.$2';
-        } else {
-            $pattern = '/media\/(\w+)\/(\w+)\//';
-            $replacement = 'media/$1/source/';
-        }
-
-        $srcUrlPath = preg_replace($pattern, $replacement, $srcUrlPath);
-
-        $srcUrlPath = str_replace('//', '/', $srcUrlPath);
-        $srcUrlPath = trim(ltrim($srcUrlPath, '/'));
-
-        return "/{$srcUrlPath}";
     }
 }
