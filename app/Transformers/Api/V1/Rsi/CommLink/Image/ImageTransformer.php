@@ -3,6 +3,7 @@
 namespace App\Transformers\Api\V1\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\Image\Image;
+use League\Fractal\Resource\Primitive;
 use League\Fractal\TransformerAbstract;
 
 /**
@@ -10,6 +11,10 @@ use League\Fractal\TransformerAbstract;
  */
 class ImageTransformer extends TransformerAbstract
 {
+    protected $availableIncludes = [
+        'hashes',
+    ];
+
     /**
      * @param Image $image
      *
@@ -21,6 +26,23 @@ class ImageTransformer extends TransformerAbstract
             'rsi_url' => $image->url,
             'api_url' => $image->local ? asset("storage/comm_link_images/{$image->dir}/{$image->name}") : null,
             'alt' => $image->alt,
+            'size' => $image->metadata->size,
+            'mime_type' => $image->metadata->mime,
+            'last_modified' => $image->metadata->last_modified->toDateTimeString(),
         ];
+    }
+
+    /**
+     * @param Image $image
+     *
+     * @return Primitive
+     */
+    public function includeHashes(Image $image): Primitive
+    {
+        return $this->primitive([
+            'perceptual_hash' => $image->hash->perceptual_hash,
+            'difference_hash' => $image->hash->difference_hash,
+            'average_hash' => $image->hash->average_hash,
+        ]);
     }
 }

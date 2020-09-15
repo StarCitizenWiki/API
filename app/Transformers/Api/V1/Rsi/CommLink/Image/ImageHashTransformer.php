@@ -5,14 +5,14 @@ namespace App\Transformers\Api\V1\Rsi\CommLink\Image;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkLinkTransformer;
 use League\Fractal\Resource\Collection;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Image Transformer
  */
-class ImageHashTransformer extends TransformerAbstract
+class ImageHashTransformer extends ImageTransformer
 {
     protected $availableIncludes = [
+        'hashes',
         'commLinks',
     ];
 
@@ -23,14 +23,10 @@ class ImageHashTransformer extends TransformerAbstract
      */
     public function transform(Image $image): array
     {
-        $data = [
-            'rsi_url' => $image->url,
-            'alt' => $image->alt,
-        ];
+        $data = parent::transform($image);
 
         if (isset($image->similarity)) {
             $data['similatiry'] = $image->similarity;
-
         }
 
         return $data;
