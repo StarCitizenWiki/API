@@ -24,12 +24,22 @@ class CreateCommLinkImageHashesTable extends Migration
         Schema::create('comm_link_image_hashes', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('comm_link_image_id');
+            $table->string('perceptual_hash', 16);
+            $table->unsignedBigInteger('p_hash_1');
+            $table->unsignedBigInteger('p_hash_2');
+
+            $table->string('difference_hash', 16);
+            $table->unsignedBigInteger('d_hash_1');
+            $table->unsignedBigInteger('d_hash_2');
+
+            $table->string('average_hash', 16);
+            $table->unsignedBigInteger('a_hash_1');
+            $table->unsignedBigInteger('a_hash_2');
+
+            $table->timestamps();
 
             $table->foreign('comm_link_image_id')->references('id')->on('comm_link_images')->onDelete('cascade');
-            $table->timestamps();
         });
-
-        DB::statement('ALTER TABLE comm_link_image_hashes ADD COLUMN hash BIT(64) AFTER comm_link_image_id');
     }
 
     /**
