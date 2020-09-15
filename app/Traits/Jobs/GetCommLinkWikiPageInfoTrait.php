@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 17.10.2018
- * Time: 10:37
- */
 
 namespace App\Traits\Jobs;
 
@@ -21,15 +16,15 @@ trait GetCommLinkWikiPageInfoTrait
      *
      * @var bool
      */
-    private $queryWithAuth = false;
+    private bool $queryWithAuth = false;
 
     /**
      * Gets Page Info for given Comm-Links keyed by CIG ID
      *
-     * @param \Illuminate\Support\Collection $commLinks
-     * @param bool                           $queryWithAuth
+     * @param Collection $commLinks
+     * @param bool       $queryWithAuth
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     private function getPageInfoForCommLinks(Collection $commLinks, bool $queryWithAuth = false)
     {
@@ -60,7 +55,7 @@ trait GetCommLinkWikiPageInfoTrait
      *
      * @param string $pages
      *
-     * @return \StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse
+     * @return MediaWikiResponse
      */
     private function getMediaWikiQuery(string $pages): MediaWikiResponse
     {
@@ -109,15 +104,15 @@ trait GetCommLinkWikiPageInfoTrait
     }
 
     /**
-     * @param \StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse $response
+     * @param MediaWikiResponse $response
      */
-    private function formatApiError(MediaWikiResponse $response)
+    private function formatApiError(MediaWikiResponse $response): void
     {
         throw new RuntimeException(
             sprintf(
                 '%s: "%s"',
                 'MediaWiki Api Result has Error(s)',
-                implode(', ', $response->getErrors())
+                is_array($response->getErrors()) ? implode(', ', $response->getErrors()) : $response->getErrors(),
             )
         );
     }

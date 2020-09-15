@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\CommLink\Image;
 
+use App\Jobs\Rsi\CommLink\Image\CreateImageMetadatum;
 use App\Models\Rsi\CommLink\Image\Image;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -42,7 +43,7 @@ class CreateImageMetadata extends Command
             function (Collection $images) use ($bar) {
                 $images->each(
                     function (Image $image) use ($bar) {
-                        dispatch(new \App\Jobs\Rsi\CommLink\Image\CreateImageMetadata($image));
+                        dispatch(new CreateImageMetadatum($image));
                         $bar->advance();
                     }
                 );

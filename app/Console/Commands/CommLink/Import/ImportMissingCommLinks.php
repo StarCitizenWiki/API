@@ -3,6 +3,8 @@
 namespace App\Console\Commands\CommLink\Import;
 
 use App\Jobs\Rsi\CommLink\Download\DownloadMissingCommLinks;
+use App\Jobs\Rsi\CommLink\Image\CreateImageHashes;
+use App\Jobs\Rsi\CommLink\Image\CreateImageMetadata;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
 use App\Jobs\Wiki\CommLink\CreateCommLinkWikiPages;
@@ -43,12 +45,8 @@ class ImportMissingCommLinks extends Command
                 new ParseCommLinkDownload($missingOffset),
                 new TranslateCommLinks($missingOffset),
                 new CreateCommLinkWikiPages(),
-                function () {
-                    $this->call('comm-links:create-image-hashes');
-                },
-                function () {
-                    $this->call('comm-links:create-image-metadata');
-                },
+                new CreateImageMetadata($missingOffset),
+                new CreateImageHashes($missingOffset),
             ]
         )->dispatch(new Client(), $missingOffset);
 
