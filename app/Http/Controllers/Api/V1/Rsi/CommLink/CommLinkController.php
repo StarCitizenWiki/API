@@ -3,14 +3,22 @@
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
+use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
+use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
+use App\ImageHash\Implementations\PerceptualHash2;
+use App\Jobs\Rsi\CommLink\Parser\Element\Image as ImageParser;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
+use App\Transformers\Api\V1\Rsi\CommLink\Image\ImageHashTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\DB;
+use Jenssegers\ImageHash\ImageHash;
+use Jenssegers\ImageHash\Implementations\AverageHash;
+use Jenssegers\ImageHash\Implementations\DifferenceHash;
 use League\Fractal\TransformerAbstract;
-use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Class CommLinkController
@@ -49,6 +57,8 @@ class CommLinkController extends ApiController
     }
 
     /**
+     * Returns a singular comm-link by its cig_id
+     *
      * @param int $commLink
      *
      * @return Response
@@ -74,21 +84,22 @@ class CommLinkController extends ApiController
     }
 
     /**
-     * Performs a reverse image search
+     * Performs a reverse comm-link search with a provided image url
+     * URLs e
      *
      * @param Request $request
      *
      * @return array|Response
      */
-    public function reverseSearchImage(Request $request)
+    public function reverseImageLinkSearch(Request $request)
     {
-        $url = $request->get('src', '');
+        $request->validate((new ReverseImageLinkSearchRequest())->rules());
+
+        $url = $request->get('url', '');
+        $url = ImageParser::cleanImgSource($url);
 
         $url = parse_url($url, PHP_URL_PATH);
-
-        $parser = new \App\Jobs\Rsi\CommLink\Parser\Element\Image(new Crawler());
-
-        $dir = $parser->getDirHash($url);
+        $dir = ImageParser::getDirHash($url);
 
         if ($dir === false) {
             return [];
@@ -104,5 +115,80 @@ class CommLinkController extends ApiController
         $this->transformer->setDefaultIncludes($this->transformer->getAvailableIncludes());
 
         return $this->getResponse(optional($image)->commLinks());
+    }
+
+    /**
+     * Performs a reverse search by comparing image hashes
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function reverseImageSearch(Request $request): Response
+    {
+        $request->validate((new ReverseImageSearchRequest())->rules());
+
+        $this->transformer = new ImageHashTransformer();
+        $this->transformer->setDefaultIncludes($this->transformer->getAvailableIncludes());
+
+        $distance = $request->get('similarity', 10);
+        if (!is_numeric($distance) || $distance < 0 || $distance > 100) {
+            $distance = 10;
+        }
+
+        $method = $request->get('method');
+        switch ($method) {
+            case 'average':
+                $hasher = new ImageHash(new AverageHash());
+                $prefix = 'a';
+                break;
+
+            case 'difference':
+                $hasher = new ImageHash(new DifferenceHash());
+                $prefix = 'd';
+                break;
+
+            case 'perceptual':
+            default:
+                $hasher = new ImageHash(new PerceptualHash2());
+                $prefix = 'p';
+                break;
+        }
+
+        $hex = $hasher->hash($request->file('image'))->toHex();
+        $hex = str_split($hex, strlen($hex) / 2);
+        $hex = array_map('hexdec', $hex);
+
+        $hashes = DB::table('comm_link_image_hashes')
+            ->select('comm_link_image_id')
+            ->selectRaw(
+                'BIT_COUNT('.$prefix.'_hash_1 ^ ?) + BIT_COUNT('.$prefix.'_hash_2 ^ ?) AS distance',
+                [$hex[0], $hex[1]]
+            )
+            ->havingRaw('distance <= ?', [$distance])
+            ->limit(50)
+            ->get();
+
+        if ($hashes->isEmpty()) {
+            return redirect()->route('web.user.rsi.comm-links.reverse-search-image')->withMessages(
+                [
+                    'warning' => [
+                        'Keine Comm-Links gefunden.',
+                    ],
+                ]
+            );
+        }
+
+        $images = $hashes->map(
+            function (object $data) {
+                $id = $data->comm_link_image_id;
+                $image = Image::query()->find($id);
+                $image->similarity = round((1 - $data->distance / 64) * 100);
+
+                return $image;
+            }
+        )->sortByDesc('similarity');
+
+        return $this->getResponse($images);
     }
 }

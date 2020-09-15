@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Transformers\Api\LocaleAwareTransformerInterface;
 use Carbon\Carbon;
+use Dingo\Api\Contract\Http\Request;
 use Dingo\Api\Http\Response;
 use Dingo\Api\Routing\Helpers;
 use Dingo\Api\Transformer\Factory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Dingo\Api\Contract\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use League\Fractal\TransformerAbstract;
 
@@ -100,7 +101,7 @@ abstract class AbstractApiController extends Controller
      * Creates the API Response, Collection if no pagination, Paginator if a limit is set
      * Item if a single model is given
      *
-     * @param Builder|Model $query
+     * @param Builder|Model|Collection $query
      *
      * @return Response
      */
@@ -110,8 +111,12 @@ abstract class AbstractApiController extends Controller
             return $this->response->item($query, $this->transformer)->setMeta($this->getMeta());
         }
 
-        if ($this->limit === 0) {
-            return $this->response->collection($query->get(), $this->transformer)->setMeta($this->getMeta());
+        if ($this->limit === 0 || $query instanceof Collection) {
+            if ($query instanceof Builder) {
+                $query = $query->get();
+            }
+
+            return $this->response->collection($query, $this->transformer)->setMeta($this->getMeta());
         }
 
         $paginate = $query->paginate($this->limit);

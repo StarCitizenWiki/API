@@ -143,9 +143,9 @@ Route::group(
 
                                         Route::get('images', 'Image\ImageController@index')->name('images.index');
 
-                                        Route::get('reverse-search-image', 'CommLinkController@reverseSearchImage')->name('reverse-search-image');
-                                        Route::post('reverse-search-image-link', 'CommLinkController@reverseSearchImageLinkPost')->name('reverse-search-image-link.post');
-                                        Route::post('reverse-search-image', 'CommLinkController@reverseSearchImagePost')->name('reverse-search-image.post');
+                                        Route::get('reverse-image-search', 'CommLinkController@reverseImageSearch')->name('reverse-image-search');
+                                        Route::post('reverse-image-link-search', 'CommLinkController@reverseImageLinkSearchPost')->name('reverse-image-link-search.post');
+                                        Route::post('reverse-image-search', 'CommLinkController@reverseImageSearchPost')->name('reverse-image-search.post');
                                     }
                                 );
 

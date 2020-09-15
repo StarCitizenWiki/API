@@ -15,7 +15,7 @@
                     Ähnlichkeit {{ $image->similarity }}%
 
                     @unless(empty($image->alt))
-                        Bildbeschreibung: {{ $image->alt }}
+                        <br>Bildbeschreibung: {{ $image->alt }}
                     @endunless
                 </div>
 

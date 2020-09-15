@@ -247,10 +247,17 @@ $api->group(
                     ]
                 );
                 $api->post(
-                    '/reverse-search-image',
+                    '/reverse-image-link-search',
                     [
-                        'as' => 'api.v1.rsi.comm-links.reverse-search-image',
-                        'uses' => 'CommLinkController@reverseSearchImage',
+                        'as' => 'api.v1.rsi.comm-links.reverse-image-link-search',
+                        'uses' => 'CommLinkController@reverseImageLinkSearch',
+                    ]
+                );
+                $api->post(
+                    '/reverse-image-search',
+                    [
+                        'as' => 'api.v1.rsi.comm-links.reverse-image-search',
+                        'uses' => 'CommLinkController@reverseImageSearch',
                     ]
                 );
                 $api->get(
