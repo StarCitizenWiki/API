@@ -15,14 +15,14 @@ class CreateImageHashes extends Command
      *
      * @var string
      */
-    protected $signature = 'comm-links:create-image-hashes';
+    protected $signature = 'comm-links:images-create-hashes';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Creates Image hashes for all downloaded Comm-Links';
+    protected $description = 'Create Image hashes for all Comm-Links images';
 
     /**
      * Execute the console command.
@@ -31,7 +31,7 @@ class CreateImageHashes extends Command
      */
     public function handle(): int
     {
-        $this->info('Creating Image Hashes');
+        $this->info('Starting calculation of image hashes');
 
         $query = Image::query()
             ->whereHas('commLinks')

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands\Transcript;
 
@@ -13,7 +11,7 @@ class TranslateTranscripts extends Command
      *
      * @var string
      */
-    protected $signature = 'translate:transcripts {limit=0 : Max jobs to run}';
+    protected $signature = 'transcripts:translate {limit=0 : Max jobs to run}';
 
     /**
      * The console command description.

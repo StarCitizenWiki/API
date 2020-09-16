@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Import;
 
@@ -19,14 +19,14 @@ class ImportMissingCommLinks extends Command
      *
      * @var string
      */
-    protected $signature = 'import:missing-comm-links';
+    protected $signature = 'comm-links:import-missing';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Downloads missing Comm-Links. Creates Wiki-Pages and metadata.';
+    protected $description = 'Download missing Comm-Links. Parse the download, create metadata and hashes. If a DeepL API key is set, Comm-Links will be translated. If a MediaWiki Account is configured, Wiki Comm-Link pages will be created';
 
     /**
      * Execute the console command.
@@ -40,15 +40,22 @@ class ImportMissingCommLinks extends Command
             $missingOffset++;
         }
 
-        DownloadMissingCommLinks::withChain(
-            [
-                new ParseCommLinkDownload($missingOffset),
-                new TranslateCommLinks($missingOffset),
-                new CreateCommLinkWikiPages(),
-                new CreateImageMetadata($missingOffset),
-                new CreateImageHashes($missingOffset),
-            ]
-        )->dispatch(new Client(), $missingOffset);
+        $chain = [
+            new ParseCommLinkDownload($missingOffset),
+            new CreateImageMetadata($missingOffset),
+            new CreateImageHashes($missingOffset),
+        ];
+
+        if (config('services.deepl.auth_key', null) !== null) {
+            $chain[] = new TranslateCommLinks($missingOffset);
+        }
+
+        if (config('services.mediawiki.client_id', null) !== null
+            && config('mediawiki.api_url', null) !== null) {
+            $chain[] = new CreateCommLinkWikiPages();
+        }
+
+        DownloadMissingCommLinks::withChain($chain)->dispatch(new Client(), $missingOffset);
 
         return 0;
     }

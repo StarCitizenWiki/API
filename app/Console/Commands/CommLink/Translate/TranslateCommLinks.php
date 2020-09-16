@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Translate;
 
@@ -6,14 +6,14 @@ use Illuminate\Console\Command;
 
 class TranslateCommLinks extends Command
 {
-    const FIRST_COMM_LINK_ID = 12663;
+    public const FIRST_COMM_LINK_ID = 12663;
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'translate:comm-links {offset=0 : Comm-Link start ID}';
+    protected $signature = 'comm-links:translate {offset=0 : Comm-Link start ID}';
 
     /**
      * The console command description.

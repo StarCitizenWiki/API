@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Console;
 
@@ -10,13 +8,15 @@ use App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages;
 use App\Console\Commands\CommLink\Download\ReDownloadCommLinks;
 use App\Console\Commands\CommLink\Image\CreateImageHashes;
 use App\Console\Commands\CommLink\Image\CreateImageMetadata;
+use App\Console\Commands\CommLink\Image\SyncImageIds;
 use App\Console\Commands\CommLink\Import\ImportCommLink;
 use App\Console\Commands\CommLink\Import\ImportCommLinks;
 use App\Console\Commands\CommLink\Import\ImportMissingCommLinks;
-use App\Console\Commands\CommLink\SyncImageIds;
 use App\Console\Commands\CommLink\Translate\TranslateCommLinks;
 use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
+use App\Console\Commands\ShipMatrix\Download\DownloadShipMatrix;
 use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
+use App\Console\Commands\Stat\Download\DownloadStats;
 use App\Console\Commands\Stat\Import\ImportStats;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
@@ -37,8 +37,10 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        DownloadShipMatrix::class,
         ImportShipMatrix::class,
 
+        DownloadStats::class,
         ImportStats::class,
 
         ImportCommLinks::class,
@@ -98,7 +100,7 @@ class Kernel extends ConsoleKernel
      */
     private function scheduleStatJobs(): void
     {
-        $this->schedule->command(ImportStats::class, ['--download'])->dailyAt('20:00');
+        $this->schedule->command(DownloadStats::class, ['--import'])->dailyAt('20:00');
     }
 
     /**
@@ -132,6 +134,6 @@ class Kernel extends ConsoleKernel
      */
     private function scheduleShipMatrixJobs(): void
     {
-        $this->schedule->command(ImportShipMatrix::class, ['--download'])->twiceDaily();
+        $this->schedule->command(DownloadShipMatrix::class, ['--import'])->twiceDaily();
     }
 }

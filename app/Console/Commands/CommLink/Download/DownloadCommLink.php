@@ -1,14 +1,17 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Download;
 
+use App\Console\Commands\CommLink\Image\CreateImageHashes;
 use App\Jobs\Rsi\CommLink\Download\DownloadCommLink as DownloadCommLinkJob;
+use App\Jobs\Rsi\CommLink\Image\CreateImageMetadata;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
 /**
- * Class DownloadCommLink
+ * Download one or multiple Comm-Links by provided ID(s)
+ * If --import option is passed the downloaded Comm-Links will also be parsed
  */
 class DownloadCommLink extends Command
 {
@@ -17,7 +20,7 @@ class DownloadCommLink extends Command
      *
      * @var string
      */
-    protected $signature = 'download:comm-link  {id* : Comm-Link ID(s)} 
+    protected $signature = 'comm-links:download {id* : Comm-Link ID(s)} 
                                                 {--i|import : Import Comm-Link after Download} 
                                                 {--o|overwrite : Overwrite existing Comm-Links}';
 
@@ -29,14 +32,14 @@ class DownloadCommLink extends Command
     protected $description = 'Download Comm-Links with given IDs';
 
     /**
-     * @var \Illuminate\Bus\Dispatcher
+     * @var Dispatcher
      */
-    private $dispatcher;
+    private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
      *
-     * @param \Illuminate\Bus\Dispatcher $dispatcher
+     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -79,6 +82,8 @@ class DownloadCommLink extends Command
         if ($this->hasOption('import') === true) {
             $this->info("\nImporting Comm-Links");
             $this->dispatcher->dispatch(new ParseCommLinkDownload((int) $ids->min()));
+            $this->dispatcher->dispatch(new CreateImageMetadata());
+            $this->dispatcher->dispatch(new CreateImageHashes());
         }
 
         return 0;

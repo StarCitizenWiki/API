@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands\Starmap;
 
@@ -18,7 +18,7 @@ class DownloadStarmap extends Command
      *
      * @var string
      */
-    protected $signature = 'download:starmap 
+    protected $signature = 'starmap:download 
                             {--f|force : Force Download, Overwrite File if exist} 
                             {--i|import : Import System, Celestial Objects and Jumppoint Tunnel after Download}';
 
@@ -30,14 +30,14 @@ class DownloadStarmap extends Command
     protected $description = 'Starts the Starmap Download Job';
 
     /**
-     * @var \Illuminate\Bus\Dispatcher
+     * @var Dispatcher
      */
-    private $dispatcher;
+    private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
      *
-     * @param \Illuminate\Bus\Dispatcher $dispatcher
+     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {

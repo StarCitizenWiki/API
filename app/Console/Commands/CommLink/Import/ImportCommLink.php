@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Import;
 
@@ -18,14 +16,14 @@ class ImportCommLink extends Command
      *
      * @var string
      */
-    protected $signature = 'import:comm-link {id}';
+    protected $signature = 'comm-links:import {id : Comm-Link ID starting at 12663}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Re-Import a single downloaded Comm-Link.';
+    protected $description = 'Re-Import a single downloaded Comm-Link';
 
     /**
      * Execute the console command.

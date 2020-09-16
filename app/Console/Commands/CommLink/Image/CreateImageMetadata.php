@@ -14,14 +14,14 @@ class CreateImageMetadata extends Command
      *
      * @var string
      */
-    protected $signature = 'comm-links:create-image-metadata';
+    protected $signature = 'comm-links:images-create-metadata';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Requests image metadata for all downloaded Comm-Links';
+    protected $description = 'Request image metadata for all Comm-Link images';
 
     /**
      * Execute the console command.
@@ -30,7 +30,7 @@ class CreateImageMetadata extends Command
      */
     public function handle(): int
     {
-        $this->info('Creating Image Metadata');
+        $this->info('Starting creation of image metadata.');
 
         $query = Image::query()
             ->whereHas('commLinks')

@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Download;
 
@@ -13,14 +13,14 @@ class DownloadCommLinks extends Command
      *
      * @var string
      */
-    protected $signature = 'download:comm-links';
+    protected $signature = 'comm-links:download-all';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Download all available Comm-Links';
+    protected $description = 'Download all Comm-Links starting at ID 12663';
 
     /**
      * Execute the console command.

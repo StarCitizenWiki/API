@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Console\Commands\Stat\Import;
+namespace App\Console\Commands\Stat\Download;
 
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
+use App\Jobs\Api\StarCitizen\Stat\DownloadStats as DownloadStatsJob;
 use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
@@ -10,21 +10,21 @@ use Illuminate\Console\Command;
 /**
  * Class DownloadStats
  */
-class ImportStats extends Command
+class DownloadStats extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'stats:import';
+    protected $signature = 'stats:download {--i|import : Import stats after download}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import the newest downloaded funding statistics file into the database. WARNING: Creates a new database record based on the latest downloaded file, can create DUPLICATE records';
+    protected $description = 'Download funding statistics and optionally import them';
 
     /**
      * @var Dispatcher
@@ -50,8 +50,17 @@ class ImportStats extends Command
      */
     public function handle(): int
     {
-        $this->info('Starting funding statistics import');
-        $this->dispatcher->dispatchNow(new ParseStat());
+        if ($this->option('import') === true) {
+            $this->info('Downloading funding statistics and starting import');
+            DownloadStatsJob::withChain(
+                [
+                    new ParseStat(),
+                ]
+            )->dispatch();
+        } else {
+            $this->info('Starting funding statistics download');
+            $this->dispatcher->dispatchNow(new DownloadStatsJob());
+        }
 
         return 0;
     }
