@@ -3,6 +3,7 @@
 namespace App\Models\Rsi\CommLink;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Simple Model to hold changed Comm-Links
@@ -24,9 +25,9 @@ class CommLinksChanged extends Model
     /**
      * The Associated Comm-Link
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function commLink()
+    public function commLink(): BelongsTo
     {
         return $this->belongsTo(CommLink::class);
     }

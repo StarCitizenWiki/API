@@ -7,6 +7,7 @@ use App\Models\System\Language;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Base Translation Class which holds Language Query Scopes
@@ -26,21 +27,21 @@ abstract class AbstractTranslation extends Model
     /**
      * Language Relation
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function language()
+    public function language(): BelongsTo
     {
-        return $this->belongsTo('App\Models\System\Language');
+        return $this->belongsTo(Language::class);
     }
 
     /**
      * English Translations
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeEnglish(Builder $query)
+    public function scopeEnglish(Builder $query): Builder
     {
         return $query->where($this->getTable().self::ATTR_LOCALE_CODE, config('language.english'));
     }
@@ -48,11 +49,11 @@ abstract class AbstractTranslation extends Model
     /**
      * German Translations
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeGerman(Builder $query)
+    public function scopeGerman(Builder $query): Builder
     {
         return $query->where($this->getTable().self::ATTR_LOCALE_CODE, config('language.german'));
     }

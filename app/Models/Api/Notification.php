@@ -4,6 +4,7 @@ namespace App\Models\Api;
 
 use App\Events\ModelUpdating;
 use Carbon\Carbon;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -99,17 +100,17 @@ class Notification extends Model
     }
 
     /**
-     * @param \Doctrine\DBAL\Query\QueryBuilder $query
+     * @param Builder $query
      *
      * @return mixed
      */
-    public function scopePublished($query)
+    public function scopePublished(Builder $query)
     {
         return $query->whereDate('published_at', '<=', Carbon::now());
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
      * @return mixed
      */
@@ -127,7 +128,7 @@ class Notification extends Model
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
      * @return mixed
      */
@@ -137,7 +138,7 @@ class Notification extends Model
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
      * @return mixed
      */
@@ -157,11 +158,11 @@ class Notification extends Model
     /**
      * Notifications on the Front Page
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeOnFrontPage(Builder $query)
+    public function scopeOnFrontPage(Builder $query): Builder
     {
         return $query->where('output_index', true);
     }
@@ -169,11 +170,11 @@ class Notification extends Model
     /**
      * Notifications on the Status Page
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeOnStatusPage(Builder $query)
+    public function scopeOnStatusPage(Builder $query): Builder
     {
         return $query->where('output_status', true);
     }
@@ -181,11 +182,11 @@ class Notification extends Model
     /**
      * Notifications as Mail
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function scopeAsMail(Builder $query)
+    public function scopeAsMail(Builder $query): Builder
     {
         return $query->where('output_email', true);
     }

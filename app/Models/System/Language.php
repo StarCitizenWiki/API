@@ -13,12 +13,12 @@ class Language extends Model
     protected $primaryKey = 'locale_code';
     public $incrementing = false;
 
-    public function scopeGerman(Builder $query)
+    public function scopeGerman(Builder $query): Builder
     {
         return $query->where('local_code', 'de_DE');
     }
 
-    public function scopeEnglish(Builder $query)
+    public function scopeEnglish(Builder $query): Builder
     {
         return $query->where('local_code', 'en_EN');
     }

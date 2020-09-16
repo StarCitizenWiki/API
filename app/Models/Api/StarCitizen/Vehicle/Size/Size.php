@@ -5,6 +5,7 @@ namespace App\Models\Api\StarCitizen\Vehicle\Size;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Vehicle Size Model
@@ -46,7 +47,7 @@ class Size extends HasTranslations
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function translations()
     {
@@ -56,9 +57,9 @@ class Size extends HasTranslations
     /**
      * Ships
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      */
-    public function scopeShip(Builder $query)
+    public function scopeShip(Builder $query): void
     {
         $query->where('slug', '!=', 'vehicle');
     }
@@ -66,9 +67,9 @@ class Size extends HasTranslations
     /**
      * Ground Vehicles
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      */
-    public function scopeGroundVehicle(Builder $query)
+    public function scopeGroundVehicle(Builder $query): void
     {
         $query->where('slug', 'vehicle');
     }

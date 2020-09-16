@@ -3,6 +3,7 @@
 namespace App\Models\Api\StarCitizen\Manufacturer;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Manufacturer Translations
@@ -17,9 +18,9 @@ class ManufacturerTranslation extends Translation
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function manufacturer()
+    public function manufacturer(): BelongsTo
     {
         return $this->belongsTo(Manufacturer::class);
     }

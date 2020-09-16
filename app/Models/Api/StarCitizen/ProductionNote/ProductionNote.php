@@ -5,6 +5,7 @@ namespace App\Models\Api\StarCitizen\ProductionNote;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Production Note Model
@@ -21,7 +22,7 @@ class ProductionNote extends HasTranslations
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function translations()
     {

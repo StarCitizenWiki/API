@@ -1,11 +1,10 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Models\Rsi\Video;
 
 use App\Models\Transcript\Transcript;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VideoFormat extends Model
 {
@@ -23,9 +22,9 @@ class VideoFormat extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function transcripts()
+    public function transcripts(): HasMany
     {
         return $this->hasMany(Transcript::class);
     }

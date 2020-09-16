@@ -3,6 +3,7 @@
 namespace App\Models\Api\StarCitizen\ProductionNote;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Production Note Translations
@@ -16,9 +17,9 @@ class ProductionNoteTranslation extends Translation
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function productionNote()
+    public function productionNote(): BelongsTo
     {
         return $this->belongsTo(ProductionNote::class);
     }

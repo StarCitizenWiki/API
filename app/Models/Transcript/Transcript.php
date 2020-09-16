@@ -8,6 +8,10 @@ use App\Events\ModelUpdating;
 use App\Models\Rsi\Video\VideoFormat;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Transcript extends HasTranslations
 {
@@ -43,7 +47,7 @@ class Transcript extends HasTranslations
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function translations()
     {
@@ -51,9 +55,9 @@ class Transcript extends HasTranslations
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function format(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function format(): BelongsTo
     {
         return $this->belongsTo(VideoFormat::class);
     }
@@ -61,7 +65,7 @@ class Transcript extends HasTranslations
     /**
      * Previous Transcript.
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     * @return Builder|Model|object|null
      */
     public function getPrevAttribute()
     {
@@ -71,7 +75,7 @@ class Transcript extends HasTranslations
     /**
      * Next Transcript.
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     * @return Builder|Model|object|null
      */
     public function getNextAttribute()
     {

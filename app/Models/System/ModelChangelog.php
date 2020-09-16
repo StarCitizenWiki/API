@@ -4,6 +4,8 @@ namespace App\Models\System;
 
 use App\Models\Account\User\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Generic Model to hold all Changelogs as Json
@@ -26,9 +28,9 @@ class ModelChangelog extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return MorphTo
      */
-    public function changelog()
+    public function changelog(): MorphTo
     {
         return $this->morphTo();
     }
@@ -36,9 +38,9 @@ class ModelChangelog extends Model
     /**
      * Associated User
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

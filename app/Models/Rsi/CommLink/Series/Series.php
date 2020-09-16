@@ -1,15 +1,10 @@
 <?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 30.08.2018
- * Time: 10:25
- */
 
 namespace App\Models\Rsi\CommLink\Series;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Series Model
@@ -32,9 +27,9 @@ class Series extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function commLinks()
+    public function commLinks(): HasMany
     {
         return $this->hasMany(CommLink::class);
     }

@@ -6,6 +6,7 @@ use App\Events\ModelUpdating;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Manufacturer Model
@@ -40,7 +41,7 @@ class Manufacturer extends HasTranslations
     protected $perPage = 10;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function translations()
     {

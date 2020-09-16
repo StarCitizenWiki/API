@@ -109,7 +109,7 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function manufacturer()
+    public function manufacturer(): BelongsTo
     {
         return $this->belongsTo(Manufacturer::class);
     }
@@ -119,7 +119,7 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function productionStatus()
+    public function productionStatus(): BelongsTo
     {
         return $this->belongsTo(ProductionStatus::class, 'production_status_id');
     }
@@ -129,7 +129,7 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function productionNote()
+    public function productionNote(): BelongsTo
     {
         return $this->belongsTo(ProductionNote::class, 'production_note_id');
     }
@@ -139,7 +139,7 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function type()
+    public function type(): BelongsTo
     {
         return $this->belongsTo(Type::class);
     }
@@ -149,7 +149,7 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function size()
+    public function size(): BelongsTo
     {
         return $this->belongsTo(Size::class);
     }

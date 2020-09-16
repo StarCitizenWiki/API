@@ -3,6 +3,7 @@
 namespace App\Models\Api\StarCitizen\Vehicle\Size;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Vehicle Size Translations Model
@@ -18,9 +19,9 @@ class SizeTranslation extends Translation
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function size()
+    public function size(): BelongsTo
     {
         return $this->belongsTo(Size::class, 'size_id');
     }
