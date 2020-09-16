@@ -21,12 +21,15 @@ $ mkdir -p /var/lib/api.star-citizen.wiki/logs
 $ mkdir -p /var/lib/api.star-citizen.wiki/db
 $ touch /var/lib/api.star-citizen.wiki/db.sqlite
 $ mkdir -p /etc/api.star-citizen.wiki
+# 33:33 is the user and group id of dockers www-data user 
+$ chown -R 33:33 /var/lib/api.star-citizen.wiki
+$ chown -R 33:33 /etc/api.star-citizen.wiki
 ```
 
 Create the production environment file:  
 Paste content into `/etc/api.star-citizen.wiki/env-production`.
 ```env
-APP_URL=https://api.star-citizen.wiki
+APP_URL=http://localhost
 APP_ENV=production
 APP_DEBUG=false
 APP_KEY=
@@ -41,8 +44,8 @@ QUEUE_DRIVER=database
 ADMIN_AUTH_USE_STUB=true
 
 # SQLITE
-DB_CONNECTION = sqlite
-DB_DATABASE = db.sqlite
+DB_CONNECTION=sqlite
+DB_DATABASE=db.sqlite
 
 # MYSQL
 # DB_HOST=db
@@ -61,8 +64,8 @@ MAIL_PASSWORD=
 THROTTLE_GUEST_REQUESTS=10000
 THROTTLE_PERIOD=1
 
-WIKI_URL=https://star-citizen.wiki
-WIKI_API_URL=https://star-citizen.wiki/api.php
+#WIKI_URL=https://star-citizen.wiki
+#WIKI_API_URL=https://star-citizen.wiki/api.php
 
 # MediaWiki Bot credentials for accessing the MW API
 WIKI_OAUTH_ID=
@@ -85,7 +88,7 @@ RSI_PASSWORD=
 
 ```
 
-== Simple Docker-Compose ==
+## Simple Docker-Compose
 ```yaml
 version: '3'
 
