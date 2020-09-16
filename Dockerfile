@@ -113,13 +113,10 @@ RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
     echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini
 
-VOLUME /var/www/html/storage/logs
-VOLUME /var/www/html/storage/app
-
 RUN chown -R www-data:www-data /var/www/html && \
     chmod u+x /usr/local/bin/start && \
-    chmod u+w /var/www/html/storage && \
-    chmod g+w /var/www/html/storage && \
+    chmod -R u+w /var/www/html/storage && \
+    chmod -R g+w /var/www/html/storage && \
     a2enmod rewrite
 
 CMD ["/usr/local/bin/start"]

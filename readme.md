@@ -16,21 +16,21 @@ $ ./docker-build.sh
 
 Create the folders:
 ```shell script
-$ mkdir -p /var/lib/api.star-citizen.wiki/storage
-$ mkdir -p /var/lib/api.star-citizen.wiki/logs
-$ mkdir -p /var/lib/api.star-citizen.wiki/db
-$ touch /var/lib/api.star-citizen.wiki/db.sqlite
-$ mkdir -p /etc/api.star-citizen.wiki
+$ mkdir -p var/lib/api.star-citizen.wiki/storage
+$ mkdir -p var/lib/api.star-citizen.wiki/logs
+$ mkdir -p var/lib/api.star-citizen.wiki/db
+$ touch var/lib/api.star-citizen.wiki/db/db.sqlite
+$ mkdir -p etc/api.star-citizen.wiki
 # 33:33 is the user and group id of dockers www-data user 
-$ chown -R 33:33 /var/lib/api.star-citizen.wiki
-$ chown -R 33:33 /etc/api.star-citizen.wiki
+$ chown -R 33:33 var/lib/api.star-citizen.wiki
+$ chown -R 33:33 etc/api.star-citizen.wiki
 ```
 
 Create the production environment file:  
 Paste content into `/etc/api.star-citizen.wiki/env-production`.
 ```env
 APP_URL=http://localhost
-APP_ENV=production
+APP_ENV=local
 APP_DEBUG=false
 APP_KEY=
 
@@ -104,10 +104,10 @@ services:
     environment:
       CONTAINER_ROLE: app
     volumes:
-      - /var/lib/api.star-citizen.wiki/storage:/var/www/html/storage/app
-      - /var/lib/api.star-citizen.wiki/logs:/var/www/html/storage/logs
-      - /var/lib/api.star-citizen.wiki/db/db.sqlite:/var/www/html/database/db.sqlite
-      - /etc/api.star-citizen.wiki/env-production:/var/www/html/.env
+      - ./var/lib/api.star-citizen.wiki/storage:/var/www/html/storage/app
+      - ./var/lib/api.star-citizen.wiki/logs:/var/www/html/storage/logs
+      - ./var/lib/api.star-citizen.wiki/db/db.sqlite:/var/www/html/database/db.sqlite
+      - ./etc/api.star-citizen.wiki/env-production:/var/www/html/.env
       - /etc/localtime:/etc/localtime:ro
 
   scheduler:
@@ -118,10 +118,10 @@ services:
     depends_on:
       - api.star-citizen.wiki
     volumes:
-      - /var/lib/api.star-citizen.wiki/storage:/var/www/html/storage/app
-      - /var/lib/api.star-citizen.wiki/logs:/var/www/html/storage/logs
-      - /var/lib/api.star-citizen.wiki/db/db.sqlite:/var/www/html/database/db.sqlite
-      - /etc/api.star-citizen.wiki/env-production:/var/www/html/.env
+      - ./var/lib/api.star-citizen.wiki/storage:/var/www/html/storage/app
+      - ./var/lib/api.star-citizen.wiki/logs:/var/www/html/storage/logs
+      - ./var/lib/api.star-citizen.wiki/db/db.sqlite:/var/www/html/database/db.sqlite
+      - ./etc/api.star-citizen.wiki/env-production:/var/www/html/.env
       - /etc/localtime:/etc/localtime:ro
     environment:
       CONTAINER_ROLE: scheduler
@@ -134,10 +134,10 @@ services:
     depends_on:
       - api.star-citizen.wiki
     volumes:
-      - /var/lib/api.star-citizen.wiki/storage:/var/www/html/storage/app
-      - /var/lib/api.star-citizen.wiki/logs:/var/www/html/storage/logs
-      - /var/lib/api.star-citizen.wiki/db/db.sqlite:/var/www/html/database/db.sqlite
-      - /etc/api.star-citizen.wiki/env-production:/var/www/html/.env
+      - ./var/lib/api.star-citizen.wiki/storage:/var/www/html/storage/app
+      - ./var/lib/api.star-citizen.wiki/logs:/var/www/html/storage/logs
+      - ./var/lib/api.star-citizen.wiki/db/db.sqlite:/var/www/html/database/db.sqlite
+      - ./etc/api.star-citizen.wiki/env-production:/var/www/html/.env
       - /etc/localtime:/etc/localtime:ro
     environment:
       CONTAINER_ROLE: queue
