@@ -54,6 +54,7 @@
     </div>
 @endsection
 
+@section('topNav__title', config('app.name'))
 
 @section('body__after')
     @parent
