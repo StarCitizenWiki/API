@@ -19,7 +19,6 @@ class CreateCommLinkTranslationsTable extends Migration
                 $table->increments('id');
                 $table->char('locale_code', 5);
                 $table->unsignedInteger('comm_link_id');
-                //$table->binary('translation');
                 $table->timestamps();
 
                 $table->unique(['locale_code', 'comm_link_id'], 'comm_link_translations_primary');
@@ -28,7 +27,11 @@ class CreateCommLinkTranslationsTable extends Migration
             }
         );
 
-        DB::statement("ALTER TABLE comm_link_translations ADD COLUMN translation LONGBLOB AFTER comm_link_id");
+        if (config('database.connection') === 'mysql') {
+            DB::statement('ALTER TABLE comm_link_translations ADD COLUMN translation LONGBLOB AFTER comm_link_id');
+        } else {
+            DB::statement('ALTER TABLE comm_link_translations ADD COLUMN translation BLOB');
+        }
     }
 
     /**
