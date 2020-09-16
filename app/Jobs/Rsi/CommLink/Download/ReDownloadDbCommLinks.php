@@ -12,7 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Re-Downloads a new Version of an existing Comm-Link
+ * Re-Downloads a new Version of all existing Database Comm-Links
  */
 class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
 {
@@ -21,7 +21,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const FIRST_COMM_LINK_ID = 12663;
+    public const FIRST_COMM_LINK_ID = 12663;
 
     private $skipExisting;
 
@@ -40,7 +40,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Re-Downloading all DB Comm-Links');
 

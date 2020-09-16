@@ -29,7 +29,7 @@ class ParseStat implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param string $statFileName
+     * @param string|null $statFileName
      */
     public function __construct(?string $statFileName = null)
     {
