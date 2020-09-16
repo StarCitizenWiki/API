@@ -1,16 +1,10 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 19.08.2018
- * Time: 12:01
- */
 
 namespace Tests\Feature\Controller\Web\User\Auth;
 
 use App\Contracts\Web\User\AuthRepositoryInterface;
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
-use Laravel\Socialite\Facades\Socialite;
 use Mockery;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -18,7 +12,6 @@ use Tests\Feature\Controller\Web\User\UserTestCase;
  * Class AdminAuthStubTest
  *
  * @covers \App\Http\Controllers\Web\User\Auth\LoginController
- * @s
  */
 class UserAuthTest extends UserTestCase
 {

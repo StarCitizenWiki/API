@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Category;
+namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Channel;
 
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;

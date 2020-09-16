@@ -1,10 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 10.08.2018
- * Time: 12:00
- */
 
 namespace Tests\Feature\Controller\Api;
 

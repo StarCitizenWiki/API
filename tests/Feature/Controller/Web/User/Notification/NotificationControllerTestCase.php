@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 07.08.2018
- * Time: 11:52
- */
 
 namespace Tests\Feature\Controller\Web\User\Notification;
 

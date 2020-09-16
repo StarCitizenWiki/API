@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 27.09.2018
- * Time: 12:18
- */
 
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink\Category;
 

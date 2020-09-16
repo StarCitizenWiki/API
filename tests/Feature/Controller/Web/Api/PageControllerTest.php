@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Feature\Controller\Web\Account;
+namespace Tests\Feature\Controller\Web\Api;
 
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;

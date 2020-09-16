@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Tests\Feature\Controller\Api\V1\StarCitizen;
+namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle\VehicleControllerTestCase;

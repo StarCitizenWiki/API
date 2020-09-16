@@ -1,10 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 28.09.2018
- * Time: 12:16
- */
 
 namespace Tests\Feature\Controller\Web\User\Account;
 

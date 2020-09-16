@@ -1,10 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 12.08.2018
- * Time: 14:55
- */
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 

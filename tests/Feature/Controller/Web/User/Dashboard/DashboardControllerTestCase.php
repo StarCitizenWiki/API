@@ -1,11 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * User: Hannes
- * Date: 08.08.2018
- * Time: 13:23.
- */
 
 namespace Tests\Feature\Controller\Web\User\Dashboard;
 
