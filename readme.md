@@ -16,18 +16,19 @@ $ ./docker-build.sh
 
 Create the folders:
 ```shell script
-$ mkdir -p var/lib/api.star-citizen.wiki/storage
-$ mkdir -p var/lib/api.star-citizen.wiki/logs
-$ mkdir -p var/lib/api.star-citizen.wiki/db
-$ touch var/lib/api.star-citizen.wiki/db/db.sqlite
-$ mkdir -p etc/api.star-citizen.wiki
+$ mkdir -p ./var/lib/api.star-citizen.wiki/storage
+$ mkdir -p ./var/lib/api.star-citizen.wiki/logs
+$ mkdir -p ./var/lib/api.star-citizen.wiki/db
+$ touch ./var/lib/api.star-citizen.wiki/db/db.sqlite
+$ mkdir -p ./etc/api.star-citizen.wiki
 # 33:33 is the user and group id of dockers www-data user 
-$ chown -R 33:33 var/lib/api.star-citizen.wiki
-$ chown -R 33:33 etc/api.star-citizen.wiki
+$ chown -R 33:33 ./var/lib/api.star-citizen.wiki
+$ chmod -R g+s ./var/lib/api.star-citizen.wiki
+$ chown -R 33:33 ./etc/api.star-citizen.wiki
 ```
 
 Create the production environment file:  
-Paste content into `/etc/api.star-citizen.wiki/env-production`.
+Paste content into `./etc/api.star-citizen.wiki/env-production`.
 ```env
 APP_URL=http://localhost
 APP_ENV=local
@@ -165,23 +166,67 @@ You'll need to have the [Extension:OAuth](https://www.mediawiki.org/wiki/Extensi
 Register an oauth app on the wiki, and set the consumer and access tokens in the production environment file.  
 Users with the administrator group set in the wiki will have admin access on the api.
 
-### Import Comm-Links
+Alternatively you can set `ADMIN_AUTH_USER_STUB=true` in your environment file to disable OAuth-authorization.  
+Be warned, that this skips the authorization check completely and logs everyone in with an admin account.
+
+## Commands
+The API exposes several commands callable inside the container with `php artisan COMMAND`.  
+All available commands can be listed by calling `php artisan`.
+
+To get help for a specific command call `php artisan help COMMAND`.
+
+### Comm-Links
+#### Import missing Comm-Links
 Inside the container execute
 ```shell script
 php artisan comm-links:import-missing
 ```
 This will download all Comm-Links, parse them and create metadata.  
-The import command can be safely stopped by `Ctrl+C`.  
-Downloaded Comm-Links can be imported by calling `php artisan comm-links:import`.
+The import command can be safely stopped by `Ctrl+C`.
 
 Comm-Links should be accessible through `API_URL/api/comm-links`.
 
-### Import the Ship-Matrix
+#### Import downloaded Comm-Links  
+Downloaded Comm-Links can be imported by calling `php artisan comm-links:import-all`.  
+This command will dispatch parsing jobs for every downloaded Comm-Link found in `storage/app/comm_links`.
+
+#### Download specific Comm-Links
+Command: `php artisan comm-links:download ID1 ID2 ID3 ...`.  
+Passing the `--import` flag will import the Comm-Links after downloading them.  
+Passing `--overwrite` will force the import even if a Comm-Link file exists locally. 
+
+#### Download Comm-Link images
+Command: `php artisan comm-links:download-images`.  
+This command downloads all parsed Comm-Link images and saves them locally to `storage/app/public/comm_link_images`.  
+Jobs are dispatched on the `comm_link_images` queue. This queue needs to be called manually inside the container using:  
+`php artisan queue:work --queue=comm_link_images`.
+
+#### Create Comm-Link Image metadata
+Command: `php artisan comm-links:images-create-metadata`.  
+Requests the following metadata for each image: `size`, `mime_type`, `last_modified`.
+
+#### Create Comm-Link Image hashes
+Command: `php artisan comm-links:images-create-hashes`.  
+Creates image hashes used by the reverse image search. Requires present metadata.
+
+### Ship-Matrix
+#### Downloading
 ```shell script
 php artisan ship-matrix:download --import
 ```
 
 Ships should be accessible through `API_URL/api/ships`
+
+### Stats
+#### Downloading
+```shell script
+php artisan stats:download --import
+```
+
+#### Importing pre-downloaded stats
+The API includes stat dumps from `2012-11-13` until `2018-03-25`. To import the dumps call `php artisan db:seed --class StatTableSeeder`.  
+
+Stats should be accessible through `API_URL/api/stats`
 
 ### Schedule
 The schedule container specified in `docker-compose` will run the following commands:
