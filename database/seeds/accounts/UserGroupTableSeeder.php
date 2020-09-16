@@ -7,9 +7,9 @@ use Illuminate\Database\Seeder;
  */
 class UserGroupTableSeeder extends Seeder
 {
-    const ATTR_PERMISSION_LEVEL = 'permission_level';
-    const ATTR_NAME = 'name';
-    const TBL_GROUPS = 'user_groups';
+    public const ATTR_PERMISSION_LEVEL = 'permission_level';
+    public const ATTR_NAME = 'name';
+    public const TBL_GROUPS = 'user_groups';
 
     /**
      * Run the database seeds.
@@ -32,21 +32,23 @@ class UserGroupTableSeeder extends Seeder
         );
         DB::table(self::TBL_GROUPS)->insert(
             [
-                self::ATTR_NAME             => 'sichter',
+                self::ATTR_NAME => 'sichter',
                 self::ATTR_PERMISSION_LEVEL => 2,
             ]
         );
         DB::table(self::TBL_GROUPS)->insert(
             [
-                self::ATTR_NAME             => 'sysop',
+                self::ATTR_NAME => 'sysop',
                 self::ATTR_PERMISSION_LEVEL => 3,
             ]
         );
-        DB::table(self::TBL_GROUPS)->insert(
-            [
-                self::ATTR_NAME             => 'bureaucrat',
-                self::ATTR_PERMISSION_LEVEL => 4,
-            ]
-        );
+        if (DB::table(self::TBL_GROUPS)->where(self::ATTR_NAME, 'bureaucrat')->count() === 0) {
+            DB::table(self::TBL_GROUPS)->insert(
+                [
+                    self::ATTR_NAME => 'bureaucrat',
+                    self::ATTR_PERMISSION_LEVEL => 4,
+                ]
+            );
+        }
     }
 }
