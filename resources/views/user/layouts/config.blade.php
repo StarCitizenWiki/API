@@ -49,6 +49,9 @@
 
 @section('topNav__content')
     @include('api.menu.login_logout')
+    <div class="d-sm-block d-md-none">
+        @include('user.menu.main')
+    </div>
 @endsection
 
 
