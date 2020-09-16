@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Repositories\Web\User;
 
@@ -58,7 +56,16 @@ class AuthRepositoryStub implements AuthRepositoryInterface
             ]
         );
 
-        $user->groups()->sync([UserGroup::query()->where('name', 'bureaucrat')->first()->id]);
+        $group = UserGroup::query()->firstOrCreate(
+            [
+                'name' => 'bureaucrat',
+            ],
+            [
+                'permission_level' => UserGroup::BUREAUCRAT,
+            ]
+        );
+
+        $user->groups()->sync([$group->id]);
 
         return $user;
     }
@@ -68,6 +75,6 @@ class AuthRepositoryStub implements AuthRepositoryInterface
      */
     public function syncLocalUserGroups(User $oauthUser, User $user): void
     {
-        return;
+        // Unused Stub
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models\Account\User;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Groups
@@ -13,36 +14,41 @@ class UserGroup extends Model
     /**
      * Oberste Berechtigungsstufe = Ernennung von Admins
      */
-    const BUREAUCRAT = 4;
+    public const BUREAUCRAT = 4;
 
     /**
      * Admin
      */
-    const SYSOP = 3;
+    public const SYSOP = 3;
 
     /**
      * User
      */
-    const SICHTER = 2;
+    public const SICHTER = 2;
 
     /**
      * Mitarbeiter
      */
-    const MITARBEITER = 1;
+    public const MITARBEITER = 1;
 
     /**
      * Registrierter Account
      */
-    const USER = 0;
+    public const USER = 0;
 
     protected $casts = [
-        'permission_level' => 'int'
+        'permission_level' => 'int',
+    ];
+
+    protected $fillable = [
+        'name',
+        'permission_level',
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
-    public function admins()
+    public function admins(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
     }
@@ -50,9 +56,9 @@ class UserGroup extends Model
     /**
      * Scope that Targets only Admins
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      */
-    public function scopeAdmin(Builder $query)
+    public function scopeAdmin(Builder $query): void
     {
         $query->where('name', 'bureaucrat')->orWhere('name', 'sysop');
     }
