@@ -24,7 +24,7 @@
                 ])
                 @endcomponent
                 @component('components.elements.icon', ['class' => 'mr-1'])
-                    sign-out
+                    sign-out-alt
                 @endcomponent
                 @lang('Logout')
             </a>
@@ -39,7 +39,7 @@
 @else
     @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])
         @component('components.elements.icon')
-            sign-in
+            sign-in-alt
         @endcomponent
         @lang('Login')
     @endcomponent
