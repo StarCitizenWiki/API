@@ -5,6 +5,7 @@ namespace App\Notifications\Rsi\CommLink;
 use App\Mail\Rsi\CommLink\CommLinksChanged as CommLinksChangedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;
 
 /**
@@ -14,12 +15,12 @@ class CommLinksChanged extends Notification
 {
     use Queueable;
 
-    private $commLinks;
+    private Collection $commLinks;
 
     /**
      * Create a new notification instance.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $commLinks
+     * @param Collection $commLinks
      */
     public function __construct(Collection $commLinks)
     {
@@ -43,7 +44,7 @@ class CommLinksChanged extends Notification
      *
      * @param  mixed $notifiable
      *
-     * @return \Illuminate\Mail\Mailable
+     * @return Mailable
      */
     public function toMail($notifiable)
     {
