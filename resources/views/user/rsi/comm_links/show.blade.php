@@ -99,11 +99,15 @@
                 </div>
 
                 <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="nav-images-tab">
-                    @forelse($commLink->images as $image)
-                        <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->url) }}" alt="Comm-Link Image" class="img-thumbnail" style="max-width: 150px;"></a>
-                    @empty
+                    @unless(empty($commLink->images))
+                        <div class="card-columns image-card-column">
+                            @foreach($commLink->images as $image)
+                                @include('user.rsi.comm_links.components.image_info_card', ['image' => $image])
+                            @endforeach
+                        </div>
+                    @else
                         Keine Bilder vorhanden
-                    @endforelse
+                    @endif
                 </div>
 
                 <div class="tab-pane fade" id="meta" role="tabpanel" aria-labelledby="nav-meta-tab">
