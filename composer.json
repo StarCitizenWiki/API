@@ -31,6 +31,7 @@
         "vinkla/hashids": "^8.1.0"
     },
     "require-dev": {
+        "roave/security-advisories": "dev-master",
         "barryvdh/laravel-ide-helper": "^2.7.0",
         "doctrine/dbal": "^2.5",
         "escapestudios/symfony2-coding-standard": "3.11.0",
