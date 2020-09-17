@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Image\Image;
 use Tests\Feature\Controller\Api\ApiTestCase;
 
 /**
@@ -115,13 +116,21 @@ class CommLinkControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
+     * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer::transform
      */
     public function testShowIncludeImageHashes(): void
     {
+        $this->commLinks->each(
+            function (CommLink $commLink) {
+                $commLink->images()->saveMany(factory(Image::class, 3)->make());
+                $commLink->links()->saveMany(factory(Image::class, 3)->make());
+            }
+        );
+
         $structure = $this->structure;
         $structure['images'] = [
             'data' => [
-                [
+                '*' => [
                     'rsi_url',
                     'api_url',
                     'alt',
@@ -132,9 +141,9 @@ class CommLinkControllerTest extends ApiTestCase
                         'perceptual_hash',
                         'difference_hash',
                         'average_hash',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         $response = $this->get(
@@ -148,7 +157,9 @@ class CommLinkControllerTest extends ApiTestCase
         $response->assertOk()
             ->assertJsonStructure(
                 [
-                    'data' => $this->structure,
+                    'data' =>
+                        $structure
+                    ,
                 ]
             )
             ->assertJsonCount(
@@ -158,7 +169,7 @@ class CommLinkControllerTest extends ApiTestCase
             ->assertJsonCount(
                 $this->commLinks->first()->links->count(),
                 'data.links.data'
-            );
+            )->assertSee('perceptual_hash');
     }
 
     /**

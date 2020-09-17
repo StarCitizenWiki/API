@@ -14,6 +14,7 @@ use Tests\Feature\Controller\Api\ApiTestCase;
  *
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer<extended>
+ * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageHashTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Link\LinkTransformer<extended>
  *
  * @covers \App\Models\Rsi\CommLink\CommLink<extended>
@@ -102,6 +103,7 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageLinkSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest
      */
     public function testSearchWithLink(): void
     {
@@ -128,6 +130,7 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageLinkSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest
      */
     public function testSearchWithInvalidLink(): void
     {
@@ -143,6 +146,7 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageLinkSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest
      */
     public function testSearchWithMissingLink(): void
     {
@@ -158,11 +162,13 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
+     * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer::transform
      * TODO Fix Github Actions
      */
     public function testSearchImage(): void
     {
-        self::markTestSkipped('Fails in GitHub Actions.');
+        //self::markTestSkipped('Fails in GitHub Actions.');
 
         /** @var CommLink $commLink */
         $commLink = CommLink::query()->first();
@@ -230,6 +236,7 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchImageMissing(): void
     {
@@ -247,6 +254,7 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchInvalidMethod(): void
     {
@@ -271,6 +279,7 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchInvalidNegativeSimilarity(): void
     {
@@ -294,6 +303,7 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchInvalidSimilarity(): void
     {
@@ -318,6 +328,7 @@ class ImageControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchNonNumericSimilarity(): void
     {

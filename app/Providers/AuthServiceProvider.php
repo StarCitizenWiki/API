@@ -83,8 +83,6 @@ class AuthServiceProvider extends ServiceProvider
         Gate::resource('web.user.rsi.comm-links', CommLinkPolicy::class);
         Gate::define('web.user.rsi.comm-links.preview', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@preview');
 
-        Gate::resource('web.user.rsi.comm-links.images', ImagePolicy::class);
-
         Gate::resource('web.user.rsi.stats', StatPolicy::class);
 
         /*

@@ -1,13 +1,9 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Auth;
 
 use App\Contracts\Web\User\AuthRepositoryInterface;
 use App\Http\Controllers\Controller;
-use App\Repositories\Web\User\AuthRepositoryStub;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\RedirectResponse;
