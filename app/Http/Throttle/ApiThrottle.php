@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 01.08.2018
- * Time: 21:27
- */
 
 namespace App\Http\Throttle;
 
@@ -19,7 +14,7 @@ class ApiThrottle extends Throttle
     /**
      * Attempt to match the throttle against a given condition.
      *
-     * @param \Illuminate\Container\Container $container
+     * @param Container $container
      *
      * @return bool
      */
