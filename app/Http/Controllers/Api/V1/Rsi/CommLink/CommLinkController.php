@@ -126,6 +126,12 @@ class CommLinkController extends ApiController
      */
     public function reverseImageSearch(Request $request): Response
     {
+        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+            app('Log')::error('Required extension "GD" or "Imagick" not available.');
+
+            $this->response->error('Required extension "GD" or "Imagick" not available.', 501);
+        }
+
         $request->validate((new ReverseImageSearchRequest())->rules());
 
         $this->transformer = new ImageHashTransformer();

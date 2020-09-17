@@ -162,8 +162,8 @@ class ImageControllerTest extends ApiTestCase
      */
     public function testSearchImage(): void
     {
-        if (config('app.name') === 'API_CI') {
-            self::markTestSkipped('Buggy on Github Actions');
+        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+            self::markTestSkipped('Required extension "GD" or "Imagick" not available.');
         }
 
         /** @var CommLink $commLink */

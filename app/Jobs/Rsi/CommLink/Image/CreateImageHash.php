@@ -66,6 +66,12 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
      */
     public function handle(): void
     {
+        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+            app('Log')::error('Required extension "GD" or "Imagick" not available.');
+
+            $this->fail('Required extension "GD" or "Imagick" not available.');
+        }
+
         $file = $this->image->getLocalOrRemoteUrl();
         $url = $file;
 
