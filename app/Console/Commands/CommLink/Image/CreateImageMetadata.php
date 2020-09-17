@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands\CommLink\Image;
 
+use App\Console\Commands\AbstractQueueCommand as QueueCommand;
 use App\Jobs\Rsi\CommLink\Image\CreateImageMetadatum;
 use App\Models\Rsi\CommLink\Image\Image;
-use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
-class CreateImageMetadata extends Command
+class CreateImageMetadata extends QueueCommand
 {
     /**
      * The name and signature of the console command.
@@ -36,21 +36,21 @@ class CreateImageMetadata extends Command
             ->whereHas('commLinks')
             ->whereDoesntHave('metadata');
 
-        $bar = $this->output->createProgressBar($query->count());
+        $this->createProgressBar($query->count());
 
         $query->chunk(
             100,
-            function (Collection $images) use ($bar) {
+            function (Collection $images) {
                 $images->each(
-                    function (Image $image) use ($bar) {
+                    function (Image $image) {
                         dispatch(new CreateImageMetadatum($image));
-                        $bar->advance();
+                        $this->advanceBar();
                     }
                 );
             }
         );
 
-        $bar->finish();
+        $this->finishBar();
 
         return 0;
     }
