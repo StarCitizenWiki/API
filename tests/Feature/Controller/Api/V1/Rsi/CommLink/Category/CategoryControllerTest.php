@@ -15,7 +15,7 @@ use Tests\Feature\Controller\Api\ApiTestCase;
  *
  * @covers \App\Models\Rsi\CommLink\Category\Category<extended>
  */
-class CategoryLinkControllerTest extends ApiTestCase
+class CategoryControllerTest extends ApiTestCase
 {
     /**
      * {@inheritdoc}

@@ -15,7 +15,7 @@ use Tests\Feature\Controller\Api\ApiTestCase;
  *
  * @covers \App\Models\Rsi\CommLink\Channel\Channel<extended>
  */
-class ChannelLinkControllerTest extends ApiTestCase
+class ChannelControllerTest extends ApiTestCase
 {
     /**
      * {@inheritdoc}

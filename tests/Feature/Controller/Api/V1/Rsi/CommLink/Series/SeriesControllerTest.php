@@ -15,7 +15,7 @@ use Tests\Feature\Controller\Api\ApiTestCase;
  *
  * @covers \App\Models\Rsi\CommLink\Series\Series<extended>
  */
-class SeriesLinkControllerTest extends ApiTestCase
+class SeriesControllerTest extends ApiTestCase
 {
     /**
      * {@inheritdoc}

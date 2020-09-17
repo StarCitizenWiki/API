@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 27.09.2018
- * Time: 12:18
- */
 
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink;
 
@@ -41,11 +36,13 @@ class CommLinkControllerTest extends ApiTestCase
         'title',
         'rsi_url',
         'api_url',
+        'api_public_url',
         'channel',
         'category',
         'series',
         'images',
         'links',
+        'comment_count',
         'created_at',
     ];
 
@@ -90,7 +87,7 @@ class CommLinkControllerTest extends ApiTestCase
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
      */
-    public function testShow()
+    public function testShow(): void
     {
         $response = $this->get(
             sprintf(
@@ -119,7 +116,55 @@ class CommLinkControllerTest extends ApiTestCase
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
      */
-    public function testShowNotFound()
+    public function testShowIncludeImageHashes(): void
+    {
+        $structure = $this->structure;
+        $structure['images'] = [
+            'data' => [
+                [
+                    'rsi_url',
+                    'api_url',
+                    'alt',
+                    'size',
+                    'mime_type',
+                    'last_modified',
+                    'hashes' => [
+                        'perceptual_hash',
+                        'difference_hash',
+                        'average_hash',
+                    ]
+                ]
+            ]
+        ];
+
+        $response = $this->get(
+            sprintf(
+                '%s/%s?include=images.hashes',
+                static::BASE_API_ENDPOINT,
+                $this->commLinks->first()->cig_id
+            )
+        );
+
+        $response->assertOk()
+            ->assertJsonStructure(
+                [
+                    'data' => $this->structure,
+                ]
+            )
+            ->assertJsonCount(
+                $this->commLinks->first()->images->count(),
+                'data.images.data'
+            )
+            ->assertJsonCount(
+                $this->commLinks->first()->links->count(),
+                'data.links.data'
+            );
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
+     */
+    public function testShowNotFound(): void
     {
         $response = $this->get(
             sprintf(

@@ -112,11 +112,18 @@ $factory->define(
 );
 
 $factory->define(
-    \App\Models\Rsi\CommLink\Link\Link::class,
+    \App\Models\Rsi\CommLink\Image\Image::class,
     function (Faker $faker) {
+        $dir = \Illuminate\Support\Str::random(14);
+        $fileName = \Illuminate\Support\Str::random(4);
+
+        $file = sprintf('/media/%s/source/%s.jpg', $dir, $fileName);
+
         return [
-            'src' => $faker->imageUrl(),
-            'alt' => $faker->boolean() ? 'Lorem Ipsum' : null,
+            'src' => $file,
+            'alt' => $faker->boolean() ? 'Lorem Ipsum' : '',
+            'local' => false,
+            'dir' => $dir,
             'created_at' => \Carbon\Carbon::now(),
             'updated_at' => \Carbon\Carbon::now(),
         ];
