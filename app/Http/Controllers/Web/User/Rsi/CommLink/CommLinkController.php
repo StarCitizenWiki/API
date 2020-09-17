@@ -1,13 +1,9 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Rsi\CommLink;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\CommLinkRequest;
-use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
-use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
 use App\Jobs\Rsi\CommLink\Parser\Element\Content;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
@@ -18,8 +14,6 @@ use Carbon\Carbon;
 use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -246,116 +240,6 @@ class CommLinkController extends Controller
                 'commLink' => $commLink,
                 'version' => $version,
                 'preview' => $contentParser->getContent(),
-            ]
-        );
-    }
-
-    /**
-     * Reverse search view
-     *
-     * @return Application|Factory|View
-     * @throws AuthorizationException
-     */
-    public function reverseImageSearch()
-    {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        return view('user.rsi.comm_links.reverse_search_image');
-    }
-
-    /**
-     * Reverse searches a comm-link by an image url
-     *
-     * @param ReverseImageLinkSearchRequest $request
-     *
-     * @return Application|Factory|View
-     * @throws AuthorizationException
-     */
-    public function reverseImageLinkSearchPost(ReverseImageLinkSearchRequest $request)
-    {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        $options = [
-            'limit' => 250,
-        ];
-
-        if ($request->has('page')) {
-            $options['page'] = $request->get('page');
-        }
-
-        $links = $this->api
-            ->with(
-                array_merge(
-                    [
-                        'url' => $request->get('url'),
-                    ],
-                    $options
-                )
-            )->post('api/comm-links/reverse-image-link-search');
-
-        if ($links->isEmpty()) {
-            return redirect()->route('web.user.rsi.comm-links.reverse-image-search')->withMessages(
-                [
-                    'warning' => [
-                        'Keine Comm-Links gefunden.',
-                    ],
-                ]
-            );
-        }
-
-        return view(
-            'user.rsi.comm_links.index',
-            [
-                'commLinks' => $links,
-            ]
-        );
-    }
-
-    /**
-     * Reverse searches a comm-link by an actual image file
-     *
-     * @param ReverseImageSearchRequest $request
-     *
-     * @return Application|Factory|View
-     * @throws AuthorizationException
-     */
-    public function reverseImageSearchPost(ReverseImageSearchRequest $request)
-    {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        $data = $request->validated();
-
-        $links = $this->api
-            ->with(
-                [
-                    'method' => $data['method'],
-                    'similarity' => $data['similarity'],
-                ]
-            )
-            ->attach(
-                [
-                    'image' => $data['image'],
-                ]
-            )
-            ->post('api/comm-links/reverse-image-search');
-
-        if ($links->isEmpty()) {
-            return redirect()->route('web.user.rsi.comm-links.reverse-image-search')->withMessages(
-                [
-                    'warning' => [
-                        'Keine Comm-Links gefunden.',
-                    ],
-                ]
-            );
-        }
-
-        return view(
-            'user.rsi.comm_links.images.index',
-            [
-                'images' => $links,
             ]
         );
     }

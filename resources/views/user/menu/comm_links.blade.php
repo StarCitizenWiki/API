@@ -14,7 +14,7 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('web.user.rsi.comm-links.reverse-image-search'),
+    'route' => route('web.user.rsi.comm-links.search'),
 ])
     <div class="row">
         <div class="col-1">
@@ -23,7 +23,7 @@
             @endcomponent
         </div>
         <div class="col">
-            @lang('Rückwärtssuche')
+            @lang('Suche')
         </div>
     </div>
 @endcomponent

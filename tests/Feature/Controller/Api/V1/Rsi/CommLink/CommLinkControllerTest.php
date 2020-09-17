@@ -188,7 +188,6 @@ class CommLinkControllerTest extends ApiTestCase
         $response->assertNotFound();
     }
 
-
     /**
      * Creates Faked Comm-Links in DB
      */

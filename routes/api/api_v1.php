@@ -239,25 +239,32 @@ $api->group(
                 /**
                  * Comm Links
                  */
-                $api->get(
-                    '/',
-                    [
-                        'as' => 'api.v1.rsi.comm-links.index',
-                        'uses' => 'CommLinkController@index',
-                    ]
-                );
                 $api->post(
                     '/reverse-image-link-search',
                     [
                         'as' => 'api.v1.rsi.comm-links.reverse-image-link-search',
-                        'uses' => 'CommLinkController@reverseImageLinkSearch',
+                        'uses' => 'CommLinkSearchController@reverseImageLinkSearch',
                     ]
                 );
                 $api->post(
                     '/reverse-image-search',
                     [
                         'as' => 'api.v1.rsi.comm-links.reverse-image-search',
-                        'uses' => 'CommLinkController@reverseImageSearch',
+                        'uses' => 'CommLinkSearchController@reverseImageSearch',
+                    ]
+                );
+                $api->post(
+                    '/search',
+                    [
+                        'as' => 'api.v1.rsi.comm-links.search',
+                        'uses' => 'CommLinkSearchController@searchByTitle',
+                    ]
+                );
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.rsi.comm-links.index',
+                        'uses' => 'CommLinkController@index',
                     ]
                 );
                 $api->get(

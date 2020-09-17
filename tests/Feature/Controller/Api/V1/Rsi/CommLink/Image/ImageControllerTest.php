@@ -10,7 +10,7 @@ use Tests\Feature\Controller\Api\ApiTestCase;
 /**
  * {@inheritdoc}
  *
- * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController<extended>
+ * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController<extended>
  *
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer<extended>
@@ -102,7 +102,7 @@ class ImageControllerTest extends ApiTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageLinkSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageLinkSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest
      */
     public function testSearchWithLink(): void
@@ -122,14 +122,16 @@ class ImageControllerTest extends ApiTestCase
         $response->assertOk()
             ->assertJsonStructure(
                 [
-                    'data' => ['*' => $this->structure],
+                    'data' => [
+                        '*' => $this->structure,
+                    ],
                 ]
             )
             ->assertSee($commLink->title, false);
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageLinkSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageLinkSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest
      */
     public function testSearchWithInvalidLink(): void
@@ -145,7 +147,7 @@ class ImageControllerTest extends ApiTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageLinkSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageLinkSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest
      */
     public function testSearchWithMissingLink(): void
@@ -161,7 +163,7 @@ class ImageControllerTest extends ApiTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer::transform
      * TODO Fix Github Actions
@@ -235,7 +237,7 @@ class ImageControllerTest extends ApiTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchImageMissing(): void
@@ -253,7 +255,7 @@ class ImageControllerTest extends ApiTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchInvalidMethod(): void
@@ -278,7 +280,7 @@ class ImageControllerTest extends ApiTestCase
 
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchInvalidNegativeSimilarity(): void
@@ -302,7 +304,7 @@ class ImageControllerTest extends ApiTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchInvalidSimilarity(): void
@@ -327,7 +329,7 @@ class ImageControllerTest extends ApiTestCase
 
 
     /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::reverseImageSearch
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
      */
     public function testSearchNonNumericSimilarity(): void
