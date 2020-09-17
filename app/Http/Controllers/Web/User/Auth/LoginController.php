@@ -6,9 +6,15 @@ namespace App\Http\Controllers\Web\User\Auth;
 
 use App\Contracts\Web\User\AuthRepositoryInterface;
 use App\Http\Controllers\Controller;
+use App\Repositories\Web\User\AuthRepositoryStub;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 /**
  * Class LoginController.
@@ -36,18 +42,19 @@ class LoginController extends Controller
     public $redirectTo = '/account';
 
     /**
-     * @var \App\Contracts\Web\User\AuthRepositoryInterface
+     * @var AuthRepositoryInterface
      */
-    private $authRepository;
+    private AuthRepositoryInterface $authRepository;
 
     /**
      * Create a new controller instance.
      *
-     * @param \App\Contracts\Web\User\AuthRepositoryInterface $authRepository
+     * @param AuthRepositoryInterface $authRepository
      */
     public function __construct(AuthRepositoryInterface $authRepository)
     {
         parent::__construct();
+
         $this->middleware('guest', ['except' => 'logout']);
         $this->authRepository = $authRepository;
     }
@@ -74,7 +81,7 @@ class LoginController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function showLoginForm()
     {
@@ -84,21 +91,21 @@ class LoginController extends Controller
     /**
      * Redirect the user to the GitHub authentication page.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function redirectToProvider()
+    public function redirectToProvider(): Response
     {
         return $this->authRepository->startAuth();
     }
 
     /**
-     * Obtain the user information from GitHub.
+     * Obtain the user information from the Provider.
      *
      * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function handleProviderCallback(Request $request)
+    public function handleProviderCallback(Request $request): RedirectResponse
     {
         $user = $this->authRepository->getUserFromProvider($request);
 
@@ -124,11 +131,11 @@ class LoginController extends Controller
     /**
      * Redirect to Login Form.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    protected function loggedOut(Request $request)
+    protected function loggedOut(Request $request): RedirectResponse
     {
         return redirect()->route('web.user.auth.login');
     }
@@ -136,9 +143,9 @@ class LoginController extends Controller
     /**
      * Redirect to Intended Route or Account.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    protected function authenticated()
+    protected function authenticated(): RedirectResponse
     {
         return redirect()->intended($this->getRedirectTo());
     }

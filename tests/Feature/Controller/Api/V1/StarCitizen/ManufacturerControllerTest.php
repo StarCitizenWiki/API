@@ -253,7 +253,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     ],
                 ]
             )
-            ->assertSee(sprintf(AbstractApiController::INVALID_RELATION_STRING, 'invalid'))
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');

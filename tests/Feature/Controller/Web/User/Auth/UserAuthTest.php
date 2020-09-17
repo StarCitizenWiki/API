@@ -29,7 +29,7 @@ class UserAuthTest extends UserTestCase
      */
     public function testLoginSocialite()
     {
-        $this->markTestSkipped('TBD');
+        self::markTestSkipped('TBD');
         return;
         $provider = 'mediawiki';
 
