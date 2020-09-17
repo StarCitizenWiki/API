@@ -5,6 +5,7 @@ namespace Tests\Feature\Controller\Web\User\User;
 use App\Http\Controllers\Web\User\User\UserController;
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -149,6 +150,6 @@ class UserControllerTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(UserController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 }

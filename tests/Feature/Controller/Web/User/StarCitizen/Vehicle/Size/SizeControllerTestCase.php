@@ -5,6 +5,7 @@ namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Size;
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Size\SizeController;
 use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -140,7 +141,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
 
         $reflectedClass = new \ReflectionClass(SizeController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

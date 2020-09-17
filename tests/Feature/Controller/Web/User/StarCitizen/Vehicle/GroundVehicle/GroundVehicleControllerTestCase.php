@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicl
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -159,7 +160,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
 
         $reflectedClass = new \ReflectionClass(GroundVehicleController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

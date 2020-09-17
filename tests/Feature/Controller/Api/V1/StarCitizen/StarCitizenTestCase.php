@@ -58,7 +58,7 @@ class StarCitizenTestCase extends ApiTestCase
                 sprintf(
                     AbstractApiController::NOT_FOUND_STRING,
                     static::NOT_EXISTENT_NAME
-                )
+                ), false
             )
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit');
@@ -159,12 +159,6 @@ class StarCitizenTestCase extends ApiTestCase
                         ],
                     ],
                 ]
-            )
-            ->assertSee(
-                sprintf(
-                    AbstractApiController::INVALID_LOCALE_STRING,
-                    'invalid'
-                )
             )
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit')

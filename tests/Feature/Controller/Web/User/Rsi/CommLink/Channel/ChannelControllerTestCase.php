@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\User\Rsi\CommLink\Channel\ChannelController;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
+use Dingo\Api\Dispatcher;
 use Dingo\Api\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -65,7 +66,7 @@ class ChannelControllerTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(ChannelController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

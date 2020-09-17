@@ -5,6 +5,7 @@ namespace Tests\Feature\Controller\Web\User\StarCitizen\ProductionStatus;
 use App\Http\Controllers\Web\User\StarCitizen\ProductionStatus\ProductionStatusController;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -140,7 +141,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
 
         $reflectedClass = new \ReflectionClass(ProductionStatusController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

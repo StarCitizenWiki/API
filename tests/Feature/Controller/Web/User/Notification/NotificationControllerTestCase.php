@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\User\Notification\NotificationController;
 use App\Mail\NotificationEmail;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
+use Dingo\Api\Dispatcher;
 use Dingo\Api\Http\Response;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -232,7 +233,7 @@ class NotificationControllerTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(NotificationController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

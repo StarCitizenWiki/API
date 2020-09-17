@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controller\Web\User\Changelog;
 
 use App\Http\Controllers\Web\User\Changelog\ChangelogController;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -37,6 +38,6 @@ class ChangelogTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(ChangelogController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 }

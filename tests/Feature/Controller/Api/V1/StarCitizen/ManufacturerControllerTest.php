@@ -251,11 +251,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     'data' => [
                         $this->structure,
                     ],
-                    'meta' => [
-                        'errors' => [
-                            'include',
-                        ],
-                    ],
                 ]
             )
             ->assertSee(sprintf(AbstractApiController::INVALID_RELATION_STRING, 'invalid'))

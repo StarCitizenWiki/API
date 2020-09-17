@@ -5,6 +5,7 @@ namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Focus;
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Focus\FocusController;
 use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -140,7 +141,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
 
         $reflectedClass = new \ReflectionClass(FocusController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**
