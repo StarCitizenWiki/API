@@ -72,14 +72,14 @@ class DownloadCommLink extends Command
 
         $ids->each(
             function (int $id) use ($bar) {
-                $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $this->hasOption('overwrite') === true));
+                $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $this->option('overwrite') === true));
                 $bar->advance();
             }
         );
 
         $bar->finish();
 
-        if ($this->hasOption('import') === true) {
+        if ($this->option('import') === true) {
             $this->info("\nImporting Comm-Links");
             $this->dispatcher->dispatch(new ParseCommLinkDownload((int) $ids->min()));
             $this->dispatcher->dispatch(new CreateImageMetadata());
