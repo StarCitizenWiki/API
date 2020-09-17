@@ -93,7 +93,7 @@ class LoginController extends Controller
      *
      * @return Response
      */
-    public function redirectToProvider(): Response
+    public function redirectToProvider()
     {
         return $this->authRepository->startAuth();
     }
