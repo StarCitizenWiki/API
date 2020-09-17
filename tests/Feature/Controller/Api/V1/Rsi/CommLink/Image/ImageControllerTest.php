@@ -168,7 +168,7 @@ class ImageControllerTest extends ApiTestCase
      */
     public function testSearchImage(): void
     {
-        //self::markTestSkipped('Fails in GitHub Actions.');
+        self::markTestSkipped('Fails in GitHub Actions.');
 
         /** @var CommLink $commLink */
         $commLink = CommLink::query()->first();
