@@ -1,9 +1,9 @@
-name: Laravel SQLite
+name: Laravel Tests
 on:
   push:
     branches: [ master, develop ]
 jobs:
-  laravel-test-withdb:
+  laravel-test-sqlite:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -26,7 +26,7 @@ jobs:
           path: vendor
           key: ${{ runner.OS }}-build-${{ hashFiles('**/composer.lock') }}
       - name: Setup env file
-        run: cp .env.example .env
+        run: cp .env.ci .env
       - name: test ls
         run: ls -lao
       - name: Composer install
