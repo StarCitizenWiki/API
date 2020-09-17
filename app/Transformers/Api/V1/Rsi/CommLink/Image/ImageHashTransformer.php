@@ -26,7 +26,7 @@ class ImageHashTransformer extends ImageTransformer
         $data = parent::transform($image);
 
         if (isset($image->similarity)) {
-            $data['similatiry'] = $image->similarity;
+            $data['similarity'] = $image->similarity;
         }
 
         return $data;
