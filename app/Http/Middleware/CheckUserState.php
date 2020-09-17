@@ -20,12 +20,12 @@ class CheckUserState
      *
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         /** @var User $user */
         $user = $request->user();
 
-        if (!is_null($user) && $user->blocked) {
+        if ($user !== null && $user->blocked) {
             app('Log')::notice(
                 'Request from blacklisted User',
                 [
