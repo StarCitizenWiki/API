@@ -208,7 +208,8 @@ class ImageControllerTest extends ApiTestCase
         );
 
         $response->assertOk()
-            ->assertJsonStructure([
+            ->assertJsonCount(1, 'data');
+/*            ->assertJsonStructure([
                 'data' => [
                      [
                         'rsi_url',
@@ -222,7 +223,7 @@ class ImageControllerTest extends ApiTestCase
                         'commLinks'
                     ]
                 ],
-            ]);
+            ]);*/
     }
 
     /**
