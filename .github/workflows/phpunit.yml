@@ -1,42 +1,48 @@
+name: Laravel SQLite
 on:
   push:
     branches: [ master, develop ]
 jobs:
   laravel-test-withdb:
     runs-on: ubuntu-latest
-    services:
-      # mysql-service Label used to access the service container
-      mysql-service:
-        # Docker Hub image (also with version)
-        image: mariadb:latest
-        env:
-          ## Accessing to Github secrets, where you can store your configuration
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: db_test
-        ## map the "external" 33306 port with the "internal" 3306
-        ports:
-          - 33306:3306
-        # Set health checks to wait until mysql database has started (it takes some seconds to start)
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
     steps:
       - uses: actions/checkout@v2
-      - name: Laravel Setup
+
+      - name: Get Composer Cache Directory 2
+        id: composer-cache
         run: |
-          cp .env.ci .env
-          composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
-          php artisan key:generate
-          chmod -R 777 storage bootstrap/cache
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v2
+        id: actions-cache
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Cache PHP dependencies
+        uses: actions/cache@v2
+        id: vendor-cache
+        with:
+          path: vendor
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/composer.lock') }}
+      - name: Setup env file
+        run: cp .env.example .env
+      - name: test ls
+        run: ls -lao
+      - name: Composer install
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
+        run: composer install  --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
+      - name: Setup keys
+        run: php artisan key:generate
+      - name: Fix perms for dirs
+        run: chmod -R 777 storage bootstrap/cache
+      - name: Migrate database
+        env:
+          DB_CONNECTION: 'sqlite'
+          DB_DATABASE: 'db.sqlite'
+        run: touch database/db.sqlite; php artisan migrate
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
-          DB_CONNECTION: mysql
-          DB_DATABASE: db_test
-          DB_PORT: 33306
-          DB_USER: root
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: |
-          php artisan migrate
-          vendor/phpunit/phpunit/phpunit
+          DB_CONNECTION: 'sqlite'
+          DB_DATABASE: 'db.sqlite'
+        run: vendor/phpunit/phpunit/phpunit
