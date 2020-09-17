@@ -141,33 +141,42 @@ class CommLinkController extends ApiController
             case 'average':
                 $hasher = new ImageHash(new AverageHash());
                 $prefix = 'a';
+                $table = 'average_hash';
                 break;
 
             case 'difference':
                 $hasher = new ImageHash(new DifferenceHash());
                 $prefix = 'd';
+                $table = 'difference_hash';
                 break;
 
             case 'perceptual':
             default:
                 $hasher = new ImageHash(new PerceptualHash2());
                 $prefix = 'p';
+                $table = 'perceptual_hash';
                 break;
         }
 
         $hex = $hasher->hash($request->file('image'))->toHex();
+        $hash = $hex;
         $hex = str_split($hex, strlen($hex) / 2);
         $hex = array_map('hexdec', $hex);
 
-        $hashes = DB::table('comm_link_image_hashes')
-            ->select('comm_link_image_id')
-            ->selectRaw(
-                'BIT_COUNT('.$prefix.'_hash_1 ^ ?) + BIT_COUNT('.$prefix.'_hash_2 ^ ?) AS distance',
-                [$hex[0], $hex[1]]
-            )
-            ->havingRaw('distance <= ?', [$distance])
-            ->limit(50)
-            ->get();
+        // Since SQLITE does not support the BIT_COUNT operation we only search for exact hash matches
+        if (config('database.default') === 'sqlite') {
+            $hashes = \App\Models\Rsi\CommLink\Image\ImageHash::query()->where($table, $hash)->get('comm_link_image_id');
+        } else {
+            $hashes = DB::table('comm_link_image_hashes')
+                ->select('comm_link_image_id')
+                ->selectRaw(
+                    'BIT_COUNT('.$prefix.'_hash_1 ^ ?) + BIT_COUNT('.$prefix.'_hash_2 ^ ?) AS distance',
+                    [$hex[0], $hex[1]]
+                )
+                ->havingRaw('distance <= ?', [$distance])
+                ->limit(50)
+                ->get();
+        }
 
         if ($hashes->isEmpty()) {
             return $this->getResponse(collect([]));
