@@ -3,12 +3,12 @@
 namespace App\Transformers\Api\V1\Rsi\CommLink\Channel;
 
 use App\Models\Rsi\CommLink\Channel\Channel;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 /**
  * Channel Transformer
  */
-class ChannelTransformer extends TransformerAbstract
+class ChannelTransformer extends V1Transformer
 {
     /**
      * @param Channel $channel
@@ -20,10 +20,7 @@ class ChannelTransformer extends TransformerAbstract
         return [
             'name' => $channel->name,
             'slug' => $channel->slug,
-            'api_url' => app('api.url')->version('v1')->route(
-                'api.v1.rsi.comm-links.channels.show',
-                [$channel->getRouteKey()]
-            ),
+            'api_url' => $this->makeApiUrl(self::COMM_LINKS_CHANNELS_SHOW, $channel->getRouteKey()),
         ];
     }
 }

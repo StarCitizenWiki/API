@@ -3,12 +3,12 @@
 namespace App\Transformers\Api\V1\Rsi\CommLink\Series;
 
 use App\Models\Rsi\CommLink\Series\Series;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 /**
  * Series Transformer
  */
-class SeriesTransformer extends TransformerAbstract
+class SeriesTransformer extends V1Transformer
 {
     /**
      * @param Series $series
@@ -20,10 +20,7 @@ class SeriesTransformer extends TransformerAbstract
         return [
             'name' => $series->name,
             'slug' => $series->slug,
-            'api_url' => app('api.url')->version('v1')->route(
-                'api.v1.rsi.comm-links.series.show',
-                [$series->getRouteKey()]
-            ),
+            'api_url' => $this->makeApiUrl(self::COMM_LINKS_SERIES_SHOW, $series->getRouteKey()),
         ];
     }
 }

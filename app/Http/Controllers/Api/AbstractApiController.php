@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Transformers\Api\LocaleAwareTransformerInterface;
+use App\Transformers\Api\LocalizableTransformerInterface;
 use Carbon\Carbon;
 use Dingo\Api\Contract\Http\Request;
 use Dingo\Api\Http\Response;
@@ -155,7 +155,7 @@ abstract class AbstractApiController extends Controller
     {
         if (in_array($localeCode, config('language.codes'), true)) {
             $this->localeCode = $localeCode;
-            if ($this->transformer instanceof LocaleAwareTransformerInterface) {
+            if ($this->transformer instanceof LocalizableTransformerInterface) {
                 $this->transformer->setLocale($localeCode);
             }
         } else {

@@ -28,7 +28,7 @@ class ImageTransformer extends TransformerAbstract
             'alt' => $image->alt,
             'size' => $image->metadata->size,
             'mime_type' => $image->metadata->mime,
-            'last_modified' => $image->metadata->last_modified->toDateTimeString(),
+            'last_modified' => $image->metadata->last_modified,
         ];
     }
 

@@ -3,12 +3,12 @@
 namespace App\Transformers\Api\V1\Rsi\CommLink\Category;
 
 use App\Models\Rsi\CommLink\Category\Category;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 /**
  * Category Transformer
  */
-class CategoryTransformer extends TransformerAbstract
+class CategoryTransformer extends V1Transformer
 {
     /**
      * @param Category $category
@@ -20,10 +20,7 @@ class CategoryTransformer extends TransformerAbstract
         return [
             'name' => $category->name,
             'slug' => $category->slug,
-            'api_url' => app('api.url')->version('v1')->route(
-                'api.v1.rsi.comm-links.categories.show',
-                [$category->getRouteKey()]
-            ),
+            'api_url' => $this->makeApiUrl(self::COMM_LINKS_CATEGORIES_SHOW, $category->getRouteKey()),
         ];
     }
 }

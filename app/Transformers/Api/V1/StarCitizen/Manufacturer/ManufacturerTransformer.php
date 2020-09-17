@@ -3,42 +3,30 @@
 namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\System\Translation\AbstractHasTranslations;
-use App\Transformers\Api\LocaleAwareTransformerInterface;
+use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
+use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
 use League\Fractal\Resource\Collection;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Manufacturer Transformer
  */
-class ManufacturerTransformer extends TransformerAbstract implements LocaleAwareTransformerInterface
+class ManufacturerTransformer extends AbstractTranslationTransformer
 {
     protected $availableIncludes = [
         'ships',
         'vehicles',
     ];
 
-    private $localeCode;
-
-    /**
-     * Set the Locale
-     *
-     * @param string $localeCode
-     */
-    public function setLocale(string $localeCode)
-    {
-        $this->localeCode = $localeCode;
-    }
-
     /**
      * @param Manufacturer $manufacturer
      *
      * @return array
      */
-    public function transform(Manufacturer $manufacturer)
+    public function transform(Manufacturer $manufacturer): array
     {
+        $this->missingTranslations = [];
         $translations = $this->getTranslation($manufacturer);
 
         return [
@@ -46,6 +34,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
             'name' => $manufacturer->name,
             'known_for' => $translations['known_for'],
             'description' => $translations['description'],
+            'missing_translations' => $this->missingTranslations,
         ];
     }
 
@@ -54,7 +43,7 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
      *
      * @return Collection
      */
-    public function includeShips(Manufacturer $manufacturer)
+    public function includeShips(Manufacturer $manufacturer): Collection
     {
         return $this->collection($manufacturer->ships, new ShipLinkTransformer());
     }
@@ -64,54 +53,23 @@ class ManufacturerTransformer extends TransformerAbstract implements LocaleAware
      *
      * @return Collection
      */
-    public function includeVehicles(Manufacturer $manufacturer)
+    public function includeVehicles(Manufacturer $manufacturer): Collection
     {
         return $this->collection($manufacturer->vehicles, new GroundVehicleLinkTransformer());
     }
 
     /**
-     * If a valid locale code is set this function will return the corresponding translation or use english as a fallback
-     * @Todo Generate Array with translations that used the english fallback
+     * If a valid locale code is set this function will return the corresponding translation or use english as a
+     * fallback
      *
-     * @param \App\Models\System\Translation\AbstractHasTranslations $model
+     * @param HasTranslations $model
+     *
+     * @param string          $translationKey
      *
      * @return array|string the Translation
      */
-    private function getTranslation(AbstractHasTranslations $model)
+    protected function getTranslation(HasTranslations $model, $translationKey = 'translation')
     {
-        app('Log')::debug(
-            "Relation translations for Model ".get_class($model)." is loaded: {$model->relationLoaded('translations')}"
-        );
-
-        $translations = [
-            'known_for' => [],
-            'description' => [],
-        ];
-
-        $model->translations->each(
-            function ($translation) use (&$translations) {
-                if (null !== $this->localeCode) {
-                    if ($translation->locale_code === $this->localeCode || (empty($translations['known_for']) && $translation->locale_code === config(
-                                'language.english'
-                            ))) {
-                        $translations = [
-                            'known_for' => $translation->known_for,
-                            'description' => $translation->description,
-                        ];
-                    } else {
-                        // Translation already found, exit loop
-                        return false;
-                    }
-
-
-                    return $translation;
-                } else {
-                    $translations['known_for'][$translation->locale_code] = $translation->known_for;
-                    $translations['description'][$translation->locale_code] = $translation->description;
-                }
-            }
-        );
-
-        return $translations;
+        return parent::getTranslation($model, ['known_for', 'description']);
     }
 }

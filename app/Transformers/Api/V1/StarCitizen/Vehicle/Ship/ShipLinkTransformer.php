@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 24.07.2018
- * Time: 13:59
- */
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle\Ship;
 
@@ -16,19 +11,16 @@ use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as Ve
 class ShipLinkTransformer extends VehicleTransformer
 {
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
+     * @param Ship $ship
      *
      * @return array
      */
-    public function transform(Ship $ship)
+    public function transform(Ship $ship): array
     {
         return [
             'name' => $ship->name,
             'slug' => $ship->slug,
-            'api_url' => app('api.url')->version('v1')->route(
-                'api.v1.starcitizen.vehicles.ships.show',
-                [$ship->getRouteKey()]
-            ),
+            'api_url' => $this->makeApiUrl(self::VEHICLES_SHIPS_SHOW, $ship->getRouteKey()),
         ];
     }
 }

@@ -3,17 +3,17 @@
 namespace App\Transformers\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Link\LinkTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Translation\TranslationTransformer;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class CommLinkTransformer
  */
-class CommLinkTransformer extends TransformerAbstract
+class CommLinkTransformer extends V1Transformer
 {
     protected $availableIncludes = [
         'images',
@@ -33,10 +33,7 @@ class CommLinkTransformer extends TransformerAbstract
             'id' => $commLink->cig_id,
             'title' => $commLink->title,
             'rsi_url' => $this->getCommLinkUrl($commLink),
-            'api_url' => app('api.url')->version('v1')->route(
-                'api.v1.rsi.comm-links.show',
-                [$commLink->getRouteKey()]
-            ),
+            'api_url' => $this->makeApiUrl(self::COMM_LINKS_SHOW, $commLink->getRouteKey()),
             'api_public_url' => route('web.api.comm-links.show', $commLink->getRouteKey()),
             'channel' => $commLink->channel->name,
             'category' => $commLink->category->name,
@@ -44,7 +41,7 @@ class CommLinkTransformer extends TransformerAbstract
             'images' => $commLink->images_count,
             'links' => $commLink->links_count,
             'comment_count' => $commLink->comment_count,
-            'created_at' => $commLink->created_at->toDateString(),
+            'created_at' => $commLink->created_at,
         ];
     }
 
