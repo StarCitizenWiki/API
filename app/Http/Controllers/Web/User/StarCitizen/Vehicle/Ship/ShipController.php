@@ -80,6 +80,7 @@ class ShipController extends Controller
             'user.starcitizen.vehicles.ships.edit',
             [
                 'ship' => $ship,
+                'componentGroups' => $ship->componentsByClass(),
                 'changelogs' => $changelogs,
             ]
         );

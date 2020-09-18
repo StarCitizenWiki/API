@@ -266,6 +266,16 @@
 
                 @endcomponent
             @endcomponent
+
+            <div class="card">
+                <h4 class="card-header">
+                    <a data-toggle="collapse" href="#components" role="button"
+                       aria-expanded="false" aria-controls="components">Komponenten anzeigen</a>
+                </h4>
+                <div class="card-body collapse" id="components">
+                    @include('user.components.starcitizen.vehicle_components', ['componentGroups' => $componentGroups])
+                </div>
+            </div>
         </div>
 
         <div class="col-12 col-xl-6">

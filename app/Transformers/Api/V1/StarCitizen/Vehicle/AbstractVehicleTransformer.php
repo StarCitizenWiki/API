@@ -11,6 +11,22 @@ use Illuminate\Support\Collection;
  */
 abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
 {
+    protected $availableIncludes = [
+        'components',
+    ];
+
+    /**
+     * @param Vehicle $vehicle
+     *
+     * @return \League\Fractal\Resource\Collection
+     *
+     * TODO Wrap by component_class key
+     */
+    public function includeComponents(Vehicle $vehicle): \League\Fractal\Resource\Collection
+    {
+        return $this->collection($vehicle->components, new ComponentTransformer());
+    }
+
     /**
      * @param Vehicle $vehicle
      *

@@ -69,6 +69,8 @@ class GroundVehicleController extends Controller
         $this->authorize('web.user.starcitizen.vehicles.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
+        $groundVehicle->load('components');
+
         /** @var Collection $changelogs */
         $changelogs = $groundVehicle->changelogs;
 
@@ -80,6 +82,7 @@ class GroundVehicleController extends Controller
             'user.starcitizen.vehicles.ground_vehicles.edit',
             [
                 'groundVehicle' => $groundVehicle,
+                'componentGroups' => $groundVehicle->componentsByClass(),
                 'changelogs' => $changelogs,
             ]
         );
