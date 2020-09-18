@@ -40,8 +40,8 @@ class Component extends BaseElement
 
         $ids = $componentData->flatten()
             ->flatMap(
-                function ($bla) {
-                    return collect($bla)->flatten();
+                function ($componentGroup) {
+                    return collect($componentGroup)->flatten();
                 }
             )->map(
                 function ($component) {
@@ -78,14 +78,14 @@ class Component extends BaseElement
         /** @var ComponentModel $component */
         return ComponentModel::query()->updateOrCreate(
             [
-                'type' => $this->normalizeString(self::TYPE),
-                'name' => $this->normalizeString(self::NAME),
-                'component_class' => $this->normalizeString(self::COMPONENT_CLASS),
+                'type' => $this->normalizeString($data->get(self::TYPE)),
+                'name' => $this->normalizeString($data->get(self::NAME)),
+                'component_class' => $this->normalizeString($data->get(self::COMPONENT_CLASS)),
             ],
             [
                 'mounts' => (int) $data->get(self::MOUNTS),
-                'component_size' => $this->normalizeString(self::COMPONENT_SIZE),
-                'category' => $this->normalizeString(self::CATEGORY),
+                'component_size' => $this->normalizeString($data->get(self::COMPONENT_SIZE)),
+                'category' => $this->normalizeString($data->get(self::CATEGORY)),
                 'size' => $data->get(self::SIZE),
                 'details' => $this->normalizeString($data->get(self::DETAILS)),
                 'quantity' => (int) $data->get(self::QUANTITY),
