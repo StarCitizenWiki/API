@@ -24,8 +24,8 @@ class CreateVehicleComponentTable extends Migration
         Schema::create(
             'vehicle_component',
             function (Blueprint $table) {
-                $table->unsignedInteger('vehicle_id');
-                $table->unsignedInteger('component_id');
+                $table->unsignedBigInteger('vehicle_id');
+                $table->unsignedBigInteger('component_id');
 
                 $table->foreign('vehicle_id')
                     ->references('id')
