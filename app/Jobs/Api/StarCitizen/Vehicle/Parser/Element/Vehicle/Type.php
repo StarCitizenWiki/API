@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 25.09.2018
- * Time: 12:54
- */
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\Vehicle;
 
@@ -21,7 +16,9 @@ class Type extends BaseElement
     private const VEHICLE_TYPE = 'type';
 
     /**
-     * @return \App\Models\Api\StarCitizen\Vehicle\Type\Type
+     * @return VehicleType
+     *
+     * @throws ModelNotFoundException
      */
     public function getVehicleType(): VehicleType
     {
@@ -32,11 +29,11 @@ class Type extends BaseElement
         if (null === $type) {
             app('Log')::debug('Vehicle Type not set in Matrix, returning default (undefined)');
 
-            return VehicleType::find(1);
+            return VehicleType::findOrFail(1);
         }
 
         try {
-            /** @var \App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation $typeTranslation */
+            /** @var TypeTranslation $typeTranslation */
             $typeTranslation = TypeTranslation::query()->where(
                 'translation',
                 $type
@@ -54,13 +51,13 @@ class Type extends BaseElement
     }
 
     /**
-     * @return \App\Models\Api\StarCitizen\Vehicle\Type\Type
+     * @return VehicleType
      */
     private function createNewVehicleType(): VehicleType
     {
         app('Log')::debug('Creating new Vehicle Type');
 
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $type */
+        /** @var VehicleType $type */
         $type = VehicleType::create(
             [
                 'slug' => Str::slug($this->rawData->get(self::VEHICLE_TYPE)),

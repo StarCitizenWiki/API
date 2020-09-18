@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 25.09.2018
- * Time: 12:52
- */
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\Vehicle;
 
@@ -21,7 +16,9 @@ class Size extends BaseElement
     private const VEHICLE_SIZE = 'size';
 
     /**
-     * @return \App\Models\Api\StarCitizen\Vehicle\Size\Size
+     * @return VehicleSize
+     *
+     * @throws ModelNotFoundException
      */
     public function getVehicleSize(): VehicleSize
     {
@@ -32,11 +29,11 @@ class Size extends BaseElement
         if (null === $size) {
             app('Log')::debug('Vehicle Size not set in Matrix, returning default (undefined)');
 
-            return VehicleSize::find(1);
+            return VehicleSize::findOrFail(1);
         }
 
         try {
-            /** @var \App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation $sizeTranslation */
+            /** @var SizeTranslation $sizeTranslation */
             $sizeTranslation = SizeTranslation::query()->where(
                 'translation',
                 $size
@@ -54,13 +51,13 @@ class Size extends BaseElement
     }
 
     /**
-     * @return \App\Models\Api\StarCitizen\Vehicle\Size\Size
+     * @return VehicleSize
      */
     private function createNewVehicleSize(): VehicleSize
     {
         app('Log')::debug('Creating new Vehicle Size');
 
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $size */
+        /** @var VehicleSize $size */
         $size = VehicleSize::create(
             [
                 'slug' => Str::slug($this->rawData->get(self::VEHICLE_SIZE)),
