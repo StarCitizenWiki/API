@@ -4,6 +4,7 @@ namespace App\Transformers\Api\V1\StarCitizen;
 
 use App\Models\System\Language;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
+use App\Models\System\Translation\AbstractTranslation;
 use App\Transformers\Api\LocalizableTransformerInterface as LocaleAwareTransformer;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 use Illuminate\Support\Collection;
@@ -88,18 +89,29 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
         return $data->toArray();
     }
 
+    /**
+     * Get a singular translation by key
+     * Returns english fallback is key is unavailable
+     *
+     * @param Language|AbstractTranslation $translation
+     * @param string|array                 $translationKey
+     * @param HasTranslations              $model
+     * @param Collection                   $translations
+     *
+     * @return array|mixed
+     */
     private function getSingleTranslation(
         $translation,
         $translationKey,
         HasTranslations $model,
         Collection $translations
     ) {
-        if ($translation instanceof Language) {
-            if (!in_array($translation->locale_code, $this->missingTranslations, true)) {
-                $this->missingTranslations[] = $translation->locale_code;
-            }
-
-            return [];
+        if ($translation instanceof Language && !in_array(
+                $translation->locale_code,
+                $this->missingTranslations,
+                true
+            )) {
+            $this->addMissingTranslation($translation->locale_code);
         }
 
         if (is_array($translationKey)) {
@@ -113,11 +125,23 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
         }
 
         if (!isset($translation[$translationKey])) {
-            $this->missingTranslations[] = $model->getRouteKey();
+            $this->addMissingTranslation($model->getRouteKey());
 
             return $translations['en_EN'][$translationKey];
         }
 
         return $translation[$translationKey];
+    }
+
+    /**
+     * Adds a missing translation key to the array if it does not already exist
+     *
+     * @param string $key The key to add
+     */
+    private function addMissingTranslation(string $key): void
+    {
+        if (!in_array($key, $this->missingTranslations, true)) {
+            $this->missingTranslations[] = $key;
+        }
     }
 }
