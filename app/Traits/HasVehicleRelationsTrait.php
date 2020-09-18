@@ -1,14 +1,10 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 13.07.2018
- * Time: 13:34
- */
 
 namespace App\Traits;
 
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Trait HasModelTranslationsTrait
@@ -16,17 +12,17 @@ use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 trait HasVehicleRelationsTrait
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany Ships
+     * @return HasMany Ships
      */
-    public function ships()
+    public function ships(): HasMany
     {
         return $this->hasMany(Ship::class);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany Ground Vehicles
+     * @return HasMany Ground Vehicles
      */
-    public function vehicles()
+    public function vehicles(): HasMany
     {
         return $this->hasMany(GroundVehicle::class);
     }

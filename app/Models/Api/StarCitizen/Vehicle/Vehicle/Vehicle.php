@@ -6,6 +6,7 @@ use App\Events\ModelUpdating;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
+use App\Models\Api\StarCitizen\Vehicle\Component\Component;
 use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\Api\StarCitizen\Vehicle\Type\Type;
@@ -175,6 +176,40 @@ class Vehicle extends HasTranslations
     public function size(): BelongsTo
     {
         return $this->belongsTo(Size::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function components(): BelongsToMany
+    {
+        return $this->belongsToMany(Component::class, 'vehicle_component');
+    }
+
+    /**
+     * Get Components keyed by component class
+     *
+     * @return array
+     */
+    public function componentsByClass(): array
+    {
+        $components = $this->components
+            ->keyBy('component_class')
+            ->keys()
+            ->flip()
+            ->map(
+                function () {
+                    return [];
+                }
+            )->toArray();
+
+        $this->components->each(
+            function (Component $component) use (&$components) {
+                $components[$component->component_class][] = $component;
+            }
+        );
+
+        return $components;
     }
 
     /**

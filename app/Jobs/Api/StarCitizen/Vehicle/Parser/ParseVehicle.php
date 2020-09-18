@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
+use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\Component;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\Manufacturer;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\ProductionNote;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\ProductionStatus;
@@ -100,6 +101,7 @@ class ParseVehicle implements ShouldQueue
         );
 
         $this->syncFociIds($vehicle);
+        $this->syncComponentIds($vehicle);
     }
 
     /**
@@ -171,6 +173,43 @@ class ParseVehicle implements ShouldQueue
         }
 
         $vehicle->foci()->sync($fociIDs);
+    }
+
+    /**
+     * Syncs Vehicle Component IDs to the Model and generates a Changelog if the Focus has changed
+     *
+     * @param Vehicle $vehicle
+     */
+    private function syncComponentIds(Vehicle $vehicle): void
+    {
+        $component = new Component($this->rawData);
+
+        /** @var \Illuminate\Database\Eloquent\Collection $componentIDsOld */
+        $componentIDsOld = $vehicle->components->pluck('id');
+        $componentIDs = $component->getComponentIDs();
+
+        if (!$vehicle->wasRecentlyCreated && count($componentIDsOld->diff($componentIDs)) > 0) {
+            $changes = [
+                'components' => [
+                    'old' => $componentIDsOld,
+                    'new' => $componentIDs,
+                ],
+            ];
+
+            $vehicle->changelogs()->create(
+                [
+                    'type' => 'update',
+                    'user_id' => 0,
+                    'changelog' => [
+                        'changes' => $changes,
+                    ],
+                ]
+            );
+
+            app('Log')::debug('Updated ship_vehicle_components', $changes);
+        }
+
+        $vehicle->components()->sync($componentIDs);
     }
 
     /**
