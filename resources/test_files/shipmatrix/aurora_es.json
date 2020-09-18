@@ -1,0 +1,270 @@
+{
+  "id": "1",
+  "afterburner_speed": "1140",
+  "beam": "8.0",
+  "cargocapacity": null,
+  "chassis_id": "1",
+  "height": "4.0",
+  "length": "18.0",
+  "manufacturer_id": "1",
+  "mass": "25172",
+  "max_crew": "1",
+  "min_crew": "1",
+  "pitch_max": "70.0",
+  "production_note": null,
+  "production_status": "flight-ready",
+  "roll_max": "95.0",
+  "scm_speed": "190",
+  "size": "small",
+  "time_modified": "2 months ago",
+  "type": "multi",
+  "xaxis_acceleration": "43.0",
+  "yaw_max": "70.0",
+  "yaxis_acceleration": "45.7",
+  "zaxis_acceleration": "44.2",
+  "description": "The Aurora is the modern-day descendant of the Roberts Space Industries X-7 spacecraft which tested the very first jump engines. Utilitarian to a T, the Aurora Essential is the perfect choice for new ship owners: versatile enough to tackle a myriad of challenges, yet with a straightforward and intuitive design.",
+  "focus": "Starter \/ Pathfinder",
+  "name": "Aurora ES",
+  "url": "\/pledge\/ships\/rsi-aurora\/Aurora-ES",
+  "manufacturer": {
+    "id": "1",
+    "code": "RSI",
+    "description": "The original creators of the engine that kickstarted humanity\u2019s expansion into space, Roberts Space Industries build a wide range of spaceships that serve all needs starting at basic interstellar travel to deep exploration on the outer edges of the galaxy. The tagline is \u201cRoberts Space Industries: Delivering the Stars since 2075\u201d",
+    "known_for": "the Aurora and the Constellation",
+    "name": "Roberts Space Industries"
+  },
+  "time_modified.unfiltered": "2020-07-17 18:00:19",
+  "compiled": {
+    "RSIAvionic": {
+      "radar": [
+        {
+          "type": "radar",
+          "name": "Radar",
+          "mounts": "1",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "TBD",
+          "component_class": "RSIAvionic"
+        }
+      ],
+      "computers": [
+        {
+          "type": "computers",
+          "name": "Computer",
+          "mounts": "1",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "TBD",
+          "component_class": "RSIAvionic"
+        }
+      ]
+    },
+    "RSIPropulsion": {
+      "fuel_intakes": [
+        {
+          "type": "fuel_intakes",
+          "name": "Fuel Intake",
+          "mounts": "2",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "TBD",
+          "component_class": "RSIPropulsion"
+        }
+      ],
+      "fuel_tanks": [
+        {
+          "type": "fuel_tanks",
+          "name": "Fuel Tank",
+          "mounts": "2",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": null,
+          "component_class": "RSIPropulsion"
+        }
+      ],
+      "quantum_drives": [
+        {
+          "type": "quantum_drives",
+          "name": "Quantum Drive",
+          "mounts": "1",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "TBD",
+          "component_class": "RSIPropulsion"
+        }
+      ],
+      "jump_modules": [
+        {
+          "type": "jump_modules",
+          "name": "Jump Module",
+          "mounts": "1",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "TBD",
+          "component_class": "RSIPropulsion"
+        }
+      ],
+      "quantum_fuel_tanks": [
+        {
+          "type": "quantum_fuel_tanks",
+          "name": "Quantum Fuel Tank",
+          "mounts": "1",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": null,
+          "component_class": "RSIPropulsion"
+        }
+      ]
+    },
+    "RSIThruster": {
+      "main_thrusters": [
+        {
+          "type": "main_thrusters",
+          "name": "Retro Thruster",
+          "mounts": "2",
+          "component_size": "-",
+          "category": "R",
+          "size": "-",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": null,
+          "component_class": "RSIThruster"
+        },
+        {
+          "type": "main_thrusters",
+          "name": "Main Thruster",
+          "mounts": "1",
+          "component_size": "-",
+          "category": "M",
+          "size": "-",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": null,
+          "component_class": "RSIThruster"
+        }
+      ],
+      "maneuvering_thrusters": [
+        {
+          "type": "maneuvering_thrusters",
+          "name": "Gimbal Maneuvering Thruster",
+          "mounts": "8",
+          "component_size": "-",
+          "category": "G",
+          "size": "-",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": null,
+          "component_class": "RSIThruster"
+        }
+      ]
+    },
+    "RSIModular": {
+      "power_plants": [
+        {
+          "type": "power_plants",
+          "name": "ZapJet",
+          "mounts": "1",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "Lightning Power Ltd",
+          "component_class": "RSIModular"
+        }
+      ],
+      "coolers": [
+        {
+          "type": "coolers",
+          "name": "BlastChill",
+          "mounts": "2",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "Lightning Power Ltd",
+          "component_class": "RSIModular"
+        }
+      ],
+      "shield_generators": [
+        {
+          "type": "shield_generators",
+          "name": "INK",
+          "mounts": "2",
+          "component_size": "S",
+          "size": "S",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "Seal Corp.",
+          "component_class": "RSIModular"
+        }
+      ]
+    },
+    "RSIWeapon": {
+      "weapons": [
+        {
+          "type": "weapons",
+          "name": "9-Series Longsword Ballistic Cannon",
+          "mounts": "2",
+          "component_size": "1",
+          "size": "1",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": "KnightBridge Arms",
+          "component_class": "RSIWeapon"
+        },
+        {
+          "type": "weapons",
+          "name": null,
+          "mounts": "2",
+          "component_size": "-",
+          "size": "1",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": null,
+          "component_class": "RSIWeapon"
+        }
+      ],
+      "turrets": [],
+      "missiles": [
+        {
+          "type": "missiles",
+          "name": "TaskForce I",
+          "mounts": "1",
+          "component_size": "1",
+          "size": "2",
+          "details": "Behring MSD-221 Marsden",
+          "quantity": "2",
+          "manufacturer": "Thermyte Lightfire",
+          "component_class": "RSIWeapon"
+        }
+      ],
+      "utility_items": [
+        {
+          "type": "utility_items",
+          "name": null,
+          "mounts": "1",
+          "component_size": "-",
+          "size": "1",
+          "details": "",
+          "quantity": "1",
+          "manufacturer": null,
+          "component_class": "RSIWeapon"
+        }
+      ]
+    }
+  }
+}

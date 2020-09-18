@@ -67,7 +67,7 @@ class Kernel extends ConsoleKernel
     /**
      * @var Schedule
      */
-    private $schedule;
+    private Schedule $schedule;
 
     /**
      * Define the application's command schedule.
@@ -81,7 +81,11 @@ class Kernel extends ConsoleKernel
         $this->schedule = $schedule;
 
         $this->scheduleStatJobs();
-        $this->scheduleShipMatrixJobs();
+
+        if (config('schedule.ship_matrix.enabled')) {
+            $this->scheduleShipMatrixJobs();
+        }
+
         $this->scheduleCommLinkJobs();
     }
 
@@ -134,6 +138,15 @@ class Kernel extends ConsoleKernel
      */
     private function scheduleShipMatrixJobs(): void
     {
-        $this->schedule->command(DownloadShipMatrix::class, ['--import'])->twiceDaily();
+        $hours = config('schedule.ship_matrix.at', []);
+        // Ensure first and second key exists
+        $hours = array_merge([1, 13], $hours);
+
+        $this->schedule
+            ->command(DownloadShipMatrix::class, ['--import'])
+            ->twiceDaily(
+                $hours[0],
+                $hours[1],
+            );
     }
 }

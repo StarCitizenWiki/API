@@ -11,6 +11,7 @@ use App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\Vehicle\Type;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -51,14 +52,14 @@ class ParseVehicle implements ShouldQueue
     protected const TIME_MODIFIED_UNFILTERED = 'time_modified.unfiltered';
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
-    protected $rawData;
+    protected Collection $rawData;
 
     /**
      * Create a new job instance.
      *
-     * @param \Illuminate\Support\Collection $rawData
+     * @param Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
@@ -70,7 +71,7 @@ class ParseVehicle implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info(
             "Parsing Vehicle {$this->rawData->get(self::VEHICLE_NAME)}",
@@ -79,45 +80,22 @@ class ParseVehicle implements ShouldQueue
             ]
         );
 
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle */
-        $vehicle = Vehicle::query()->updateOrCreate(
-            [
-                'cig_id' => $this->getId(),
-            ],
-            [
-                'name' => $this->getName(),
-                'slug' => $this->getSlug(),
-                'manufacturer_id' => $this->getManufacturerId(),
-                'production_status_id' => $this->getProductionStatusId(),
-                'production_note_id' => $this->getProductionNoteId(),
-                'size_id' => $this->getSizeId(),
-                'type_id' => $this->getTypeId(),
-                'length' => $this->getLength(),
-                'beam' => $this->getBeam(),
-                'height' => $this->getHeight(),
-                'mass' => $this->getMass(),
-                'cargo_capacity' => $this->getCargoCapacity(),
-                'min_crew' => $this->getMinCrew(),
-                'max_crew' => $this->getMaxCrew(),
-                'scm_speed' => $this->getScmSpeed(),
-                'afterburner_speed' => $this->getAfterburnerSpeed(),
-                'pitch_max' => $this->getPitchMax(),
-                'yaw_max' => $this->getYawMax(),
-                'roll_max' => $this->getRollMax(),
-                'x_axis_acceleration' => $this->getXAxisAcceleration(),
-                'y_axis_acceleration' => $this->getYAxisAcceleration(),
-                'z_axis_acceleration' => $this->getZAxisAcceleration(),
-                'chassis_id' => $this->getChassisId(),
-                'updated_at' => $this->getUpdatedAt(),
-            ]
-        );
+        $data = $this->getData();
+        $where = [
+            'cig_id' => $data['id'],
+        ];
+
+        unset($data['id']);
+
+        /** @var Vehicle $vehicle */
+        $vehicle = Vehicle::query()->updateOrCreate($where, $data);
 
         $vehicle->translations()->updateOrCreate(
             [
                 'locale_code' => config('language.english'),
             ],
             [
-                'translation' => $this->getDescription(),
+                'translation' => strip_tags($this->rawData->get(self::VEHICLE_DESCRIPTION, '') ?? ''),
             ]
         );
 
@@ -125,11 +103,45 @@ class ParseVehicle implements ShouldQueue
     }
 
     /**
+     * @return array Parsed Vehicle Data
+     */
+    public function getData(): array
+    {
+        return             [
+            'id' => (int) $this->rawData->get(self::VEHICLE_ID),
+            'name' => $this->rawData->get(self::VEHICLE_NAME),
+            'slug' => Str::slug($this->rawData->get(self::VEHICLE_NAME)),
+            'manufacturer_id' => $this->getManufacturerId(),
+            'production_status_id' => $this->getProductionStatusId(),
+            'production_note_id' => $this->getProductionNoteId(),
+            'size_id' => $this->getSizeId(),
+            'type_id' => $this->getTypeId(),
+            'length' => $this->formatNum($this->rawData->get(self::VEHICLE_LENGTH)),
+            'beam' => $this->formatNum($this->rawData->get(self::VEHICLE_BEAM)),
+            'height' => $this->formatNum($this->rawData->get(self::VEHICLE_HEIGHT)),
+            'mass' => (int) $this->rawData->get(self::VEHICLE_MASS),
+            'cargo_capacity' => (int) $this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
+            'min_crew' => (int) $this->rawData->get(self::VEHICLE_MIN_CREW),
+            'max_crew' => (int) $this->rawData->get(self::VEHICLE_MAX_CREW),
+            'scm_speed' => (int) $this->rawData->get(self::VEHICLE_SCM_SPEED),
+            'afterburner_speed' => (int) $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
+            'pitch_max' => $this->formatNum($this->rawData->get(self::VEHICLE_PITCH_MAX)),
+            'yaw_max' => $this->formatNum($this->rawData->get(self::VEHICLE_YAW_MAX)),
+            'roll_max' => $this->formatNum($this->rawData->get(self::VEHICLE_ROLL_MAX)),
+            'x_axis_acceleration' => $this->formatNum($this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION)),
+            'y_axis_acceleration' => $this->formatNum($this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION)),
+            'z_axis_acceleration' => $this->formatNum($this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION)),
+            'chassis_id' => (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID),
+            'updated_at' => $this->rawData->get(self::TIME_MODIFIED_UNFILTERED),
+        ];
+    }
+
+    /**
      * Syncs Vehicle Foci IDs to the Model and generates a Changelog if the Focus has changed
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
+     * @param Vehicle $vehicle
      */
-    private function syncFociIds(Vehicle $vehicle)
+    private function syncFociIds(Vehicle $vehicle): void
     {
         $focus = new Focus($this->rawData);
 
@@ -174,22 +186,6 @@ class ParseVehicle implements ShouldQueue
     }
 
     /**
-     * @return string
-     */
-    private function getName(): string
-    {
-        return $this->rawData->get(self::VEHICLE_NAME);
-    }
-
-    /**
-     * @return string
-     */
-    private function getSlug(): string
-    {
-        return Str::slug($this->getName());
-    }
-
-    /**
      * @return int
      */
     private function getManufacturerId(): int
@@ -206,7 +202,15 @@ class ParseVehicle implements ShouldQueue
     {
         $productionStatus = new ProductionStatus($this->rawData);
 
-        return $productionStatus->getProductionStatus()->id;
+        try {
+            $id = $productionStatus->getProductionStatus()->id;
+        } catch (ModelNotFoundException $e) {
+            $this->fail('Could not get default Production Status. Was the database seeded?');
+
+            return 0; // Does not happen
+        }
+
+        return $id;
     }
 
     /**
@@ -216,7 +220,15 @@ class ParseVehicle implements ShouldQueue
     {
         $productionNote = new ProductionNote($this->rawData);
 
-        return $productionNote->getProductionNote()->id;
+        try {
+            $id = $productionNote->getProductionNote()->id;
+        } catch (ModelNotFoundException $e) {
+            $this->fail('Could not get default Production Node. Was the database seeded?');
+
+            return 0; // Does not happen
+        }
+
+        return $id;
     }
 
     /**
@@ -226,7 +238,15 @@ class ParseVehicle implements ShouldQueue
     {
         $size = new Size($this->rawData);
 
-        return $size->getVehicleSize()->id;
+        try {
+            $id = $size->getVehicleSize()->id;
+        } catch (ModelNotFoundException $e) {
+            $this->fail('Could not get default Vehicle Size. Was the database seeded?');
+
+            return 0; // Does not happen
+        }
+
+        return $id;
     }
 
     /**
@@ -236,158 +256,14 @@ class ParseVehicle implements ShouldQueue
     {
         $type = new Type($this->rawData);
 
-        return $type->getVehicleType()->id;
-    }
+        try {
+            $id = $type->getVehicleType()->id;
+        } catch (ModelNotFoundException $e) {
+            $this->fail('Could not get default Vehicle Type. Was the database seeded?');
 
-    /**
-     * @return string
-     */
-    private function getLength(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_LENGTH));
-    }
+            return 0; // Does not happen
+        }
 
-    /**
-     * @return string
-     */
-    private function getBeam(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_BEAM));
-    }
-
-    /**
-     * @return string
-     */
-    private function getHeight(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_HEIGHT));
-    }
-
-    /**
-     * @return int
-     */
-    private function getMass(): int
-    {
-        return (int) $this->rawData->get(self::VEHICLE_MASS);
-    }
-
-    /**
-     * @return int
-     */
-    private function getCargoCapacity(): int
-    {
-        return (int) $this->rawData->get(self::VEHICLE_CARGO_CAPACITY);
-    }
-
-    /**
-     * @return int
-     */
-    private function getMinCrew(): int
-    {
-        return (int) $this->rawData->get(self::VEHICLE_MIN_CREW);
-    }
-
-    /**
-     * @return int
-     */
-    private function getMaxCrew(): int
-    {
-        return (int) $this->rawData->get(self::VEHICLE_MAX_CREW);
-    }
-
-    /**
-     * @return int
-     */
-    private function getScmSpeed(): int
-    {
-        return (int) $this->rawData->get(self::VEHICLE_SCM_SPEED);
-    }
-
-    /**
-     * @return int
-     */
-    private function getAfterburnerSpeed(): int
-    {
-        return (int) $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED);
-    }
-
-    /**
-     * @return string
-     */
-    private function getPitchMax(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_PITCH_MAX));
-    }
-
-    /**
-     * @return string
-     */
-    private function getYawMax(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_YAW_MAX));
-    }
-
-    /**
-     * @return string
-     */
-    private function getRollMax(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_ROLL_MAX));
-    }
-
-    /**
-     * @return string
-     */
-    private function getXAxisAcceleration(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION));
-    }
-
-    /**
-     * @return string
-     */
-    private function getYAxisAcceleration(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION));
-    }
-
-    /**
-     * @return string
-     */
-    private function getZAxisAcceleration(): string
-    {
-        return $this->formatNum($this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION));
-    }
-
-    /**
-     * @return int
-     */
-    private function getChassisId(): int
-    {
-        return (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID);
-    }
-
-    /**
-     * @return string
-     */
-    private function getUpdatedAt(): string
-    {
-        return $this->rawData->get(self::TIME_MODIFIED_UNFILTERED);
-    }
-
-    /**
-     * @return int
-     */
-    private function getId(): int
-    {
-        return (int) $this->rawData->get(self::VEHICLE_ID);
-    }
-
-    /**
-     * @return string|null
-     */
-    private function getDescription()
-    {
-        return strip_tags($this->rawData->get(self::VEHICLE_DESCRIPTION, '') ?? '');
+        return $id;
     }
 }

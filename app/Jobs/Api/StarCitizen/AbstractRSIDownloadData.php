@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 06.08.2018
- * Time: 13:19
- */
 
 namespace App\Jobs\Api\StarCitizen;
 
@@ -20,9 +15,9 @@ abstract class AbstractRSIDownloadData extends BaseDownloadData
     /**
      * @param string $rawResponseBody
      *
-     * @return \stdClass
+     * @return stdClass
      *
-     * @throws \App\Exceptions\InvalidDataException
+     * @throws InvalidDataException
      */
     protected function parseResponseBody(string $rawResponseBody): stdClass
     {
@@ -30,7 +25,7 @@ abstract class AbstractRSIDownloadData extends BaseDownloadData
 
         if (($response->success ?? 0) !== 1) {
             throw new InvalidDataException(
-                sprintf('RSI data is not valid. Expected success = 1, got %i', $response->success ?? 0)
+                sprintf('RSI data is not valid. Expected success = 1, got %d', $response->success ?? 0)
             );
         }
 

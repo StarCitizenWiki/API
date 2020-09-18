@@ -5,8 +5,12 @@ namespace App\Providers;
 use App\Events\ModelUpdating;
 use App\Events\Rsi\CommLink\CommLinksChanged;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
+use App\Events\StarCitizen\ShipMatrix\ShipMatrixStructureChanged;
+use App\Listeners\LogSuccessfulLogin;
 use App\Listeners\Rsi\CommLink\SendCommLinksChangedNotification;
 use App\Listeners\Rsi\CommLink\SendNewCommLinksDownloadedNotification;
+use App\Listeners\StarCitizen\ShipMatrix\SendShipMatrixStructureChangedNotification;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 /**
@@ -20,8 +24,8 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'Illuminate\Auth\Events\Login' => [
-            'App\Listeners\LogSuccessfulLogin',
+        Login::class => [
+            LogSuccessfulLogin::class,
         ],
         ModelUpdating::class => [
             \App\Listeners\ModelUpdating::class,
@@ -35,6 +39,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         CommLinksChanged::class => [
             SendCommLinksChangedNotification::class,
+        ],
+
+        ShipMatrixStructureChanged::class => [
+            SendShipMatrixStructureChangedNotification::class,
         ],
     ];
 }
