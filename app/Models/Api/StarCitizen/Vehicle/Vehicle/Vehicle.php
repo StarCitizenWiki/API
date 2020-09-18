@@ -65,6 +65,29 @@ class Vehicle extends HasTranslations
         'pivot',
     ];
 
+    protected $casts = [
+        'cig_id' => 'integer',
+        'chassis_id' => 'integer',
+        'scm_speed' => 'integer',
+        'afterburner_speed' => 'integer',
+        'mass' => 'integer',
+        'cargo_capacity' => 'integer',
+        'min_crew' => 'integer',
+        'max_crew' => 'integer',
+
+        'length' => 'float',
+        'beam' => 'float',
+        'height' => 'float',
+        'pitch_max' => 'float',
+        'yaw_max' => 'float',
+        'roll_max' => 'float',
+        'x_axis_acceleration' => 'float',
+        'y_axis_acceleration' => 'float',
+        'z_axis_acceleration' => 'float',
+
+        'updated_at' => 'datetime',
+    ];
+
     protected $perPage = 5;
 
     protected $dispatchesEvents = [
