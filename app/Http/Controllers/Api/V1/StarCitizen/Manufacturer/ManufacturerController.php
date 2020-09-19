@@ -69,7 +69,7 @@ class ManufacturerController extends ApiController
      */
     public function search(Request $request): Response
     {
-        $rules = (new ManufacturerSearchRequest())->va->rules();
+        $rules = (new ManufacturerSearchRequest())->rules();
         $request->validate($rules);
 
         $query = $request->get('query');
