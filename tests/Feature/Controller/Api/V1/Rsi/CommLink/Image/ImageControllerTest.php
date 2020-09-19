@@ -6,6 +6,7 @@ use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link\Link;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Tests\Feature\Controller\Api\ApiTestCase;
 
 /**
@@ -62,7 +63,7 @@ class ImageControllerTest extends ApiTestCase
     ];
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
     private $commLinks;
 
@@ -73,7 +74,7 @@ class ImageControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexAll(int $allCount = 0)
+    public function testIndexAll(int $allCount = 0): void
     {
         self::markTestSkipped('Not implemented.');
     }
@@ -81,7 +82,7 @@ class ImageControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 5)
+    public function testIndexPaginatedCustom(int $limit = 5): void
     {
         self::markTestSkipped('Not implemented.');
     }
@@ -89,7 +90,7 @@ class ImageControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedDefault(int $limit = 5)
+    public function testIndexPaginatedDefault(int $limit = 5): void
     {
         self::markTestSkipped('Not implemented.');
     }
@@ -97,7 +98,7 @@ class ImageControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         self::markTestSkipped('Not implemented.');
     }

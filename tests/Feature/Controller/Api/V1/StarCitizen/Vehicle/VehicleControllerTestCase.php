@@ -30,7 +30,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 2)
+    public function testIndexPaginatedCustom(int $limit = 2): void
     {
         parent::testIndexPaginatedCustom($limit);
     }
@@ -38,7 +38,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         parent::testIndexInvalidLimit($limit);
     }
@@ -53,7 +53,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testShow(string $name)
+    public function testShow(string $name): void
     {
         $this->makeVehicleWithName($name);
         parent::testShow($name);
@@ -84,7 +84,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testShowMultipleTranslations(string $name)
+    public function testShowMultipleTranslations(string $name): void
     {
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
@@ -97,7 +97,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testShowLocaleGerman(string $name)
+    public function testShowLocaleGerman(string $name): void
     {
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
@@ -115,7 +115,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testShowLocaleInvalid(string $name)
+    public function testShowLocaleInvalid(string $name): void
     {
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
@@ -128,7 +128,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testSearch(string $name)
+    public function testSearch(string $name): void
     {
         $this->makeVehicleWithName($name);
 
@@ -140,7 +140,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testSearchWithGermanTranslation(string $name)
+    public function testSearchWithGermanTranslation(string $name): void
     {
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());

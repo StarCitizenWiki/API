@@ -53,7 +53,7 @@ class ApiTestCase extends TestCase
     /**
      * Test Index with default Pagination
      */
-    public function testIndexPaginatedDefault()
+    public function testIndexPaginatedDefault(): void
     {
         $response = $this->get(static::BASE_API_ENDPOINT);
 
@@ -74,7 +74,7 @@ class ApiTestCase extends TestCase
      *
      * @param int $allCount Count of Resources in DB
      */
-    public function testIndexAll(int $allCount)
+    public function testIndexAll(int $allCount): void
     {
         $response = $this->get(
             sprintf(

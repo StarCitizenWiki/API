@@ -4,6 +4,7 @@ namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink\Series;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Series\Series;
+use Illuminate\Support\Collection;
 use Tests\Feature\Controller\Api\ApiTestCase;
 
 /**
@@ -37,12 +38,12 @@ class SeriesControllerTest extends ApiTestCase
     ];
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
     private $series;
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
     private $commLinks;
 
@@ -53,7 +54,7 @@ class SeriesControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexAll(int $allCount = 0)
+    public function testIndexAll(int $allCount = 0): void
     {
         parent::testIndexAll(Series::count());
     }
@@ -61,7 +62,7 @@ class SeriesControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 5)
+    public function testIndexPaginatedCustom(int $limit = 5): void
     {
         parent::testIndexPaginatedCustom($limit);
     }
@@ -69,7 +70,7 @@ class SeriesControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         parent::testIndexInvalidLimit($limit);
     }
@@ -82,7 +83,7 @@ class SeriesControllerTest extends ApiTestCase
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\Series\SeriesController::show
      */
-    public function testShow()
+    public function testShow(): void
     {
         $response = $this->get(
             sprintf(
@@ -120,7 +121,7 @@ class SeriesControllerTest extends ApiTestCase
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\Series\SeriesController::show
      */
-    public function testShowNotFound()
+    public function testShowNotFound(): void
     {
         $response = $this->get(
             sprintf(

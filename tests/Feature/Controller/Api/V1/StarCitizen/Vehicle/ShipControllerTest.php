@@ -83,7 +83,7 @@ class ShipControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexAll(int $allCount = 0)
+    public function testIndexAll(int $allCount = 0): void
     {
         parent::testIndexAll(Ship::count());
     }
@@ -91,7 +91,7 @@ class ShipControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 2)
+    public function testIndexPaginatedCustom(int $limit = 2): void
     {
         parent::testIndexPaginatedCustom($limit);
     }
@@ -99,7 +99,7 @@ class ShipControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         parent::testIndexInvalidLimit($limit);
     }
@@ -114,7 +114,7 @@ class ShipControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
      */
-    public function testShow(string $name = '300i')
+    public function testShow(string $name = '300i'): void
     {
         parent::testShow($name);
     }
@@ -124,7 +124,7 @@ class ShipControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
      */
-    public function testShowMultipleTranslations(string $name = 'Orion')
+    public function testShowMultipleTranslations(string $name = 'Orion'): void
     {
         parent::testShowMultipleTranslations($name);
     }
@@ -134,7 +134,7 @@ class ShipControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
      */
-    public function testShowLocaleGerman(string $name = '100i')
+    public function testShowLocaleGerman(string $name = '100i'): void
     {
         parent::testShowLocaleGerman($name);
     }
@@ -144,7 +144,7 @@ class ShipControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
      */
-    public function testShowLocaleInvalid(string $name = 'Aurora CL')
+    public function testShowLocaleInvalid(string $name = 'Aurora CL'): void
     {
         parent::testShowLocaleInvalid($name);
     }
@@ -154,7 +154,7 @@ class ShipControllerTest extends VehicleControllerTestCase
      * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\ComponentTransformer
      * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle::components
      */
-    public function testShowIncludeComponents()
+    public function testShowIncludeComponents(): void
     {
         $vehicle = $this->makeVehicleWithName('UberVehicle');
         $vehicle->components()->saveMany(factory(Component::class, 20)->make());
@@ -205,8 +205,9 @@ class ShipControllerTest extends VehicleControllerTestCase
      * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::search
+     * @covers \App\Http\Requests\StarCitizen\Vehicle\ShipSearchRequest
      */
-    public function testSearch(string $name = 'Hammerhead')
+    public function testSearch(string $name = 'Hammerhead'): void
     {
         parent::testSearch($name);
     }
@@ -215,8 +216,9 @@ class ShipControllerTest extends VehicleControllerTestCase
      * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::search
+     * @covers \App\Http\Requests\StarCitizen\Vehicle\ShipSearchRequest
      */
-    public function testSearchWithGermanTranslation(string $name = 'Merchantman')
+    public function testSearchWithGermanTranslation(string $name = 'Merchantman'): void
     {
         parent::testSearch($name);
     }

@@ -71,7 +71,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexAll(int $allCount = 0)
+    public function testIndexAll(int $allCount = 0): void
     {
         parent::testIndexAll(GroundVehicle::count());
     }
@@ -79,7 +79,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 5)
+    public function testIndexPaginatedCustom(int $limit = 5): void
     {
         parent::testIndexPaginatedCustom($limit);
     }
@@ -87,7 +87,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         parent::testIndexInvalidLimit($limit);
     }
@@ -102,7 +102,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
-    public function testShow(string $name = 'Cyclone')
+    public function testShow(string $name = 'Cyclone'): void
     {
         parent::testShow($name);
     }
@@ -112,7 +112,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
-    public function testShowMultipleTranslations(string $name = 'Cyclone TR')
+    public function testShowMultipleTranslations(string $name = 'Cyclone TR'): void
     {
         parent::testShowMultipleTranslations($name);
     }
@@ -122,7 +122,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
-    public function testShowLocaleGerman(string $name = 'Nova Tank')
+    public function testShowLocaleGerman(string $name = 'Nova Tank'): void
     {
         parent::testShowLocaleGerman($name);
     }
@@ -132,7 +132,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
      */
-    public function testShowLocaleInvalid(string $name = 'Ursa Rover')
+    public function testShowLocaleInvalid(string $name = 'Ursa Rover'): void
     {
         parent::testShowLocaleInvalid($name);
     }
@@ -146,8 +146,9 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
      * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::search
+     * @covers \App\Http\Requests\StarCitizen\Vehicle\GroundVehicleSearchRequest
      */
-    public function testSearch(string $name = 'Tonk')
+    public function testSearch(string $name = 'Tonk'): void
     {
         parent::testSearch($name);
     }
@@ -156,8 +157,9 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
      * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::search
+     * @covers \App\Http\Requests\StarCitizen\Vehicle\GroundVehicleSearchRequest
      */
-    public function testSearchWithGermanTranslation(string $name = 'Tonk2')
+    public function testSearchWithGermanTranslation(string $name = 'Tonk2'): void
     {
         parent::testSearch($name);
     }

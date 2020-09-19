@@ -58,7 +58,7 @@ class CommLinkSearchControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexAll(int $allCount = 0)
+    public function testIndexAll(int $allCount = 0): void
     {
         self::markTestSkipped();
     }
@@ -66,7 +66,7 @@ class CommLinkSearchControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 5)
+    public function testIndexPaginatedCustom(int $limit = 5): void
     {
         self::markTestSkipped();
     }
@@ -74,7 +74,7 @@ class CommLinkSearchControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         self::markTestSkipped();
     }
