@@ -100,7 +100,8 @@ jobs:
         env:
           DB_CONNECTION: 'mysql'
           DB_DATABASE: 'scw__api'
-          DB_HOST: 'mysql'
+          DB_PORT: 33306
+          #DB_HOST: 'mysql'
           DB_USERNAME: 'scw__api'
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: touch database/db.sqlite; php artisan migrate
@@ -108,7 +109,8 @@ jobs:
         env:
           DB_CONNECTION: 'mysql'
           DB_DATABASE: 'scw__api'
-          DB_HOST: 'mysql'
+          DB_PORT: 33306
+          #DB_HOST: 'mysql'
           DB_USERNAME: 'scw__api'
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: vendor/phpunit/phpunit/phpunit
