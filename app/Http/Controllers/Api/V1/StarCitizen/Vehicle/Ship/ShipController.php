@@ -1,13 +1,14 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
+use App\Http\Requests\StarCitizen\Vehicle\ShipSearchRequest;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Dingo\Api\Contract\Http\Request;
 
 /**
  * Raumschiff API
@@ -66,11 +67,17 @@ class ShipController extends ApiController
      *
      * @return Response
      */
-    public function search(): Response
+    public function search(Request $request): Response
     {
-        $query = $this->request->get('query', '');
+        $rules = (new ShipSearchRequest())->rules();
+
+        $request->validate($rules);
+
+        $query = $request->get('query', '');
         $query = urldecode($query);
-        $queryBuilder = Ship::query()->where('name', 'like', "%{$query}%")->orWhere('slug', 'like', "%{$query}%");
+        $queryBuilder = Ship::query()
+            ->where('name', 'like', "%{$query}%")
+            ->orWhere('slug', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
