@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
+use App\Models\Api\StarCitizen\Vehicle\Component\Component;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle\VehicleControllerTestCase;
 
@@ -147,6 +148,53 @@ class ShipControllerTest extends VehicleControllerTestCase
     public function testShowLocaleInvalid(string $name = 'Aurora CL')
     {
         parent::testShowLocaleInvalid($name);
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\ComponentTransformer
+     * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle::components
+     */
+    public function testShowIncludeComponents()
+    {
+        $vehicle = $this->makeVehicleWithName('UberVehicle');
+        $vehicle->components()->saveMany(factory(Component::class, 20)->make());
+
+        $response = $this->get(
+            sprintf(
+                '%s/%s?include=components',
+                static::BASE_API_ENDPOINT,
+                urlencode('UberVehicle'),
+            )
+        );
+
+        $structure = $this->structure;
+        $structure['components'] = [
+            'data' => [
+                '*' => [
+                    'type',
+                    'name',
+                    'mounts',
+                    'component_size',
+                    'category',
+                    'size',
+                    'details',
+                    'quantity',
+                    'manufacturer',
+                    'component_class',
+                ]
+            ],
+        ];
+
+        $response->assertOk()
+            ->assertSee('UberVehicle')
+            ->assertJsonStructure(
+                [
+                    'data' => $structure,
+                    'meta',
+                ]
+            )
+            ->assertJsonCount($vehicle->components->count(), 'data.components.data');
     }
 
 

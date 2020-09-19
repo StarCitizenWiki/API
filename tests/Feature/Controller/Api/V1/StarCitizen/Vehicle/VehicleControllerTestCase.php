@@ -149,9 +149,9 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Name
      *
-     * @return mixed
+     * @return Vehicle
      */
-    private function makeVehicleWithName(string $name)
+    protected function makeVehicleWithName(string $name): Vehicle
     {
         $vehicle = factory(Vehicle::class)->state(static::DEFAULT_VEHICLE_TYPE)->create(
             [

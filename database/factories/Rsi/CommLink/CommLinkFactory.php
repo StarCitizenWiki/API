@@ -1,15 +1,24 @@
 <?php declare(strict_types = 1);
 
+use App\Models\Rsi\CommLink\Category\Category;
+use App\Models\Rsi\CommLink\Channel\Channel;
+use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\CommLinkTranslation;
+use App\Models\Rsi\CommLink\Image\Image;
+use App\Models\Rsi\CommLink\Link\Link;
+use App\Models\Rsi\CommLink\Series\Series;
+use Carbon\Carbon;
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
 $factory->define(
-    \App\Models\Rsi\CommLink\CommLink::class,
+    CommLink::class,
     function (Faker $faker) {
         static $cigId = 12663;
 
-        $channel = factory(\App\Models\Rsi\CommLink\Channel\Channel::class)->create();
-        $category = factory(\App\Models\Rsi\CommLink\Category\Category::class)->create();
-        $series = factory(\App\Models\Rsi\CommLink\Series\Series::class)->create();
+        $channel = factory(Channel::class)->create();
+        $category = factory(Category::class)->create();
+        $series = factory(Series::class)->create();
 
         return [
             'cig_id' => $cigId++,
@@ -18,20 +27,20 @@ $factory->define(
             'comment_count' => $faker->numberBetween(0, 2000),
             'url' => $faker->boolean() ? '/comm-link/SCW/'.$cigId.'-IMPORT' : null,
 
-            'file' => \Carbon\Carbon::now()->format('Y-m-d_His').'.html',
+            'file' => Carbon::now()->format('Y-m-d_His').'.html',
 
             'channel_id' => $channel->id,
             'category_id' => $category->id,
             'series_id' => $series->id,
 
-            'created_at' => \Carbon\Carbon::now(),
-            'updated_at' => \Carbon\Carbon::now(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 );
 
 $factory->define(
-    \App\Models\Rsi\CommLink\CommLinkTranslation::class,
+    CommLinkTranslation::class,
     function (Faker $faker) {
         return [
             'locale_code' => 'en_EN',
@@ -41,7 +50,7 @@ $factory->define(
 );
 
 $factory->state(
-    \App\Models\Rsi\CommLink\CommLinkTranslation::class,
+    CommLinkTranslation::class,
     'german',
     function (Faker $faker) {
         return [
@@ -55,7 +64,7 @@ $factory->state(
  * Category, Channel, Series, Images, Links
  */
 $factory->define(
-    \App\Models\Rsi\CommLink\Channel\Channel::class,
+    Channel::class,
     function (Faker $faker) {
         $slug = $faker->slug;
         $name = ucwords(str_replace('-', ' ', $slug));
@@ -63,14 +72,14 @@ $factory->define(
         return [
             'name' => $name,
             'slug' => $slug,
-            'created_at' => \Carbon\Carbon::now(),
-            'updated_at' => \Carbon\Carbon::now(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 );
 
 $factory->define(
-    \App\Models\Rsi\CommLink\Category\Category::class,
+    Category::class,
     function (Faker $faker) {
         $slug = $faker->slug;
         $name = ucwords(str_replace('-', ' ', $slug));
@@ -78,14 +87,14 @@ $factory->define(
         return [
             'name' => $name,
             'slug' => $slug,
-            'created_at' => \Carbon\Carbon::now(),
-            'updated_at' => \Carbon\Carbon::now(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 );
 
 $factory->define(
-    \App\Models\Rsi\CommLink\Series\Series::class,
+    Series::class,
     function (Faker $faker) {
         $slug = $faker->slug;
         $name = ucwords(str_replace('-', ' ', $slug));
@@ -93,29 +102,29 @@ $factory->define(
         return [
             'name' => $name,
             'slug' => $slug,
-            'created_at' => \Carbon\Carbon::now(),
-            'updated_at' => \Carbon\Carbon::now(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 );
 
 $factory->define(
-    \App\Models\Rsi\CommLink\Link\Link::class,
+    Link::class,
     function (Faker $faker) {
         return [
             'href' => $faker->url,
-            'text' => $faker->boolean() ? 'Lorem Ipsum' : null,
-            'created_at' => \Carbon\Carbon::now(),
-            'updated_at' => \Carbon\Carbon::now(),
+            'text' => $faker->boolean() ? $faker->text($faker->numberBetween(10, 100)) : '',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 );
 
 $factory->define(
-    \App\Models\Rsi\CommLink\Image\Image::class,
+    Image::class,
     function (Faker $faker) {
-        $dir = \Illuminate\Support\Str::random(14);
-        $fileName = \Illuminate\Support\Str::random(4);
+        $dir = Str::random(14);
+        $fileName = Str::random(4);
 
         $file = sprintf('/media/%s/source/%s.jpg', $dir, $fileName);
 
@@ -124,8 +133,8 @@ $factory->define(
             'alt' => $faker->boolean() ? 'Lorem Ipsum' : '',
             'local' => false,
             'dir' => $dir,
-            'created_at' => \Carbon\Carbon::now(),
-            'updated_at' => \Carbon\Carbon::now(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 );
