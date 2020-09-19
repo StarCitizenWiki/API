@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
@@ -60,6 +60,26 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     }
 
     /**
+     * Creates a Vehicle with specified Name and default translation
+     *
+     * @param string $name The Name
+     *
+     * @return Vehicle
+     */
+    protected function makeVehicleWithName(string $name): Vehicle
+    {
+        $vehicle = factory(Vehicle::class)->state(static::DEFAULT_VEHICLE_TYPE)->create(
+            [
+                'name' => $name,
+                'slug' => Str::slug($name),
+            ]
+        );
+        $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
+
+        return $vehicle;
+    }
+
+    /**
      * Test Show Specific Vehicle with multiple Translations
      *
      * @param string $name The Vehicle Name
@@ -85,6 +105,11 @@ class VehicleControllerTestCase extends StarCitizenTestCase
         parent::testShowLocaleGerman($name);
     }
 
+
+    /**
+     * Search Method Tests
+     */
+
     /**
      * Test Show Specific Vehicle with invalid Locale Code
      *
@@ -97,11 +122,6 @@ class VehicleControllerTestCase extends StarCitizenTestCase
 
         parent::testShowLocaleGerman($name);
     }
-
-
-    /**
-     * Search Method Tests
-     */
 
     /**
      * Test Search for specific Vehicle
@@ -128,7 +148,6 @@ class VehicleControllerTestCase extends StarCitizenTestCase
         parent::testSearch($name);
     }
 
-
     /**
      * Setup Vehicles
      */
@@ -142,25 +161,5 @@ class VehicleControllerTestCase extends StarCitizenTestCase
                 $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
             }
         );
-    }
-
-    /**
-     * Creates a Vehicle with specified Name and default translation
-     *
-     * @param string $name The Name
-     *
-     * @return Vehicle
-     */
-    protected function makeVehicleWithName(string $name): Vehicle
-    {
-        $vehicle = factory(Vehicle::class)->state(static::DEFAULT_VEHICLE_TYPE)->create(
-            [
-                'name' => $name,
-                'slug' => Str::slug($name),
-            ]
-        );
-        $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
-
-        return $vehicle;
     }
 }

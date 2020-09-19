@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Image;
 

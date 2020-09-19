@@ -1,8 +1,7 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
-use App\Http\Controllers\Api\AbstractApiController;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
@@ -87,6 +86,24 @@ class ManufacturerControllerTest extends StarCitizenTestCase
         parent::testShow($name);
     }
 
+    /**
+     * Creates a Manufacturer with specified Name and default translation
+     *
+     * @param string $name The Name
+     *
+     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
+     */
+    private function makeManufacturerWithName(string $name)
+    {
+        $manufacturer = factory(Manufacturer::class)->create(
+            [
+                'name' => $name,
+            ]
+        );
+        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+
+        return $manufacturer;
+    }
 
     /**
      * {@inheritdoc}
@@ -114,6 +131,11 @@ class ManufacturerControllerTest extends StarCitizenTestCase
         parent::testShowLocaleGerman($name);
     }
 
+
+    /**
+     * Search Method Tests
+     */
+
     /**
      * {@inheritdoc}
      *
@@ -126,11 +148,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
 
         parent::testShowLocaleInvalid($name);
     }
-
-
-    /**
-     * Search Method Tests
-     */
 
     /**
      * {@inheritdoc}
@@ -156,7 +173,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
 
         parent::testSearchWithGermanTranslation($name);
     }
-
 
     /**
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
@@ -260,7 +276,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
             ->assertHeader('etag');
     }
 
-
     /**
      * Setup Vehicles
      */
@@ -274,24 +289,5 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                 $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
             }
         );
-    }
-
-    /**
-     * Creates a Manufacturer with specified Name and default translation
-     *
-     * @param string $name The Name
-     *
-     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
-     */
-    private function makeManufacturerWithName(string $name)
-    {
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name' => $name,
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
-
-        return $manufacturer;
     }
 }

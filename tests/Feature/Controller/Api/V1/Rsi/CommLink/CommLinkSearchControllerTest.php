@@ -1,9 +1,8 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\Image\Image;
 use Tests\Feature\Controller\Api\ApiTestCase;
 
 /**

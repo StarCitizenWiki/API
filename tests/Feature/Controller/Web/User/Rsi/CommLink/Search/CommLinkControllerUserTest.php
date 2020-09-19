@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Search;
 
@@ -21,11 +21,10 @@ use Dingo\Api\Http\Response;
  */
 class CommLinkControllerUserTest extends CommLinkSearchControllerTestCase
 {
-    protected $searchData;
-
     protected const RESPONSE_STATUSES = [
         'search' => \Illuminate\Http\Response::HTTP_OK,
     ];
+    protected $searchData;
 
     /**
      * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkSearchController::searchByTitle
@@ -47,9 +46,12 @@ class CommLinkControllerUserTest extends CommLinkSearchControllerTestCase
             )
         );
 
-        $response = $this->actingAs($this->user)->post(route('web.user.rsi.comm-links.search-by-title.post'), [
-            'keyword' => 'Example',
-        ]);
+        $response = $this->actingAs($this->user)->post(
+            route('web.user.rsi.comm-links.search-by-title.post'),
+            [
+                'keyword' => 'Example',
+            ]
+        );
 
         $response->assertStatus(static::RESPONSE_STATUSES['search']);
 
@@ -71,6 +73,7 @@ class CommLinkControllerUserTest extends CommLinkSearchControllerTestCase
             $response->assertViewIs('user.rsi.comm_links.search');
         }
     }
+
     /**
      * {@inheritdoc}
      * Adds the specific group to the Admin model

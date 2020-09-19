@@ -177,34 +177,41 @@ class ImageControllerTest extends ApiTestCase
         $commLink = CommLink::query()->first();
 
         /** @var Image $image */
-        $image = $commLink->images()->create([
-            'src' => '/none/none.jpg',
-            'alt' => 'none',
-            'dir' => 'none',
-        ]);
+        $image = $commLink->images()->create(
+            [
+                'src' => '/none/none.jpg',
+                'alt' => 'none',
+                'dir' => 'none',
+            ]
+        );
 
-        $image->metadata()->create([
-            'size' => 16831,
-            'mime' => 'image/jpeg',
-            'last_modified' => '2013-07-19 05:30:44',
-        ]);
+        $image->metadata()->create(
+            [
+                'size' => 16831,
+                'mime' => 'image/jpeg',
+                'last_modified' => '2013-07-19 05:30:44',
+            ]
+        );
 
         // Known hashes for the file
-        $image->hash()->create([
-            'perceptual_hash' => '035fa9d1fe3d6a1e',
-            'p_hash_1' => hexdec(str_split('035fa9d1fe3d6a1e', 8)[0]),
-            'p_hash_2' => hexdec(str_split('035fa9d1fe3d6a1e', 8)[1]),
+        $image->hash()->create(
+            [
+                'perceptual_hash' => '035fa9d1fe3d6a1e',
+                'p_hash_1' => hexdec(str_split('035fa9d1fe3d6a1e', 8)[0]),
+                'p_hash_2' => hexdec(str_split('035fa9d1fe3d6a1e', 8)[1]),
 
-            'difference_hash' => 'ccc4842666465417',
-            'd_hash_1' => 0,
-            'd_hash_2' => 0,
+                'difference_hash' => 'ccc4842666465417',
+                'd_hash_1' => 0,
+                'd_hash_2' => 0,
 
-            'average_hash' => '01091d7f5d1d185f',
-            'a_hash_1' => 0,
-            'a_hash_2' => 0,
-        ]);
+                'average_hash' => '01091d7f5d1d185f',
+                'a_hash_1' => 0,
+                'a_hash_2' => 0,
+            ]
+        );
 
-        $response = $this->json('post',
+        $response = $this->json(
+            'post',
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
@@ -220,21 +227,23 @@ class ImageControllerTest extends ApiTestCase
         );
 
         $response->assertOk()
-            ->assertJsonStructure([
-                'data' => [
-                     [
-                        'rsi_url',
-                        'api_url',
-                        'alt',
-                        'size',
-                        'mime_type',
-                        'last_modified',
-                        'similarity',
-                        'hashes',
-                        'commLinks'
-                    ]
-                ],
-            ]);
+            ->assertJsonStructure(
+                [
+                    'data' => [
+                        [
+                            'rsi_url',
+                            'api_url',
+                            'alt',
+                            'size',
+                            'mime_type',
+                            'last_modified',
+                            'similarity',
+                            'hashes',
+                            'commLinks',
+                        ],
+                    ],
+                ]
+            );
     }
 
     /**
@@ -243,7 +252,8 @@ class ImageControllerTest extends ApiTestCase
      */
     public function testSearchImageMissing(): void
     {
-        $response = $this->json('post',
+        $response = $this->json(
+            'post',
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => '',
@@ -261,7 +271,8 @@ class ImageControllerTest extends ApiTestCase
      */
     public function testSearchInvalidMethod(): void
     {
-        $response = $this->json('post',
+        $response = $this->json(
+            'post',
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
@@ -286,7 +297,8 @@ class ImageControllerTest extends ApiTestCase
      */
     public function testSearchInvalidNegativeSimilarity(): void
     {
-        $response = $this->json('post',
+        $response = $this->json(
+            'post',
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
@@ -310,7 +322,8 @@ class ImageControllerTest extends ApiTestCase
      */
     public function testSearchInvalidSimilarity(): void
     {
-        $response = $this->json('post',
+        $response = $this->json(
+            'post',
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
@@ -335,7 +348,8 @@ class ImageControllerTest extends ApiTestCase
      */
     public function testSearchNonNumericSimilarity(): void
     {
-        $response = $this->json('post',
+        $response = $this->json(
+            'post',
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(

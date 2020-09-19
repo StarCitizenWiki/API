@@ -1,13 +1,10 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Image;
 
-use App\Http\Controllers\Web\User\Rsi\CommLink\Series\SeriesController;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\Rsi\CommLink\Image\Image;
-use App\Models\Rsi\CommLink\Series\Series;
-use Dingo\Api\Dispatcher;
+use App\Models\Rsi\CommLink\Link\Link;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\Feature\Controller\Web\User\UserTestCase;
@@ -48,7 +45,7 @@ class ImageControllerTestCase extends UserTestCase
         $this->commLinks->each(
             function (CommLink $commLink) {
                 $commLink->images()->saveMany(factory(Image::class, 3)->make());
-                $commLink->links()->saveMany(factory(Image::class, 3)->make());
+                $commLink->links()->saveMany(factory(Link::class, 3)->make());
             }
         );
     }

@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * User: Keonie
  * Date: 09.09.2018 17:36

@@ -1,10 +1,9 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\Api\StarCitizen\Vehicle\Component\Component;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle\VehicleControllerTestCase;
 
 /**
  * {@inheritdoc}
@@ -182,7 +181,7 @@ class ShipControllerTest extends VehicleControllerTestCase
                     'quantity',
                     'manufacturer',
                     'component_class',
-                ]
+                ],
             ],
         ];
 

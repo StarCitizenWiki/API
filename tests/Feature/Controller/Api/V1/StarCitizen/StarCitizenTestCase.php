@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
@@ -58,7 +58,8 @@ class StarCitizenTestCase extends ApiTestCase
                 sprintf(
                     AbstractApiController::NOT_FOUND_STRING,
                     static::NOT_EXISTENT_NAME
-                ), false
+                ),
+                false
             )
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit');
