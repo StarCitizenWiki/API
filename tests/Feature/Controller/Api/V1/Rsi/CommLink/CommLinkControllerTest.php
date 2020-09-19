@@ -4,6 +4,8 @@ namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Models\Rsi\CommLink\Link\Link;
+use Illuminate\Support\Collection;
 use Tests\Feature\Controller\Api\ApiTestCase;
 
 /**
@@ -48,7 +50,7 @@ class CommLinkControllerTest extends ApiTestCase
     ];
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
     private $commLinks;
 
@@ -123,7 +125,7 @@ class CommLinkControllerTest extends ApiTestCase
         $this->commLinks->each(
             function (CommLink $commLink) {
                 $commLink->images()->saveMany(factory(Image::class, 3)->make());
-                $commLink->links()->saveMany(factory(Image::class, 3)->make());
+                $commLink->links()->saveMany(factory(Link::class, 3)->make());
             }
         );
 
