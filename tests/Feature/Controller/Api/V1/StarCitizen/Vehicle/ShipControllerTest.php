@@ -157,7 +157,15 @@ class ShipControllerTest extends VehicleControllerTestCase
     public function testShowIncludeComponents(): void
     {
         $vehicle = $this->makeVehicleWithName('UberVehicle');
-        $vehicle->components()->saveMany(factory(Component::class, 20)->make());
+        $vehicle->components()->saveMany(
+            factory(Component::class, 20)->make(),
+            [
+                'size' => 1,
+                'details' => '',
+                'quantity' => 1,
+                'mounts' => 2,
+            ]
+        );
 
         $response = $this->get(
             sprintf(

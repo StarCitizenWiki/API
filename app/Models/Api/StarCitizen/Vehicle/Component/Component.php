@@ -21,12 +21,8 @@ class Component extends Model
     protected $fillable = [
         'type',
         'name',
-        'mounts',
         'component_size',
         'category',
-        'size',
-        'details',
-        'quantity',
         'manufacturer',
         'component_class',
     ];

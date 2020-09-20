@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
@@ -101,7 +101,7 @@ class ParseVehicle implements ShouldQueue
         );
 
         $this->syncFociIds($vehicle);
-        $this->syncComponentIds($vehicle);
+        $this->syncComponents($vehicle);
     }
 
     /**
@@ -109,7 +109,7 @@ class ParseVehicle implements ShouldQueue
      */
     public function getData(): array
     {
-        return             [
+        return [
             'id' => (int) $this->rawData->get(self::VEHICLE_ID),
             'name' => $this->rawData->get(self::VEHICLE_NAME),
             'slug' => Str::slug($this->rawData->get(self::VEHICLE_NAME)),
@@ -152,24 +152,20 @@ class ParseVehicle implements ShouldQueue
         $fociIDs = $focus->getVehicleFociIDs();
 
         if (!$vehicle->wasRecentlyCreated && count($fociIDsOld->diff($fociIDs)) > 0) {
-            $changes = [
-                'foci' => [
-                    'old' => $fociIDsOld,
-                    'new' => $fociIDs,
-                ],
-            ];
-
             $vehicle->changelogs()->create(
                 [
                     'type' => 'update',
                     'user_id' => 0,
                     'changelog' => [
-                        'changes' => $changes,
+                        'changes' => [
+                            'foci' => [
+                                'old' => $fociIDsOld,
+                                'new' => $fociIDs,
+                            ],
+                        ],
                     ],
                 ]
             );
-
-            app('Log')::debug('Updated ship_vehicle_focus', $changes);
         }
 
         $vehicle->foci()->sync($fociIDs);
@@ -180,33 +176,40 @@ class ParseVehicle implements ShouldQueue
      *
      * @param Vehicle $vehicle
      */
-    private function syncComponentIds(Vehicle $vehicle): void
+    private function syncComponents(Vehicle $vehicle): void
     {
         $component = new Component($this->rawData);
 
         /** @var \Illuminate\Database\Eloquent\Collection $componentIDsOld */
         $componentIDsOld = $vehicle->components->pluck('id');
-        $componentIDs = $component->getComponentIDs();
 
-        if (!$vehicle->wasRecentlyCreated && count($componentIDsOld->diff($componentIDs)) > 0) {
-            $changes = [
-                'components' => [
-                    'old' => $componentIDsOld,
-                    'new' => $componentIDs,
-                ],
-            ];
+        $componentIDs = collect($component->getComponents())
+            ->mapWithKeys(
+                function (array $data) {
+                    return [
+                        $data['component']->id => $data['data'],
+                    ];
+                }
+            )
+            ->toArray();
 
+        if (!$vehicle->wasRecentlyCreated && count($componentIDsOld->diff(array_keys($componentIDs))) > 0) {
             $vehicle->changelogs()->create(
                 [
                     'type' => 'update',
                     'user_id' => 0,
                     'changelog' => [
-                        'changes' => $changes,
+                        'changes' => [
+                            'components' => [
+                                'old' => $componentIDsOld,
+                                'new' => array_keys($componentIDs),
+                            ],
+                        ],
                     ],
                 ]
             );
 
-            app('Log')::debug('Updated ship_vehicle_components', $changes);
+            app('Log')::debug('Updated ship_vehicle_components');
         }
 
         $vehicle->components()->sync($componentIDs);

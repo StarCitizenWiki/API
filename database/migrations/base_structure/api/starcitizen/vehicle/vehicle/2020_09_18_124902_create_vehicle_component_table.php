@@ -27,6 +27,11 @@ class CreateVehicleComponentTable extends Migration
                 $table->unsignedInteger('vehicle_id');
                 $table->unsignedBigInteger('component_id');
 
+                $table->unsignedInteger('mounts')->default(0);
+                $table->string('size', 3)->nullable();
+                $table->text('details')->nullable();
+                $table->unsignedInteger('quantity')->default(1);
+
                 $table->foreign('vehicle_id')
                     ->references('id')
                     ->on('vehicles')

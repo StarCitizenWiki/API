@@ -111,15 +111,10 @@ $factory->define(
         return [
             'type' => $faker->randomElement($types),
             'name' => $faker->name,
-            'mounts' => $faker->numberBetween(1, 10),
             'component_size' => $faker->randomElement($sizes),
             'category' => $faker->randomElement($categories),
-            'size' => $faker->randomElement($sizes),
-            'details' => $faker->boolean() ? $faker->text(60) : '',
-            'quantity' => $faker->numberBetween(1, 10),
             'manufacturer' => $faker->randomElement($manufacturers),
             'component_class' => $faker->randomElement($classes),
         ];
     }
 );
-

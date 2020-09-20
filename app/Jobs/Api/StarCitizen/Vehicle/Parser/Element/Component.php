@@ -28,7 +28,7 @@ class Component extends BaseElement
     /**
      * @return int[]
      */
-    public function getComponentIDs(): array
+    public function getComponents(): array
     {
         app('Log')::debug('Getting Component IDs');
 
@@ -47,15 +47,22 @@ class Component extends BaseElement
                 function ($component) {
                     $component = $this->getComponent(new Collection($component));
 
-                    if ($component !== null) {
-                        return $component->id;
-                    }
-
-                    return null;
+                    return $component ?? null;
                 }
             )->filter(
                 function ($component) {
                     return $component !== null;
+                }
+            )->map(
+                function ($component) {
+                    $data = [
+                        'component' => $component,
+                        'data' => $component->pivotData,
+                    ];
+
+                    unset($component->pivotData);
+
+                    return $data;
                 }
             );
 
@@ -76,21 +83,26 @@ class Component extends BaseElement
         }
 
         /** @var ComponentModel $component */
-        return ComponentModel::query()->updateOrCreate(
+        $component = ComponentModel::query()->updateOrCreate(
             [
                 'type' => $this->normalizeString($data->get(self::TYPE)),
                 'name' => $this->normalizeString($data->get(self::NAME)),
                 'component_class' => $this->normalizeString($data->get(self::COMPONENT_CLASS)),
+                'component_size' => $this->normalizeString($data->get(self::COMPONENT_SIZE)),
             ],
             [
-                'mounts' => (int) $data->get(self::MOUNTS),
-                'component_size' => $this->normalizeString($data->get(self::COMPONENT_SIZE)),
-                'category' => $this->normalizeString($data->get(self::CATEGORY)),
-                'size' => $data->get(self::SIZE),
-                'details' => $this->normalizeString($data->get(self::DETAILS)),
-                'quantity' => (int) $data->get(self::QUANTITY),
                 'manufacturer' => $this->normalizeString($data->get(self::MANUFACTURER)),
+                'category' => $this->normalizeString($data->get(self::CATEGORY)),
             ]
         );
+
+        $component->pivotData = [
+            'mounts' => (int) $data->get(self::MOUNTS),
+            'size' => $data->get(self::SIZE),
+            'details' => $this->normalizeString($data->get(self::DETAILS)),
+            'quantity' => (int) $data->get(self::QUANTITY),
+        ];
+
+        return $component;
     }
 }

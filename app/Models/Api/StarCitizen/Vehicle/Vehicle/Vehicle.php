@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
@@ -183,7 +183,16 @@ class Vehicle extends HasTranslations
      */
     public function components(): BelongsToMany
     {
-        return $this->belongsToMany(Component::class, 'vehicle_component');
+        return $this->belongsToMany(Component::class, 'vehicle_component')
+            ->using(VehicleComponent::class)
+            ->withPivot(
+                [
+                    'mounts',
+                    'size',
+                    'details',
+                    'quantity',
+                ]
+            );
     }
 
     /**

@@ -21,12 +21,12 @@ class ComponentTransformer extends V1Transformer
         return [
             'type' => $component->type,
             'name' => $component->name,
-            'mounts' => $component->mounts,
+            'mounts' => $component->pivot->mounts,
             'component_size' => $component->component_size,
             'category' => $component->category,
-            'size' => $component->size,
-            'details' => $component->details,
-            'quantity' => $component->quantity,
+            'size' => $component->pivot->size,
+            'details' => $component->pivot->details,
+            'quantity' => $component->pivot->quantity,
             'manufacturer' => $component->manufacturer,
             'component_class' => $component->component_class,
         ];
