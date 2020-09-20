@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Manufacturer;
 
@@ -6,9 +6,9 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Manufacturer\ManufacturerSearchRequest;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Dingo\Api\Http\Request;
 
 /**
  * Hersteller API
@@ -72,8 +72,7 @@ class ManufacturerController extends ApiController
         $rules = (new ManufacturerSearchRequest())->rules();
         $request->validate($rules);
 
-        $query = $request->get('query');
-        $query = urldecode($query);
+        $query = urldecode($request->get('query'));
         $queryBuilder = Manufacturer::query()
             ->where('name_short', 'like', "%{$query}%")
             ->orWhere('name', 'like', "%{$query}%");

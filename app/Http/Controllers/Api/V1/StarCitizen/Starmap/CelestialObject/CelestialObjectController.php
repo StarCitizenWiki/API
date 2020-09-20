@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * User: Keonie
  * Date: 07.08.2018 14:31
@@ -9,8 +9,8 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\CelestialObject;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Dingo\Api\Contract\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Class CelestialObjectController
@@ -34,7 +34,7 @@ class CelestialObjectController extends ApiController
      *
      * @return \Dingo\Api\Http\Response
      */
-    public function show(String $code)
+    public function show(string $code)
     {
         $code = urldecode($code);
 

@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * User: Keonie
  * Date: 07.08.2018 14:13
@@ -10,8 +10,8 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Dingo\Api\Contract\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use InvalidArgumentException;
 
 /**
@@ -54,7 +54,7 @@ class JumppointController extends ApiController
      *
      * @return \Dingo\Api\Http\Response
      */
-    public function showByStarsystem(String $starsystemName)
+    public function showByStarsystem(string $starsystemName)
     {
         //TODO prüfen ob paginator so funktioniert (ggf. noch get())
         $starsystem = Starsystem::where('code', $starsystemName)->paginator(100);

@@ -43,10 +43,10 @@ class GroundVehicleController extends ApiController
         $groundVehicle = urldecode($groundVehicle);
 
         try {
-            $groundVehicle = GroundVehicle::query()->where('name', $groundVehicle)->orWhere(
-                'slug',
-                $groundVehicle
-            )->firstOrFail();
+            $groundVehicle = GroundVehicle::query()
+                ->where('name', $groundVehicle)
+                ->orWhere('slug', $groundVehicle)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $groundVehicle));
         }
@@ -68,6 +68,8 @@ class GroundVehicleController extends ApiController
     /**
      * Search Endpoint
      *
+     * @param Request $request
+     *
      * @return Response
      */
     public function search(Request $request): Response
@@ -76,8 +78,7 @@ class GroundVehicleController extends ApiController
 
         $request->validate($rules);
 
-        $query = $request->get('query', '');
-        $query = urldecode($query);
+        $query = urldecode($request->get('query'));
         $queryBuilder = GroundVehicle::query()
             ->where('name', 'like', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%");

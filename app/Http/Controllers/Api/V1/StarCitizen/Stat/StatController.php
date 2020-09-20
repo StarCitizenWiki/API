@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 
@@ -7,7 +7,6 @@ use App\Models\Api\StarCitizen\Stat\Stat;
 use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Stat API
@@ -17,17 +16,10 @@ use League\Fractal\TransformerAbstract;
 class StatController extends ApiController
 {
     /**
-     * StatsRepository
-     *
-     * @var StatTransformer
-     */
-    protected TransformerAbstract $transformer;
-
-    /**
      * StatsAPIController constructor.
      *
-     * @param Request $request
-     * @param StatTransformer         $transformer
+     * @param Request         $request
+     * @param StatTransformer $transformer
      */
     public function __construct(Request $request, StatTransformer $transformer)
     {

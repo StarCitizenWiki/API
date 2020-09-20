@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 /**
  * User: Keonie
  * Date: 07.08.2018 14:14
@@ -9,8 +9,8 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\Starsystem;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Dingo\Api\Contract\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Class StarsystemController
@@ -35,7 +35,7 @@ class StarsystemController extends ApiController
      *
      * @return \Dingo\Api\Http\Response
      */
-    public function show(String $starsystemName)
+    public function show(string $starsystemName)
     {
         $starsystemName = urldecode($starsystemName);
         try {
