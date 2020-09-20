@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen;
 
@@ -14,14 +14,19 @@ use Illuminate\Support\Collection;
  */
 abstract class AbstractTranslationTransformer extends V1Transformer implements LocaleAwareTransformer
 {
-    private $localeCode;
-
     /**
      * Array containing missing translations for each transformed model
      *
      * @var array
      */
     protected array $missingTranslations = [];
+
+    /**
+     * The target language
+     *
+     * @var string
+     */
+    private $localeCode;
 
     /**
      * Set the Locale

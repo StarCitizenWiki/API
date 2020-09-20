@@ -1,21 +1,21 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Stat;
 
 use App\Models\Api\StarCitizen\Stat\Stat;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 /**
  * Class StatsTransformer
  */
-class StatTransformer extends TransformerAbstract
+class StatTransformer extends V1Transformer
 {
     /**
      * @param Stat $stat
      *
      * @return array
      */
-    public function transform(Stat $stat)
+    public function transform(Stat $stat): array
     {
         return [
             'funds' => $stat->funds,

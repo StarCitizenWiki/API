@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\Rsi\CommLink;
 
@@ -43,6 +43,18 @@ class CommLinkTransformer extends V1Transformer
             'comment_count' => $commLink->comment_count,
             'created_at' => $commLink->created_at,
         ];
+    }
+
+    /**
+     * If no URL is set a default url will be returned
+     *
+     * @param CommLink $commLink
+     *
+     * @return string
+     */
+    private function getCommLinkUrl(CommLink $commLink): string
+    {
+        return sprintf('%s%s', config('api.rsi_url'), ($commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API"));
     }
 
     /**
@@ -92,17 +104,5 @@ class CommLinkTransformer extends V1Transformer
         $translation = null; // Disable this for now
 
         return $this->item($translation, new TranslationTransformer());
-    }
-
-    /**
-     * If no URL is set a default url will be returned
-     *
-     * @param CommLink $commLink
-     *
-     * @return string
-     */
-    private function getCommLinkUrl(CommLink $commLink): string
-    {
-        return sprintf('%s%s', config('api.rsi_url'), ($commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API"));
     }
 }

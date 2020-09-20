@@ -1,15 +1,15 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
+use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
 use Illuminate\Support\Collection;
 
 /**
  * Class AbstractVehicleTransformer
  */
-abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
+abstract class AbstractVehicleTransformer extends TranslationTransformer
 {
     protected $availableIncludes = [
         'components',

@@ -1,15 +1,15 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 use League\Fractal\Resource\Primitive;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Image Transformer
  */
-class ImageTransformer extends TransformerAbstract
+class ImageTransformer extends V1Transformer
 {
     protected $availableIncludes = [
         'hashes',
@@ -39,10 +39,12 @@ class ImageTransformer extends TransformerAbstract
      */
     public function includeHashes(Image $image): Primitive
     {
-        return $this->primitive([
-            'perceptual_hash' => $image->hash->perceptual_hash,
-            'difference_hash' => $image->hash->difference_hash,
-            'average_hash' => $image->hash->average_hash,
-        ]);
+        return $this->primitive(
+            [
+                'perceptual_hash' => $image->hash->perceptual_hash,
+                'difference_hash' => $image->hash->difference_hash,
+                'average_hash' => $image->hash->average_hash,
+            ]
+        );
     }
 }

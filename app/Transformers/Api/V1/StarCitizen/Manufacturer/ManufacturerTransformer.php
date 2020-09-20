@@ -1,10 +1,10 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
+use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
 use League\Fractal\Resource\Collection;
@@ -12,7 +12,7 @@ use League\Fractal\Resource\Collection;
 /**
  * Manufacturer Transformer
  */
-class ManufacturerTransformer extends AbstractTranslationTransformer
+class ManufacturerTransformer extends TranslationTransformer
 {
     protected $availableIncludes = [
         'ships',
@@ -39,6 +39,21 @@ class ManufacturerTransformer extends AbstractTranslationTransformer
     }
 
     /**
+     * If a valid locale code is set this function will return the corresponding translation or use english as a
+     * fallback
+     *
+     * @param HasTranslations $model
+     *
+     * @param string          $translationKey
+     *
+     * @return array|string the Translation
+     */
+    protected function getTranslation(HasTranslations $model, $translationKey = 'translation')
+    {
+        return parent::getTranslation($model, ['known_for', 'description']);
+    }
+
+    /**
      * @param Manufacturer $manufacturer
      *
      * @return Collection
@@ -56,20 +71,5 @@ class ManufacturerTransformer extends AbstractTranslationTransformer
     public function includeVehicles(Manufacturer $manufacturer): Collection
     {
         return $this->collection($manufacturer->vehicles, new GroundVehicleLinkTransformer());
-    }
-
-    /**
-     * If a valid locale code is set this function will return the corresponding translation or use english as a
-     * fallback
-     *
-     * @param HasTranslations $model
-     *
-     * @param string          $translationKey
-     *
-     * @return array|string the Translation
-     */
-    protected function getTranslation(HasTranslations $model, $translationKey = 'translation')
-    {
-        return parent::getTranslation($model, ['known_for', 'description']);
     }
 }

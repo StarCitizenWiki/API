@@ -12,9 +12,9 @@ namespace App\Transformers\Api\V1\Rsi\CommLink\Translation;
 
 
 use App\Models\Rsi\CommLink\CommLinkTranslation;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
-class TranslationTransformer extends TransformerAbstract
+class TranslationTransformer extends V1Transformer
 {
     /**
      * @param CommLinkTranslation|null $translation
