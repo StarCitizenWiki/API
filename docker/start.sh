@@ -21,7 +21,7 @@ elif [ "$role" = "queue" ]; then
 
 elif [ "$role" = "scheduler" ]; then
 
-    while [ true ]
+    while true
     do
       php artisan schedule:run --verbose --no-interaction &
       sleep 60
