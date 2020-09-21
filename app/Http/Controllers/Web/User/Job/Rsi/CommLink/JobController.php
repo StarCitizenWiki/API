@@ -23,7 +23,6 @@ class JobController extends Controller
     public function startCommLinkTranslationJob(): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_translation');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         Artisan::call('comm-links:translate');
 
@@ -44,7 +43,6 @@ class JobController extends Controller
     public function startCommLinkImageDownloadJob(): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_image_download');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         Artisan::call('comm-links:download-images');
 
@@ -67,7 +65,6 @@ class JobController extends Controller
     public function startCommLinkDownloadJob(Request $request): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_download');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validate(
             [

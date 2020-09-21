@@ -43,7 +43,6 @@ class GroundVehicleController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.starcitizen.vehicles.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $vehicles = $this->api->get('api/vehicles', ['limit' => 0]);
 
@@ -67,7 +66,6 @@ class GroundVehicleController extends Controller
     public function edit(GroundVehicle $groundVehicle): View
     {
         $this->authorize('web.user.starcitizen.vehicles.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $groundVehicle->load('components');
 

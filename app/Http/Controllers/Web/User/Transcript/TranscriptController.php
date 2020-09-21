@@ -41,7 +41,6 @@ class TranscriptController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.transcripts.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $transcripts = Transcript::query()->orderBy('id')->paginate(500);
 
@@ -65,7 +64,6 @@ class TranscriptController extends Controller
     public function show(Transcript $transcript)
     {
         $this->authorize('web.user.transcripts.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.transcripts.show',
@@ -87,7 +85,6 @@ class TranscriptController extends Controller
     public function create(): View
     {
         $this->authorize('web.user.transcripts.create');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.transcripts.create',
@@ -109,7 +106,6 @@ class TranscriptController extends Controller
     public function edit(Transcript $transcript): View
     {
         $this->authorize(self::TRANSCRIPT_UPDATE_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.transcripts.edit',
@@ -135,8 +131,6 @@ class TranscriptController extends Controller
     public function update(TranscriptUpdateRequest $request, Transcript $transcript): RedirectResponse
     {
         $this->authorize(self::TRANSCRIPT_UPDATE_PERMISSION);
-
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 
@@ -173,8 +167,6 @@ class TranscriptController extends Controller
     public function store(TranscriptStoreRequest $request): RedirectResponse
     {
         $this->authorize('web.user.transcripts.create');
-
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 

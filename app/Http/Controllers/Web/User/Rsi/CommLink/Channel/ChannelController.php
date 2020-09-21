@@ -31,7 +31,6 @@ class ChannelController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.rsi.comm_links.channels.index',
@@ -53,7 +52,6 @@ class ChannelController extends Controller
     public function show(Channel $channel): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $links = $channel->commLinks()->orderByDesc('cig_id')->paginate(20);
 

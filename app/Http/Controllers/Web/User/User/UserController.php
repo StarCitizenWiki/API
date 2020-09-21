@@ -35,7 +35,6 @@ class UserController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.users.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.users.index',
@@ -57,7 +56,6 @@ class UserController extends Controller
     public function edit(User $user): View
     {
         $this->authorize('web.user.users.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.users.edit',
@@ -80,7 +78,6 @@ class UserController extends Controller
     public function update(Request $request, User $user): RedirectResponse
     {
         $this->authorize('web.user.users.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         if ($request->has('block')) {
             return $this->block($user);
@@ -128,7 +125,6 @@ class UserController extends Controller
     private function block(User $user): RedirectResponse
     {
         $this->authorize('web.user.users.delete');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $user->sessions()->delete();
         $user->blocked = true;

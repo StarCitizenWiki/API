@@ -31,7 +31,6 @@ class SeriesController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.rsi.comm_links.series.index',
@@ -53,7 +52,6 @@ class SeriesController extends Controller
     public function show(Series $series): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.rsi.comm_links.index',

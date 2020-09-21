@@ -19,8 +19,6 @@ class CommLinkController extends Controller
      */
     public function show(CommLink $commLink)
     {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
         return view(
             'api.pages.comm_links.show',
             [

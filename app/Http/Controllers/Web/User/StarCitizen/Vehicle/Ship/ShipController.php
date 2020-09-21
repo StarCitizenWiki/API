@@ -43,7 +43,6 @@ class ShipController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.starcitizen.vehicles.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $ships = $this->api->get('api/ships', ['limit' => 0]);
 
@@ -67,7 +66,6 @@ class ShipController extends Controller
     public function edit(Ship $ship): View
     {
         $this->authorize('web.user.starcitizen.vehicles.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         /** @var Collection $changelogs */
         $changelogs = $ship->changelogs;
@@ -99,7 +97,6 @@ class ShipController extends Controller
     public function update(TranslationRequest $request, Ship $ship): RedirectResponse
     {
         $this->authorize('web.user.starcitizen.vehicles.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 

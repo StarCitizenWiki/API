@@ -34,7 +34,6 @@ class TypeController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.translations.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.starcitizen.vehicles.types.index',
@@ -58,7 +57,6 @@ class TypeController extends Controller
     public function edit(Type $type): View
     {
         $this->authorize('web.user.translations.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.starcitizen.vehicles.types.edit',
@@ -82,7 +80,6 @@ class TypeController extends Controller
     public function update(TranslationRequest $request, Type $type): RedirectResponse
     {
         $this->authorize('web.user.translations.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 

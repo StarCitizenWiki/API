@@ -48,7 +48,6 @@ class CommLinkSearchController extends Controller
     public function search()
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view('user.rsi.comm_links.search');
     }
@@ -63,7 +62,6 @@ class CommLinkSearchController extends Controller
     public function searchByTitle(CommLinkSearchRequest $request)
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 
@@ -102,7 +100,6 @@ class CommLinkSearchController extends Controller
     public function reverseImageLinkSearchPost(ReverseImageLinkSearchRequest $request)
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $options = [
             'limit' => 250,
@@ -151,7 +148,6 @@ class CommLinkSearchController extends Controller
     public function reverseImageSearchPost(ReverseImageSearchRequest $request)
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 

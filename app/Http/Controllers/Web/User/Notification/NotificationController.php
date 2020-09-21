@@ -42,7 +42,6 @@ class NotificationController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.notifications.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.notifications.index',
@@ -60,7 +59,6 @@ class NotificationController extends Controller
     public function create(): View
     {
         $this->authorize('web.user.notifications.create');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view('user.notifications.create');
     }
@@ -75,7 +73,6 @@ class NotificationController extends Controller
     public function edit(Notification $notification): View
     {
         $this->authorize('web.user.notifications.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__), ['id' => $notification->id]);
 
         return view(
             'user.notifications.edit',
@@ -96,14 +93,13 @@ class NotificationController extends Controller
     public function store(Request $request)
     {
         $this->authorize('web.user.notifications.create');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $this->validate(
             $request,
             [
                 'content' => 'required|string|min:5',
                 'level' => 'required|int|between:0,3',
-                'expired_at' => 'required|date|after:'.Carbon::now(),
+                'expired_at' => 'required|date|after:' . Carbon::now(),
                 'published_at' => 'nullable|date',
                 'order' => 'nullable|int',
                 'output' => 'required|array|in:status,email,index',
@@ -148,7 +144,7 @@ class NotificationController extends Controller
         ];
 
         foreach (Arr::pull($data, 'output') as $type) {
-            $data['output_'.$type] = true;
+            $data['output_' . $type] = true;
         }
 
         $data = array_merge($outputs, $data);
@@ -170,7 +166,7 @@ class NotificationController extends Controller
     /**
      * @param Notification $notification
      */
-    private function dispatchJob(Notification $notification)
+    private function dispatchJob(Notification $notification): void
     {
         $job = (new SendNotificationEmail($notification));
 
@@ -192,7 +188,6 @@ class NotificationController extends Controller
     public function update(Request $request, Notification $notification): RedirectResponse
     {
         $this->authorize('web.user.notifications.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         if ($request->has('delete')) {
             return $this->destroy($notification);
@@ -218,8 +213,10 @@ class NotificationController extends Controller
 
         $resendEmail = (bool) Arr::pull($data, 'resend_email', false);
 
-        if (true === $resendEmail || ($notification->output_email === false && $data['output_email'] === true && !$notification->expired(
-                ))) {
+        if (
+            true === $resendEmail || ($notification->output_email === false && $data['output_email'] === true && !$notification->expired(
+            ))
+        ) {
             $this->dispatchJob($notification);
         }
 
@@ -244,7 +241,6 @@ class NotificationController extends Controller
     public function destroy(Notification $notification): RedirectResponse
     {
         $this->authorize('web.user.notifications.delete');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $notification->delete();
 

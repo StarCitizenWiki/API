@@ -34,7 +34,6 @@ class ProductionStatusController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.translations.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.starcitizen.production_statuses.index',
@@ -58,7 +57,6 @@ class ProductionStatusController extends Controller
     public function edit(ProductionStatus $productionStatus): View
     {
         $this->authorize('web.user.translations.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.starcitizen.production_statuses.edit',

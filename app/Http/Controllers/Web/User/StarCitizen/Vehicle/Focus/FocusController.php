@@ -34,7 +34,6 @@ class FocusController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.translations.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.starcitizen.vehicles.foci.index',
@@ -58,7 +57,6 @@ class FocusController extends Controller
     public function edit(Focus $focus): View
     {
         $this->authorize('web.user.translations.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.starcitizen.vehicles.foci.edit',
@@ -82,7 +80,6 @@ class FocusController extends Controller
     public function update(TranslationRequest $request, Focus $focus): RedirectResponse
     {
         $this->authorize('web.user.translations.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 

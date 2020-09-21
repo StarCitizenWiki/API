@@ -23,7 +23,6 @@ class JobController extends Controller
     public function startCommLinkWikiPageCreationJob(): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_wiki_page_creation');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         Artisan::call('wiki:create-comm-link-pages');
 
@@ -46,7 +45,6 @@ class JobController extends Controller
     public function startCommLinkProofReadStatusUpdateJob(): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_proofread_update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $this->dispatch(new UpdateCommLinkProofReadStatus());
 

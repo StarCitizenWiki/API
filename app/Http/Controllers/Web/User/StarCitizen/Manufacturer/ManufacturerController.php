@@ -44,7 +44,6 @@ class ManufacturerController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.starcitizen.manufacturers.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $manufacturers = $this->api->get('api/manufacturers', ['limit' => 0]);
 
@@ -68,7 +67,6 @@ class ManufacturerController extends Controller
     public function edit(string $manufacturer): View
     {
         $this->authorize(self::MANUFACTURER_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $manufacturer = $this->api->get("api/manufacturers/{$manufacturer}");
 
@@ -95,7 +93,6 @@ class ManufacturerController extends Controller
     public function update(ManufacturerTranslationRequest $request, string $manufacturer): RedirectResponse
     {
         $this->authorize(self::MANUFACTURER_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
         $manufacturer = $this->api->get("api/manufacturers/{$manufacturer}");

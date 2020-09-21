@@ -41,7 +41,6 @@ class DashboardController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.dashboard.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.dashboard',

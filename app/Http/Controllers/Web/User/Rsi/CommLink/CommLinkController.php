@@ -61,7 +61,6 @@ class CommLinkController extends Controller
     public function index(Request $request): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $options = [
             'limit' => 250,
@@ -94,7 +93,6 @@ class CommLinkController extends Controller
     public function show(CommLink $commLink): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $commLink->load('translationChangelogs');
 
@@ -161,7 +159,6 @@ class CommLinkController extends Controller
     public function edit(CommLink $commLink): View
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $versions = $this->getCommLinkVersions($commLink->cig_id);
         $versionData = $this->processCommLinkVersions($versions, $commLink->file);
@@ -245,8 +242,6 @@ class CommLinkController extends Controller
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
 
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
         $data = $request->validated();
 
         $commLink->update(
@@ -285,7 +280,6 @@ class CommLinkController extends Controller
     public function preview(CommLink $commLink, string $version): View
     {
         $this->authorize('web.user.rsi.comm-links.preview');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}.html");
         $crawler = new Crawler();

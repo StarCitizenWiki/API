@@ -18,8 +18,6 @@ class PageController extends Controller
      */
     public function index(): View
     {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
         $notifications = Notification::published()
             ->onFrontPage()
             ->notExpired()
@@ -44,8 +42,6 @@ class PageController extends Controller
      */
     public function showFaqView(): View
     {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
         return view('api.pages.faq');
     }
 
@@ -54,8 +50,6 @@ class PageController extends Controller
      */
     public function showStatusView(): View
     {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
         $notifications = Notification::published()
             ->notExpired()
             ->onStatusPage()
