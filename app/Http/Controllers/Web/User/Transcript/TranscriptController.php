@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Transcript;
 
@@ -180,31 +178,37 @@ class TranscriptController extends Controller
 
         $data = $request->validated();
 
-        $transcript = new Transcript([
-            'source_title' => $data['source_title'],
-            'source_url' => $data['source_url'],
-            'source_published_at' => $data['source_published_at'],
+        $transcript = new Transcript(
+            [
+                'source_title' => $data['source_title'],
+                'source_url' => $data['source_url'],
+                'source_published_at' => $data['source_published_at'],
 
-            self::TITLE => $data[self::TITLE],
-            self::YOUTUBE_URL => $data[self::YOUTUBE_URL],
-            self::PUBLISHED_AT => $data[self::PUBLISHED_AT],
-            self::WIKI_ID => $data[self::WIKI_ID],
-            'format_id' => $data['format'],
-        ]);
+                self::TITLE => $data[self::TITLE],
+                self::YOUTUBE_URL => $data[self::YOUTUBE_URL],
+                self::PUBLISHED_AT => $data[self::PUBLISHED_AT],
+                self::WIKI_ID => $data[self::WIKI_ID],
+                'format_id' => $data['format'],
+            ]
+        );
         $transcript->save();
 
         if (isset($data[self::LOCALE_EN])) {
-            $transcript->translations()->create([
-                'locale_code' => self::LOCALE_EN,
-                'translation' => $data[self::LOCALE_EN],
-            ]);
+            $transcript->translations()->create(
+                [
+                    'locale_code' => self::LOCALE_EN,
+                    'translation' => $data[self::LOCALE_EN],
+                ]
+            );
         }
 
         if (isset($data[self::LOCALE_DE])) {
-            $transcript->translations()->create([
-                'locale_code' => self::LOCALE_DE,
-                'translation' => $data[self::LOCALE_DE],
-            ]);
+            $transcript->translations()->create(
+                [
+                    'locale_code' => self::LOCALE_DE,
+                    'translation' => $data[self::LOCALE_DE],
+                ]
+            );
         }
 
         $message = __('crud.created', ['type' => __('Transkript')]);

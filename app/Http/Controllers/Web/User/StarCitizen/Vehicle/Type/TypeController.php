@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\Type;
 
@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\Type\Type;
 use App\Models\System\Language;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 /**
  * Class VehicleTypeController
@@ -24,11 +27,11 @@ class TypeController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function index()
+    public function index(): View
     {
         $this->authorize('web.user.translations.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -46,13 +49,13 @@ class TypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Api\StarCitizen\Vehicle\Type\Type $type
+     * @param Type $type
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function edit(Type $type)
+    public function edit(Type $type): View
     {
         $this->authorize('web.user.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -69,14 +72,14 @@ class TypeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\System\TranslationRequest  $request
-     * @param \App\Models\Api\StarCitizen\Vehicle\Type\Type $type
+     * @param TranslationRequest $request
+     * @param Type               $type
      *
-     * @return \Illuminate\Http\Response
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function update(TranslationRequest $request, Type $type)
+    public function update(TranslationRequest $request, Type $type): RedirectResponse
     {
         $this->authorize('web.user.translations.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));

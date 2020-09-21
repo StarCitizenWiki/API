@@ -105,30 +105,36 @@ class CommLinkController extends Controller
 
         $commLink->textChanges = 0;
 
-        $changelogs->each(static function (ModelChangelog $changelog) use ($commLink)  {
-            if (!isset($changelog->changelog['changes']['translation'])) {
-                return;
+        $changelogs->each(
+            static function (ModelChangelog $changelog) use ($commLink) {
+                if (!isset($changelog->changelog['changes']['translation'])) {
+                    return;
+                }
+
+                $commLink->textChanges++;
+
+                $builder = new StrictUnifiedDiffOutputBuilder(
+                    [
+                        'collapseRanges' => true,
+                        'commonLineThreshold' => 1,
+                        // number of same lines before ending a new hunk and creating a new one (if needed)
+                        'contextLines' => 0,
+                        // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
+                        'fromFile' => $commLink->created_at->toString(),
+                        'fromFileDate' => '',
+                        'toFile' => $changelog->created_at->toString(),
+                        'toFileDate' => '',
+                    ]
+                );
+
+                $differ = new Differ($builder);
+
+                $changelog->diff = ($differ->diff(
+                    $changelog->changelog['changes']['translation']['old'],
+                    $changelog->changelog['changes']['translation']['new'],
+                ));
             }
-
-            $commLink->textChanges++;
-
-            $builder = new StrictUnifiedDiffOutputBuilder([
-                'collapseRanges'      => true,
-                'commonLineThreshold' => 1,    // number of same lines before ending a new hunk and creating a new one (if needed)
-                'contextLines'        => 0,    // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
-                'fromFile'            => $commLink->created_at->toString(),
-                'fromFileDate'        => '',
-                'toFile'              => $changelog->created_at->toString(),
-                'toFileDate'          => '',
-            ]);
-
-            $differ = new Differ($builder);
-
-            $changelog->diff = ($differ->diff(
-                $changelog->changelog['changes']['translation']['old'],
-                $changelog->changelog['changes']['translation']['new'],
-            ));
-        });
+        );
 
         $changelogs = $changelogs->sortByDesc('created_at');
 
@@ -170,6 +176,59 @@ class CommLinkController extends Controller
                 'series' => Series::query()->orderBy('name')->get(),
             ]
         );
+    }
+
+    /**
+     * Returns all Comm-Link Version Files in a Comm-Link Folder.
+     *
+     * @param int $commLinkCigId
+     *
+     * @return array
+     */
+    private function getCommLinkVersions(int $commLinkCigId): array
+    {
+        $versions = Storage::disk('comm_links')->files($commLinkCigId);
+        $versions = array_map(
+            static function ($value) {
+                $file = preg_split('#(?<=)[/\\\]#', $value)[1];
+
+                return str_replace('.html', '', $file);
+            },
+            $versions
+        );
+        rsort($versions);
+
+        return $versions;
+    }
+
+    /**
+     * Parses Comm-Link Version Names to a Human readable String, creates Data array to use in views.
+     *
+     * @param array  $versions
+     * @param string $currentVersion
+     *
+     * @return array
+     */
+    private function processCommLinkVersions(array $versions, string $currentVersion): array
+    {
+        $versionData = [];
+        collect($versions)->each(
+            static function ($version) use (&$versionData, $currentVersion) {
+                $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
+
+                if ("{$version}.html" === $currentVersion) {
+                    $output = sprintf('%s: %s', __('Aktuell'), $output);
+                }
+
+                $versionData[] = [
+                    'output' => $output,
+                    'file_clean' => $version,
+                    'file' => "{$version}.html",
+                ];
+            }
+        );
+
+        return $versionData;
     }
 
     /**
@@ -242,58 +301,5 @@ class CommLinkController extends Controller
                 'preview' => $contentParser->getContent(),
             ]
         );
-    }
-
-    /**
-     * Returns all Comm-Link Version Files in a Comm-Link Folder.
-     *
-     * @param int $commLinkCigId
-     *
-     * @return array
-     */
-    private function getCommLinkVersions(int $commLinkCigId): array
-    {
-        $versions = Storage::disk('comm_links')->files($commLinkCigId);
-        $versions = array_map(
-            static function ($value) {
-                $file = preg_split('#(?<=)[/\\\]#', $value)[1];
-
-                return str_replace('.html', '', $file);
-            },
-            $versions
-        );
-        rsort($versions);
-
-        return $versions;
-    }
-
-    /**
-     * Parses Comm-Link Version Names to a Human readable String, creates Data array to use in views.
-     *
-     * @param array  $versions
-     * @param string $currentVersion
-     *
-     * @return array
-     */
-    private function processCommLinkVersions(array $versions, string $currentVersion): array
-    {
-        $versionData = [];
-        collect($versions)->each(
-            static function ($version) use (&$versionData, $currentVersion) {
-                $output = Carbon::createFromFormat('Y-m-d_His', $version)->format('d.m.Y H:i');
-
-                if ("{$version}.html" === $currentVersion) {
-                    $output = sprintf('%s: %s', __('Aktuell'), $output);
-                }
-
-                $versionData[] = [
-                    'output' => $output,
-                    'file_clean' => $version,
-                    'file' => "{$version}.html",
-                ];
-            }
-        );
-
-        return $versionData;
     }
 }

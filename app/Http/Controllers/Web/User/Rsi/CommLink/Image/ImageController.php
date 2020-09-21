@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Rsi\CommLink\Image;
 
@@ -33,16 +33,14 @@ class ImageController extends Controller
     {
         $this->authorize('web.user.rsi.comm-links.view');
 
-        $images = Image::query()
-            ->where('dir', 'NOT LIKE', 'NOT_FOUND')
-            ->orderByDesc('id')
-            ->groupBy('src')
-            ->paginate(20);
-
         return view(
             'user.rsi.comm_links.images.index',
             [
-                'images' => $images,
+                'images' => Image::query()
+                    ->where('dir', 'NOT LIKE', 'NOT_FOUND')
+                    ->orderByDesc('id')
+                    ->groupBy('src')
+                    ->paginate(20),
             ]
         );
     }

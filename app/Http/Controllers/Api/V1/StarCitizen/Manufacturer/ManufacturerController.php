@@ -49,10 +49,10 @@ class ManufacturerController extends ApiController
         $manufacturer = urldecode($manufacturer);
 
         try {
-            $manufacturer = Manufacturer::where('name_short', $manufacturer)->orWhere(
-                'name',
-                $manufacturer
-            )->firstOrFail();
+            $manufacturer = Manufacturer::query()
+                ->where('name_short', $manufacturer)
+                ->orWhere('name', $manufacturer)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $manufacturer));
         }

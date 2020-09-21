@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Job\Rsi\CommLink;
 
@@ -20,12 +20,12 @@ class JobController extends Controller
      *
      * @throws AuthorizationException
      */
-    public function startCommLinkTranslationJob()
+    public function startCommLinkTranslationJob(): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_translation');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        Artisan::call('translate:comm-links');
+        Artisan::call('comm-links:translate');
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [
@@ -41,12 +41,12 @@ class JobController extends Controller
      *
      * @throws AuthorizationException
      */
-    public function startCommLinkImageDownloadJob()
+    public function startCommLinkImageDownloadJob(): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_image_download');
         app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        Artisan::call('download:comm-link-images');
+        Artisan::call('comm-links:download-images');
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [
@@ -58,13 +58,13 @@ class JobController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
      * @return RedirectResponse
      *
      * @throws AuthorizationException
      */
-    public function startCommLinkDownloadJob(Request $request)
+    public function startCommLinkDownloadJob(Request $request): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_download');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -94,7 +94,7 @@ class JobController extends Controller
         );
 
         Artisan::call(
-            'download:comm-link',
+            'comm-links:download',
             [
                 'id' => $ids->toArray(),
                 '--import' => true,

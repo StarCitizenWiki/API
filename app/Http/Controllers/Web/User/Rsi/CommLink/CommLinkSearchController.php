@@ -10,6 +10,7 @@ use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -52,6 +53,13 @@ class CommLinkSearchController extends Controller
         return view('user.rsi.comm_links.search');
     }
 
+    /**
+     * @param CommLinkSearchRequest $request
+     *
+     * @return View|RedirectResponse
+     *
+     * @throws AuthorizationException
+     */
     public function searchByTitle(CommLinkSearchRequest $request)
     {
         $this->authorize(self::COMM_LINK_PERMISSION);

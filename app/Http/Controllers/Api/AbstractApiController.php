@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Transformers\Api\LocalizableTransformerInterface;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 use Carbon\Carbon;
-use Dingo\Api\Contract\Http\Request;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Dingo\Api\Routing\Helpers;
 use Dingo\Api\Transformer\Factory;

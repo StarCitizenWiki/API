@@ -34,7 +34,7 @@ class StatController extends ApiController
      */
     public function latest(): Response
     {
-        $stat = Stat::orderByDesc('created_at')->first();
+        $stat = Stat::query()->orderByDesc('created_at')->first();
 
         return $this->getResponse($stat);
     }
@@ -46,7 +46,7 @@ class StatController extends ApiController
      */
     public function index(): Response
     {
-        $stats = Stat::orderByDesc('created_at');
+        $stats = Stat::query()->orderByDesc('created_at');
 
         return $this->getResponse($stats);
     }

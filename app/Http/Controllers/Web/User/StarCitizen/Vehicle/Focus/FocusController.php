@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\Focus;
 
@@ -8,7 +8,6 @@ use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\System\Language;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 /**

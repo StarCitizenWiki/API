@@ -50,8 +50,10 @@ class ImportMissingCommLinks extends Command
             $chain[] = new TranslateCommLinks($missingOffset);
         }
 
-        if (config('services.mediawiki.client_id', null) !== null
-            && config('mediawiki.api_url', null) !== null) {
+        if (
+            config('services.mediawiki.client_id', null) !== null
+            && config('mediawiki.api_url', null) !== null
+        ) {
             $chain[] = new CreateCommLinkWikiPages();
         }
 

@@ -27,7 +27,6 @@ class LoginController extends Controller
     | to conveniently provide its functionality to your applications.
     |
     */
-
     use AuthenticatesUsers;
 
     /**
@@ -113,6 +112,16 @@ class LoginController extends Controller
     }
 
     /**
+     * Redirect to Intended Route or Account.
+     *
+     * @return RedirectResponse
+     */
+    protected function authenticated(): RedirectResponse
+    {
+        return redirect()->intended($this->getRedirectTo());
+    }
+
+    /**
      * @return string
      */
     public function getRedirectTo(): string
@@ -134,15 +143,5 @@ class LoginController extends Controller
     protected function loggedOut(Request $request): RedirectResponse
     {
         return redirect()->route('web.user.auth.login');
-    }
-
-    /**
-     * Redirect to Intended Route or Account.
-     *
-     * @return RedirectResponse
-     */
-    protected function authenticated(): RedirectResponse
-    {
-        return redirect()->intended($this->getRedirectTo());
     }
 }

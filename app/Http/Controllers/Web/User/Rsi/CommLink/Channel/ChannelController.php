@@ -1,9 +1,11 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Rsi\CommLink\Channel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Channel\Channel;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\View\View;
 
 /**
  * Comm-Link Channel Controller
@@ -22,11 +24,11 @@ class ChannelController extends Controller
     /**
      * All Channels
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function index()
+    public function index(): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -42,13 +44,13 @@ class ChannelController extends Controller
     /**
      * Get all Comm-Links of a given Channel
      *
-     * @param \App\Models\Rsi\CommLink\Channel\Channel $channel
+     * @param Channel $channel
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function show(Channel $channel)
+    public function show(Channel $channel): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
         app('Log')::debug(make_name_readable(__FUNCTION__));

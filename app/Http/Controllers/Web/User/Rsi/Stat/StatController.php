@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Rsi\Stat;
 
@@ -6,11 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Api\StarCitizen\Stat\Stat;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class StatController extends Controller
 {
-    public function index(Request $request) {
+    /**
+     * @param Request $request
+     *
+     * @return View
+     *
+     * @throws AuthorizationException
+     */
+    public function index(Request $request): View
+    {
         $this->authorize('web.user.rsi.stats.view');
 
         $every = $request->get('skip', 100);
@@ -28,7 +38,7 @@ class StatController extends Controller
         if ($every === 0) {
             $data = Stat::query();
         } else {
-            $data = Stat::query()->whereRaw('id mod ' . $every . ' = 0');
+            $data = Stat::query()->whereRaw('id mod '.$every.' = 0');
         }
 
         $from = null;

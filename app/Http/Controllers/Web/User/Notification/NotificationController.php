@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Notification;
 
@@ -6,8 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Web\SendNotificationEmail;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
@@ -18,7 +23,7 @@ class NotificationController extends Controller
     private const ADMIN_NOTIFICATION_INDEX = 'web.user.notifications.index';
     private const NOTIFICATION = 'Benachrichtigung';
 
-    private $jobDelay = null;
+    private $jobDelay;
 
     /**
      * Notification Controller constructor.
@@ -30,9 +35,9 @@ class NotificationController extends Controller
     }
 
     /**
-     * @return \Illuminate\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function index(): View
     {
@@ -48,9 +53,9 @@ class NotificationController extends Controller
     }
 
     /**
-     * @return \Illuminate\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function create(): View
     {
@@ -61,13 +66,13 @@ class NotificationController extends Controller
     }
 
     /**
-     * @param \App\Models\Api\Notification $notification
+     * @param Notification $notification
      *
-     * @return \Illuminate\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function edit(Notification $notification)
+    public function edit(Notification $notification): View
     {
         $this->authorize('web.user.notifications.update');
         app('Log')::debug(make_name_readable(__FUNCTION__), ['id' => $notification->id]);
@@ -81,12 +86,12 @@ class NotificationController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return $this|\Illuminate\Database\Eloquent\Model
+     * @return $this|Model
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws AuthorizationException
+     * @throws ValidationException
      */
     public function store(Request $request)
     {
@@ -108,11 +113,11 @@ class NotificationController extends Controller
         $this->processOutput($data);
         $this->processPublishedAt($data);
 
-        if (!is_null($data['expired_at'])) {
+        if ($data['expired_at'] !== null) {
             $data['expired_at'] = Carbon::parse($data['expired_at'])->toDateTimeString();
         }
 
-        if (!array_key_exists('order', $data) || is_null($data['order'])) {
+        if (!array_key_exists('order', $data) || $data['order'] === null) {
             $data['order'] = 0;
         }
 
@@ -132,14 +137,59 @@ class NotificationController extends Controller
     }
 
     /**
-     * @param \Illuminate\Http\Request     $request
-     * @param \App\Models\Api\Notification $notification
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Exception
+     * @param array $data
      */
-    public function update(Request $request, Notification $notification)
+    private function processOutput(array &$data): void
+    {
+        $outputs = [
+            'output_status' => false,
+            'output_email' => false,
+            'output_index' => false,
+        ];
+
+        foreach (Arr::pull($data, 'output') as $type) {
+            $data['output_'.$type] = true;
+        }
+
+        $data = array_merge($outputs, $data);
+    }
+
+    /**
+     * @param array $data
+     */
+    private function processPublishedAt(array &$data): void
+    {
+        if (array_key_exists('published_at', $data) && $data['published_at'] !== null) {
+            $data['published_at'] = Carbon::parse($data['published_at'])->toDateTimeString();
+            $this->jobDelay = Carbon::parse($data['published_at']);
+        } else {
+            $data['published_at'] = Carbon::now()->toDateTimeString();
+        }
+    }
+
+    /**
+     * @param Notification $notification
+     */
+    private function dispatchJob(Notification $notification)
+    {
+        $job = (new SendNotificationEmail($notification));
+
+        if ($this->jobDelay !== null) {
+            $job->delay($this->jobDelay);
+        }
+
+        $this->dispatch($job);
+    }
+
+    /**
+     * @param Request      $request
+     * @param Notification $notification
+     *
+     * @return RedirectResponse
+     *
+     * @throws Exception
+     */
+    public function update(Request $request, Notification $notification): RedirectResponse
     {
         $this->authorize('web.user.notifications.update');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -168,7 +218,8 @@ class NotificationController extends Controller
 
         $resendEmail = (bool) Arr::pull($data, 'resend_email', false);
 
-        if (($notification->output_email === false && $data['output_email'] === true && !$notification->expired()) || true === $resendEmail) {
+        if (true === $resendEmail || ($notification->output_email === false && $data['output_email'] === true && !$notification->expired(
+                ))) {
             $this->dispatchJob($notification);
         }
 
@@ -184,13 +235,13 @@ class NotificationController extends Controller
     }
 
     /**
-     * @param \App\Models\Api\Notification $notification
+     * @param Notification $notification
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function destroy(Notification $notification)
+    public function destroy(Notification $notification): RedirectResponse
     {
         $this->authorize('web.user.notifications.delete');
         app('Log')::debug(make_name_readable(__FUNCTION__));
@@ -204,50 +255,5 @@ class NotificationController extends Controller
                 ],
             ]
         );
-    }
-
-    /**
-     * @param array $data
-     */
-    private function processOutput(array &$data)
-    {
-        $outputs = [
-            'output_status' => false,
-            'output_email' => false,
-            'output_index' => false,
-        ];
-
-        foreach (Arr::pull($data, 'output') as $type) {
-            $data['output_'.$type] = true;
-        }
-
-        $data = array_merge($outputs, $data);
-    }
-
-    /**
-     * @param array $data
-     */
-    private function processPublishedAt(array &$data)
-    {
-        if (array_key_exists('published_at', $data) && !is_null($data['published_at'])) {
-            $data['published_at'] = Carbon::parse($data['published_at'])->toDateTimeString();
-            $this->jobDelay = Carbon::parse($data['published_at']);
-        } else {
-            $data['published_at'] = Carbon::now()->toDateTimeString();
-        }
-    }
-
-    /**
-     * @param \App\Models\Api\Notification $notification
-     */
-    private function dispatchJob(Notification $notification)
-    {
-        $job = (new SendNotificationEmail($notification));
-
-        if (!is_null($this->jobDelay)) {
-            $job->delay($this->jobDelay);
-        }
-
-        $this->dispatch($job);
     }
 }
