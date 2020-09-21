@@ -1,7 +1,6 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace App\ImageHash\Implementations;
+namespace App\Services\ImageHash\Implementations;
 
 use Intervention\Image\Image;
 use Jenssegers\ImageHash\Hash;

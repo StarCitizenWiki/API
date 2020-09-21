@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
-use App\ImageHash\Implementations\PerceptualHash2;
+use App\Services\ImageHash\Implementations\PerceptualHash2;
 use App\Jobs\Rsi\CommLink\Parser\Element\Image as ImageParser;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;

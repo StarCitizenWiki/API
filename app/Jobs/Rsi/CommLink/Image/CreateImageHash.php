@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Rsi\CommLink\Image;
 
-use App\ImageHash\Implementations\PerceptualHash2;
+use App\Services\ImageHash\Implementations\PerceptualHash2;
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\Image\Image;
 use GuzzleHttp\Exception\ClientException;
