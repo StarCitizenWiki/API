@@ -34,24 +34,11 @@ class CreateImageHashes extends QueueCommand
 
         $this->info('Starting calculation of image hashes');
 
-        $query = Image::query()
-            ->whereHas('commLinks')
-            ->whereDoesntHave('hash')
-            ->whereHas('metadata', function (Builder $query) {
-                $query->where('size', '<', 1024 * 1024 * 10); // Max 10MB files
-            })
-            ->where(
-                function (Builder $query) {
-                    $query->orWhereRaw('LOWER(src) LIKE \'%.jpg\'')
-                        ->orWhereRaw('LOWER(src) LIKE \'%.jpeg\'')
-                        ->orWhereRaw('LOWER(src) LIKE \'%.png\'')
-                        ->orWhereRaw('LOWER(src) LIKE \'%.webp\'');
-                }
-            );
+        $images = $this->getImages();
 
-        $this->createProgressBar($query->count());
+        $this->createProgressBar($images->count());
 
-        $query->chunk(
+        $images->chunk(
             100,
             function (Collection $images) {
                 $images->each(
@@ -66,5 +53,32 @@ class CreateImageHashes extends QueueCommand
         $this->finishBar();
 
         return 0;
+    }
+
+    /**
+     * The images to create hashes for
+     * Image needs to have an attached comm link and metadata
+     *
+     * @return Builder
+     */
+    private function getImages(): Builder
+    {
+        return Image::query()
+            ->whereHas('commLinks')
+            ->whereDoesntHave('hash')
+            ->whereHas(
+                'metadata',
+                function (Builder $query) {
+                    $query->where('size', '<', 1024 * 1024 * 10); // Max 10MB files
+                }
+            )
+            ->where(
+                function (Builder $query) {
+                    $query->orWhereRaw('LOWER(src) LIKE \'%.jpg\'')
+                        ->orWhereRaw('LOWER(src) LIKE \'%.jpeg\'')
+                        ->orWhereRaw('LOWER(src) LIKE \'%.png\'')
+                        ->orWhereRaw('LOWER(src) LIKE \'%.webp\'');
+                }
+            );
     }
 }

@@ -10,13 +10,11 @@
 
 namespace App\Console\Commands\CommLink\Image;
 
+use App\Console\Commands\CommLink\AbstractCommLinkCommand as CommLinkCommand;
 use Illuminate\Bus\Dispatcher;
-use Illuminate\Console\Command;
 
-class SyncImageIds extends Command
+class SyncImageIds extends CommLinkCommand
 {
-    public const FIRST_COMM_LINK_ID = 12663;
-
     /**
      * The name and signature of the console command.
      *
@@ -56,14 +54,10 @@ class SyncImageIds extends Command
     public function handle(): int
     {
         $this->info('Dispatching Comm-Link Image Sync');
-        $offset = (int) $this->argument('offset');
-        if ($offset >= 0) {
-            if ($offset < self::FIRST_COMM_LINK_ID) {
-                $offset = self::FIRST_COMM_LINK_ID + $offset;
-            }
 
-            $this->info("Starting at Comm-Link ID {$offset}");
-        }
+        $offset = $this->parseOffset();
+
+        $this->info("Starting at Comm-Link ID {$offset}");
 
         $this->dispatcher->dispatch(new \App\Jobs\Rsi\CommLink\SyncImageIds($offset));
 
