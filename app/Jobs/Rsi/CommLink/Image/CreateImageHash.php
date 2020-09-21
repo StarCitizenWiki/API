@@ -21,7 +21,10 @@ use Jenssegers\ImageHash\Implementations\DifferenceHash;
 
 class CreateImageHash extends BaseDownloadData implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private Image $image;
     private ImageHash $perceptionHasher;
