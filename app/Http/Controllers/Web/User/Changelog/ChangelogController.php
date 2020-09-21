@@ -31,7 +31,10 @@ class ChangelogController extends Controller
     {
         $this->authorize('web.user.changelogs.view');
 
-        $changelogs = ModelChangelog::query()->orderByDesc('id')->paginate(25);
+        $changelogs = ModelChangelog::query()
+            ->with('changelog')
+            ->orderByDesc('id')
+            ->paginate(25);
 
         return view(
             'user.changelog.index',

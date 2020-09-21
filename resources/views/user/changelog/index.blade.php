@@ -28,44 +28,36 @@
                             </td>
                         @endcan
                         <td>
-                            @unless(null === $changelog->user)
-                                <a href="{{ route('web.user.users.edit', $changelog->user->getRouteKey()) }}">{{ $changelog->user->username }}</a>
-                            @else
-                                {{ config('app.name') }}
-                            @endunless
-                        </td>
-                        <td
-                        @if($changelog->type === 'update')
-                            @php
-                            $str = [];
-                            foreach($changelog->changelog['changes'] as $key => $change) {
-                                if (is_array($change['old'])) {
-                                    $str[] = ucfirst($key).": ".implode(', ', $change['old'])." &rarr; ".implode(', ', $change['new']);
-                                } else {
-                                    $str[] = ucfirst($key).": ".\Illuminate\Support\Str::limit($change['old'], 40, "&hellip;")." &rarr; ".\Illuminate\Support\Str::limit($change['new'], 40, "&hellip;");
-                                }
-                            }
-                            $str = implode('<br>', $str);
-                            @endphp
-                            title="Änderungen"
-                            data-content="{!! $str !!}"
-                            data-toggle="popover"
-                            data-html="true"
-                        @endif
-                        >
-                            @if($changelog->type === 'update')
-                                <u style="cursor: pointer;">{{ __($changelog->type) }}</u>
-                            @else
-                                {{ __($changelog->type) }}
-                            @endif
+                            {{ $changelog->user_link }}
                         </td>
                         <td>
+                            <a data-toggle="collapse" href="#details_{{$loop->index}}" role="button"
+                               aria-expanded="false" aria-controls="#details_{{$loop->index}}">
+                                <u>{{ __($changelog->type) }}</u>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ $changelog->model_route }}">
                             {{ class_basename($changelog->changelog_type) }}
+                            </a>
                         </td>
                         <td data-content="{{ $changelog->created_at->format('d.m.Y H:i:s') }}" data-toggle="popover">
                             {{ $changelog->created_at->diffForHumans() }}
                         </td>
                     </tr>
+
+                    <tr id="details_{{ $loop->index }}" class="collapse" style="overflow-y:scroll">
+                        <td colspan="5">
+                            @unless($changelog->model_route === '#')
+                                <a href="{{ $changelog->model_route }}">{{ __('Änderungen') }} {{ __('Ansehen') }}</a>
+                                <hr>
+                            @endunless
+
+                            <p class="mb-0">Details:</p>
+                            <pre><code class="mb-0">{!! $changelog->formatted_changelog !!}</code></pre>
+                        </td>
+                    </tr>
+
                 @empty
                     <tr>
                         <td colspan="9">@lang('Keine Änderungen vorhanden')</td>
