@@ -7,7 +7,7 @@ use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\System\Language;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 /**
@@ -73,11 +73,11 @@ class SizeController extends Controller
      * @param TranslationRequest $request
      * @param Size               $size
      *
-     * @return Response
+     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */
-    public function update(TranslationRequest $request, Size $size): Response
+    public function update(TranslationRequest $request, Size $size): RedirectResponse
     {
         $this->authorize('web.user.translations.update');
 
