@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\Manufacturer;
 
@@ -7,6 +7,7 @@ use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Manufacturer Model
@@ -54,5 +55,18 @@ class Manufacturer extends HasTranslations
     public function getRouteKeyName()
     {
         return 'name_short';
+    }
+
+    /**
+     * @return HasManyThrough
+     */
+    public function translationChangelogs(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            \App\Models\System\ModelChangelog::class,
+            ManufacturerTranslation::class,
+            'manufacturer_id',
+            'changelog_id'
+        )->where('changelog_type', ManufacturerTranslation::class);
     }
 }

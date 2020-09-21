@@ -75,7 +75,9 @@ class ManufacturerController extends Controller
             [
                 'manufacturer' => $manufacturer,
                 'updateRoute' => self::MANUFACTURER_PERMISSION,
-                'changelogs' => $manufacturer->changelogs,
+                'changelogs' => $manufacturer->changelogs
+                    ->merge($manufacturer->translationChangelogs)
+                    ->sortByDesc('created_at'),
             ]
         );
     }
