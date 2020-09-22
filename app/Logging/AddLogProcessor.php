@@ -16,7 +16,7 @@ class AddLogProcessor
     /**
      * @param Logger $monolog
      */
-    public function __invoke(Logger $monolog)
+    public function __invoke($monolog)
     {
         $monolog->pushProcessor(new UserInfoProcessor());
         $monolog->pushProcessor(new WebProcessor());
