@@ -20,10 +20,10 @@ class ProductionNoteControllerBlockedTest extends ProductionNoteControllerTestCa
         'index' => Response::HTTP_FORBIDDEN,
 
         'edit' => Response::HTTP_FORBIDDEN,
-        'edit_not_found' => Response::HTTP_FORBIDDEN,
+        'edit_not_found' => Response::HTTP_NOT_FOUND,
 
         'update' => Response::HTTP_FORBIDDEN,
-        'update_not_found' => Response::HTTP_FORBIDDEN,
+        'update_not_found' => Response::HTTP_NOT_FOUND,
     ];
 
     /**
