@@ -6,7 +6,9 @@ namespace App\Models\Account\User;
 
 use App\Models\System\ModelChangelog;
 use App\Models\System\Session;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscateRouteKey;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -16,7 +18,6 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     use Notifiable;
-    use ObfuscateRouteKey;
 
     protected $fillable = [
         'username',
@@ -70,9 +71,9 @@ class User extends Authenticatable
     /**
      * Associated Changelogs
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function changelogs()
+    public function changelogs(): HasMany
     {
         return $this->hasMany(ModelChangelog::class);
     }
@@ -90,25 +91,25 @@ class User extends Authenticatable
     /**
      * Returns only Users with 'bureaucrat' or 'sysop' group
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
-    public function adminGroup()
+    public function adminGroup(): BelongsToMany
     {
         return $this->groups()->admin();
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
-    public function groups()
+    public function groups(): BelongsToMany
     {
         return $this->belongsToMany(UserGroup::class)->orderByDesc('permission_level');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
-    public function settings()
+    public function settings(): HasOne
     {
         return $this->hasOne(UserSetting::class)->withDefault();
     }
@@ -116,7 +117,7 @@ class User extends Authenticatable
     /**
      * @return bool
      */
-    public function receiveApiNotifications()
+    public function receiveApiNotifications(): bool
     {
         return $this->settings->receive_api_notifications ?? false;
     }
@@ -124,15 +125,15 @@ class User extends Authenticatable
     /**
      * @return bool
      */
-    public function receiveCommLinkNotifications()
+    public function receiveCommLinkNotifications(): bool
     {
         return $this->settings->receive_comm_link_notifications ?? false;
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function sessions()
+    public function sessions(): HasMany
     {
         return $this->hasMany(Session::class, 'user_id', 'id');
     }

@@ -6,7 +6,6 @@ namespace App\Models\Api;
 
 use App\Events\ModelUpdating;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Notification extends Model
 {
-    use ObfuscatedRouteKey;
     use ModelChangelog;
 
     public const NOTIFICATION_LEVEL_TYPES = [
