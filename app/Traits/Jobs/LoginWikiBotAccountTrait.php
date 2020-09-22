@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * User: Hannes
  * Date: 19.10.2018
@@ -20,12 +22,12 @@ trait LoginWikiBotAccountTrait
         $manager = app('mediawikiapi.manager');
 
         $manager->setConsumerFromCredentials(
-            (string) config('services.wiki_translations.consumer_token'),
-            (string) config('services.wiki_translations.consumer_secret')
+            (string)config('services.wiki_translations.consumer_token'),
+            (string)config('services.wiki_translations.consumer_secret')
         );
         $manager->setTokenFromCredentials(
-            (string) config('services.wiki_translations.access_token'),
-            (string) config('services.wiki_translations.access_secret')
+            (string)config('services.wiki_translations.access_token'),
+            (string)config('services.wiki_translations.access_secret')
         );
     }
 }

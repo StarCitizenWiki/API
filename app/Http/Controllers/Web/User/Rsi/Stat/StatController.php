@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Rsi\Stat;
 
@@ -33,12 +35,12 @@ class StatController extends Controller
             $every = 0;
         }
 
-        $every = (int) $every;
+        $every = (int)$every;
 
         if ($every === 0) {
             $data = Stat::query();
         } else {
-            $data = Stat::query()->whereRaw('id mod '.$every.' = 0');
+            $data = Stat::query()->whereRaw('id mod ' . $every . ' = 0');
         }
 
         $from = null;

@@ -1,8 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 19.08.2018 21:01
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
@@ -24,14 +22,14 @@ class ParseJumppoint implements ShouldQueue
     use SerializesModels;
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
-    protected $rawData;
+    protected Collection $rawData;
 
     /**
      * Create a new job instance.
      *
-     * @param \Illuminate\Support\Collection $rawData
+     * @param Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
@@ -43,7 +41,7 @@ class ParseJumppoint implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         //TODO
     }

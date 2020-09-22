@@ -1,8 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 19.08.2018 21:01
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
@@ -27,14 +25,14 @@ class ParseStarsytem implements ShouldQueue
     protected const LANGUAGE_EN = 'en_EN';
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
     protected $rawData;
 
     /**
      * Create a new job instance.
      *
-     * @param \Illuminate\Support\Collection $rawData
+     * @param Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
@@ -48,7 +46,7 @@ class ParseStarsytem implements ShouldQueue
      */
     public function handle(): void
     {
-        /** @var \App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem $starsystem */
+        /** @var Starsystem $starsystem */
         $starsystem = Starsystem::updateOrCreate(
             [
                 'code' => $this->rawData['code'],

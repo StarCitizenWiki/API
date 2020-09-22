@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink\Category;
 
@@ -6,7 +8,7 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Transformers\Api\V1\Rsi\CommLink\Category\CategoryTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
-use Dingo\Api\Contract\Http\Request;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 

@@ -1,9 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Account\User;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class AdminSetting
@@ -25,25 +28,25 @@ class UserSetting extends Model
     /**
      * The associated Admin
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      */
-    public function scopeReceiveApiNotifications(Builder $query)
+    public function scopeReceiveApiNotifications(Builder $query): void
     {
         $query->where('receive_api_notifications', true);
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      */
-    public function scopeReceiveCommLinkNotifications(Builder $query)
+    public function scopeReceiveCommLinkNotifications(Builder $query): void
     {
         $query->where('receive_comm_link_notifications', true);
     }

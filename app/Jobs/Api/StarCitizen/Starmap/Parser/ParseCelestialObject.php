@@ -1,8 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 19.08.2018 21:01
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
@@ -13,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+
 
 /**
  * Class ParseCelestialObject
@@ -27,22 +26,22 @@ class ParseCelestialObject implements ShouldQueue
     protected const LANGUAGE_EN = 'en_EN';
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
-    protected $rawData;
+    protected Collection $rawData;
 
     /**
      * @var int Starsystem Id
      */
-    private $starsystemId;
+    private int $starsystemId;
 
     /**
      * Create a new job instance.
      *
-     * @param \Illuminate\Support\Collection $rawData
-     * @param int                            $starsystemId
+     * @param Collection $rawData
+     * @param int        $starsystemId
      */
-    public function __construct(Collection $rawData, $starsystemId)
+    public function __construct(Collection $rawData, int $starsystemId)
     {
         $this->rawData = $rawData;
         $this->starsystemId = $starsystemId;
@@ -53,13 +52,13 @@ class ParseCelestialObject implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         if (empty($this->rawData['subtype'])) {
-            app('Log')::warning("Parse Celestial Object: empty=true");
+            app('Log')::warning('Parse Celestial Object: empty=true');
         }
 
-        /** @var \App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject $celestialObject */
+        /** @var CelestialObject $celestialObject */
         $celestialObject = CelestialObject::updateOrCreate(
             [
                 'code' => $this->rawData['code'],

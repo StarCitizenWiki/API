@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen;
 
@@ -111,11 +113,13 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
         HasTranslations $model,
         Collection $translations
     ) {
-        if ($translation instanceof Language && !in_array(
+        if (
+            $translation instanceof Language && !in_array(
                 $translation->locale_code,
                 $this->missingTranslations,
                 true
-            )) {
+            )
+        ) {
             $this->addMissingTranslation($translation->locale_code);
         }
 

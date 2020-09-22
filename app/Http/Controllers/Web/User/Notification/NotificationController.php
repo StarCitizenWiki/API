@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Notification;
 
@@ -211,7 +213,7 @@ class NotificationController extends Controller
         $data['expired_at'] = Carbon::parse($request->get('expired_at'));
         $this->processPublishedAt($data);
 
-        $resendEmail = (bool) Arr::pull($data, 'resend_email', false);
+        $resendEmail = (bool)Arr::pull($data, 'resend_email', false);
 
         if (
             true === $resendEmail || ($notification->output_email === false && $data['output_email'] === true && !$notification->expired(

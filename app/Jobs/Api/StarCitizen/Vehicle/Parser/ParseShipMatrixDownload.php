@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
@@ -13,6 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use RuntimeException;
+
 use function GuzzleHttp\json_decode;
 
 /**

@@ -1,11 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
+use stdClass;
+
 use function GuzzleHttp\json_decode;
-use \stdClass;
 
 /**
  * Class AbstractRSIDownloadData

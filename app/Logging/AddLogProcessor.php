@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Logging;
 
@@ -14,7 +16,7 @@ class AddLogProcessor
     /**
      * @param Logger $monolog
      */
-    public function __invoke($monolog)
+    public function __invoke(Logger $monolog)
     {
         $monolog->pushProcessor(new UserInfoProcessor());
         $monolog->pushProcessor(new WebProcessor());

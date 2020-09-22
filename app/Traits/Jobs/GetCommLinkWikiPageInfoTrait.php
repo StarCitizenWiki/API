@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Traits\Jobs;
 
@@ -75,6 +77,20 @@ trait GetCommLinkWikiPageInfoTrait
     }
 
     /**
+     * @param MediaWikiResponse $response
+     */
+    private function formatApiError(MediaWikiResponse $response): void
+    {
+        throw new RuntimeException(
+            sprintf(
+                '%s: "%s"',
+                'MediaWiki Api Result has Error(s)',
+                is_array($response->getErrors()) ? implode(', ', $response->getErrors()) : $response->getErrors(),
+            )
+        );
+    }
+
+    /**
      * @param string $page
      *
      * @return array
@@ -101,19 +117,5 @@ trait GetCommLinkWikiPageInfoTrait
             'template' => $template,
             'category' => $cleanCategory,
         ];
-    }
-
-    /**
-     * @param MediaWikiResponse $response
-     */
-    private function formatApiError(MediaWikiResponse $response): void
-    {
-        throw new RuntimeException(
-            sprintf(
-                '%s: "%s"',
-                'MediaWiki Api Result has Error(s)',
-                is_array($response->getErrors()) ? implode(', ', $response->getErrors()) : $response->getErrors(),
-            )
-        );
     }
 }

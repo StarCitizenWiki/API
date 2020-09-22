@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Requests\System;
 
@@ -34,9 +36,9 @@ class TranslationRequest extends FormRequest
 
         foreach ($localeCodes as $code => $language) {
             if (config('language.english') === $language->locale_code) {
-                $rules[$code] = 'required'.$rule;
+                $rules[$code] = 'required' . $rule;
             } else {
-                $rules[$code] = 'present'.$rule;
+                $rules[$code] = 'present' . $rule;
             }
         }
 

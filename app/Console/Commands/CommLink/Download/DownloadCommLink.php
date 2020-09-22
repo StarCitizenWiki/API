@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Download;
 
@@ -65,7 +67,7 @@ class DownloadCommLink extends CommLinkCommand
         )
             ->filter(
                 static function ($id) {
-                    return (int) $id >= self::FIRST_COMM_LINK_ID;
+                    return (int)$id >= self::FIRST_COMM_LINK_ID;
                 }
             )
             ->tap(
@@ -84,7 +86,7 @@ class DownloadCommLink extends CommLinkCommand
         $this->finishBar();
 
         if ($this->option('import') === true) {
-            $this->dispatchImportJob((int) $minId);
+            $this->dispatchImportJob((int)$minId);
         }
 
         return 0;

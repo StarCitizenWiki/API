@@ -1,8 +1,6 @@
-<?php declare(strict_types=1);
-/**
- * User: Keonie
- * Date: 07.08.2018 15:20
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
@@ -16,7 +14,7 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
 {
 
     /**
-     * @param \App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject $celestialObject
+     * @param CelestialObject $celestialObject
      *
      * @return array
      */
@@ -49,18 +47,13 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
             'size' => $celestialObject->size,
             'parent_id' => $celestialObject->parent_id,
             'subtype' => [
-                'name' => !empty($celestialObject->celestial_object_subtype) ?
-                    $celestialObject->celestial_object_subtype->name : "",
-                'type' => !empty($celestialObject->celestial_object_subtype) ?
-                    $celestialObject->celestial_object_subtype->type : "",
+                'name' => $celestialObject->celestial_object_subtype->name ?? '',
+                'type' => $celestialObject->celestial_object_subtype->type ?? '',
             ],
             'affiliation' => [
-                'name' => !empty($celestialObject->affiliation) ?
-                    $celestialObject->affiliation->name : "",
-                'code' => !empty($celestialObject->affiliation) ?
-                    $celestialObject->affiliation->code : "",
-                'color' => !empty($celestialObject->affiliation) ?
-                    $celestialObject->affiliation->color : "",
+                'name' => $celestialObject->affiliation->name ?? '',
+                'code' => $celestialObject->affiliation->code ?? '',
+                'color' => $celestialObject->affiliation->color ?? '',
             ],
         ];
     }

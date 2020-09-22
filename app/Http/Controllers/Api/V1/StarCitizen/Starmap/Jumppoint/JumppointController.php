@@ -1,8 +1,6 @@
-<?php declare(strict_types=1);
-/**
- * User: Keonie
- * Date: 07.08.2018 14:13
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\Jumppoint;
 
@@ -10,7 +8,8 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer;
-use Dingo\Api\Contract\Http\Request;
+use Dingo\Api\Http\Request;
+use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use InvalidArgumentException;
 
@@ -22,8 +21,8 @@ class JumppointController extends ApiController
     /**
      * JumppointController constructor.
      *
-     * @param \Illuminate\Http\Request                                          $request
-     * @param \App\Transformers\Api\V1\StarCitizen\Starmap\JumppointTransformer $transformer
+     * @param Request              $request
+     * @param JumppointTransformer $transformer
      */
     public function __construct(Request $request, JumppointTransformer $transformer)
     {
@@ -35,12 +34,12 @@ class JumppointController extends ApiController
     /**
      * @param int $id
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function show($id)
+    public function show($id): Response
     {
         try {
-            /** @var \App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint $jumppoint */
+            /** @var Jumppoint $jumppoint */
             $jumppoint = Jumppoint::where('cig_id', $id)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $id));
@@ -52,13 +51,13 @@ class JumppointController extends ApiController
     /**
      * @param String $starsystemName
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function showByStarsystem(string $starsystemName)
+    public function showByStarsystem(string $starsystemName): Response
     {
         //TODO prüfen ob paginator so funktioniert (ggf. noch get())
         $starsystem = Starsystem::where('code', $starsystemName)->paginator(100);
-        if (is_null($starsystem)) {
+        if ($starsystem === null) {
             throw new InvalidArgumentException("Starsystem {$starsystemName} not found!");
         }
 
@@ -72,9 +71,9 @@ class JumppointController extends ApiController
     }
 
     /**
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         return $this->getResponse(Jumppoint::query());
     }

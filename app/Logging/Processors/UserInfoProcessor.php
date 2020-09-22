@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Logging\Processors;
 
@@ -16,13 +18,13 @@ class UserInfoProcessor
     {
         $auth = app('Auth');
         $userData = [
-            'id'   => '',
+            'id' => '',
             'name' => '',
         ];
 
         $userData['name'] = $auth::user()->name ?? $auth::user()->email ?? null;
 
-        if (is_null($userData['name'])) {
+        if ($userData['name'] === null) {
             if (app()->environment(['local', 'testing'])) {
                 $userData['name'] = 'localhost';
             } elseif (app()->environment('production')) {

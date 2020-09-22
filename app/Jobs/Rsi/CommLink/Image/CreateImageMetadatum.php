@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
  * Copyright (c) 2020
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -60,11 +62,13 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
         } catch (ClientException $e) {
             app('Log')::info("Header request resulted in code {$e->getCode()}", [$url]);
 
-            $this->image->metadata()->create([
-                'mime' => 'undefined',
-                'size' => 0,
-                'last_modified' => '0001-01-01 00:00:00',
-            ]);
+            $this->image->metadata()->create(
+                [
+                    'mime' => 'undefined',
+                    'size' => 0,
+                    'last_modified' => '0001-01-01 00:00:00',
+                ]
+            );
 
             return;
         }
@@ -75,7 +79,7 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
             'last_modified' => Carbon::parse($response->getHeaderLine('last-modified'))->toDateTimeString(),
         ];
 
-        foreach ($data as $key => $datum){
+        foreach ($data as $key => $datum) {
             if ($datum === '') {
                 unset($data[$key]);
             }

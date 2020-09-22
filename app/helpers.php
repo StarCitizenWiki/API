@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 if (!function_exists('get_cache_key_for_current_request')) {
     /**
@@ -42,7 +44,6 @@ if (!function_exists('get_bootstrap_class_from_log_level')) {
 }
 
 if (!function_exists('str_split_unicode')) {
-
     /**
      * Splits a Unicode String into the given length chunks.
      *
@@ -57,7 +58,7 @@ if (!function_exists('str_split_unicode')) {
         if ($length > 1) {
             $chunks = array_chunk($tmp, $length);
             foreach ($chunks as $i => $chunk) {
-                $chunks[$i] = implode('', (array) $chunk);
+                $chunks[$i] = implode('', (array)$chunk);
             }
             $tmp = $chunks;
         }

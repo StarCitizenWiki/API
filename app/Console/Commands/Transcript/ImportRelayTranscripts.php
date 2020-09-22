@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\Transcript;
 
@@ -31,7 +33,7 @@ class ImportRelayTranscripts extends Command
         if (null === $this->argument('startPage')) {
             dispatch(new ImportMissingTranscripts());
         } else {
-            dispatch(new ImportMissingTranscripts((int) $this->argument('startPage')));
+            dispatch(new ImportMissingTranscripts((int)$this->argument('startPage')));
         }
 
         return 0;

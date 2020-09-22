@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element;
 
@@ -97,10 +99,10 @@ class Component extends BaseElement
         );
 
         $component->pivotData = [
-            'mounts' => (int) $data->get(self::MOUNTS),
+            'mounts' => (int)$data->get(self::MOUNTS),
             'size' => $data->get(self::SIZE),
             'details' => $this->normalizeString($data->get(self::DETAILS)),
-            'quantity' => (int) $data->get(self::QUANTITY),
+            'quantity' => (int)$data->get(self::QUANTITY),
         ];
 
         return $component;

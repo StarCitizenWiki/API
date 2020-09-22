@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\ShipMatrix\Import;
 
-use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;

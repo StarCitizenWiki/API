@@ -44,15 +44,6 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-    }
-
-    /**
      * Loads migrations in Sub-folders.
      */
     private function loadMigrations()
@@ -70,5 +61,14 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->loadMigrationsFrom($migrationDirectories->toArray());
+    }
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
     }
 }

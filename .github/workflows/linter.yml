@@ -55,3 +55,5 @@ jobs:
           VALIDATE_JAVASCRIPT_ES: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_HTML: false
+
+          VALIDATE_PHP_BUILTIN: false # Not php 7.4 ready

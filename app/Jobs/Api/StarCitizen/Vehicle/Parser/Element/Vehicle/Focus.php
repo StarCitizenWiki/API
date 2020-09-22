@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\Vehicle;
 
@@ -42,7 +44,7 @@ class Focus extends BaseElement
         $vehicleFoci = array_map('trim', preg_split('/(\/|\s-\s|,)/', $rawFocus));
         $vehicleFociIDs = [];
 
-        app('Log')::debug('Vehicle Focus count: '.count($vehicleFoci));
+        app('Log')::debug('Vehicle Focus count: ' . count($vehicleFoci));
 
         collect($vehicleFoci)->each(
             function ($vehicleFocus) use (&$vehicleFociIDs) {
@@ -67,6 +69,20 @@ class Focus extends BaseElement
         );
 
         return $vehicleFociIDs;
+    }
+
+    /**
+     * @param string $rawFocus
+     *
+     * @return mixed|string
+     */
+    private function getNormalizedFocus(string $rawFocus)
+    {
+        if (null !== $rawFocus && is_string($rawFocus) && in_array($rawFocus, self::FOCI)) {
+            $rawFocus = self::FOCUS_NORMALIZED;
+        }
+
+        return $rawFocus;
     }
 
     /**
@@ -95,19 +111,5 @@ class Focus extends BaseElement
         );
 
         return $vehicleFocus;
-    }
-
-    /**
-     * @param string $rawFocus
-     *
-     * @return mixed|string
-     */
-    private function getNormalizedFocus(string $rawFocus)
-    {
-        if (null !== $rawFocus && is_string($rawFocus) && in_array($rawFocus, self::FOCI)) {
-            $rawFocus = self::FOCUS_NORMALIZED;
-        }
-
-        return $rawFocus;
     }
 }

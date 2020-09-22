@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Import;
 
@@ -38,7 +40,7 @@ class ImportCommLink extends Command
             return 1;
         }
 
-        $id = (int) $this->argument('id');
+        $id = (int)$this->argument('id');
 
         try {
             $commLink = CommLink::query()->where('cig_id', $id)->firstOrFail();

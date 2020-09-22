@@ -1,18 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Providers;
 
 use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
-use App\Models\Api\StarCitizen\Vehicle\Size\Size;
-use App\Models\Api\StarCitizen\Vehicle\Type\Type;
-use App\Models\Rsi\CommLink\Category\Category;
-use App\Models\Rsi\CommLink\Channel\Channel;
-use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\Series\Series;
 use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -53,75 +47,6 @@ class RouteServiceProvider extends ServiceProvider
                 ]
             )
         );
-    }
-
-    /**
-     * Define the routes for the application.
-     *
-     * @return void
-     */
-    public function map()
-    {
-        $this->mapApiRoutes();
-
-        $this->mapWebRoutes();
-    }
-
-    /**
-     * Define the "api" routes for the application.
-     * These routes are typically stateless.
-     *
-     * @return void
-     */
-    protected function mapApiRoutes()
-    {
-        /** @var \Dingo\Api\Routing\Router $api */
-        $api = app('Dingo\Api\Routing\Router');
-
-        $api->version(
-            'v1',
-            [
-                'namespace' => $this->namespace.'\Api\V1',
-                'middleware' => 'api',
-            ],
-            static function (ApiRouter $api) {
-                $api->group(
-                    [],
-                    static function (ApiRouter $api) {
-                        require base_path('routes/api/api_v1.php');
-                    }
-                );
-            }
-        );
-    }
-
-    /**
-     * Define the "web" routes for the application.
-     * These routes all receive session state, CSRF protection, etc.
-     *
-     * @return void
-     */
-    protected function mapWebRoutes()
-    {
-        Route::middleware('web')
-            ->name('web.')
-            ->namespace($this->namespace)
-            ->group(
-                function () {
-                    Route::namespace('Web')
-                        ->group(
-                            function () {
-                                Route::name('api.')
-                                    ->namespace('Api')
-                                    ->group(base_path('routes/web/api.php'));
-
-                                Route::name('user.')
-                                    ->namespace('User')
-                                    ->group(base_path('routes/web/user.php'));
-                            }
-                        );
-                }
-            );
     }
 
     /**
@@ -195,5 +120,74 @@ class RouteServiceProvider extends ServiceProvider
     private function authorizeTranslationView()
     {
         Gate::authorize('web.user.translations.view', Auth::user());
+    }
+
+    /**
+     * Define the routes for the application.
+     *
+     * @return void
+     */
+    public function map()
+    {
+        $this->mapApiRoutes();
+
+        $this->mapWebRoutes();
+    }
+
+    /**
+     * Define the "api" routes for the application.
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
+    protected function mapApiRoutes()
+    {
+        /** @var \Dingo\Api\Routing\Router $api */
+        $api = app('Dingo\Api\Routing\Router');
+
+        $api->version(
+            'v1',
+            [
+                'namespace' => $this->namespace . '\Api\V1',
+                'middleware' => 'api',
+            ],
+            static function (ApiRouter $api) {
+                $api->group(
+                    [],
+                    static function (ApiRouter $api) {
+                        require base_path('routes/api/api_v1.php');
+                    }
+                );
+            }
+        );
+    }
+
+    /**
+     * Define the "web" routes for the application.
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapWebRoutes()
+    {
+        Route::middleware('web')
+            ->name('web.')
+            ->namespace($this->namespace)
+            ->group(
+                function () {
+                    Route::namespace('Web')
+                        ->group(
+                            function () {
+                                Route::name('api.')
+                                    ->namespace('Api')
+                                    ->group(base_path('routes/web/api.php'));
+
+                                Route::name('user.')
+                                    ->namespace('User')
+                                    ->group(base_path('routes/web/user.php'));
+                            }
+                        );
+                }
+            );
     }
 }

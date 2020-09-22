@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Rsi\CommLink;
 
@@ -76,7 +78,6 @@ class CommLink extends HasTranslations
     public function getPrevAttribute()
     {
         return CommLink::query()->where('id', '<', $this->id)->orderBy('id', 'desc')->first(['cig_id']);
-
     }
 
     /**

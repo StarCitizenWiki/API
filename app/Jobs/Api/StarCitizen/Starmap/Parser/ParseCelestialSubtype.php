@@ -1,8 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 02.09.2018 20:29
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 

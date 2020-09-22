@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace App\Services\ImageHash\Implementations;
 
@@ -15,7 +16,7 @@ use LogicException;
  */
 final class PerceptualHash2 implements Implementation
 {
-    const DCT_11_16 = [
+    public const DCT_11_16 = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [
             0.99518473,
@@ -198,7 +199,7 @@ final class PerceptualHash2 implements Implementation
             0.55557023,
         ],
     ];
-    const DCT_11_32 = [
+    public const DCT_11_32 = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [
             0.99879546,
@@ -541,7 +542,7 @@ final class PerceptualHash2 implements Implementation
             0.88192126,
         ],
     ];
-    const DCT_11_64 = [
+    public const DCT_11_64 = [
         [
             1,
             1,
@@ -1318,7 +1319,7 @@ final class PerceptualHash2 implements Implementation
         for ($y = 0; $y < $this->size; $y++) {
             for ($x = 0; $x < $this->size; $x++) {
                 $rgb = $resized->pickColor($x, $y);
-                $row[$x] = (int) floor(($rgb[0] * 0.299) + ($rgb[1] * 0.587) + ($rgb[2] * 0.114));
+                $row[$x] = (int)floor(($rgb[0] * 0.299) + ($rgb[1] * 0.587) + ($rgb[2] * 0.114));
             }
             $rows[$y] = $this->calculateDCT($row, $matrixSize);
         }
@@ -1342,7 +1343,7 @@ final class PerceptualHash2 implements Implementation
         // Calculate hash.
         $bits = [];
         foreach ($pixels as $pixel) {
-            $bits[] = (int) ($pixel > $compare);
+            $bits[] = (int)($pixel > $compare);
         }
 
         return Hash::fromBits($bits);
@@ -1422,6 +1423,6 @@ final class PerceptualHash2 implements Implementation
         // Calculate the average value from top 8x8 pixels, except for the first one.
         $n = count($pixels) - 1;
 
-        return array_sum((array) array_slice($pixels, 1, $n)) / $n;
+        return array_sum((array)array_slice($pixels, 1, $n)) / $n;
     }
 }

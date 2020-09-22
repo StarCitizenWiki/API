@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element\Vehicle;
 

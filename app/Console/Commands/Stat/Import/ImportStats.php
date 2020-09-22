@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\Stat\Import;
 
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;

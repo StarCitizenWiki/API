@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap;
 
@@ -12,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+
 use function GuzzleHttp\json_decode;
 
 /**
@@ -159,10 +162,10 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
             $system = $system['code'];
 
             try {
-                $response = self::$client->post(self::STARSYSTEM_ENDPOINT.$system);
+                $response = self::$client->post(self::STARSYSTEM_ENDPOINT . $system);
             } catch (ConnectException $e) {
                 app('Log')::critical(
-                    'Could not connect to RSI Starmap '.$system,
+                    'Could not connect to RSI Starmap ' . $system,
                     [
                         'message' => $e->getMessage(),
                     ]

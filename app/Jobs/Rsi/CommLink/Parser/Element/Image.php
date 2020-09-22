@@ -79,51 +79,6 @@ class Image extends BaseElement
     }
 
     /**
-     * Try to get Original RSI Hash.
-     *
-     * @param string $src
-     *
-     * @return string|null
-     */
-    public static function getDirHash(string $src): ?string
-    {
-        $src = substr($src, 1);
-        $dir = str_replace('media/', '', $src);
-        $dir = explode('/', $dir);
-
-        return $dir[0] ?? null;
-    }
-
-    /**
-     * Cleans the IMG SRC.
-     *
-     * @param string $src IMG SRC
-     *
-     * @return string
-     */
-    public static function cleanImgSource(string $src): string
-    {
-        $srcUrlPath = parse_url($src, PHP_URL_PATH);
-        $srcUrlPath = str_replace(['%20', '%0A'], '', $srcUrlPath);
-
-        // if host is media.robertsspaceindustries.com
-        if (parse_url($src, PHP_URL_HOST) === self::RSI_DOMAINS[1]) {
-            $pattern = '/(\w+)\/(?:\w+)\.(\w+)/';
-            $replacement = '$1/source.$2';
-        } else {
-            $pattern = '/media\/(\w+)\/(\w+)\//';
-            $replacement = 'media/$1/source/';
-        }
-
-        $srcUrlPath = preg_replace($pattern, $replacement, $srcUrlPath);
-
-        $srcUrlPath = str_replace('//', '/', $srcUrlPath);
-        $srcUrlPath = trim(ltrim($srcUrlPath, '/'));
-
-        return "/{$srcUrlPath}";
-    }
-
-    /**
      * Extracts all <img> Elements from the Crawler
      * Saves src and alt attributes.
      */
@@ -266,5 +221,50 @@ class Image extends BaseElement
                 }
             );
         }
+    }
+
+    /**
+     * Cleans the IMG SRC.
+     *
+     * @param string $src IMG SRC
+     *
+     * @return string
+     */
+    public static function cleanImgSource(string $src): string
+    {
+        $srcUrlPath = parse_url($src, PHP_URL_PATH);
+        $srcUrlPath = str_replace(['%20', '%0A'], '', $srcUrlPath);
+
+        // if host is media.robertsspaceindustries.com
+        if (parse_url($src, PHP_URL_HOST) === self::RSI_DOMAINS[1]) {
+            $pattern = '/(\w+)\/(?:\w+)\.(\w+)/';
+            $replacement = '$1/source.$2';
+        } else {
+            $pattern = '/media\/(\w+)\/(\w+)\//';
+            $replacement = 'media/$1/source/';
+        }
+
+        $srcUrlPath = preg_replace($pattern, $replacement, $srcUrlPath);
+
+        $srcUrlPath = str_replace('//', '/', $srcUrlPath);
+        $srcUrlPath = trim(ltrim($srcUrlPath, '/'));
+
+        return "/{$srcUrlPath}";
+    }
+
+    /**
+     * Try to get Original RSI Hash.
+     *
+     * @param string $src
+     *
+     * @return string|null
+     */
+    public static function getDirHash(string $src): ?string
+    {
+        $src = substr($src, 1);
+        $dir = str_replace('media/', '', $src);
+        $dir = explode('/', $dir);
+
+        return $dir[0] ?? null;
     }
 }

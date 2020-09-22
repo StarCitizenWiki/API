@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\ProductionNote;
 
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
+use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Stat;
 
@@ -12,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use JsonException;
 
 /**
  * Class DownloadStats
@@ -23,10 +26,10 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const STATS_ENDPOINT = '/api/stats/getCrowdfundStats';
+    private const STATS_ENDPOINT = '/api/stats/getCrowdfundStats';
     private const STATS_DISK = 'stats';
 
-    private $force;
+    private bool $force;
 
     /**
      * DownloadShipMatrix constructor.
@@ -42,8 +45,9 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
      * Execute the job.
      *
      * @return void
+     * @throws JsonException
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Starting Stats Download Job.');
 
@@ -79,7 +83,7 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
             }
 
             try {
-                $response = $this->parseResponseBody((string) $response->getBody());
+                $response = $this->parseResponseBody((string)$response->getBody());
             } catch (InvalidArgumentException $e) {
                 app('Log')::error(
                     'Stats data is not valid json',
@@ -97,7 +101,10 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
                 return;
             }
 
-            Storage::disk(self::STATS_DISK)->put(sprintf('%d/%s', $year, $fileName), json_encode($response->data));
+            Storage::disk(self::STATS_DISK)->put(
+                sprintf('%d/%s', $year, $fileName),
+                json_encode($response->data, JSON_THROW_ON_ERROR)
+            );
         }
 
         app('Log')::info('Stat Download finished');

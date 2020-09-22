@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle;
 
@@ -13,6 +15,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
+
 use function GuzzleHttp\json_decode;
 
 /**
@@ -64,7 +67,7 @@ class CheckShipMatrixStructure implements ShouldQueue
             app('Log')::error('Ship Matrix structure changed, aborting job. Missing keys:', $keys->toArray());
             ShipMatrixStructureChanged::dispatch();
 
-            $this->fail('Ship Matrix structure changed. Missing keys: '.$keys->implode(', '));
+            $this->fail('Ship Matrix structure changed. Missing keys: ' . $keys->implode(', '));
         }
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
@@ -83,7 +85,7 @@ class Link extends BaseElement
 
                 if (null !== $src && null !== parse_url($src, PHP_URL_HOST)) {
                     if (null === parse_url($src, PHP_URL_SCHEME)) {
-                        $src = 'https:'.$src;
+                        $src = 'https:' . $src;
                     }
 
                     $this->links[] = [

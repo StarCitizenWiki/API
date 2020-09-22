@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Image;
 
-use App\Services\ImageHash\Implementations\PerceptualHash2;
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Services\ImageHash\Implementations\PerceptualHash2;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
@@ -26,11 +28,6 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private Image $image;
-    private ImageHash $perceptionHasher;
-    private ImageHash $differenceHasher;
-    private ImageHash $averageHasher;
-
     /**
      * Data used if Hash could not be created
      */
@@ -47,6 +44,10 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         'a_hash_1' => 0,
         'a_hash_2' => 0,
     ];
+    private Image $image;
+    private ImageHash $perceptionHasher;
+    private ImageHash $differenceHasher;
+    private ImageHash $averageHasher;
 
     /**
      * Create a new job instance.
