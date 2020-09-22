@@ -1,10 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * User: Keonie
- * Date: 13.08.2017 17:57.
- */
 
 namespace App\Jobs;
 

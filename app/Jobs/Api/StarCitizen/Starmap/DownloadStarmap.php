@@ -27,20 +27,20 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const STARMAP_BOOTUP_FILENAME = 'bootup.json';
+    private const STARMAP_BOOTUP_FILENAME = 'bootup.json';
 
     private const STARSYSTEM_BOOTUP_ENDPOINT = '/api/starmap/bootup';
     private const STARSYSTEM_ENDPOINT = '/api/starmap/star-systems/';
     private const STARSYSTEM_DISK = 'starsystem';
 
     // Requests for Celestial Subobject
-    const CELESTIAL_SUB_OBJECTS_REQUEST = ['PLANET'];
+    private const CELESTIAL_SUB_OBJECTS_REQUEST = ['PLANET'];
     // Add Type to Starmapdata
-    const CELESTIAL_SUB_OBJECTS_TYPE = ['LZ'];
+    private const CELESTIAL_SUB_OBJECTS_TYPE = ['LZ'];
 
-    const OVERVIEW_DATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
-    const CELESTIAL_OBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
-    const CELESTIAL_SUB_OBJECTS_CHECKLIST = ['data', 'resultset', 0, 'children', 0];
+    private const OVERVIEW_DATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
+    private const CELESTIAL_OBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
+    private const CELESTIAL_SUB_OBJECTS_CHECKLIST = ['data', 'resultset', 0, 'children', 0];
 
     /**
      * @var

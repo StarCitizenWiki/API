@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Web;
 
@@ -29,7 +31,7 @@ class SendNotificationEmail implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param \App\Models\Api\Notification $notification
+     * @param Notification $notification
      */
     public function __construct(Notification $notification)
     {
@@ -41,7 +43,7 @@ class SendNotificationEmail implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $users = User::query()->whereHas(
             'settings',

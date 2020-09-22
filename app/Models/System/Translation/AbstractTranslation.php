@@ -18,7 +18,7 @@ abstract class AbstractTranslation extends Model
 {
     use ModelChangelog;
 
-    const ATTR_LOCALE_CODE = '.locale_code';
+    private const ATTR_LOCALE_CODE = '.locale_code';
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,

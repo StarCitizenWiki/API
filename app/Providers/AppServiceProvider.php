@@ -50,7 +50,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $directoryIterator = new RecursiveDirectoryIterator(database_path('migrations'), FilesystemIterator::SKIP_DOTS);
         $migrationDirectories = new RecursiveIteratorIterator(
-            $directoryIterator, RecursiveIteratorIterator::SELF_FIRST
+            $directoryIterator,
+            RecursiveIteratorIterator::SELF_FIRST
         );
         $migrationDirectories = collect($migrationDirectories);
 

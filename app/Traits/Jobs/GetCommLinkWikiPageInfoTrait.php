@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Traits\Jobs;
 
-
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Support\Collection;
 use RuntimeException;
@@ -28,7 +27,7 @@ trait GetCommLinkWikiPageInfoTrait
      *
      * @return Collection
      */
-    private function getPageInfoForCommLinks(Collection $commLinks, bool $queryWithAuth = false)
+    private function getPageInfoForCommLinks(Collection $commLinks, bool $queryWithAuth = false): Collection
     {
         $this->queryWithAuth = $queryWithAuth;
 

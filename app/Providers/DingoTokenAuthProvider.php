@@ -1,11 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * User: Hannes
- * Date: 01.08.2018
- * Time: 20:40
- */
 
 namespace App\Providers;
 
@@ -26,12 +21,12 @@ class DingoTokenAuthProvider extends Authorization
     /**
      * Authenticate the request and return the authenticated user instance.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Dingo\Api\Routing\Route $route
+     * @param Request $request
+     * @param Route   $route
      *
-     * @return \App\Models\Account\User\User
+     * @return User
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
+     * @throws UnauthorizedHttpException
      */
     public function authenticate(Request $request, Route $route)
     {

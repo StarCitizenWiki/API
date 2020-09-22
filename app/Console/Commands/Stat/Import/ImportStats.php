@@ -25,7 +25,8 @@ class ImportStats extends Command
      *
      * @var string
      */
-    protected $description = 'Import the newest downloaded funding statistics file into the database. WARNING: Creates a new database record based on the latest downloaded file, can create DUPLICATE records';
+    protected $description = 'Import the newest downloaded funding statistics file into the database. ' .
+    'WARNING: Creates a new database record based on the latest downloaded file, can create DUPLICATE records';
 
     /**
      * @var Dispatcher

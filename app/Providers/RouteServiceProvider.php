@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Http\Throttle\ApiThrottle;
 use App\Models\Account\User\User;
 use App\Models\Api\Notification;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
@@ -40,7 +41,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->bindAdminModelRoutes();
 
         app(Handler::class)->extend(
-            new \App\Http\Throttle\ApiThrottle(
+            new ApiThrottle(
                 [
                     'limit' => config('api.throttle.limit_unauthenticated'),
                     'expires' => config('api.throttle.period_unauthenticated'),
@@ -58,7 +59,9 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind(
             'user',
             function ($id) {
-                // TODO unschöne Lösung. Implicit Model Binding läuft vor Policies -> Geblockter User bekommt für nicht existierendes Model 404 Fehler statt 403
+                // TODO unschöne Lösung.
+                // Implicit Model Binding läuft vor Policies -> Geblockter User bekommt für nicht existierendes
+                // Model 404 Fehler statt 403
                 // Mögliche Lösung: Model Typehint aus Controller entfernen und Model explizit aus DB holen
                 Gate::authorize('web.user.users.view', Auth::user());
                 $id = $this->decodeId($id, User::class);

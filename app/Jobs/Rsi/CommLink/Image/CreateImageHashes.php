@@ -16,7 +16,10 @@ use Illuminate\Support\Collection;
 
 class CreateImageHashes extends BaseDownloadData implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * @var int Offset to start parsing from

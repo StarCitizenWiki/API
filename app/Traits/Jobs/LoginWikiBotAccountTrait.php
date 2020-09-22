@@ -1,11 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * User: Hannes
- * Date: 19.10.2018
- * Time: 11:41
- */
 
 namespace App\Traits\Jobs;
 
@@ -17,7 +12,7 @@ trait LoginWikiBotAccountTrait
     /**
      * Resolves the MediaWikiApi Manager and logs the set Bot Acount in
      */
-    private function loginWikiBotAccount()
+    private function loginWikiBotAccount(): void
     {
         $manager = app('mediawikiapi.manager');
 

@@ -24,7 +24,7 @@ class DownloadJumppointTunnel extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const OVERVIEWDATA_CHECKLIST = ['data', 'tunnels', 'resultset', 0];
+    private const OVERVIEWDATA_CHECKLIST = ['data', 'tunnels', 'resultset', 0];
     private $jumppointtunnels;
     private $jumppointtunnelsUpdated = 0;
 
