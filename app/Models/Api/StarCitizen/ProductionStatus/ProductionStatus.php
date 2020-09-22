@@ -45,7 +45,7 @@ class ProductionStatus extends HasTranslations
     /**
      * @return HasMany
      */
-    public function translations()
+    public function translations(): HasMany
     {
         return $this->hasMany(ProductionStatusTranslation::class);
     }
