@@ -7,6 +7,12 @@ namespace App\Models\System;
 use App\Models\Account\User\User;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
+use App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation;
+use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation;
+use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
 use App\Models\Rsi\CommLink\CommLink;
@@ -85,8 +91,13 @@ class ModelChangelog extends Model
             case VehicleTranslation::class:
                 $relation = $relation->vehicle;
             case Vehicle::class:
+                $route = 'ground-vehicles';
+                if ($relation instanceof Ship) {
+                    $route = 'ships';
+                }
+
                 $route = route(
-                    'web.user.starcitizen.vehicles.ships.edit',
+                    'web.user.starcitizen.vehicles.' . $route . '.edit',
                     $relation->getRouteKey(),
                 );
                 break;
@@ -107,6 +118,41 @@ class ModelChangelog extends Model
                 $route = route(
                     'web.user.starcitizen.manufacturers.edit',
                     $relation->getRouteKey(),
+                );
+                break;
+
+            case TypeTranslation::class:
+                $route = route(
+                    'web.user.starcitizen.vehicles.types.edit',
+                    $relation->type->getRouteKey(),
+                );
+                break;
+
+            case SizeTranslation::class:
+                $route = route(
+                    'web.user.starcitizen.vehicles.sizes.edit',
+                    $relation->size->getRouteKey(),
+                );
+                break;
+
+            case FocusTranslation::class:
+                $route = route(
+                    'web.user.starcitizen.vehicles.foci.edit',
+                    $relation->focus->getRouteKey(),
+                );
+                break;
+
+            case ProductionStatusTranslation::class:
+                $route = route(
+                    'web.user.starcitizen.production-statuses.edit',
+                    $relation->productionStatus->getRouteKey(),
+                );
+                break;
+
+            case ProductionNoteTranslation::class:
+                $route = route(
+                    'web.user.starcitizen.production-notes.edit',
+                    $relation->productionNote->getRouteKey(),
                 );
                 break;
 
