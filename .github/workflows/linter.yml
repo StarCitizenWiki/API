@@ -58,3 +58,4 @@ jobs:
 
           VALIDATE_PHP_BUILTIN: false # Not php 7.4 ready
           VALIDATE_PHP_PHPSTAN: false
+          VALIDATE_PHP_PSALM: false

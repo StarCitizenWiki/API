@@ -88,12 +88,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        if (
-            !Str::contains($content, 'id="post"') && !Str::contains($content, 'id="subscribers"') && !Str::contains(
-                $content,
-                'id="layout-system"'
-            )
-        ) {
+        if (!Str::contains($content, ['id="post"', 'id="subscribers"', 'id="layout-system"'])) {
             app('Log')::info(
                 "Comm-Link with ID {$this->postId} does not exist",
                 [

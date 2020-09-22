@@ -90,13 +90,9 @@ class DownloadJumppointTunnel extends BaseDownloadData implements ShouldQueue
         }
         $jumppointtunnelSourceData = json_encode($jumppointtunnel, JSON_THROW_ON_ERROR);
 
-        if (
-            $lastJumppointtunnelSource === null ||
-            strcmp(
-                $jumppointtunnelSourceData,
-                $lastJumppointtunnelSource
-            ) !== 0
-        ) {
+        $strCmp = strcmp($jumppointtunnelSourceData, $lastJumppointtunnelSource) !== 0;
+
+        if ($lastJumppointtunnelSource === null || $strCmp) {
             app('Log')::info("Write to Database Jumppointtunnel {$jumppointtunnel['id']}");
 
             Jumppoint::create(

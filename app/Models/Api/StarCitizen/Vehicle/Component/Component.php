@@ -7,7 +7,6 @@ namespace App\Models\Api\StarCitizen\Vehicle\Component;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Model;
 
-
 class Component extends Model
 {
     use VehicleRelations;

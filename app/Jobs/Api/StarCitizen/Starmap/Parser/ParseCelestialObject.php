@@ -12,7 +12,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
-
 /**
  * Class ParseCelestialObject
  */

@@ -113,13 +113,9 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
         HasTranslations $model,
         Collection $translations
     ) {
-        if (
-            $translation instanceof Language && !in_array(
-                $translation->locale_code,
-                $this->missingTranslations,
-                true
-            )
-        ) {
+        $inArray = in_array($translation->locale_code, $this->missingTranslations, true);
+
+        if ($translation instanceof Language && !$inArray) {
             $this->addMissingTranslation($translation->locale_code);
         }
 

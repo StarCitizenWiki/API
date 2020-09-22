@@ -214,11 +214,9 @@ class NotificationController extends Controller
         $this->processPublishedAt($data);
 
         $resendEmail = (bool)Arr::pull($data, 'resend_email', false);
+        $noExpired = $notification->output_email === false && $data['output_email'] === true && !$notification->expired();
 
-        if (
-            true === $resendEmail || ($notification->output_email === false && $data['output_email'] === true && !$notification->expired(
-            ))
-        ) {
+        if (true === $resendEmail || $noExpired) {
             $this->dispatchJob($notification);
         }
 
