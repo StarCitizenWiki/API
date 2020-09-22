@@ -28,7 +28,7 @@
                             </td>
                         @endcan
                         <td>
-                            {{ $changelog->user_link }}
+                            {!! $changelog->user_link !!}
                         </td>
                         <td>
                             <a data-toggle="collapse" href="#details_{{$loop->index}}" role="button"
