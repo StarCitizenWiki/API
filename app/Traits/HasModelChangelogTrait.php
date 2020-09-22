@@ -17,7 +17,7 @@ trait HasModelChangelogTrait
      *
      * @return MorphMany
      */
-    public function changelogs()
+    public function changelogs(): MorphMany
     {
         return $this->morphMany(ModelChangelog::class, 'changelog')->orderByDesc('created_at');
     }
