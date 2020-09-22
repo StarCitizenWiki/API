@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Changelog;
 
@@ -19,6 +21,7 @@ class ChangelogController extends Controller
     public function __construct()
     {
         parent::__construct();
+
         $this->middleware('auth');
     }
 

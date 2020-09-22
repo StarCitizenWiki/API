@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
@@ -100,19 +101,19 @@ class Content extends BaseElement
         $content = preg_replace('/<\/h([1-6])>/m', "</h$1>\n", $content);
 
         // Add New Lines to ending p tags
-        $content = (string) str_replace('</p>', "</p>\n\n", $content);
+        $content = (string)str_replace('</p>', "</p>\n\n", $content);
 
         // Replace multiple br with one
         $content = preg_replace("/(?:<br>\n?){2,}+/m", '<br>', $content);
 
         // Replace br with new line
-        $content = (string) str_replace('<br>', "\n", $content);
+        $content = (string)str_replace('<br>', "\n", $content);
 
         // Remove all tags
         $content = strip_tags($content);
 
         // Remove Non breaking Spaces with normal space
-        $content = (string) str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
+        $content = (string)str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
 
         // Replace multiple spaces with one
         $content = preg_replace('/[ \t]+/m', ' ', $content);

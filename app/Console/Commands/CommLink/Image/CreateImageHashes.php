@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Image;
 
@@ -31,7 +33,6 @@ class CreateImageHashes extends QueueCommand
      */
     public function handle(): int
     {
-
         $this->info('Starting calculation of image hashes');
 
         $images = $this->getImages();

@@ -1,8 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 05.08.2018 17:25
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\Starmap\Jumppoint;
 

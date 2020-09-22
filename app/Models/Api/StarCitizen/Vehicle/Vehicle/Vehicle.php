@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
@@ -169,16 +171,6 @@ class Vehicle extends HasTranslations
     }
 
     /**
-     * The Vehicle Size
-     *
-     * @return BelongsTo
-     */
-    public function size(): BelongsTo
-    {
-        return $this->belongsTo(Size::class);
-    }
-
-    /**
      * @return BelongsToMany
      */
     public function components(): BelongsToMany
@@ -229,6 +221,16 @@ class Vehicle extends HasTranslations
     public function ships()
     {
         return $this->size()->ship();
+    }
+
+    /**
+     * The Vehicle Size
+     *
+     * @return BelongsTo
+     */
+    public function size(): BelongsTo
+    {
+        return $this->belongsTo(Size::class);
     }
 
     /**

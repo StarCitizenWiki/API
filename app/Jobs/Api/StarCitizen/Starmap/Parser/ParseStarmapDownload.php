@@ -1,8 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 19.08.2018 19:58
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
@@ -16,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+
 use function GuzzleHttp\json_decode;
 
 /**
@@ -28,8 +27,8 @@ class ParseStarmapDownload implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const OVERVIEW_DATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
-    const CELESTIAL_OBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
+    public const CELESTIAL_OBJECTS_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
+    private const OVERVIEW_DATA_CHECKLIST = ['data', 'systems', 'resultset', 0];
     private const STARSYSTEM_DISK = 'starsystem';
 
     /**
@@ -85,6 +84,21 @@ class ParseStarmapDownload implements ShouldQueue
                 $this->fail();
             }
         }
+    }
+
+    /**
+     * @return mixed|null
+     */
+    private function getNewestStarmapFolder()
+    {
+        $diskPath = Storage::disk(self::STARSYSTEM_DISK)->path('');
+
+        $folders = scandir($diskPath, SCANDIR_SORT_DESCENDING);
+        if (is_array($folders)) {
+            return $folders[0];
+        }
+
+        return null;
     }
 
     /**
@@ -195,21 +209,6 @@ class ParseStarmapDownload implements ShouldQueue
         }
 
         return true;
-    }
-
-    /**
-     * @return mixed|null
-     */
-    private function getNewestStarmapFolder()
-    {
-        $diskPath = Storage::disk(self::STARSYSTEM_DISK)->path('');
-
-        $folders = scandir($diskPath, SCANDIR_SORT_DESCENDING);
-        if (is_array($folders)) {
-            return $folders[0];
-        }
-
-        return null;
     }
 
     /**

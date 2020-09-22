@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink;
 
@@ -39,12 +41,14 @@ class SyncImageIds implements ShouldQueue
     {
         $commLinks = CommLink::query()->where('cig_id', '>=', $this->offset)->get();
 
-        $commLinks->each(function ($commLink) {
-            if (!Storage::disk('comm_links')->exists((string) $commLink->cig_id)) {
-                return;
-            }
+        $commLinks->each(
+            function ($commLink) {
+                if (!Storage::disk('comm_links')->exists((string)$commLink->cig_id)) {
+                    return;
+                }
 
-            dispatch(new SyncImageId($commLink));
-        });
+                dispatch(new SyncImageId($commLink));
+            }
+        );
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
@@ -103,7 +105,7 @@ abstract class AbstractApiController extends Controller
     private function processLimit(): void
     {
         if ($this->request->has(self::LIMIT) && null !== $this->request->get(self::LIMIT, null)) {
-            $itemLimit = (int) $this->request->get(self::LIMIT);
+            $itemLimit = (int)$this->request->get(self::LIMIT);
 
             if ($itemLimit > 0) {
                 $this->limit = $itemLimit;

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\Transcript;
 
@@ -31,7 +33,7 @@ class TranslateTranscripts extends Command
         if (!$this->hasArgument('limit')) {
             dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts());
         } else {
-            dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts((int) $this->argument('limit')));
+            dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts((int)$this->argument('limit')));
         }
 
         return 0;

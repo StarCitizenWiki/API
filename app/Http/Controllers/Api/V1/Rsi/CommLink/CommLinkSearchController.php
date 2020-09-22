@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 
@@ -263,7 +265,7 @@ class CommLinkSearchController extends ApiController
         return DB::table('comm_link_image_hashes')
             ->select('comm_link_image_id')
             ->selectRaw(
-                'BIT_COUNT('.$prefix.'_hash_1 ^ ?) + BIT_COUNT('.$prefix.'_hash_2 ^ ?) AS distance',
+                'BIT_COUNT(' . $prefix . '_hash_1 ^ ?) + BIT_COUNT(' . $prefix . '_hash_2 ^ ?) AS distance',
                 [
                     $decodedHash[0],
                     $decodedHash[1],

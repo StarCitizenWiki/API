@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element;
 
@@ -57,6 +59,26 @@ class ProductionNote extends BaseElement
     }
 
     /**
+     * Returns the normalized Production Status
+     *
+     * @return string|null
+     */
+    private function getNormalizedStatus(): ?string
+    {
+        $status = $this->rawData->get(self::PRODUCTION_NOTE);
+
+        if (null !== $status && is_string($status)) {
+            $status = rtrim($status, '.');
+
+            if (in_array($status, self::PRODUCTION_STATUSES)) {
+                $status = self::PRODUCTION_STATUS_NORMALIZED;
+            }
+        }
+
+        return $status;
+    }
+
+    /**
      * @return ProductionNoteModel
      */
     private function createNewProductionNote(): ProductionNoteModel
@@ -76,25 +98,5 @@ class ProductionNote extends BaseElement
         app('Log')::debug('Production Note created');
 
         return $productionNote;
-    }
-
-    /**
-     * Returns the normalized Production Status
-     *
-     * @return string|null
-     */
-    private function getNormalizedStatus(): ?string
-    {
-        $status = $this->rawData->get(self::PRODUCTION_NOTE);
-
-        if (null !== $status && is_string($status)) {
-            $status = rtrim($status, '.');
-
-            if (in_array($status, self::PRODUCTION_STATUSES)) {
-                $status = self::PRODUCTION_STATUS_NORMALIZED;
-            }
-        }
-
-        return $status;
     }
 }

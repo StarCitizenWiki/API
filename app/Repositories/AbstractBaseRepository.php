@@ -1,10 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hannes
- * Date: 01.02.2017
- * Time: 23:11
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Repositories;
 

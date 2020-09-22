@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\StarCitizen\Starmap\Starsystem;
 
@@ -16,7 +18,6 @@ class StarsystemController extends Controller
      */
     public function index(): View
     {
-
         return view(
             'user.starmap.systems.list',
             [

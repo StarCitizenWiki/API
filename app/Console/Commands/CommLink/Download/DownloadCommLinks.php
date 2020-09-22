@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Download;
 
 use App\Jobs\Rsi\CommLink\Download\DownloadMissingCommLinks;
-use Goutte\Client;
 use Illuminate\Console\Command;
 
 class DownloadCommLinks extends Command

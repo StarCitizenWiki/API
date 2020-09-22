@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Account\User;
 
@@ -50,19 +52,19 @@ class User extends Authenticatable
     ];
 
     /**
-     * @return int Highest Permission Level
-     */
-    public function getHighestPermissionLevel(): int
-    {
-        return $this->groups->first()->permission_level;
-    }
-
-    /**
      * @return bool
      */
     public function isAdmin(): bool
     {
         return $this->getHighestPermissionLevel() >= UserGroup::SYSOP;
+    }
+
+    /**
+     * @return int Highest Permission Level
+     */
+    public function getHighestPermissionLevel(): int
+    {
+        return $this->groups->first()->permission_level;
     }
 
     /**

@@ -1,14 +1,13 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 03.08.2017 16:49
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -25,7 +24,7 @@ class DownloadJumppointTunnel extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const OVERVIEWDATA_CHECKLIST = ['data', 'tunnels', 'resultset', 0];
+    private const OVERVIEWDATA_CHECKLIST = ['data', 'tunnels', 'resultset', 0];
     private $jumppointtunnels;
     private $jumppointtunnelsUpdated = 0;
 
@@ -66,13 +65,13 @@ class DownloadJumppointTunnel extends BaseDownloadData implements ShouldQueue
      *
      * @return array
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     private function getJsonArrayFromStarmap(string $uri): array
     {
-        $response = self::$client->request('POST', config('api.rsi_url').'/starmap/'.$uri);
+        $response = self::$client->request('POST', config('api.rsi_url') . '/starmap/' . $uri);
 
-        return json_decode($response->getBody()->getContents(), true);
+        return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -85,17 +84,15 @@ class DownloadJumppointTunnel extends BaseDownloadData implements ShouldQueue
             'created_at',
             'DESC'
         )->first();
-        if (!is_null($jumppointtunnelQueryData)) {
+        if ($jumppointtunnelQueryData !== null) {
             $lastJumppointtunnel = $jumppointtunnelQueryData->toArray();
             $lastJumppointtunnelSource = $lastJumppointtunnel['sourcedata'];
         }
-        $jumppointtunnelSourceData = json_encode($jumppointtunnel);
+        $jumppointtunnelSourceData = json_encode($jumppointtunnel, JSON_THROW_ON_ERROR);
 
-        if (is_null($lastJumppointtunnelSource) ||
-            strcmp(
-                $jumppointtunnelSourceData,
-                $lastJumppointtunnelSource
-            ) !== 0) {
+        $strCmp = strcmp($jumppointtunnelSourceData, $lastJumppointtunnelSource) !== 0;
+
+        if ($lastJumppointtunnelSource === null || $strCmp) {
             app('Log')::info("Write to Database Jumppointtunnel {$jumppointtunnel['id']}");
 
             Jumppoint::create(

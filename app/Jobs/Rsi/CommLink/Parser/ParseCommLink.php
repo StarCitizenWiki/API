@@ -125,6 +125,14 @@ class ParseCommLink implements ShouldQueue
     }
 
     /**
+     * @return string Path to Comm-Link File
+     */
+    private function filePath(): string
+    {
+        return "{$this->commLinkId}/{$this->file}";
+    }
+
+    /**
      * Updates or Creates a Comm-Link Model and populates it.
      */
     private function createCommLink(): void
@@ -210,14 +218,6 @@ class ParseCommLink implements ShouldQueue
     {
         $linkParser = new Link($this->crawler);
         $commLink->links()->sync($linkParser->getLinkIds());
-    }
-
-    /**
-     * @return string Path to Comm-Link File
-     */
-    private function filePath(): string
-    {
-        return "{$this->commLinkId}/{$this->file}";
     }
 
     /**

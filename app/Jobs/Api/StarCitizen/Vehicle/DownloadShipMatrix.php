@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle;
 
@@ -66,7 +68,7 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
         }
 
         try {
-            $response = $this->parseResponseBody((string) $response->getBody());
+            $response = $this->parseResponseBody((string)$response->getBody());
         } catch (InvalidArgumentException $e) {
             app('Log')::error(
                 'Ship Matrix data is not valid json',

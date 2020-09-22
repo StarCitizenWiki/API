@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Job\Rsi\CommLink;
 
@@ -82,7 +84,7 @@ class JobController extends Controller
             }
         )->map(
             static function ($id) {
-                return (int) $id;
+                return (int)$id;
             }
         )->filter(
             static function (int $id) {

@@ -1,15 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api;
 
 use App\Events\ModelUpdating;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 use Carbon\Carbon;
-use Doctrine\DBAL\Query\QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 
 /**
  * Class Notification

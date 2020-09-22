@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Import;
 
@@ -26,7 +28,9 @@ class ImportMissingCommLinks extends Command
      *
      * @var string
      */
-    protected $description = 'Download missing Comm-Links. Parse the download, create metadata and hashes. If a DeepL API key is set, Comm-Links will be translated. If a MediaWiki Account is configured, Wiki Comm-Link pages will be created';
+    protected $description = 'Download missing Comm-Links. Parse the download, create metadata and hashes. ' .
+    'If a DeepL API key is set, Comm-Links will be translated. ' .
+    'If a MediaWiki Account is configured, Wiki Comm-Link pages will be created';
 
     /**
      * Execute the console command.
@@ -50,10 +54,10 @@ class ImportMissingCommLinks extends Command
             $chain[] = new TranslateCommLinks($missingOffset);
         }
 
-        if (
-            config('services.mediawiki.client_id', null) !== null
-            && config('mediawiki.api_url', null) !== null
-        ) {
+        $clientNotNull = config('services.mediawiki.client_id', null) !== null;
+        $apiUrlNotNull = config('mediawiki.api_url', null) !== null;
+
+        if ($clientNotNull && $apiUrlNotNull) {
             $chain[] = new CreateCommLinkWikiPages();
         }
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink\Channel;
 
@@ -6,7 +8,7 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Transformers\Api\V1\Rsi\CommLink\Channel\ChannelTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
-use Dingo\Api\Contract\Http\Request;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -44,7 +46,7 @@ class ChannelController extends ApiController
      *
      * @return Response
      */
-    public function show(string $channel)
+    public function show(string $channel): Response
     {
         try {
             $channel = Channel::query()->where('name', $channel)->orWhere('slug', $channel)->firstOrFail();

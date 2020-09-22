@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\System\Translation;
 
@@ -16,7 +18,7 @@ abstract class AbstractTranslation extends Model
 {
     use ModelChangelog;
 
-    const ATTR_LOCALE_CODE = '.locale_code';
+    private const ATTR_LOCALE_CODE = '.locale_code';
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
@@ -43,7 +45,7 @@ abstract class AbstractTranslation extends Model
      */
     public function scopeEnglish(Builder $query): Builder
     {
-        return $query->where($this->getTable().self::ATTR_LOCALE_CODE, config('language.english'));
+        return $query->where($this->getTable() . self::ATTR_LOCALE_CODE, config('language.english'));
     }
 
     /**
@@ -55,6 +57,6 @@ abstract class AbstractTranslation extends Model
      */
     public function scopeGerman(Builder $query): Builder
     {
-        return $query->where($this->getTable().self::ATTR_LOCALE_CODE, config('language.german'));
+        return $query->where($this->getTable() . self::ATTR_LOCALE_CODE, config('language.german'));
     }
 }

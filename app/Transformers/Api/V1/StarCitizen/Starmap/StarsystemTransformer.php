@@ -1,8 +1,6 @@
-<?php declare(strict_types=1);
-/**
- * User: Keonie
- * Date: 07.08.2018 14:17
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
@@ -14,9 +12,8 @@ use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
  */
 class StarsystemTransformer extends AbstractTranslationTransformer
 {
-
     /**
-     * @param \App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem $starsystem
+     * @param Starsystem $starsystem
      *
      * @return array
      */

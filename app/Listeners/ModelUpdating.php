@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Listeners;
 
@@ -99,7 +101,7 @@ class ModelUpdating
                     $original = $this->model->getOriginal($key);
                     $changes[$key] = [
                         'old' => $original,
-                        'new' => (string) $value,
+                        'new' => (string)$value,
                     ];
                 }
             );
@@ -115,6 +117,6 @@ class ModelUpdating
      */
     private function getCreatorId(): int
     {
-        return (int) (Auth::check() ? Auth::id() : 0);
+        return (int)(Auth::check() ? Auth::id() : 0);
     }
 }

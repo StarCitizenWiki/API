@@ -44,22 +44,14 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-    }
-
-    /**
      * Loads migrations in Sub-folders.
      */
     private function loadMigrations()
     {
         $directoryIterator = new RecursiveDirectoryIterator(database_path('migrations'), FilesystemIterator::SKIP_DOTS);
         $migrationDirectories = new RecursiveIteratorIterator(
-            $directoryIterator, RecursiveIteratorIterator::SELF_FIRST
+            $directoryIterator,
+            RecursiveIteratorIterator::SELF_FIRST
         );
         $migrationDirectories = collect($migrationDirectories);
 
@@ -70,5 +62,14 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->loadMigrationsFrom($migrationDirectories->toArray());
+    }
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
     }
 }

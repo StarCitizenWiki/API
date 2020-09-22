@@ -11,12 +11,12 @@ use App\Policies\Web\User\Changelog\ChangelogPolicy;
 use App\Policies\Web\User\DashboardPolicy;
 use App\Policies\Web\User\Job\JobPolicy;
 use App\Policies\Web\User\Notification\NotificationPolicy;
-use App\Policies\Web\User\Rsi\Stat\StatPolicy;
-use App\Policies\Web\User\Transcript\TranscriptPolicy;
 use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
 use App\Policies\Web\User\Rsi\CommLink\Image\ImagePolicy;
+use App\Policies\Web\User\Rsi\Stat\StatPolicy;
 use App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy;
 use App\Policies\Web\User\StarCitizen\Vehicle\VehiclePolicy;
+use App\Policies\Web\User\Transcript\TranscriptPolicy;
 use App\Policies\Web\User\TranslationPolicy;
 use App\Policies\Web\User\User\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -50,13 +50,17 @@ class AuthServiceProvider extends ServiceProvider
         Gate::resource('web.user.account', AccountPolicy::class);
         Gate::resource('web.user.translations', TranslationPolicy::class);
         Gate::resource('web.user.changelogs', ChangelogPolicy::class);
-        Gate::resource('web.user.jobs', JobPolicy::class, [
-            'start_translation' => 'startCommLinkTranslationJob',
-            'start_wiki_page_creation' => 'startCommLinkWikiPageCreationJob',
-            'start_image_download' => 'startCommLinkImageDownloadJob',
-            'start_download' => 'startCommLinkDownloadJob',
-            'start_proofread_update' => 'startCommLinkProofReadStatusUpdateJob',
-        ]);
+        Gate::resource(
+            'web.user.jobs',
+            JobPolicy::class,
+            [
+                'start_translation' => 'startCommLinkTranslationJob',
+                'start_wiki_page_creation' => 'startCommLinkWikiPageCreationJob',
+                'start_image_download' => 'startCommLinkImageDownloadJob',
+                'start_download' => 'startCommLinkDownloadJob',
+                'start_proofread_update' => 'startCommLinkProofReadStatusUpdateJob',
+            ]
+        );
 
         /*
          * Internals = Datenbank IDs, etc.

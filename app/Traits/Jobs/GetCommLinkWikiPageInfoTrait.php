@@ -1,7 +1,8 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Traits\Jobs;
-
 
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Support\Collection;
@@ -26,7 +27,7 @@ trait GetCommLinkWikiPageInfoTrait
      *
      * @return Collection
      */
-    private function getPageInfoForCommLinks(Collection $commLinks, bool $queryWithAuth = false)
+    private function getPageInfoForCommLinks(Collection $commLinks, bool $queryWithAuth = false): Collection
     {
         $this->queryWithAuth = $queryWithAuth;
 
@@ -75,6 +76,20 @@ trait GetCommLinkWikiPageInfoTrait
     }
 
     /**
+     * @param MediaWikiResponse $response
+     */
+    private function formatApiError(MediaWikiResponse $response): void
+    {
+        throw new RuntimeException(
+            sprintf(
+                '%s: "%s"',
+                'MediaWiki Api Result has Error(s)',
+                is_array($response->getErrors()) ? implode(', ', $response->getErrors()) : $response->getErrors(),
+            )
+        );
+    }
+
+    /**
      * @param string $page
      *
      * @return array
@@ -101,19 +116,5 @@ trait GetCommLinkWikiPageInfoTrait
             'template' => $template,
             'category' => $cleanCategory,
         ];
-    }
-
-    /**
-     * @param MediaWikiResponse $response
-     */
-    private function formatApiError(MediaWikiResponse $response): void
-    {
-        throw new RuntimeException(
-            sprintf(
-                '%s: "%s"',
-                'MediaWiki Api Result has Error(s)',
-                is_array($response->getErrors()) ? implode(', ', $response->getErrors()) : $response->getErrors(),
-            )
-        );
     }
 }

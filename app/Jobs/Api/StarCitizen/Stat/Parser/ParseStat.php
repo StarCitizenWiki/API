@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Stat\Parser;
 
@@ -55,7 +57,7 @@ class ParseStat implements ShouldQueue
             $stat = json_decode(Storage::disk(self::STATS_DISK)->get(sprintf('%d/%s', $year, $this->statFileName)));
         } catch (FileNotFoundException $e) {
             app('Log')::error(
-                "File {$this->statFileName} not found on Disk ".self::STATS_DISK,
+                "File {$this->statFileName} not found on Disk " . self::STATS_DISK,
                 [
                     'message' => $e->getMessage(),
                 ]
@@ -82,7 +84,7 @@ class ParseStat implements ShouldQueue
 
         Stat::create(
             [
-                'funds' => number_format((float) $funds, 2, '.', ''),
+                'funds' => number_format((float)$funds, 2, '.', ''),
                 'fans' => $stat->fans,
                 'fleet' => $stat->fleet ?? $stat->fans,
             ]

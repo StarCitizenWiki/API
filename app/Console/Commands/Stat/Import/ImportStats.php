@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\Stat\Import;
 
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
@@ -24,7 +25,8 @@ class ImportStats extends Command
      *
      * @var string
      */
-    protected $description = 'Import the newest downloaded funding statistics file into the database. WARNING: Creates a new database record based on the latest downloaded file, can create DUPLICATE records';
+    protected $description = 'Import the newest downloaded funding statistics file into the database. ' .
+    'WARNING: Creates a new database record based on the latest downloaded file, can create DUPLICATE records';
 
     /**
      * @var Dispatcher

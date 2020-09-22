@@ -1,10 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 09.08.2018
- * Time: 12:27
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Traits;
 
@@ -20,7 +16,7 @@ trait HasObfuscatedRouteKeyTrait
      *
      * @return string
      */
-    public function getRouteKey()
+    public function getRouteKey(): string
     {
         return Hashids::connection(static::class)->encode($this->getKey());
     }

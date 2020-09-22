@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\System;
 
@@ -10,8 +12,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Language extends Model
 {
-    protected $primaryKey = 'locale_code';
     public $incrementing = false;
+    protected $primaryKey = 'locale_code';
 
     public function scopeGerman(Builder $query): Builder
     {

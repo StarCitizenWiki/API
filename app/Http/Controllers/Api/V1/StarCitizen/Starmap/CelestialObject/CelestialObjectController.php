@@ -1,15 +1,14 @@
-<?php declare(strict_types=1);
-/**
- * User: Keonie
- * Date: 07.08.2018 14:31
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\CelestialObject;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer;
-use Dingo\Api\Contract\Http\Request;
+use Dingo\Api\Http\Request;
+use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
@@ -20,8 +19,8 @@ class CelestialObjectController extends ApiController
     /**
      * CelestialObjectController constructor.
      *
-     * @param \Illuminate\Http\Request                                                $request
-     * @param \App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer $transformer
+     * @param Request                    $request
+     * @param CelestialObjectTransformer $transformer
      */
     public function __construct(Request $request, CelestialObjectTransformer $transformer)
     {
@@ -32,14 +31,14 @@ class CelestialObjectController extends ApiController
     /**
      * @param String $code
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function show(string $code)
+    public function show(string $code): Response
     {
         $code = urldecode($code);
 
         try {
-            /** @var \App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject $celestialObject */
+            /** @var CelestialObject $celestialObject */
             $celestialObject = CelestialObject::where('code', $code)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $code));
@@ -51,9 +50,9 @@ class CelestialObjectController extends ApiController
     //TODO weitere Funktionen
 
     /**
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
         return $this->getResponse(CelestialObject::query());
     }
@@ -61,9 +60,9 @@ class CelestialObjectController extends ApiController
     /**
      * Search Endpoint
      *
-     * @return \Dingo\Api\Http\Response
+     * @return Response
      */
-    public function search()
+    public function search(): Response
     {
         $query = $this->request->get('query', '');
         $query = urldecode($query);

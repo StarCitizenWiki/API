@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Rsi\CommLink\Image;
 
@@ -47,19 +49,20 @@ class Image extends Model
     public function hash(): HasOne
     {
         return $this->hasOne(ImageHash::class, 'comm_link_image_id')
-            ->withDefault([
-                'perceptual_hash' => 'DEADBEEF',
-                'p_hash_1' => 0,
-                'p_hash_2' => 0,
+            ->withDefault(
+                [
+                    'perceptual_hash' => 'DEADBEEF',
+                    'p_hash_1' => 0,
+                    'p_hash_2' => 0,
 
-                'difference_hash' => 'DEADBEEF',
-                'd_hash_1' => 0,
-                'd_hash_2' => 0,
+                    'difference_hash' => 'DEADBEEF',
+                    'd_hash_1' => 0,
+                    'd_hash_2' => 0,
 
-                'average_hash' => 'DEADBEEF',
-                'a_hash_1' => 0,
-                'a_hash_2' => 0,
-            ]
+                    'average_hash' => 'DEADBEEF',
+                    'a_hash_1' => 0,
+                    'a_hash_2' => 0,
+                ]
             );
     }
 
@@ -83,8 +86,9 @@ class Image extends Model
                 [
                     'size' => 0,
                     'mime' => 'undefined',
-                'last_modified' => Carbon::minValue(),
-            ]);
+                    'last_modified' => Carbon::minValue(),
+                ]
+            );
     }
 
     /**
