@@ -141,9 +141,9 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
     /**
      * Adds a missing translation key to the array if it does not already exist
      *
-     * @param string $key The key to add
+     * @param string|int $key The key to add
      */
-    private function addMissingTranslation(string $key): void
+    private function addMissingTranslation($key): void
     {
         if (!in_array($key, $this->missingTranslations, true)) {
             $this->missingTranslations[] = $key;
