@@ -44,6 +44,12 @@ class ImportCommLink extends Command
             return 1;
         }
 
+        if (count(Storage::disk('comm_links')->files($id)) === 0) {
+            $this->error('Comm-Link does not exist on \'comm_links\' disk.');
+
+            return 1;
+        }
+
         $file = basename(Arr::last(Storage::disk('comm_links')->files($id)));
 
         dispatch(new ParseCommLink($id, $file, $commLink, true));
