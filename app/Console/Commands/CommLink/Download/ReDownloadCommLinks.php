@@ -34,10 +34,10 @@ class ReDownloadCommLinks extends Command
      */
     public function handle(): int
     {
-        if (!$this->hasOption('skip')) {
+        if (!isset($this->getOptions()['skip'])) {
             $skip = true;
         } else {
-            $skip = $this->hasOption('skip');
+            $skip = $this->option('skip');
         }
 
         ReDownloadDbCommLinks::withChain(

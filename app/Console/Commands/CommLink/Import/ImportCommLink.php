@@ -34,18 +34,18 @@ class ImportCommLink extends Command
      */
     public function handle(): int
     {
-        if (!$this->hasArgument('id')) {
-            $this->error('Comm-Link ID missing.');
-
-            return 1;
-        }
-
         $id = (int)$this->argument('id');
 
         try {
             $commLink = CommLink::query()->where('cig_id', $id)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->error('Comm-Link does not exist in DB.');
+
+            return 1;
+        }
+
+        if (count(Storage::disk('comm_links')->files($id)) === 0) {
+            $this->error('Comm-Link does not exist on \'comm_links\' disk.');
 
             return 1;
         }

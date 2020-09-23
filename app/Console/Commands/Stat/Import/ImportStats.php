@@ -53,7 +53,7 @@ class ImportStats extends Command
     public function handle(): int
     {
         $this->info('Starting funding statistics import');
-        $this->dispatcher->dispatchNow(new ParseStat());
+        $this->dispatcher->dispatch(new ParseStat());
 
         return 0;
     }
