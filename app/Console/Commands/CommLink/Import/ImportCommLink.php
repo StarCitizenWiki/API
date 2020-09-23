@@ -34,12 +34,6 @@ class ImportCommLink extends Command
      */
     public function handle(): int
     {
-        if (!$this->hasArgument('id')) {
-            $this->error('Comm-Link ID missing.');
-
-            return 1;
-        }
-
         $id = (int)$this->argument('id');
 
         try {

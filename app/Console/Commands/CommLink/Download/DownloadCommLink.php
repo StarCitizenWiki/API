@@ -58,8 +58,6 @@ class DownloadCommLink extends CommLinkCommand
      */
     public function handle(): int
     {
-        $this->info('Downloading specified Comm-Links');
-
         $minId = collect($this->argument('id'))->filter(
             static function ($id) {
                 return is_numeric($id);
@@ -77,6 +75,7 @@ class DownloadCommLink extends CommLinkCommand
             )
             ->each(
                 function (int $id) {
+                    $this->info('Downloading specified Comm-Links');
                     $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $this->option('overwrite') === true));
                     $this->advanceBar();
                 }

@@ -63,7 +63,7 @@ class DownloadShipMatrix extends Command
             )->dispatch();
         } else {
             $this->info('Dispatching Ship Matrix Download Job');
-            $this->dispatcher->dispatchNow(new DownloadShipMatrixJob());
+            $this->dispatcher->dispatch(new DownloadShipMatrixJob());
         }
 
         return 0;

@@ -52,7 +52,7 @@ class ImportShipMatrix extends Command
     public function handle(): int
     {
         $this->info('Dispatching Ship Matrix Parsing Job');
-        $this->dispatcher->dispatchNow(new ParseShipMatrixDownload());
+        $this->dispatcher->dispatch(new ParseShipMatrixDownload());
 
         return 0;
     }

@@ -5,6 +5,7 @@ use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Models\Rsi\CommLink\Image\ImageMetadata;
 use App\Models\Rsi\CommLink\Link\Link;
 use App\Models\Rsi\CommLink\Series\Series;
 use Carbon\Carbon;
@@ -135,6 +136,17 @@ $factory->define(
             'dir' => $dir,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
+        ];
+    }
+);
+
+$factory->define(
+    ImageMetadata::class,
+    function (Faker $faker) {
+        return [
+            'size' => $faker->randomNumber(5),
+            'mime' => 'image/jpeg',
+            'last_modified' => $faker->dateTime(),
         ];
     }
 );

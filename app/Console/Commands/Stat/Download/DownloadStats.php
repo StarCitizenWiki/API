@@ -61,7 +61,7 @@ class DownloadStats extends Command
             )->dispatch();
         } else {
             $this->info('Starting funding statistics download');
-            $this->dispatcher->dispatchNow(new DownloadStatsJob());
+            $this->dispatcher->dispatch(new DownloadStatsJob());
         }
 
         return 0;

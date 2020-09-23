@@ -61,7 +61,8 @@ class ImportMissingCommLinks extends Command
             $chain[] = new CreateCommLinkWikiPages();
         }
 
-        DownloadMissingCommLinks::withChain($chain)->dispatch(new Client(), $missingOffset);
+        DownloadMissingCommLinks::withChain($chain)
+            ->dispatch(new Client(), $missingOffset);
 
         return 0;
     }
