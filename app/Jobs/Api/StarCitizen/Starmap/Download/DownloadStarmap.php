@@ -6,7 +6,6 @@ namespace App\Jobs\Api\StarCitizen\Starmap\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use GuzzleHttp\Exception\ConnectException;
-use Illuminate\Bus\Dispatcher;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,8 +58,6 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
      */
     private $force;
 
-    private Dispatcher $dispatcher;
-
     /**
      * @var string
      */
@@ -91,8 +88,7 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
     {
         app('Log')::info('Starting Starmap Download');
 
-
-        if (true||$this->force || !Storage::disk(self::STARSYSTEM_DISK)->exists($this->timestamp)) {
+        if ($this->force || !Storage::disk(self::STARSYSTEM_DISK)->exists($this->timestamp)) {
             $this->initClient();
             $this->downloadBootup();
             $this->writeBootupDataToDisk();
