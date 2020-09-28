@@ -94,6 +94,10 @@ class Kernel extends ConsoleKernel
         }
 
         $this->scheduleCommLinkJobs();
+
+        if (config('schedule.starmap.enabled')) {
+            $this->scheduleStarmapJobs();
+        }
     }
 
     /**
@@ -111,7 +115,9 @@ class Kernel extends ConsoleKernel
      */
     private function scheduleStatJobs(): void
     {
-        $this->schedule->command(DownloadStats::class, ['--import'])->dailyAt('20:00');
+        $this->schedule
+            ->command(DownloadStats::class, ['--import'])
+            ->dailyAt('20:00');
     }
 
     /**
@@ -120,24 +126,33 @@ class Kernel extends ConsoleKernel
     private function scheduleCommLinkJobs(): void
     {
         /* Check for new Comm-Links */
-        $this->schedule->command(ImportMissingCommLinks::class)->hourly()->after(
-            function () {
-                $this->events->dispatch(new NewCommLinksDownloaded());
-            }
-        );
+        $this->schedule
+            ->command(ImportMissingCommLinks::class)
+            ->hourly()
+            ->after(
+                function () {
+                    $this->events->dispatch(new NewCommLinksDownloaded());
+                }
+            );
 
         /* Re-Download all Comm-Links monthly */
-        $this->schedule->command(ReDownloadCommLinks::class)->monthly()->after(
-            function () {
-                $this->events->dispatch(new CommLinksChangedEvent());
-            }
-        );
+        $this->schedule
+            ->command(ReDownloadCommLinks::class)
+            ->monthly()
+            ->after(
+                function () {
+                    $this->events->dispatch(new CommLinksChangedEvent());
+                }
+            );
 
         /* Download Comm-Link Images */
         //$this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
 
         /* Update Proof Read Status */
-        $this->schedule->job(UpdateCommLinkProofReadStatus::class)->daily()->withoutOverlapping();
+        $this->schedule
+            ->job(UpdateCommLinkProofReadStatus::class)
+            ->daily()
+            ->withoutOverlapping();
     }
 
     /**
@@ -155,5 +170,15 @@ class Kernel extends ConsoleKernel
                 $hours[0],
                 $hours[1],
             );
+    }
+
+    /**
+     * Starmap download and import job
+     */
+    private function scheduleStarmapJobs(): void
+    {
+        $this->schedule
+            ->command(DownloadStarmap::class, ['--import'])
+            ->monthly();
     }
 }

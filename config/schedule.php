@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 return [
     /*
@@ -13,5 +15,9 @@ return [
     'ship_matrix' => [
         'enabled' => true,
         'at' => [1, 13], //First time, second Time
+    ],
+
+    'starmap' => [
+        'enabled' => true,
     ],
 ];

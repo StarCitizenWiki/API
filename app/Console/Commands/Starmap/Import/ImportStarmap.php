@@ -19,16 +19,17 @@ class ImportStarmap extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
-
+    protected $description = 'Imports the newest downloaded starmap';
 
     /**
      * Execute the console command.
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
+        $this->info('Importing starmap');
+
         ParseStarmap::dispatch();
 
         return 0;
