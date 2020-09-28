@@ -23,7 +23,7 @@ class CreateCelestialObjectsTable extends Migration
                 $table->unsignedBigInteger('cig_id');
                 $table->unsignedBigInteger('starsystem_id');
 
-                $table->unsignedBigInteger('age')->nullable();
+                $table->string('age')->nullable();
                 $table->string('appearance');
                 $table->decimal('axial_tilt')->nullable();
                 $table->string('code');
@@ -41,7 +41,7 @@ class CreateCelestialObjectsTable extends Migration
                 $table->unsignedInteger('sensor_economy');
                 $table->unsignedInteger('sensor_population');
 
-                $table->decimal('size')->nullable();
+                $table->string('size')->nullable();
                 $table->unsignedBigInteger('subtype_id')->nullable();
 
                 $table->enum(
