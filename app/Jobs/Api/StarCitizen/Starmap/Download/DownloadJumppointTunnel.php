@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs\Api\StarCitizen\Starmap;
+namespace App\Jobs\Api\StarCitizen\Starmap\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
@@ -51,7 +51,7 @@ class DownloadJumppointTunnel extends BaseDownloadData implements ShouldQueue
     private function setJumppointtunnels()
     {
         $overviewData = $this->getJsonArrayFromStarmap('bootup/');
-        if ($this->checkIfDataCanBeProcessed($overviewData, static::OVERVIEWDATA_CHECKLIST)) {
+        if ($this->checkDataStructureIsValid($overviewData, static::OVERVIEWDATA_CHECKLIST)) {
             $this->jumppointtunnels = $overviewData['data']['tunnels']['resultset'];
         } else {
             app('Log')::error('Can not read Jumppoint Tunnels from RSI');

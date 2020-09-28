@@ -1,31 +1,33 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStarsystemTranslationsTable extends Migration
+class CreateCelestialObjectTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create(
-            'starsystem_translations',
+            'celestial_object_translations',
             function (Blueprint $table) {
-                $table->increments('id');
+                $table->id('id');
                 $table->char('locale_code', 5);
-                $table->unsignedInteger('starsystem_id');
+                $table->unsignedBigInteger('celestial_object_id');
                 $table->text('translation');
                 $table->timestamps();
 
-                $table->foreign('starsystem_id')->references('id')->on('starsystems');
+                $table->foreign('celestial_object_id')->references('id')->on('celestial_objects');
                 $table->foreign('locale_code')->references('locale_code')->on('languages');
 
-                $table->unique(['locale_code', 'starsystem_id'], 'starsystem_translation_primary');
+                $table->unique(['locale_code', 'celestial_object_id'], 'celestial_object_translation_primary');
             }
         );
     }
@@ -35,8 +37,8 @@ class CreateStarsystemTranslationsTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('starsystem_translations');
+        Schema::dropIfExists('celestial_object_translations');
     }
 }

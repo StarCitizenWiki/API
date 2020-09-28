@@ -29,32 +29,33 @@ class CelestialObjectController extends ApiController
     }
 
     /**
-     * @param String $code
-     *
-     * @return Response
-     */
-    public function show(string $code): Response
-    {
-        $code = urldecode($code);
-
-        try {
-            /** @var CelestialObject $celestialObject */
-            $celestialObject = CelestialObject::where('code', $code)->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $code));
-        }
-
-        return $this->getResponse($celestialObject);
-    }
-
-    //TODO weitere Funktionen
-
-    /**
      * @return Response
      */
     public function index(): Response
     {
         return $this->getResponse(CelestialObject::query());
+    }
+
+    /**
+     * @param string|int $code
+     *
+     * @return Response
+     */
+    public function show($code): Response
+    {
+        $code = urldecode($code);
+
+        try {
+            /** @var CelestialObject $celestialObject */
+            $celestialObject = CelestialObject::query()
+                ->where('code', $code)
+                ->orWhere('cig_id', $code)
+                ->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $code));
+        }
+
+        return $this->getResponse($celestialObject);
     }
 
     /**
@@ -66,7 +67,7 @@ class CelestialObjectController extends ApiController
     {
         $query = $this->request->get('query', '');
         $query = urldecode($query);
-        $queryBuilder = CelestialObject::where('name', 'like', "%{$query}%");
+        $queryBuilder = CelestialObject::query()->where('name', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));

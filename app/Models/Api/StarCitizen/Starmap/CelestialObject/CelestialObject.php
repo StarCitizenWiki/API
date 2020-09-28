@@ -9,6 +9,9 @@ use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * CelestialObject Model
@@ -18,42 +21,36 @@ class CelestialObject extends HasTranslations
     use ModelChangelog;
 
     protected $fillable = [
-        'code',
-        'exclude',
         'cig_id',
         'starsystem_id',
-        'cig_time_modified',
-        'type',
-        'designation',
-        'name',
         'age',
+        'appearance',
+        'axial_tilt',
+        'code',
+        'designation',
         'distance',
+        'fairchanceact',
+        'habitable',
+        'info_url',
         'latitude',
         'longitude',
-        'axial_tilt',
+        'name',
         'orbit_period',
-        'description',
-        'info_url',
-        'habitable',
-        'fairchanceact',
-        'appearance',
-        'sensor_population',
-        'sensor_economy',
-        'sensor_danger',
-        'size',
         'parent_id',
+        'sensor_danger',
+        'sensor_economy',
+        'sensor_population',
+        'size',
+        'type',
         'subtype_id',
-        'affiliation_id',
+        'time_modified',
     ];
 
     protected $with = [
-        'celestialObjectSubtype',
+        'subtype',
         'affiliation',
-        'starsystem',
         'translations',
     ];
-
-    protected $perPage = 5;
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
@@ -61,8 +58,23 @@ class CelestialObject extends HasTranslations
         'deleting' => ModelUpdating::class,
     ];
 
+    protected $casts = [
+        'age' => 'decimal:8',
+        'axial_tilt' => 'decimal:8',
+        'distance' => 'decimal:8',
+        'fairchanceact' => 'boolean',
+        'habitable' => 'boolean',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
+        'orbit_period' => 'decimal:8',
+        'sensor_danger' => 'decimal:8',
+        'sensor_economy' => 'decimal:8',
+        'sensor_population' => 'decimal:8',
+        'size' => 'decimal:8',
+    ];
+
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function translations()
     {
@@ -70,36 +82,32 @@ class CelestialObject extends HasTranslations
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo celestial_object_subtype
+     * Celestial object subtype
+     *
+     * @return BelongsTo subtype
      */
-    public function celestialObjectSubtype()
+    public function subtype(): BelongsTo
     {
         return $this->belongsTo(CelestialObjectSubtype::class, 'subtype_id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo Affiliation
+     * Affiliation
+     *
+     * @return BelongsToMany Affiliation
      */
-    public function affiliation()
+    public function affiliation(): BelongsToMany
     {
-        return $this->belongsTo(Affiliation::class, 'affiliation_id');
+        return $this->belongsToMany(Affiliation::class, 'celestial_object_affiliation');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo Starsystem
+     * Starsystem
+     *
+     * @return BelongsTo Starsystem
      */
-    public function starsystem()
+    public function starsystem(): BelongsTo
     {
         return $this->belongsTo(Starsystem::class, 'id');
-    }
-
-    /**
-     * Hardcoded to fix Child Problems
-     *
-     * @return string
-     */
-    public function getForeignKey()
-    {
-        return 'id';
     }
 }

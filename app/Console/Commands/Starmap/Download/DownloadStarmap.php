@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\Starmap;
+namespace App\Console\Commands\Starmap\Download;
 
-use App\Jobs\Api\StarCitizen\Starmap\DownloadStarmap as DownloadStarmapJob;
-use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmapDownload;
+use App\Jobs\Api\StarCitizen\Starmap\Download\DownloadStarmap as DownloadStarmapJob;
+use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmap;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
@@ -14,7 +14,6 @@ use Illuminate\Console\Command;
  */
 class DownloadStarmap extends Command
 {
-
     /**
      * The name and signature of the console command.
      *
@@ -44,6 +43,7 @@ class DownloadStarmap extends Command
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
+
         $this->dispatcher = $dispatcher;
     }
 
@@ -56,15 +56,11 @@ class DownloadStarmap extends Command
     {
         $this->info('Dispatching Starmap Download');
 
-        if ($this->option('force')) {
-            $this->info('Forcing Download');
-        }
+        $this->dispatcher->dispatch(new DownloadStarmapJob($this->option('force') === true));
 
-        $this->dispatcher->dispatchNow(new DownloadStarmapJob($this->option('force')));
-
-        if ($this->option('import')) {
+        if ($this->option('import') === true) {
             $this->info('Starting Import');
-            $this->dispatcher->dispatchNow(new ParseStarmapDownload());
+            $this->dispatcher->dispatch(new ParseStarmap());
         }
 
         return 0;

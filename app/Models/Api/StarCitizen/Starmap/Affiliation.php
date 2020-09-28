@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class Affiliation extends Model
 {
     public $timestamps = false;
+
     protected $fillable = [
         'cig_id',
         'name',

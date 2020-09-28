@@ -1,12 +1,10 @@
-<?php declare(strict_types=1);
-/**
- * User: Keonie
- * Date: 09.09.2018 17:36
- */
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Job\Api\StarCitizen\Starmap\Parser;
 
-use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarsytem;
+use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarSystem;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use Illuminate\Support\Collection;
@@ -14,19 +12,13 @@ use Tests\TestCase;
 
 class ParseStarsystemTest extends TestCase
 {
-
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarsytem
-     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\ParseAffiliation
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarsystem
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\Element\Affiliation
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\Element\CelestialSubtype
      */
-    public function testParse()
+    public function testParse(): void
     {
-//        $job = new DownloadStarmap(false);
-//        $job->handle();
-
-//        $job = new ParseStarmapDownload();
-//        $job->handle();
-
         $affiliation[] = [
             'id' => "1",
             'name' => "UEE",
@@ -58,10 +50,10 @@ class ParseStarsystemTest extends TestCase
             ],
         ];
 
-        $parseStarsystems = new ParseStarsytem(new Collection($starsystem[0]));
+        $parseStarsystems = new ParseStarSystem(new Collection($starsystem[0]));
         $parseStarsystems->handle();
-        $this->assertEquals(1, Starsystem::count());
-        $this->assertEquals(1, Affiliation::count());
+        self::assertEquals(1, Starsystem::count());
+        self::assertEquals(1, Affiliation::count());
     }
 
     /**
