@@ -57,7 +57,11 @@ class ParseStarmap implements ShouldQueue
     {
         $diskPath = Storage::disk(self::STARSYSTEM_DISK)->path('');
 
-        $folders = scandir($diskPath, SCANDIR_SORT_DESCENDING);
+        $folders = collect(scandir($diskPath, SCANDIR_SORT_DESCENDING))->reject(
+            function ($folder) {
+                return Str::startsWith($folder, '.');
+            }
+        )->toArray();
 
         if ($folders === false || empty($folders)) {
             throw new RuntimeException(sprintf('%s is not a directory.', $diskPath));
@@ -71,7 +75,7 @@ class ParseStarmap implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Parsing Starmap Download', [$this->starmapFolder]);
 
