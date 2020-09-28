@@ -54,7 +54,7 @@ abstract class AbstractV1Transformer extends TransformerAbstract
      * @return TransformerAbstract
      * @throws Throwable
      */
-    protected function makeTransformer(string $class, ?TransformerAbstract $base): TransformerAbstract
+    protected function makeTransformer(string $class, ?TransformerAbstract $base = null): TransformerAbstract
     {
         throw_if(!class_exists($class), new RuntimeException("Class $class not found."));
 

@@ -104,6 +104,6 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
      */
     public function includeStarsystem(CelestialObject $celestialObject): Item
     {
-        return $this->item($celestialObject->starsystem, $this->makeTransformer($this, StarsystemTransformer::class));
+        return $this->item($celestialObject->starsystem, $this->makeTransformer(StarsystemTransformer::class, $this));
     }
 }
