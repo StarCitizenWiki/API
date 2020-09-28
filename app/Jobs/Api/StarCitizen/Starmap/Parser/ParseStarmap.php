@@ -32,9 +32,14 @@ class ParseStarmap implements ShouldQueue
     private const STARSYSTEM_DISK = 'starmap';
 
     /**
+     * @var string|null
+     */
+    private ?string $timestamp;
+
+    /**
      * @var string
      */
-    private string $starmapFolder;
+    private $starmapFolder;
 
     /**
      * ParseStarmapDownload constructor.
@@ -43,11 +48,26 @@ class ParseStarmap implements ShouldQueue
      */
     public function __construct(?string $timestamp = null)
     {
-        if (null === $timestamp) {
+        $this->timestamp = $timestamp;
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle(): void
+    {
+        if (null === $this->timestamp) {
             $this->starmapFolder = $this->getNewestStarmapFolder();
         } else {
-            $this->starmapFolder = Storage::disk(self::STARSYSTEM_DISK)->path($timestamp);
+            $this->starmapFolder = Storage::disk(self::STARSYSTEM_DISK)->path($this->timestamp);
         }
+
+        app('Log')::info('Parsing Starmap Download', [$this->starmapFolder]);
+
+        $this->dispatchStarsystemJobs();
+        $this->dispatchJumppointJobs();
     }
 
     /**
@@ -68,19 +88,6 @@ class ParseStarmap implements ShouldQueue
         }
 
         return Storage::disk(self::STARSYSTEM_DISK)->path(array_shift($folders));
-    }
-
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle(): void
-    {
-        app('Log')::info('Parsing Starmap Download', [$this->starmapFolder]);
-
-        $this->dispatchStarsystemJobs();
-        $this->dispatchJumppointJobs();
     }
 
     private function dispatchStarsystemJobs(): void
