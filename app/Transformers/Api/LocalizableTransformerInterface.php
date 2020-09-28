@@ -15,4 +15,9 @@ interface LocalizableTransformerInterface
      * @return void
      */
     public function setLocale(string $localeCode): void;
+
+    /**
+     * @return string|null
+     */
+    public function getLocale(): ?string;
 }

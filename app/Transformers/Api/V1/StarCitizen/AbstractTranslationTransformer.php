@@ -28,7 +28,7 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
      *
      * @var string
      */
-    private $localeCode;
+    protected $localeCode;
 
     /**
      * Set the Locale
@@ -38,6 +38,11 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
     public function setLocale(string $localeCode): void
     {
         $this->localeCode = $localeCode;
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->localeCode;
     }
 
     /**

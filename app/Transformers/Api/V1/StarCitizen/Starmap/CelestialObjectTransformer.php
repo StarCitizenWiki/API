@@ -15,7 +15,7 @@ use League\Fractal\Resource\Item;
 class CelestialObjectTransformer extends AbstractTranslationTransformer
 {
     protected $availableIncludes = [
-        'starsystem'
+        'starsystem',
     ];
 
     protected $defaultIncludes = [
@@ -104,6 +104,6 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
      */
     public function includeStarsystem(CelestialObject $celestialObject): Item
     {
-        return $this->item($celestialObject->starsystem, new StarsystemTransformer());
+        return $this->item($celestialObject->starsystem, $this->makeTransformer($this, StarsystemTransformer::class));
     }
 }

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1;
 
+use App\Transformers\Api\LocalizableTransformerInterface;
 use League\Fractal\TransformerAbstract;
+use RuntimeException;
+use Throwable;
 
 /**
  * Contains static routes fragments
@@ -39,5 +42,33 @@ abstract class AbstractV1Transformer extends TransformerAbstract
     protected function makeApiUrl(string $fragment, ...$routeKey): string
     {
         return sprintf('%s' . $fragment, config('app.url'), ...$routeKey);
+    }
+
+    /**
+     * Instantiates a new transformer and sets the $bases locale if both transformers implement
+     * LocalizableTransformerInterface
+     *
+     * @param string                   $class
+     * @param TransformerAbstract|null $base
+     *
+     * @return TransformerAbstract
+     * @throws Throwable
+     */
+    protected function makeTransformer(string $class, ?TransformerAbstract $base): TransformerAbstract
+    {
+        throw_if(!class_exists($class), new RuntimeException("Class $class not found."));
+
+        $transformer = app($class);
+
+        if (
+            $base !== null
+            && $transformer instanceof LocalizableTransformerInterface
+            && $base instanceof LocalizableTransformerInterface
+            && $base->getLocale() !== null
+        ) {
+            $transformer->setLocale($base->getLocale());
+        }
+
+        return $transformer;
     }
 }
