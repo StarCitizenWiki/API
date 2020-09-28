@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,14 +13,15 @@ class CreateCelestialObjectSubtypesTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create(
             'celestial_object_subtypes',
             function (Blueprint $table) {
-                $table->unsignedInteger('id');
+                $table->unsignedBigInteger('id');
                 $table->string('name');
                 $table->string('type');
+
                 $table->timestamps();
 
                 $table->primary('id');
@@ -31,7 +34,7 @@ class CreateCelestialObjectSubtypesTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('celestial_object_subtypes');
     }

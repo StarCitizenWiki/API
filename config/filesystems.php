@@ -69,9 +69,9 @@ return [
             'root' => storage_path('app/api'),
         ],
 
-        'starsystem' => [
+        'starmap' => [
             'driver' => 'local',
-            'root' => storage_path('app/api/starsystem'),
+            'root' => storage_path('app/api/starmap'),
         ],
 
         'vehicles' => [

@@ -18,6 +18,8 @@ use App\Console\Commands\CommLink\Translate\TranslateCommLinks;
 use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
 use App\Console\Commands\ShipMatrix\Download\DownloadShipMatrix;
 use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
+use App\Console\Commands\Starmap\Download\DownloadStarmap;
+use App\Console\Commands\Starmap\Import\ImportStarmap;
 use App\Console\Commands\Stat\Download\DownloadStats;
 use App\Console\Commands\Stat\Import\ImportStats;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
@@ -64,6 +66,9 @@ class Kernel extends ConsoleKernel
 
         ImportRelayTranscripts::class,
         TranslateTranscripts::class,
+
+        DownloadStarmap::class,
+        ImportStarmap::class,
     ];
 
     /**

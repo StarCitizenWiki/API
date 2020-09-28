@@ -6,7 +6,7 @@
 
 namespace Tests\Feature\Job\Api\StarCitizen\Starmap\Parser;
 
-use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarsytem;
+use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarSystem;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use Illuminate\Support\Collection;
@@ -16,8 +16,8 @@ class ParseStarsystemTest extends TestCase
 {
 
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarsytem
-     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\ParseAffiliation
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarSystem
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\Affiliation
      */
     public function testParse()
     {
@@ -58,7 +58,7 @@ class ParseStarsystemTest extends TestCase
             ],
         ];
 
-        $parseStarsystems = new ParseStarsytem(new Collection($starsystem[0]));
+        $parseStarsystems = new ParseStarSystem(new Collection($starsystem[0]));
         $parseStarsystems->handle();
         $this->assertEquals(1, Starsystem::count());
         $this->assertEquals(1, Affiliation::count());

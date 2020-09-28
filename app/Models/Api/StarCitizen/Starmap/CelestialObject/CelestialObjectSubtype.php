@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CelestialObjectSubtype extends Model
 {
+    public $incrementing = false;
+
     protected $fillable = [
         'id',
         'name',
