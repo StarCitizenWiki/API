@@ -56,7 +56,7 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
 
         if (isset($this->localeCode)) {
             return $this->getSingleTranslation(
-                $translations[$this->localeCode],
+                $translations[$this->localeCode] ?? 'en_EN',
                 $translationKey,
                 $model,
                 $translations
