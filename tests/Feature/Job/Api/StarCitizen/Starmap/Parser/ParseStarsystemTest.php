@@ -13,9 +13,10 @@ use Tests\TestCase;
 class ParseStarsystemTest extends TestCase
 {
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarsystem
-     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\Element\Affiliation
-     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\Element\CelestialSubtype
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarsystem::handle
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\Element\Affiliation::getAffiliation
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\Element\Affiliation::getData
+     * @covers \App\Jobs\Api\StarCitizen\Starmap\Parser\Element\CelestialSubtype::getCelestialSubtype
      */
     public function testParse(): void
     {
