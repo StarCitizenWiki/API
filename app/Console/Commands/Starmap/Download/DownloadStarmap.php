@@ -8,6 +8,8 @@ use App\Jobs\Api\StarCitizen\Starmap\Download\DownloadStarmap as DownloadStarmap
 use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmap;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Start Starmap Download Shop
@@ -56,6 +58,8 @@ class DownloadStarmap extends Command
     {
         $this->info('Dispatching Starmap Download');
 
+        $this->createDiskIfNotExists();
+
         $this->dispatcher->dispatch(new DownloadStarmapJob($this->option('force') === true));
 
         if ($this->option('import') === true) {
@@ -64,5 +68,15 @@ class DownloadStarmap extends Command
         }
 
         return 0;
+    }
+
+    /**
+     * Create the starmap directory if it does not exist
+     */
+    private function createDiskIfNotExists(): void
+    {
+        if (!File::exists(config('filesystems.disks.starmap.root'))) {
+            Storage::makeDirectory(config('filesystems.disks.starmap.root'));
+        }
     }
 }
