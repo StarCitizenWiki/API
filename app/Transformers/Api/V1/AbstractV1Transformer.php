@@ -60,6 +60,7 @@ abstract class AbstractV1Transformer extends TransformerAbstract
 
         $transformer = app($class);
 
+        //phpcs:ignore PSR12.ControlStructures.ControlStructureSpacing.FirstExpressionLine
         if ($base !== null
             && $transformer instanceof LocalizableTransformerInterface
             && $base instanceof LocalizableTransformerInterface

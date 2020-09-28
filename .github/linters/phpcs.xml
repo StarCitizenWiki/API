@@ -10,6 +10,8 @@
   -->
 
 <ruleset name="super-linter">
+    <arg value="s" />
+
     <description>PSR12 - minor customizations</description>
     <rule ref="PSR12">
         <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock" />
