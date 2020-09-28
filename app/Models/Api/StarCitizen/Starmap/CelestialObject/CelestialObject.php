@@ -108,6 +108,6 @@ class CelestialObject extends HasTranslations
      */
     public function starsystem(): BelongsTo
     {
-        return $this->belongsTo(Starsystem::class, 'id');
+        return $this->belongsTo(Starsystem::class, 'starsystem_id', 'cig_id');
     }
 }
