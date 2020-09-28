@@ -7,10 +7,13 @@ namespace App\Models\Api\StarCitizen\Starmap\Starsystem;
 use App\Events\ModelUpdating;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
+use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Collection;
 
 /**
  * Class Starsystem
@@ -46,8 +49,6 @@ class Starsystem extends HasTranslations
         'translations',
     ];
 
-    protected $perPage = 5;
-
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
         'created' => ModelUpdating::class,
@@ -64,6 +65,7 @@ class Starsystem extends HasTranslations
         'aggregated_size' => 'decimal:8',
         'aggregated_population' => 'decimal:8',
         'aggregated_economy' => 'decimal:8',
+        'aggregated_danger' => 'decimal:8',
     ];
 
     /**
@@ -75,20 +77,72 @@ class Starsystem extends HasTranslations
     }
 
     /**
+     * The celestial objects in this system
+     *
      * @return HasMany
      */
-    public function celestialObject(): HasMany
+    public function celestialObjects(): HasMany
     {
-        return $this->hasMany(CelestialObject::class);
+        return $this->hasMany(CelestialObject::class, 'starsystem_id', 'cig_id');
     }
 
+    /**
+     * Celestial objects with type 'PLANET'
+     *
+     * @return HasMany
+     */
     public function planets(): HasMany
     {
-        return $this->celestialObject()->where('type', 'PLANET');
+        return $this->celestialObjects()->where('type', 'PLANET');
+    }
+
+    /**
+     * Jump points with this system as its entry
+     *
+     * @return HasManyThrough
+     */
+    public function jumppointEntry(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Jumppoint::class,
+            CelestialObject::class,
+            'starsystem_id',
+            'entry_id',
+            'cig_id',
+            'cig_id',
+        );
+    }
+
+    /**
+     * Jump points with this system as its exit
+     *
+     * @return HasManyThrough
+     */
+    public function jumppointExit(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Jumppoint::class,
+            CelestialObject::class,
+            'starsystem_id',
+            'exit_id',
+            'cig_id',
+            'cig_id',
+        );
+    }
+
+    /**
+     * All jump points
+     *
+     * @return Collection
+     */
+    public function jumppoints(): Collection
+    {
+        return $this->jumppointEntry->merge($this->jumppointExit);
     }
 
     /**
      * Star System Affiliation
+     *
      * @return BelongsToMany
      */
     public function affiliation(): BelongsToMany

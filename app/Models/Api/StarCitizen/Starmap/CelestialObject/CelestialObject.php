@@ -47,13 +47,10 @@ class CelestialObject extends HasTranslations
     ];
 
     protected $with = [
-        'celestialObjectSubtype',
+        'subtype',
         'affiliation',
-        'starsystem',
         'translations',
     ];
-
-    protected $perPage = 5;
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
@@ -63,14 +60,16 @@ class CelestialObject extends HasTranslations
 
     protected $casts = [
         'age' => 'decimal:8',
+        'axial_tilt' => 'decimal:8',
         'distance' => 'decimal:8',
+        'fairchanceact' => 'boolean',
+        'habitable' => 'boolean',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'orbit_period' => 'decimal:8',
         'sensor_danger' => 'decimal:8',
         'sensor_economy' => 'decimal:8',
         'sensor_population' => 'decimal:8',
-        'axial_tilt' => 'decimal:8',
-        'orbit_period' => 'decimal:8',
         'size' => 'decimal:8',
     ];
 
@@ -83,14 +82,18 @@ class CelestialObject extends HasTranslations
     }
 
     /**
-     * @return BelongsTo celestial_object_subtype
+     * Celestial object subtype
+     *
+     * @return BelongsTo subtype
      */
-    public function celestialObjectSubtype(): BelongsTo
+    public function subtype(): BelongsTo
     {
         return $this->belongsTo(CelestialObjectSubtype::class, 'subtype_id');
     }
 
     /**
+     * Affiliation
+     *
      * @return BelongsToMany Affiliation
      */
     public function affiliation(): BelongsToMany
@@ -99,6 +102,8 @@ class CelestialObject extends HasTranslations
     }
 
     /**
+     * Starsystem
+     *
      * @return BelongsTo Starsystem
      */
     public function starsystem(): BelongsTo

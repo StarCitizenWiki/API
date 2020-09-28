@@ -28,11 +28,6 @@ class Jumppoint extends Model
         'exit_status',
     ];
 
-    //TODO szi Cast benötigt, wenn schon in richtigem Format?
-    protected $casts = [
-
-    ];
-
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
         'created' => ModelUpdating::class,
@@ -40,6 +35,8 @@ class Jumppoint extends Model
     ];
 
     /**
+     * Jump point entry object
+     *
      * @return BelongsTo
      */
     public function entry(): BelongsTo
@@ -48,6 +45,8 @@ class Jumppoint extends Model
     }
 
     /**
+     * Jump point exit object
+     *
      * @return BelongsTo
      */
     public function exit(): BelongsTo
