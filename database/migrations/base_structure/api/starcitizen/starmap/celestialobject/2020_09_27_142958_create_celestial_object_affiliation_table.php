@@ -18,8 +18,6 @@ class CreateCelestialObjectAffiliationTable extends Migration
         Schema::create(
             'celestial_object_affiliation',
             function (Blueprint $table) {
-                //$table->id();
-
                 $table->unsignedBigInteger('celestial_object_id');
                 $table->unsignedBigInteger('affiliation_id');
 

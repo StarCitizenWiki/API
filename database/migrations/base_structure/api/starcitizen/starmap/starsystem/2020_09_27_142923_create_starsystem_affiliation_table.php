@@ -18,8 +18,6 @@ class CreateStarsystemAffiliationTable extends Migration
         Schema::create(
             'starsystem_affiliation',
             function (Blueprint $table) {
-                //$table->id();
-
                 $table->unsignedBigInteger('starsystem_id');
                 $table->unsignedBigInteger('affiliation_id');
 

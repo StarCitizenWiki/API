@@ -69,7 +69,7 @@ class CreateCelestialObjectsTable extends Migration
                     ->onDelete('cascade');
 
                 $table->foreign('starsystem_id')
-                    ->references('id')
+                    ->references('cig_id')
                     ->on('starsystems');
 
                 $table->unique('cig_id');
