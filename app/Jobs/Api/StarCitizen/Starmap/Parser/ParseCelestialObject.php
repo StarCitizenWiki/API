@@ -122,7 +122,10 @@ class ParseCelestialObject implements ShouldQueue
         );
     }
 
-    private function getCelestialSubtypeId(): ?string
+    /**
+     * @return mixed
+     */
+    private function getCelestialSubtypeId()
     {
         $parser = new CelestialSubtype($this->rawData['subtype']);
 
