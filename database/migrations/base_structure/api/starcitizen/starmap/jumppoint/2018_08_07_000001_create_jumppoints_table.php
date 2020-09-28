@@ -32,6 +32,7 @@ class CreateJumppointsTable extends Migration
                 $table->timestamps();
 
                 $table->unique('cig_id');
+
                 $table->foreign('entry_id')
                     ->references('cig_id')
                     ->on('celestial_objects');

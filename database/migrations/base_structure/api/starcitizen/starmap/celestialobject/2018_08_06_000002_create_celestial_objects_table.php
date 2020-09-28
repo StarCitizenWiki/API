@@ -35,7 +35,7 @@ class CreateCelestialObjectsTable extends Migration
                 $table->decimal('latitude')->nullable();
                 $table->decimal('longitude')->nullable();
                 $table->string('name')->nullable();
-                $table->decimal('orbit_period')->nullable();
+                $table->string('orbit_period')->nullable();
                 $table->unsignedBigInteger('parent_id')->nullable();
                 $table->unsignedInteger('sensor_danger');
                 $table->unsignedInteger('sensor_economy');
