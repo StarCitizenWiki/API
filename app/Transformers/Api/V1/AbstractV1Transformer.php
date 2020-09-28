@@ -60,8 +60,7 @@ abstract class AbstractV1Transformer extends TransformerAbstract
 
         $transformer = app($class);
 
-        if (
-            $base !== null
+        if ($base !== null
             && $transformer instanceof LocalizableTransformerInterface
             && $base instanceof LocalizableTransformerInterface
             && $base->getLocale() !== null
