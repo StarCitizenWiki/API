@@ -56,16 +56,16 @@ class Starsystem extends HasTranslations
     ];
 
     protected $casts = [
-        'position_x' => 'decimal:8',
-        'position_y' => 'decimal:8',
-        'position_z' => 'decimal:8',
-        'frost_line' => 'decimal:8',
-        'habitable_zone_inner' => 'decimal:8',
-        'habitable_zone_outer' => 'decimal:8',
-        'aggregated_size' => 'decimal:8',
-        'aggregated_population' => 'decimal:8',
-        'aggregated_economy' => 'decimal:8',
-        'aggregated_danger' => 'decimal:8',
+        'position_x' => 'float',
+        'position_y' => 'float',
+        'position_z' => 'float',
+        'frost_line' => 'float',
+        'habitable_zone_inner' => 'float',
+        'habitable_zone_outer' => 'float',
+        'aggregated_size' => 'float',
+        'aggregated_population' => 'float',
+        'aggregated_economy' => 'float',
+        'aggregated_danger' => 'float',
     ];
 
     /**

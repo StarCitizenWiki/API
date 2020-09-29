@@ -59,18 +59,18 @@ class CelestialObject extends HasTranslations
     ];
 
     protected $casts = [
-        'age' => 'decimal:8',
-        'axial_tilt' => 'decimal:8',
-        'distance' => 'decimal:8',
+        'age' => 'float',
+        'axial_tilt' => 'float',
+        'distance' => 'float',
         'fairchanceact' => 'boolean',
         'habitable' => 'boolean',
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
-        'orbit_period' => 'decimal:8',
-        'sensor_danger' => 'decimal:8',
-        'sensor_economy' => 'decimal:8',
-        'sensor_population' => 'decimal:8',
-        'size' => 'decimal:8',
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'orbit_period' => 'float',
+        'sensor_danger' => 'float',
+        'sensor_economy' => 'float',
+        'sensor_population' => 'float',
+        'size' => 'float',
     ];
 
     /**
