@@ -80,7 +80,7 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
      */
     public function includeAffiliation(CelestialObject $celestialObject): Collection
     {
-        return $this->collection($celestialObject->affiliation, new AffiliationTransformer());
+        return $this->collection($celestialObject->affiliation, new AffiliationTransformer(), 'affiliation');
     }
 
     /**
@@ -92,7 +92,7 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
      */
     public function includeSubtype(CelestialObject $celestialObject): Item
     {
-        return $this->item($celestialObject->subtype, new SubtypeTransformer());
+        return $this->item($celestialObject->subtype, new SubtypeTransformer(), 'subtype');
     }
 
     /**
@@ -104,6 +104,6 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
      */
     public function includeStarsystem(CelestialObject $celestialObject): Item
     {
-        return $this->item($celestialObject->starsystem, $this->makeTransformer(StarsystemTransformer::class, $this));
+        return $this->item($celestialObject->starsystem, $this->makeTransformer(StarsystemTransformer::class, $this), 'starsystem');
     }
 }

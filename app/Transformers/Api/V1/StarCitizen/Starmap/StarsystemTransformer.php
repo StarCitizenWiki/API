@@ -72,7 +72,7 @@ class StarsystemTransformer extends AbstractTranslationTransformer
      */
     public function includeAffiliation(Starsystem $starsystem): Collection
     {
-        return $this->collection($starsystem->affiliation, new AffiliationTransformer());
+        return $this->collection($starsystem->affiliation, new AffiliationTransformer(), 'affiliation');
     }
 
     /**
@@ -84,7 +84,11 @@ class StarsystemTransformer extends AbstractTranslationTransformer
      */
     public function includeCelestialObjects(Starsystem $starsystem): Collection
     {
-        return $this->collection($starsystem->celestialObjects, $this->makeTransformer(CelestialObjectTransformer::class, $this));
+        return $this->collection(
+            $starsystem->celestialObjects,
+            $this->makeTransformer(CelestialObjectTransformer::class, $this),
+            'celestial_object'
+        );
     }
 
     /**
@@ -96,7 +100,7 @@ class StarsystemTransformer extends AbstractTranslationTransformer
      */
     public function includeJumppointEntries(Starsystem $starsystem): Collection
     {
-        return $this->collection($starsystem->jumppointEntry, new JumppointTransformer());
+        return $this->collection($starsystem->jumppointEntry, new JumppointTransformer(), 'jumppoint');
     }
 
     /**
@@ -108,6 +112,6 @@ class StarsystemTransformer extends AbstractTranslationTransformer
      */
     public function includeJumppointExits(Starsystem $starsystem): Collection
     {
-        return $this->collection($starsystem->jumppointExit, new JumppointTransformer());
+        return $this->collection($starsystem->jumppointExit, new JumppointTransformer(), 'jumppoint');
     }
 }
