@@ -127,7 +127,7 @@ class CommLinkSearchController extends ApiController
         $this->transformer->includeAllAvailableIncludes();
 
         $hashConfig = $this->getHashConfigForMethod($request->get('method'));
-        $hashConfig['similarity'] = $request->get('similarity');
+        $hashConfig['similarity'] = (int)$request->get('similarity');
         $hashData = $this->hashImage($hashConfig['hasher'], $request->file('image'));
 
         return $this->disablePagination()
@@ -141,7 +141,8 @@ class CommLinkSearchController extends ApiController
 
                             return $image;
                         }
-                    )->sortByDesc('similarity')
+                    )
+                    ->sortByDesc('similarity')
             );
     }
 
