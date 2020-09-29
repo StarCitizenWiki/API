@@ -43,7 +43,7 @@ class StarsystemController extends ApiController
      */
     public function show($code): Response
     {
-        $code = strtoupper(urldecode($code));
+        $code = mb_strtoupper(urldecode($code));
 
         try {
             /** @var Starsystem $starsystem */
