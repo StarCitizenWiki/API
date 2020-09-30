@@ -12,7 +12,6 @@ use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
 
 /**
@@ -97,47 +96,16 @@ class Starsystem extends HasTranslations
     }
 
     /**
-     * Jump points with this system as its entry
-     *
-     * @return HasManyThrough
-     */
-    public function jumppointEntry(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Jumppoint::class,
-            CelestialObject::class,
-            'starsystem_id',
-            'entry_id',
-            'cig_id',
-            'cig_id',
-        );
-    }
-
-    /**
-     * Jump points with this system as its exit
-     *
-     * @return HasManyThrough
-     */
-    public function jumppointExit(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Jumppoint::class,
-            CelestialObject::class,
-            'starsystem_id',
-            'exit_id',
-            'cig_id',
-            'cig_id',
-        );
-    }
-
-    /**
      * All jump points
      *
      * @return Collection
      */
     public function jumppoints(): Collection
     {
-        return $this->jumppointEntry->merge($this->jumppointExit);
+        return Jumppoint::query()
+            ->whereIn('entry_id', $this->celestialObjects->pluck('cig_id'))
+            ->orWhereIn('exit_id', $this->celestialObjects->pluck('cig_id'))
+            ->get();
     }
 
     /**

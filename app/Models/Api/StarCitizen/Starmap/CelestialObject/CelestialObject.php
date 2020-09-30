@@ -6,6 +6,7 @@ namespace App\Models\Api\StarCitizen\Starmap\CelestialObject;
 
 use App\Events\ModelUpdating;
 use App\Models\Api\StarCitizen\Starmap\Affiliation;
+use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
@@ -109,5 +110,18 @@ class CelestialObject extends HasTranslations
     public function starsystem(): BelongsTo
     {
         return $this->belongsTo(Starsystem::class, 'starsystem_id', 'cig_id');
+    }
+
+    /**
+     * A jumppoint with its entry or exit id equal to this cig_id
+     *
+     * @return Jumppoint|null
+     */
+    public function jumppoint(): ?Jumppoint
+    {
+        return Jumppoint::query()
+            ->where('entry_id', $this->cig_id)
+            ->orWhere('exit_id', $this->cig_id)
+            ->first();
     }
 }

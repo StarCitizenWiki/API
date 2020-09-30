@@ -16,6 +16,7 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
 {
     protected $availableIncludes = [
         'starsystem',
+        'jumppoint',
     ];
 
     protected $defaultIncludes = [
@@ -104,6 +105,22 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
      */
     public function includeStarsystem(CelestialObject $celestialObject): Item
     {
-        return $this->item($celestialObject->starsystem, $this->makeTransformer(StarsystemTransformer::class, $this), 'starsystem');
+        return $this->item(
+            $celestialObject->starsystem,
+            $this->makeTransformer(StarsystemTransformer::class, $this),
+            'starsystem'
+        );
+    }
+
+    /**
+     * @param CelestialObject $celestialObject
+     *
+     * @return Item|void
+     */
+    public function includeJumppoint(CelestialObject $celestialObject)
+    {
+        if ($celestialObject->jumppoint() !== null) {
+            return $this->item($celestialObject->jumppoint(), new JumppointTransformer());
+        }
     }
 }

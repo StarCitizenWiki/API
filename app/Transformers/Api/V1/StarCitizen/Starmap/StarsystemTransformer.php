@@ -14,8 +14,7 @@ use League\Fractal\Resource\Collection;
 class StarsystemTransformer extends AbstractTranslationTransformer
 {
     protected $availableIncludes = [
-        'jumppoint_entries',
-        'jumppoint_exits',
+        'jumppoints',
         'celestial_objects',
     ];
 
@@ -98,20 +97,8 @@ class StarsystemTransformer extends AbstractTranslationTransformer
      *
      * @return Collection
      */
-    public function includeJumppointEntries(Starsystem $starsystem): Collection
+    public function includeJumppoints(Starsystem $starsystem): Collection
     {
-        return $this->collection($starsystem->jumppointEntry, new JumppointTransformer(), 'jumppoint');
-    }
-
-    /**
-     * Jump points exiting in this sysem
-     *
-     * @param Starsystem $starsystem
-     *
-     * @return Collection
-     */
-    public function includeJumppointExits(Starsystem $starsystem): Collection
-    {
-        return $this->collection($starsystem->jumppointExit, new JumppointTransformer(), 'jumppoint');
+        return $this->collection($starsystem->jumppoints(), new JumppointTransformer(), 'jumppoint');
     }
 }
