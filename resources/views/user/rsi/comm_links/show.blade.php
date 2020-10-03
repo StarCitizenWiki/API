@@ -219,6 +219,12 @@
 
           history.replaceState(null, null, newUrl)
         })
+
+        document.querySelectorAll('.badge.last-modified').forEach(entry => {
+          entry.addEventListener('click', () => {
+            navigator.clipboard.writeText(entry.dataset.lastModified);
+          });
+        });
       })
     </script>
 @endsection
