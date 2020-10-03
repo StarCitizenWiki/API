@@ -41,21 +41,21 @@ class ParseCommLinkDownload implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle()
+    public function handle(): void
     {
         $commLinks = CommLink::query()->get();
         $commLinks = $commLinks->keyBy('cig_id');
 
         collect(Storage::disk('comm_links')->directories())->each(
             function ($commLinkDir) use ($commLinks) {
-                if ((int) $commLinkDir >= $this->offset) {
+                if ((int)$commLinkDir >= $this->offset) {
                     $file = Arr::last(Storage::disk('comm_links')->files($commLinkDir));
 
                     if (null !== $file) {
                         $file = preg_split('/\/|\\\/', $file);
-                        $commLink = $commLinks->get((int) $commLinkDir, null);
+                        $commLink = $commLinks->get((int)$commLinkDir, null);
 
-                        dispatch(new ParseCommLink((int) $commLinkDir, Arr::last($file), $commLink));
+                        dispatch(new ParseCommLink((int)$commLinkDir, Arr::last($file), $commLink));
                     }
                 }
             }

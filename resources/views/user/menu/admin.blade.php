@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-1">
                 @component('components.elements.icon')
-                    tachometer
+                    tachometer-alt
                 @endcomponent
             </div>
             <div class="col">
@@ -39,7 +39,7 @@
         <div class="row">
             <div class="col-1">
                 @component('components.elements.icon')
-                    pencil
+                    pencil-alt
                 @endcomponent
             </div>
             <div class="col">

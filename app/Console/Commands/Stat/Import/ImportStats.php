@@ -1,8 +1,9 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\Stat\Import;
 
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
 use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
@@ -17,24 +18,25 @@ class ImportStats extends Command
      *
      * @var string
      */
-    protected $signature = 'import:stats {--d|download : Download Stats before importing}';
+    protected $signature = 'stats:import';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Imports Stats';
+    protected $description = 'Import the newest downloaded funding statistics file into the database. ' .
+    'WARNING: Creates a new database record based on the latest downloaded file, can create DUPLICATE records';
 
     /**
-     * @var \Illuminate\Bus\Dispatcher
+     * @var Dispatcher
      */
-    private $dispatcher;
+    private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
      *
-     * @param \Illuminate\Bus\Dispatcher $dispatcher
+     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -50,17 +52,8 @@ class ImportStats extends Command
      */
     public function handle(): int
     {
-        if ($this->option('download')) {
-            $this->info('Downloading Stats and starting import');
-            DownloadStats::withChain(
-                [
-                    new ParseStat(),
-                ]
-            )->dispatch();
-        } else {
-            $this->info('Starting Stat Import');
-            $this->dispatcher->dispatchNow(new ParseStat());
-        }
+        $this->info('Starting funding statistics import');
+        $this->dispatcher->dispatch(new ParseStat());
 
         return 0;
     }

@@ -1,9 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Rsi\CommLink\Category;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Category\Category;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\View\View;
 
 /**
  * Comm-Link Category Controller
@@ -22,14 +26,13 @@ class CategoryController extends Controller
     /**
      * All Categories
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function index()
+    public function index(): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.rsi.comm_links.categories.index',
@@ -42,23 +45,22 @@ class CategoryController extends Controller
     /**
      * Get All Comm-Links in a given Category
      *
-     * @param \App\Models\Rsi\CommLink\Category\Category $category
+     * @param Category $category
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function show(Category $category)
+    public function show(Category $category): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        $links = $category->commLinks()->orderByDesc('cig_id')->paginate(20);
 
         return view(
             'user.rsi.comm_links.index',
             [
-                'commLinks' => $links,
+                'commLinks' => $category->commLinks()
+                    ->orderByDesc('cig_id')
+                    ->paginate(20),
             ]
         );
     }

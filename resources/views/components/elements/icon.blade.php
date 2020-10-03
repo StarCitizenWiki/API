@@ -1,3 +1,3 @@
-<i class="{{ $type ?? 'fal' }} fa-{{ $slot }} {{ $class ?? '' }}" {{ $options ?? '' }}>
+<i class="{{ $type ?? 'fa' }} fa-{{ $slot }} {{ $class ?? '' }}" {{ $options ?? '' }}>
     {{ $content ?? '' }}
 </i>

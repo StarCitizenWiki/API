@@ -1,9 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 07.08.2018
- * Time: 11:52
- */
 
 namespace Tests\Feature\Controller\Web\User\Notification;
 
@@ -11,6 +6,7 @@ use App\Http\Controllers\Web\User\Notification\NotificationController;
 use App\Mail\NotificationEmail;
 use App\Models\Api\Notification;
 use Carbon\Carbon;
+use Dingo\Api\Dispatcher;
 use Dingo\Api\Http\Response;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -237,7 +233,7 @@ class NotificationControllerTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(NotificationController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

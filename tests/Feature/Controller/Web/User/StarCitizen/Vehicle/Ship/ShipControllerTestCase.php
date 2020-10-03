@@ -1,10 +1,4 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 12.08.2018
- * Time: 16:22
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Ship;
 
@@ -12,6 +6,7 @@ use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -167,7 +162,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
 
         $reflectedClass = new \ReflectionClass(ShipController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

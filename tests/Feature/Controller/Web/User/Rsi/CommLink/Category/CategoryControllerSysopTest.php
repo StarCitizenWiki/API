@@ -1,10 +1,9 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Category;
 
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
-use Tests\Feature\Controller\Web\User\Rsi\CommLink\Category\CategoryControllerTestCase;
 
 /**
  * Class Category Controller Test

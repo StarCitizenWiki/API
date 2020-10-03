@@ -1,9 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\Vehicle\Focus;
 
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Vehicle Focus Model
@@ -45,9 +48,9 @@ class Focus extends HasTranslations
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function translations()
+    public function translations(): HasMany
     {
         return $this->hasMany(FocusTranslation::class);
     }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Requests\StarCitizen\Manufacturer;
 
@@ -34,11 +36,11 @@ class ManufacturerTranslationRequest extends FormRequest
 
         foreach ($localeCodes as $code => $language) {
             if (config('language.english') === $language->locale_code) {
-                $rules["description_{$code}"] = 'required'.$rule;
-                $rules["known_for_{$code}"] = 'required'.$rule;
+                $rules["description_{$code}"] = 'required' . $rule;
+                $rules["known_for_{$code}"] = 'required' . $rule;
             } else {
-                $rules["description_{$code}"] = 'present'.$rule;
-                $rules["known_for_{$code}"] = 'present'.$rule;
+                $rules["description_{$code}"] = 'present' . $rule;
+                $rules["known_for_{$code}"] = 'present' . $rule;
             }
         }
 

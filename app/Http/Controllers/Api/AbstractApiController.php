@@ -1,18 +1,21 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Transformers\Api\LocaleAwareTransformerInterface;
+use App\Transformers\Api\LocalizableTransformerInterface;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 use Carbon\Carbon;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Dingo\Api\Routing\Helpers;
 use Dingo\Api\Transformer\Factory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Base Controller that has Dingo Helpers
@@ -48,9 +51,9 @@ abstract class AbstractApiController extends Controller
     protected Request $request;
 
     /**
-     * @var TransformerAbstract The Default Transformer for index and show
+     * @var V1Transformer The Default Transformer for index and show
      */
-    protected TransformerAbstract $transformer;
+    protected V1Transformer $transformer;
 
     /**
      * @var array Parameter Errors
@@ -79,7 +82,9 @@ abstract class AbstractApiController extends Controller
      */
     public function __construct(Request $request)
     {
+        parent::__construct();
         $this->request = $request;
+
         $this->processRequestParams();
         app(Factory::class)->disableEagerLoading();
     }
@@ -87,18 +92,76 @@ abstract class AbstractApiController extends Controller
     /**
      * Processes all possible Request Parameters
      */
-    protected function processRequestParams()
+    protected function processRequestParams(): void
     {
         $this->processLimit();
-        $this->processIncludes();
+        //$this->processIncludes();
         $this->processLocale();
+    }
+
+    /**
+     * Processes the 'limit' Request-Parameter
+     */
+    private function processLimit(): void
+    {
+        if ($this->request->has(self::LIMIT) && null !== $this->request->get(self::LIMIT, null)) {
+            $itemLimit = (int)$this->request->get(self::LIMIT);
+
+            if ($itemLimit > 0) {
+                $this->limit = $itemLimit;
+            } elseif (0 === $itemLimit) {
+                $this->limit = 0;
+            } else {
+                $this->errors[self::LIMIT] = static::INVALID_LIMIT_STRING;
+            }
+        }
+    }
+
+    /**
+     * Processes the 'locale' Request-Parameter
+     */
+    private function processLocale(): void
+    {
+        if ($this->request->has(self::LOCALE) && null !== $this->request->get(self::LOCALE, null)) {
+            $this->setLocale($this->request->get(self::LOCALE));
+        }
+    }
+
+    /**
+     * Set the Locale
+     *
+     * @param string $localeCode
+     */
+    protected function setLocale(string $localeCode): void
+    {
+        if (in_array($localeCode, config('language.codes'), true)) {
+            $this->localeCode = $localeCode;
+
+            if ($this->transformer instanceof LocalizableTransformerInterface) {
+                $this->transformer->setLocale($localeCode);
+            }
+        } else {
+            $this->errors[self::LOCALE] = sprintf(static::INVALID_LOCALE_STRING, $localeCode);
+        }
+    }
+
+    /**
+     * Disables the pagination by setting the limit to 0
+     *
+     * @return $this
+     */
+    protected function disablePagination(): self
+    {
+        $this->limit = 0;
+
+        return $this;
     }
 
     /**
      * Creates the API Response, Collection if no pagination, Paginator if a limit is set
      * Item if a single model is given
      *
-     * @param Builder|Model $query
+     * @param Builder|Model|Collection $query
      *
      * @return Response
      */
@@ -108,13 +171,17 @@ abstract class AbstractApiController extends Controller
             return $this->response->item($query, $this->transformer)->setMeta($this->getMeta());
         }
 
-        if ($this->limit === 0) {
-            return $this->response->collection($query->get(), $this->transformer)->setMeta($this->getMeta());
+        if ($this->limit === 0 || $query instanceof Collection) {
+            if ($query instanceof Builder) {
+                $query = $query->get();
+            }
+
+            return $this->response->collection($query, $this->transformer)->setMeta($this->getMeta());
         }
 
-        $manufacturer = $query->paginate($this->limit);
+        $paginate = $query->paginate($this->limit);
 
-        return $this->response->paginator($manufacturer, $this->transformer)->setMeta($this->getMeta());
+        return $this->response->paginator($paginate, $this->transformer)->setMeta($this->getMeta());
     }
 
     /**
@@ -133,26 +200,22 @@ abstract class AbstractApiController extends Controller
         }
 
         if (!empty($this->transformer->getAvailableIncludes())) {
-            $meta['valid_relations'] = array_map('Illuminate\Support\Str::snake', $this->transformer->getAvailableIncludes());
+            $meta['valid_relations'] = array_map(
+                'Illuminate\Support\Str::snake',
+                $this->transformer->getAvailableIncludes()
+            );
         }
 
         return array_merge($meta, $this->extraMeta);
     }
 
     /**
-     * Set the Locale
-     *
-     * @param string $localeCode
+     * Processes the 'include' Model Relations Request-Parameter
      */
-    protected function setLocale(string $localeCode)
+    private function processIncludes(): void
     {
-        if (in_array($localeCode, config('language.codes'), true)) {
-            $this->localeCode = $localeCode;
-            if ($this->transformer instanceof LocaleAwareTransformerInterface) {
-                $this->transformer->setLocale($localeCode);
-            }
-        } else {
-            $this->errors[self::LOCALE] = sprintf(static::INVALID_LOCALE_STRING, $localeCode);
+        if ($this->request->has('include') && null !== $this->request->get('include', null)) {
+            $this->checkIncludes($this->request->get('include', []));
         }
     }
 
@@ -167,60 +230,22 @@ abstract class AbstractApiController extends Controller
             $relations = explode(',', $relations);
         }
 
-        $relations = collect($relations);
-
-        $relations->transform(
+        collect($relations)->transform(
             static function ($relation) {
                 return trim($relation);
             }
-        )->transform(
-            static function ($relation) {
-                return Str::camel($relation);
-            }
-        )->each(
-            function ($relation) {
-                if (!in_array($relation, $this->transformer->getAvailableIncludes(), true)) {
-                    $this->errors['include'][] = sprintf(static::INVALID_RELATION_STRING, Str::snake($relation));
+        )
+            ->transform(
+                static function ($relation) {
+                    return Str::camel($relation);
                 }
-            }
-        );
-    }
-
-    /**
-     * Processes the 'limit' Request-Parameter
-     */
-    private function processLimit(): void
-    {
-        if ($this->request->has(self::LIMIT) && null !== $this->request->get(self::LIMIT, null)) {
-            $itemLimit = (int) $this->request->get(self::LIMIT);
-
-            if ($itemLimit > 0) {
-                $this->limit = $itemLimit;
-            } elseif (0 === $itemLimit) {
-                $this->limit = 0;
-            } else {
-                $this->errors[self::LIMIT] = static::INVALID_LIMIT_STRING;
-            }
-        }
-    }
-
-    /**
-     * Processes the 'include' Model Relations Request-Parameter
-     */
-    private function processIncludes(): void
-    {
-        if ($this->request->has('include') && null !== $this->request->get('include', null)) {
-            $this->checkIncludes($this->request->get('include', []));
-        }
-    }
-
-    /**
-     * Processes the 'locale' Request-Parameter
-     */
-    private function processLocale(): void
-    {
-        if ($this->request->has(self::LOCALE) && null !== $this->request->get(self::LOCALE, null)) {
-            $this->setLocale($this->request->get(self::LOCALE));
-        }
+            )
+            ->each(
+                function ($relation) {
+                    if (!in_array($relation, $this->transformer->getAvailableIncludes(), true)) {
+                        $this->errors['include'][] = sprintf(static::INVALID_RELATION_STRING, Str::snake($relation));
+                    }
+                }
+            );
     }
 }

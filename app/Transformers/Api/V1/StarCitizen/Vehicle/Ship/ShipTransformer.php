@@ -1,9 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 24.07.2018
- * Time: 13:59
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle\Ship;
 
@@ -16,12 +13,14 @@ use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as Ve
 class ShipTransformer extends VehicleTransformer
 {
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship
+     * @param Ship $ship
      *
      * @return array
      */
-    public function transform(Ship $ship)
+    public function transform(Ship $ship): array
     {
+        $this->missingTranslations = [];
+
         return [
             'id' => $ship->cig_id,
             'chassis_id' => $ship->chassis_id,
@@ -62,7 +61,8 @@ class ShipTransformer extends VehicleTransformer
                 'code' => $ship->manufacturer->name_short,
                 'name' => $ship->manufacturer->name,
             ],
-            'updated_at' => $ship->updated_at->toDateTimeString(),
+            'updated_at' => $ship->updated_at,
+            'missing_translations' => $this->missingTranslations,
         ];
     }
 }

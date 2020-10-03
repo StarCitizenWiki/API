@@ -1,16 +1,18 @@
 <?php declare(strict_types = 1);
 
+use Dingo\Api\Routing\Router;
+
 $api->group(
     [
         'namespace' => 'StarCitizen',
     ],
-    function (\Dingo\Api\Routing\Router $api) {
+    static function (Router $api) {
         $api->group(
             [
                 'namespace' => 'Stat',
                 'prefix' => 'stats',
             ],
-            function (\Dingo\Api\Routing\Router $api) {
+            static function (Router $api) {
                 $api->get('latest', ['as' => 'api.v1.starcitizen.stats.latest', 'uses' => 'StatController@latest']);
                 $api->get('/', ['as' => 'api.v1.starcitizen.stats.all', 'uses' => 'StatController@index']);
             }
@@ -21,7 +23,7 @@ $api->group(
                 'namespace' => 'Manufacturer',
                 'prefix' => 'manufacturers',
             ],
-            function (\Dingo\Api\Routing\Router $api) {
+            static function (Router $api) {
                 $api->get(
                     '/',
                     ['as' => 'api.v1.starcitizen.manufacturers.all', 'uses' => 'ManufacturerController@index']
@@ -41,13 +43,13 @@ $api->group(
             [
                 'namespace' => 'Vehicle',
             ],
-            function (\Dingo\Api\Routing\Router $api) {
+            static function (Router $api) {
                 $api->group(
                     [
                         'namespace' => 'Ship',
                         'prefix' => 'ships',
                     ],
-                    function (\Dingo\Api\Routing\Router $api) {
+                    static function (Router $api) {
                         $api->get(
                             '/',
                             ['as' => 'api.v1.starcitizen.vehicles.ships.all', 'uses' => 'ShipController@index']
@@ -68,7 +70,7 @@ $api->group(
                         'namespace' => 'GroundVehicle',
                         'prefix' => 'vehicles',
                     ],
-                    function (\Dingo\Api\Routing\Router $api) {
+                    static function (Router $api) {
                         $api->get(
                             '/',
                             [
@@ -100,13 +102,13 @@ $api->group(
                 'namespace' => 'Starmap',
                 'prefix' => 'starmap',
             ],
-            function (\Dingo\Api\Routing\Router $api) {
+            static function (Router $api) {
                 $api->group(
                     [
                         'namespace' => 'Starsystem',
                         'prefix' => 'starsystems',
                     ],
-                    function (\Dingo\Api\Routing\Router $api) {
+                    function (Router $api) {
                         $api->get(
                             '/',
                             ['as' => 'api.v1.starmap.starsystems.index', 'uses' => 'StarsystemController@index']
@@ -123,7 +125,7 @@ $api->group(
                         'namespace' => 'CelestialObject',
                         'prefix' => 'celestial-objects',
                     ],
-                    function (\Dingo\Api\Routing\Router $api) {
+                    static function (Router $api) {
                         $api->get(
                             '/',
                             [
@@ -149,13 +151,13 @@ $api->group(
     [
         'namespace' => 'Rsi',
     ],
-    function (\Dingo\Api\Routing\Router $api) {
+    static function (Router $api) {
         $api->group(
             [
                 'namespace' => 'CommLink',
                 'prefix' => 'comm-links',
             ],
-            function (\Dingo\Api\Routing\Router $api) {
+            static function (Router $api) {
                 /**
                  * Categories
                  */
@@ -164,7 +166,7 @@ $api->group(
                         'namespace' => 'Category',
                         'prefix' => 'categories',
                     ],
-                    function (\Dingo\Api\Routing\Router $api) {
+                    static function (Router $api) {
                         $api->get(
                             '/',
                             [
@@ -190,7 +192,7 @@ $api->group(
                         'namespace' => 'Channel',
                         'prefix' => 'channels',
                     ],
-                    function (\Dingo\Api\Routing\Router $api) {
+                    static function (Router $api) {
                         $api->get(
                             '/',
                             [
@@ -216,7 +218,7 @@ $api->group(
                         'namespace' => 'Series',
                         'prefix' => 'series',
                     ],
-                    function (\Dingo\Api\Routing\Router $api) {
+                    static function (Router $api) {
                         $api->get(
                             '/',
                             [
@@ -237,6 +239,27 @@ $api->group(
                 /**
                  * Comm Links
                  */
+                $api->post(
+                    '/reverse-image-link-search',
+                    [
+                        'as' => 'api.v1.rsi.comm-links.reverse-image-link-search',
+                        'uses' => 'CommLinkSearchController@reverseImageLinkSearch',
+                    ]
+                );
+                $api->post(
+                    '/reverse-image-search',
+                    [
+                        'as' => 'api.v1.rsi.comm-links.reverse-image-search',
+                        'uses' => 'CommLinkSearchController@reverseImageSearch',
+                    ]
+                );
+                $api->post(
+                    '/search',
+                    [
+                        'as' => 'api.v1.rsi.comm-links.search',
+                        'uses' => 'CommLinkSearchController@searchByTitle',
+                    ]
+                );
                 $api->get(
                     '/',
                     [
@@ -255,3 +278,4 @@ $api->group(
         );
     }
 );
+

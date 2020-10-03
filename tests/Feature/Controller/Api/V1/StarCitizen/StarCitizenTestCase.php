@@ -1,10 +1,4 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 12.08.2018
- * Time: 14:55
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
@@ -23,7 +17,7 @@ class StarCitizenTestCase extends ApiTestCase
      *
      * @param string $name The Resource Name
      */
-    public function testShow(string $name)
+    public function testShow(string $name): void
     {
         $response = $this->get(
             sprintf(
@@ -49,7 +43,7 @@ class StarCitizenTestCase extends ApiTestCase
     /**
      * Test Show Specific Resource that does not exist
      */
-    public function testShowNotFound()
+    public function testShowNotFound(): void
     {
         $response = $this->get(
             sprintf(
@@ -64,7 +58,8 @@ class StarCitizenTestCase extends ApiTestCase
                 sprintf(
                     AbstractApiController::NOT_FOUND_STRING,
                     static::NOT_EXISTENT_NAME
-                )
+                ),
+                false
             )
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit');
@@ -75,7 +70,7 @@ class StarCitizenTestCase extends ApiTestCase
      *
      * @param string $name The Resource Name
      */
-    public function testShowMultipleTranslations(string $name)
+    public function testShowMultipleTranslations(string $name): void
     {
         $response = $this->get(
             sprintf(
@@ -113,7 +108,7 @@ class StarCitizenTestCase extends ApiTestCase
      *
      * @param string $name The Resource Name
      */
-    public function testShowLocaleGerman(string $name)
+    public function testShowLocaleGerman(string $name): void
     {
         $response = $this->get(
             sprintf(
@@ -143,7 +138,7 @@ class StarCitizenTestCase extends ApiTestCase
      *
      * @param string $name The Resource Name
      */
-    public function testShowLocaleInvalid(string $name)
+    public function testShowLocaleInvalid(string $name): void
     {
         $response = $this->get(
             sprintf(
@@ -166,12 +161,6 @@ class StarCitizenTestCase extends ApiTestCase
                     ],
                 ]
             )
-            ->assertSee(
-                sprintf(
-                    AbstractApiController::INVALID_LOCALE_STRING,
-                    'invalid'
-                )
-            )
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
@@ -187,7 +176,7 @@ class StarCitizenTestCase extends ApiTestCase
      *
      * @param string $name The Resource Name
      */
-    public function testSearch(string $name)
+    public function testSearch(string $name): void
     {
         $response = $this->post(
             sprintf(
@@ -220,7 +209,7 @@ class StarCitizenTestCase extends ApiTestCase
      *
      * @param string $name The Resource Name
      */
-    public function testSearchWithGermanTranslation(string $name)
+    public function testSearchWithGermanTranslation(string $name): void
     {
         $response = $this->post(
             sprintf(
@@ -264,7 +253,7 @@ class StarCitizenTestCase extends ApiTestCase
     /**
      * Test Search for Resource that does not exist
      */
-    public function testSearchNotFound()
+    public function testSearchNotFound(): void
     {
         $response = $this->post(
             sprintf(

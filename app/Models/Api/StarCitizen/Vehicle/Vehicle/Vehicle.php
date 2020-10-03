@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\Vehicle\Vehicle;
 
@@ -6,6 +8,7 @@ use App\Events\ModelUpdating;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
+use App\Models\Api\StarCitizen\Vehicle\Component\Component;
 use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\Api\StarCitizen\Vehicle\Type\Type;
@@ -14,6 +17,7 @@ use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Abstract Vehicle Class
@@ -64,6 +68,29 @@ class Vehicle extends HasTranslations
         'pivot',
     ];
 
+    protected $casts = [
+        'cig_id' => 'integer',
+        'chassis_id' => 'integer',
+        'scm_speed' => 'integer',
+        'afterburner_speed' => 'integer',
+        'mass' => 'integer',
+        'cargo_capacity' => 'integer',
+        'min_crew' => 'integer',
+        'max_crew' => 'integer',
+
+        'length' => 'float',
+        'beam' => 'float',
+        'height' => 'float',
+        'pitch_max' => 'float',
+        'yaw_max' => 'float',
+        'roll_max' => 'float',
+        'x_axis_acceleration' => 'float',
+        'y_axis_acceleration' => 'float',
+        'z_axis_acceleration' => 'float',
+
+        'updated_at' => 'datetime',
+    ];
+
     protected $perPage = 5;
 
     protected $dispatchesEvents = [
@@ -81,6 +108,19 @@ class Vehicle extends HasTranslations
     }
 
     /**
+     * @return HasManyThrough
+     */
+    public function translationChangelogs(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            \App\Models\System\ModelChangelog::class,
+            VehicleTranslation::class,
+            'vehicle_id',
+            'changelog_id'
+        )->where('changelog_type', VehicleTranslation::class);
+    }
+
+    /**
      * The Vehicle Foci
      *
      * @return BelongsToMany
@@ -95,7 +135,7 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function manufacturer()
+    public function manufacturer(): BelongsTo
     {
         return $this->belongsTo(Manufacturer::class);
     }
@@ -105,7 +145,7 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function productionStatus()
+    public function productionStatus(): BelongsTo
     {
         return $this->belongsTo(ProductionStatus::class, 'production_status_id');
     }
@@ -115,7 +155,7 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function productionNote()
+    public function productionNote(): BelongsTo
     {
         return $this->belongsTo(ProductionNote::class, 'production_note_id');
     }
@@ -125,19 +165,52 @@ class Vehicle extends HasTranslations
      *
      * @return BelongsTo
      */
-    public function type()
+    public function type(): BelongsTo
     {
         return $this->belongsTo(Type::class);
     }
 
     /**
-     * The Vehicle Size
-     *
-     * @return BelongsTo
+     * @return BelongsToMany
      */
-    public function size()
+    public function components(): BelongsToMany
     {
-        return $this->belongsTo(Size::class);
+        return $this->belongsToMany(Component::class, 'vehicle_component')
+            ->using(VehicleComponent::class)
+            ->withPivot(
+                [
+                    'mounts',
+                    'size',
+                    'details',
+                    'quantity',
+                ]
+            );
+    }
+
+    /**
+     * Get Components keyed by component class
+     *
+     * @return array
+     */
+    public function componentsByClass(): array
+    {
+        $components = $this->components
+            ->keyBy('component_class')
+            ->keys()
+            ->flip()
+            ->map(
+                function () {
+                    return [];
+                }
+            )->toArray();
+
+        $this->components->each(
+            function (Component $component) use (&$components) {
+                $components[$component->component_class][] = $component;
+            }
+        );
+
+        return $components;
     }
 
     /**
@@ -148,6 +221,16 @@ class Vehicle extends HasTranslations
     public function ships()
     {
         return $this->size()->ship();
+    }
+
+    /**
+     * The Vehicle Size
+     *
+     * @return BelongsTo
+     */
+    public function size(): BelongsTo
+    {
+        return $this->belongsTo(Size::class);
     }
 
     /**

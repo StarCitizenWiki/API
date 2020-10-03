@@ -4,7 +4,7 @@
 
 @section('content')
     @component('components.forms.form', [
-        'action' => route('web.user.notifications.create'),
+        'action' => route('web.user.notifications.store'),
         'class' => 'card',
     ])
         <div class="wrapper">

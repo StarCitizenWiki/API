@@ -1,13 +1,9 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 30.09.2018
- * Time: 18:23
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Changelog;
 
 use App\Http\Controllers\Web\User\Changelog\ChangelogController;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -42,6 +38,6 @@ class ChangelogTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(ChangelogController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 }

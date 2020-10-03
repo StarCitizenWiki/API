@@ -1,18 +1,21 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser;
 
+use App\Traits\Jobs\ShipMatrix\GetNewestShipMatrixFilenameTrait as GetNewestShipMatrixFilename;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
+use RuntimeException;
+
 use function GuzzleHttp\json_decode;
 
 /**
@@ -24,6 +27,7 @@ class ParseShipMatrixDownload implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use GetNewestShipMatrixFilename;
 
     private $shipMatrixFileName;
 
@@ -37,7 +41,11 @@ class ParseShipMatrixDownload implements ShouldQueue
         if (null !== $shipMatrixFileName) {
             $this->shipMatrixFileName = $shipMatrixFileName;
         } else {
-            $this->setShipMatrixFileName();
+            try {
+                $this->shipMatrixFileName = $this->getNewestShipMatrixFilename();
+            } catch (RuntimeException $e) {
+                $this->fail($e);
+            }
         }
     }
 
@@ -46,7 +54,7 @@ class ParseShipMatrixDownload implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Parsing Ship Matrix Download');
 
@@ -77,26 +85,5 @@ class ParseShipMatrixDownload implements ShouldQueue
                 dispatch(new ParseVehicle(new Collection($vehicle)));
             }
         );
-    }
-
-    /**
-     * Tries to auto generate the Shipmatrix Filename to use
-     */
-    private function setShipMatrixFileName()
-    {
-        $newestShipMatrixDir = Arr::last(Storage::disk('vehicles')->directories());
-
-        if (null === $newestShipMatrixDir) {
-            $this->fail(new InvalidArgumentException('No Shipmatrix directories found'));
-        } else {
-            $file = Arr::last(Storage::disk('vehicles')->files($newestShipMatrixDir));
-
-            if (null !== $file && Str::contains($file, 'shipmatrix')) {
-                $this->shipMatrixFileName = $file;
-            } else {
-                app('Log')::error('No Shipmatrix File on Disk \'vehicles\' found');
-                $this->fail();
-            }
-        }
     }
 }

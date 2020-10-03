@@ -1,10 +1,4 @@
 <?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 11.08.2018
- * Time: 22:47
- */
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\ProductionNote;
 
@@ -26,10 +20,10 @@ class ProductionNoteControllerBlockedTest extends ProductionNoteControllerTestCa
         'index' => Response::HTTP_FORBIDDEN,
 
         'edit' => Response::HTTP_FORBIDDEN,
-        'edit_not_found' => Response::HTTP_FORBIDDEN,
+        'edit_not_found' => Response::HTTP_NOT_FOUND,
 
         'update' => Response::HTTP_FORBIDDEN,
-        'update_not_found' => Response::HTTP_FORBIDDEN,
+        'update_not_found' => Response::HTTP_NOT_FOUND,
     ];
 
     /**

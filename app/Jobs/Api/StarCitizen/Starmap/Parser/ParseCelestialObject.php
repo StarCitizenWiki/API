@@ -1,12 +1,12 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 19.08.2018 21:01
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Starmap\Parser;
 
-use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
+use App\Jobs\Api\StarCitizen\Starmap\Parser\Element\Affiliation;
+use App\Jobs\Api\StarCitizen\Starmap\Parser\Element\CelestialSubtype;
+use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject as CelestialObjectModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,24 +27,24 @@ class ParseCelestialObject implements ShouldQueue
     protected const LANGUAGE_EN = 'en_EN';
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
-    protected $rawData;
+    protected Collection $rawData;
 
     /**
      * @var int Starsystem Id
      */
-    private $starsystemId;
+    private int $starsystemId;
 
     /**
      * Create a new job instance.
      *
-     * @param \Illuminate\Support\Collection $rawData
-     * @param int                            $starsystemId
+     * @param array|Collection $rawData
+     * @param int              $starsystemId
      */
-    public function __construct(Collection $rawData, $starsystemId)
+    public function __construct($rawData, int $starsystemId)
     {
-        $this->rawData = $rawData;
+        $this->rawData = new Collection($rawData);
         $this->starsystemId = $starsystemId;
     }
 
@@ -53,54 +53,103 @@ class ParseCelestialObject implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         if (empty($this->rawData['subtype'])) {
-            app('Log')::warning("Parse Celestial Object: empty=true");
+            app('Log')::debug('Parse Celestial Object: empty=true');
         }
 
-        /** @var \App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject $celestialObject */
-        $celestialObject = CelestialObject::updateOrCreate(
+        $data = $this->getData();
+        $description = $data->pull('description');
+
+        /** @var CelestialObjectModel $celestialObject */
+        $celestialObject = CelestialObjectModel::updateOrCreate(
             [
-                'code' => $this->rawData['code'],
-                'starsystem_id' => $this->starsystemId,
+                'code' => $data->pull('code'),
+                'starsystem_id' => $data->pull('starsystem_id'),
             ],
-            [
-                'cig_id' => $this->rawData['id'],
-                'cig_time_modified' => $this->rawData['time_modified'],
-                'type' => $this->rawData['type'],
-                'designation' => $this->rawData['designation'],
-                'name' => $this->rawData['name'],
-                'age' => $this->rawData['age'],
-                'distance' => $this->rawData['distance'],
-                'latitude' => $this->rawData['latitude'],
-                'longitude' => $this->rawData['longitude'],
-                'axial_tilt' => $this->rawData['axial_tilt'],
-                'orbit_period' => $this->rawData['orbit_period'],
-                'info_url' => $this->rawData['info_url'],
-                'habitable' => $this->rawData['habitable'],
-                'fairchanceact' => $this->rawData['fairchanceact'],
-                'appearance' => $this->rawData['appearance'],
-                'sensor_population' => $this->rawData['sensor_population'],
-                'sensor_economy' => $this->rawData['sensor_economy'],
-                'sensor_danger' => $this->rawData['sensor_danger'],
-                'size' => $this->rawData['size'],
-                'parent_id' => $this->rawData['parent_id'],
-                'subtype_id' => !empty($this->rawData['subtype']) ?
-                    ParseCelestialSubtype::getCelestialSubtype($this->rawData['subtype']) : null,
-                'affiliation_id' => !empty($this->rawData['affiliation']) ?
-                    ParseAffiliation::getAffiliation($this->rawData['affiliation'][0]) : null,
-            ]
+            $data->toArray()
         );
 
-        $celestialObject->translations()->updateOrCreate(
+        if ($description !== null) {
+            $celestialObject->translations()->updateOrCreate(
+                [
+                    'celestial_object_id' => $celestialObject->id,
+                    'locale_code' => self::LANGUAGE_EN,
+                ],
+                [
+                    'translation' => $description,
+                ]
+            );
+        }
+
+        $celestialObject->affiliation()->sync($this->getAffiliationIds($this->rawData->pull('affiliation')));
+    }
+
+    public function getData(): Collection
+    {
+        return new Collection(
             [
-                'celestial_object_id' => $celestialObject->id,
-                'locale_code' => self::LANGUAGE_EN,
-            ],
-            [
-                'translation' => !empty($this->rawData['description']) ? $this->rawData['description'] : "",
+                'cig_id' => $this->rawData->get('id'),
+                'starsystem_id' => $this->starsystemId,
+
+                'age' => $this->rawData->get('age'),
+                'appearance' => $this->rawData->get('appearance'),
+                'axial_tilt' => $this->rawData->get('axial_tilt'),
+                'code' => $this->rawData->get('code'),
+                'designation' => $this->rawData->get('designation'),
+                'distance' => $this->rawData->get('distance'),
+                'fairchanceact' => $this->rawData->get('fairchanceact'),
+                'habitable' => $this->rawData->get('habitable'),
+                'info_url' => $this->rawData->get('info_url'),
+                'latitude' => $this->rawData->get('latitude'),
+                'longitude' => $this->rawData->get('longitude'),
+                'name' => $this->rawData->get('name'),
+                'orbit_period' => $this->rawData->get('orbit_period'),
+                'parent_id' => $this->rawData->get('parent_id'),
+                'sensor_danger' => $this->rawData->get('sensor_danger'),
+                'sensor_economy' => $this->rawData->get('sensor_economy'),
+                'sensor_population' => $this->rawData->get('sensor_population'),
+
+                'size' => $this->rawData->get('size'),
+                'type' => $this->rawData->get('type'),
+
+                'subtype_id' => $this->getCelestialSubtypeId(),
+                'time_modified' => $this->rawData->get('time_modified'),
+
+                'description' => $this->rawData->get('description'),
             ]
         );
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getCelestialSubtypeId()
+    {
+        $parser = new CelestialSubtype($this->rawData['subtype']);
+
+        return optional($parser->getCelestialSubtype())->id;
+    }
+
+    private function getAffiliationIds(array $affiliations): array
+    {
+        return collect($affiliations)
+            ->filter(
+                function ($affiliation) {
+                    return isset($affiliation['id']);
+                }
+            )
+            ->map(
+                function ($affiliationData) {
+                    return (new Affiliation($affiliationData))->getAffiliation();
+                }
+            )
+            ->map(
+                function (\App\Models\Api\StarCitizen\Starmap\Affiliation $affiliation) {
+                    return $affiliation->id;
+                }
+            )
+            ->toArray();
     }
 }

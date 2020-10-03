@@ -18,7 +18,6 @@ class CreateModelChangelogsTable extends Migration
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
-                //$table->json('changelog')->nullable();
                 $table->unsignedInteger('user_id');
                 $table->unsignedInteger('changelog_id');
                 $table->string('changelog_type');
@@ -26,7 +25,11 @@ class CreateModelChangelogsTable extends Migration
             }
         );
 
-        DB::statement("ALTER TABLE model_changelogs ADD COLUMN changelog LONGBLOB null AFTER type");
+        if (config('database.connection') === 'mysql') {
+            DB::statement('ALTER TABLE model_changelogs ADD COLUMN changelog LONGBLOB null AFTER type');
+        } else {
+            DB::statement('ALTER TABLE model_changelogs ADD COLUMN changelog BLOB null');
+        }
     }
 
     /**

@@ -1,9 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Download\Image;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\Image\Image;
+use Exception;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
@@ -26,14 +29,14 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
     use SerializesModels;
 
     /**
-     * @var \App\Models\Rsi\CommLink\Image\Image
+     * @var Image
      */
-    private $image;
+    private Image $image;
 
     /**
      * Create a new job instance.
      *
-     * @param \App\Models\Rsi\CommLink\Image\Image $image
+     * @param Image $image
      */
     public function __construct(Image $image)
     {
@@ -55,10 +58,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
             ]
         );
 
-        $localDirName = $this->image->dir;
-        if (null === $this->image->dir) {
-            $localDirName = $this->generateLocalDirName();
-        }
+        $localDirName = $this->image->dir ?? $this->generateLocalDirName();
 
         if (Storage::disk('comm_link_images')->exists(sprintf('%s/%s', $localDirName, $this->image->name))) {
             return;
@@ -89,7 +89,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
 
             $this->image->update(
                 [
-                    'local' => true,
+                    'local' => false,
                     'dir' => 'NOT_FOUND',
                 ]
             );
@@ -117,7 +117,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
     {
         try {
             return bin2hex(random_bytes(7));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return Str::random(14);
         }
     }

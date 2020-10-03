@@ -4,7 +4,7 @@
             {{ $slot }}
         </span>
     @else
-        <a class="nav-link @if(Request::fullUrl() == $route) active @endif {{ $contentClass ?? '' }}" href="{{ $route }}" {{ $options ?? '' }}>
+        <a class="nav-link @if(Request::url() == $route) active @endif {{ $contentClass ?? '' }}" href="{{ $route }}" {{ $options ?? '' }}>
             {{ $slot }}
         </a>
     @endif

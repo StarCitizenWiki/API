@@ -1,15 +1,14 @@
 @component('components.navs.nav_element', [
-    'contentClass' => 'disabled',
-    'route' => '-'
+    'route' => 'https://github.com/StarCitizenWiki/API'
 ])
     <div class="row">
         <div class="col-1">
-            @component('components.elements.icon')
-                question-circle
+            @component('components.elements.icon', ['type' => 'fab'])
+                github
             @endcomponent
         </div>
         <div class="col">
-            @lang('FAQ')
+            @lang('Quellcode')
         </div>
     </div>
 @endcomponent
@@ -26,6 +25,23 @@
         </div>
         <div class="col">
             @lang('RSI Api')
+        </div>
+    </div>
+@endcomponent
+
+
+@component('components.navs.nav_element', [
+    'contentClass' => 'disabled',
+    'route' => '-'
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                question-circle
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('FAQ')
         </div>
     </div>
 @endcomponent

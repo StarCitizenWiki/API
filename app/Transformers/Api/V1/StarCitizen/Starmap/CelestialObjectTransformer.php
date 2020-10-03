@@ -1,22 +1,31 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 07.08.2018 15:20
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 
 /**
  * Class CelestialObjectTransformer
  */
 class CelestialObjectTransformer extends AbstractTranslationTransformer
 {
+    protected $availableIncludes = [
+        'starsystem',
+        'jumppoint',
+    ];
+
+    protected $defaultIncludes = [
+        'affiliation',
+        'subtype',
+    ];
 
     /**
-     * @param \App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject $celestialObject
+     * @param CelestialObject $celestialObject
      *
      * @return array
      */
@@ -26,42 +35,92 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
             'id' => $celestialObject->cig_id,
             'code' => $celestialObject->code,
             'system_id' => $celestialObject->starsystem_id,
-            'time_modified' => $celestialObject->cig_time_modified,
-            'type' => $celestialObject->type,
-            'designation' => $celestialObject->designation,
+            'celestial_object_api_url' => $this->makeApiUrl(
+                self::STARMAP_CELESTIAL_OBJECTS_SHOW,
+                $celestialObject->code
+            ),
             'name' => $celestialObject->name,
+            'type' => $celestialObject->type,
+
             'age' => $celestialObject->age,
+            'habitable' => $celestialObject->habitable,
+            'fairchanceact' => $celestialObject->fairchanceact,
+
+            'appearance' => $celestialObject->appearance,
+            'designation' => $celestialObject->designation,
             'distance' => $celestialObject->distance,
             'latitude' => $celestialObject->latitude,
             'longitude' => $celestialObject->longitude,
             'axial_tilt' => $celestialObject->axial_tilt,
             'orbit_period' => $celestialObject->orbit_period,
-            'description' => $this->getTranslation($celestialObject),
+
             'info_url' => $celestialObject->info_url,
-            'habitable' => $celestialObject->habitable,
-            'fairchanceact' => $celestialObject->fairchanceact,
-            'appearance' => $celestialObject->appearance,
+
+            'description' => $this->getTranslation($celestialObject),
+
             'sensor' => [
                 'population' => $celestialObject->sensor_population,
                 'economy' => $celestialObject->sensor_economy,
                 'danger' => $celestialObject->sensor_danger,
             ],
+
             'size' => $celestialObject->size,
+
             'parent_id' => $celestialObject->parent_id,
-            'subtype' => [
-                'name' => !empty($celestialObject->celestial_object_subtype) ?
-                    $celestialObject->celestial_object_subtype->name : "",
-                'type' => !empty($celestialObject->celestial_object_subtype) ?
-                    $celestialObject->celestial_object_subtype->type : "",
-            ],
-            'affiliation' => [
-                'name' => !empty($celestialObject->affiliation) ?
-                    $celestialObject->affiliation->name : "",
-                'code' => !empty($celestialObject->affiliation) ?
-                    $celestialObject->affiliation->code : "",
-                'color' => !empty($celestialObject->affiliation) ?
-                    $celestialObject->affiliation->color : "",
-            ],
+
+            'time_modified' => $celestialObject->time_modified,
         ];
+    }
+
+    /**
+     * Celestial Object affiliation, included by default
+     *
+     * @param CelestialObject $celestialObject
+     *
+     * @return Collection
+     */
+    public function includeAffiliation(CelestialObject $celestialObject): Collection
+    {
+        return $this->collection($celestialObject->affiliation, new AffiliationTransformer(), 'affiliation');
+    }
+
+    /**
+     * Celestial object subtype, included by default
+     *
+     * @param CelestialObject $celestialObject
+     *
+     * @return Item
+     */
+    public function includeSubtype(CelestialObject $celestialObject): Item
+    {
+        return $this->item($celestialObject->subtype, new SubtypeTransformer(), 'subtype');
+    }
+
+    /**
+     * The objects star system
+     *
+     * @param CelestialObject $celestialObject
+     *
+     * @return Item
+     */
+    public function includeStarsystem(CelestialObject $celestialObject): Item
+    {
+        return $this->item(
+            $celestialObject->starsystem,
+            $this->makeTransformer(StarsystemTransformer::class, $this),
+            'starsystem'
+        );
+    }
+
+    /**
+     * @param CelestialObject $celestialObject
+     *
+     * @return Item|void
+     */
+    public function includeJumppoint(CelestialObject $celestialObject)
+    {
+        if ($celestialObject->jumppoint() !== null) {
+            return $this->item($celestialObject->jumppoint(), new JumppointTransformer());
+        }
     }
 }

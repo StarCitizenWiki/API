@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\StarCitizen\ProductionStatus;
 
@@ -6,6 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
 use App\Models\System\Language;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 /**
  * Class ProductionStatus
@@ -24,14 +29,13 @@ class ProductionStatusController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function index()
+    public function index(): View
     {
         $this->authorize('web.user.translations.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.starcitizen.production_statuses.index',
@@ -46,16 +50,15 @@ class ProductionStatusController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus
+     * @param ProductionStatus $productionStatus
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function edit(ProductionStatus $productionStatus)
+    public function edit(ProductionStatus $productionStatus): View
     {
         $this->authorize('web.user.translations.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.starcitizen.production_statuses.edit',
@@ -69,14 +72,14 @@ class ProductionStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\System\TranslationRequest                  $request
-     * @param \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus
+     * @param TranslationRequest $request
+     * @param ProductionStatus   $productionStatus
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function update(TranslationRequest $request, ProductionStatus $productionStatus)
+    public function update(TranslationRequest $request, ProductionStatus $productionStatus): RedirectResponse
     {
         $this->authorize('web.user.translations.update');
         $data = $request->validated();

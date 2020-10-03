@@ -1,14 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class CommLinkController
@@ -16,14 +17,7 @@ use League\Fractal\TransformerAbstract;
 class CommLinkController extends ApiController
 {
     /**
-     * Comm-Link Transformer
-     *
-     * @var CommLinkTransformer
-     */
-    protected TransformerAbstract $transformer;
-
-    /**
-     * StatsAPIController constructor.
+     * CommLinkController constructor.
      *
      * @param Request             $request
      * @param CommLinkTransformer $transformer
@@ -41,12 +35,14 @@ class CommLinkController extends ApiController
      */
     public function index(): Response
     {
-        $stats = CommLink::orderByDesc('cig_id');
+        $commLinks = CommLink::query()->orderByDesc('cig_id');
 
-        return $this->getResponse($stats);
+        return $this->getResponse($commLinks);
     }
 
     /**
+     * Returns a singular comm-link by its cig_id
+     *
      * @param int $commLink
      *
      * @return Response
@@ -60,7 +56,8 @@ class CommLinkController extends ApiController
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $commLink));
         }
 
-        $this->transformer->setDefaultIncludes($this->transformer->getAvailableIncludes());
+        // Don't include translation per default
+        $this->transformer->setDefaultIncludes(array_slice($this->transformer->getAvailableIncludes(), 0, 2));
 
         $this->extraMeta = [
             'prev_id' => optional($commLink->prev)->cig_id ?? -1,

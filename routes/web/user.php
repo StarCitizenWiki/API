@@ -142,6 +142,12 @@ Route::group(
                                         Route::get('series/{series}', 'Series\SeriesController@show')->name('series.show');
 
                                         Route::get('images', 'Image\ImageController@index')->name('images.index');
+
+                                        Route::get('search', 'CommLinkSearchController@search')->name('search');
+                                        Route::post('reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearchPost')->name('reverse-image-link-search.post');
+                                        Route::post('reverse-image-search', 'CommLinkSearchController@reverseImageSearchPost')->name('reverse-image-search.post');
+
+                                        Route::post('search', 'CommLinkSearchController@searchByTitle')->name('search-by-title.post');
                                     }
                                 );
 
@@ -150,6 +156,7 @@ Route::group(
                                     'comm-links' => 'CommLink\CommLinkController',
                                 ]
                             );
+
                             Route::get(
                                 'comm-links/{comm_link}/{version}/preview',
                                 'CommLink\CommLinkController@preview'

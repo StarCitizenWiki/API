@@ -1,19 +1,15 @@
 <?php
 
 declare(strict_types=1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 09.08.2018
- * Time: 11:00.
- */
 
 namespace App\Repositories\Web\User;
 
+use App\Contracts\Web\User\AuthRepositoryInterface;
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
-use App\Contracts\Web\User\AuthRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /**
  * Stub Implementation.
@@ -41,19 +37,37 @@ class AuthRepositoryStub implements AuthRepositoryInterface
      */
     public function getOrCreateLocalUser(User $oauthUser, string $provider): User
     {
-        $user = User::where('username', 'Local Wiki Admin')->first();
+        $user = User::query()->where('username', 'Local Wiki Admin')->first();
+
         if (null !== $user) {
             return $user;
         }
 
-        /** @var \App\Models\Account\User\User $user */
-        $user = factory(User::class)->create(
+        /** @var User $user */
+        $user = User::query()->create(
             [
                 'username' => 'Local Wiki Admin',
                 'email' => 'admin@example.com',
+                'blocked' => false,
+                'provider' => 'starcitizenwiki',
+                'provider_id' => 1,
+                'last_login' => Carbon::now()->toDateTimeString(),
+                'api_token' => Str::random(60),
+                'created_at' => Carbon::now()->toDateTimeString(),
+                'updated_at' => Carbon::now()->toDateTimeString(),
             ]
         );
-        $user->groups()->sync([UserGroup::where('name', 'bureaucrat')->first()->id]);
+
+        $group = UserGroup::query()->firstOrCreate(
+            [
+                'name' => 'bureaucrat',
+            ],
+            [
+                'permission_level' => UserGroup::BUREAUCRAT,
+            ]
+        );
+
+        $user->groups()->sync([$group->id]);
 
         return $user;
     }
@@ -63,6 +77,6 @@ class AuthRepositoryStub implements AuthRepositoryInterface
      */
     public function syncLocalUserGroups(User $oauthUser, User $user): void
     {
-        return;
+        // Unused Stub
     }
 }

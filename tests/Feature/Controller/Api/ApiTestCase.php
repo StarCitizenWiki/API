@@ -1,10 +1,4 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 10.08.2018
- * Time: 12:00
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api;
 
@@ -59,7 +53,7 @@ class ApiTestCase extends TestCase
     /**
      * Test Index with default Pagination
      */
-    public function testIndexPaginatedDefault()
+    public function testIndexPaginatedDefault(): void
     {
         $response = $this->get(static::BASE_API_ENDPOINT);
 
@@ -80,7 +74,7 @@ class ApiTestCase extends TestCase
      *
      * @param int $allCount Count of Resources in DB
      */
-    public function testIndexAll(int $allCount)
+    public function testIndexAll(int $allCount): void
     {
         $response = $this->get(
             sprintf(

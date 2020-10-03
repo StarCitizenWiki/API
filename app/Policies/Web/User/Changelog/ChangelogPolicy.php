@@ -1,11 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Policies\Web\User\Changelog;
 
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
-use Illuminate\Auth\Access\HandlesAuthorization;
 use App\Policies\Web\User\AbstractBaseUserPolicy as BaseUserPolicy;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * Class ChangelogPolicy

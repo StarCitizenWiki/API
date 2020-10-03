@@ -1,9 +1,4 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 30.09.2018
- * Time: 18:25
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Changelog;
 

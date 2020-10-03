@@ -1,13 +1,11 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 31.07.2018
- * Time: 16:32
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Traits;
 
 use App\Models\System\ModelChangelog;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Trait HasModelChangelogTrait
@@ -17,9 +15,9 @@ trait HasModelChangelogTrait
     /**
      * Changelogs
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return MorphMany
      */
-    public function changelogs()
+    public function changelogs(): MorphMany
     {
         return $this->morphMany(ModelChangelog::class, 'changelog')->orderByDesc('created_at');
     }

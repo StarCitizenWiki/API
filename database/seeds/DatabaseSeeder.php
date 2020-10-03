@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
         $this->call(TypeTableSeeder::class);
 
         if (App::environment() === 'local') {
-            $this->call(NotificationTableSeeder::class);
+            // $this->call(NotificationTableSeeder::class);
         }
     }
 

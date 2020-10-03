@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Changelog;
 
@@ -19,6 +21,7 @@ class ChangelogController extends Controller
     public function __construct()
     {
         parent::__construct();
+
         $this->middleware('auth');
     }
 
@@ -30,9 +33,11 @@ class ChangelogController extends Controller
     public function index()
     {
         $this->authorize('web.user.changelogs.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $changelogs = ModelChangelog::query()->orderByDesc('id')->paginate(25);
+        $changelogs = ModelChangelog::query()
+            ->with('changelog')
+            ->orderByDesc('id')
+            ->paginate(25);
 
         return view(
             'user.changelog.index',

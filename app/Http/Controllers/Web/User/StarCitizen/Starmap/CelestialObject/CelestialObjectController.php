@@ -1,25 +1,26 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\StarCitizen\Starmap\CelestialObject;
 
 use App\Http\Controllers\Controller;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
+use Illuminate\View\View;
 
 class CelestialObjectController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
-    public function index()
+    public function index(): View
     {
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
         return view(
             'user.starmap.celestialobjects.list',
             [
-                'celestialobjects' => CelestialObject::orderBy('code')->get(),
+                'celestialobjects' => CelestialObject::query()->orderBy('code')->get(),
             ]
         );
     }

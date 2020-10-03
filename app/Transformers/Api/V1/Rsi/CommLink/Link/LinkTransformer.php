@@ -1,15 +1,16 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\Rsi\CommLink\Link;
 
-use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link\Link;
-use League\Fractal\TransformerAbstract;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 /**
  * Image Transformer
  */
-class LinkTransformer extends TransformerAbstract
+class LinkTransformer extends V1Transformer
 {
     /**
      * @param Link $link

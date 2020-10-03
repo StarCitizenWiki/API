@@ -1,12 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 09.08.2018
- * Time: 11:00.
- */
 
 namespace App\Repositories\Web\User;
 
@@ -27,17 +21,29 @@ use MediaWiki\OAuthClient\Exception as OAuthException;
 class AuthRepository implements AuthRepositoryInterface
 {
     /**
-     * @var \MediaWiki\OAuthClient\Client
+     * @var Client
      */
-    private $client;
+    private Client $client;
 
     /**
      * Creates the OAuth Client.
      */
     public function __construct()
     {
-        $conf = new ClientConfig(sprintf('%s/%s', config('services.mediawiki.url'), 'index.php?title=Special:OAuth'));
-        $conf->setConsumer(new Consumer(config('services.mediawiki.client_id'), config('services.mediawiki.client_secret')));
+        $conf = new ClientConfig(
+            sprintf(
+                '%s/%s',
+                config('services.mediawiki.url'),
+                'index.php?title=Special:OAuth'
+            )
+        );
+
+        $conf->setConsumer(
+            new Consumer(
+                config('services.mediawiki.client_id'),
+                config('services.mediawiki.client_secret')
+            )
+        );
 
         $this->client = new Client($conf);
     }
@@ -72,7 +78,7 @@ class AuthRepository implements AuthRepositoryInterface
         } catch (OAuthException $e) {
             app('Log')::error(sprintf('Error in retrieving OAuth User: %s', $e->getMessage()));
 
-            return abort(500);
+            abort(500);
         }
 
         try {
@@ -80,10 +86,33 @@ class AuthRepository implements AuthRepositoryInterface
         } catch (OAuthException $e) {
             app('Log')::error(sprintf('Error in completing OAuth User request: %s', $e->getMessage()));
 
-            return abort(500);
+            abort(500);
         }
 
         return $this->userDetails($ident);
+    }
+
+    /**
+     * @param \stdClass $data OAuth user data
+     *
+     * @return User
+     */
+    private function userDetails($data): User
+    {
+        $user = new User();
+        $user->id = $data->sub;
+        $user->email = optional($data)->email;
+        $user->username = $data->username;
+        $user->blocked = $data->blocked;
+
+        $user->extra = [
+            'groups' => $data->groups,
+            'rights' => $data->rights,
+            'grants' => optional($data)->grants,
+            'editcount' => $data->editcount,
+        ];
+
+        return $user;
     }
 
     /**
@@ -91,8 +120,11 @@ class AuthRepository implements AuthRepositoryInterface
      */
     public function getOrCreateLocalUser(User $oauthUser, string $provider): User
     {
-        /** @var \App\Models\Account\User\User $authUser */
-        $authUser = User::query()->where('provider_id', $oauthUser->id)->where('provider', $provider)->first();
+        /** @var User $authUser */
+        $authUser = User::query()
+            ->where('provider_id', $oauthUser->id)
+            ->where('provider', $provider)
+            ->first();
 
         if ($authUser) {
             $this->syncLocalUserGroups($oauthUser, $authUser);
@@ -119,7 +151,10 @@ class AuthRepository implements AuthRepositoryInterface
         $groups = $oauthUser->extra['groups'] ?? null;
 
         if (is_array($groups)) {
-            $groupIDs = UserGroup::select('id')->whereIn('name', $groups)->get();
+            $groupIDs = UserGroup::query()
+                ->select('id')
+                ->whereIn('name', $groups)
+                ->get();
 
             $user->groups()->sync($groupIDs);
         }
@@ -128,14 +163,14 @@ class AuthRepository implements AuthRepositoryInterface
     /**
      * Creates the local User Record.
      *
-     * @param \App\Models\Account\User\User $oauthUser
-     * @param string                        $provider
+     * @param User   $oauthUser
+     * @param string $provider
      *
-     * @return \App\Models\Account\User\User
+     * @return User
      */
     private function createLocalUser(User $oauthUser, string $provider): User
     {
-        /** @var \App\Models\Account\User\User $localUser */
+        /** @var User $localUser */
         $localUser = User::create(
             [
                 'username' => $oauthUser->username,
@@ -150,28 +185,5 @@ class AuthRepository implements AuthRepositoryInterface
         $this->syncLocalUserGroups($oauthUser, $localUser);
 
         return $localUser;
-    }
-
-    /**
-     * @param \stdClass $data OAuth user data
-     *
-     * @return User
-     */
-    private function userDetails($data): User
-    {
-        $user = new User();
-        $user->id = $data->sub;
-        $user->email = optional($data)->email;
-        $user->username = $data->username;
-        $user->blocked = $data->blocked;
-
-        $user->extra = [
-            'groups' => $data->groups,
-            'rights' => $data->rights,
-            'grants' => optional($data)->grants,
-            'editcount' => $data->editcount,
-        ];
-
-        return $user;
     }
 }

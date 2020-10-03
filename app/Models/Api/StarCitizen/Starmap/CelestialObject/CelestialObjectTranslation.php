@@ -1,12 +1,11 @@
-<?php declare(strict_types = 1);
-/**
- * User: Keonie
- * Date: 04.08.2018 20:12
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\Starmap\CelestialObject;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class CelestialObjectTranslation
@@ -20,9 +19,9 @@ class CelestialObjectTranslation extends Translation
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo CelestialObject
+     * @return BelongsTo CelestialObject
      */
-    public function celestialObject()
+    public function celestialObject(): BelongsTo
     {
         return $this->belongsTo(CelestialObject::class);
     }

@@ -1,9 +1,4 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 07.08.2018
- * Time: 11:52
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Series;
 
@@ -11,6 +6,7 @@ use App\Http\Controllers\Web\User\Rsi\CommLink\Series\SeriesController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\Rsi\CommLink\Series\Series;
+use Dingo\Api\Dispatcher;
 use Dingo\Api\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -70,7 +66,7 @@ class SeriesControllerTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(SeriesController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

@@ -13,15 +13,18 @@ use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
+use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Symfony\Component\DomCrawler\Crawler;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Comm-Link Controller.
@@ -31,27 +34,46 @@ class CommLinkController extends Controller
     private const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.update';
 
     /**
-     * CommLinkController constructor.
+     * @var Dispatcher
      */
-    public function __construct()
+    private Dispatcher $api;
+
+    /**
+     * CommLinkController constructor.
+     *
+     * @param Dispatcher $dispatcher
+     */
+    public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
         $this->middleware('auth');
+        $this->api = $dispatcher;
+        $this->api->be(Auth::user());
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @param Request $request
+     *
+     * @return View
      *
      * @throws AuthorizationException
      */
-    public function index()
+    public function index(Request $request): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $links = CommLink::query()->orderByDesc('cig_id')->paginate(500);
+        $options = [
+            'limit' => 250,
+        ];
+
+        if ($request->has('page')) {
+            $options['page'] = $request->get('page');
+        }
+
+        $links = $this->api->get('api/comm-links', $options);
+        $links->withPath('/rsi/comm-links');
 
         return view(
             'user.rsi.comm_links.index',
@@ -66,14 +88,13 @@ class CommLinkController extends Controller
      *
      * @param CommLink $commLink
      *
-     * @return Response
+     * @return View
      *
      * @throws AuthorizationException
      */
-    public function show(CommLink $commLink)
+    public function show(CommLink $commLink): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $commLink->load('translationChangelogs');
 
@@ -84,30 +105,36 @@ class CommLinkController extends Controller
 
         $commLink->textChanges = 0;
 
-        $changelogs->each(static function (ModelChangelog $changelog) use ($commLink)  {
-            if (!isset($changelog->changelog['changes']['translation'])) {
-                return;
+        $changelogs->each(
+            static function (ModelChangelog $changelog) use ($commLink) {
+                if (!isset($changelog->changelog['changes']['translation'])) {
+                    return;
+                }
+
+                $commLink->textChanges++;
+
+                $builder = new StrictUnifiedDiffOutputBuilder(
+                    [
+                        'collapseRanges' => true,
+                        'commonLineThreshold' => 1,
+                        // number of same lines before ending a new hunk and creating a new one (if needed)
+                        'contextLines' => 0,
+                        // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
+                        'fromFile' => $commLink->created_at->toString(),
+                        'fromFileDate' => '',
+                        'toFile' => $changelog->created_at->toString(),
+                        'toFileDate' => '',
+                    ]
+                );
+
+                $differ = new Differ($builder);
+
+                $changelog->diff = ($differ->diff(
+                    $changelog->changelog['changes']['translation']['old'],
+                    $changelog->changelog['changes']['translation']['new'],
+                ));
             }
-
-            $commLink->textChanges++;
-
-            $builder = new StrictUnifiedDiffOutputBuilder([
-                'collapseRanges'      => true,
-                'commonLineThreshold' => 1,    // number of same lines before ending a new hunk and creating a new one (if needed)
-                'contextLines'        => 0,    // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
-                'fromFile'            => $commLink->created_at->toString(),
-                'fromFileDate'        => '',
-                'toFile'              => $changelog->created_at->toString(),
-                'toFileDate'          => '',
-            ]);
-
-            $differ = new Differ($builder);
-
-            $changelog->diff = ($differ->diff(
-                $changelog->changelog['changes']['translation']['old'],
-                $changelog->changelog['changes']['translation']['new'],
-            ));
-        });
+        );
 
         $changelogs = $changelogs->sortByDesc('created_at');
 
@@ -127,14 +154,13 @@ class CommLinkController extends Controller
      *
      * @param CommLink $commLink
      *
-     * @return Response
+     * @return View
      *
      * @throws AuthorizationException
      */
-    public function edit(CommLink $commLink)
+    public function edit(CommLink $commLink): View
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $versions = $this->getCommLinkVersions($commLink->cig_id);
         $versionData = $this->processCommLinkVersions($versions, $commLink->file);
@@ -147,78 +173,6 @@ class CommLinkController extends Controller
                 'channels' => Channel::query()->orderBy('name')->get(),
                 'categories' => Category::query()->orderBy('name')->get(),
                 'series' => Series::query()->orderBy('name')->get(),
-            ]
-        );
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \App\Http\Requests\Rsi\CommLink\CommLinkRequest $request
-     * @param CommLink                                        $commLink
-     *
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws AuthorizationException
-     */
-    public function update(CommLinkRequest $request, CommLink $commLink)
-    {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        $data = $request->validated();
-
-        $commLink->update(
-            [
-                'title' => $data['title'],
-                'url' => $data['url'],
-                'created_at' => $data['created_at'],
-                'channel_id' => $data['channel'],
-                'category_id' => $data['category'],
-                'series_id' => $data['series'],
-            ]
-        );
-
-        $message = __('crud.updated', ['type' => __('Comm-Link')]);
-
-        return redirect()->route('web.user.rsi.comm-links.show', $commLink->getRouteKey())->withMessages(
-            [
-                'success' => [
-                    $message,
-                ],
-            ]
-        );
-    }
-
-    /**
-     * Preview a Comm-Link Version.
-     *
-     * @param CommLink $commLink
-     * @param string   $version
-     *
-     * @return View
-     *
-     * @throws AuthorizationException
-     * @throws FileNotFoundException
-     */
-    public function preview(CommLink $commLink, string $version)
-    {
-        $this->authorize('web.user.rsi.comm-links.preview');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}.html");
-        $crawler = new Crawler();
-        $crawler->addHtmlContent($content, 'UTF-8');
-
-        $contentParser = new Content($crawler);
-
-        return view(
-            'user.rsi.comm_links.preview',
-            [
-                'commLink' => $commLink,
-                'version' => $version,
-                'preview' => $contentParser->getContent(),
             ]
         );
     }
@@ -274,5 +228,74 @@ class CommLinkController extends Controller
         );
 
         return $versionData;
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param CommLinkRequest $request
+     * @param CommLink        $commLink
+     *
+     * @return RedirectResponse
+     *
+     * @throws AuthorizationException
+     */
+    public function update(CommLinkRequest $request, CommLink $commLink): RedirectResponse
+    {
+        $this->authorize(self::COMM_LINK_PERMISSION);
+
+        $data = $request->validated();
+
+        $commLink->update(
+            [
+                'title' => $data['title'],
+                'url' => $data['url'],
+                'created_at' => $data['created_at'],
+                'channel_id' => $data['channel'],
+                'category_id' => $data['category'],
+                'series_id' => $data['series'],
+            ]
+        );
+
+        $message = __('crud.updated', ['type' => __('Comm-Link')]);
+
+        return redirect()->route('web.user.rsi.comm-links.show', $commLink->getRouteKey())->withMessages(
+            [
+                'success' => [
+                    $message,
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Preview a Comm-Link Version.
+     *
+     * @param CommLink $commLink
+     * @param string   $version
+     *
+     * @return View
+     *
+     * @throws AuthorizationException
+     * @throws FileNotFoundException
+     */
+    public function preview(CommLink $commLink, string $version): View
+    {
+        $this->authorize('web.user.rsi.comm-links.preview');
+
+        $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}.html");
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content, 'UTF-8');
+
+        $contentParser = new Content($crawler);
+
+        return view(
+            'user.rsi.comm_links.preview',
+            [
+                'commLink' => $commLink,
+                'version' => $version,
+                'preview' => $contentParser->getContent(),
+            ]
+        );
     }
 }

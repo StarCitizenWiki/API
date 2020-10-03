@@ -24,3 +24,19 @@
 .img-thumbnail:hover {
   background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAAAAAA6mKC9AAAAGElEQVQYV2N4DwX/oYBhgARgDJjEAAkAAEC99wFuu0VFAAAAAElFTkSuQmCC");
 }
+
+.badge.last-modified {
+  white-space: pre-line;
+}
+
+@media (min-width: 1600px) {
+  .image-card-column {
+    column-count: 5;
+  }
+}
+
+@media (max-width: 620px) {
+  .pagination {
+    overflow-y: scroll;
+  }
+}

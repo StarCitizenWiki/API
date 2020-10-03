@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Listeners;
 
@@ -26,6 +28,7 @@ class ModelUpdating
     public function handle(ModelUpdateEvent $event): void
     {
         $this->model = $event->model;
+
 
         // TODO Hacky
         $createdAt = now();
@@ -90,22 +93,32 @@ class ModelUpdating
      */
     private function getChanges(): array
     {
-        $changes = [];
-
         /** Don't create changes for Model Creations, since all Old values will be null */
-        if (!$this->model->wasRecentlyCreated && null === $this->model->deleted_at) {
-            collect($this->model->getDirty())->each(
-                function ($value, $key) use (&$changes) {
-                    $original = $this->model->getOriginal($key);
-                    $changes[$key] = [
-                        'old' => $original,
-                        'new' => (string) $value,
-                    ];
-                }
-            );
+        if ($this->model->wasRecentlyCreated || null !== $this->model->deleted_at) {
+            return [];
         }
 
-        return $changes;
+        return collect($this->model->getDirty())
+            ->map(
+                function ($value, $key) {
+                    return [
+                        'value' => $value,
+                        'key' => $key,
+                        'original' => $this->model->getOriginal($key),
+                    ];
+                }
+            )
+            ->mapWithKeys(
+                function (array $data) {
+                    return [
+                        $data['key'] => [
+                            'old' => $data['original'],
+                            'new' => $data['value'],
+                        ],
+                    ];
+                }
+            )
+            ->toArray();
     }
 
     /**
@@ -115,6 +128,6 @@ class ModelUpdating
      */
     private function getCreatorId(): int
     {
-        return (int) (Auth::check() ? Auth::id() : 0);
+        return (int)(Auth::check() ? Auth::id() : 0);
     }
 }

@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\ProductionNote;
 
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
-use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Production Note Model
@@ -12,7 +14,6 @@ use App\Traits\HasObfuscatedRouteKeyTrait as ObfuscatedRouteKey;
 class ProductionNote extends HasTranslations
 {
     use VehicleRelations;
-    use ObfuscatedRouteKey;
 
     public $timestamps = false;
 
@@ -21,9 +22,9 @@ class ProductionNote extends HasTranslations
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function translations()
+    public function translations(): HasMany
     {
         return $this->hasMany(ProductionNoteTranslation::class);
     }

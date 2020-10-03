@@ -1,10 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 30.08.2018
- * Time: 10:22
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Rsi\CommLink;
 
@@ -82,7 +78,6 @@ class CommLink extends HasTranslations
     public function getPrevAttribute()
     {
         return CommLink::query()->where('id', '<', $this->id)->orderBy('id', 'desc')->first(['cig_id']);
-
     }
 
     /**

@@ -18,7 +18,7 @@
                         <small class="float-right mt-1">
                             <a href="{{ route('web.user.users.index') }}" class="text-light">
                                 @component('components.elements.icon')
-                                    external-link
+                                    external-link-alt
                                 @endcomponent
                             </a>
                         </small>
@@ -34,7 +34,7 @@
                             </th>
                             <th class="text-right" title="@lang('Logins')">
                                 @component('components.elements.icon')
-                                    sign-in
+                                    sign-in-alt
                                 @endcomponent
                             </th>
                         </tr>
@@ -104,7 +104,7 @@
                                     <td class="text-center">
                                         <a href="{{ route('web.user.users.edit', $user->getRouteKey()) }}">
                                             @component('components.elements.icon')
-                                                pencil
+                                                pencil-alt
                                             @endcomponent
                                         </a>
                                     </td>

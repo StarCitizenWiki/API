@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\StarCitizen\Manufacturer;
 
@@ -6,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StarCitizen\Manufacturer\ManufacturerTranslationRequest;
 use App\Models\System\Language;
 use Dingo\Api\Dispatcher;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -17,14 +21,14 @@ class ManufacturerController extends Controller
     private const MANUFACTURER_PERMISSION = 'web.user.starcitizen.manufacturers.update';
 
     /**
-     * @var \Dingo\Api\Dispatcher
+     * @var Dispatcher
      */
-    protected $api;
+    protected Dispatcher $api;
 
     /**
      * ManufacturerController constructor.
      *
-     * @param \Dingo\Api\Dispatcher $dispatcher
+     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -35,20 +39,15 @@ class ManufacturerController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function index(): View
     {
         $this->authorize('web.user.starcitizen.manufacturers.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
-        $manufacturers = $this->api->with(
-            [
-                'limit' => 0,
-            ]
-        )->get("api/manufacturers");
+        $manufacturers = $this->api->get('api/manufacturers', ['limit' => 0]);
 
         return view(
             'user.starcitizen.manufacturers.index',
@@ -63,14 +62,13 @@ class ManufacturerController extends Controller
      *
      * @param string $manufacturer
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function edit(string $manufacturer)
+    public function edit(string $manufacturer): View
     {
         $this->authorize(self::MANUFACTURER_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $manufacturer = $this->api->get("api/manufacturers/{$manufacturer}");
 
@@ -79,6 +77,9 @@ class ManufacturerController extends Controller
             [
                 'manufacturer' => $manufacturer,
                 'updateRoute' => self::MANUFACTURER_PERMISSION,
+                'changelogs' => $manufacturer->changelogs
+                    ->merge($manufacturer->translationChangelogs)
+                    ->sortByDesc('created_at'),
             ]
         );
     }
@@ -86,17 +87,16 @@ class ManufacturerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \App\Http\Requests\StarCitizen\Manufacturer\ManufacturerTranslationRequest $request
-     * @param string                                                                     $manufacturer
+     * @param ManufacturerTranslationRequest $request
+     * @param string                         $manufacturer
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function update(ManufacturerTranslationRequest $request, string $manufacturer)
+    public function update(ManufacturerTranslationRequest $request, string $manufacturer): RedirectResponse
     {
         $this->authorize(self::MANUFACTURER_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
         $manufacturer = $this->api->get("api/manufacturers/{$manufacturer}");

@@ -15,7 +15,7 @@
                 @slot('options')
                     data-fa-transform="up-2"
                 @endslot
-                pencil
+                pencil-alt
             @endcomponent
         </a>
     @endunless
@@ -51,7 +51,7 @@
                 @slot('options')
                     data-fa-transform="up-2"
                 @endslot
-                repeat
+                redo
             @endcomponent
         </a>
     @endunless

@@ -1,9 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account\User\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,14 +30,13 @@ class UserController extends Controller
     /**
      * View all Admins
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function index(): View
     {
         $this->authorize('web.user.users.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.users.index',
@@ -47,16 +49,15 @@ class UserController extends Controller
     /**
      * Edit Admin
      *
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function edit(User $user): View
     {
         $this->authorize('web.user.users.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.users.edit',
@@ -69,17 +70,16 @@ class UserController extends Controller
     /**
      * Update (Block/Restore) Admin
      *
-     * @param \Illuminate\Http\Request      $request
-     * @param \App\Models\Account\User\User $user
+     * @param Request $request
+     * @param User    $user
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function update(Request $request, User $user): RedirectResponse
     {
         $this->authorize('web.user.users.update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         if ($request->has('block')) {
             return $this->block($user);
@@ -118,16 +118,15 @@ class UserController extends Controller
     }
 
     /**
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     private function block(User $user): RedirectResponse
     {
         $this->authorize('web.user.users.delete');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $user->sessions()->delete();
         $user->blocked = true;

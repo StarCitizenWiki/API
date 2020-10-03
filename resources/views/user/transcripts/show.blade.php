@@ -51,7 +51,7 @@
                     </a>
 
                     <a class="nav-item nav-link" href="{{ config('api.wiki_url') }}/Transkript:{{ $transcript->wiki_id }}?veaction=edit" aria-selected="false">
-                        @lang('Bearbeiten (Wiki)') <em class="fal fa-external-link fa-sm" data-fa-transform="up-2"></em>
+                        @lang('Bearbeiten (Wiki)') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
                     </a>
                 </div>
             </nav>

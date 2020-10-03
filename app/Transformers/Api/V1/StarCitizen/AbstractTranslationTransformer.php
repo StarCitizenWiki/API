@@ -1,62 +1,157 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen;
 
+use App\Models\System\Language;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Transformers\Api\LocaleAwareTransformerInterface as LocaleAwareTransformer;
-use League\Fractal\TransformerAbstract;
+use App\Models\System\Translation\AbstractTranslation;
+use App\Transformers\Api\LocalizableTransformerInterface as LocaleAwareTransformer;
+use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
+use Illuminate\Support\Collection;
 
 /**
  * Class AbstractTranslationTransformer
  */
-class AbstractTranslationTransformer extends TransformerAbstract implements LocaleAwareTransformer
+abstract class AbstractTranslationTransformer extends V1Transformer implements LocaleAwareTransformer
 {
-    private $localeCode;
+    /**
+     * Array containing missing translations for each transformed model
+     *
+     * @var array
+     */
+    protected array $missingTranslations = [];
+
+    /**
+     * The target language
+     *
+     * @var string
+     */
+    protected $localeCode;
 
     /**
      * Set the Locale
      *
      * @param string $localeCode
      */
-    public function setLocale(string $localeCode)
+    public function setLocale(string $localeCode): void
     {
         $this->localeCode = $localeCode;
     }
 
+    public function getLocale(): ?string
+    {
+        return $this->localeCode;
+    }
+
     /**
-     * If a valid locale code is set this function will return the corresponding translation or use english as a fallback
-     * @Todo Generate Array with translations that used the english fallback
+     * If a valid locale code is set this function will return the corresponding translation or use english as a
+     * fallback
      *
-     * @param \App\Models\System\Translation\AbstractHasTranslations $model
+     * @param HasTranslations $model
+     *
+     * @param string|array    $translationKey
      *
      * @return array|string the Translation
      */
-    protected function getTranslation(HasTranslations $model)
+    protected function getTranslation(HasTranslations $model, $translationKey = 'translation')
     {
-        app('Log')::debug(
-            "Relation translations for Model ".get_class($model)." is loaded: {$model->relationLoaded('translations')}"
-        );
+        $translations = $model->translationsCollection();
 
-        $translations = [];
+        if (isset($this->localeCode)) {
+            return $this->getSingleTranslation(
+                $translations[$this->localeCode] ?? 'en_EN',
+                $translationKey,
+                $model,
+                $translations
+            );
+        }
 
-        $model->translations->each(
-            function ($translation) use (&$translations) {
-                if (null !== $this->localeCode) {
-                    if ($translation->locale_code === $this->localeCode ||
-                        (empty($translations) && $translation->locale_code === config('language.english'))) {
-                        $translations = $translation->translation;
-                    } else {
-                        // Translation already found, exit loop
-                        return false;
-                    }
-
-                    return $translation;
-                } else {
-                    $translations[$translation->locale_code] = $translation->translation;
-                }
+        $data = $translations->map(
+            function ($translation) use ($translationKey, $model, $translations) {
+                return $this->getSingleTranslation($translation, $translationKey, $model, $translations);
+            }
+        )->filter(
+            function ($translations) {
+                return !empty($translations);
             }
         );
 
-        return $translations;
+        // Ugly
+        // Maps translations to translationKey = [en_EN => '', de_DE => '']
+        if (is_array($translationKey)) {
+            $return = [];
+
+            $data->each(
+                function ($translations, $localeCode) use (&$return) {
+                    foreach ($translations as $translationKey => $translation) {
+                        if (!isset($return[$translationKey])) {
+                            $return[$translationKey] = [];
+                        }
+
+                        $return[$translationKey][$localeCode] = $translation;
+                    }
+                }
+            );
+
+            return $return;
+        }
+
+        return $data->toArray();
+    }
+
+    /**
+     * Get a singular translation by key
+     * Returns english fallback is key is unavailable
+     *
+     * @param Language|AbstractTranslation $translation
+     * @param string|array                 $translationKey
+     * @param HasTranslations              $model
+     * @param Collection                   $translations
+     *
+     * @return array|mixed
+     */
+    private function getSingleTranslation(
+        $translation,
+        $translationKey,
+        HasTranslations $model,
+        Collection $translations
+    ) {
+        $inArray = in_array($translation->locale_code, $this->missingTranslations, true);
+
+        if ($translation instanceof Language && !$inArray) {
+            $this->addMissingTranslation($translation->locale_code);
+        }
+
+        if (is_array($translationKey)) {
+            $translationData = [];
+
+            foreach ($translationKey as $key) {
+                $translationData[$key] = $this->getSingleTranslation($translation, $key, $model, $translations);
+            }
+
+            return $translationData;
+        }
+
+        if (!isset($translation[$translationKey])) {
+            $this->addMissingTranslation($model->getRouteKey());
+
+            return $translations['en_EN'][$translationKey];
+        }
+
+        return $translation[$translationKey];
+    }
+
+    /**
+     * Adds a missing translation key to the array if it does not already exist
+     *
+     * @param string|int $key The key to add
+     */
+    private function addMissingTranslation($key): void
+    {
+        if (!in_array($key, $this->missingTranslations, true)) {
+            $this->missingTranslations[] = $key;
+        }
     }
 }

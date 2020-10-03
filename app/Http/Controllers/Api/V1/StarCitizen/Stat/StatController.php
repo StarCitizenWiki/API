@@ -1,13 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Stat\Stat;
 use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
-use Illuminate\Http\Request;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Stat API
@@ -16,13 +17,6 @@ use League\Fractal\TransformerAbstract;
  */
 class StatController extends ApiController
 {
-    /**
-     * StatsRepository
-     *
-     * @var StatTransformer
-     */
-    protected TransformerAbstract $transformer;
-
     /**
      * StatsAPIController constructor.
      *
@@ -42,7 +36,7 @@ class StatController extends ApiController
      */
     public function latest(): Response
     {
-        $stat = Stat::orderByDesc('created_at')->first();
+        $stat = Stat::query()->orderByDesc('created_at')->first();
 
         return $this->getResponse($stat);
     }
@@ -54,7 +48,7 @@ class StatController extends ApiController
      */
     public function index(): Response
     {
-        $stats = Stat::orderByDesc('created_at');
+        $stats = Stat::query()->orderByDesc('created_at');
 
         return $this->getResponse($stats);
     }

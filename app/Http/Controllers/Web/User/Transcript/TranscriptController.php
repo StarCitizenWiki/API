@@ -43,7 +43,6 @@ class TranscriptController extends Controller
     public function index(): View
     {
         $this->authorize('web.user.transcripts.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $transcripts = Transcript::query()->orderBy('id')->paginate(500);
 
@@ -67,7 +66,6 @@ class TranscriptController extends Controller
     public function show(Transcript $transcript)
     {
         $this->authorize('web.user.transcripts.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.transcripts.show',
@@ -89,7 +87,6 @@ class TranscriptController extends Controller
     public function create(): View
     {
         $this->authorize('web.user.transcripts.create');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.transcripts.create',
@@ -111,7 +108,6 @@ class TranscriptController extends Controller
     public function edit(Transcript $transcript): View
     {
         $this->authorize(self::TRANSCRIPT_UPDATE_PERMISSION);
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.transcripts.edit',
@@ -137,8 +133,6 @@ class TranscriptController extends Controller
     public function update(TranscriptUpdateRequest $request, Transcript $transcript): RedirectResponse
     {
         $this->authorize(self::TRANSCRIPT_UPDATE_PERMISSION);
-
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $data = $request->validated();
 
@@ -176,35 +170,39 @@ class TranscriptController extends Controller
     {
         $this->authorize('web.user.transcripts.create');
 
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
         $data = $request->validated();
 
-        $transcript = new Transcript([
-            'source_title' => $data['source_title'],
-            'source_url' => $data['source_url'],
-            'source_published_at' => $data['source_published_at'],
+        $transcript = new Transcript(
+            [
+                'source_title' => $data['source_title'],
+                'source_url' => $data['source_url'],
+                'source_published_at' => $data['source_published_at'],
 
-            self::TITLE => $data[self::TITLE],
-            self::YOUTUBE_URL => $data[self::YOUTUBE_URL],
-            self::PUBLISHED_AT => $data[self::PUBLISHED_AT],
-            self::WIKI_ID => $data[self::WIKI_ID],
-            'format_id' => $data['format'],
-        ]);
+                self::TITLE => $data[self::TITLE],
+                self::YOUTUBE_URL => $data[self::YOUTUBE_URL],
+                self::PUBLISHED_AT => $data[self::PUBLISHED_AT],
+                self::WIKI_ID => $data[self::WIKI_ID],
+                'format_id' => $data['format'],
+            ]
+        );
         $transcript->save();
 
         if (isset($data[self::LOCALE_EN])) {
-            $transcript->translations()->create([
-                'locale_code' => self::LOCALE_EN,
-                'translation' => $data[self::LOCALE_EN],
-            ]);
+            $transcript->translations()->create(
+                [
+                    'locale_code' => self::LOCALE_EN,
+                    'translation' => $data[self::LOCALE_EN],
+                ]
+            );
         }
 
         if (isset($data[self::LOCALE_DE])) {
-            $transcript->translations()->create([
-                'locale_code' => self::LOCALE_DE,
-                'translation' => $data[self::LOCALE_DE],
-            ]);
+            $transcript->translations()->create(
+                [
+                    'locale_code' => self::LOCALE_DE,
+                    'translation' => $data[self::LOCALE_DE],
+                ]
+            );
         }
 
         $message = __('crud.created', ['type' => __('Transkript')]);

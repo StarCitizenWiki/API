@@ -14,6 +14,21 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
+    'route' => route('web.user.rsi.comm-links.search'),
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                search
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Suche')
+        </div>
+    </div>
+@endcomponent
+
+@component('components.navs.nav_element', [
     'route' => route('web.user.rsi.comm-links.categories.index'),
 ])
     <div class="row">
@@ -49,7 +64,7 @@
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                books
+                bookmark
             @endcomponent
         </div>
         <div class="col">

@@ -1,15 +1,10 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 08.08.2018
- * Time: 13:28
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\User;
 
 use App\Http\Controllers\Web\User\User\UserController;
 use App\Models\Account\User\User;
-use App\Models\Account\User\UserGroup;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -154,6 +149,6 @@ class UserControllerTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(UserController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 }

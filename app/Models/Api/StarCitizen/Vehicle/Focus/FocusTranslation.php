@@ -1,8 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Api\StarCitizen\Vehicle\Focus;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Vehicle Focus Translation Model
@@ -18,9 +21,9 @@ class FocusTranslation extends Translation
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function focus()
+    public function focus(): BelongsTo
     {
         return $this->belongsTo(Focus::class, 'focus_id');
     }

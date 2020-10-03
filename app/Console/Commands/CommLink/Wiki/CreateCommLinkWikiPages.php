@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Wiki;
 
@@ -11,7 +13,7 @@ class CreateCommLinkWikiPages extends Command
      *
      * @var string
      */
-    protected $signature = 'wiki:create-comm-link-pages';
+    protected $signature = 'comm-links:create-wiki-pages';
 
     /**
      * The console command description.

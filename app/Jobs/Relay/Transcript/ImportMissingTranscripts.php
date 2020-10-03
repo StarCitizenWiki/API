@@ -8,7 +8,6 @@ use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Transcript\Transcript;
 use Carbon\Carbon;
 use Exception;
-use GuzzleCloudflare\Middleware;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Bus\Queueable;
@@ -69,13 +68,15 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
      */
     protected function initClient(bool $withTokenHeader = true): void
     {
-        $client = new Client([
-            'cookies' => new CookieJar(),
-            'headers' => [
-                'Referer' => self::BASE_URL,
-            ],
-            'timeout' => 60.0,
-        ]);
+        $client = new Client(
+            [
+                'cookies' => new CookieJar(),
+                'headers' => [
+                    'Referer' => self::BASE_URL,
+                ],
+                'timeout' => 60.0,
+            ]
+        );
 
         /** @var \GuzzleHttp\HandlerStack $handlerStack */
         $handlerStack = $client->getConfig('handler');
@@ -92,7 +93,7 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
     private function importTranscripts(string $url)
     {
         $response = self::$client->get($url);
-        $feed = simplexml_load_string((string) $response->getBody());
+        $feed = simplexml_load_string((string)$response->getBody());
 
         app('Log')::debug(sprintf('Got %d entries from feed.', count($feed->entry)));
 
@@ -133,8 +134,8 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
         $data = [
             self::SOURCE_URL => $this->getPlainString($feedElement->id),
             'source_title' => $this->getPlainString($feedElement->title),
-            'source_published_at' => Carbon::parse((string) $feedElement->published)->toDateTimeString(),
-            'updated_at' => Carbon::parse((string) $feedElement->updated)->toDateTimeString(),
+            'source_published_at' => Carbon::parse((string)$feedElement->published)->toDateTimeString(),
+            'updated_at' => Carbon::parse((string)$feedElement->updated)->toDateTimeString(),
         ];
 
         $translation = [
@@ -150,7 +151,7 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
 
             $transcript->translations()->create($translation);
         } else {
-            app('Log')::warning(sprintf('Empty Transcript: %s', (string) $feedElement->link['href']));
+            app('Log')::warning(sprintf('Empty Transcript: %s', (string)$feedElement->link['href']));
         }
     }
 
@@ -162,8 +163,8 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
     private function extractNextLink(SimpleXMLElement $feed): ?string
     {
         foreach ($feed->link as $link) {
-            if ('next' === (string) $link['rel']) {
-                return (string) $link['href'];
+            if ('next' === (string)$link['rel']) {
+                return (string)$link['href'];
             }
         }
 
@@ -177,7 +178,7 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
      */
     private function getPlainString(SimpleXMLElement $element): string
     {
-        return trim((string) $element);
+        return trim((string)$element);
     }
 
     /**

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle;
 
@@ -12,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use JsonException;
 
 /**
  * Class DownloadShips
@@ -23,7 +26,7 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const SHIPS_ENDPOINT = '/ship-matrix/index';
+    public const SHIPS_ENDPOINT = '/ship-matrix/index';
     private const VEHICLES_DISK = 'vehicles';
 
     private $force;
@@ -43,7 +46,7 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Starting Ship Matrix Download Job');
 
@@ -65,7 +68,7 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
         }
 
         try {
-            $response = $this->parseResponseBody((string) $response->getBody());
+            $response = $this->parseResponseBody((string)$response->getBody());
         } catch (InvalidArgumentException $e) {
             app('Log')::error(
                 'Ship Matrix data is not valid json',
@@ -81,7 +84,13 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
             return;
         }
 
-        $responseJsonData = json_encode($response->data);
+        try {
+            $responseJsonData = json_encode($response->data, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            $this->fail($e);
+
+            return;
+        }
 
         Storage::disk(self::VEHICLES_DISK)->put($this->getFileName(), $responseJsonData);
 
@@ -95,8 +104,8 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
      */
     private function getFileName(): string
     {
-        $dirName = now()->format("Y-m-d");
-        $fileTimeStamp = now()->format("Y-m-d_H-i");
+        $dirName = now()->format('Y-m-d');
+        $fileTimeStamp = now()->format('Y-m-d_H-i');
         $filename = "shipmatrix_{$fileTimeStamp}.json";
 
         return "{$dirName}/{$filename}";

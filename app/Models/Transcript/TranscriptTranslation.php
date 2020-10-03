@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Transcript;
 
 use App\Models\System\Translation\AbstractTranslation as Translation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TranscriptTranslation extends Translation
 {
@@ -15,9 +16,9 @@ class TranscriptTranslation extends Translation
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function transcript(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function transcript(): BelongsTo
     {
         return $this->belongsTo(Transcript::class);
     }

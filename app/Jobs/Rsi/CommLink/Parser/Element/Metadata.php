@@ -1,9 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 11.09.2018
- * Time: 17:52
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
@@ -57,19 +54,19 @@ class Metadata extends BaseElement
     private const SUBSCRIBER = 'Subscriber';
 
     /**
-     * @var \Symfony\Component\DomCrawler\Crawler
+     * @var Crawler
      */
-    private $commLink;
+    private Crawler $commLink;
 
     /**
-     * @var \Illuminate\Support\Collection MetaData Collection
+     * @var Collection MetaData Collection
      */
-    private $metaData;
+    private Collection $metaData;
 
     /**
      * Metadata constructor.
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $commLinkDocument
+     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {
@@ -78,7 +75,7 @@ class Metadata extends BaseElement
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function getMetaData(): Collection
     {
@@ -144,34 +141,29 @@ class Metadata extends BaseElement
     }
 
     /**
-     * Tries to extract the Comment Count from the .title-section Element
+     * Tries to Extract the Comm-Link Category
+     * Defaults to 'Undefined' if not found
      */
-    private function extractCommentCount(): void
+    private function extractCategory(): void
     {
-        $count = 0;
-        if ($this->commLink->filter('.comment-count')->count() > 0) {
-            $count = intval($this->commLink->filter('.comment-count')->first()->text());
+        $categoryId = 1;
+
+        if ($this->commLink->filter(self::CATEGORY_SELECTOR)->count() > 0) {
+            $category = $this->commLink->filter(self::CATEGORY_SELECTOR)->text();
+
+            if (!empty($category)) {
+                $category = $this->cleanText($category);
+
+                $categoryId = Category::query()->firstOrCreate(
+                    [
+                        'name' => $category,
+                        'slug' => Str::slug($category, '-'),
+                    ]
+                )->id;
+            }
         }
 
-        $this->metaData->put('comment_count', $count);
-    }
-
-    /**
-     * Tries to get the original Comm-Link URL from the 'Add-Comment' Link
-     */
-    private function extractOriginalUrl(): void
-    {
-        $href = null;
-
-        if ($this->commLink->filter('a.add-comment')->count() > 0) {
-            $href = $this->commLink->filter('a.add-comment')->attr('href');
-        }
-
-        if (!empty($href)) {
-            $href = $this->cleanText(str_replace('/connect?jumpto=', '', $href));
-        }
-
-        $this->metaData->put('url', $href);
+        $this->metaData->put('category_id', $categoryId);
     }
 
     /**
@@ -205,32 +197,6 @@ class Metadata extends BaseElement
     }
 
     /**
-     * Tries to Extract the Comm-Link Category
-     * Defaults to 'Undefined' if not found
-     */
-    private function extractCategory(): void
-    {
-        $categoryId = 1;
-
-        if ($this->commLink->filter(self::CATEGORY_SELECTOR)->count() > 0) {
-            $category = $this->commLink->filter(self::CATEGORY_SELECTOR)->text();
-
-            if (!empty($category)) {
-                $category = $this->cleanText($category);
-
-                $categoryId = Category::query()->firstOrCreate(
-                    [
-                        'name' => $category,
-                        'slug' => Str::slug($category, '-'),
-                    ]
-                )->id;
-            }
-        }
-
-        $this->metaData->put('category_id', $categoryId);
-    }
-
-    /**
      * Tries to Extract the Comm-Link Series
      * Defaults to 'None' if not found
      */
@@ -254,6 +220,37 @@ class Metadata extends BaseElement
         }
 
         $this->metaData->put('series_id', $seriesId);
+    }
+
+    /**
+     * Tries to get the original Comm-Link URL from the 'Add-Comment' Link
+     */
+    private function extractOriginalUrl(): void
+    {
+        $href = null;
+
+        if ($this->commLink->filter('a.add-comment')->count() > 0) {
+            $href = $this->commLink->filter('a.add-comment')->attr('href');
+        }
+
+        if (!empty($href)) {
+            $href = $this->cleanText(str_replace('/connect?jumpto=', '', $href));
+        }
+
+        $this->metaData->put('url', $href);
+    }
+
+    /**
+     * Tries to extract the Comment Count from the .title-section Element
+     */
+    private function extractCommentCount(): void
+    {
+        $count = 0;
+        if ($this->commLink->filter('.comment-count')->count() > 0) {
+            $count = (int)$this->commLink->filter('.comment-count')->first()->text();
+        }
+
+        $this->metaData->put('comment_count', $count);
     }
 
     /**

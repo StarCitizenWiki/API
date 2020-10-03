@@ -1,29 +1,42 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 24.07.2018
- * Time: 21:23
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
+use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
+use Illuminate\Support\Collection;
 
 /**
  * Class AbstractVehicleTransformer
  */
-abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
+abstract class AbstractVehicleTransformer extends TranslationTransformer
 {
+    protected $availableIncludes = [
+        'components',
+    ];
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
+     * @param Vehicle $vehicle
+     *
+     * @return \League\Fractal\Resource\Collection
+     *
+     * TODO Wrap by component_class key
+     */
+    public function includeComponents(Vehicle $vehicle): \League\Fractal\Resource\Collection
+    {
+        return $this->collection($vehicle->components, new ComponentTransformer());
+    }
+
+    /**
+     * @param Vehicle $vehicle
      *
      * @return array
      */
-    protected function getFociTranslations(Vehicle $vehicle)
+    protected function getFociTranslations(Vehicle $vehicle): array
     {
-        /** @var \Illuminate\Support\Collection $foci */
+        /** @var Collection $foci */
         $foci = $vehicle->foci;
         $fociTranslations = [];
 
@@ -37,9 +50,9 @@ abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
+     * @param Vehicle $vehicle
      *
-     * @return array
+     * @return array|string
      */
     protected function getProductionStatusTranslations(Vehicle $vehicle)
     {
@@ -47,9 +60,9 @@ abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
+     * @param Vehicle $vehicle
      *
-     * @return array
+     * @return array|string
      */
     protected function getProductionNoteTranslations(Vehicle $vehicle)
     {
@@ -57,9 +70,9 @@ abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
+     * @param Vehicle $vehicle
      *
-     * @return array
+     * @return array|string
      */
     protected function getDescriptionTranslations(Vehicle $vehicle)
     {
@@ -67,9 +80,9 @@ abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
+     * @param Vehicle $vehicle
      *
-     * @return array
+     * @return array|string
      */
     protected function getTypeTranslations(Vehicle $vehicle)
     {
@@ -77,9 +90,9 @@ abstract class AbstractVehicleTransformer extends AbstractTranslationTransformer
     }
 
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle $vehicle
+     * @param Vehicle $vehicle
      *
-     * @return array
+     * @return array|string
      */
     protected function getSizeTranslations(Vehicle $vehicle)
     {

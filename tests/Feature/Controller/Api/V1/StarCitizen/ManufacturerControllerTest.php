@@ -1,8 +1,7 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
-use App\Http\Controllers\Api\AbstractApiController;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
@@ -14,6 +13,8 @@ use Illuminate\Support\Str;
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController<extended>
  *
  * @covers \App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer<extended>
+ * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer<extended>
+ * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer<extended>
  *
  * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
  */
@@ -47,7 +48,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexAll(int $allCount = 0)
+    public function testIndexAll(int $allCount = 0): void
     {
         parent::testIndexAll(Manufacturer::count());
     }
@@ -55,7 +56,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 5)
+    public function testIndexPaginatedCustom(int $limit = 5): void
     {
         parent::testIndexPaginatedCustom($limit);
     }
@@ -63,7 +64,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         parent::testIndexInvalidLimit($limit);
     }
@@ -78,20 +79,38 @@ class ManufacturerControllerTest extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testShow(string $name = 'RSI')
+    public function testShow(string $name = 'RSI'): void
     {
         $this->makeManufacturerWithName($name);
 
         parent::testShow($name);
     }
 
+    /**
+     * Creates a Manufacturer with specified Name and default translation
+     *
+     * @param string $name The Name
+     *
+     * @return Manufacturer
+     */
+    private function makeManufacturerWithName(string $name): Manufacturer
+    {
+        $manufacturer = factory(Manufacturer::class)->create(
+            [
+                'name' => $name,
+            ]
+        );
+        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+
+        return $manufacturer;
+    }
 
     /**
      * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testShowMultipleTranslations(string $name = 'ORIG')
+    public function testShowMultipleTranslations(string $name = 'ORIG'): void
     {
         $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
@@ -104,25 +123,12 @@ class ManufacturerControllerTest extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testShowLocaleGerman(string $name = 'TMBL')
+    public function testShowLocaleGerman(string $name = 'TMBL'): void
     {
         $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
 
         parent::testShowLocaleGerman($name);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
-     */
-    public function testShowLocaleInvalid(string $name = 'DRAK')
-    {
-        $manufacturer = $this->makeManufacturerWithName($name);
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
-
-        parent::testShowLocaleInvalid($name);
     }
 
 
@@ -133,9 +139,23 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     /**
      * {@inheritdoc}
      *
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::search
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testSearch(string $name = 'AOPOA')
+    public function testShowLocaleInvalid(string $name = 'DRAK'): void
+    {
+        $manufacturer = $this->makeManufacturerWithName($name);
+        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
+
+        parent::testShowLocaleInvalid($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::search
+     * @covers \App\Http\Requests\StarCitizen\Manufacturer\ManufacturerSearchRequest
+     */
+    public function testSearch(string $name = 'AOPOA'): void
     {
         $this->makeManufacturerWithName($name);
 
@@ -146,8 +166,9 @@ class ManufacturerControllerTest extends StarCitizenTestCase
      * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::search
+     * @covers \App\Http\Requests\StarCitizen\Manufacturer\ManufacturerSearchRequest
      */
-    public function testSearchWithGermanTranslation(string $name = 'ANVL')
+    public function testSearchWithGermanTranslation(string $name = 'ANVL'): void
     {
         $manufacturer = $this->makeManufacturerWithName($name);
         $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
@@ -155,11 +176,10 @@ class ManufacturerControllerTest extends StarCitizenTestCase
         parent::testSearchWithGermanTranslation($name);
     }
 
-
     /**
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testRelationInclude()
+    public function testRelationInclude(): void
     {
         $name = Str::random(6);
         $manufacturer = $this->makeManufacturerWithName($name);
@@ -194,7 +214,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     /**
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
      */
-    public function testMultipleRelationInclude()
+    public function testMultipleRelationInclude(): void
     {
         $name = Str::random(5);
 
@@ -235,7 +255,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     /**
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::index
      */
-    public function testInvalidRelation()
+    public function testInvalidRelation(): void
     {
         $response = $this->get(
             sprintf(
@@ -251,19 +271,12 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     'data' => [
                         $this->structure,
                     ],
-                    'meta' => [
-                        'errors' => [
-                            'include',
-                        ],
-                    ],
                 ]
             )
-            ->assertSee(sprintf(AbstractApiController::INVALID_RELATION_STRING, 'invalid'))
             ->assertHeader('content-type', 'application/json')
             ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
     }
-
 
     /**
      * Setup Vehicles
@@ -278,24 +291,5 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                 $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
             }
         );
-    }
-
-    /**
-     * Creates a Manufacturer with specified Name and default translation
-     *
-     * @param string $name The Name
-     *
-     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
-     */
-    private function makeManufacturerWithName(string $name)
-    {
-        $manufacturer = factory(Manufacturer::class)->create(
-            [
-                'name' => $name,
-            ]
-        );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
-
-        return $manufacturer;
     }
 }

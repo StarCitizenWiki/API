@@ -1,15 +1,10 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 28.09.2018
- * Time: 11:17
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Account;
 
 use App\Http\Controllers\Web\User\Account\AccountController;
 use App\Models\Account\User\User;
+use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -76,6 +71,6 @@ class AccountControllerTestCase extends UserTestCase
 
         $reflectedClass = new \ReflectionClass(AccountController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 }

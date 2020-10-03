@@ -1,9 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 25.09.2018
- * Time: 12:53
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element;
 
@@ -23,7 +20,7 @@ class Manufacturer extends BaseElement
     private const MANUFACTURER_DESCRIPTION = 'description';
 
     /**
-     * @return \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
+     * @return ManufacturerModel
      */
     public function getManufacturer(): ManufacturerModel
     {
@@ -31,7 +28,7 @@ class Manufacturer extends BaseElement
 
         $manufacturerData = collect($this->rawData->get(self::MANUFACTURER));
 
-        /** @var \App\Models\Api\StarCitizen\Manufacturer\Manufacturer $manufacturer */
+        /** @var ManufacturerModel $manufacturer */
         $manufacturer = ManufacturerModel::query()->updateOrCreate(
             [
                 'cig_id' => $this->rawData->get(self::MANUFACTURER_ID),

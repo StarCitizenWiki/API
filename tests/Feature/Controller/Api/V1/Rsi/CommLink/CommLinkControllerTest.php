@@ -1,13 +1,11 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 27.09.2018
- * Time: 12:18
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Image\Image;
+use App\Models\Rsi\CommLink\Link\Link;
+use Illuminate\Support\Collection;
 use Tests\Feature\Controller\Api\ApiTestCase;
 
 /**
@@ -41,16 +39,18 @@ class CommLinkControllerTest extends ApiTestCase
         'title',
         'rsi_url',
         'api_url',
+        'api_public_url',
         'channel',
         'category',
         'series',
         'images',
         'links',
+        'comment_count',
         'created_at',
     ];
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var Collection
      */
     private $commLinks;
 
@@ -61,7 +61,7 @@ class CommLinkControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexAll(int $allCount = 0)
+    public function testIndexAll(int $allCount = 0): void
     {
         parent::testIndexAll(CommLink::count());
     }
@@ -69,7 +69,7 @@ class CommLinkControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 5)
+    public function testIndexPaginatedCustom(int $limit = 5): void
     {
         parent::testIndexPaginatedCustom($limit);
     }
@@ -77,7 +77,7 @@ class CommLinkControllerTest extends ApiTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         parent::testIndexInvalidLimit($limit);
     }
@@ -90,7 +90,7 @@ class CommLinkControllerTest extends ApiTestCase
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
      */
-    public function testShow()
+    public function testShow(): void
     {
         $response = $this->get(
             sprintf(
@@ -118,8 +118,66 @@ class CommLinkControllerTest extends ApiTestCase
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
+     * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer::transform
      */
-    public function testShowNotFound()
+    public function testShowIncludeImageHashes(): void
+    {
+        $this->commLinks->each(
+            function (CommLink $commLink) {
+                $commLink->images()->saveMany(factory(Image::class, 3)->make());
+                $commLink->links()->saveMany(factory(Link::class, 3)->make());
+            }
+        );
+
+        $structure = $this->structure;
+        $structure['images'] = [
+            'data' => [
+                '*' => [
+                    'rsi_url',
+                    'api_url',
+                    'alt',
+                    'size',
+                    'mime_type',
+                    'last_modified',
+                    'hashes' => [
+                        'perceptual_hash',
+                        'difference_hash',
+                        'average_hash',
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->get(
+            sprintf(
+                '%s/%s?include=images.hashes',
+                static::BASE_API_ENDPOINT,
+                $this->commLinks->first()->cig_id
+            )
+        );
+
+        $response->assertOk()
+            ->assertJsonStructure(
+                [
+                    'data' =>
+                        $structure
+                    ,
+                ]
+            )
+            ->assertJsonCount(
+                $this->commLinks->first()->images->count(),
+                'data.images.data'
+            )
+            ->assertJsonCount(
+                $this->commLinks->first()->links->count(),
+                'data.links.data'
+            )->assertSee('perceptual_hash');
+    }
+
+    /**
+     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController::show
+     */
+    public function testShowNotFound(): void
     {
         $response = $this->get(
             sprintf(
@@ -131,7 +189,6 @@ class CommLinkControllerTest extends ApiTestCase
 
         $response->assertNotFound();
     }
-
 
     /**
      * Creates Faked Comm-Links in DB

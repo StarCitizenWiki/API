@@ -1,11 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * User: Hannes
- * Date: 11.09.2018
- * Time: 17:49.
- */
 
 namespace App\Jobs\Rsi\CommLink\Parser\Element;
 
@@ -32,7 +27,7 @@ abstract class AbstractBaseElement
      * Checks if Comm-Link Page is a Ship Page
      * Ship Pages are wrapped in a '#layout-system' Div.
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $commLink
+     * @param Crawler $commLink
      *
      * @return bool
      */
@@ -44,7 +39,7 @@ abstract class AbstractBaseElement
     /**
      * Checks if Comm-Link Page is a Subscriber Article.
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $commLink
+     * @param Crawler $commLink
      *
      * @return bool
      */

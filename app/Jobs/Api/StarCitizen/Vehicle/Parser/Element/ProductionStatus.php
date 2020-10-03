@@ -1,9 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 25.09.2018
- * Time: 12:51
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element;
 
@@ -21,7 +18,9 @@ class ProductionStatus extends BaseElement
     private const PRODUCTION_STATUS = 'production_status';
 
     /**
-     * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
+     * @return ProductionStatusModel
+     *
+     * @throws ModelNotFoundException
      */
     public function getProductionStatus(): ProductionStatusModel
     {
@@ -32,11 +31,11 @@ class ProductionStatus extends BaseElement
         if (null === $status) {
             app('Log')::debug('Status not set in Matrix, returning default (undefined)');
 
-            return ProductionStatusModel::find(1);
+            return ProductionStatusModel::findOrFail(1);
         }
 
         try {
-            /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation $productionStatusTranslation */
+            /** @var ProductionStatusTranslation $productionStatusTranslation */
             $productionStatusTranslation = ProductionStatusTranslation::query()->where(
                 'translation',
                 $status
@@ -54,13 +53,13 @@ class ProductionStatus extends BaseElement
     }
 
     /**
-     * @return \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus
+     * @return ProductionStatusModel
      */
     private function createNewProductionStatus(): ProductionStatusModel
     {
         app('Log')::debug('Creating new Production Status');
 
-        /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
+        /** @var ProductionStatusModel $productionStatus */
         $productionStatus = ProductionStatusModel::create(
             [
                 'slug' => Str::slug($this->rawData->get(self::PRODUCTION_STATUS)),

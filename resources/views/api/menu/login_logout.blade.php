@@ -1,4 +1,9 @@
 @auth
+    @component('components.navs.nav_element', [
+        'route' => route('web.user.dashboard')
+    ])
+        @lang('Dashboard')
+    @endcomponent
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="admin_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {{ Auth::user()->username }}
@@ -19,7 +24,7 @@
                 ])
                 @endcomponent
                 @component('components.elements.icon', ['class' => 'mr-1'])
-                    sign-out
+                    sign-out-alt
                 @endcomponent
                 @lang('Logout')
             </a>
@@ -34,7 +39,7 @@
 @else
     @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])
         @component('components.elements.icon')
-            sign-in
+            sign-in-alt
         @endcomponent
         @lang('Login')
     @endcomponent

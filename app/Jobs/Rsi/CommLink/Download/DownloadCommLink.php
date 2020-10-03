@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 /**
  * Downloads the Whole Page Content.
@@ -24,7 +25,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
+    public const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
 
     /**
      * @var int Post ID
@@ -50,9 +51,9 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        if (Storage::disk('comm_links')->exists($this->postId) && $this->skipExisting) {
+        if ($this->skipExisting && Storage::disk('comm_links')->exists($this->postId)) {
             app('Log')::debug(
                 "Skipping existing Comm-Link {$this->postId}",
                 [
@@ -81,13 +82,13 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 
         try {
             $content = $this->cleanResponse($response->html());
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $this->fail($e);
 
             return;
         }
 
-        if (!Str::contains($content, 'id="post"') && !Str::contains($content, 'id="subscribers"') && !Str::contains($content, 'id="layout-system"')) {
+        if (!Str::contains($content, ['id="post"', 'id="subscribers"', 'id="layout-system"'])) {
             app('Log')::info(
                 "Comm-Link with ID {$this->postId} does not exist",
                 [

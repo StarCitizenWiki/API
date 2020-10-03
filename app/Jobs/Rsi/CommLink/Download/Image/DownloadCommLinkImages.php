@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Download\Image;
 
@@ -11,7 +13,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Dispatch Downloading of Comm-Link Images
+ * Dispatches DownloadCommLinkImage jobs for all non-local images.
+ * @see DownloadCommLinkImage
  */
 class DownloadCommLinkImages implements ShouldQueue
 {
@@ -25,7 +28,7 @@ class DownloadCommLinkImages implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Starting Comm-Link Image download');
 

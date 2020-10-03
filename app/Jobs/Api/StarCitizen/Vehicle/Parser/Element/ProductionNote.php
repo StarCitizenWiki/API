@@ -1,9 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 25.09.2018
- * Time: 12:51
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Api\StarCitizen\Vehicle\Parser\Element;
 
@@ -28,7 +25,9 @@ class ProductionNote extends BaseElement
     private const PRODUCTION_STATUS_NORMALIZED = 'Update Pass Scheduled';
 
     /**
-     * @return \App\Models\Api\StarCitizen\ProductionNote\ProductionNote
+     * @return ProductionNoteModel
+     *
+     * @throws ModelNotFoundException
      */
     public function getProductionNote(): ProductionNoteModel
     {
@@ -38,11 +37,11 @@ class ProductionNote extends BaseElement
         if (null === $note) {
             app('Log')::debug('Production Note not set in Matrix, returning default (None)');
 
-            return ProductionNoteModel::find(1);
+            return ProductionNoteModel::findOrFail(1);
         }
 
         try {
-            /** @var \App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation $productionNoteTranslation */
+            /** @var ProductionNoteTranslation $productionNoteTranslation */
             $productionNoteTranslation = ProductionNoteTranslation::query()->where(
                 'translation',
                 $note
@@ -60,33 +59,11 @@ class ProductionNote extends BaseElement
     }
 
     /**
-     * @return \App\Models\Api\StarCitizen\ProductionNote\ProductionNote
-     */
-    private function createNewProductionNote(): ProductionNoteModel
-    {
-        app('Log')::debug('Creating new Production Note');
-
-        /** @var \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $productionNote */
-        $productionNote = ProductionNoteModel::create();
-
-        $productionNote->translations()->create(
-            [
-                'locale_code' => config('language.english'),
-                'translation' => $this->getNormalizedStatus(),
-            ]
-        );
-
-        app('Log')::debug('Production Note created');
-
-        return $productionNote;
-    }
-
-    /**
      * Returns the normalized Production Status
      *
      * @return string|null
      */
-    private function getNormalizedStatus()
+    private function getNormalizedStatus(): ?string
     {
         $status = $this->rawData->get(self::PRODUCTION_NOTE);
 
@@ -99,5 +76,27 @@ class ProductionNote extends BaseElement
         }
 
         return $status;
+    }
+
+    /**
+     * @return ProductionNoteModel
+     */
+    private function createNewProductionNote(): ProductionNoteModel
+    {
+        app('Log')::debug('Creating new Production Note');
+
+        /** @var ProductionNoteModel $productionNote */
+        $productionNote = ProductionNoteModel::create();
+
+        $productionNote->translations()->create(
+            [
+                'locale_code' => config('language.english'),
+                'translation' => $this->getNormalizedStatus(),
+            ]
+        );
+
+        app('Log')::debug('Production Note created');
+
+        return $productionNote;
     }
 }

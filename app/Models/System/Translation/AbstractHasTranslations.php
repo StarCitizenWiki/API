@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models\System\Translation;
 
+use App\Models\System\Language;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 /**
  * Base Translation Class which holds Language Query Scopes.
@@ -17,12 +18,12 @@ abstract class AbstractHasTranslations extends Model
     private const LOCALE_CODE = 'locale_code';
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     abstract public function translations();
 
     /**
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @return Model|null
      */
     public function english(): ?Model
     {
@@ -30,34 +31,30 @@ abstract class AbstractHasTranslations extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @return Model|null
      */
     public function german(): ?Model
     {
         return $this->translations->keyBy(self::LOCALE_CODE)->get('de_DE', null);
     }
 
+    public function localeCode(): BelongsTo
+    {
+        return $this->belongsTo(Language::class, 'locale_code', 'locale_code');
+    }
+
     /**
      * Translations Right Joined with Languages.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function translationsCollection(): Collection
     {
-        $table = Str::singular($this->getTable()).'_translations';
+        /** @var Collection $tanslations */
+        $translations = $this->translations;
 
-        $collection = DB::table($table)->select('*')->rightJoin(
-            'languages',
-            function ($join) use ($table) {
-                /* @var $join \Illuminate\Database\Query\JoinClause */
-                $join->on(
-                    "{$table}.locale_code",
-                    '=',
-                    'languages.locale_code'
-                )->where($table.'.'.Str::singular($this->getForeignKey()), '=', $this->getKey());
-            }
-        )->get();
+        $languages = Language::all();
 
-        return $collection->keyBy(self::LOCALE_CODE);
+        return $languages->merge($translations)->keyBy(self::LOCALE_CODE);
     }
 }

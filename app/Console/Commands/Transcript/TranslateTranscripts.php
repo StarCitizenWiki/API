@@ -13,7 +13,7 @@ class TranslateTranscripts extends Command
      *
      * @var string
      */
-    protected $signature = 'translate:transcripts {limit=0 : Max jobs to run}';
+    protected $signature = 'transcripts:translate {limit=0 : Max jobs to run}';
 
     /**
      * The console command description.
@@ -33,7 +33,7 @@ class TranslateTranscripts extends Command
         if (!$this->hasArgument('limit')) {
             dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts());
         } else {
-            dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts((int) $this->argument('limit')));
+            dispatch(new \App\Jobs\Transcript\Translate\TranslateTranscripts((int)$this->argument('limit')));
         }
 
         return 0;

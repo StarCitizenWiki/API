@@ -1,0 +1,73 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Jobs\Api\StarCitizen\Vehicle;
+
+use App\Events\StarCitizen\ShipMatrix\ShipMatrixStructureChanged;
+use App\Traits\Jobs\ShipMatrix\GetNewestShipMatrixFilenameTrait as GetNewestShipMatrixFilename;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use RuntimeException;
+
+use function GuzzleHttp\json_decode;
+
+/**
+ * Checks if the Ship Matrix structure has changed based on comparing the Aurora ES against a ground truth structure
+ */
+class CheckShipMatrixStructure implements ShouldQueue
+{
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use GetNewestShipMatrixFilename;
+
+    private string $shipMatrix;
+    private $groundTruth;
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        try {
+            $this->shipMatrix = $this->getNewestShipMatrixFilename();
+
+            $this->groundTruth = File::get(resource_path('test_files/shipmatrix/aurora_es.json'));
+
+            $this->groundTruth = collect(json_decode($this->groundTruth, true));
+        } catch (FileNotFoundException | RuntimeException $e) {
+            $this->fail($e);
+        }
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle(): void
+    {
+        $vehicles = json_decode(Storage::disk('vehicles')->get($this->shipMatrix), true);
+
+        $diff = $this->groundTruth->diffKeys($vehicles[0]);
+
+        if ($diff->count() !== 0) {
+            $keys = $diff->keys();
+
+            app('Log')::error('Ship Matrix structure changed, aborting job. Missing keys:', $keys->toArray());
+            ShipMatrixStructureChanged::dispatch();
+
+            $this->fail('Ship Matrix structure changed. Missing keys: ' . $keys->implode(', '));
+        }
+    }
+}

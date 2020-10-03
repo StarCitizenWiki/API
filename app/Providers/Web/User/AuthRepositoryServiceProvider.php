@@ -1,10 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 09.08.2018
- * Time: 10:57
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Providers\Web\User;
 

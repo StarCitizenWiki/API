@@ -7,7 +7,7 @@ env=${APP_ENV:-production}
 
 if [ "$env" != "local" ]; then
     echo "Caching configuration..."
-    (cd /opt/api && php artisan config:cache && php artisan api:cache && php artisan view:cache)
+    (php artisan config:cache && php artisan view:cache)
 fi
 
 if [ "$role" = "app" ]; then
@@ -17,13 +17,13 @@ if [ "$role" = "app" ]; then
 elif [ "$role" = "queue" ]; then
 
     echo "Running the queue..."
-    php /opt/api/artisan queue:work --verbose --tries=3 --timeout=90 --sleep=10 --memory=512
+    php artisan queue:work --verbose --tries=3 --timeout=90 --sleep=10 --memory=512
 
 elif [ "$role" = "scheduler" ]; then
 
-    while [ true ]
+    while true
     do
-      php /opt/api/artisan schedule:run --verbose --no-interaction &
+      php artisan schedule:run --verbose --no-interaction &
       sleep 60
     done
 

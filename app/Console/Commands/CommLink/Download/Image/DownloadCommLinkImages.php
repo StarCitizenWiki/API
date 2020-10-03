@@ -1,12 +1,17 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Download\Image;
 
+use App\Jobs\Rsi\CommLink\Download\Image\DownloadCommLinkImage;
 use App\Jobs\Rsi\CommLink\Download\Image\DownloadCommLinkImages as DownloadCommLinkImagesJob;
 use Illuminate\Console\Command;
 
 /**
  * Command Wrapper for Download Comm-Link Job
+ * @see DownloadCommLinkImagesJob
+ * @see DownloadCommLinkImage
  */
 class DownloadCommLinkImages extends Command
 {
@@ -15,14 +20,14 @@ class DownloadCommLinkImages extends Command
      *
      * @var string
      */
-    protected $signature = 'download:comm-link-images';
+    protected $signature = 'comm-links:download-images';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Dispatch Download of Comm-Link Images';
+    protected $description = 'Download all non-local Comm-Link Images. Jobs are dispatched on the \'comm_link_images\' queue';
 
     /**
      * Execute the console command.

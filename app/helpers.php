@@ -1,22 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
 
-if (!function_exists('make_name_readable')) {
-    /**
-     * @param string $methodName name of view function
-     *
-     * @return string
-     */
-    function make_name_readable(string $methodName): String
-    {
-        $readableName = preg_replace(
-            '/(?!^)[A-Z]{2,}(?=[A-Z][a-z])|[A-Z][a-z]|[0-9]{1,}/',
-            ' $0',
-            $methodName
-        );
-
-        return ucfirst(strtolower($readableName));
-    }
-}
+declare(strict_types=1);
 
 if (!function_exists('get_cache_key_for_current_request')) {
     /**
@@ -60,7 +44,6 @@ if (!function_exists('get_bootstrap_class_from_log_level')) {
 }
 
 if (!function_exists('str_split_unicode')) {
-
     /**
      * Splits a Unicode String into the given length chunks.
      *
@@ -75,7 +58,7 @@ if (!function_exists('str_split_unicode')) {
         if ($length > 1) {
             $chunks = array_chunk($tmp, $length);
             foreach ($chunks as $i => $chunk) {
-                $chunks[$i] = implode('', (array) $chunk);
+                $chunks[$i] = implode('', (array)$chunk);
             }
             $tmp = $chunks;
         }

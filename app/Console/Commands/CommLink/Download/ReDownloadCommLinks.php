@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Download;
 
@@ -16,14 +18,14 @@ class ReDownloadCommLinks extends Command
      *
      * @var string
      */
-    protected $signature = 'download:new-comm-link-versions {--s|skip : Skip existing Comm-Links}';
+    protected $signature = 'comm-links:download-new-versions {--s|skip : Skip existing Comm-Links}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Re-Downloads all Comm-Links and parses them';
+    protected $description = 'Re-Download all Database Comm-Links and parse them';
 
     /**
      * Execute the console command.
@@ -32,11 +34,17 @@ class ReDownloadCommLinks extends Command
      */
     public function handle(): int
     {
+        if (!isset($this->getOptions()['skip'])) {
+            $skip = true;
+        } else {
+            $skip = $this->option('skip');
+        }
+
         ReDownloadDbCommLinks::withChain(
             [
                 new ParseCommLinkDownload(),
             ]
-        )->dispatch(true);
+        )->dispatch($skip);
 
         return 0;
     }

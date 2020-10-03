@@ -11,7 +11,7 @@ import { library, dom } from '@fortawesome/fontawesome-svg-core'
 
 import {
   faBook,
-  faBooks,
+  faBookmark,
   faBuilding,
   faBullhorn,
   faCar,
@@ -31,7 +31,7 @@ import {
   faExclamation,
   faExclamationTriangle,
   faExpandAlt,
-  faExternalLink,
+  faExternalLinkAlt,
   faEye,
   faGlobe,
   faHome,
@@ -40,34 +40,36 @@ import {
   faInfo,
   faIndustry,
   faMinus,
-  faPencil,
+  faPencilAlt,
   faPlus,
   faQuestionCircle,
-  faRepeat,
+  faRedo,
   faRocket,
-  faSignIn,
-  faSignOut,
+  faSearch,
+  faSignInAlt,
+  faSignOutAlt,
   faStickyNote,
   faStopCircle,
   faTag,
   faTable,
-  faTachometer,
+  faTachometerAlt,
   faTrashAlt,
   faUser,
   faUserCircle,
   faUserPlus,
   faUsers
-} from '@fortawesome/pro-light-svg-icons'
+} from '@fortawesome/free-solid-svg-icons'
 
 import {
   faFacebook,
   faTwitter,
   faTeamspeak,
+  faGithub
 } from '@fortawesome/free-brands-svg-icons'
 
 library.add(
   faBook,
-  faBooks,
+  faBookmark,
   faBuilding,
   faBullhorn,
   faCar,
@@ -87,7 +89,7 @@ library.add(
   faExclamation,
   faExclamationTriangle,
   faExpandAlt,
-  faExternalLink,
+  faExternalLinkAlt,
   faEye,
   faGlobe,
   faHome,
@@ -96,18 +98,19 @@ library.add(
   faInfo,
   faIndustry,
   faMinus,
-  faPencil,
+  faPencilAlt,
   faPlus,
   faQuestionCircle,
-  faRepeat,
+  faRedo,
   faRocket,
-  faSignIn,
-  faSignOut,
+  faSearch,
+  faSignInAlt,
+  faSignOutAlt,
   faStickyNote,
   faStopCircle,
   faTag,
   faTable,
-  faTachometer,
+  faTachometerAlt,
   faTrashAlt,
   faUser,
   faUserCircle,
@@ -118,7 +121,8 @@ library.add(
 library.add(
   faFacebook,
   faTwitter,
-  faTeamspeak
+  faTeamspeak,
+  faGithub
 )
 
 dom.watch()

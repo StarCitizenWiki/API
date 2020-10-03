@@ -8,9 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Account\User\User;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
-use Illuminate\Contracts\View\View;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 use Octfx\DeepLy\HttpClient\CallException;
 use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
 
@@ -35,14 +36,13 @@ class DashboardController extends Controller
     /**
      * Returns the Dashboard View.
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function index(): View
     {
         $this->authorize('web.user.dashboard.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.dashboard',
@@ -61,7 +61,7 @@ class DashboardController extends Controller
      *
      * @return array
      */
-    private function getUserStats()
+    private function getUserStats(): array
     {
         $today = Carbon::today()->toDateString();
 
@@ -118,7 +118,9 @@ class DashboardController extends Controller
 
         $stats = [
             'usage' => [
-                'limit' => -1 === $deeplUsage[self::DEEPL_CHARACTER_LIMIT] ? __('Fehler bei der Datenabfrage') : number_format(
+                'limit' => -1 === $deeplUsage[self::DEEPL_CHARACTER_LIMIT] ? __(
+                    'Fehler bei der Datenabfrage'
+                ) : number_format(
                     $deeplUsage[self::DEEPL_CHARACTER_LIMIT],
                     0,
                     ',',

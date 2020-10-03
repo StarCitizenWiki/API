@@ -1,10 +1,4 @@
-<?php declare(strict_types = 1);
-/**
- * Created by PhpStorm.
- * User: Hanne
- * Date: 11.08.2018
- * Time: 18:05
- */
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
@@ -36,7 +30,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexPaginatedCustom(int $limit = 2)
+    public function testIndexPaginatedCustom(int $limit = 2): void
     {
         parent::testIndexPaginatedCustom($limit);
     }
@@ -44,7 +38,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * {@inheritdoc}
      */
-    public function testIndexInvalidLimit(int $limit = -1)
+    public function testIndexInvalidLimit(int $limit = -1): void
     {
         parent::testIndexInvalidLimit($limit);
     }
@@ -59,10 +53,30 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testShow(string $name)
+    public function testShow(string $name): void
     {
         $this->makeVehicleWithName($name);
         parent::testShow($name);
+    }
+
+    /**
+     * Creates a Vehicle with specified Name and default translation
+     *
+     * @param string $name The Name
+     *
+     * @return Vehicle
+     */
+    protected function makeVehicleWithName(string $name): Vehicle
+    {
+        $vehicle = factory(Vehicle::class)->state(static::DEFAULT_VEHICLE_TYPE)->create(
+            [
+                'name' => $name,
+                'slug' => Str::slug($name),
+            ]
+        );
+        $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
+
+        return $vehicle;
     }
 
     /**
@@ -70,7 +84,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testShowMultipleTranslations(string $name)
+    public function testShowMultipleTranslations(string $name): void
     {
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
@@ -83,20 +97,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testShowLocaleGerman(string $name)
-    {
-        $vehicle = $this->makeVehicleWithName($name);
-        $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
-
-        parent::testShowLocaleGerman($name);
-    }
-
-    /**
-     * Test Show Specific Vehicle with invalid Locale Code
-     *
-     * @param string $name The Vehicle Name
-     */
-    public function testShowLocaleInvalid(string $name)
+    public function testShowLocaleGerman(string $name): void
     {
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
@@ -110,11 +111,24 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      */
 
     /**
+     * Test Show Specific Vehicle with invalid Locale Code
+     *
+     * @param string $name The Vehicle Name
+     */
+    public function testShowLocaleInvalid(string $name): void
+    {
+        $vehicle = $this->makeVehicleWithName($name);
+        $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
+
+        parent::testShowLocaleGerman($name);
+    }
+
+    /**
      * Test Search for specific Vehicle
      *
      * @param string $name The Vehicle Name
      */
-    public function testSearch(string $name)
+    public function testSearch(string $name): void
     {
         $this->makeVehicleWithName($name);
 
@@ -126,14 +140,13 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      *
      * @param string $name The Vehicle Name
      */
-    public function testSearchWithGermanTranslation(string $name)
+    public function testSearchWithGermanTranslation(string $name): void
     {
         $vehicle = $this->makeVehicleWithName($name);
         $vehicle->translations()->save(factory(VehicleTranslation::class)->state('german')->make());
 
         parent::testSearch($name);
     }
-
 
     /**
      * Setup Vehicles
@@ -148,25 +161,5 @@ class VehicleControllerTestCase extends StarCitizenTestCase
                 $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
             }
         );
-    }
-
-    /**
-     * Creates a Vehicle with specified Name and default translation
-     *
-     * @param string $name The Name
-     *
-     * @return mixed
-     */
-    private function makeVehicleWithName(string $name)
-    {
-        $vehicle = factory(Vehicle::class)->state(static::DEFAULT_VEHICLE_TYPE)->create(
-            [
-                'name' => $name,
-                'slug' => Str::slug($name),
-            ]
-        );
-        $vehicle->translations()->save(factory(VehicleTranslation::class)->make());
-
-        return $vehicle;
     }
 }

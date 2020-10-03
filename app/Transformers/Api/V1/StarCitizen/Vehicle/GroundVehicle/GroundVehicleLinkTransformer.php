@@ -1,9 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 24.07.2018
- * Time: 13:59
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 
@@ -16,19 +13,16 @@ use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as Ve
 class GroundVehicleLinkTransformer extends VehicleTransformer
 {
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
+     * @param GroundVehicle $groundVehicle
      *
      * @return array
      */
-    public function transform(GroundVehicle $groundVehicle)
+    public function transform(GroundVehicle $groundVehicle): array
     {
         return [
             'name' => $groundVehicle->name,
             'slug' => $groundVehicle->slug,
-            'api_url' => app('api.url')->version('v1')->route(
-                'api.v1.starcitizen.vehicles.ground-vehicles.show',
-                [$groundVehicle->getRouteKey()]
-            ),
+            'api_url' => $this->makeApiUrl(self::VEHICLES_GROUND_VEHICLES_SHOW, $groundVehicle->getRouteKey()),
         ];
     }
 }

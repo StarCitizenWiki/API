@@ -1,16 +1,15 @@
 <?php
 
 declare(strict_types=1);
-/**
- * User: Keonie
- * Date: 13.08.2017 17:57.
- */
 
 namespace App\Jobs;
 
+use App\Traits\Jobs\CheckRsiDataStructureTrait as CheckRsiDataStructure;
 use Goutte\Client as GoutteClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use RuntimeException;
+use stdClass;
 use Symfony\Component\BrowserKit\Cookie;
 
 /**
@@ -19,6 +18,8 @@ use Symfony\Component\BrowserKit\Cookie;
  */
 abstract class AbstractBaseDownloadData
 {
+    use CheckRsiDataStructure;
+
     public const RSI_TOKEN = 'STAR-CITIZEN.WIKI_DE_API_REQUEST';
 
     /**
@@ -63,53 +64,13 @@ abstract class AbstractBaseDownloadData
     }
 
     /**
-     * Check if Data is successful, and if Data contains the check Array values in is structure
-     * e.g. for check ['data, 'resultset'], data hs to contain the key 'data' with an array value,
-     * which contains a key with 'resultset'.
+     * Logs a User into the RSI Website.
      *
-     * @param array $data  Checked Array
-     * @param array $check List of Keys that are checked
+     * @return stdClass Response JSON
      *
-     * @return bool true when all Elements of $check in $data and success = 1, otherwise false
+     * @throws RuntimeException
      */
-    protected function checkIfDataCanBeProcessed($data, $check): bool
-    {
-        if (is_array($data) && 1 === $data['success']) {
-            return $this->checkArrayStructure($data, $check);
-        }
-
-        return false;
-    }
-
-    /**
-     * Recursive Check of Array Structure.
-     *
-     * @param array $data  Checked Array
-     * @param array $check List of Keys that are checked
-     *
-     * @return bool true when all Elements of $check in $data, otherwise false
-     */
-    protected function checkArrayStructure($data, $check): bool
-    {
-        if (!empty($check) && !empty($data)) {
-            if (array_key_exists($check[0], $data)) {
-                $checkKey = array_shift($check);
-
-                return $this->checkArrayStructure($data[$checkKey], $check);
-            } else {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Logs a User into the RSI Webseite.
-     *
-     * @return \stdClass Response JSON
-     */
-    protected function getRsiAuthCookie(): \stdClass
+    protected function getRsiAuthCookie(): stdClass
     {
         $res = self::$client->post(
             'api/account/signin',
@@ -125,7 +86,7 @@ abstract class AbstractBaseDownloadData
         $response = \GuzzleHttp\json_decode($res->getBody()->getContents());
 
         if (1 !== $response->success) {
-            throw new \InvalidArgumentException('Login was not successful');
+            throw new RuntimeException('Login was not successful');
         }
 
         return $response;

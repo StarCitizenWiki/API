@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Download;
 
@@ -14,7 +16,13 @@ use Illuminate\Queue\SerializesModels;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Download all missing Comm-Links based on last DB entry
+ * Download all missing Comm-Links based on the last DB entry.
+ * Extracts the highest Comm-Link-Id from 'https://robertsspaceindustries.com/comm-link'
+ * And Dispatches download-jobs for ID - DB_ID
+ *
+ * If No Comm-Link was found in the DB, the first Comm-Link ID (12663) will be used.
+ *
+ * Existing Comm-Links are skipped.
  */
 class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 {
@@ -23,15 +31,15 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    const FIRST_COMM_LINK_ID = 12663;
-    const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
+    public const FIRST_COMM_LINK_ID = 12663;
+    public const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
 
     /**
      * Execute the job.
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info('Starting Missing Comm-Links Download Job');
 
@@ -44,7 +52,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 
         $postIDs = [];
 
-        /** @var \Symfony\Component\DomCrawler\Crawler $crawler */
+        /** @var Crawler $crawler */
         $crawler = self::$scraper->request('GET', self::COMM_LINK_BASE_URL);
         $crawler->filter('#channel .hub-blocks .hub-block')->each(
             function (Crawler $crawler) use (&$postIDs) {
@@ -54,7 +62,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         );
 
         if (empty($postIDs)) {
-            app('Log')::info("Could not retrieve latest Comm-Link ID, retrying in 1 minute.");
+            app('Log')::info('Could not retrieve latest Comm-Link ID, retrying in 1 minute.');
             $this->release(60);
 
             return;
@@ -70,7 +78,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         );
 
         try {
-            $dbId = CommLink::orderByDesc('cig_id')->firstOrFail()->cig_id++;
+            $dbId = CommLink::query()->orderByDesc('cig_id')->firstOrFail()->cig_id++;
         } catch (ModelNotFoundException $e) {
             $dbId = self::FIRST_COMM_LINK_ID;
         }
@@ -90,7 +98,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     /**
      * Extract latest Comm-Link id from Website
      *
-     * @param \Symfony\Component\DomCrawler\Crawler $link
+     * @param Crawler $link
      *
      * @return int
      */

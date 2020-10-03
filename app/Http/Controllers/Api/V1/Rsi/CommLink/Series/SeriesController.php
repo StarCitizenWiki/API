@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink\Series;
 
@@ -6,23 +8,15 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use League\Fractal\TransformerAbstract;
 
 /**
  * Class Series Controller
  */
 class SeriesController extends ApiController
 {
-    /**
-     * Comm-Link Transformer
-     *
-     * @var SeriesTransformer
-     */
-    protected TransformerAbstract $transformer;
-
     /**
      * StatsAPIController constructor.
      *

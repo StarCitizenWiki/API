@@ -1,14 +1,15 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Console\Commands\ShipMatrix\Import;
 
-use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
 use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
 /**
- * Import given or latest shipmatrix file into db
+ * Import newest downloaded ship matrix file into the database
  */
 class ImportShipMatrix extends Command
 {
@@ -17,24 +18,24 @@ class ImportShipMatrix extends Command
      *
      * @var string
      */
-    protected $signature = 'import:shipmatrix {--d|download : Download Shipmatrix}';
+    protected $signature = 'ship-matrix:import';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import Shipmatrix File into the Database';
+    protected $description = 'Import the newest downloaded ship matrix file into the database';
 
     /**
-     * @var \Illuminate\Bus\Dispatcher
+     * @var Dispatcher
      */
-    private $dispatcher;
+    private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
      *
-     * @param \Illuminate\Bus\Dispatcher $dispatcher
+     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -50,17 +51,8 @@ class ImportShipMatrix extends Command
      */
     public function handle(): int
     {
-        if ($this->option('download')) {
-            $this->info('Downloading Ship Matrix and starting import');
-            DownloadShipMatrix::withChain(
-                [
-                    new ParseShipMatrixDownload(),
-                ]
-            )->dispatch();
-        } else {
-            $this->info('Dispatching Ship Matrix Parsing Job');
-            $this->dispatcher->dispatchNow(new ParseShipMatrixDownload());
-        }
+        $this->info('Dispatching Ship Matrix Parsing Job');
+        $this->dispatcher->dispatch(new ParseShipMatrixDownload());
 
         return 0;
     }

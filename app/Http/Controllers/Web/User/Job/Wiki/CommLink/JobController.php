@@ -1,9 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Job\Wiki\CommLink;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\Wiki\CommLink\UpdateCommLinkProofReadStatus;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Artisan;
 
 /**
@@ -14,14 +18,13 @@ class JobController extends Controller
     private const DASHBOARD_ROUTE = 'web.user.dashboard';
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function startCommLinkWikiPageCreationJob()
+    public function startCommLinkWikiPageCreationJob(): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_wiki_page_creation');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         Artisan::call('wiki:create-comm-link-pages');
 
@@ -37,14 +40,13 @@ class JobController extends Controller
     /**
      * Update Comm-Link Proofread Status
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function startCommLinkProofReadStatusUpdateJob()
+    public function startCommLinkProofReadStatusUpdateJob(): RedirectResponse
     {
         $this->authorize('web.user.jobs.start_proofread_update');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         $this->dispatch(new UpdateCommLinkProofReadStatus());
 

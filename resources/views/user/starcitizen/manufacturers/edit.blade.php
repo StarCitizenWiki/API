@@ -66,6 +66,17 @@
                     </div>
                 @endcomponent
             @endcomponent
+
+            <div class="card mt-3">
+                <h4 class="card-header">Änderungen</h4>
+                <div class="card-body">
+                    @component('user.components.changelog_list', [
+                        'changelogs' => $changelogs,
+                    ])
+                        Hersteller
+                    @endcomponent
+                </div>
+            </div>
         </div>
 
         <div class="col-12 col-xl-6">

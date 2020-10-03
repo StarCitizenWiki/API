@@ -1,9 +1,6 @@
-<?php declare(strict_types = 1);
-/**
- * User: Hannes
- * Date: 24.07.2018
- * Time: 13:59
- */
+<?php
+
+declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 
@@ -16,12 +13,14 @@ use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as Ve
 class GroundVehicleTransformer extends VehicleTransformer
 {
     /**
-     * @param \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle
+     * @param GroundVehicle $groundVehicle
      *
      * @return array
      */
-    public function transform(GroundVehicle $groundVehicle)
+    public function transform(GroundVehicle $groundVehicle): array
     {
+        $this->missingTranslations = [];
+
         return [
             'id' => $groundVehicle->cig_id,
             'chassis_id' => $groundVehicle->chassis_id,
@@ -51,7 +50,8 @@ class GroundVehicleTransformer extends VehicleTransformer
                 'code' => $groundVehicle->manufacturer->name_short,
                 'name' => $groundVehicle->manufacturer->name,
             ],
-            'updated_at' => $groundVehicle->updated_at->toDateTimeString(),
+            'updated_at' => $groundVehicle->updated_at,
+            'missing_translations' => $this->missingTranslations,
         ];
     }
 }

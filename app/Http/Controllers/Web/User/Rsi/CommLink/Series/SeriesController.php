@@ -1,9 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Web\User\Rsi\CommLink\Series;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Series\Series;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\View\View;
 
 /**
  * Comm-Link Series
@@ -22,14 +26,13 @@ class SeriesController extends Controller
     /**
      * All Series
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function index()
+    public function index(): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
 
         return view(
             'user.rsi.comm_links.series.index',
@@ -42,23 +45,22 @@ class SeriesController extends Controller
     /**
      * Get all Comm-Links in a given Series
      *
-     * @param \App\Models\Rsi\CommLink\Series\Series $series
+     * @param Series $series
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
-    public function show(Series $series)
+    public function show(Series $series): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
-        app('Log')::debug(make_name_readable(__FUNCTION__));
-
-        $links = $series->commLinks()->orderByDesc('cig_id')->paginate(20);
 
         return view(
             'user.rsi.comm_links.index',
             [
-                'commLinks' => $links,
+                'commLinks' => $series->commLinks()
+                    ->orderByDesc('cig_id')
+                    ->paginate(20),
             ]
         );
     }

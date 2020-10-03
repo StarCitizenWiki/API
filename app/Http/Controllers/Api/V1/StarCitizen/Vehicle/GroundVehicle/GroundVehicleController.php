@@ -1,13 +1,16 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
+use App\Http\Requests\StarCitizen\Vehicle\GroundVehicleSearchRequest;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
+use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 
 /**
  * Bodenfahrzeug API
@@ -42,7 +45,10 @@ class GroundVehicleController extends ApiController
         $groundVehicle = urldecode($groundVehicle);
 
         try {
-            $groundVehicle = GroundVehicle::query()->where('name', $groundVehicle)->orWhere('slug', $groundVehicle)->firstOrFail();
+            $groundVehicle = GroundVehicle::query()
+                ->where('name', $groundVehicle)
+                ->orWhere('slug', $groundVehicle)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $groundVehicle));
         }
@@ -64,13 +70,20 @@ class GroundVehicleController extends ApiController
     /**
      * Search Endpoint
      *
+     * @param Request $request
+     *
      * @return Response
      */
-    public function search(): Response
+    public function search(Request $request): Response
     {
-        $query = $this->request->get('query', '');
-        $query = urldecode($query);
-        $queryBuilder = GroundVehicle::query()->where('name', 'like', "%{$query}%")->orWhere('slug', 'like', "%{$query}%");
+        $rules = (new GroundVehicleSearchRequest())->rules();
+
+        $request->validate($rules);
+
+        $query = urldecode($request->get('query'));
+        $queryBuilder = GroundVehicle::query()
+            ->where('name', 'like', "%{$query}%")
+            ->orWhere('slug', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));

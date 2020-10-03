@@ -1,11 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * User: Hannes
- * Date: 07.08.2018
- * Time: 11:52.
- */
 
 namespace Tests\Feature\Controller\Web\User\Rsi\CommLink;
 
@@ -13,10 +8,12 @@ use App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController;
 use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
+use Dingo\Api\Dispatcher;
 use Dingo\Api\Http\Response;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Tests\Feature\Controller\Web\User\UserTestCase;
+
 
 /**
  * Class Comm-Link Controller Test Case.
@@ -226,11 +223,11 @@ EOF
     public function testConstructor(): void
     {
         $controller = $this->getMockBuilder(CommLinkController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(CommLinkController::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller);
+        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

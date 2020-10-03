@@ -1,9 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -25,12 +30,65 @@ class Image extends Model
         'local' => 'boolean',
     ];
 
+    protected $with = [
+        'hash',
+        'metadata',
+    ];
+
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
-    public function commLinks()
+    public function commLinks(): BelongsToMany
     {
         return $this->belongsToMany(CommLink::class, 'comm_link_image', 'comm_link_image_id', 'comm_link_id');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function hash(): HasOne
+    {
+        return $this->hasOne(ImageHash::class, 'comm_link_image_id')
+            ->withDefault(
+                [
+                    'perceptual_hash' => 'DEADBEEF',
+                    'p_hash_1' => 0,
+                    'p_hash_2' => 0,
+
+                    'difference_hash' => 'DEADBEEF',
+                    'd_hash_1' => 0,
+                    'd_hash_2' => 0,
+
+                    'average_hash' => 'DEADBEEF',
+                    'a_hash_1' => 0,
+                    'a_hash_2' => 0,
+                ]
+            );
+    }
+
+    /**
+     * Check if the hash exists
+     *
+     * @return bool
+     */
+    public function isHashed(): bool
+    {
+        return $this->hash->perceptual_hash !== 'DEADBEEF';
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function metadata(): HasOne
+    {
+        return $this->hasOne(ImageMetadata::class, 'comm_link_image_id')
+            ->withDefault(
+                [
+                    'size' => 0,
+                    'mime' => 'undefined',
+                    'last_modified' => Carbon::minValue(),
+                ]
+            );
     }
 
     /**
@@ -38,7 +96,7 @@ class Image extends Model
      *
      * @return string
      */
-    public function getNameAttribute()
+    public function getNameAttribute(): string
     {
         return Arr::last(explode('/', $this->src));
     }
@@ -48,7 +106,7 @@ class Image extends Model
      *
      * @return string
      */
-    public function getUrlAttribute()
+    public function getUrlAttribute(): string
     {
         $url = config('api.rsi_url');
 

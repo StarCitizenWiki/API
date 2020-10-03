@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands\Transcript;
 
-use App\Jobs\Relay\Transcript\Import\ImportMissingTranscripts;
+use App\Jobs\Relay\Transcript\ImportMissingTranscripts;
 use Illuminate\Console\Command;
 
 class ImportRelayTranscripts extends Command
@@ -12,7 +14,7 @@ class ImportRelayTranscripts extends Command
      *
      * @var string
      */
-    protected $signature = 'import:relay-transcripts {startPage=0 : Feed Start Page}';
+    protected $signature = 'transcripts:import-relay {startPage=0 : Feed Start Page}';
 
     /**
      * The console command description.
@@ -31,7 +33,7 @@ class ImportRelayTranscripts extends Command
         if (null === $this->argument('startPage')) {
             dispatch(new ImportMissingTranscripts());
         } else {
-            dispatch(new ImportMissingTranscripts((int) $this->argument('startPage')));
+            dispatch(new ImportMissingTranscripts((int)$this->argument('startPage')));
         }
 
         return 0;
