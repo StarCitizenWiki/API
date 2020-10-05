@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use RuntimeException;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
@@ -42,7 +43,7 @@ class CreateTranscriptWikiPages implements ShouldQueue
         $token = MediaWikiApi::query()->meta('tokens')->request();
         if ($token->hasErrors()) {
             $this->fail(
-                new \RuntimeException(
+                new RuntimeException(
                     sprintf('%s: %s', 'Token retrieval failed', collect($token->getErrors())->implode('code', ', '))
                 )
             );
@@ -67,7 +68,7 @@ class CreateTranscriptWikiPages implements ShouldQueue
             function (Collection $transcripts) use ($config) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($transcripts, true);
-                } catch (\RuntimeException $e) {
+                } catch (RuntimeException $e) {
                     app('Log')::error($e->getMessage());
 
                     $this->fail($e);
