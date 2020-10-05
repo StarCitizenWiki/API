@@ -23,7 +23,7 @@ class StatTransformer extends V1Transformer
             'funds' => $stat->funds,
             'fans' => $stat->fans,
             'fleet' => $stat->fleet,
-            'timestamp' => optional($stat->created_at),
+            'timestamp' => optional($stat)->created_at,
         ];
     }
 }
