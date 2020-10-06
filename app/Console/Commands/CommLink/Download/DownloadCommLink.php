@@ -75,8 +75,14 @@ class DownloadCommLink extends CommLinkCommand
             )
             ->each(
                 function (int $id) {
+                    $skipExisting = true;
+
+                    if ($this->option('overwrite') === true) {
+                        $skipExisting = false;
+                    }
+
                     $this->info('Downloading specified Comm-Links');
-                    $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $this->option('overwrite') === true));
+                    $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $skipExisting));
                     $this->advanceBar();
                 }
             )
