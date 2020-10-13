@@ -77,7 +77,7 @@ class CommLink extends HasTranslations
      */
     public function getPrevAttribute()
     {
-        return CommLink::query()->where('id', '<', $this->id)->orderBy('id', 'desc')->first(['cig_id']);
+        return CommLink::query()->where('cig_id', '<', $this->cig_id)->orderBy('cig_id', 'desc')->first(['cig_id']);
     }
 
     /**
@@ -87,7 +87,7 @@ class CommLink extends HasTranslations
      */
     public function getNextAttribute()
     {
-        return CommLink::query()->where('id', '>', $this->id)->orderBy('id')->first(['cig_id']);
+        return CommLink::query()->where('cig_id', '>', $this->cig_id)->orderBy('cig_id')->first(['cig_id']);
     }
 
     /**
