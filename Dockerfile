@@ -72,11 +72,11 @@ LABEL stage=intermediate
 
 WORKDIR /api
 
-COPY composer.json composer.lock /api/
-
 # install git
 RUN apt-get update && \
     apt-get install -y zip unzip
+
+COPY composer.json composer.lock /api/
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -88,19 +88,11 @@ RUN /usr/bin/composer install --no-dev \
    --no-scripts
 
 COPY / /api
+
 RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 
 ### Final Image
 FROM php:7.4-apache
-
-WORKDIR /var/www/html
-
-COPY --from=api /api /var/www/html
-COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
-COPY ./docker/start.sh /usr/local/bin/start
-
-COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
-COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -113,10 +105,21 @@ RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
     echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini
 
+WORKDIR /var/www/html
+
+COPY --from=api /api /var/www/html
+COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY ./docker/start.sh /usr/local/bin/start
+
+COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
+COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/
+
 RUN chown -R www-data:www-data /var/www/html && \
     chmod u+x /usr/local/bin/start && \
     chmod -R u+w /var/www/html/storage && \
     chmod -R g+w /var/www/html/storage && \
     a2enmod rewrite
+
+USER root
 
 CMD ["/usr/local/bin/start"]
