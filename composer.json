@@ -27,7 +27,7 @@
         "mediawiki/oauthclient": "^1.1.0",
         "octfx/deeply": "^3.1.2",
         "sebastian/diff": "^4.0",
-        "starcitizenwiki/mediawikiapi": "dev-develop"
+        "starcitizenwiki/mediawikiapi": "dev-develop#4541b5a"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
