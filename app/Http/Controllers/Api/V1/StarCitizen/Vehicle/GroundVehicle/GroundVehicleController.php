@@ -7,7 +7,9 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Vehicle\GroundVehicleSearchRequest;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -60,10 +62,16 @@ class GroundVehicleController extends ApiController
      * Alle Bodenfahrzeuge
      * Ausgabe aller Bodenfahrzeuge der Ship Matrix paginiert
      *
+     * @param Request $request
+     *
      * @return Response
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        if ($request->has('transformer') && $request->get('transformer', null) === 'link') {
+            $this->transformer = new GroundVehicleLinkTransformer();
+        }
+
         return $this->getResponse(GroundVehicle::query());
     }
 

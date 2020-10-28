@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Vehicle\ShipSearchRequest;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
@@ -60,10 +61,16 @@ class ShipController extends ApiController
      * Alle Raumschiffe
      * Ausgabe aller Raumschiffe der Ship Matrix paginiert
      *
+     * @param Request $request
+     *
      * @return Response
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        if ($request->has('transformer') && $request->get('transformer', null) === 'link') {
+            $this->transformer = new ShipLinkTransformer();
+        }
+
         return $this->getResponse(Ship::query());
     }
 
