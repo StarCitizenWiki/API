@@ -45,12 +45,15 @@ class TranslateSystems implements ShouldQueue
                 $query->where('locale_code', 'en_EN')->whereRaw("translation <> ''");
             }
         )
-            ->whereDoesntHave('german')
             ->chunk(
                 25,
                 function (Collection $systems) {
                     $systems->each(
                         function (Starsystem $starsystem) {
+                            if (null !== optional($starsystem->german())->translation) {
+                                return;
+                            }
+
                             try {
                                 app('Log')::info(sprintf('Translating system %s', $starsystem->name));
                                 $translation = DeepLyFacade::translate(
