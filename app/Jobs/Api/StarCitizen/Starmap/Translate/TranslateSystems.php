@@ -7,6 +7,7 @@ namespace App\Jobs\Api\StarCitizen\Starmap\Translate;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -38,54 +39,63 @@ class TranslateSystems implements ShouldQueue
     {
         app('Log')::info('Translating Systems');
 
-        Starsystem::query()->whereDoesntHave('german')->chunk(
-            25,
-            function (Collection $systems) {
-                $systems->each(
-                    function (Starsystem $starsystem) {
-                        try {
-                            app('Log')::info(sprintf('Translating system %s', $starsystem->name));
-                            $translation = DeepLyFacade::translate(
-                                $starsystem->english()->translation,
-                                'DE',
-                                'EN',
-                                'more'
-                            );
-                        } catch (QuotaException $e) {
-                            app('Log')::warning('Deepl Quote exceeded!');
-
-                            $this->fail($e);
-
-                            return;
-                        } catch (RateLimitedException $e) {
-                            app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
-
-                            $this->release(60);
-
-                            return;
-                        } catch (TextLengthException $e) {
-                            app('Log')::warning($e->getMessage());
-
-                            return;
-                        } catch (CallException | AuthenticationException | InvalidArgumentException $e) {
-                            app('Log')::warning(sprintf('%s: %s', 'Translation failed with Message', $e->getMessage()));
-
-                            $this->fail($e);
-
-                            return;
-                        }
-
-                        $starsystem->translations()->updateOrCreate(
-                            [
-                                'locale_code' => 'de_DE',
-                            ],
-                            [
-                                'translation' => trim($translation),
-                            ]
-                        );
-                    }
-                );
+        Starsystem::query()->whereHas(
+            'translations',
+            function (Builder $query) {
+                $query->where('locale_code', 'en_EN')->whereRaw("translation <> ''");
             }
-        );
+        )
+            ->whereDoesntHave('german')
+            ->chunk(
+                25,
+                function (Collection $systems) {
+                    $systems->each(
+                        function (Starsystem $starsystem) {
+                            try {
+                                app('Log')::info(sprintf('Translating system %s', $starsystem->name));
+                                $translation = DeepLyFacade::translate(
+                                    $starsystem->english()->translation,
+                                    'DE',
+                                    'EN',
+                                    'more'
+                                );
+                            } catch (QuotaException $e) {
+                                app('Log')::warning('Deepl Quote exceeded!');
+
+                                $this->fail($e);
+
+                                return;
+                            } catch (RateLimitedException $e) {
+                                app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
+
+                                $this->release(60);
+
+                                return;
+                            } catch (TextLengthException $e) {
+                                app('Log')::warning($e->getMessage());
+
+                                return;
+                            } catch (CallException | AuthenticationException | InvalidArgumentException $e) {
+                                app('Log')::warning(
+                                    sprintf('%s: %s', 'Translation failed with Message', $e->getMessage())
+                                );
+
+                                $this->fail($e);
+
+                                return;
+                            }
+
+                            $starsystem->translations()->updateOrCreate(
+                                [
+                                    'locale_code' => 'de_DE',
+                                ],
+                                [
+                                    'translation' => trim($translation),
+                                ]
+                            );
+                        }
+                    );
+                }
+            );
     }
 }
