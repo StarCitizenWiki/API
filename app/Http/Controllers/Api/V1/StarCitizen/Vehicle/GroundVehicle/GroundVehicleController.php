@@ -72,7 +72,7 @@ class GroundVehicleController extends ApiController
             $this->transformer = new GroundVehicleLinkTransformer();
         }
 
-        return $this->getResponse(GroundVehicle::query());
+        return $this->getResponse(GroundVehicle::query()->orderBy('name'));
     }
 
     /**

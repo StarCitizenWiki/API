@@ -71,7 +71,7 @@ class ShipController extends ApiController
             $this->transformer = new ShipLinkTransformer();
         }
 
-        return $this->getResponse(Ship::query());
+        return $this->getResponse(Ship::query()->orderBy('name'));
     }
 
     /**
