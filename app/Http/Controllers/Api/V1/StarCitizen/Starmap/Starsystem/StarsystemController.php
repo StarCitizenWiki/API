@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\Starsystem;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
@@ -29,11 +30,17 @@ class StarsystemController extends ApiController
     }
 
     /**
+     * @param Request $request
+     *
      * @return Response
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        return $this->getResponse(Starsystem::query());
+        if ($request->has('transformer') && $request->get('transformer', null) === 'link') {
+            $this->transformer = new StarsystemLinkTransformer();
+        }
+
+        return $this->getResponse(Starsystem::query()->orderBy('name'));
     }
 
     /**

@@ -67,6 +67,11 @@ class Starsystem extends HasTranslations
         'aggregated_danger' => 'float',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'code';
+    }
+
     /**
      * @return HasMany
      */
