@@ -57,6 +57,7 @@ class StarsystemController extends ApiController
             $starsystem = Starsystem::query()
                 ->where('code', $code)
                 ->orWhere('cig_id', $code)
+                ->orWhere('name', 'LIKE', "%$code%")
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $code));
