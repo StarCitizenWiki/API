@@ -44,7 +44,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         app('Log')::info('Starting Missing Comm-Links Download Job');
 
         $this->initClient();
-        #$this->getRsiAuthCookie();
+        // $this->getRsiAuthCookie();
 
         self::$scraper = new Client();
         self::$scraper->setClient(self::$client);
@@ -78,10 +78,20 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         );
 
         try {
-            $dbId = CommLink::query()->orderByDesc('cig_id')->firstOrFail()->cig_id++;
+            $dbIds = CommLink::query()
+                ->select('cig_id')
+                ->take(count($postIDs))
+                ->orderByDesc('cig_id')
+                ->get()
+                ->pluck('cig_id');
         } catch (ModelNotFoundException $e) {
-            $dbId = self::FIRST_COMM_LINK_ID;
+            $dbIds = collect([self::FIRST_COMM_LINK_ID - 1]);
         }
+
+        $missing = collect($postIDs)->diff($dbIds);
+
+        $dbId = $dbIds->max();
+        $dbId++;
 
         app('Log')::info(
             "Latest DB Comm-Link ID is: {$dbId}",
@@ -90,8 +100,16 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
             ]
         );
 
+        $missing->each(
+            function (int $id) {
+                dispatch(new DownloadCommLink($id, true));
+            }
+        );
+
         for ($id = $dbId; $id <= $latestPostId; $id++) {
-            dispatch(new DownloadCommLink($id, true));
+            if (!$missing->contains($id)) {
+                dispatch(new DownloadCommLink($id, true));
+            }
         }
     }
 

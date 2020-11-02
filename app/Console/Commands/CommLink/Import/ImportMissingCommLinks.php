@@ -39,7 +39,13 @@ class ImportMissingCommLinks extends Command
      */
     public function handle(): int
     {
-        $missingOffset = optional(CommLink::query()->orderByDesc('cig_id')->first())->cig_id ?? 0;
+        // Todo ugly
+        // This is the offset from which to start parsing etc.
+        $missingOffset = optional(CommLink::query()
+                                      ->offset(20)
+                                      ->orderByDesc('created_at')
+                                      ->first())->cig_id ?? 0;
+
         if ($missingOffset > 0) {
             $missingOffset++;
         }
@@ -61,8 +67,7 @@ class ImportMissingCommLinks extends Command
             $chain[] = new CreateCommLinkWikiPages();
         }
 
-        DownloadMissingCommLinks::withChain($chain)
-            ->dispatch(new Client(), $missingOffset);
+        DownloadMissingCommLinks::withChain($chain)->dispatch();
 
         return 0;
     }
