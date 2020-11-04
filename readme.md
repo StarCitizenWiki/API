@@ -4,7 +4,7 @@
 <p align="center">
     <img src="https://img.shields.io/github/workflow/status/StarCitizenWiki/API/Laravel%20Tests" />
     <a href="https://hub.docker.com/r/scwiki/api" alt="Docker Hub">
-        <img src="https://img.shields.io/docker/pulls/scwiki/api-dev" />
+        <img src="https://img.shields.io/docker/pulls/scwiki/api" />
     </a>
 </p>
 
