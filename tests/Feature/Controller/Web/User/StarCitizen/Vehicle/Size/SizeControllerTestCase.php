@@ -50,8 +50,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
     public function testEdit()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $vehicleSize */
-        $vehicleSize = factory(Size::class)->create();
-        $vehicleSize->translations()->save(factory(SizeTranslation::class)->make());
+        $vehicleSize = Size::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
             route('web.user.starcitizen.vehicles.sizes.edit', $vehicleSize->getRouteKey())
@@ -95,8 +94,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
     public function testUpdate()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $vehicleSize */
-        $vehicleSize = factory(Size::class)->create();
-        $vehicleSize->translations()->save(factory(SizeTranslation::class)->make());
+        $vehicleSize = Size::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.vehicles.sizes.update', $vehicleSize->getRouteKey()),
@@ -106,7 +104,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -126,7 +124,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
@@ -137,7 +135,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(SizeController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(SizeController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -151,10 +149,6 @@ class SizeControllerTestCase extends StarCitizenTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        factory(Size::class, 10)->create()->each(
-            function (Size $vehicleSize) {
-                $vehicleSize->translations()->save(factory(SizeTranslation::class)->make());
-            }
-        );
+        Size::factory()->count(10)->create();
     }
 }

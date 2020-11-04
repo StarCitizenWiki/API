@@ -142,10 +142,10 @@ class ChannelControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->channels = factory(Channel::class, 20)->create();
+        $this->channels = Channel::factory()->count(20)->create();
         $this->channels->first(
             function (Channel $channel) {
-                $this->commLinks = factory(CommLink::class, 5)->create()->each(
+                $this->commLinks = CommLink::factory()->count(5)->create()->each(
                     function (CommLink $commLink) use ($channel) {
                         $commLink->channel_id = $channel->id;
                         $commLink->save();

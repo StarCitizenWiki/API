@@ -32,14 +32,14 @@ class CommLinkControllerUserTest extends CommLinkSearchControllerTestCase
     public function testSearch(): void
     {
         $this->commLinks->push(
-            factory(CommLink::class)->create(
+            CommLink::factory()->create(
                 [
                     'title' => 'Example Title 1',
                 ]
             )
         );
         $this->commLinks->push(
-            factory(CommLink::class)->create(
+            CommLink::factory()->create(
                 [
                     'title' => 'Example Title 2',
                 ]
@@ -81,7 +81,7 @@ class CommLinkControllerUserTest extends CommLinkSearchControllerTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
         $this->user->groups()->sync(UserGroup::where('name', 'user')->first()->id);
     }
 }

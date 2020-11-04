@@ -54,8 +54,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
     public function testEdit()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
-        $ship = factory(Vehicle::class)->state('ship')->create();
-        $ship->translations()->save(factory(VehicleTranslation::class)->make());
+        $ship = Vehicle::factory()->ship()->create();
 
         $response = $this->actingAs($this->user)->get(
             route('web.user.starcitizen.vehicles.ships.edit', $ship->getRouteKey())
@@ -109,8 +108,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
     public function testUpdate()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
-        $ship = factory(Vehicle::class)->state('ship')->create();
-        $ship->translations()->save(factory(VehicleTranslation::class)->make());
+        $ship = Vehicle::factory()->ship()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.vehicles.ships.update', $ship->getRouteKey()),
@@ -120,7 +118,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -136,8 +134,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
     public function testUpdateNotFound()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
-        $ship = factory(Vehicle::class)->state('ship')->create();
-        $ship->translations()->save(factory(VehicleTranslation::class)->make());
+        $ship = Vehicle::factory()->ship()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.vehicles.ships.update', static::MODEL_ID_NOT_EXISTENT),
@@ -147,7 +144,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
@@ -158,7 +155,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(ShipController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(ShipController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -172,10 +169,6 @@ class ShipControllerTestCase extends StarCitizenTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        factory(Vehicle::class, 10)->state('ship')->create()->each(
-            function (Vehicle $ship) {
-                $ship->translations()->save(factory(VehicleTranslation::class)->make());
-            }
-        );
+        Vehicle::factory()->count(10)->ship()->create();
     }
 }

@@ -31,7 +31,7 @@ class ChannelControllerSysopTest extends ChannelControllerTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
         $this->user->groups()->sync(UserGroup::where('name', 'sysop')->first()->id);
     }
 }

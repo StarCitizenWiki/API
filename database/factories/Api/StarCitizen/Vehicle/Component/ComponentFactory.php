@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories\Api\StarCitizen\Vehicle;
+namespace Database\Factories\Api\StarCitizen\Vehicle\Component;
 
+use App\Models\Api\StarCitizen\Vehicle\Component\Component;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ComponentFactory extends Factory
@@ -13,7 +14,7 @@ class ComponentFactory extends Factory
      *
      * @var string
      */
-    protected $model = ComponentFactory::class;
+    protected $model = Component::class;
 
     /**
      * Define the model's default state.

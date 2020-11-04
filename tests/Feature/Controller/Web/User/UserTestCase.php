@@ -32,6 +32,6 @@ class UserTestCase extends TestCase
     {
         parent::setUp();
         $this->createUserGroups();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
     }
 }

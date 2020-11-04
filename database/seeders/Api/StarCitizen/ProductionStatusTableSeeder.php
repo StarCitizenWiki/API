@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders\Api\Starcitizen;
+namespace Database\Seeders\Api\StarCitizen;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;

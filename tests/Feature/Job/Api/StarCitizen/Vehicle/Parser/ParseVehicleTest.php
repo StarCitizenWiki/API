@@ -13,6 +13,10 @@ use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\Api\StarCitizen\Vehicle\Type\Type;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleComponent;
+use Database\Seeders\Api\StarCitizen\ProductionNoteTableSeeder;
+use Database\Seeders\Api\StarCitizen\ProductionStatusTableSeeder;
+use Database\Seeders\Api\StarCitizen\Vehicle\SizeTableSeeder;
+use Database\Seeders\Api\StarCitizen\Vehicle\TypeTableSeeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -70,25 +74,25 @@ class ParseVehicleTest extends TestCase
         Artisan::call(
             'db:seed',
             [
-                '--class' => 'ProductionNoteTableSeeder',
+                '--class' => ProductionNoteTableSeeder::class,
             ]
         );
         Artisan::call(
             'db:seed',
             [
-                '--class' => 'ProductionStatusTableSeeder',
+                '--class' => ProductionStatusTableSeeder::class,
             ]
         );
         Artisan::call(
             'db:seed',
             [
-                '--class' => 'SizeTableSeeder',
+                '--class' => SizeTableSeeder::class,
             ]
         );
         Artisan::call(
             'db:seed',
             [
-                '--class' => 'TypeTableSeeder',
+                '--class' => TypeTableSeeder::class,
             ]
         );
     }

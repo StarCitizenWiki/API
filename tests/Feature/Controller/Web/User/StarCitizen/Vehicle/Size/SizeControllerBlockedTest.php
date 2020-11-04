@@ -33,7 +33,7 @@ class SizeControllerBlockedTest extends SizeControllerTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->state('blocked')->create();
+        $this->user = User::factory()->blocked()->create();
         $this->user->groups()->sync(UserGroup::where('name', 'sysop')->first()->id);
     }
 }

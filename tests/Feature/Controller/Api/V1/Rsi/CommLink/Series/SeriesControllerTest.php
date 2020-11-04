@@ -142,10 +142,10 @@ class SeriesControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->series = factory(Series::class, 20)->create();
+        $this->series = Series::factory()->count(20)->create();
         $this->series->first(
             function (Series $series) {
-                $this->commLinks = factory(CommLink::class, 5)->create()->each(
+                $this->commLinks = CommLink::factory()->count(5)->create()->each(
                     function (CommLink $commLink) use ($series) {
                         $commLink->series_id = $series->id;
                         $commLink->save();

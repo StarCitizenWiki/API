@@ -24,9 +24,7 @@ class ProductionNoteFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'slug' => $this->faker->unique()->slug(2),
-        ];
+        return [];
     }
 
     /**

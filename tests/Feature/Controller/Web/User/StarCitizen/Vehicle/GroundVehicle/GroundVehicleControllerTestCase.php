@@ -1,11 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -54,8 +55,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
     public function testEdit()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
-        $groundVehicle = factory(Vehicle::class)->state('ground_vehicle')->create();
-        $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
+        $groundVehicle = Vehicle::factory()->groundVehicle()->create();
 
         $response = $this->actingAs($this->user)->get(
             route('web.user.starcitizen.vehicles.ground-vehicles.edit', $groundVehicle->getRouteKey())
@@ -107,8 +107,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
     public function testUpdate()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
-        $groundVehicle = factory(Vehicle::class)->state('ground_vehicle')->create();
-        $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
+        $groundVehicle = Vehicle::factory()->groundVehicle()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.vehicles.ground-vehicles.update', $groundVehicle->getRouteKey()),
@@ -118,7 +117,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -134,8 +133,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
     public function testUpdateNotFound()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
-        $groundVehicle = factory(Vehicle::class)->state('ground_vehicle')->create();
-        $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
+        $groundVehicle = Vehicle::factory()->groundVehicle()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.vehicles.ground-vehicles.update', static::MODEL_ID_NOT_EXISTENT),
@@ -145,7 +143,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
@@ -156,7 +154,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(GroundVehicleController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(GroundVehicleController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -170,10 +168,6 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        factory(Vehicle::class, 10)->state('ground_vehicle')->create()->each(
-            function (Vehicle $groundVehicle) {
-                $groundVehicle->translations()->save(factory(VehicleTranslation::class)->make());
-            }
-        );
+        Vehicle::factory()->count(10)->groundVehicle()->create();
     }
 }

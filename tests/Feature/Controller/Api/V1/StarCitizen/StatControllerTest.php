@@ -103,6 +103,6 @@ class StatControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        factory(Stat::class, 20)->create();
+        Stat::factory()->count(20)->create();
     }
 }

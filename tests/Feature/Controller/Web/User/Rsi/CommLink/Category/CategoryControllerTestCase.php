@@ -62,7 +62,7 @@ class CategoryControllerTestCase extends UserTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(CategoryController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(CategoryController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -78,12 +78,8 @@ class CategoryControllerTestCase extends UserTestCase
         parent::setUp();
         $this->createSystemLanguages();
 
-        $this->category = factory(Category::class)->create();
+        $this->category = Category::factory()->create();
 
-        $this->commLinks = factory(CommLink::class, 5)->create(['category_id' => $this->category->id])->each(
-            function (CommLink $commLink) {
-                $commLink->translations()->save(factory(CommLinkTranslation::class)->make());
-            }
-        );
+        $this->commLinks = CommLink::factory()->count(5)->create(['category_id' => $this->category->id]);
     }
 }
