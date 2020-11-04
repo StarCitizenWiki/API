@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cf989bb3a857e0e3a7211a784fa29c24",
+    "content-hash": "3b3e056ad6bb6fddab3e9f6deaf03fa3",
     "packages": [
         {
             "name": "brick/math",
@@ -1800,16 +1800,16 @@
         },
         {
             "name": "octfx/deeply",
-            "version": "3.1.2",
+            "version": "3.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/octfx/DeepLy.git",
-                "reference": "c1ff937964c97912f85425ead8ff1431a8608f77"
+                "reference": "ef04981b62708789caee8af1f6e7f7b97ae0f4a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/octfx/DeepLy/zipball/c1ff937964c97912f85425ead8ff1431a8608f77",
-                "reference": "c1ff937964c97912f85425ead8ff1431a8608f77",
+                "url": "https://api.github.com/repos/octfx/DeepLy/zipball/ef04981b62708789caee8af1f6e7f7b97ae0f4a0",
+                "reference": "ef04981b62708789caee8af1f6e7f7b97ae0f4a0",
                 "shasum": ""
             },
             "require": {
@@ -1862,7 +1862,7 @@
                 "translate",
                 "translation"
             ],
-            "time": "2020-10-06T10:04:26+00:00"
+            "time": "2020-11-04T21:04:23+00:00"
         },
         {
             "name": "opis/closure",
