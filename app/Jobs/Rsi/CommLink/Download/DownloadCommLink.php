@@ -71,17 +71,16 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             ]
         );
 
-        if (null === self::$scraper) {
-            $this->makeScraper(true);
+        if (null === self::$client) {
+            $this->initClient();
         }
 
-        $response = self::$scraper->request(
-            'GET',
+        $response = self::$client->get(
             sprintf('%s/%s/%d-IMPORT', self::COMM_LINK_BASE_URL, 'SCW', $this->postId)
         );
 
         try {
-            $content = $this->cleanResponse($response->html());
+            $content = $this->cleanResponse((string)$response->getBody());
         } catch (InvalidArgumentException $e) {
             $this->fail($e);
 
