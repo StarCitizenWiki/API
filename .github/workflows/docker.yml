@@ -1,4 +1,4 @@
-name: ci
+name: Docker Build
 
 on:
   push:
@@ -25,5 +25,5 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          tags: scwiki/api:7.0
+          tags: scwiki/api:latest
           push: true
