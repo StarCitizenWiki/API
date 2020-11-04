@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories\System;
+namespace Database\Factories\Rsi\CommLink\Image;
 
-use App\Models\System\Language;
+use App\Models\Rsi\CommLink\Image\ImageMetadata;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class LanguageFactory extends Factory
+class ImageMetadataFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Language::class;
+    protected $model = ImageMetadata::class;
 
     /**
      * Define the model's default state.
@@ -24,7 +24,9 @@ class LanguageFactory extends Factory
     public function definition()
     {
         return [
-
+            'size' => $this->faker->randomNumber(5),
+            'mime' => 'image/jpeg',
+            'last_modified' => $this->faker->dateTime(),
         ];
     }
 }

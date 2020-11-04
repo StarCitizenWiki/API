@@ -1,21 +1,27 @@
-<?php declare(strict_types=1);
+<?php
 
-/*
- * Copyright (c) 2020
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+declare(strict_types=1);
 
+namespace Database\Factories\Api\StarCitizen\Vehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\Component\Component;
-use Faker\Generator as Faker;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(
-    Component::class,
-    function (Faker $faker) {
+class ComponentFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = ComponentFactory::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
         $types = [
             'radar',
             'computers',
@@ -109,12 +115,12 @@ $factory->define(
         ];
 
         return [
-            'type' => $faker->randomElement($types),
-            'name' => $faker->name,
-            'component_size' => $faker->randomElement($sizes),
-            'category' => $faker->randomElement($categories),
-            'manufacturer' => $faker->randomElement($manufacturers),
-            'component_class' => $faker->randomElement($classes),
+            'type' => $this->faker->randomElement($types),
+            'name' => $this->faker->name,
+            'component_size' => $this->faker->randomElement($sizes),
+            'category' => $this->faker->randomElement($categories),
+            'manufacturer' => $this->faker->randomElement($manufacturers),
+            'component_class' => $this->faker->randomElement($classes),
         ];
     }
-);
+}

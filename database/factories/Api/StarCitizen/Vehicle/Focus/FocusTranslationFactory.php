@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories\System;
+namespace Database\Factories\Api\StarCitizen\Vehicle\Focus;
 
-use App\Models\System\Language;
+use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class LanguageFactory extends Factory
+class FocusTranslationFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Language::class;
+    protected $model = FocusTranslation::class;
 
     /**
      * Define the model's default state.
@@ -24,7 +24,8 @@ class LanguageFactory extends Factory
     public function definition()
     {
         return [
-
+            'locale_code' => 'en_EN',
+            'translation' => 'Lorem Ipsum',
         ];
     }
 }

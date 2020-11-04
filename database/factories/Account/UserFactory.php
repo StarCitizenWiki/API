@@ -1,85 +1,53 @@
-<?php declare(strict_types = 1);
+<?php
 
-use Faker\Generator as Faker;
+declare(strict_types=1);
 
-$factory->define(
-    App\Models\Account\User\User::class,
-    function (Faker $faker) {
+namespace Database\Factories\Account;
+
+use App\Models\Account\User\User;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
+class UserFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = User::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
         static $id = 1;
 
         return [
-            'username' => $faker->userName,
-            'email' => $faker->email,
+            'username' => $this->faker->userName,
+            'email' => $this->faker->email,
             'blocked' => false,
             'provider' => 'starcitizenwiki',
             'provider_id' => $id++,
-            'last_login' => $faker->dateTime,
-            'api_token' => \Illuminate\Support\Str::random(60),
-            'created_at' => Carbon\Carbon::now(),
-            'updated_at' => Carbon\Carbon::now(),
+            'last_login' => $this->faker->dateTime,
+            'api_token' => Str::random(60),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
-);
 
-$factory->state(
-    \App\Models\Account\User\User::class,
-    'blocked',
-    [
-        'blocked' => true,
-    ]
-);
-
-$factory->define(
-    App\Models\Account\User\UserGroup::class,
-    function (Faker $faker) {
-        return [
-            'name' => $faker->userName,
-            'permission_level' => $faker->numberBetween(0, 4),
-        ];
+    public function blocked()
+    {
+        return $this->state(
+            function (array $attributes) {
+                return [
+                    'blocked' => true,
+                ];
+            }
+        );
     }
-);
-
-$factory->state(
-    App\Models\Account\User\UserGroup::class,
-    'bureaucrat',
-    [
-        'name' => 'bureaucrat',
-        'permission_level' => 4,
-    ]
-);
-
-$factory->state(
-    App\Models\Account\User\UserGroup::class,
-    'sysop',
-    [
-        'name' => 'sysop',
-        'permission_level' => 3,
-    ]
-);
-
-$factory->state(
-    App\Models\Account\User\UserGroup::class,
-    'sichter',
-    [
-        'name' => 'sichter',
-        'permission_level' => 2,
-    ]
-);
-
-$factory->state(
-    App\Models\Account\User\UserGroup::class,
-    'mitarbeiter',
-    [
-        'name' => 'mitarbeiter',
-        'permission_level' => 1,
-    ]
-);
-
-$factory->state(
-    App\Models\Account\User\UserGroup::class,
-    'user',
-    [
-        'name' => 'user',
-        'permission_level' => 0,
-    ]
-);
+}
