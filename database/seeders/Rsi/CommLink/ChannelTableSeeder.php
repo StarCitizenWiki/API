@@ -1,8 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders\Rsi\CommLink;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
-class CategoryTableSeeder extends Seeder
+class ChannelTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,7 +16,7 @@ class CategoryTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('comm_link_categories')->insert(
+        DB::table('comm_link_channels')->insert(
             [
                 'name' => 'Undefined',
                 'slug' => 'undefined',

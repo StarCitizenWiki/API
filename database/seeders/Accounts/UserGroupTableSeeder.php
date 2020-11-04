@@ -1,6 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders\Accounts;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class GroupsTableSeeder
@@ -20,13 +25,13 @@ class UserGroupTableSeeder extends Seeder
     {
         DB::table(self::TBL_GROUPS)->insert(
             [
-                self::ATTR_NAME             => 'user',
+                self::ATTR_NAME => 'user',
                 self::ATTR_PERMISSION_LEVEL => 0,
             ]
         );
         DB::table(self::TBL_GROUPS)->insert(
             [
-                self::ATTR_NAME             => 'mitarbeiter',
+                self::ATTR_NAME => 'mitarbeiter',
                 self::ATTR_PERMISSION_LEVEL => 1,
             ]
         );

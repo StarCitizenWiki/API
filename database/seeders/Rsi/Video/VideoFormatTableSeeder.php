@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+namespace Database\Seeders\Rsi\Video;
+
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class VideoFormatTableSeeder extends Seeder
@@ -53,16 +56,20 @@ class VideoFormatTableSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('video_formats')->insert([
-            'name' => 'Undefined',
-            'slug' => 'undefined',
-        ]);
+        DB::table('video_formats')->insert(
+            [
+                'name' => 'Undefined',
+                'slug' => 'undefined',
+            ]
+        );
 
         foreach ($this->formats as $format) {
-            DB::table('video_formats')->insert([
-                'name' => $format,
-                'slug' => Str::slug($format),
-            ]);
+            DB::table('video_formats')->insert(
+                [
+                    'name' => $format,
+                    'slug' => Str::slug($format),
+                ]
+            );
         }
     }
 }

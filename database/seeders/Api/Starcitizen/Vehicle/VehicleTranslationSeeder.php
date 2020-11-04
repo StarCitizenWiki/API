@@ -1,6 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders\Api\Starcitizen\Vehicle;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class VehicleTranslationSeeder extends Seeder
 {

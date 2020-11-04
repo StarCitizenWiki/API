@@ -1,8 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders\Api\Starcitizen;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
-class TypeTableSeeder extends Seeder
+class ProductionStatusTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -13,25 +18,25 @@ class TypeTableSeeder extends Seeder
     {
         $now = \Carbon\Carbon::now();
 
-        DB::table('vehicle_types')->insert(
+        DB::table('production_statuses')->insert(
             [
                 'id' => 1,
                 'slug' => 'undefined',
             ]
         );
-        DB::table('vehicle_type_translations')->insert(
+        DB::table('production_status_translations')->insert(
             [
                 'locale_code' => 'en_EN',
-                'type_id' => 1,
+                'production_status_id' => 1,
                 'translation' => 'undefined',
                 'created_at' => $now,
                 'updated_at' => $now,
             ]
         );
-        DB::table('vehicle_type_translations')->insert(
+        DB::table('production_status_translations')->insert(
             [
                 'locale_code' => 'de_DE',
-                'type_id' => 1,
+                'production_status_id' => 1,
                 'translation' => 'Undefiniert',
                 'created_at' => $now,
                 'updated_at' => $now,
