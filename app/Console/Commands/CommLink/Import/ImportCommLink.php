@@ -41,7 +41,7 @@ class ImportCommLink extends Command
         } catch (ModelNotFoundException $e) {
             $this->error('Comm-Link does not exist in DB.');
 
-            return 2;
+            return 1;
         }
 
         if (count(Storage::disk('comm_links')->files($id)) === 0) {
