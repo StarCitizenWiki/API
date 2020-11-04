@@ -78,7 +78,7 @@ RUN apt-get update && \
 
 COPY composer.json composer.lock /api/
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:1 /usr/bin/composer /usr/bin/composer
 
 RUN /usr/bin/composer install --no-dev \
    --ignore-platform-reqs \
