@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\System\Translation;
 
 use App\Models\System\Language;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,8 @@ use Illuminate\Support\Collection;
  */
 abstract class AbstractHasTranslations extends Model
 {
+    use HasFactory;
+
     private const LOCALE_CODE = 'locale_code';
 
     /**

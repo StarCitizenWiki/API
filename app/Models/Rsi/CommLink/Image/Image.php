@@ -6,6 +6,7 @@ namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -17,6 +18,8 @@ use Illuminate\Support\Str;
  */
 class Image extends Model
 {
+    use HasFactory;
+
     protected $table = 'comm_link_images';
 
     protected $fillable = [

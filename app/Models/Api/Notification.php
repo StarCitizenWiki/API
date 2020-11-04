@@ -8,6 +8,7 @@ use App\Events\ModelUpdating;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
     use ModelChangelog;
+    use HasFactory;
 
     public const NOTIFICATION_LEVEL_TYPES = [
         0 => 'info',
