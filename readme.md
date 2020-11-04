@@ -1,6 +1,12 @@
 <p align="center">
 <img src="https://star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/157px-Star_Citizen_Wiki_Logo.png?794c2" alt="Star Citizen Wiki Logo" />
 </p>
+<p align="center">
+    <img src="https://img.shields.io/github/workflow/status/StarCitizenWiki/API/Laravel%20Tests" />
+    <a href="https://hub.docker.com/r/scwiki/api" alt="Docker Hub">
+        <img src="https://img.shields.io/docker/pulls/scwiki/api-dev" />
+    </a>
+</p>
 
 # Star Citizen Wiki API
 
@@ -9,7 +15,7 @@ The star-citizen.wiki API. Automatically scrapes Comm-Links, Stats and the Ship-
 ## Installation
 Using docker and docker-compose
 
-Build the image:
+Pull `scwiki/api` or build the image:
 ```shell script
 $ ./docker-build.sh
 ```
