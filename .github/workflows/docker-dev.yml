@@ -5,8 +5,52 @@ on:
     branches: develop
 
 jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get Composer Cache Directory 2
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v2
+        id: actions-cache
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Cache PHP dependencies
+        uses: actions/cache@v2
+        id: vendor-cache
+        with:
+          path: vendor
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/composer.lock') }}
+      - name: Setup env file
+        run: cp .env.ci .env
+      - name: test ls
+        run: ls -lao
+      - name: Composer install
+        if: steps.vendor-cache.outputs.cache-hit != 'true'
+        run: composer install  --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
+      - name: Setup keys
+        run: php artisan key:generate
+      - name: Fix perms for dirs
+        run: chmod -R 777 storage bootstrap/cache
+      - name: Migrate database
+        env:
+          DB_CONNECTION: 'sqlite'
+          DB_DATABASE: 'db.sqlite'
+        run: touch database/db.sqlite; php artisan migrate
+      - name: Execute tests (Unit and Feature tests) via PHPUnit
+        env:
+          DB_CONNECTION: 'sqlite'
+          DB_DATABASE: 'db.sqlite'
+        run: vendor/phpunit/phpunit/phpunit
   main:
     runs-on: ubuntu-latest
+    needs: phpunit
     steps:
       -
         name: Set up QEMU
