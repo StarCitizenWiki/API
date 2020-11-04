@@ -238,7 +238,7 @@ EOF
     {
         parent::setUp();
         $this->createSystemLanguages();
-        $this->commLink = factory(CommLink::class)->create();
-        $this->commLink->translations()->save(factory(CommLinkTranslation::class)->make());
+        $this->commLink = CommLink::factory()->create();
+        $this->commLink->translations()->save(CommLinkTranslation::factory()->german()->make());
     }
 }

@@ -29,7 +29,7 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
     /**
      * {@inheritdoc}
      */
-    protected const DEFAULT_VEHICLE_TYPE = 'ground_vehicle';
+    protected const DEFAULT_VEHICLE_TYPE = 'groundVehicle';
 
     /**
      * @var array Base Transformer Structure

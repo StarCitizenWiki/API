@@ -177,7 +177,7 @@ class NotificationControllerTestCase extends UserTestCase
     public function testUpdateResendEmail()
     {
         /** @var \App\Models\Api\Notification $notification */
-        $notification = factory(Notification::class)->create();
+        $notification = Notification::factory()->create();
 
         Mail::fake();
 
@@ -185,7 +185,7 @@ class NotificationControllerTestCase extends UserTestCase
             route('web.user.notifications.update', $notification->getRouteKey()),
             [
                 'content' => Str::random(100),
-                'level' => rand(0, 3),
+                'level' => random_int(0, 3),
                 'expired_at' => Carbon::now()->addDay(),
                 'published_at' => $notification->published_at,
                 'order' => 0,
@@ -229,7 +229,7 @@ class NotificationControllerTestCase extends UserTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(NotificationController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(NotificationController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -243,6 +243,6 @@ class NotificationControllerTestCase extends UserTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->notifications = factory(Notification::class, 5)->states('active')->create();
+        $this->notifications = Notification::factory()->count(5)->active()->create();
     }
 }

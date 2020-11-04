@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Models\Rsi\Video;
 
 use App\Models\Transcript\Transcript;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VideoFormat extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'slug',

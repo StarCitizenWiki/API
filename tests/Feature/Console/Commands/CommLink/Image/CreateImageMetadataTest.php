@@ -20,8 +20,8 @@ class CreateImageMetadataTest extends TestCase
     public function testHandle(): void
     {
         /** @var CommLink $commLink */
-        $commLink = factory(CommLink::class)->create();
-        $commLink->images()->saveMany(factory(Image::class, 20)->make());
+        $commLink = CommLink::factory()->create();
+        $commLink->images()->saveMany(Image::factory()->count(20)->make());
 
         Bus::fake();
 

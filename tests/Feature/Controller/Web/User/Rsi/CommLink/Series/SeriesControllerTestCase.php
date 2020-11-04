@@ -62,7 +62,7 @@ class SeriesControllerTestCase extends UserTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(SeriesController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(SeriesController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -78,12 +78,8 @@ class SeriesControllerTestCase extends UserTestCase
         parent::setUp();
         $this->createSystemLanguages();
 
-        $this->series = factory(Series::class)->create();
+        $this->series = Series::factory()->create();
 
-        $this->commLinks = factory(CommLink::class, 5)->create(['series_id' => $this->series->id])->each(
-            function (CommLink $commLink) {
-                $commLink->translations()->save(factory(CommLinkTranslation::class)->make());
-            }
-        );
+        $this->commLinks = CommLink::factory()->count(5)->create(['series_id' => $this->series->id]);
     }
 }

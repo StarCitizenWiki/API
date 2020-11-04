@@ -48,18 +48,18 @@ class SendNewCommLinkNotificationTest extends TestCase
         parent::setUp();
         $this->createUserGroups();
 
-        $this->admins = factory(User::class, 2)->create()->each(
+        $this->admins = User::factory()->count(2)->create()->each(
             function (User $user) {
                 $user->groups()->sync(UserGroup::where('name', 'sysop')->first()->id);
             }
         );
 
-        $this->commLinks = factory(CommLink::class, 5)->create()->each(
+        $this->commLinks = CommLink::factory()->count(5)->create()->each(
             function (CommLink $commLink) {
                 CommLinksChangedModel::create(
                     [
                         'comm_link_id' => $commLink->id,
-                        'had_content' => rand(0, 1) ? true : false,
+                        'had_content' => random_int(0, 1) ? true : false,
                         'type' => 'creation',
                     ]
                 );

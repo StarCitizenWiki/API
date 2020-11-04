@@ -284,9 +284,9 @@ EOL;
             ]
         );
 
-        $this->assertCount(1, CommLink::all());
-        $this->assertCount(2, Image::all());
-        $this->assertCount(2, Link::all());
+        self::assertCount(1, CommLink::all());
+        self::assertCount(2, Image::all());
+        self::assertCount(2, Link::all());
 
         Storage::disk('comm_links')->delete('1');
     }
@@ -298,8 +298,8 @@ EOL;
     {
         parent::setUp();
         $this->createSystemLanguages();
-        factory(Category::class)->create();
-        factory(Series::class)->create();
-        factory(Channel::class)->create();
+        Category::factory()->create();
+        Series::factory()->create();
+        Channel::factory()->create();
     }
 }

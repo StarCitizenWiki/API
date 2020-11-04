@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Type;
 
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Type\TypeController;
 use App\Models\Api\StarCitizen\Vehicle\Type\Type;
-use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -37,7 +38,6 @@ class TypeControllerTestCase extends StarCitizenTestCase
         }
     }
 
-
     /**
      * Edit Tests
      */
@@ -50,8 +50,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
     public function testEdit()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $vehicleType */
-        $vehicleType = factory(Type::class)->create();
-        $vehicleType->translations()->save(factory(TypeTranslation::class)->make());
+        $vehicleType = Type::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
             route('web.user.starcitizen.vehicles.types.edit', $vehicleType->getRouteKey())
@@ -95,8 +94,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
     public function testUpdate()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $vehicleType */
-        $vehicleType = factory(Type::class)->create();
-        $vehicleType->translations()->save(factory(TypeTranslation::class)->make());
+        $vehicleType = Type::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.vehicles.types.update', $vehicleType->getRouteKey()),
@@ -106,7 +104,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -126,7 +124,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
@@ -137,7 +135,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(TypeController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(TypeController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -151,10 +149,6 @@ class TypeControllerTestCase extends StarCitizenTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        factory(Type::class, 10)->create()->each(
-            function (Type $vehicleType) {
-                $vehicleType->translations()->save(factory(TypeTranslation::class)->make());
-            }
-        );
+        Type::factory()->count(10)->create();
     }
 }

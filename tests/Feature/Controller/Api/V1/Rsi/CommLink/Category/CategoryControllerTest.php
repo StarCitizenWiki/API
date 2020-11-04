@@ -142,10 +142,10 @@ class CategoryControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->categories = factory(Category::class, 20)->create();
+        $this->categories = Category::factory()->count(20)->create();
         $this->categories->first(
             function (Category $category) {
-                $this->commLinks = factory(CommLink::class, 5)->create()->each(
+                $this->commLinks = CommLink::factory()->count(5)->create()->each(
                     function (CommLink $commLink) use ($category) {
                         $commLink->category_id = $category->id;
                         $commLink->save();

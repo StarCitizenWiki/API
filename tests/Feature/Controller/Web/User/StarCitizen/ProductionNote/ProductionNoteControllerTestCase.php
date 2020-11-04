@@ -1,10 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\ProductionNote;
 
 use App\Http\Controllers\Web\User\StarCitizen\ProductionNote\ProductionNoteController;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -50,8 +51,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
     public function testEdit()
     {
         /** @var \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $productionNote */
-        $productionNote = factory(ProductionNote::class)->create();
-        $productionNote->translations()->save(factory(ProductionNoteTranslation::class)->make());
+        $productionNote = ProductionNote::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
             route('web.user.starcitizen.production-notes.edit', $productionNote->getRouteKey())
@@ -95,8 +95,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
     public function testUpdate()
     {
         /** @var \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $productionNote */
-        $productionNote = factory(ProductionNote::class)->create();
-        $productionNote->translations()->save(factory(ProductionNoteTranslation::class)->make());
+        $productionNote = ProductionNote::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.production-notes.update', $productionNote->getRouteKey()),
@@ -106,7 +105,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -126,7 +125,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
@@ -137,7 +136,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(ProductionNoteController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(ProductionNoteController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -151,10 +150,6 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        factory(ProductionNote::class, 10)->create()->each(
-            function (ProductionNote $productionNote) {
-                $productionNote->translations()->save(factory(ProductionNoteTranslation::class)->make());
-            }
-        );
+        ProductionNote::factory()->count(10)->create();
     }
 }

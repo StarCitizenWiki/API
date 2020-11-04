@@ -90,14 +90,14 @@ class CommLinkSearchControllerTest extends ApiTestCase
     public function testSearchByTitle(): void
     {
         $this->commLinks->push(
-            factory(CommLink::class)->create(
+            CommLink::factory()->create(
                 [
                     'title' => 'Example Title 1',
                 ]
             )
         );
         $this->commLinks->push(
-            factory(CommLink::class)->create(
+            CommLink::factory()->create(
                 [
                     'title' => 'Example Title 2',
                 ]
@@ -126,14 +126,14 @@ class CommLinkSearchControllerTest extends ApiTestCase
     public function testSearchByTitlePartial(): void
     {
         $this->commLinks->push(
-            factory(CommLink::class)->create(
+            CommLink::factory()->create(
                 [
                     'title' => 'Example Title 1',
                 ]
             )
         );
         $this->commLinks->push(
-            factory(CommLink::class)->create(
+            CommLink::factory()->create(
                 [
                     'title' => 'Example Title 2',
                 ]
@@ -162,14 +162,14 @@ class CommLinkSearchControllerTest extends ApiTestCase
     public function testSearchByTitleNone(): void
     {
         $this->commLinks->push(
-            factory(CommLink::class)->create(
+            CommLink::factory()->create(
                 [
                     'title' => 'Example Title 1',
                 ]
             )
         );
         $this->commLinks->push(
-            factory(CommLink::class)->create(
+            CommLink::factory()->create(
                 [
                     'title' => 'Example Title 2',
                 ]
@@ -235,6 +235,6 @@ class CommLinkSearchControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->commLinks = factory(CommLink::class, 20)->create();
+        $this->commLinks = CommLink::factory()->count(20)->create();
     }
 }

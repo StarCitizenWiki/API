@@ -8,6 +8,7 @@ use App\Events\ModelUpdating;
 use App\Models\System\Language;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 abstract class AbstractTranslation extends Model
 {
     use ModelChangelog;
+    use HasFactory;
 
     private const ATTR_LOCALE_CODE = '.locale_code';
 

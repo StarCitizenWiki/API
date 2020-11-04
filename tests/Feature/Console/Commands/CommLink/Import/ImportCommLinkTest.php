@@ -45,7 +45,7 @@ class ImportCommLinkTest extends TestCase
      */
     public function testHandle(): void
     {
-        factory(CommLink::class)->create(['id' => 12663]);
+        CommLink::factory()->create(['cig_id' => 12663]);
 
         Storage::disk('comm_links')->createDir('12663');
         Storage::disk('comm_links')->put('12663\2012-01-01_000000.html', '');
@@ -65,7 +65,7 @@ class ImportCommLinkTest extends TestCase
      */
     public function testHandleMissingFile(): void
     {
-        factory(CommLink::class)->create(['id' => 18000]);
+        CommLink::factory()->create(['id' => 18000]);
 
         Bus::fake();
 

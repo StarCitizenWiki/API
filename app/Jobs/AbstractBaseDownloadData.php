@@ -109,23 +109,4 @@ abstract class AbstractBaseDownloadData
 
         return $client;
     }
-
-    /**
-     * Create a Scraper if it does not exist.
-     *
-     * @param bool $withAuth
-     */
-    protected function makeScraper(bool $withAuth = false): void
-    {
-        if (null === self::$scraper) {
-            $this->initClient(false);
-
-            self::$scraper = new GoutteClient();
-            self::$scraper->setClient(self::$client);
-
-            if ($withAuth) {
-                $this->addGuzzleCookiesToScraper(self::$scraper);
-            }
-        }
-    }
 }

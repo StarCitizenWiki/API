@@ -118,7 +118,7 @@ class ImportMissingCommLinksTest extends TestCase
      */
     public function testHandleExistingOffset(): void
     {
-        factory(CommLink::class)->create(['id' => 12663]);
+        CommLink::factory()->create(['id' => 12663]);
 
         Queue::fake();
 
