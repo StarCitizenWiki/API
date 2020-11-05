@@ -6,6 +6,7 @@ namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\CommLink;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -47,8 +48,18 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 
         $postIDs = [];
 
-        /** @var Crawler $crawler */
-        $crawler = self::$scraper->request('GET', self::COMM_LINK_BASE_URL);
+        $crawler = new Crawler();
+
+        try {
+            $response = self::$client->get(self::COMM_LINK_BASE_URL);
+        } catch (GuzzleException $e) {
+            app('Log')::error('Could not connect to RSI, retrying in 5 minutes.');
+            $this->release(300);
+
+            return;
+        }
+
+        $crawler->addHtmlContent((string)$response->getBody(), 'UTF-8');
         $crawler->filter('#channel .hub-blocks .hub-block')->each(
             function (Crawler $crawler) use (&$postIDs) {
                 $link = $crawler->filter('a');
