@@ -6,7 +6,6 @@ namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\CommLink;
-use Goutte\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -45,10 +44,6 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 
         $this->initClient();
         // $this->getRsiAuthCookie();
-
-        self::$scraper = new Client();
-        self::$scraper->setClient(self::$client);
-        $this->addGuzzleCookiesToScraper(self::$scraper);
 
         $postIDs = [];
 
