@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Jobs\Wiki\CommLink;
 
-use App\Jobs\Wiki\ApproveRevisions;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
 use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
@@ -67,10 +66,12 @@ class CreateCommLinkWikiPages implements ShouldQueue
         CommLink::query()->whereHas(
             'translations',
             static function (Builder $query) {
-                $query->where('locale_code', config('services.wiki_translations.locale'))->whereRaw("translation <> ''");
+                $query->where('locale_code', config('services.wiki_translations.locale'))->whereRaw(
+                    "translation <> ''"
+                );
             }
         )->chunk(
-            25,
+            100,
             function (Collection $commLinks) use ($config) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
@@ -80,7 +81,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                     return;
                 }
 
-                $titleArray = $commLinks->each(
+                $commLinks->each(
                     static function (CommLink $commLink) use ($pageInfoCollection, $config) {
                         $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
 
@@ -88,16 +89,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                             dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
                         }
                     }
-                )
-                    ->map(
-                        function (CommLink $commLink) {
-                            return sprintf('Comm-Link:%s', $commLink->cig_id);
-                        }
-                    );
-
-                if (config('services.wiki_approve_revs.access_secret', null) !== null) {
-                    dispatch(new ApproveRevisions($titleArray->toArray()));
-                }
+                );
             }
         );
 

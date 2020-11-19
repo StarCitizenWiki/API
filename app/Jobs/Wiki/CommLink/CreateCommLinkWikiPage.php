@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Wiki\CommLink;
 
+use App\Jobs\Wiki\ApproveRevisions;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -91,6 +92,10 @@ class CreateCommLinkWikiPage implements ShouldQueue
             $this->fail($e);
 
             return;
+        }
+
+        if (config('services.wiki_approve_revs.access_secret', null) !== null) {
+            dispatch(new ApproveRevisions(["Comm-Link:{$this->commLink->cig_id}"]));
         }
 
         app('Log')::debug('Wiki Page Response:', $response->getBody());
