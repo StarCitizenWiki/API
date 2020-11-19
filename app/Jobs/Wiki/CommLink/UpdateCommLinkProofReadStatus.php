@@ -39,7 +39,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
     {
         app('Log')::info('Starting Update of Proofread Status');
 
-        $this->loginWikiBotAccount();
+        $this->loginWikiBotAccount('services.wiki_translations');
 
         $config = $this->getCommLinkConfig();
 

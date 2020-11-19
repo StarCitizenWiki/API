@@ -49,7 +49,7 @@ class TranslateCommLinks implements ShouldQueue
     {
         app('Log')::info('Starting Comm-Link Translations');
 
-        $this->loginWikiBotAccount();
+        $this->loginWikiBotAccount('services.wiki_translations');
 
         CommLink::query()->whereHas(
             'translations',

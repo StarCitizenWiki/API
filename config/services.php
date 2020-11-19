@@ -33,6 +33,14 @@ return [
         'access_secret' => env('WIKI_TRANS_OAUTH_ACCESS_SECRET'),
     ],
 
+    'wiki_approve_revs' => [
+        'consumer_token' => env('WIKI_APPROVE_REVS_OAUTH_CONSUMER_TOKEN'),
+        'consumer_secret' => env('WIKI_APPROVE_REVS_CONSUMER_SECRET'),
+
+        'access_token' => env('WIKI_APPROVE_REVS_ACCESS_TOKEN'),
+        'access_secret' => env('WIKI_APPROVE_REVS_ACCESS_SECRET'),
+    ],
+
     'deepl' => [
         'auth_key' => env('DEEPL_AUTH_KEY'),
     ],

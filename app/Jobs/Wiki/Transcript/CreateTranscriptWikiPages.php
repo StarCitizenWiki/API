@@ -38,7 +38,7 @@ class CreateTranscriptWikiPages implements ShouldQueue
     {
         app('Log')::info('Starting creation of Transcript Wiki Pages');
 
-        $this->loginWikiBotAccount();
+        $this->loginWikiBotAccount('services.wiki_translations');
 
         $token = MediaWikiApi::query()->meta('tokens')->request();
         if ($token->hasErrors()) {

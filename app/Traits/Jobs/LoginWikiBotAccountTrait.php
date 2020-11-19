@@ -10,19 +10,21 @@ namespace App\Traits\Jobs;
 trait LoginWikiBotAccountTrait
 {
     /**
-     * Resolves the MediaWikiApi Manager and logs the set Bot Acount in
+     * Resolves the MediaWikiApi Manager and logs the set Bot Account in
+     *
+     * @param string $prefix Config key prefix excluding trailing dot
      */
-    private function loginWikiBotAccount(): void
+    private function loginWikiBotAccount(string $prefix): void
     {
         $manager = app('mediawikiapi.manager');
 
         $manager->setConsumerFromCredentials(
-            (string)config('services.wiki_translations.consumer_token'),
-            (string)config('services.wiki_translations.consumer_secret')
+            (string)config("${prefix}.consumer_token"),
+            (string)config("${$prefix}.consumer_secret")
         );
         $manager->setTokenFromCredentials(
-            (string)config('services.wiki_translations.access_token'),
-            (string)config('services.wiki_translations.access_secret')
+            (string)config("${prefix}.access_token"),
+            (string)config("${$prefix}.access_secret")
         );
     }
 }
