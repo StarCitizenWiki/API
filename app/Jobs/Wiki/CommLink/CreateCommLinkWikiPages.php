@@ -70,7 +70,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                 $query->where('locale_code', config('services.wiki_translations.locale'))->whereRaw("translation <> ''");
             }
         )->chunk(
-            100,
+            25,
             function (Collection $commLinks) use ($config) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
