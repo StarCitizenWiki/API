@@ -26,6 +26,8 @@ return [
     ],
 
     'wiki_translations' => [
+        'locale' => env('WIKI_TRANS_LOCALE', 'de_DE'),
+
         'consumer_token' => env('WIKI_TRANS_OAUTH_CONSUMER_TOKEN'),
         'consumer_secret' => env('WIKI_TRANS_OAUTH_CONSUMER_SECRET'),
 

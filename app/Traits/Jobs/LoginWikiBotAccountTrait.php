@@ -19,12 +19,12 @@ trait LoginWikiBotAccountTrait
         $manager = app('mediawikiapi.manager');
 
         $manager->setConsumerFromCredentials(
-            (string)config("${prefix}.consumer_token"),
-            (string)config("${$prefix}.consumer_secret")
+            (string)config(sprintf('%s.consumer_token', $prefix)),
+            (string)config(sprintf('%s.consumer_secret', $prefix))
         );
         $manager->setTokenFromCredentials(
-            (string)config("${prefix}.access_token"),
-            (string)config("${$prefix}.access_secret")
+            (string)config(sprintf('%s.access_token', $prefix)),
+            (string)config(sprintf('%s.access_secret', $prefix))
         );
     }
 }
