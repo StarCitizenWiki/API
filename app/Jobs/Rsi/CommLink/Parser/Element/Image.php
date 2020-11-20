@@ -89,6 +89,7 @@ class Image extends BaseElement
         $this->extractPostBackground();
         $this->extractSourceAttrs();
         $this->extractCssBackgrounds();
+        $this->extractMediaImages();
 
         if ($this->isSpecialPage($this->commLink)) {
             $this->commLink->filterXPath('//template')->each(
@@ -208,6 +209,26 @@ class Image extends BaseElement
         preg_match_all(
             "/url\([\"'](\/media\/\w+\/\w+\/[\w\-.]+\.\w+)[\"']\)/",
             $this->commLink->filterXPath('//head')->html(),
+            $matches
+        );
+
+        if (!empty($matches[1])) {
+            collect($matches[1])->each(
+                function ($src) {
+                    $this->images[] = [
+                        'src' => trim($src),
+                        'alt' => '',
+                    ];
+                }
+            );
+        }
+    }
+
+    private function extractMediaImages(): void
+    {
+        preg_match_all(
+            "/(https:\/\/media\.robertsspaceindustries\.com\/[\w]{13,16}\/\w+\.[\w]{2,6})/",
+            $this->commLink->filterXPath('//body')->html(),
             $matches
         );
 
