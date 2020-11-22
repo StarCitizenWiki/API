@@ -74,11 +74,11 @@ class ImportCommLinks implements ShouldQueue
 
     private function dispatchChain(array $commLinkIds): void
     {
-        CreateImageMetadata::dispatch($commLinkIds)->chain(
+        CreateImageMetadata::withChain(
             [
                 new CreateImageHashes($commLinkIds),
             ]
-        );
+        )->dispatch($commLinkIds);
 
         if (config('services.deepl.auth_key', null) !== null) {
             dispatch(new TranslateCommLinks($commLinkIds));

@@ -21,7 +21,6 @@ class TranslateCommLinksTest extends TestCase
 
         $this->artisan('comm-links:translate')
             ->expectsOutput('Dispatching Comm-Link Translation')
-            ->expectsOutput("Including Comm-Links that were created in the last '0' minutes")
             ->assertExitCode(0);
 
         Bus::assertDispatched(TranslateCommLinks::class);
