@@ -18,7 +18,7 @@ class ImportCommLinks extends CommLinkCommand
      *
      * @var string
      */
-    protected $signature = 'comm-links:import-all {modifiedTime=0 : Folders to include that were modified in the last minute}';
+    protected $signature = 'comm-links:import-all {modifiedTime=-1 : Folders to include that were modified in the last minute}';
 
     /**
      * The console command description.
