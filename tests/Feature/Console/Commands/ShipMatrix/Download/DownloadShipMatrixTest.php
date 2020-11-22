@@ -6,7 +6,7 @@ namespace Tests\Feature\Console\Commands\ShipMatrix\Download;
 
 use App\Jobs\Api\StarCitizen\Vehicle\CheckShipMatrixStructure;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
-use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
+use App\Jobs\Api\StarCitizen\Vehicle\Import\ImportShipMatrix;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -46,7 +46,7 @@ class DownloadShipMatrixTest extends TestCase
             DownloadShipMatrix::class,
             [
                 CheckShipMatrixStructure::class,
-                ParseShipMatrixDownload::class,
+                ImportShipMatrix::class,
             ]
         );
     }

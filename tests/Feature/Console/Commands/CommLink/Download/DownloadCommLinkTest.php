@@ -6,7 +6,7 @@ namespace Tests\Feature\Console\Commands\CommLink\Download;
 
 use App\Jobs\Rsi\CommLink\Download\DownloadCommLink;
 use App\Jobs\Rsi\CommLink\Image\CreateImageMetadata;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLinks;
 use Illuminate\Support\Facades\Bus;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Tests\TestCase;
@@ -77,7 +77,7 @@ class DownloadCommLinkTest extends TestCase
         Bus::fake(
             [
                 DownloadCommLink::class,
-                ParseCommLinkDownload::class,
+                ImportCommLinks::class,
                 CreateImageMetadata::class,
             ]
         );
@@ -88,7 +88,7 @@ class DownloadCommLinkTest extends TestCase
             ->assertExitCode(0);
 
         Bus::assertDispatched(DownloadCommLink::class);
-        Bus::assertDispatched(ParseCommLinkDownload::class);
+        Bus::assertDispatched(ImportCommLinks::class);
         Bus::assertDispatched(CreateImageMetadata::class);
     }
 }

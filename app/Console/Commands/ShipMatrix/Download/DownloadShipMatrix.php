@@ -6,7 +6,7 @@ namespace App\Console\Commands\ShipMatrix\Download;
 
 use App\Jobs\Api\StarCitizen\Vehicle\CheckShipMatrixStructure;
 use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix as DownloadShipMatrixJob;
-use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
+use App\Jobs\Api\StarCitizen\Vehicle\Import\ImportShipMatrix;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
@@ -58,7 +58,7 @@ class DownloadShipMatrix extends Command
             DownloadShipMatrixJob::withChain(
                 [
                     new CheckShipMatrixStructure(),
-                    new ParseShipMatrixDownload(),
+                    new ImportShipMatrix(),
                 ]
             )->dispatch();
         } else {

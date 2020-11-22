@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\ShipMatrix\Import;
 
-use App\Jobs\Api\StarCitizen\Vehicle\Parser\ParseShipMatrixDownload;
+use App\Jobs\Api\StarCitizen\Vehicle\Import\ImportShipMatrix;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
@@ -52,7 +52,7 @@ class ImportShipMatrix extends Command
     public function handle(): int
     {
         $this->info('Dispatching Ship Matrix Parsing Job');
-        $this->dispatcher->dispatch(new ParseShipMatrixDownload());
+        $this->dispatcher->dispatch(new ImportShipMatrix());
 
         return 0;
     }

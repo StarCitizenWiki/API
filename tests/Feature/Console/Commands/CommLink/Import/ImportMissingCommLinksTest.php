@@ -7,7 +7,7 @@ namespace Tests\Feature\Console\Commands\CommLink\Import;
 use App\Jobs\Rsi\CommLink\Download\DownloadMissingCommLinks;
 use App\Jobs\Rsi\CommLink\Image\CreateImageHashes;
 use App\Jobs\Rsi\CommLink\Image\CreateImageMetadata;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLinks;
 use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
 use App\Jobs\Wiki\CommLink\CreateCommLinkWikiPages;
 use App\Models\Rsi\CommLink\CommLink;
@@ -30,7 +30,7 @@ class ImportMissingCommLinksTest extends TestCase
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
             [
-                ParseCommLinkDownload::class,
+                ImportCommLinks::class,
                 CreateImageMetadata::class,
                 CreateImageHashes::class,
             ]
@@ -53,7 +53,7 @@ class ImportMissingCommLinksTest extends TestCase
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
             [
-                ParseCommLinkDownload::class,
+                ImportCommLinks::class,
                 CreateImageMetadata::class,
                 CreateImageHashes::class,
                 TranslateCommLinks::class,
@@ -78,7 +78,7 @@ class ImportMissingCommLinksTest extends TestCase
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
             [
-                ParseCommLinkDownload::class,
+                ImportCommLinks::class,
                 CreateImageMetadata::class,
                 CreateImageHashes::class,
                 CreateCommLinkWikiPages::class,
@@ -104,7 +104,7 @@ class ImportMissingCommLinksTest extends TestCase
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
             [
-                ParseCommLinkDownload::class,
+                ImportCommLinks::class,
                 CreateImageMetadata::class,
                 CreateImageHashes::class,
                 TranslateCommLinks::class,
@@ -127,7 +127,7 @@ class ImportMissingCommLinksTest extends TestCase
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
             [
-                ParseCommLinkDownload::class,
+                ImportCommLinks::class,
                 CreateImageMetadata::class,
                 CreateImageHashes::class,
             ]

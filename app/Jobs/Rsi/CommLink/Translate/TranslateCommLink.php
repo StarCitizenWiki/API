@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Octfx\DeepLy\DeepLy;
 use Octfx\DeepLy\Exceptions\AuthenticationException;
@@ -62,6 +63,7 @@ class TranslateCommLink implements ShouldQueue
     public function handle(): void
     {
         app('Log')::info("Translating Comm-Link with ID {$this->commLink->cig_id}");
+        $targetLocale = config('services.deepl.target_locale');
 
         if (null === optional($this->commLink->german())->translation) {
             $english = $this->commLink->english()->translation;
@@ -75,11 +77,11 @@ class TranslateCommLink implements ShouldQueue
             try {
                 if (mb_strlen($english) > DeepLy::MAX_TRANSLATION_TEXT_LEN) {
                     foreach (str_split_unicode($english, DeepLy::MAX_TRANSLATION_TEXT_LEN) as $chunk) {
-                        $chunkTranslation = DeepLyFacade::translate($chunk, 'DE', 'EN', $formality);
+                        $chunkTranslation = DeepLyFacade::translate($chunk, $targetLocale, 'EN', $formality);
                         $translation .= " {$chunkTranslation}";
                     }
                 } else {
-                    $translation = DeepLyFacade::translate($english, 'DE', 'EN', $formality);
+                    $translation = DeepLyFacade::translate($english, $targetLocale, 'EN', $formality);
                 }
             } catch (QuotaException $e) {
                 app('Log')::warning('Deepl Quote exceeded!');
@@ -107,7 +109,7 @@ class TranslateCommLink implements ShouldQueue
 
             $this->commLink->translations()->updateOrCreate(
                 [
-                    'locale_code' => 'de_DE',
+                    'locale_code' => sprintf('%s_%s', Str::lower($targetLocale), $targetLocale),
                 ],
                 [
                     'translation' => trim($translation),

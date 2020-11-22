@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Controller\Web\User\Rsi\CommLink;
 
 use App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
 use Dingo\Api\Dispatcher;
@@ -171,7 +171,7 @@ EOF
         $response->assertStatus(static::RESPONSE_STATUSES['update_version']);
 
         if (Response::HTTP_OK === $response->status()) {
-            Bus::assertDispatched(ParseCommLink::class);
+            Bus::assertDispatched(ImportCommLink::class);
 
             $response->assertViewIs('user.rsi.comm_links.show')
                 ->assertSee(__('Comm-Link Import gestartet'));
@@ -181,7 +181,7 @@ EOF
     /**
      * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController::preview
      *
-     * @covers \App\Jobs\Rsi\CommLink\Parser\Element\Content
+     * @covers \App\Jobs\Rsi\CommLink\Import\Element\Content
      */
     public function testPreview(): void
     {

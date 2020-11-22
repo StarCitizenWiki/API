@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\CommLink\Download;
 
 use App\Jobs\Rsi\CommLink\Download\ReDownloadDbCommLinks;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLinks;
 use Illuminate\Console\Command;
 
 /**
@@ -42,7 +42,7 @@ class ReDownloadCommLinks extends Command
 
         ReDownloadDbCommLinks::withChain(
             [
-                new ParseCommLinkDownload(),
+                new ImportCommLinks(),
             ]
         )->dispatch($skip);
 

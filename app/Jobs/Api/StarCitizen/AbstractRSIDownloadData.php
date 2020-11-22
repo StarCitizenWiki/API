@@ -6,9 +6,8 @@ namespace App\Jobs\Api\StarCitizen;
 
 use App\Exceptions\InvalidDataException;
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
+use JsonException;
 use stdClass;
-
-use function GuzzleHttp\json_decode;
 
 /**
  * Class AbstractRSIDownloadData
@@ -24,7 +23,12 @@ abstract class AbstractRSIDownloadData extends BaseDownloadData
      */
     protected function parseResponseBody(string $rawResponseBody): stdClass
     {
-        $response = json_decode($rawResponseBody);
+        try {
+            $response = json_decode($rawResponseBody, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            $response = (object)['success' => 0];
+        }
+
 
         if (($response->success ?? 0) !== 1) {
             throw new InvalidDataException(

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands\CommLink\Import;
 
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLinks;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
 
@@ -24,7 +24,7 @@ class ImportCommLinksTest extends TestCase
             ->expectsOutput('Starting at Comm-Link ID 12663')
             ->assertExitCode(0);
 
-        Bus::assertDispatched(ParseCommLinkDownload::class);
+        Bus::assertDispatched(ImportCommLinks::class);
     }
 
     public function testHandleOffset(): void
@@ -36,7 +36,7 @@ class ImportCommLinksTest extends TestCase
             ->expectsOutput('Starting at Comm-Link ID 12673')
             ->assertExitCode(0);
 
-        Bus::assertDispatched(ParseCommLinkDownload::class);
+        Bus::assertDispatched(ImportCommLinks::class);
     }
 
     public function testHandleOffsetGreaterThan0(): void
@@ -48,6 +48,6 @@ class ImportCommLinksTest extends TestCase
             ->expectsOutput('Starting at Comm-Link ID 12700')
             ->assertExitCode(0);
 
-        Bus::assertDispatched(ParseCommLinkDownload::class);
+        Bus::assertDispatched(ImportCommLinks::class);
     }
 }

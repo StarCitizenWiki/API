@@ -20,4 +20,8 @@ return [
     'starmap' => [
         'enabled' => true,
     ],
+
+    'comm_links' => [
+        'enabled' => true,
+    ],
 ];

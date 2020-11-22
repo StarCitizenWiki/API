@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Starmap\Import;
 
-use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmap;
+use App\Jobs\Api\StarCitizen\Starmap\Import\ImportStarmap;
 use Illuminate\Console\Command;
 
 class ImportStarmap extends Command
@@ -30,7 +30,7 @@ class ImportStarmap extends Command
     {
         $this->info('Importing starmap');
 
-        ParseStarmap::dispatch();
+        ImportStarmap::dispatch();
 
         return 0;
     }

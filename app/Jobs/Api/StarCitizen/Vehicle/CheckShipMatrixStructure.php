@@ -14,9 +14,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use JsonException;
 use RuntimeException;
-
-use function GuzzleHttp\json_decode;
 
 /**
  * Checks if the Ship Matrix structure has changed based on comparing the Aurora ES against a ground truth structure
@@ -44,8 +43,8 @@ class CheckShipMatrixStructure implements ShouldQueue
 
             $this->groundTruth = File::get(resource_path('test_files/shipmatrix/aurora_es.json'));
 
-            $this->groundTruth = collect(json_decode($this->groundTruth, true));
-        } catch (FileNotFoundException | RuntimeException $e) {
+            $this->groundTruth = collect(json_decode($this->groundTruth, true, 512, JSON_THROW_ON_ERROR));
+        } catch (FileNotFoundException | RuntimeException | JsonException $e) {
             $this->fail($e);
         }
     }
@@ -54,10 +53,11 @@ class CheckShipMatrixStructure implements ShouldQueue
      * Execute the job.
      *
      * @return void
+     * @throws JsonException
      */
     public function handle(): void
     {
-        $vehicles = json_decode(Storage::disk('vehicles')->get($this->shipMatrix), true);
+        $vehicles = json_decode(Storage::disk('vehicles')->get($this->shipMatrix), true, 512, JSON_THROW_ON_ERROR);
 
         $diff = $this->groundTruth->diffKeys($vehicles[0]);
 

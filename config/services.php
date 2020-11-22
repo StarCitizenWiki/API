@@ -44,6 +44,7 @@ return [
     ],
 
     'deepl' => [
+        'target_locale' => env('DEEPL_TARGET_LOCALE', 'DE'),
         'auth_key' => env('DEEPL_AUTH_KEY'),
     ],
 
