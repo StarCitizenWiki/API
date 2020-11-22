@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Console\Commands\Starmap\Import;
 
-use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmap;
+use App\Jobs\Api\StarCitizen\Starmap\Import\ImportStarmap;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
 
@@ -19,7 +19,7 @@ class ImportStarmapTest extends TestCase
     {
         Bus::fake(
             [
-                ParseStarmap::class,
+                ImportStarmap::class,
             ]
         );
 
@@ -27,6 +27,6 @@ class ImportStarmapTest extends TestCase
             ->expectsOutput('Importing starmap')
             ->assertExitCode(0);
 
-        Bus::assertDispatched(ParseStarmap::class);
+        Bus::assertDispatched(ImportStarmap::class);
     }
 }

@@ -96,21 +96,25 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 
         $missing = collect($postIDs)->diff($dbIds);
 
-        $dbId = $dbIds->max();
-        $dbId++;
-
-        app('Log')::info(
-            "Latest DB Comm-Link ID is: {$dbId}",
-            [
-                'id' => $dbId,
-            ]
-        );
-
         $missing->each(
             function (int $id) {
                 dispatch(new DownloadCommLink($id, true));
             }
         );
+
+        $dbId = $dbIds->max();
+        if ($dbId > 0) {
+            app('Log')::info(
+                "Latest DB Comm-Link ID is: {$dbId}",
+                [
+                    'id' => $dbId,
+                ]
+            );
+            $dbId++;
+        } else {
+            app('Log')::info('No Comm-Links in DB found');
+            $dbId = self::FIRST_COMM_LINK_ID;
+        }
 
         for ($id = $dbId; $id <= $latestPostId; $id++) {
             if (!$missing->contains($id)) {

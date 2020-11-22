@@ -21,18 +21,18 @@ class CreateImageMetadata implements ShouldQueue
     use SerializesModels;
 
     /**
-     * @var int Offset to start parsing from
+     * @var int Comm-Link IDs to operate on
      */
-    private $offset;
+    private $commLinkIds;
 
     /**
      * Create a new job instance.
      *
-     * @param int $offset Directory Offset
+     * @param array $commLinkIds
      */
-    public function __construct(int $offset = 0)
+    public function __construct(array $commLinkIds = [])
     {
-        $this->offset = $offset;
+        $this->commLinkIds = $commLinkIds;
     }
 
     /**
@@ -46,7 +46,7 @@ class CreateImageMetadata implements ShouldQueue
             ->whereHas(
                 'commLinks',
                 function (Builder $query) {
-                    $query->where('cig_id', '>=', $this->offset);
+                    $query->whereIn('cig_id', $this->commLinkIds);
                 }
             )
             ->whereDoesntHave('metadata');

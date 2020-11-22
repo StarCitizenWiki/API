@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands\CommLink\Import;
 
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
@@ -55,7 +55,7 @@ class ImportCommLinkTest extends TestCase
         $this->artisan('comm-links:import 12663')
             ->assertExitCode(0);
 
-        Bus::assertDispatched(ParseCommLink::class);
+        Bus::assertDispatched(ImportCommLink::class);
     }
 
     /**
@@ -72,6 +72,6 @@ class ImportCommLinkTest extends TestCase
         $this->artisan('comm-links:import 18000')
             ->assertExitCode(1);
 
-        Bus::assertNotDispatched(ParseCommLink::class);
+        Bus::assertNotDispatched(ImportCommLink::class);
     }
 }

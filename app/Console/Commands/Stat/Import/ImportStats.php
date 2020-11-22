@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\Stat\Import;
 
-use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
+use App\Jobs\Api\StarCitizen\Stat\Import\ImportStat;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
@@ -53,7 +53,7 @@ class ImportStats extends Command
     public function handle(): int
     {
         $this->info('Starting funding statistics import');
-        $this->dispatcher->dispatch(new ParseStat());
+        $this->dispatcher->dispatch(new ImportStat());
 
         return 0;
     }

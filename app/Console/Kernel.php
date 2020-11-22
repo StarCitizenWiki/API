@@ -13,7 +13,7 @@ use App\Console\Commands\CommLink\Image\CreateImageMetadata;
 use App\Console\Commands\CommLink\Image\SyncImageIds;
 use App\Console\Commands\CommLink\Import\ImportCommLink;
 use App\Console\Commands\CommLink\Import\ImportCommLinks;
-use App\Console\Commands\CommLink\Import\ImportMissingCommLinks;
+use App\Console\Commands\CommLink\CommLinkSchedule;
 use App\Console\Commands\CommLink\Translate\TranslateCommLinks;
 use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
 use App\Console\Commands\ShipMatrix\Download\DownloadShipMatrix;
@@ -50,7 +50,7 @@ class Kernel extends ConsoleKernel
 
         ImportCommLinks::class,
         ImportCommLink::class,
-        ImportMissingCommLinks::class,
+        CommLinkSchedule::class,
 
         DownloadCommLink::class,
         DownloadCommLinks::class,
@@ -95,7 +95,9 @@ class Kernel extends ConsoleKernel
             $this->scheduleShipMatrixJobs();
         }
 
-        $this->scheduleCommLinkJobs();
+        if (config('schedule.comm_links.enabled')) {
+            $this->scheduleCommLinkJobs();
+        }
 
         if (config('schedule.starmap.enabled')) {
             $this->scheduleStarmapJobs();
@@ -129,7 +131,7 @@ class Kernel extends ConsoleKernel
     {
         /* Check for new Comm-Links */
         $this->schedule
-            ->command(ImportMissingCommLinks::class)
+            ->command(Schedule::class)
             ->hourly()
             ->after(
                 function () {

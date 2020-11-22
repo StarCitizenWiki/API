@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use InvalidArgumentException;
 
 /**
  * Re-Downloads a new Version of all existing Database Comm-Links
@@ -46,7 +47,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
 
         $latestDbPost = CommLink::query()->orderByDesc('cig_id')->first();
         if (null === $latestDbPost) {
-            $this->fail(new \InvalidArgumentException('No Comm-Links in DB Found'));
+            $this->fail(new InvalidArgumentException('No Comm-Links in DB Found'));
 
             return;
         }

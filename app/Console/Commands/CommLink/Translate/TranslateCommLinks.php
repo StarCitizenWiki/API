@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace App\Console\Commands\CommLink\Translate;
 
 use App\Console\Commands\CommLink\AbstractCommLinkCommand as CommLinkCommand;
+use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks as TranslateCommLinksJob;
+use App\Traits\Jobs\GetFoldersTrait;
 
 class TranslateCommLinks extends CommLinkCommand
 {
+    use GetFoldersTrait;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'comm-links:translate {offset=0 : Comm-Link start ID}';
+    protected $signature = 'comm-links:translate {modifiedTime=0 : Folders to include that were modified in the last minute}';
 
     /**
      * The console command description.
@@ -31,11 +35,15 @@ class TranslateCommLinks extends CommLinkCommand
     {
         $this->info('Dispatching Comm-Link Translation');
 
-        $offset = $this->parseOffset();
+        $modifiedTime = (int)$this->argument('modifiedTime');
 
-        $this->info("Starting at Comm-Link ID {$offset}");
+        if ($modifiedTime > 0) {
+            $this->info("Including Comm-Links that were created in the last '{$modifiedTime}' minutes");
+        } elseif ($modifiedTime === -1) {
+            $this->info('Including all Comm-Links');
+        }
 
-        dispatch(new \App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks($offset));
+        dispatch(new TranslateCommLinksJob($this->filterDirectories('comm_links', $modifiedTime)->toArray()));
 
         return 0;
     }

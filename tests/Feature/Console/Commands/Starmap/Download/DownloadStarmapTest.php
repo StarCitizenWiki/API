@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Console\Commands\Starmap\Download;
 
 use App\Jobs\Api\StarCitizen\Starmap\Download\DownloadStarmap;
-use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmap;
+use App\Jobs\Api\StarCitizen\Starmap\Import\ImportStarmap;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
 
@@ -45,7 +45,7 @@ class DownloadStarmapTest extends TestCase
         Bus::fake(
             [
                 DownloadStarmap::class,
-                ParseStarmap::class,
+                ImportStarmap::class,
             ]
         );
 
@@ -55,6 +55,6 @@ class DownloadStarmapTest extends TestCase
             ->assertExitCode(0);
 
         Bus::assertDispatched(DownloadStarmap::class);
-        Bus::assertDispatched(ParseStarmap::class);
+        Bus::assertDispatched(ImportStarmap::class);
     }
 }

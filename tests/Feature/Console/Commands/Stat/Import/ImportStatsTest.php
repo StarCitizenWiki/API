@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands\Stat\Import;
 
-use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
+use App\Jobs\Api\StarCitizen\Stat\Import\ImportStat;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
 
@@ -23,6 +23,6 @@ class ImportStatsTest extends TestCase
             ->expectsOutput('Starting funding statistics import')
             ->assertExitCode(0);
 
-        Bus::assertDispatched(ParseStat::class);
+        Bus::assertDispatched(ImportStat::class);
     }
 }

@@ -28,16 +28,19 @@ class TranslateCommLinks implements ShouldQueue
     use GetCommLinkWikiPageInfo;
     use LoginWikiBotAccount;
 
-    private $offset;
+    /**
+     * @var int Comm-Link IDs to operate on
+     */
+    private $commLinkIds;
 
     /**
      * Create a new job instance.
      *
-     * @param int $offset
+     * @param array $commLinkIds
      */
-    public function __construct(int $offset = 0)
+    public function __construct(array $commLinkIds = [])
     {
-        $this->offset = $offset;
+        $this->commLinkIds = $commLinkIds;
     }
 
     /**
@@ -56,29 +59,31 @@ class TranslateCommLinks implements ShouldQueue
             function (Builder $query) {
                 $query->where('locale_code', 'en_EN')->whereRaw("translation <> ''");
             }
-        )->where('cig_id', '>=', $this->offset)->chunk(
-            100,
-            function (Collection $commLinks) {
-                try {
-                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (RuntimeException $e) {
-                    app('Log')::error($e->getMessage());
+        )
+            ->whereIn('cig_id', $this->commLinkIds)
+            ->chunk(
+                100,
+                function (Collection $commLinks) {
+                    try {
+                        $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
+                    } catch (RuntimeException $e) {
+                        app('Log')::error($e->getMessage());
 
-                    $this->fail($e);
+                        $this->fail($e);
 
-                    return;
-                }
-
-                $commLinks->each(
-                    function (CommLink $commLink) use ($pageInfoCollection) {
-                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
-
-                        if (isset($wikiPage['missing'])) {
-                            dispatch(new TranslateCommLink($commLink));
-                        }
+                        return;
                     }
-                );
-            }
-        );
+
+                    $commLinks->each(
+                        function (CommLink $commLink) use ($pageInfoCollection) {
+                            $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
+
+                            if (isset($wikiPage['missing'])) {
+                                dispatch(new TranslateCommLink($commLink));
+                            }
+                        }
+                    );
+                }
+            );
     }
 }
