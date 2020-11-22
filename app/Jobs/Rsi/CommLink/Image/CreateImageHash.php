@@ -76,7 +76,7 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             $this->fail('Required extension "GD" or "Imagick" not available.');
         }
 
-        if ($this->image->hash !== null) {
+        if ($this->image->hash !== null && $this->image->hash->exists) {
             $this->delete();
 
             return;
