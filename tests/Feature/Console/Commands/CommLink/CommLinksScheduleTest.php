@@ -31,7 +31,12 @@ class CommLinksScheduleTest extends TestCase
             DownloadMissingCommLinks::class,
             [
                 ImportCommLinks::class,
-                CreateImageMetadata::class,
+            ]
+        );
+
+        Queue::assertPushedWithChain(
+            CreateImageMetadata::class,
+            [
                 CreateImageHashes::class,
             ]
         );
@@ -54,11 +59,17 @@ class CommLinksScheduleTest extends TestCase
             DownloadMissingCommLinks::class,
             [
                 ImportCommLinks::class,
-                CreateImageMetadata::class,
-                CreateImageHashes::class,
-                TranslateCommLinks::class,
             ]
         );
+
+        Queue::assertPushedWithChain(
+            CreateImageMetadata::class,
+            [
+                CreateImageHashes::class,
+            ]
+        );
+
+        Queue::assertPushed(TranslateCommLinks::class);
     }
 
     /**
@@ -79,11 +90,18 @@ class CommLinksScheduleTest extends TestCase
             DownloadMissingCommLinks::class,
             [
                 ImportCommLinks::class,
-                CreateImageMetadata::class,
-                CreateImageHashes::class,
-                CreateCommLinkWikiPages::class,
             ]
         );
+
+        Queue::assertPushedWithChain(
+            CreateImageMetadata::class,
+            [
+                CreateImageHashes::class,
+            ]
+        );
+
+        Queue::assertPushed(TranslateCommLinks::class);
+        Queue::assertPushed(CreateCommLinkWikiPages::class);
     }
 
     /**
@@ -105,12 +123,18 @@ class CommLinksScheduleTest extends TestCase
             DownloadMissingCommLinks::class,
             [
                 ImportCommLinks::class,
-                CreateImageMetadata::class,
-                CreateImageHashes::class,
-                TranslateCommLinks::class,
-                CreateCommLinkWikiPages::class,
             ]
         );
+
+        Queue::assertPushedWithChain(
+            CreateImageMetadata::class,
+            [
+                CreateImageHashes::class,
+            ]
+        );
+
+        Queue::assertPushed(TranslateCommLinks::class);
+        Queue::assertPushed(CreateCommLinkWikiPages::class);
     }
 
     /**
@@ -128,7 +152,12 @@ class CommLinksScheduleTest extends TestCase
             DownloadMissingCommLinks::class,
             [
                 ImportCommLinks::class,
-                CreateImageMetadata::class,
+            ]
+        );
+
+        Queue::assertPushedWithChain(
+            CreateImageMetadata::class,
+            [
                 CreateImageHashes::class,
             ]
         );
