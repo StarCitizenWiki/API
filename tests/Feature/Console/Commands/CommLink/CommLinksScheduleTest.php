@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Console\Commands\CommLink\Import;
+namespace Tests\Feature\Console\Commands\CommLink;
 
 use App\Jobs\Rsi\CommLink\Download\DownloadMissingCommLinks;
 use App\Jobs\Rsi\CommLink\Image\CreateImageHashes;
@@ -14,7 +14,7 @@ use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
-class ImportMissingCommLinksTest extends TestCase
+class CommLinksScheduleTest extends TestCase
 {
     /**
      * Test basic chain
@@ -25,7 +25,7 @@ class ImportMissingCommLinksTest extends TestCase
     {
         Queue::fake();
 
-        $this->artisan('comm-links:import-missing')->assertExitCode(0);
+        $this->artisan('comm-links:schedule')->assertExitCode(0);
 
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
@@ -48,7 +48,7 @@ class ImportMissingCommLinksTest extends TestCase
 
         Queue::fake();
 
-        $this->artisan('comm-links:import-missing')->assertExitCode(0);
+        $this->artisan('comm-links:schedule')->assertExitCode(0);
 
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
@@ -73,7 +73,7 @@ class ImportMissingCommLinksTest extends TestCase
 
         Queue::fake();
 
-        $this->artisan('comm-links:import-missing')->assertExitCode(0);
+        $this->artisan('comm-links:schedule')->assertExitCode(0);
 
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
@@ -99,7 +99,7 @@ class ImportMissingCommLinksTest extends TestCase
 
         Queue::fake();
 
-        $this->artisan('comm-links:import-missing')->assertExitCode(0);
+        $this->artisan('comm-links:schedule')->assertExitCode(0);
 
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,
@@ -122,7 +122,7 @@ class ImportMissingCommLinksTest extends TestCase
 
         Queue::fake();
 
-        $this->artisan('comm-links:import-missing')->assertExitCode(0);
+        $this->artisan('comm-links:schedule')->assertExitCode(0);
 
         Queue::assertPushedWithChain(
             DownloadMissingCommLinks::class,

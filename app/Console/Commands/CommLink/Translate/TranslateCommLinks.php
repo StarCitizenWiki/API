@@ -6,9 +6,12 @@ namespace App\Console\Commands\CommLink\Translate;
 
 use App\Console\Commands\CommLink\AbstractCommLinkCommand as CommLinkCommand;
 use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks as TranslateCommLinksJob;
+use App\Traits\Jobs\GetFoldersTrait;
 
 class TranslateCommLinks extends CommLinkCommand
 {
+    use GetFoldersTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -40,7 +43,7 @@ class TranslateCommLinks extends CommLinkCommand
             $this->info('Including all Comm-Links');
         }
 
-        dispatch(new TranslateCommLinksJob($modifiedTime));
+        dispatch(new TranslateCommLinksJob($this->filterDirectories('comm_links', $modifiedTime)->toArray()));
 
         return 0;
     }

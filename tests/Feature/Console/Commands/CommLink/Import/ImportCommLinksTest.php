@@ -21,7 +21,7 @@ class ImportCommLinksTest extends TestCase
 
         $this->artisan('comm-links:import-all')
             ->expectsOutput('Dispatching Comm-Link Import')
-            ->expectsOutput('Starting at Comm-Link ID 12663')
+            ->expectsOutput('Including all Comm-Links')
             ->assertExitCode(0);
 
         Bus::assertDispatched(ImportCommLinks::class);
@@ -33,7 +33,7 @@ class ImportCommLinksTest extends TestCase
 
         $this->artisan('comm-links:import-all 10')
             ->expectsOutput('Dispatching Comm-Link Import')
-            ->expectsOutput('Starting at Comm-Link ID 12673')
+            ->expectsOutput("Including Comm-Links that were created in the last '10' minutes")
             ->assertExitCode(0);
 
         Bus::assertDispatched(ImportCommLinks::class);
@@ -45,7 +45,7 @@ class ImportCommLinksTest extends TestCase
 
         $this->artisan('comm-links:import-all 12700')
             ->expectsOutput('Dispatching Comm-Link Import')
-            ->expectsOutput('Starting at Comm-Link ID 12700')
+            ->expectsOutput("Including Comm-Links that were created in the last '12700' minutes")
             ->assertExitCode(0);
 
         Bus::assertDispatched(ImportCommLinks::class);

@@ -24,11 +24,10 @@ abstract class AbstractRSIDownloadData extends BaseDownloadData
     protected function parseResponseBody(string $rawResponseBody): stdClass
     {
         try {
-            $response = json_decode($rawResponseBody, true, 512, JSON_THROW_ON_ERROR);
+            $response = json_decode($rawResponseBody, false, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             $response = (object)['success' => 0];
         }
-
 
         if (($response->success ?? 0) !== 1) {
             throw new InvalidDataException(
