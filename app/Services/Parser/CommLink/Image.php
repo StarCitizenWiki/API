@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink;
 
-use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\Image\Image as ImageModel;
+use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -90,6 +90,7 @@ class Image extends BaseElement
         $this->extractSourceAttrs();
         $this->extractCssBackgrounds();
         $this->extractMediaImages();
+        $this->extractRsiImages();
 
         if ($this->isSpecialPage($this->commLink)) {
             $this->commLink->filterXPath('//template')->each(
@@ -224,10 +225,36 @@ class Image extends BaseElement
         }
     }
 
+    /**
+     * Extract images from media.robertsspaceindustries.com
+     */
     private function extractMediaImages(): void
     {
         preg_match_all(
             "/(https:\/\/media\.robertsspaceindustries\.com\/[\w]{13,16}\/\w+\.[\w]{2,6})/",
+            $this->commLink->filterXPath('//body')->html(),
+            $matches
+        );
+
+        if (!empty($matches[1])) {
+            collect($matches[1])->each(
+                function ($src) {
+                    $this->images[] = [
+                        'src' => trim($src),
+                        'alt' => '',
+                    ];
+                }
+            );
+        }
+    }
+
+    /**
+     * robertsspaceincustries.com/media
+     */
+    private function extractRsiImages(): void
+    {
+        preg_match_all(
+            "/(https:\/\/robertsspaceindustries\.com\/media\/[\w]{13,16}\/\w+\/[\w\-.]+\.\w{2,6})/",
             $this->commLink->filterXPath('//body')->html(),
             $matches
         );
