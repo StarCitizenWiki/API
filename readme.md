@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/157px-Star_Citizen_Wiki_Logo.png?794c2" alt="Star Citizen Wiki Logo" />
+<img src="https://cdn.star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/320px-Star_Citizen_Wiki_Logo.png" alt="Star Citizen Wiki Logo" />
 </p>
 <p align="center">
     <img src="https://img.shields.io/github/workflow/status/StarCitizenWiki/API/Laravel%20Tests" />
