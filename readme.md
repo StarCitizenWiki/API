@@ -86,8 +86,13 @@ WIKI_TRANS_OAUTH_CONSUMER_SECRET=
 WIKI_TRANS_OAUTH_ACCESS_TOKEN=
 WIKI_TRANS_OAUTH_ACCESS_SECRET=
 
+# Translated text to use for wiki comm-link pages Default de_DE
+WIKI_TRANS_LOCALE=
+
 # DEEPL Access key for automated Comm-Link translations
 DEEPL_AUTH_KEY=
+# Target language of DeepL Translations Default: DE
+DEEPL_TARGET_LOCALE=
 
 # User account on RSI // Login currently BROKEN due to recaptcha
 RSI_USERNAME=
@@ -101,7 +106,7 @@ version: '3'
 
 services:
   api.star-citizen.wiki:
-    image: scw-api:7.0
+    image: scwiki/api:dev
     container_name: api.star-citizen.wiki
     restart: unless-stopped
     security_opt:
@@ -118,7 +123,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   scheduler:
-    image: scw-api:7.0
+    image: scwiki/api:dev
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -134,7 +139,7 @@ services:
       CONTAINER_ROLE: scheduler
 
   queue:
-    image: scw-api:7.0
+    image: scwiki/api:dev
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -185,7 +190,7 @@ To get help for a specific command call `php artisan help COMMAND`.
 #### Import missing Comm-Links
 Inside the container execute
 ```shell script
-php artisan comm-links:import-missing
+php artisan comm-links:schedule
 ```
 This will download all Comm-Links, parse them and create metadata.  
 The import command can be safely stopped by `Ctrl+C`.
