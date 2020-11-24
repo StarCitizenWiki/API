@@ -13,7 +13,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use InvalidArgumentException;
 use JsonException;
 use RuntimeException;
 
@@ -28,7 +27,7 @@ class ImportShipMatrix implements ShouldQueue
     use SerializesModels;
     use GetNewestShipMatrixFilename;
 
-    private $shipMatrixFileName;
+    private ?string $shipMatrixFileName = null;
 
     /**
      * Create a new job instance.
@@ -72,8 +71,9 @@ class ImportShipMatrix implements ShouldQueue
                 ]
             );
 
+            $this->fail($e);
             return;
-        } catch (InvalidArgumentException | JsonException $e) {
+        } catch (JsonException $e) {
             app('Log')::error(
                 "File {$this->shipMatrixFileName} does not contain valid JSON",
                 [
@@ -81,6 +81,7 @@ class ImportShipMatrix implements ShouldQueue
                 ]
             );
 
+            $this->delete();
             return;
         }
 

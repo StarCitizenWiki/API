@@ -6,15 +6,13 @@ namespace App\Jobs\Api\StarCitizen\Vehicle;
 
 use App\Exceptions\InvalidDataException;
 use App\Jobs\Api\StarCitizen\AbstractRSIDownloadData as RSIDownloadData;
-use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use InvalidArgumentException;
-use JsonException;
 
 /**
  * Class DownloadShips
@@ -29,7 +27,7 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
     public const SHIPS_ENDPOINT = '/ship-matrix/index';
     private const VEHICLES_DISK = 'vehicles';
 
-    private bool $force;
+    private bool $force = false;
 
     /**
      * DownloadShipMatrix constructor.
@@ -55,8 +53,8 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
         }
 
         try {
-            $response = $this->makeClient()->get(self::SHIPS_ENDPOINT);
-        } catch (ConnectException $e) {
+            $response = $this->makeClient()->get(self::SHIPS_ENDPOINT)->throw();
+        } catch (RequestException $e) {
             app('Log')::critical(
                 'Could not connect to RSI Ship Matrix',
                 [
@@ -71,7 +69,7 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
 
         try {
             $response = $this->parseResponseBody($response->body());
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidDataException $e) {
             app('Log')::error(
                 'Ship Matrix data is not valid json',
                 [
@@ -79,20 +77,13 @@ class DownloadShipMatrix extends RSIDownloadData implements ShouldQueue
                 ]
             );
 
-            return;
-        } catch (InvalidDataException $e) {
-            app('Log')::error($e->getMessage());
-
-            return;
-        }
-
-        try {
-            $responseJsonData = json_encode($response->data, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
             $this->fail($e);
 
             return;
         }
+
+        // Exception will not happen
+        $responseJsonData = json_encode($response->data, JSON_THROW_ON_ERROR);
 
         Storage::disk(self::VEHICLES_DISK)->put($this->getPath(), $responseJsonData);
 

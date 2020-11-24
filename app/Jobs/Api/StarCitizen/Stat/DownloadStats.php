@@ -14,7 +14,6 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use InvalidArgumentException;
 use JsonException;
 
 /**
@@ -30,7 +29,7 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
     private const STATS_ENDPOINT = '/api/stats/getCrowdfundStats';
     private const STATS_DISK = 'stats';
 
-    private bool $force;
+    private bool $force = false;
 
     /**
      * DownloadShipMatrix constructor.
@@ -91,17 +90,13 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
     {
         try {
             $response = $this->parseResponseBody($response->body());
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidDataException $e) {
             app('Log')::error(
                 'Stats data is not valid json',
                 [
                     'message' => $e->getMessage(),
                 ]
             );
-
-            return;
-        } catch (InvalidDataException $e) {
-            app('Log')::error($e->getMessage());
 
             $this->fail($e);
 
