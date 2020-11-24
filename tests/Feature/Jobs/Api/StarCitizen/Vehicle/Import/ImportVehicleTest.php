@@ -40,7 +40,7 @@ class ImportVehicleTest extends TestCase
         self::assertEquals(1, Ship::query()->count());
         self::assertEquals(2, Focus::query()->count()); // Starter / Pathfinder
         self::assertEquals(2, Size::query()->count());
-        self::assertEquals(1, Type::query()->count());
+        self::assertEquals(2, Type::query()->count());
     }
 
     /**
