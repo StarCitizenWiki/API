@@ -7,6 +7,8 @@ use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\Api\StarCitizen\Vehicle\Type\Type;
+use Database\Seeders\System\LanguageTableSeeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
@@ -26,6 +28,13 @@ class ImportVehicleTest extends TestCase
      */
     public function testImportAurora(): void
     {
+        Artisan::call(
+            'db:seed',
+            [
+                '--class' => LanguageTableSeeder::class,
+            ]
+        );
+
         $data = File::get(resource_path('test_files/shipmatrix/aurora_es.json'));
         $data = collect(json_decode($data, true));
 
