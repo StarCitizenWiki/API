@@ -10,6 +10,7 @@ use Tests\TestCase;
 /**
  * Class DownloadShipMatrixTest
  * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class DownloadShipMatrixTest extends TestCase
 {

@@ -10,8 +10,8 @@ use Tests\TestCase;
 
 /**
  * Class DownloadStatsJobTest
- * @package Tests\Feature\Jobs\Api\StarCitizen\Stat
  * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class DownloadStatsJobTest extends TestCase
 {
