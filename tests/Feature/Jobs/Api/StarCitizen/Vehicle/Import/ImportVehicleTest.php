@@ -7,7 +7,10 @@ use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\Api\StarCitizen\Vehicle\Size\Size;
 use App\Models\Api\StarCitizen\Vehicle\Type\Type;
-use Database\Seeders\System\LanguageTableSeeder;
+use Database\Seeders\Api\StarCitizen\ProductionNoteTableSeeder;
+use Database\Seeders\Api\StarCitizen\ProductionStatusTableSeeder;
+use Database\Seeders\Api\StarCitizen\Vehicle\SizeTableSeeder;
+use Database\Seeders\Api\StarCitizen\Vehicle\TypeTableSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
@@ -28,13 +31,6 @@ class ImportVehicleTest extends TestCase
      */
     public function testImportAurora(): void
     {
-        Artisan::call(
-            'db:seed',
-            [
-                '--class' => LanguageTableSeeder::class,
-            ]
-        );
-
         $data = File::get(resource_path('test_files/shipmatrix/aurora_es.json'));
         $data = collect(json_decode($data, true));
 
@@ -45,5 +41,38 @@ class ImportVehicleTest extends TestCase
         self::assertEquals(2, Focus::query()->count()); // Starter / Pathfinder
         self::assertEquals(1, Size::query()->count());
         self::assertEquals(1, Type::query()->count());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->createSystemLanguages();
+        Artisan::call(
+            'db:seed',
+            [
+                '--class' => ProductionNoteTableSeeder::class,
+            ]
+        );
+        Artisan::call(
+            'db:seed',
+            [
+                '--class' => ProductionStatusTableSeeder::class,
+            ]
+        );
+        Artisan::call(
+            'db:seed',
+            [
+                '--class' => SizeTableSeeder::class,
+            ]
+        );
+        Artisan::call(
+            'db:seed',
+            [
+                '--class' => TypeTableSeeder::class,
+            ]
+        );
     }
 }
