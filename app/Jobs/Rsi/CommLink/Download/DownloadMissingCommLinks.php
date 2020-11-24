@@ -6,7 +6,6 @@ namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\CommLink;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -43,38 +42,25 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     {
         app('Log')::info('Starting Missing Comm-Links Download Job');
 
-        $this->initClient();
-        // $this->getRsiAuthCookie();
+        $response = $this->makeClient()->get(self::COMM_LINK_BASE_URL);
 
-        $postIDs = [];
-
-        $crawler = new Crawler();
-
-        try {
-            $response = self::$client->get(self::COMM_LINK_BASE_URL);
-        } catch (GuzzleException $e) {
+        if (!$response->successful()) {
             app('Log')::error('Could not connect to RSI, retrying in 5 minutes.');
             $this->release(300);
 
             return;
         }
 
-        $crawler->addHtmlContent((string)$response->getBody(), 'UTF-8');
-        $crawler->filter('#channel .hub-blocks .hub-block')->each(
-            function (Crawler $crawler) use (&$postIDs) {
-                $link = $crawler->filter('a');
-                $postIDs[] = $this->extractLatestPostId($link);
-            }
-        );
+        $postIds = $this->extractPostIds($response->body());
 
-        if (empty($postIDs)) {
+        if (empty($postIds)) {
             app('Log')::info('Could not retrieve latest Comm-Link ID, retrying in 1 minute.');
             $this->release(60);
 
             return;
         }
 
-        $latestPostId = max($postIDs);
+        $latestPostId = max($postIds);
 
         app('Log')::info(
             "Latest Comm-Link ID is: {$latestPostId}",
@@ -82,6 +68,65 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
                 'id' => $latestPostId,
             ]
         );
+
+        $this->downloadCommLinks($postIds);
+    }
+
+    /**
+     * Extracts Post ids from html
+     *
+     * @param string $body
+     *
+     * @return array Ids
+     */
+    private function extractPostIds(string $body): array
+    {
+        $postIds = [];
+
+        $crawler = new Crawler();
+
+        $crawler->addHtmlContent($body, 'UTF-8');
+        $crawler->filter('#channel .hub-blocks .hub-block')
+            ->each(
+                function (Crawler $crawler) use (&$postIds) {
+                    $link = $crawler->filter('a');
+                    $postIds[] = $this->extractIdFromLink($link);
+                }
+            );
+
+        return $postIds;
+    }
+
+    /**
+     * Extract latest Comm-Link id from Website
+     *
+     * @param Crawler $link
+     *
+     * @return int
+     */
+    private function extractIdFromLink(Crawler $link): int
+    {
+        $linkHref = $link->attr('href');
+
+        if (null === $linkHref) {
+            return 0;
+        }
+
+        $linkHref = explode('/', $linkHref);
+        $linkHref = end($linkHref);
+        $linkHref = explode('-', $linkHref);
+
+        return (int)$linkHref[0];
+    }
+
+    /**
+     * Dispatches download jobs for all missing ids
+     *
+     * @param array $postIDs
+     */
+    private function downloadCommLinks(array $postIDs): void
+    {
+        $latestPostId = max($postIDs);
 
         try {
             $dbIds = CommLink::query()
@@ -121,27 +166,5 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
                 dispatch(new DownloadCommLink($id, true));
             }
         }
-    }
-
-    /**
-     * Extract latest Comm-Link id from Website
-     *
-     * @param Crawler $link
-     *
-     * @return int
-     */
-    private function extractLatestPostId(Crawler $link): int
-    {
-        $linkHref = $link->attr('href');
-
-        if (null === $linkHref) {
-            return 0;
-        }
-
-        $linkHref = explode('/', $linkHref);
-        $linkHref = end($linkHref);
-        $linkHref = explode('-', $linkHref);
-
-        return (int)$linkHref[0];
     }
 }

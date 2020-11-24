@@ -47,6 +47,7 @@ class CreateImageHashes extends BaseDownloadData implements ShouldQueue
             app('Log')::error('Required extension "GD" or "Imagick" not available.');
 
             $this->fail('Required extension "GD" or "Imagick" not available.');
+            return;
         }
 
         $query = Image::query()

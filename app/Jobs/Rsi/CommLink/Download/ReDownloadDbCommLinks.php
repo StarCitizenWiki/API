@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Download;
@@ -24,7 +25,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
 
     public const FIRST_COMM_LINK_ID = 12663;
 
-    private $skipExisting;
+    private bool $skipExisting;
 
     /**
      * ReDownloadDbCommLinks constructor.
@@ -59,8 +60,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
             ]
         );
 
-        $this->initClient(false);
-        //$this->getRsiAuthCookie();
+        $this->makeClient(false);
 
         for ($id = self::FIRST_COMM_LINK_ID; $id <= $latestDbPost->cig_id; $id++) {
             dispatch(new DownloadCommLink($id, $this->skipExisting));

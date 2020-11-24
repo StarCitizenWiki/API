@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Jobs\Api\StarCitizen\Starmap\Download;
 
 use App\Jobs\Api\StarCitizen\AbstractRSIDownloadData;
-use GuzzleHttp\Exception\TransferException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
-use Psr\Http\Message\ResponseInterface;
 
 class DownloadStarsystem extends AbstractRSIDownloadData implements ShouldQueue
 {
@@ -32,7 +32,7 @@ class DownloadStarsystem extends AbstractRSIDownloadData implements ShouldQueue
     private string $folder;
     private ?Collection $bootupData;
 
-    private ResponseInterface $response;
+    private Response $response;
 
     /**
      * Create a new job instance.
@@ -46,7 +46,7 @@ class DownloadStarsystem extends AbstractRSIDownloadData implements ShouldQueue
         $this->systemCode = $systemCode;
         $this->folder = $folder;
         $this->bootupData = $bootupData;
-        $this->initClient();
+        $this->makeClient();
     }
 
     /**
@@ -67,8 +67,10 @@ class DownloadStarsystem extends AbstractRSIDownloadData implements ShouldQueue
     private function downloadStarSystem(): void
     {
         try {
-            $this->response = self::$client->post(sprintf('%s%s', self::STARSYSTEM_ENDPOINT, $this->systemCode));
-        } catch (TransferException $e) {
+            $this->response = $this->makeClient()
+                ->post(sprintf('%s%s', self::STARSYSTEM_ENDPOINT, $this->systemCode))
+                ->throw();
+        } catch (RequestException $e) {
             app('Log')::error(
                 sprintf('Could not connect to RSI Starmap %s', $this->systemCode),
                 [
@@ -88,7 +90,12 @@ class DownloadStarsystem extends AbstractRSIDownloadData implements ShouldQueue
     private function checkStructure(): void
     {
         try {
-            $this->systemData = json_decode($this->response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+            $this->systemData = json_decode(
+                $this->response->body(),
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
         } catch (JsonException $e) {
             app('Log')::error(sprintf('Can\'t decode %s.', $this->systemCode));
 

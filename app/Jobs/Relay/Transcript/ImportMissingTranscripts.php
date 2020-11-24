@@ -50,7 +50,7 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
     {
         app('Log')::info('Starting Missing Transcripts Download Job');
 
-        $this->initClient();
+        $this->makeClient();
 
         if (null === $this->startPage) {
             $url = self::BASE_URL;
@@ -66,7 +66,7 @@ class ImportMissingTranscripts extends BaseDownloadData implements ShouldQueue
     /**
      * {@inheritdoc}
      */
-    protected function initClient(bool $withTokenHeader = true): void
+    protected function makeClient(bool $withTokenHeader = true): void
     {
         $client = new Client(
             [
