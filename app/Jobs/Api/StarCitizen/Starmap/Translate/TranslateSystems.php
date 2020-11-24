@@ -58,7 +58,7 @@ class TranslateSystems implements ShouldQueue
                                 app('Log')::info(sprintf('Translating system %s', $starsystem->name));
                                 $translation = DeepLyFacade::translate(
                                     $starsystem->english()->translation,
-                                    'DE',
+                                    config('services.deepl.target_locale'),
                                     'EN',
                                     'more'
                                 );
