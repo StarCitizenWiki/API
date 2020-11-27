@@ -16,8 +16,6 @@ use Tests\TestCase;
 class DownloadStatsJobTest extends TestCase
 {
     /**
-     * A basic feature test example.
-     *
      * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::handle
      *
      * @return void
@@ -45,8 +43,6 @@ class DownloadStatsJobTest extends TestCase
     }
 
     /**
-     * A basic feature test example.
-     *
      * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::handle
      * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::parseResponseBody
      *
@@ -76,8 +72,6 @@ class DownloadStatsJobTest extends TestCase
     }
 
     /**
-     * A basic feature test example.
-     *
      * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::handle
      * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::saveStats
      * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::parseResponseBody
@@ -98,7 +92,7 @@ class DownloadStatsJobTest extends TestCase
 
         $job->handle();
 
-        Storage::disk('stats')->assertExists(
+        Storage::fake('stats')->assertExists(
             sprintf('%d/stats_%s.json', now()->year, now()->format('Y-m-d'))
         );
 

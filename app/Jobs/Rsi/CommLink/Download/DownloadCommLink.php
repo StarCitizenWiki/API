@@ -30,9 +30,9 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     /**
      * @var int Post ID
      */
-    private int $postId;
+    private int $postId = 0;
 
-    private bool $skipExisting;
+    private bool $skipExisting = false;
 
     /**
      * Create a new job instance.
@@ -81,7 +81,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        $content = $this->cleanResponse($response->body());
+        $content = $this->removeRsiToken($response->body());
 
         if (!Str::contains($content, ['id="post"', 'id="subscribers"', 'id="layout-system"'])) {
             app('Log')::info(
@@ -104,13 +104,13 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      *
      * @return string
      */
-    private function cleanResponse(string $content): string
+    private function removeRsiToken(string $content): string
     {
         return preg_replace('/\'token\'\s?\:\s?\'[A-Za-z0-9\+\:\-\_\/]+\'/', '\'token\' : \'\'', $content);
     }
 
     /**
-     * Write the Comm-Link to file
+     * Write the Comm-Link to disk
      *
      * @param string $content
      */
