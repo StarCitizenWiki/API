@@ -86,16 +86,16 @@ class DownloadStatsJobTest extends TestCase
             ]
         );
 
-        Storage::fake('stats');
+        Storage::persistentFake('stats');
 
         $job = new DownloadStats();
 
         $job->handle();
 
-        Storage::fake('stats')->assertExists(
+        Storage::persistentFake('stats')->assertExists(
             sprintf('%d/stats_%s.json', now()->year, now()->format('Y-m-d'))
         );
 
-        Storage::fake('stats')->delete(now()->year);
+        Storage::persistentFake('stats')->delete(now()->year);
     }
 }
