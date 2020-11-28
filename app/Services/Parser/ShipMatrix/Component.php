@@ -40,10 +40,15 @@ class Component extends BaseElement
 
         $componentData = collect($this->rawData->get(self::COMPONENTS));
 
-        $ids = $componentData->flatten()
+        $ids = $componentData
             ->flatMap(
                 function ($componentGroup) {
-                    return collect($componentGroup)->flatten();
+                    return collect($componentGroup);
+                }
+            )
+            ->flatMap(
+                function ($componentGroup) {
+                    return collect($componentGroup);
                 }
             )->map(
                 function ($component) {

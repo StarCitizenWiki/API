@@ -41,7 +41,7 @@ class CheckShipMatrixStructure implements ShouldQueue
         try {
             $this->shipMatrix = $this->getNewestShipMatrixFilename();
 
-            $this->groundTruth = File::get(resource_path('test_files/shipmatrix/aurora_es.json'));
+            $this->groundTruth = File::get(storage_path('framework/testing/shipmatrix/aurora_es.json'));
 
             $this->groundTruth = collect(json_decode($this->groundTruth, true, 512, JSON_THROW_ON_ERROR));
         } catch (FileNotFoundException | RuntimeException | JsonException $e) {
