@@ -37,7 +37,7 @@ class ParseVehicleTest extends TestCase
      */
     public function testParsing()
     {
-        $data = File::get(base_path('framework/testing/shipmatrix/aurora_es.json'));
+        $data = File::get(storage_path('framework/testing/shipmatrix/aurora_es.json'));
         $data = collect(json_decode($data, true));
 
         $parser = new ImportVehicle($data);

@@ -216,7 +216,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    base_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -277,7 +277,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    base_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -303,7 +303,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    base_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -328,7 +328,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    base_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -354,7 +354,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    base_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,

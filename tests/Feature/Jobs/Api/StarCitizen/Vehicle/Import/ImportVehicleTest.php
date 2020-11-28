@@ -31,7 +31,7 @@ class ImportVehicleTest extends TestCase
      */
     public function testImportAurora(): void
     {
-        $data = File::get(base_path('framework/testing/shipmatrix/aurora_es.json'));
+        $data = File::get(storage_path('framework/testing/shipmatrix/aurora_es.json'));
         $data = collect(json_decode($data, true));
 
         $job = new ImportVehicle($data);
