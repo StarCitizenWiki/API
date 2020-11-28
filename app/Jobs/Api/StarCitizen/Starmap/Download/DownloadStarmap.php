@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Jobs\Api\StarCitizen\Starmap\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
-use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class DownloadStarmap
@@ -56,7 +56,7 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
     /**
      * @var bool Force Download
      */
-    private $force;
+    private bool $force;
 
     /**
      * @var string
@@ -64,9 +64,9 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
     private $timestamp;
 
     /**
-     * @var ResponseInterface Bootup response
+     * @var Response Bootup response
      */
-    private ResponseInterface $response;
+    private Response $response;
 
     /**
      * Star Map Download
@@ -89,7 +89,6 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
         app('Log')::info('Starting Starmap Download');
 
         if ($this->force || !Storage::disk(self::STARSYSTEM_DISK)->exists($this->timestamp)) {
-            $this->initClient();
             $this->downloadBootup();
             $this->writeBootupDataToDisk();
 
@@ -103,8 +102,8 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
     private function downloadBootup(): void
     {
         try {
-            $this->response = self::$client->post(self::STARSYSTEM_BOOTUP_ENDPOINT);
-        } catch (ConnectException $e) {
+            $this->response = $this->makeClient()->post(self::STARSYSTEM_BOOTUP_ENDPOINT)->throw();
+        } catch (RequestException $e) {
             app('Log')::error(
                 'Could not connect to RSI Starmap Bootup',
                 [
@@ -123,7 +122,7 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
     {
         try {
             $bootupData = json_decode(
-                $this->response->getBody()->getContents(),
+                $this->response->body(),
                 true,
                 512,
                 JSON_THROW_ON_ERROR

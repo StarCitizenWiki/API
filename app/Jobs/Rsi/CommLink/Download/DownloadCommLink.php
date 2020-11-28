@@ -9,11 +9,11 @@ use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 
 /**
  * Downloads the Whole Page Content.
@@ -30,9 +30,9 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     /**
      * @var int Post ID
      */
-    private $postId;
+    private int $postId = 0;
 
-    private $skipExisting;
+    private bool $skipExisting = false;
 
     /**
      * Create a new job instance.
@@ -71,21 +71,17 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             ]
         );
 
-        if (null === self::$client) {
-            $this->initClient();
-        }
-
-        $response = self::$client->get(
+        $response = $this->makeClient()->get(
             sprintf('%s/%s/%d-IMPORT', self::COMM_LINK_BASE_URL, 'SCW', $this->postId)
         );
 
-        try {
-            $content = $this->cleanResponse((string)$response->getBody());
-        } catch (InvalidArgumentException $e) {
-            $this->fail($e);
+        if (!$response->successful()) {
+            $this->fail(new RequestException($response));
 
             return;
         }
+
+        $content = $this->removeRsiToken($response->body());
 
         if (!Str::contains($content, ['id="post"', 'id="subscribers"', 'id="layout-system"'])) {
             app('Log')::info(
@@ -98,9 +94,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        $fileName = sprintf('%d/%s.html', $this->postId, Carbon::now()->format('Y-m-d_His'));
-
-        Storage::disk('comm_links')->put($fileName, $content);
+        $this->writeFile($content);
     }
 
     /**
@@ -110,8 +104,21 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      *
      * @return string
      */
-    private function cleanResponse(string $content): string
+    private function removeRsiToken(string $content): string
     {
         return preg_replace('/\'token\'\s?\:\s?\'[A-Za-z0-9\+\:\-\_\/]+\'/', '\'token\' : \'\'', $content);
+    }
+
+    /**
+     * Write the Comm-Link to disk
+     *
+     * @param string $content
+     */
+    private function writeFile(string $content): void
+    {
+        Storage::disk('comm_links')->put(
+            sprintf('%d/%s.html', $this->postId, Carbon::now()->format('Y-m-d_His')),
+            $content
+        );
     }
 }

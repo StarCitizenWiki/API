@@ -7,12 +7,10 @@ namespace App\Jobs\Rsi\CommLink\Download\Image;
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\Image\Image;
 use Exception;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\ServerException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
@@ -48,7 +46,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         app('Log')::info(
             "Downloading Comm-Link Image {$this->image->name}",
@@ -64,22 +62,17 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        $this->initClient();
+        $response = $this->makeClient()->get($this->image->url);
 
-        try {
-            $response = self::$client->get($this->image->url);
-        } catch (ConnectException | ServerException $e) {
-            app('Log')::critical(
-                'Could not connect to RSI Website',
-                [
-                    'message' => $e->getMessage(),
-                ]
-            );
+        if ($response->serverError()) {
+            app('Log')::critical('Could not connect to RSI Website');
 
-            $this->fail($e);
+            $this->fail(new RequestException($response));
 
             return;
-        } catch (ClientException $e) {
+        }
+
+        if ($response->clientError()) {
             app('Log')::info(
                 "Could not download Comm-Link Image {$this->image->name}",
                 [
@@ -97,10 +90,7 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        Storage::disk('comm_link_images')->put(
-            sprintf('%s/%s', $localDirName, $this->image->name),
-            $response->getBody()
-        );
+        $this->writeImage($response->body(), $localDirName);
 
         $this->image->update(
             [
@@ -120,5 +110,19 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
         } catch (Exception $e) {
             return Str::random(14);
         }
+    }
+
+    /**
+     * Writes the image data to file
+     *
+     * @param string $data
+     * @param string $folder
+     */
+    private function writeImage(string $data, string $folder): void
+    {
+        Storage::disk('comm_link_images')->put(
+            sprintf('%s/%s', $folder, $this->image->name),
+            $data
+        );
     }
 }

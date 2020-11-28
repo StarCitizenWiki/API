@@ -79,8 +79,7 @@ class ImportStat implements ShouldQueue
                 ]
             );
 
-            $this->fail($e);
-
+            $this->delete();
             return;
         }
 
