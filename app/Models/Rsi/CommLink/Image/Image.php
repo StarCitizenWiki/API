@@ -137,29 +137,26 @@ class Image extends Model
     public function getExtension(): string
     {
         switch ($this->metadata->mime) {
-            case 'image/bmp':
-                $ext = '.bmp';
-                break;
             case 'image/jpeg':
-                $ext = '.jpg';
+                $ext = 'jpg';
                 break;
             case 'image/tiff':
-                $ext = '.tif';
+                $ext = 'tif';
                 break;
             case 'image/x-icon':
-                $ext = '.ico';
+                $ext = 'ico';
                 break;
-            case 'image/png':
-                $ext = '.png';
+            case 'video/x-m4v':
+                $ext = 'm4v';
                 break;
-            case 'video/mp4':
-                $ext = '.mp4';
+            case 'video/h264':
+                $ext = 'mp4';
                 break;
             default:
-                $ext = '';
+                $ext = explode('/', $this->metadata->mime)[1] ?? '';
                 break;
         }
 
-        return $ext;
+        return $ext !== '' ? sprintf('.%s', $ext) : '';
     }
 }
