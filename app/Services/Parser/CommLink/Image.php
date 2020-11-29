@@ -63,8 +63,8 @@ class Image extends BaseElement
             }
         )
             ->filter(
-                function (string $image) {
-                    $extension = pathinfo(parse_url($image, PHP_URL_PATH), PATHINFO_EXTENSION);
+                function (array $image) {
+                    $extension = pathinfo(parse_url($image['src'], PHP_URL_PATH), PATHINFO_EXTENSION);
 
                     return $extension !== null && $extension !== '';
                 }
