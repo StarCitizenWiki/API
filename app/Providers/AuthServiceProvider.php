@@ -59,6 +59,8 @@ class AuthServiceProvider extends ServiceProvider
                 'start_image_download' => 'startCommLinkImageDownloadJob',
                 'start_download' => 'startCommLinkDownloadJob',
                 'start_proofread_update' => 'startCommLinkProofReadStatusUpdateJob',
+
+                'start_ship_matrix_download' => 'startShipMatrixDownloadImportJob',
             ]
         );
 

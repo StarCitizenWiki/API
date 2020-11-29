@@ -17,52 +17,63 @@ class JobPolicy extends BaseUserPolicy
     use HandlesAuthorization;
 
     /**
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
      * @return bool
      */
-    public function startCommLinkTranslationJob(User $user)
+    public function startCommLinkTranslationJob(User $user): bool
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function startCommLinkWikiPageCreationJob(User $user): bool
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function startCommLinkImageDownloadJob(User $user): bool
     {
         return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
     }
 
     /**
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
      * @return bool
      */
-    public function startCommLinkWikiPageCreationJob(User $user)
+    public function startCommLinkDownloadJob(User $user): bool
     {
-        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+        return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
     }
 
     /**
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
      * @return bool
      */
-    public function startCommLinkImageDownloadJob(User $user)
+    public function startCommLinkProofReadStatusUpdateJob(User $user): bool
     {
-        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+        return $user->getHighestPermissionLevel() >= UserGroup::SICHTER;
     }
 
-    /**
-     * @param \App\Models\Account\User\User $user
-     *
-     * @return bool
-     */
-    public function startCommLinkDownloadJob(User $user)
-    {
-        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
-    }
 
     /**
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
      * @return bool
      */
-    public function startCommLinkProofReadStatusUpdateJob(User $user)
+    public function startShipMatrixDownloadImportJob(User $user): bool
     {
-        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+        return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
     }
 }

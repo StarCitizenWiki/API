@@ -6,6 +6,7 @@
 @section('content')
     @include('components.errors')
     @include('components.messages')
+    @can('web.user.dashboard.view')
     @can('web.user.users.view')
         <section class="row equal-height">
             <div class="col-12 col-md-12 col-lg-6 col-xl-4 mb-4">
@@ -146,57 +147,60 @@
             @endcomponent
         </div>
 
-        <div class="col-12 col-md-12 col-lg-6 col-xl-6 mb-4">
-                    @component('user.components.card', [
-                        'title' => __('Comm-Link Jobs'),
+        <div class="col-12 col-md-12 col-lg-7 col-xl-7 mb-4">
+            @component('user.components.card', [
+                'title' => __('Comm-Link Jobs'),
+            ])
+            <div class="row">
+                <div class="col-12 col-xl-5">
+                    @can('web.user.jobs.start_translation')
+                        @component('components.forms.form', [
+                            'action' => route('web.user.dashboard.translate-comm-links'),
+                            'class' => 'mb-3',
+                        ])
+                            <button class="btn btn-block btn-outline-secondary">@lang('Comm-Links Übersetzen')</button>
+                        @endcomponent
+                    @endcan
+
+                    @can('web.user.jobs.start_wiki_page_creation')
+                        @component('components.forms.form', [
+                            'action' => route('web.user.dashboard.create-wiki-pages'),
+                            'class' => 'mb-3',
+                        ])
+                            <button class="btn btn-block btn-outline-secondary">@lang('Comm-Link Wiki Seiten erstellen')</button>
+                        @endcomponent
+                    @endcan
+
+                    @can('web.user.jobs.start_proofread_update')
+                        @component('components.forms.form', [
+                            'action' => route('web.user.dashboard.update-proofread-status'),
+                        ])
+                            <button class="btn btn-block btn-outline-secondary">@lang('Lektorierungsstatus aktualisieren')</button>
+                        @endcomponent
+                    @endcan
+                </div>
+
+                @can('web.user.jobs.start_download')
+                <div class="col-12 col-xl-7">
+                    @component('components.forms.form', [
+                        'action' => route('web.user.dashboard.download-comm-links'),
+                        'class' => 'mb-3',
                     ])
-                    <div class="row">
-                        <div class="col-12 col-xl-5">
-                            @component('components.forms.form', [
-                                'action' => route('web.user.dashboard.translate-comm-links'),
-                                'class' => 'mb-3',
-                            ])
-                                <button class="btn btn-block btn-outline-secondary">@lang('Comm-Links Übersetzen')</button>
-                            @endcomponent
-{{--                            @component('components.forms.form', [
-                                'action' => route('web.user.dashboard.download-comm-link-images'),
-                                'class' => 'mb-3',
-                            ])
-                                <button class="btn btn-block btn-outline-secondary">@lang('Comm-Link Bilder herunterladen')</button>
-                            @endcomponent--}}
-
-                            @component('components.forms.form', [
-                                'action' => route('web.user.dashboard.create-wiki-pages'),
-                                'class' => 'mb-3',
-                            ])
-                                <button class="btn btn-block btn-outline-secondary">@lang('Comm-Link Wiki Seiten erstellen')</button>
-                            @endcomponent
-                            @component('components.forms.form', [
-                                'action' => route('web.user.dashboard.update-proofread-status'),
-                            ])
-                                <button class="btn btn-block btn-outline-secondary">@lang('Lektorierungsstatus aktualisieren')</button>
-                            @endcomponent
-                        </div>
-
-                        <div class="col-12 col-xl-7">
-                            @component('components.forms.form', [
-                                'action' => route('web.user.dashboard.download-comm-links'),
-                                'class' => 'mb-3',
-                            ])
-                                @component('components.forms.form-group', [
-                                    'inputType' => 'text',
-                                    'label' => __('Comm-Link IDs'),
-                                    'id' => 'ids',
-                                ])
-                                    @slot('inputOptions')
-                                        pattern="[\d{5,}\,?\s?]+" title="12663, 12664, ..." placeholder="12663, 12664, ..."
-                                    @endslot
-                                    <small>@lang('Zu importierende Comm-Link IDs eingeben')</small>
-                                @endcomponent
-                                <button class="btn btn-block btn-outline-secondary">@lang('Comm-Links Herunterladen')</button>
-                            @endcomponent
-                        </div>
-                    </div>
+                        @component('components.forms.form-group', [
+                            'inputType' => 'text',
+                            'label' => __('Comm-Link IDs'),
+                            'id' => 'ids',
+                        ])
+                            @slot('inputOptions')
+                                pattern="[\d{5,}\,?\s?]+" title="12663, 12664, ..." placeholder="12663, 12664, ..."
+                            @endslot
+                            <small>@lang('Zu importierende Comm-Link IDs eingeben')</small>
+                        @endcomponent
+                        <button class="btn btn-block btn-outline-secondary">@lang('Comm-Links Herunterladen')</button>
+                    @endcomponent
+                </div>
+                @endcan
+            </div>
             @endcomponent
         </div>
 
@@ -217,4 +221,23 @@
             @endcomponent
         </div>
     </section>
+
+    <section class="row equal-height">
+        <div class="col-12 col-lg-3 col-xl-3 mb-4">
+            @component('user.components.card', [
+                'title' => __('Jobs'),
+            ])
+                @can('web.user.jobs.start_ship_matrix_download')
+                    @component('components.forms.form', [
+                        'action' => route('web.user.dashboard.download-ship-matrix'),
+                        'class' => 'mb-3',
+                    ])
+                        <button class="btn btn-block btn-outline-secondary">@lang('ShipMatrix importieren')</button>
+                    @endcomponent
+                @endcan
+            @endcomponent
+
+        </div>
+    </section>
+    @endcan
 @endsection

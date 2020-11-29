@@ -54,6 +54,12 @@ Route::group(
                                 'update-proofread-status',
                                 'Job\Wiki\CommLink\JobController@startCommLinkProofReadStatusUpdateJob'
                             )->name('update-proofread-status');
+
+
+                            Route::post(
+                                'download-ship-matrix',
+                                'Job\StarCitizen\ShipMatrix\JobController@startCommLinkWikiPageCreationJob'
+                            )->name('download-ship-matrix');
                         }
                     );
 
