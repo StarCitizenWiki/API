@@ -43,12 +43,15 @@
             <li class="list-group-item">
                 <small>Quelle: <a href="{{ $image->url }}" target="_blank">{{ $image->src }}</a></small>
             </li>
-            @foreach($image->commLinks as $commLink)
+            @foreach($image->commLinks->sortByDesc('cig_id')->take(5) as $commLink)
                 <li class="list-group-item">
                     <a href="{{ route('web.user.rsi.comm-links.show', $commLink->getRouteKey()) }}"
                        class="card-link">{{ $commLink->cig_id }} &mdash; {{ $commLink->title }}</a>
                 </li>
             @endforeach
+            @if($image->commLinks->count() > 5)
+                <li class="list-group-item">Verwendet in {{ $image->commLinks->count() }} Comm-Links</li>
+            @endif
         </ul>
         <div class="card-footer">
             <a data-toggle="collapse" href="#comm_link_container_{{ $loop->index }}" role="button"
