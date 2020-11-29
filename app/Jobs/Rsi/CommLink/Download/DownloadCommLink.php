@@ -26,6 +26,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     use SerializesModels;
 
     public const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
+    public const DISK = 'comm_links';
 
     /**
      * @var int Post ID
@@ -53,7 +54,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->skipExisting && Storage::disk('comm_links')->exists($this->postId)) {
+        if ($this->skipExisting && Storage::disk(self::DISK)->exists($this->postId)) {
             app('Log')::debug(
                 "Skipping existing Comm-Link {$this->postId}",
                 [
@@ -116,7 +117,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      */
     private function writeFile(string $content): void
     {
-        Storage::disk('comm_links')->put(
+        Storage::disk(self::DISK)->put(
             sprintf('%d/%s.html', $this->postId, Carbon::now()->format('Y-m-d_His')),
             $content
         );

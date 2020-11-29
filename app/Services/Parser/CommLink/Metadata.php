@@ -19,6 +19,11 @@ use Symfony\Component\DomCrawler\Crawler;
 class Metadata extends BaseElement
 {
     /**
+     * Default Creation Date no Date was found in the Comm-Link
+     */
+    public const DEFAULT_CREATION_DATE = '2012-01-01 00:00:00';
+
+    /**
      * Channel CSS Selector
      */
     private const CHANNEL_SELECTOR = '.title-bar .title h1';
@@ -37,11 +42,6 @@ class Metadata extends BaseElement
      * Created At CSS Selector
      */
     private const CREATED_AT_SELECTOR = '.title-section .details div:nth-of-type(3) p';
-
-    /**
-     * Default Creation Date no Date was found in the Comm-Link
-     */
-    private const DEFAULT_CREATION_DATE = '2012-01-01 00:00:00';
 
     /**
      * Default Title Ending

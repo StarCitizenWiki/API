@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Import;
 
+use App\Jobs\Rsi\CommLink\Download\DownloadCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinksChanged;
 use App\Services\Parser\CommLink\Content;
 use App\Services\Parser\CommLink\Image;
 use App\Services\Parser\CommLink\Link;
 use App\Services\Parser\CommLink\Metadata;
+use Carbon\Carbon;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -167,6 +171,15 @@ class ImportCommLink implements ShouldQueue
     {
         $metaData = (new Metadata($this->crawler))->getMetaData();
 
+        if ($metaData['created_at'] === Metadata::DEFAULT_CREATION_DATE) {
+            $metaData->put(
+                'created_at',
+                $this->createTimestampFromFile(
+                    $this->getFirstCommLinkFileName()
+                ) ?? Metadata::DEFAULT_CREATION_DATE
+            );
+        }
+
         return [
             'title' => $metaData->get('title'),
             'comment_count' => $metaData->get('comment_count'),
@@ -267,5 +280,33 @@ class ImportCommLink implements ShouldQueue
         }
 
         return $contentParser->getContent() !== optional($this->commLinkModel->english())->translation;
+    }
+
+    /**
+     * Returns the first file in a comm-link folder or null
+     *
+     * @return string|null
+     */
+    private function getFirstCommLinkFileName(): ?string
+    {
+        $filename = Arr::first(Storage::disk(DownloadCommLink::DISK)->allFiles($this->commLinkId));
+
+        return str_replace(sprintf('%d/', $this->commLinkId), '', $filename);
+    }
+
+    /**
+     * Creates a timestamp from a comm-link filename
+     *
+     * @param string $file
+     *
+     * @return string|null
+     */
+    private function createTimestampFromFile(string $file): ?string
+    {
+        try {
+            return Carbon::createFromFormat('Y-m-d_His\.\h\t\m\l', $file)->format('Y-m-d H:i:s');
+        } catch (InvalidFormatException $e) {
+            return null;
+        }
     }
 }
