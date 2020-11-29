@@ -142,6 +142,7 @@ Route::group(
                                         Route::get('series/{series}', 'Series\SeriesController@show')->name('series.show');
 
                                         Route::get('images', 'Image\ImageController@index')->name('images.index');
+                                        Route::post('images/upload-wiki', 'Image\ImageController@upload')->name('images.upload-wiki');
 
                                         Route::get('search', 'CommLinkSearchController@search')->name('search');
                                         Route::post('reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearchPost')->name('reverse-image-link-search.post');

@@ -13,6 +13,8 @@
 @section('head__content')
     @parent
     <link rel="stylesheet" href="{{ URL::asset('/css/app.css') }}">
+    <link rel="preconnect" href="//robertsspaceindustries.com">
+    <link rel="preconnect" href="//media.robertsspaceindustries.com">
 @endsection
 
 

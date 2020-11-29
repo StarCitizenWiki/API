@@ -44,6 +44,8 @@ class ImageMetadata extends Model
             case 'image/png':
                 return 'primary';
 
+            case 'video/mp4':
+            case 'video/webm':
             case 'image/gif':
                 return 'warning';
 

@@ -22,6 +22,7 @@
         {{ $images->links() }}
     </div>
     @endif
+    @include('user.components.upload_modal')
 @endsection
 
 @section('body__after')

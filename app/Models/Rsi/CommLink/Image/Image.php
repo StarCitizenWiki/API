@@ -133,4 +133,33 @@ class Image extends Model
 
         return $this->url;
     }
+
+    public function getExtension(): string
+    {
+        switch ($this->metadata->mime) {
+            case 'image/bmp':
+                $ext = '.bmp';
+                break;
+            case 'image/jpeg':
+                $ext = '.jpg';
+                break;
+            case 'image/tiff':
+                $ext = '.tif';
+                break;
+            case 'image/x-icon':
+                $ext = '.ico';
+                break;
+            case 'image/png':
+                $ext = '.png';
+                break;
+            case 'video/mp4':
+                $ext = '.mp4';
+                break;
+            default:
+                $ext = '';
+                break;
+        }
+
+        return $ext;
+    }
 }
