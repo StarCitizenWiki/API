@@ -16,7 +16,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="filename-prefix"></span>
                             </div>
-                            <input type="text" class="form-control" id="filename" aria-describedby="filename-prefix" required min="5">
+                            <input type="text" class="form-control" id="filename" aria-describedby="filename-prefix" required minlength="5">
                         </div>
                     </div>
                     <div class="form-group">
@@ -28,7 +28,7 @@
                     </div>
                     <div class="form-group">
                         <label for="categories">Kategorien</label>
-                        <input type="text" class="form-control" id="categories" required min="5">
+                        <input type="text" class="form-control" id="categories" required minlength="5">
                         <small id="categoriesHelpBlock" class="form-text text-muted">
                             Liste von Kategorien, getrennt durch ein Komma.<br>Die Kategorie des Comm-Links wird automatisch hinzugefügt.
                         </small>
@@ -38,7 +38,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
             </div>
         </div>
     </div>
@@ -46,7 +46,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
         initModalButtons();
 
         document.getElementById('uploadForm').addEventListener('submit', (e) => {
@@ -82,7 +81,9 @@
                     alert.innerHTML = 'Konnte Datei nicht hochladen.'
 
                     if (typeof response?.data?.upload?.warnings?.exists !== 'undefined' || typeof response?.data?.upload?.warnings?.duplicate !== 'undefined' ) {
-                        alert.innerHTML = `Datei existiert bereits unter <code>${(response?.data?.upload?.warnings?.exists ?? response?.data?.upload?.warnings?.duplicate)}</code>.`
+                        const name = (response?.data?.upload?.warnings?.exists ?? response?.data?.upload?.warnings?.duplicate)
+                        const link = `<a href="{!! config('api.wiki_url') !!}/index.php?title=Image:${name}">${name}</a>`
+                        alert.innerHTML = `Datei existiert bereits unter <br><code>${link}</code>.`
                     }
 
                     console.log(response.data)
@@ -93,11 +94,6 @@
                 alert.classList.remove('alert-info')
                 alert.classList.add('alert-success')
                 alert.innerHTML = `Bild hochgeladen!<br><code><a href="{!! config('api.wiki_url') !!}/index.php?title=Image:${response.data.upload.filename}">${response.data.upload.filename}</a></code>`
-
-                setTimeout(() => {
-                    $(modal).modal('hide')
-                }, 10000)
-
 
                 modal.querySelector('#image').value = 0
                 modal.querySelector('#description').value = ''
