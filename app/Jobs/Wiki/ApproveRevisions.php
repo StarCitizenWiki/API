@@ -2,7 +2,8 @@
 
 namespace App\Jobs\Wiki;
 
-use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
+use App\Traits\GetWikiCsrfTokenTrait as GetWikiCsrfToken;
+use ErrorException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,7 +19,7 @@ class ApproveRevisions implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use LoginWikiBotAccount;
+    use GetWikiCsrfToken;
 
     private array $pageTitles;
     private string $csrfToken = '';
@@ -40,7 +41,7 @@ class ApproveRevisions implements ShouldQueue
      */
     public function handle()
     {
-        $this->getCsrfToken();
+        $this->requestCsrfToken();
         $ids = $this->getRevisionIDs();
         $ids = collect($ids['pages'] ?? [])
             ->filter(
@@ -76,18 +77,16 @@ class ApproveRevisions implements ShouldQueue
     /**
      * Requests an CSRF Token from the Wiki
      */
-    private function getCsrfToken(): void
+    private function requestCsrfToken(): void
     {
-        $this->loginWikiBotAccount('services.wiki_approve_revs');
-
-        $token = MediaWikiApi::query()->meta('tokens')->request();
-
-        if ($token->hasErrors()) {
+        try {
+            $token = $this->getCsrfToken('services.wiki_approve_revs');
+        } catch (ErrorException $e) {
             app('Log')::info(
                 sprintf(
                     '%s: %s',
                     'Token retrieval failed',
-                    $token->getErrors()['code'] ?? ''
+                    $e->getMessage()
                 )
             );
 
@@ -96,7 +95,13 @@ class ApproveRevisions implements ShouldQueue
             return;
         }
 
-        $this->csrfToken = $token->getQuery()['tokens']['csrftoken'];
+        if ($token === null) {
+            $this->release(300);
+
+            return;
+        }
+
+        $this->csrfToken = $token;
     }
 
     /**

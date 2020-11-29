@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Jobs\Wiki\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
+use App\Traits\GetWikiCsrfTokenTrait as GetWikiCsrfToken;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
-use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,7 +27,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
     use Queueable;
     use SerializesModels;
     use GetCommLinkWikiPageInfo;
-    use LoginWikiBotAccount;
+    use GetWikiCsrfToken;
 
     /**
      * Execute the job.
@@ -38,11 +38,11 @@ class CreateCommLinkWikiPages implements ShouldQueue
     {
         app('Log')::info('Starting creation of Comm-Link Wiki Pages');
 
-        $this->loginWikiBotAccount('services.wiki_translations');
-
         $token = MediaWikiApi::query()->meta('tokens')->request();
 
-        if ($token->hasErrors()) {
+        try {
+            $token = $this->getCsrfToken('services.wiki_translations');
+        } catch (\ErrorException $e) {
             app('Log')::info(
                 sprintf(
                     '%s: %s',
@@ -55,8 +55,6 @@ class CreateCommLinkWikiPages implements ShouldQueue
 
             return;
         }
-
-        $token = $token->getQuery()['tokens']['csrftoken'];
 
         $config = $this->getCommLinkConfig();
         $config['token'] = $token;

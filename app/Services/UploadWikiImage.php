@@ -6,20 +6,23 @@ namespace App\Services;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
-use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
+use App\Traits\GetWikiCsrfTokenTrait as GetWikiCsrfToken;
+use ErrorException;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 class UploadWikiImage
 {
-    use LoginWikiBotAccount;
+    use GetWikiCsrfToken;
 
     /**
      * @param array $data
      *
      * @return string
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws GuzzleException
+     * @throws ModelNotFoundException
      * @throws \JsonException
      */
     public function upload(array $data): string
@@ -29,13 +32,11 @@ class UploadWikiImage
 
         $this->loginWikiBotAccount('services.wiki_upload_image');
 
-        $token = MediaWikiApi::query()->meta('tokens')->request();
-
-        if ($token->hasErrors()) {
-            return json_encode($token->getBody(), JSON_THROW_ON_ERROR);
+        try {
+            $token = $this->getCsrfToken('services.wiki_upload_image');
+        } catch (ErrorException $e) {
+            return $e->getMessage();
         }
-
-        $token = $token->getQuery()['tokens']['csrftoken'];
 
         $firstCommLinkId = $image->commLinks->pluck('cig_id')->min();
 
@@ -72,11 +73,13 @@ class UploadWikiImage
         /** @var Collection $sources */
         $sources = $image->commLinks->map(
             function (CommLink $commLink) {
-                return sprintf('https://robertsspaceindustries.com%s', $commLink->url ?? sprintf('/SCW/%d-IMPORT', $commLink->cig_id));
+                return sprintf(
+                    'https://robertsspaceindustries.com%s',
+                    $commLink->url ?? sprintf('/SCW/%d-IMPORT', $commLink->cig_id)
+                );
             }
-        );
-
-        $sources->push($image->getLocalOrRemoteUrl());
+        )
+            ->push($image->getLocalOrRemoteUrl());
 
         // Todo this should be dynamic
         return sprintf(

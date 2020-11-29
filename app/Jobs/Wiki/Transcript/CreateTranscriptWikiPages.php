@@ -6,7 +6,7 @@ namespace App\Jobs\Wiki\Transcript;
 
 use App\Models\Transcript\Transcript;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
-use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
+use App\Traits\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
