@@ -61,19 +61,27 @@ class Image extends BaseElement
 
                 return null === $host || in_array($host, self::RSI_DOMAINS, true);
             }
-        )->each(
-            function ($image) use (&$imageIDs) {
-                $src = self::cleanImgSource($image['src']);
+        )
+            ->filter(
+                function (string $image) {
+                    $extension = pathinfo(parse_url($image, PHP_URL_PATH), PATHINFO_EXTENSION);
 
-                $imageIDs[] = ImageModel::query()->firstOrCreate(
-                    [
-                        'src' => $this->cleanText($src),
-                        'alt' => $this->cleanText($image['alt']),
-                        'dir' => self::getDirHash($src),
-                    ]
-                )->id;
-            }
-        );
+                    return $extension !== null && $extension !== '';
+                }
+            )
+            ->each(
+                function ($image) use (&$imageIDs) {
+                    $src = self::cleanImgSource($image['src']);
+
+                    $imageIDs[] = ImageModel::query()->firstOrCreate(
+                        [
+                            'src' => $this->cleanText($src),
+                            'alt' => $this->cleanText($image['alt']),
+                            'dir' => self::getDirHash($src),
+                        ]
+                    )->id;
+                }
+            );
 
         return array_unique($imageIDs);
     }
