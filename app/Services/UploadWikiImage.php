@@ -6,11 +6,14 @@ namespace App\Services;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Support\Collection;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 class UploadWikiImage
 {
+    use LoginWikiBotAccount;
+
     /**
      * @param array $data
      *

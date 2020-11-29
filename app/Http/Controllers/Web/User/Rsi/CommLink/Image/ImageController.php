@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\Image\ImageUploadRequest;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Services\UploadWikiImage;
-use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\View\View;
@@ -18,8 +17,6 @@ use Illuminate\View\View;
  */
 class ImageController extends Controller
 {
-    use LoginWikiBotAccount;
-
     /**
      * ImageController constructor.
      */
