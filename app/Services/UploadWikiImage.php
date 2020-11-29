@@ -56,7 +56,7 @@ class UploadWikiImage
                 sprintf(
                     "%s\n\n%s",
                     $this->makeContent($data, $image),
-                    $this->parseCategories($data, $firstCommLinkId)
+                    $this->parseCategories($data, $image)
                 )
             )
             ->addParam('url', $image->getLocalOrRemoteUrl())
