@@ -72,7 +72,7 @@ class UploadWikiImage
         /** @var Collection $sources */
         $sources = $image->commLinks->map(
             function (CommLink $commLink) {
-                return sprintf('https://robertsspaceindustries.com%s', $commLink->url);
+                return sprintf('https://robertsspaceindustries.com%s', $commLink->url ?? sprintf('/SCW/%d-IMPORT', $commLink->cig_id));
             }
         );
 
