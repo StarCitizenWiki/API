@@ -105,13 +105,20 @@ TEXT
      * Parse categories from string
      *
      * @param array $data
-     * @param int   $firstCommLinkId
+     * @param Image $image
      *
      * @return string
      */
-    private function parseCategories(array $data, int $firstCommLinkId): string
+    private function parseCategories(array $data, Image $image): string
     {
-        return collect([sprintf('Comm-Link %d', $firstCommLinkId)])
+        return $image->commLinks
+            ->pluck('cig_id')
+            ->map(
+                function ($id) {
+                    return sprintf('Comm-Link %d', $id);
+                }
+            )
+            ->sort()
             ->push(...explode(',', $data['categories']))
             ->map(
                 function (string $item) {
