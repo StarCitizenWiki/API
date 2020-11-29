@@ -44,18 +44,15 @@ class CommLink extends HasTranslations
         'created_at',
     ];
 
+    protected $withCount = [
+        'images',
+        'links',
+    ];
+
     protected $with = [
         'channel',
         'category',
         'series',
-        'images',
-        'links',
-        'translations',
-    ];
-
-    protected $withCount = [
-        'images',
-        'links',
     ];
 
     protected $casts = [

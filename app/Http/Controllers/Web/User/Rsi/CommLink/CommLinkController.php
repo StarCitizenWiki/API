@@ -16,12 +16,12 @@ use Carbon\Carbon;
 use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\View\View;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
 use Symfony\Component\DomCrawler\Crawler;
@@ -86,17 +86,28 @@ class CommLinkController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param CommLink $commLink
+     * @param int $commLinkId
      *
      * @return View
      *
      * @throws AuthorizationException
      */
-    public function show(CommLink $commLink): View
+    public function show(int $commLinkId): View
     {
         $this->authorize('web.user.rsi.comm-links.view');
 
-        $commLink->load('translationChangelogs');
+        $commLink = CommLink::query()
+            ->with(
+                [
+                    'images',
+                    'links',
+                    'translations',
+                    'translationChangelogs',
+                    'images.commLinks',
+                ]
+            )
+            ->where('cig_id', $commLinkId)
+            ->firstOrFail();
 
         /** @var Collection $changelogs */
         $changelogs = $commLink->changelogs;
