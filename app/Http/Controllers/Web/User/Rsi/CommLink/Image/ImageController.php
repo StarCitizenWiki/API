@@ -7,9 +7,12 @@ namespace App\Http\Controllers\Web\User\Rsi\CommLink\Image;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\Image\ImageUploadRequest;
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Models\Rsi\CommLink\Image\ImageMetadata;
 use App\Services\UploadWikiImage;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -29,22 +32,36 @@ class ImageController extends Controller
     /**
      * All downloaded Images, excluding those that could not be found
      *
+     * @param Request $request
+     *
      * @return Factory|View
      *
      * @throws AuthorizationException
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('web.user.rsi.comm-links.view');
+
+        $query = Image::query()
+            ->where('dir', 'NOT LIKE', 'NOT_FOUND');
+
+        if ($request->get('mime', null) !== null) {
+            $query->whereHas(
+                'metadata',
+                function (Builder $query) use ($request) {
+                    return $query->where('mime', '=', $request->get('mime'));
+                }
+            );
+        }
 
         return view(
             'user.rsi.comm_links.images.index',
             [
-                'images' => Image::query()
-                    ->where('dir', 'NOT LIKE', 'NOT_FOUND')
+                'images' => $query
                     ->orderByDesc('id')
                     ->groupBy('src')
                     ->paginate(20),
+                'mimes' => ImageMetadata::query()->groupBy('mime')->get('mime'),
             ]
         );
     }
