@@ -37,7 +37,21 @@
 @section('body__after')
     @parent
     <script>
+        const hoverVideoPlay = () => {
+            document.querySelectorAll('video').forEach(video => {
+                video.addEventListener('mouseenter', () => {
+                    video.play();
+                });
+
+                video.addEventListener('mouseleave', () => {
+                    video.pause();
+                });
+            })
+        }
+
         (() => {
+            hoverVideoPlay();
+
             document.querySelectorAll('.badge.last-modified').forEach(entry => {
                 entry.addEventListener('click', () => {
                     navigator.clipboard.writeText(entry.dataset.lastModified)
