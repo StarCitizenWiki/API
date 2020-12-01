@@ -131,7 +131,7 @@ class Kernel extends ConsoleKernel
     {
         /* Check for new Comm-Links */
         $this->schedule
-            ->command(Schedule::class)
+            ->command(CommLinkSchedule::class)
             ->hourly()
             ->after(
                 function () {
