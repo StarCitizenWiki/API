@@ -58,16 +58,16 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
         }
 
         try {
-            $response = $this->makeClient()->post(
-                self::STATS_ENDPOINT,
-                [
-                    'json' => [
+            $response = $this->makeClient()
+                ->asForm()
+                ->post(
+                    self::STATS_ENDPOINT,
+                    [
                         'fans' => true,
                         'fleet' => true,
                         'funds' => true,
-                    ],
-                ]
-            )->throw();
+                    ]
+                )->throw();
         } catch (RequestException $e) {
             app('Log')::critical(
                 'Could not connect to RSI Stats Endpoint',
