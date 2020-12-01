@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
+use App\Console\Commands\CommLink\CommLinkSchedule;
 use App\Console\Commands\CommLink\Download\DownloadCommLink;
 use App\Console\Commands\CommLink\Download\DownloadCommLinks;
 use App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages;
@@ -13,7 +14,6 @@ use App\Console\Commands\CommLink\Image\CreateImageMetadata;
 use App\Console\Commands\CommLink\Image\SyncImageIds;
 use App\Console\Commands\CommLink\Import\ImportCommLink;
 use App\Console\Commands\CommLink\Import\ImportCommLinks;
-use App\Console\Commands\CommLink\CommLinkSchedule;
 use App\Console\Commands\CommLink\Translate\TranslateCommLinks;
 use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
 use App\Console\Commands\ShipMatrix\Download\DownloadShipMatrix;
