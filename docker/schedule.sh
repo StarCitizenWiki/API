@@ -6,4 +6,4 @@ IP=/var/www/html
 
 /usr/local/bin/php "$IP/artisan" schedule:run --verbose --no-interaction >> /dev/null 2>&1
 
-return 0
+exit 0
