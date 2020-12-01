@@ -22,7 +22,7 @@ class ApproveRevisions implements ShouldQueue
     use GetWikiCsrfToken;
 
     private array $pageTitles;
-    private string $csrfToken = '';
+    private string $token = '';
 
     /**
      * Create a new job instance.
@@ -101,7 +101,7 @@ class ApproveRevisions implements ShouldQueue
             return;
         }
 
-        $this->csrfToken = $token;
+        $this->token = $token;
     }
 
     /**
@@ -146,7 +146,7 @@ class ApproveRevisions implements ShouldQueue
             function ($id) {
                 $response = MediaWikiApi::action('approve', 'POST')
                     ->withAuthentication()
-                    ->csrfToken($this->csrfToken)
+                    ->csrfToken($this->token)
                     ->addParam('revid', $id)
                     ->request();
 
