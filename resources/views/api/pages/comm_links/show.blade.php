@@ -83,7 +83,11 @@
 
                 <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="nav-images-tab">
                     @forelse($commLink->images as $image)
-                        <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank"><img src="{{ str_replace('source', 'post', $image->url) }}" alt="Comm-Link Image" class="img-thumbnail" style="max-width: 150px;"></a>
+                        @if(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
+                        <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank">
+                            <img src="{{ str_replace('source', 'post', $image->url) }}" alt="Comm-Link Image" class="img-thumbnail" style="max-width: 150px;">
+                        </a>
+                        @endif
                     @empty
                         Keine Bilder vorhanden
                     @endforelse
