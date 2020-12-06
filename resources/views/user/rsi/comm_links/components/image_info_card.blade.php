@@ -4,11 +4,17 @@
             <video class="card-img-top" loading="lazy">
                 <source src="{{ $image->url }}" type="{{ $image->metadata->mime }}">
             </video>
-        @else
+        @elseif(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
             <img src="{{ str_replace('source', 'post', $image->url) }}"
                  alt="{{ empty($image->alt) ? __('Kein alt Text verfügbar') : $image->alt }}"
                  class="card-img-top"
                  loading="lazy" />
+        @elseif(\Illuminate\Support\Str::contains($image->metadata->mime, 'audio'))
+            <audio class="card-img-top" controls>
+                <source src="{{ $image->url }}" type="{{ $image->metadata->mime }}">
+            </audio>
+        @else
+            <p class="card-img-top m-0 pt-2">{{ $image->name }}</p>
         @endif
     </a>
     <div class="card-body">
