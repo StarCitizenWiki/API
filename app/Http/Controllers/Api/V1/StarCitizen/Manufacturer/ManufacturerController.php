@@ -13,7 +13,10 @@ use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
- * Hersteller API
+ * Manufacturer API
+ * Manufacturers found in the ShipMatrix
+ *
+ * @Resource("Manufacturers", uri="/manufacturers")
  */
 class ManufacturerController extends ApiController
 {
@@ -30,7 +33,72 @@ class ManufacturerController extends ApiController
     }
 
     /**
-     * Alle Hersteller
+     * Returns all manufacturers
+     *
+     * @Get("/{?page,limit,include}")
+     * @Versions({"v1"})
+     * @Parameters({
+     *     @Parameter("page", type="integer", required=false, description="Pagination page", default=1),
+     *     @Parameter(
+     *          "include",
+     *          type="string",
+     *          required=false,
+     *          description="Relations to include. Valid relations are shown in the meta data"
+     *     ),
+     *     @Parameter(
+     *          "limit",
+     *          type="integer",
+     *          required=false,
+     *          description="Items per page, set to 0, to return all items",
+     *          default=10
+     *     ),
+     * })
+     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"})
+     * @Response(200, body={
+     * "data": {
+     *  {
+     *      "code": "RSI",
+     *      "name": "Roberts Space Industries",
+     *      "known_for": {
+     *          "de_DE": "Die Aurora und die Constellation",
+     *          "en_EN": "the Aurora and the Constellation"
+     *      },
+     *      "description": {
+     *          "de_DE": "...",
+     *          "en_EN": "..."
+     *      },
+     *  },
+     *  {
+     *      "code": "ORIG",
+     *      "name": "Origin Jumpworks GmbH",
+     *      "known_for": {
+     *          "de_DE": "Die 300i Serie",
+     *          "en_EN": "the 300i series"
+     *      },
+     *      "description": {
+     *          "de_DE": "...",
+     *          "en_EN": "..."
+     *      },
+     *  },
+     * },
+     * "meta": {
+     *  "processed_at": "2020-12-07 13:25:54",
+     *  "valid_relations": {
+     *      "ships",
+     *      "vehicles"
+     *  },
+     *  "pagination": {
+     *      "total": 17,
+     *      "count": 10,
+     *      "per_page": 10,
+     *      "current_page": 1,
+     *      "total_pages": 2,
+     *      "links": {
+     *          "next": "https:\/\/api.star-citizen.wiki\/api\/manufacturers?page=2"
+     *      }
+     *  }
+     * }
+     * })
      *
      * @return Response
      */
@@ -40,7 +108,43 @@ class ManufacturerController extends ApiController
     }
 
     /**
-     * Einzelner Hersteller
+     * Returns a single manufacturer
+     *
+     * @Get("/{CODE}{?include}")
+     * @Versions({"v1"})
+     * @Parameters({
+     *     @Parameter("CODE", type="string", required=true, description="Manufacturer Code"),
+     *     @Parameter(
+     *          "include",
+     *          type="string",
+     *          required=false,
+     *          description="Relations to include. Valid relations are shown in the meta data"
+     *     ),
+     * })
+     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"})
+     * @Response(200, body={
+     * "data": {
+     *  {
+     *      "code": "RSI",
+     *      "name": "Roberts Space Industries",
+     *      "known_for": {
+     *          "de_DE": "Die Aurora und die Constellation",
+     *          "en_EN": "the Aurora and the Constellation"
+     *      },
+     *      "description": {
+     *          "de_DE": "...",
+     *          "en_EN": "..."
+     *      },
+     *  }
+     * },
+     * "meta": {
+     *  "processed_at": "2020-12-07 13:25:54",
+     *  "valid_relations": {
+     *      "ships",
+     *      "vehicles"
+     *  },
+     * }
+     * })
      *
      * @param string $manufacturer
      *
@@ -51,7 +155,7 @@ class ManufacturerController extends ApiController
         $manufacturer = urldecode($manufacturer);
 
         try {
-            $manufacturer = Manufacturer::query()
+            $model = Manufacturer::query()
                 ->where('name_short', $manufacturer)
                 ->orWhere('name', $manufacturer)
                 ->firstOrFail();
@@ -59,11 +163,54 @@ class ManufacturerController extends ApiController
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $manufacturer));
         }
 
-        return $this->getResponse($manufacturer);
+        return $this->getResponse($model);
     }
 
     /**
      * Search Endpoint
+     *
+     * @Post("/search")
+     * @Versions({"v1"})
+     * @Parameters({
+     *     @Parameter("query", type="string", required=true, description="Manufacturer Code or partial name"),
+     *     @Parameter(
+     *          "include",
+     *          type="string",
+     *          required=false,
+     *          description="Relations to include. Valid relations are shown in the meta data"
+     *     ),
+     * })
+     *
+     * @Transaction({
+     *      @Request({"query": "RSI"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
+     *      @Response(200, body={
+     *      "data": {
+     *       {
+     *           "code": "RSI",
+     *           "name": "Roberts Space Industries",
+     *           "known_for": {
+     *               "de_DE": "Die Aurora und die Constellation",
+     *               "en_EN": "the Aurora and the Constellation"
+     *           },
+     *           "description": {
+     *               "de_DE": "...",
+     *               "en_EN": "..."
+     *           },
+     *       }
+     *      },
+     *      "meta": {
+     *       "processed_at": "2020-12-07 13:25:54",
+     *       "valid_relations": {
+     *           "ships",
+     *           "vehicles"
+     *       },
+     *      }
+     *      }),
+     *
+     *      @Request({"query": "INVALID"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
+     *      @Response(404, body={"message": "No Results for Query 'INVALID'", "status_code": 404})
+     * })
+     *
      *
      * @param Request $request
      *
