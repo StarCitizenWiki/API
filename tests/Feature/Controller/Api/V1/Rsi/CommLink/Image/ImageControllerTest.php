@@ -45,18 +45,6 @@ class ImageControllerTest extends ApiTestCase
         'channel',
         'category',
         'series',
-        'images' => [
-            'data' => [
-                '*' => [
-                    'rsi_url',
-                    'api_url',
-                    'alt',
-                    'size',
-                    'mime_type',
-                    'last_modified',
-                ],
-            ],
-        ],
         'links',
         'comment_count',
         'created_at',
