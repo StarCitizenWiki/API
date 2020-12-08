@@ -121,7 +121,9 @@ class ManufacturerController extends ApiController
      *          description="Relations to include. Valid relations are shown in the meta data"
      *     ),
      * })
-     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"})
+     *
+     * @Transaction({
+     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
      * @Response(200, body={
      * "data": {
      *  {
@@ -144,6 +146,103 @@ class ManufacturerController extends ApiController
      *      "vehicles"
      *  },
      * }
+     * }),
+     *
+     * @Request({"include": "ships"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
+     * @Response(200, body={
+     * "data": {
+     *  {
+     *      "code": "RSI",
+     *      "name": "Roberts Space Industries",
+     *      "known_for": {
+     *          "de_DE": "Die Aurora und die Constellation",
+     *          "en_EN": "the Aurora and the Constellation"
+     *      },
+     *      "description": {
+     *          "de_DE": "...",
+     *          "en_EN": "..."
+     *      },
+     *      "ships": {
+     *          "data": {
+     *              {
+     *                  "name": "Orion",
+     *                  "slug": "orion",
+     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/ships\/orion"
+     *              },
+     *              {
+     *                  "name": "Polaris",
+     *                  "slug": "polaris",
+     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/ships\/polaris"
+     *              },
+     *              {
+     *                  "name": "...",
+     *              },
+     *          }
+     *      }
+     *  }
+     * },
+     * "meta": {
+     *  "processed_at": "2020-12-07 13:25:54",
+     *  "valid_relations": {
+     *      "ships",
+     *      "vehicles"
+     *  },
+     * }
+     * }),
+     *
+     * @Request({"include": "ships,vehicles"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
+     * @Response(200, body={
+     * "data": {
+     *  {
+     *      "code": "RSI",
+     *      "name": "Roberts Space Industries",
+     *      "known_for": {
+     *          "de_DE": "Die Aurora und die Constellation",
+     *          "en_EN": "the Aurora and the Constellation"
+     *      },
+     *      "description": {
+     *          "de_DE": "...",
+     *          "en_EN": "..."
+     *      },
+     *      "ships": {
+     *          "data": {
+     *              {
+     *                  "name": "Orion",
+     *                  "slug": "orion",
+     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/ships\/orion"
+     *              },
+     *              {
+     *                  "name": "Polaris",
+     *                  "slug": "polaris",
+     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/ships\/polaris"
+     *              },
+     *              {
+     *                  "name": "...",
+     *              },
+     *          }
+     *      },
+     *      "vehicles": {
+     *          "data": {
+     *              {
+     *                  "name": "Ursa Rover",
+     *                  "slug": "ursa-rover",
+     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/vehicles\/ursa-rover"
+     *              },
+     *              {
+     *                  "name": "...",
+     *              },
+     *          }
+     *      }
+     *  }
+     * },
+     * "meta": {
+     *  "processed_at": "2020-12-07 13:25:54",
+     *  "valid_relations": {
+     *      "ships",
+     *      "vehicles"
+     *  },
+     * }
+     * }),
      * })
      *
      * @param string $manufacturer

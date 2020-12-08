@@ -28,6 +28,10 @@ class CommLinkController extends ApiController
     public function __construct(Request $request, CommLinkTransformer $transformer)
     {
         $this->transformer = $transformer;
+
+        // Don't include translation per default
+        $this->transformer->setDefaultIncludes(array_slice($this->transformer->getAvailableIncludes(), 0, 2));
+
         parent::__construct($request);
     }
 
@@ -55,34 +59,34 @@ class CommLinkController extends ApiController
      * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"})
      * @Response(200, body={
      * "data": {
-     *  {
-     *      "id": 17911,
-     *      "title": "Star Citizen Live",
-     *      "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/17911-Star-Citizen-Live",
-     *      "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/17911",
-     *      "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/17911",
-     *      "channel": "Transmission",
-     *      "category": "General",
-     *      "series": "Star Citizen LIVE",
-     *      "images": 1,
-     *      "links": 2,
-     *      "comment_count": 4,
-     *      "created_at": "2020-12-03T23:00:00.000000Z"
-     *  },
-     *  {
-     *      "id": 17909,
-     *      "title": "Inside Star Citizen",
-     *      "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/17909-Inside-Star-Citizen",
-     *      "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/17909",
-     *      "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/17909",
-     *      "channel": "Transmission",
-     *      "category": "General",
-     *      "series": "Inside Star Citizen",
-     *      "images": 1,
-     *      "links": 2,
-     *      "comment_count": 18,
-     *      "created_at": "2020-12-02T23:00:00.000000Z"
-     *  },
+     *      {
+     *          "id": 17911,
+     *          "title": "Star Citizen Live",
+     *          "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/17911-Star-Citizen-Live",
+     *          "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/17911",
+     *          "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/17911",
+     *          "channel": "Transmission",
+     *          "category": "General",
+     *          "series": "Star Citizen LIVE",
+     *          "images": 1,
+     *          "links": 2,
+     *          "comment_count": 4,
+     *          "created_at": "2020-12-03T23:00:00.000000Z"
+     *      },
+     *      {
+     *          "id": 17909,
+     *          "title": "Inside Star Citizen",
+     *          "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/17909-Inside-Star-Citizen",
+     *          "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/17909",
+     *          "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/17909",
+     *          "channel": "Transmission",
+     *          "category": "General",
+     *          "series": "Inside Star Citizen",
+     *          "images": 1,
+     *          "links": 2,
+     *          "comment_count": 18,
+     *          "created_at": "2020-12-02T23:00:00.000000Z"
+     *      },
      * },
      * "meta": {
      *      "processed_at": "2020-12-07 14:45:18",
@@ -101,6 +105,7 @@ class CommLinkController extends ApiController
      *          "links": {
      *          "next": "https:\/\/api.star-citizen.wiki\/api\/comm-links?page=2"
      *      }
+     * }
      * }
      * })
      *
@@ -190,9 +195,6 @@ class CommLinkController extends ApiController
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $commLink));
         }
-
-        // Don't include translation per default
-        $this->transformer->setDefaultIncludes(array_slice($this->transformer->getAvailableIncludes(), 0, 2));
 
         $this->extraMeta = [
             'prev_id' => optional($commLink->prev)->cig_id ?? -1,
