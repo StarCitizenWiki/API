@@ -8,44 +8,41 @@ Endpoints related to Star Citizen
 
 ### Funding statistics related
 
-Funding, Fleet and Fan statistics.
+[Funding, Fleet and Fan statistics.](stats/stats.md)
 
-* [All](stats/get.md) : `GET /api/stats`
-* [Latest](stats/latest.md) : `GET /api/stats/latest`
+* All : `GET /api/stats`
+* Latest : `GET /api/stats/latest`
 
 ### Manufacturer related
 
-Star Citizen vehicle manufacturers.
+[Star Citizen vehicle manufacturers.](manufacturers/manufacturers.md)
 
-* [All](manufacturers/get.md) : `GET /api/manufacturers`
-* [Single](manufacturers/show.md) : `GET /api/manufacturers/NAME`
-* [Search](manufacturers/search.md) : `POST /api/manufacturers`
+* All : `GET /api/manufacturers`
+* Single : `GET /api/manufacturers/NAME`
+* Search : `POST /api/manufacturers`
 
 ### Vehicle related
 
-Star Citizen vehicles.
+[Star Citizen ships.](vehicles/ships.md)
+[Star Citizen vehicles.](vehicles/ground_vehicles.md)
 
 #### Ships
-* [All](vehicles/ships/get.md) : `GET /api/ships`
-* [Single](vehicles/ships/show.md) : `GET /api/ships/NAME`
-* [Search](vehicles/ships/search.md) : `POST /api/ships/search`
+* All : `GET /api/ships`
+* Single : `GET /api/ships/NAME`
+* Search : `POST /api/ships/search`
 
 #### Ground Vehicles
-* [All](vehicles/ground_vehicles/get.md) : `GET /api/vehicles`
-* [Single](vehicles/ground_vehicles/show.md) : `GET /api/vehicles/NAME`
-* [Search](vehicles/ground_vehicles/search.md) : `POST /api/vehicles/search`
+* All : `GET /api/vehicles`
+* Single : `GET /api/vehicles/NAME`
+* Search : `POST /api/vehicles/search`
 
 ### Starmap related
 
-Starsystems and celestial objects from the RSI Starmap.
+[Starsystems](starmap/starsystems.md) and celestial objects from the RSI Starmap.
 
 #### Starsystems
-* [All](starmap/starsystems/get.md) : `GET /api/starmap/starsystems`
-* [Single](starmap/starsystems/show.md) : `GET /api/starmap/starsystems/CODE`
-
-#### Celestial Objects
-* [All](starmap/celestial_objects/get.md) : `GET /api/starmap/celestial-objects`
-* [Single](starmap/celestial_objects/show.md) : `GET /api/starmap/celestial-objects/CODE`
+* All : `GET /api/starmap/starsystems`
+* Single : `GET /api/starmap/starsystems/CODE`
 
 
 ## Roberts Space Industries
@@ -54,46 +51,29 @@ Endpoints related to the RSI Website
 
 ### Comm-Links
 
-Parsed Comm-Links
+[Parsed Comm-Links](comm_links/comm_links.md)
 
-* [All](comm_links/get.md) : `GET /api/comm-links`
-* [Single](comm_links/show.md) : `GET /api/comm-links/ID`
+* All : `GET /api/comm-links`
+* Single : `GET /api/comm-links/ID`
 
 #### Search
 
-Comm-Link search. Comm-Links by title or reverse search by image.
+[Comm-Link search. Comm-Links by title or reverse search by image.](comm_links/comm_links_search.md)
 
-* [Search by title](comm_links/search_title.md) : `POST /api/comm-links/search`
-* [Search by image link](comm_links/search_image_link.md) : `POST /api/comm-links/reverse-image-link-search`
-* [Search by image](comm_links/search_image.md) : `POST /api/comm-links/reverse-image-search`
-
-#### Categories
-
-Comm-Link Categories
-
-* [All](comm_links/categories/get.md) : `GET /api/comm-links/categories`
-* [Single](comm_links/categories/show.md) : `GET /api/comm-links/categories/CATEGORY`
-
-#### Channels
-
-Comm-Link Channels
-
-* [All](comm_links/channels/get.md) : `GET /api/comm-links/channels`
-* [Single](comm_links/channels/show.md) : `GET /api/comm-links/channels/CHANNEL`
-
-#### Series
-
-Comm-Link Series
-
-* [All](comm_links/series/get.md) : `GET /api/comm-links/series`
-* [Single](comm_links/series/show.md) : `GET /api/comm-links/series/SERIES`
+* Search by title : `POST /api/comm-links/search`
+* Search by image link : `POST /api/comm-links/reverse-image-link-search`
+* Search by image : `POST /api/comm-links/reverse-image-search`
 
 ## Global request options
 
 Information about global request options
 
+### API Key
+An API Key can be obtained by registering on the german [Star Citizen Wiki](https://star-citizen.wiki) and logging into the [API](https://api.star-citizen.wiki).  
+The key should be send in the `Authorization` header, e.g.: `Authorization Bearer: KEY`.
+
 ### Pagination
-Many responses are paginated. A pagianted response contains a `pagination`-key in the metadata.  
+Many responses are paginated. A paginated response contains a `pagination`-key in the metadata.  
 Example:
 ```json
 {
