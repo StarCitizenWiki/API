@@ -57,6 +57,7 @@ class ShipTransformer extends VehicleTransformer
             'type' => $this->getTypeTranslations($ship),
             'description' => $this->getDescriptionTranslations($ship),
             'size' => $this->getSizeTranslations($ship),
+            'msrp' => $ship->msrp,
             'manufacturer' => [
                 'code' => $ship->manufacturer->name_short,
                 'name' => $ship->manufacturer->name,

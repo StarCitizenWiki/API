@@ -15,13 +15,23 @@
                 @endslot
                 @component('components.forms.form')
                         <div class="row">
-                            <div class="col-12 col-md-12 col-lg-4 col-xl-12 col-xxl-4">
+                            <div class="col-8 col-md-8 col-lg-4 col-xl-8 col-xxl-4">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
                                     'label' => __('Name'),
                                     'id' => 'name',
                                     'value' => $groundVehicle->name,
+                                ])@endcomponent
+                            </div>
+                            <div class="col-4 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                                @component('components.forms.form-group', [
+                                    'inputType' => 'text',
+                                    'inputOptions' => 'readonly',
+                                    'label' => __('Preis'),
+                                    'id' => 'msrp',
+                                    'value' => ($ship->msrp ?? '-').'$',
+
                                 ])@endcomponent
                             </div>
                             <div class="col-12 col-md-4 col-lg-2 col-xl-6 col-xxl-4">
@@ -52,7 +62,7 @@
                                 ])@endcomponent
                             </div>
 
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-6 col-xl-6 col-xxl-4">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
@@ -61,7 +71,7 @@
                                     'value' => optional($groundVehicle->productionStatus->german())->translation ?? optional($groundVehicle->productionStatus->english())->translation ?? '',
                                 ])@endcomponent
                             </div>
-                            <div class="col-12 col-lg-6 col-xl-6">
+                            <div class="col-12 col-lg-6 col-xl-6 col-xxl-4">
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',

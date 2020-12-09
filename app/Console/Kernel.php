@@ -25,6 +25,7 @@ use App\Console\Commands\Stat\Download\DownloadStats;
 use App\Console\Commands\Stat\Import\ImportStats;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
+use App\Console\Commands\Vehicle\ImportMsrp;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Jobs\Wiki\CommLink\UpdateCommLinkProofReadStatus;
@@ -44,6 +45,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         DownloadShipMatrix::class,
         ImportShipMatrix::class,
+
+        ImportMsrp::class,
 
         DownloadStats::class,
         ImportStats::class,
@@ -92,7 +95,7 @@ class Kernel extends ConsoleKernel
         $this->scheduleStatJobs();
 
         if (config('schedule.ship_matrix.enabled')) {
-            $this->scheduleShipMatrixJobs();
+            $this->scheduleVehicleJobs();
         }
 
         if (config('schedule.comm_links.enabled')) {
@@ -162,7 +165,7 @@ class Kernel extends ConsoleKernel
     /**
      * Ship Matrix related Jobs.
      */
-    private function scheduleShipMatrixJobs(): void
+    private function scheduleVehicleJobs(): void
     {
         $hours = config('schedule.ship_matrix.at', []);
         // Ensure first and second key exists
@@ -174,6 +177,10 @@ class Kernel extends ConsoleKernel
                 $hours[0],
                 $hours[1],
             );
+
+        $this->schedule
+            ->command(ImportMsrp::class)
+            ->daily();
     }
 
     /**

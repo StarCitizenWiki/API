@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types = 1);
 
 return [
     'api_url' => env('WIKI_API_URL'),
@@ -19,6 +21,6 @@ return [
     ],
 
     'request' => [
-        'timeout' => 10.0,
+        'timeout' => 15.0,
     ],
 ];
