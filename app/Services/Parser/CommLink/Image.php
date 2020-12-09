@@ -213,13 +213,18 @@ class Image extends BaseElement
         }
     }
 
+    /**
+     * Extract CSS image urls from media.robertsspaceindustries.com or robertsspaceindustries.com
+     */
     private function extractCssBackgrounds(): void
     {
+        //phpcs:disable
         preg_match_all(
-            "/url\([\"'](\/media\/\w+\/\w+\/[\w\-.]+\.\w+)[\"']\)/",
+            "/url\([\"']?((?:https:\/\/(?:media\.)?robertsspaceindustries\.com)?\/(?:\w{13,16}\/\w+|media\/\w{13,16}\/\w+\/[\w\-.]+))+\.\w{2,6}[\"']?\)/",
             $this->commLink->filterXPath('//head')->html(),
             $matches
         );
+        //phpcs:enable
 
         if (!empty($matches[1])) {
             collect($matches[1])->each(
@@ -239,7 +244,7 @@ class Image extends BaseElement
     private function extractMediaImages(): void
     {
         preg_match_all(
-            "/(https:\/\/media\.robertsspaceindustries\.com\/[\w]{13,16}\/\w+\.[\w]{2,6})/",
+            "/(https:\/\/media\.robertsspaceindustries\.com\/\w{13,16}\/\w+\.\w{2,6})/",
             $this->commLink->filterXPath('//body')->html(),
             $matches
         );
@@ -262,7 +267,7 @@ class Image extends BaseElement
     private function extractRsiImages(): void
     {
         preg_match_all(
-            "/(https:\/\/robertsspaceindustries\.com\/media\/[\w]{13,16}\/\w+\/[\w\-.]+\.\w{2,6})/",
+            "/(https:\/\/robertsspaceindustries\.com\/media\/\w{13,16}\/\w+\/[\w\-.]+\.\w{2,6})/",
             $this->commLink->filterXPath('//body')->html(),
             $matches
         );
