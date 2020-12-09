@@ -255,7 +255,7 @@ class ShipController extends ApiController
     {
         ['ship' => $ship] = Validator::validate(
             [
-                'manufacturer' => $request->ship,
+                'ground_vehicle' => $request->ship,
             ],
             [
                 'ship' => 'required|string|min:1|max:255',

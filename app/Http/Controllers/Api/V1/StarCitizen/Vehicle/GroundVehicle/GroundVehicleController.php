@@ -250,7 +250,7 @@ class GroundVehicleController extends ApiController
     {
         ['ground_vehicle' => $groundVehicle] = Validator::validate(
             [
-                'manufacturer' => $request->ground_vehicle,
+                'ground_vehicle' => $request->ground_vehicle,
             ],
             [
                 'ground_vehicle' => 'required|string|min:1|max:255',
