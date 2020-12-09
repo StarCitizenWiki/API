@@ -220,7 +220,7 @@ class Image extends BaseElement
     {
         //phpcs:disable
         preg_match_all(
-            "/url\([\"']?((?:https:\/\/(?:media\.)?robertsspaceindustries\.com)?\/(?:\w{13,16}\/\w+|media\/\w{13,16}\/\w+\/[\w\-.]+))+\.\w{2,6}[\"']?\)/",
+            "/url\([\"']?((?:https:\/\/(?:media\.)?robertsspaceindustries\.com)?\/(?:\w{13,16}\/\w+|media\/\w{13,16}\/\w+\/[\w\-.]+)+\.\w{2,6})[\"']?\)/",
             $this->commLink->filterXPath('//head')->html(),
             $matches
         );
