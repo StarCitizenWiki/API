@@ -11,6 +11,8 @@ use App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Manufacturer API
@@ -279,16 +281,20 @@ class ManufacturerController extends ApiController
      * @param Request $request
      *
      * @return Response
+     * @throws ValidationException
      */
     public function show(Request $request): Response
     {
-        $request->validate(
+        ['manufacturer' => $manufacturer] = Validator::validate(
+            [
+                'manufacturer' => $request->manufacturer,
+            ],
             [
                 'manufacturer' => 'required|string|min:1|max:255',
             ]
         );
 
-        $manufacturer = urldecode($request->get('manufacturer'));
+        $manufacturer = urldecode($manufacturer);
 
         try {
             $model = Manufacturer::query()

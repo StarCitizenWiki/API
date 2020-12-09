@@ -12,6 +12,8 @@ use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Star System API
@@ -237,16 +239,20 @@ class StarsystemController extends ApiController
      * @param Request $request
      *
      * @return Response
+     * @throws ValidationException
      */
     public function show(Request $request): Response
     {
-        $request->validate(
+        ['code' => $code] = Validator::validate(
+            [
+                'code' => $request->code,
+            ],
             [
                 'code' => 'required|string|min:1|max:255',
             ]
         );
 
-        $code = mb_strtoupper(urldecode($request->get('code')));
+        $code = mb_strtoupper(urldecode($code));
 
         try {
             /** @var Starsystem $starsystem */

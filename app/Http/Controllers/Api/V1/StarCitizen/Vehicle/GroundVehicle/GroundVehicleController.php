@@ -9,10 +9,11 @@ use App\Http\Requests\StarCitizen\Vehicle\GroundVehicleSearchRequest;
 use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Ground Vehicle API
@@ -243,16 +244,20 @@ class GroundVehicleController extends ApiController
      * @param Request $request
      *
      * @return Response
+     * @throws ValidationException
      */
     public function show(Request $request): Response
     {
-        $request->validate(
+        ['ground_vehicle' => $groundVehicle] = Validator::validate(
+            [
+                'manufacturer' => $request->ground_vehicle,
+            ],
             [
                 'ground_vehicle' => 'required|string|min:1|max:255',
             ]
         );
 
-        $groundVehicle = urldecode($request->get('ground_vehicle'));
+        $groundVehicle = urldecode($groundVehicle);
 
         try {
             $groundVehicle = GroundVehicle::query()

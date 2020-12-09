@@ -13,6 +13,8 @@ use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Ship API
@@ -247,16 +249,20 @@ class ShipController extends ApiController
      * @param Request $request
      *
      * @return Response
+     * @throws ValidationException
      */
     public function show(Request $request): Response
     {
-        $request->validate(
+        ['ship' => $ship] = Validator::validate(
+            [
+                'manufacturer' => $request->ship,
+            ],
             [
                 'ship' => 'required|string|min:1|max:255',
             ]
         );
 
-        $ship = urldecode($request->get('ship'));
+        $ship = urldecode($ship);
 
         try {
             $ship = Ship::query()

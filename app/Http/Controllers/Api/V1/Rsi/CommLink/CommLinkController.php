@@ -10,6 +10,8 @@ use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Comm-Link API
@@ -250,17 +252,21 @@ class CommLinkController extends ApiController
      * @param Request $request
      *
      * @return Response
+     * @throws ValidationException
      */
     public function show(Request $request): Response
     {
-        $request->validate(
+        ['comm_link' => $commLink] = Validator::validate(
             [
-                'comm_link' => 'required|int|min:12667',
+                'comm_link' => $request->comm_link,
+            ],
+            [
+                'comm_link' => 'required|int|min:12663',
             ]
         );
 
         try {
-            $commLink = CommLink::query()->where('cig_id', $request->get('comm_link'))->firstOrFail();
+            $commLink = CommLink::query()->where('cig_id', $commLink)->firstOrFail();
             $commLink->append(['prev', 'next']);
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $commLink));
