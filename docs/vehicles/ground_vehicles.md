@@ -4,16 +4,18 @@ FORMAT: 1A
 
 # Vehicles [/vehicles]
 Ground Vehicle API
-Output of the ground vehicles of the Ship Matrix
+All Vehicles found in the official [Ship Matrix](https://robertsspaceindustries.com/ship-matrix).
 
-## All ground vehicles
-Output of all ground vehicles of the Ship Matrix paginated [GET /vehicles]
+## Index of all ground vehicles [GET /vehicles{?page,locale,include,limit}]
 
 
 + Parameters
     + page (integer, optional) - Pagination page
         + Default: 1
-    + include (string, optional) - Relations to include. Valid relations are shown in the meta data
+    + include (string, optional) - Relations to include. Valid relations are listed in the meta data
+    + locale (string, optional) - Localization to use. Supported codes: 'de_DE', 'en_EN'
+    + limit (integer, optional) - Items per page, set to 0, to return all items
+        + Default: 10
 
 + Request (application/json)
     + Headers
@@ -77,9 +79,9 @@ Output of all ground vehicles of the Ship Matrix paginated [GET /vehicles]
                             "anvil-ballista"
                         ]
                     },
-                    [
-                        "..."
-                    ]
+                    {
+                        "id": "..."
+                    }
                 ],
                 "meta": {
                     "processed_at": "2020-12-08 20:32:51",
@@ -93,20 +95,20 @@ Output of all ground vehicles of the Ship Matrix paginated [GET /vehicles]
                         "current_page": 1,
                         "total_pages": 4,
                         "links": {
-                            "next": "http:\/\/localhost:8000\/api\/vehicles?page=2"
+                            "next": "https:\/\/api.star-citizen.wiki\/api\/vehicles?page=2"
                         }
                     }
                 }
             }
 
-## Single ground vehicle
-Output of a single ground vehicle by vehicle name (e.g. Cyclone)
-Name of ground vehicle should be URL encoded [GET /vehicles/{NAME}]
+## Single vehicle
+Output of a single vehicle by vehicle name or slug (e.g. Cyclone) [GET /vehicles/{NAME}{?locale,include}]
 
 
 + Parameters
-    + NAME (string, required) - Vehicle Name or Slug
-    + include (string, optional) - Relations to include. Valid relations are shown in the meta data
+    + NAME (string, required) - URL encoded Name or Slug
+    + include (string, optional) - Relations to include. Valid relations are listed in the meta data
+    + locale (string, optional) - Localization to use. Supported codes: 'de_DE', 'en_EN'
 
 + Request (application/json)
     + Headers
@@ -184,4 +186,158 @@ Name of ground vehicle should be URL encoded [GET /vehicles/{NAME}]
                         "components"
                     ]
                 }
+            }
+
++ Request (application/json)
+    + Headers
+
+            Accept: application/x.StarCitizenWikiApi.v1+json
+    + Body
+
+            {
+                "NAME": "Cyclone",
+                "locale": "de_DE"
+            }
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "data": {
+                    "id": 134,
+                    "chassis_id": 53,
+                    "name": "Cyclone",
+                    "slug": "cyclone",
+                    "sizes": {
+                        "length": 6,
+                        "beam": 4,
+                        "height": 2.5
+                    },
+                    "mass": 3022,
+                    "cargo_capacity": 1,
+                    "crew": {
+                        "min": 1,
+                        "max": 2
+                    },
+                    "speed": {
+                        "scm": 0
+                    },
+                    "foci": [
+                        "Erkundung",
+                        "Aufklärung"
+                    ],
+                    "production_status": "Flugbereit",
+                    "production_note": "Keine",
+                    "type": "Gelände",
+                    "description": "...",
+                    "size": "Fahrzeug",
+                    "manufacturer": {
+                        "code": "TMBL",
+                        "name": "Tumbril"
+                    },
+                    "updated_at": "2019-11-10T17:40:17.000000Z",
+                    "missing_translations": []
+                },
+                "meta": {
+                    "processed_at": "2020-12-08 20:29:47",
+                    "valid_relations": [
+                        "components"
+                    ]
+                }
+            }
+
++ Request (application/json)
+    + Headers
+
+            Accept: application/x.StarCitizenWikiApi.v1+json
+    + Body
+
+            {
+                "NAME": "Cyclone",
+                "locale": "de_DE",
+                "include": "components"
+            }
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "data": {
+                    "id": 134,
+                    "chassis_id": 53,
+                    "name": "Cyclone",
+                    "slug": "cyclone",
+                    "sizes": {
+                        "length": 6,
+                        "beam": 4,
+                        "height": 2.5
+                    },
+                    "mass": 3022,
+                    "cargo_capacity": 1,
+                    "crew": {
+                        "min": 1,
+                        "max": 2
+                    },
+                    "speed": {
+                        "scm": 0
+                    },
+                    "foci": [
+                        "Erkundung",
+                        "Aufklärung"
+                    ],
+                    "production_status": "Flugbereit",
+                    "production_note": "Keine",
+                    "type": "Gelände",
+                    "description": "...",
+                    "size": "Fahrzeug",
+                    "manufacturer": {
+                        "code": "TMBL",
+                        "name": "Tumbril"
+                    },
+                    "updated_at": "2019-11-10T17:40:17.000000Z",
+                    "missing_translations": [],
+                    "components": {
+                        "data": [
+                            {
+                                "type": "radar",
+                                "name": "Radar",
+                                "mounts": 1,
+                                "component_size": "S",
+                                "category": "",
+                                "size": "S",
+                                "details": "",
+                                "quantity": 1,
+                                "manufacturer": "TBD",
+                                "component_class": "RSIAvionic"
+                            },
+                            {
+                                "type": "..."
+                            }
+                        ]
+                    }
+                },
+                "meta": {
+                    "processed_at": "2020-12-08 20:29:47",
+                    "valid_relations": [
+                        "components"
+                    ]
+                }
+            }
+
++ Request (application/json)
+    + Headers
+
+            Accept: application/x.StarCitizenWikiApi.v1+json
+    + Body
+
+            {
+                "NAME": "invalid"
+            }
+
++ Response 404 (application/json)
+    + Body
+
+            {
+                "message": "No Results for Query 'invalid'",
+                "status_code": 404
             }

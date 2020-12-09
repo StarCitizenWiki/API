@@ -6,12 +6,13 @@ FORMAT: 1A
 Comm-Link Search API
 Scraped Comm-Links from Roberts Space Industries
 
-## Search for Comm-Links by title [POST /comm-links/search]
+## Search for Comm-Links by title [POST /comm-links/search{?include,locale}]
 Returns matching Comm-Links
 
 + Parameters
     + keyword (string, required) - (Partial) Comm-Link title
     + include (string, optional) - Relations to include. Valid relations are shown in the meta data
+    + locale (string, optional) - Localization to use. Supported codes: 'de_DE', 'en_EN'
 
 + Request (application/json)
     + Headers
@@ -44,7 +45,7 @@ Returns matching Comm-Links
                     },
                     {
                         "id": 13098,
-                        "title": "WelcometoRSIPrime",
+                        "title": "Welcometo RSI Prime",
                         "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/13098-Welcome-To-RSI-Prime",
                         "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/13098",
                         "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/13098",
@@ -58,7 +59,7 @@ Returns matching Comm-Links
                     },
                     {
                         "id": 13132,
-                        "title": "WelcomeNewCitizens!",
+                        "title": "Welcome New Citizens!",
                         "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/13132-Welcome-New-Citizens",
                         "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/13132",
                         "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/13132",
@@ -72,7 +73,7 @@ Returns matching Comm-Links
                     },
                     {
                         "id": 14157,
-                        "title": "LOREBUILDER:FOURTEEN:Welcometov2",
+                        "title": "LORE BUILDER:FOURTEEN: Welcome to v2",
                         "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/spectrum-dispatch\/14157-LORE-BUILDER-FOURTEEN-Welcome-To-V2",
                         "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/14157",
                         "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/14157",
@@ -85,46 +86,7 @@ Returns matching Comm-Links
                         "created_at": "2014-09-18T22:00:00.000000Z"
                     },
                     {
-                        "id": 14927,
-                        "title": "WelcometoArcCorp-StarCitizen1.2Released",
-                        "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/14927-Welcome-To-ArcCorp-Star-Citizen-12-Released",
-                        "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/14927",
-                        "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/14927",
-                        "channel": "Transmission",
-                        "category": "General",
-                        "series": "None",
-                        "images": 17,
-                        "links": 2,
-                        "comment_count": 373,
-                        "created_at": "2015-08-28T22:00:00.000000Z"
-                    },
-                    {
-                        "id": 15256,
-                        "title": "Ship Shape :Welcome Aboard the Starfarer",
-                        "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/15256-Ship-Shape-Welcome-Aboard-The-Starfarer",
-                        "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/15256",
-                        "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/15256",
-                        "channel": "Transmission",
-                        "category": "General",
-                        "series": "None",
-                        "images": 0,
-                        "links": 1,
-                        "comment_count": 219,
-                        "created_at": "2016-03-17T23:00:00.000000Z"
-                    },
-                    {
-                        "id": 17342,
-                        "title": "WelcomeHub&GuideSystem",
-                        "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/17342-Welcome-Hub-Guide-System",
-                        "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/17342",
-                        "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/17342",
-                        "channel": "Transmission",
-                        "category": "General",
-                        "series": "None",
-                        "images": 6,
-                        "links": 3,
-                        "comment_count": 51,
-                        "created_at": "2019-11-21T23:00:00.000000Z"
+                        "id": "..."
                     }
                 ],
                 "meta": {
@@ -180,7 +142,7 @@ Returns matching Comm-Links
     + Body
 
             {
-                "message": "The given datawasinvalid.",
+                "message": "The given data was invalid.",
                 "errors": {
                     "keyword": [
                         "keyword muss ausgefüllt sein."
@@ -215,8 +177,8 @@ Returns matching Comm-Links
                         "id": 12663,
                         "title": "Welcome to the Comm-Link!",
                         "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/12663-Welcome-To-The-Comm-Link",
-                        "api_url": "http:\/\/api\/api\/comm-links\/12663",
-                        "api_public_url": "http:\/\/localhost:8000\/comm-links\/12663",
+                        "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/12663",
+                        "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/12663",
                         "channel": "Transmission",
                         "category": "General",
                         "series": "None",
@@ -229,8 +191,8 @@ Returns matching Comm-Links
                         "id": 12667,
                         "title": "A Message from Chris Roberts",
                         "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/12667-A-Message-From-Chris-Roberts",
-                        "api_url": "http:\/\/api\/api\/comm-links\/12667",
-                        "api_public_url": "http:\/\/localhost:8000\/comm-links\/12667",
+                        "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/12667",
+                        "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/12667",
                         "channel": "Transmission",
                         "category": "General",
                         "series": "None",
@@ -239,9 +201,9 @@ Returns matching Comm-Links
                         "comment_count": 146,
                         "created_at": "2012-09-10T22:00:00.000000Z"
                     },
-                    [
-                        "..."
-                    ]
+                    {
+                        "id": "..."
+                    }
                 ],
                 "meta": {
                     "processed_at": "2020-12-08 20:06:30",
@@ -303,7 +265,7 @@ Returns matching Comm-Links
             }
 
 ## Performs a reverse search by comparing image hashes
-This is still very experimental [POST /comm-links/reverse-image-search]
+This is still very experimental [POST /comm-links/reverse-image-search{?include}]
 Returns matching Comm-Links
 
 + Parameters
@@ -391,9 +353,9 @@ Returns matching Comm-Links
                                 {
                                     "api_url": "http:\/\/api\/api\/comm-links\/12663"
                                 },
-                                [
-                                    "..."
-                                ]
+                                {
+                                    "api_url": "..."
+                                }
                             ]
                         }
                     }

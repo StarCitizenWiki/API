@@ -5,7 +5,7 @@ FORMAT: 1A
 # Stats [/stats]
 Stat API
 Returns current funding, fan and fleet stats
-Import happens daily at 8PM UTC+1
+Data is imported daily at 8PM UTC+1
 
 ## Returns latest stats [GET /stats/latest]
 

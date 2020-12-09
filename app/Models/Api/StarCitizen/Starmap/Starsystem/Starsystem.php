@@ -65,6 +65,8 @@ class Starsystem extends HasTranslations
         'aggregated_population' => 'float',
         'aggregated_economy' => 'float',
         'aggregated_danger' => 'float',
+
+        'time_modified' => 'datetime',
     ];
 
     public function getRouteKeyName()

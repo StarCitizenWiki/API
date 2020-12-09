@@ -1,0 +1,221 @@
+{
+  "title": "Returns a single manufacturer",
+  "description": "",
+  "permalink": "t~manufacturers~get~manufacturers~code",
+  "uuid": "6Dg1A4s4Q1Q5s-krix-WD",
+  "method": "GET",
+  "path": "/manufacturers/{CODE}",
+  "pathTemplate": "/manufacturers/{CODE}{?include,locale}",
+  "parameters": [
+    {
+      "location": "path",
+      "name": "CODE",
+      "description": "Manufacturer Code",
+      "required": true,
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "location": "query",
+      "name": "include",
+      "description": "Relations to include. Valid relations are listed in the meta data",
+      "required": false,
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "location": "query",
+      "name": "locale",
+      "description": "Localization to use. Supported codes: 'de_DE', 'en_EN'",
+      "required": false,
+      "schema": {
+        "type": "string"
+      }
+    }
+  ],
+  "meta": {
+    "resource": {
+      "title": "Manufacturers",
+      "permalink": "r~manufacturers"
+    }
+  },
+  "transactions": [
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "GET",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "200",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"data\": [\n        {\n            \"code\": \"RSI\",\n            \"name\": \"Roberts Space Industries\",\n            \"known_for\": {\n                \"de_DE\": \"Die Aurora und die Constellation\",\n                \"en_EN\": \"the Aurora and the Constellation\"\n            },\n            \"description\": {\n                \"de_DE\": \"...\",\n                \"en_EN\": \"...\"\n            }\n        }\n    ],\n    \"meta\": {\n        \"processed_at\": \"2020-12-07 13:25:54\",\n        \"valid_relations\": [\n            \"ships\",\n            \"vehicles\"\n        ]\n    }\n}\n"
+      }
+    },
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "GET",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"locale\": \"de_DE\"\n}\n"
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "200",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"data\": [\n        {\n            \"code\": \"RSI\",\n            \"name\": \"Roberts Space Industries\",\n            \"known_for\": \"Die Aurora und die Constellation\",\n            \"description\": \"...\"\n        }\n    ],\n    \"meta\": {\n        \"processed_at\": \"2020-12-07 13:25:54\",\n        \"valid_relations\": [\n            \"ships\",\n            \"vehicles\"\n        ]\n    }\n}\n"
+      }
+    },
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "GET",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"include\": \"ships\"\n}\n"
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "200",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"data\": [\n        {\n            \"code\": \"RSI\",\n            \"name\": \"Roberts Space Industries\",\n            \"known_for\": {\n                \"de_DE\": \"Die Aurora und die Constellation\",\n                \"en_EN\": \"the Aurora and the Constellation\"\n            },\n            \"description\": {\n                \"de_DE\": \"...\",\n                \"en_EN\": \"...\"\n            },\n            \"ships\": {\n                \"data\": [\n                    {\n                        \"name\": \"Orion\",\n                        \"slug\": \"orion\",\n                        \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/ships\\/orion\"\n                    },\n                    {\n                        \"name\": \"Polaris\",\n                        \"slug\": \"polaris\",\n                        \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/ships\\/polaris\"\n                    },\n                    {\n                        \"name\": \"...\"\n                    }\n                ]\n            }\n        }\n    ],\n    \"meta\": {\n        \"processed_at\": \"2020-12-07 13:25:54\",\n        \"valid_relations\": [\n            \"ships\",\n            \"vehicles\"\n        ]\n    }\n}\n"
+      }
+    },
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "GET",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"include\": \"ships,vehicles\"\n}\n"
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "200",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"data\": [\n        {\n            \"code\": \"RSI\",\n            \"name\": \"Roberts Space Industries\",\n            \"known_for\": {\n                \"de_DE\": \"Die Aurora und die Constellation\",\n                \"en_EN\": \"the Aurora and the Constellation\"\n            },\n            \"description\": {\n                \"de_DE\": \"...\",\n                \"en_EN\": \"...\"\n            },\n            \"ships\": {\n                \"data\": [\n                    {\n                        \"name\": \"Orion\",\n                        \"slug\": \"orion\",\n                        \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/ships\\/orion\"\n                    },\n                    {\n                        \"name\": \"Polaris\",\n                        \"slug\": \"polaris\",\n                        \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/ships\\/polaris\"\n                    },\n                    {\n                        \"name\": \"...\"\n                    }\n                ]\n            },\n            \"vehicles\": {\n                \"data\": [\n                    {\n                        \"name\": \"Ursa Rover\",\n                        \"slug\": \"ursa-rover\",\n                        \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/vehicles\\/ursa-rover\"\n                    },\n                    {\n                        \"name\": \"...\"\n                    }\n                ]\n            }\n        }\n    ],\n    \"meta\": {\n        \"processed_at\": \"2020-12-07 13:25:54\",\n        \"valid_relations\": [\n            \"ships\",\n            \"vehicles\"\n        ]\n    }\n}\n"
+      }
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "title": "Returns a singular comm-link by its cig_id",
+  "description": "",
+  "permalink": "t~comm-links~get~comm-links~id",
+  "uuid": "tjsBqSFL-8UY5bSozpxCM",
+  "method": "GET",
+  "path": "/comm-links/{ID}",
+  "pathTemplate": "/comm-links/{ID}{?include}",
+  "parameters": [
+    {
+      "location": "path",
+      "name": "ID",
+      "description": "Comm-Link ID",
+      "required": true,
+      "schema": {
+        "type": "interger"
+      }
+    },
+    {
+      "location": "query",
+      "name": "include",
+      "description": "Relations to include. Valid relations are shown in the meta data",
+      "required": false,
+      "schema": {
+        "type": "string"
+      }
+    }
+  ],
+  "meta": {
+    "resource": {
+      "title": "Comm-Links",
+      "permalink": "r~comm-links"
+    }
+  },
+  "transactions": [
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "GET",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "200",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"data\": {\n        \"id\": 17911,\n        \"title\": \"Star Citizen Live\",\n        \"rsi_url\": \"https:\\/\\/robertsspaceindustries.com\\/comm-link\\/transmission\\/17911-Star-Citizen-Live\",\n        \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/comm-links\\/17911\",\n        \"api_public_url\": \"https:\\/\\/api.star-citizen.wiki\\/comm-links\\/17911\",\n        \"channel\": \"Transmission\",\n        \"category\": \"General\",\n        \"series\": \"Star Citizen LIVE\",\n        \"images\": {\n            \"data\": [\n                {\n                    \"rsi_url\": \"...\",\n                    \"api_url\": null,\n                    \"alt\": \"\",\n                    \"size\": 18693,\n                    \"mime_type\": \"image\\/png\",\n                    \"last_modified\": \"2016-05-05T01:15:45.000000Z\"\n                }\n            ]\n        },\n        \"links\": {\n            \"data\": [\n                {\n                    \"href\": \"http:\\/\\/twitch.tv\\/starcitizen\",\n                    \"text\": \"http:\\/\\/twitch.tv\\/starcitizen\"\n                },\n                {\n                    \"href\": \"https:\\/\\/www.youtube.com\\/embed\\/gsWDdomcMCM?wmode=transparent\",\n                    \"text\": \"iframe\"\n                }\n            ]\n        },\n        \"comment_count\": 4,\n        \"created_at\": \"2020-12-03T23:00:00.000000Z\"\n    },\n    \"meta\": {\n        \"processed_at\": \"2020-12-07 14:52:11\",\n        \"valid_relations\": [\n            \"images\",\n            \"links\",\n            \"english\",\n            \"german\"\n        ],\n        \"prev_id\": 17909,\n        \"next_id\": -1\n    }\n}\n"
+      }
+    },
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "GET",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "[\n    \"include\",\n    \"english\"\n]\n"
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "200",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"data\": {\n        \"id\": 17911,\n        \"title\": \"Star Citizen Live\",\n        \"rsi_url\": \"https:\\/\\/robertsspaceindustries.com\\/comm-link\\/transmission\\/17911-Star-Citizen-Live\",\n        \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/comm-links\\/17911\",\n        \"api_public_url\": \"https:\\/\\/api.star-citizen.wiki\\/comm-links\\/17911\",\n        \"channel\": \"Transmission\",\n        \"category\": \"General\",\n        \"series\": \"Star Citizen LIVE\",\n        \"images\": {\n            \"data\": [\n                {\n                    \"rsi_url\": \"...\",\n                    \"api_url\": null,\n                    \"alt\": \"\",\n                    \"size\": 18693,\n                    \"mime_type\": \"image\\/png\",\n                    \"last_modified\": \"2016-05-05T01:15:45.000000Z\"\n                }\n            ]\n        },\n        \"links\": {\n            \"data\": [\n                {\n                    \"href\": \"http:\\/\\/twitch.tv\\/starcitizen\",\n                    \"text\": \"http:\\/\\/twitch.tv\\/starcitizen\"\n                },\n                {\n                    \"href\": \"https:\\/\\/www.youtube.com\\/embed\\/gsWDdomcMCM?wmode=transparent\",\n                    \"text\": \"iframe\"\n                }\n            ]\n        },\n        \"comment_count\": 4,\n        \"created_at\": \"2020-12-03T23:00:00.000000Z\",\n        \"english\": {\n            \"data\": {\n                \"locale\": \"en_EN\",\n                \"translation\": \"Comm-Link Content\"\n            }\n        }\n    },\n    \"meta\": {\n        \"processed_at\": \"2020-12-07 14:52:11\",\n        \"valid_relations\": [\n            \"images\",\n            \"links\",\n            \"english\",\n            \"german\"\n        ],\n        \"prev_id\": 17909,\n        \"next_id\": -1\n    }\n}\n"
+      }
+    }
+  ]
+}

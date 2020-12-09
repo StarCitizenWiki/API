@@ -35,7 +35,7 @@ class ManufacturerController extends ApiController
     /**
      * Returns all manufacturers
      *
-     * @Get("/{?page,limit,include}")
+     * @Get("/{?page,limit,include,locale}")
      * @Versions({"v1"})
      * @Parameters({
      *     @Parameter("page", type="integer", required=false, description="Pagination page", default=1),
@@ -43,7 +43,7 @@ class ManufacturerController extends ApiController
      *          "include",
      *          type="string",
      *          required=false,
-     *          description="Relations to include. Valid relations are shown in the meta data"
+     *          description="Relations to include. Valid relations are listed in the meta data"
      *     ),
      *     @Parameter(
      *          "limit",
@@ -51,6 +51,12 @@ class ManufacturerController extends ApiController
      *          required=false,
      *          description="Items per page, set to 0, to return all items",
      *          default=10
+     *     ),
+     *     @Parameter(
+     *          "locale",
+     *          type="string",
+     *          required=false,
+     *          description="Localization to use. Supported codes: 'de_DE', 'en_EN'"
      *     ),
      * })
      * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"})
@@ -110,7 +116,7 @@ class ManufacturerController extends ApiController
     /**
      * Returns a single manufacturer
      *
-     * @Get("/{CODE}{?include}")
+     * @Get("/{CODE}{?include,locale}")
      * @Versions({"v1"})
      * @Parameters({
      *     @Parameter("CODE", type="string", required=true, description="Manufacturer Code"),
@@ -118,7 +124,13 @@ class ManufacturerController extends ApiController
      *          "include",
      *          type="string",
      *          required=false,
-     *          description="Relations to include. Valid relations are shown in the meta data"
+     *          description="Relations to include. Valid relations are listed in the meta data"
+     *     ),
+     *     @Parameter(
+     *          "locale",
+     *          type="string",
+     *          required=false,
+     *          description="Localization to use. Supported codes: 'de_DE', 'en_EN'"
      *     ),
      * })
      *
@@ -137,6 +149,25 @@ class ManufacturerController extends ApiController
      *          "de_DE": "...",
      *          "en_EN": "..."
      *      },
+     *  }
+     * },
+     * "meta": {
+     *  "processed_at": "2020-12-07 13:25:54",
+     *  "valid_relations": {
+     *      "ships",
+     *      "vehicles"
+     *  },
+     * }
+     * }),
+     *
+     * @Request({"locale": "de_DE"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
+     * @Response(200, body={
+     * "data": {
+     *  {
+     *      "code": "RSI",
+     *      "name": "Roberts Space Industries",
+     *      "known_for": "Die Aurora und die Constellation",
+     *      "description": "...",
      *  }
      * },
      * "meta": {
@@ -245,13 +276,19 @@ class ManufacturerController extends ApiController
      * }),
      * })
      *
-     * @param string $manufacturer
+     * @param Request $request
      *
      * @return Response
      */
-    public function show(string $manufacturer): Response
+    public function show(Request $request): Response
     {
-        $manufacturer = urldecode($manufacturer);
+        $request->validate(
+            [
+                'manufacturer' => 'required|string|min:1|max:255',
+            ]
+        );
+
+        $manufacturer = urldecode($request->get('manufacturer'));
 
         try {
             $model = Manufacturer::query()
@@ -276,7 +313,7 @@ class ManufacturerController extends ApiController
      *          "include",
      *          type="string",
      *          required=false,
-     *          description="Relations to include. Valid relations are shown in the meta data"
+     *          description="Relations to include. Valid relations are listed in the meta data"
      *     ),
      * })
      *

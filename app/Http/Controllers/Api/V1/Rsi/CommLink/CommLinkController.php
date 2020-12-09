@@ -87,6 +87,9 @@ class CommLinkController extends ApiController
      *          "comment_count": 18,
      *          "created_at": "2020-12-02T23:00:00.000000Z"
      *      },
+     *      {
+     *          "id": "...",
+     *      }
      * },
      * "meta": {
      *      "processed_at": "2020-12-07 14:45:18",
@@ -132,7 +135,9 @@ class CommLinkController extends ApiController
      *          description="Relations to include. Valid relations are shown in the meta data"
      *     ),
      * })
-     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"})
+     *
+     * @Transaction({
+     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
      * @Response(200, body={
      * "data": {
      *      "id": 17911,
@@ -181,16 +186,81 @@ class CommLinkController extends ApiController
      *      "prev_id": 17909,
      *      "next_id": -1
      * }
+     * }),
+     *
+     * @Request({"include", "english"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
+     * @Response(200, body={
+     * "data": {
+     *      "id": 17911,
+     *      "title": "Star Citizen Live",
+     *      "rsi_url": "https:\/\/robertsspaceindustries.com\/comm-link\/transmission\/17911-Star-Citizen-Live",
+     *      "api_url": "https:\/\/api.star-citizen.wiki\/api\/comm-links\/17911",
+     *      "api_public_url": "https:\/\/api.star-citizen.wiki\/comm-links\/17911",
+     *      "channel": "Transmission",
+     *      "category": "General",
+     *      "series": "Star Citizen LIVE",
+     *      "images": {
+     *          "data": {
+     *              {
+     *                  "rsi_url": "...",
+     *                  "api_url": null,
+     *                  "alt": "",
+     *                  "size": 18693,
+     *                  "mime_type": "image\/png",
+     *                  "last_modified": "2016-05-05T01:15:45.000000Z"
+     *              }
+     *          }
+     *      },
+     *      "links": {
+     *          "data": {
+     *              {
+     *                  "href": "http:\/\/twitch.tv\/starcitizen",
+     *                  "text": "http:\/\/twitch.tv\/starcitizen"
+     *              },
+     *              {
+     *                  "href": "https:\/\/www.youtube.com\/embed\/gsWDdomcMCM?wmode=transparent",
+     *                  "text": "iframe"
+     *              }
+     *          }
+     *      },
+     *      "comment_count": 4,
+     *      "created_at": "2020-12-03T23:00:00.000000Z",
+     *      "english": {
+     *          "data": {
+     *              "locale": "en_EN",
+     *              "translation": "Comm-Link Content"
+     *          }
+     *      }
+     * },
+     * "meta": {
+     *      "processed_at": "2020-12-07 14:52:11",
+     *      "valid_relations": {
+     *          "images",
+     *          "links",
+     *          "english",
+     *          "german"
+     *      },
+     *      "prev_id": 17909,
+     *      "next_id": -1
+     * }
+     * }),
+     *
      * })
      *
-     * @param int $commLink
+     * @param Request $request
      *
      * @return Response
      */
-    public function show(int $commLink): Response
+    public function show(Request $request): Response
     {
+        $request->validate(
+            [
+                'comm_link' => 'required|int|min:12667',
+            ]
+        );
+
         try {
-            $commLink = CommLink::query()->where('cig_id', $commLink)->firstOrFail();
+            $commLink = CommLink::query()->where('cig_id', $request->get('comm_link'))->firstOrFail();
             $commLink->append(['prev', 'next']);
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $commLink));

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\Starsystem;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
+use App\Http\Requests\StarCitizen\Starmap\StarsystemRequest;
 use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Star System API
- * Systems from the Starmap
+ * Systems from the official [Starmap](https://robertsspaceindustries.com/starmap).
  *
  * @Resource("Starsystems", uri="/starmap/starsystems")
  */
@@ -33,10 +34,9 @@ class StarsystemController extends ApiController
     }
 
     /**
-     * All available Star Systems
+     * Index of all available Star Systems
      *
-     * // phpcs:disable
-     * @Get("/")
+     * @Get("/{?page,locale,include,limit}")
      * @Versions({"v1"})
      * @Parameters({
      *     @Parameter(
@@ -50,15 +50,133 @@ class StarsystemController extends ApiController
      *          "include",
      *          type="string",
      *          required=false,
-     *          description="Relations to include. Valid relations are shown in the meta data"
+     *          description="Relations to include. Valid relations are listed in the meta data"
+     *     ),
+     *     @Parameter(
+     *          "locale",
+     *          type="string",
+     *          required=false,
+     *          description="Localization to use. Supported codes: 'de_DE', 'en_EN'"
+     *     ),
+     *     @Parameter(
+     *          "limit",
+     *          type="integer",
+     *          required=false,
+     *          description="Items per page, set to 0, to return all items",
+     *          default=10
      *     ),
      * })
      *
      * @Transaction({
      * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={"data": {{"id": 398,"code": "AYR'KA","system_api_url": "http:\/\/api\/api\/starmap\/starsystems\/AYR'KA","name": "Ail'ka","status": "P","type": "SINGLE_STAR","position": {"x": 139.16,"y": -7.99,"z": 39.58},"frost_line": 179.1,"habitable_zone_inner": 34.37,"habitable_zone_outer": 174.7,"info_url": null,"description": {"de_DE": "...","en_EN": "..."},"aggregated": {"size": 198.97,"population": 8.8,"economy": 3.95,"danger": 0},"time_modified": "2018-11-14 19:51:33","affiliation": {"data": {{"id": 4,"name": "Xi'An","code": "XIAN","color": "#52c231"}}}},{"..."}},"meta": {"processed_at": "2020-12-08 20:37:11","valid_relations": {"jumppoints","celestial_objects"},"pagination": {"total": 90,"count": 15,"per_page": 15,"current_page": 1,"total_pages": 6,"links": {"next": "http:\/\/localhost:8000\/api\/starmap\/starsystems?page=2"}}}}),
+     * @Response(200, body={
+     *     "data": {
+     *     {
+     *     "id": 398,
+     *     "code": "AYR'KA",
+     *     "system_api_url": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems\/AYR'KA",
+     *     "name": "Ail'ka",
+     *     "status": "P",
+     *     "type": "SINGLE_STAR",
+     *     "position": {"x": 139.16,"y": -7.99,"z": 39.58},
+     *     "frost_line": 179.1,
+     *     "habitable_zone_inner": 34.37,
+     *     "habitable_zone_outer": 174.7,
+     *     "info_url": null,
+     *     "description": {"de_DE": "...","en_EN": "..."},
+     *     "aggregated": {"size": 198.97,"population": 8.8,"economy": 3.95,"danger": 0},
+     *     "updated_at": "2020-10-15T13:19:19.000000Z",
+     *     "affiliation": {
+     *     "data": {{"id": 4,"name": "Xi'An","code": "XIAN","color": "#52c231"}}
+     *     }},
+     *     {"id": "..."}},
+     *     "meta": {"processed_at": "2020-12-08 20:37:11",
+     *     "valid_relations": {"jumppoints","celestial_objects"},
+     *     "pagination": {"total": 90,"count": 15,"per_page": 15,"current_page": 1,"total_pages": 6,
+     *     "links": {"next": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems?page=2"}}}}),
+     *
+     * @Request({"include": "jumppoints"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
+     * @Response(200, body={
+     *     "data": {
+     *     {
+     *     "id": 398,
+     *     "code": "AYR'KA",
+     *     "system_api_url": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems\/AYR'KA",
+     *     "name": "Ail'ka",
+     *     "status": "P",
+     *     "type": "SINGLE_STAR",
+     *     "position": {"x": 139.16,"y": -7.99,"z": 39.58},
+     *     "frost_line": 179.1,
+     *     "habitable_zone_inner": 34.37,
+     *     "habitable_zone_outer": 174.7,
+     *     "info_url": null,
+     *     "description": {"de_DE": "...","en_EN": "..."},
+     *     "aggregated": {"size": 198.97,"population": 8.8,"economy": 3.95,"danger": 0},
+     *     "updated_at": "2020-10-15T13:19:19.000000Z",
+     *     "affiliation": {
+     *     "data": {{"id": 4,"name": "Xi'An","code": "XIAN","color": "#52c231"}}
+     *     },
+     *     "jumppoints": {
+     *       "data": {
+     *         {
+     *           "id": 1341,
+     *           "size": "L",
+     *           "direction": "B",
+     *           "entry": {
+     *             "id": 2175,
+     *             "system_id": 377,
+     *             "system_api_url": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems\/377",
+     *             "celestial_object_api_url":
+     *             "https:\/\/api.star-citizen.wiki\/api\/starmap\/celestial-objects\/HADUR.JUMPPOINTS.AYR'KA",
+     *             "status": "P",
+     *             "code": "HADUR.JUMPPOINTS.AYR'KA",
+     *             "designation": "Yā’mon (Hadur) - Ail'ka"
+     *           },
+     *           "exit": {
+     *             "id": 2270,
+     *             "system_id": 398,
+     *             "system_api_url": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems\/398",
+     *             "celestial_object_api_url":
+     *             "https:\/\/api.star-citizen.wiki\/api\/starmap\/celestial-objects\/AYR'KA.JUMPPOINTS.HADUR",
+     *             "status": "P",
+     *             "code": "AYR'KA.JUMPPOINTS.HADUR",
+     *             "designation": "Ail'ka - Yā’mon (Hadur)"
+     *           }
+     *         },
+     *         {
+     *           "id": 1378,
+     *           "size": "L",
+     *           "direction": "B",
+     *           "entry": {
+     *             "id": 2269,
+     *             "system_id": 398,
+     *             "system_api_url": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems\/398",
+     *             "celestial_object_api_url":
+     *             "https:\/\/api.star-citizen.wiki\/api\/starmap\/celestial-objects\/AYR'KA.JUMPPOINTS.INDRA",
+     *             "status": "P",
+     *             "code": "AYR'KA.JUMPPOINTS.INDRA",
+     *             "designation": "Ail'ka - Kyuk’ya (Indra)"
+     *           },
+     *           "exit": {
+     *             "id": 2274,
+     *             "system_id": 399,
+     *             "system_api_url": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems\/399",
+     *             "celestial_object_api_url":
+     *             "https:\/\/api.star-citizen.wiki\/api\/starmap\/celestial-objects\/INDRA.JUMPPOINTS.AYR'KA",
+     *             "status": "P",
+     *             "code": "INDRA.JUMPPOINTS.AYR'KA",
+     *             "designation": "Kyuk’ya (Indra) - Ail'ka"
+     *           }
+     *         }
+     *         }
+     *       },
+     *     },
+     *     {"id": "..."}},
+     *     "meta": {"processed_at": "2020-12-08 20:37:11",
+     *     "valid_relations": {"jumppoints","celestial_objects"},
+     *     "pagination": {"total": 90,"count": 15,"per_page": 15,"current_page": 1,"total_pages": 6,
+     *     "links": {"next": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems?page=2"}}}}),
      * })
-     * // phpcs:enable
      *
      * @param Request $request
      *
@@ -76,8 +194,7 @@ class StarsystemController extends ApiController
     /**
      * A singular Star System
      *
-     * // phpcs:disable
-     * @Get("/{CODE}")
+     * @Get("/{CODE}{?locale,include}")
      * @Versions({"v1"})
      * @Parameters({
      *     @Parameter("CODE", type="string", required=true, description="Star System Code or ID"),
@@ -85,23 +202,51 @@ class StarsystemController extends ApiController
      *          "include",
      *          type="string",
      *          required=false,
-     *          description="Relations to include. Valid relations are shown in the meta data"
+     *          description="Relations to include. Valid relations are listed in the meta data"
+     *     ),
+     *     @Parameter(
+     *          "locale",
+     *          type="string",
+     *          required=false,
+     *          description="Localization to use. Supported codes: 'de_DE', 'en_EN'"
      *     ),
      * })
      *
      * @Transaction({
      * @Request({"CODE": "SOL"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={"data": {"id": 355,"code": "SOL","system_api_url": "http:\/\/api\/api\/starmap\/starsystems\/SOL","name": "Sol","status": "P","type": "SINGLE_STAR","position": {"x": 0,"y": 0,"z": 0},"frost_line": 5,"habitable_zone_inner": 0.9,"habitable_zone_outer": 3,"info_url": null,"description": {"de_DE": "...","en_EN": "..."},"aggregated": {"size": 51,"population": 8.59,"economy": 5.58,"danger": 0},"time_modified": "2015-10-10 14:09:45","affiliation": {"data": {{"id": 1,"name": "UEE","code": "uee","color": "#48bbd4"}}}},"meta": {"processed_at": "2020-12-08 20:40:13","valid_relations": {"jumppoints","celestial_objects"}}}),
+     * @Response(200, body={
+     *     "data": {
+     *     "id": 355,
+     *     "code": "SOL",
+     *     "system_api_url": "https:\/\/api.star-citizen.wiki\/api\/starmap\/starsystems\/SOL",
+     *     "name": "Sol",
+     *     "status": "P",
+     *     "type": "SINGLE_STAR",
+     *     "position": {"x": 0,"y": 0,"z": 0},
+     *     "frost_line": 5,
+     *     "habitable_zone_inner": 0.9,
+     *     "habitable_zone_outer": 3,
+     *     "info_url": null,
+     *     "description": {"de_DE": "...","en_EN": "..."},
+     *     "aggregated": {"size": 51,"population": 8.59,"economy": 5.58,"danger": 0},
+     *     "updated_at": "2020-10-15T13:19:19.000000Z",
+     *     "affiliation": {"data": {{"id": 1,"name": "UEE","code": "uee","color": "#48bbd4"}}}},
+     *     "meta": {"processed_at": "2020-12-08 20:40:13","valid_relations": {"jumppoints","celestial_objects"}}}),
      * })
-     * // phpcs:enable
      *
-     * @param string|int $code
+     * @param Request $request
      *
      * @return Response
      */
-    public function show($code): Response
+    public function show(Request $request): Response
     {
-        $code = mb_strtoupper(urldecode($code));
+        $request->validate(
+            [
+                'code' => 'required|string|min:1|max:255',
+            ]
+        );
+
+        $code = mb_strtoupper(urldecode($request->get('code')));
 
         try {
             /** @var Starsystem $starsystem */
@@ -120,12 +265,17 @@ class StarsystemController extends ApiController
     /**
      * Search Endpoint
      *
+     * @param Request $request
+     *
      * @return Response
      */
-    public function search(): Response
+    public function search(Request $request): Response
     {
-        $query = $this->request->get('query', '');
-        $query = urldecode($query);
+        $rules = (new StarsystemRequest())->rules();
+
+        $request->validate($rules);
+
+        $query = urldecode($this->request->get('query', ''));
         $queryBuilder = Starsystem::query()->where('name', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {

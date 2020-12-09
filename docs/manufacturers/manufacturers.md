@@ -6,15 +6,16 @@ FORMAT: 1A
 Manufacturer API
 Manufacturers found in the ShipMatrix
 
-## Returns all manufacturers [GET /manufacturers{?page,limit,include}]
+## Returns all manufacturers [GET /manufacturers{?page,limit,include,locale}]
 
 
 + Parameters
     + page (integer, optional) - Pagination page
         + Default: 1
-    + include (string, optional) - Relations to include. Valid relations are shown in the meta data
+    + include (string, optional) - Relations to include. Valid relations are listed in the meta data
     + limit (integer, optional) - Items per page, set to 0, to return all items
         + Default: 10
+    + locale (string, optional) - Localization to use. Supported codes: 'de_DE', 'en_EN'
 
 + Request (application/json)
     + Headers
@@ -70,12 +71,13 @@ Manufacturers found in the ShipMatrix
                 }
             }
 
-## Returns a single manufacturer [GET /manufacturers/{CODE}{?include}]
+## Returns a single manufacturer [GET /manufacturers/{CODE}{?include,locale}]
 
 
 + Parameters
     + CODE (string, required) - Manufacturer Code
-    + include (string, optional) - Relations to include. Valid relations are shown in the meta data
+    + include (string, optional) - Relations to include. Valid relations are listed in the meta data
+    + locale (string, optional) - Localization to use. Supported codes: 'de_DE', 'en_EN'
 
 + Request (application/json)
     + Headers
@@ -98,6 +100,37 @@ Manufacturers found in the ShipMatrix
                             "de_DE": "...",
                             "en_EN": "..."
                         }
+                    }
+                ],
+                "meta": {
+                    "processed_at": "2020-12-07 13:25:54",
+                    "valid_relations": [
+                        "ships",
+                        "vehicles"
+                    ]
+                }
+            }
+
++ Request (application/json)
+    + Headers
+
+            Accept: application/x.StarCitizenWikiApi.v1+json
+    + Body
+
+            {
+                "locale": "de_DE"
+            }
+
++ Response 200 (application/json)
+    + Body
+
+            {
+                "data": [
+                    {
+                        "code": "RSI",
+                        "name": "Roberts Space Industries",
+                        "known_for": "Die Aurora und die Constellation",
+                        "description": "..."
                     }
                 ],
                 "meta": {
@@ -234,7 +267,7 @@ Manufacturers found in the ShipMatrix
 
 + Parameters
     + query (string, required) - Manufacturer Code or partial name
-    + include (string, optional) - Relations to include. Valid relations are shown in the meta data
+    + include (string, optional) - Relations to include. Valid relations are listed in the meta data
 
 + Request (application/json)
     + Headers

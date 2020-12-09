@@ -16,3 +16,8 @@ php artisan api:docs --use-controller=App\Http\Controllers\Api\V1\StarCitizen\St
 # Vehicles
 php artisan api:docs --use-controller=App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController --output-file=docs/vehicles/ground_vehicles.md
 php artisan api:docs --use-controller=App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController --output-file=docs/vehicles/ships.md
+
+# Generate Playground
+php artisan api:docs --output=api.md
+snowboard html api.md -o ./docs/playground
+rm api.md

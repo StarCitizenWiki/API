@@ -1,0 +1,178 @@
+{
+  "title": "Search for Comm-Links by title",
+  "description": "Returns matching Comm-Links",
+  "permalink": "t~comm-links~post~comm-links~search",
+  "uuid": "Cqae09xdM6DleNLxxLTfw",
+  "method": "POST",
+  "path": "/comm-links/search",
+  "pathTemplate": "/comm-links/search{?include,locale}",
+  "parameters": [
+    {
+      "location": "query",
+      "name": "keyword",
+      "description": "(Partial) Comm-Link title",
+      "required": true,
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "location": "query",
+      "name": "include",
+      "description": "Relations to include. Valid relations are shown in the meta data",
+      "required": false,
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "location": "query",
+      "name": "locale",
+      "description": "Localization to use. Supported codes: 'de_DE', 'en_EN'",
+      "required": false,
+      "schema": {
+        "type": "string"
+      }
+    }
+  ],
+  "meta": {
+    "resource": {
+      "title": "Comm-Links",
+      "permalink": "r~comm-links"
+    }
+  },
+  "transactions": [
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "POST",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"keyword\": \"Welcome\"\n}\n"
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "200",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"data\": [\n        {\n            \"id\": 12663,\n            \"title\": \"Welcome to the Comm-Link!\",\n            \"rsi_url\": \"https:\\/\\/robertsspaceindustries.com\\/comm-link\\/transmission\\/12663-Welcome-To-The-Comm-Link\",\n            \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/comm-links\\/12663\",\n            \"api_public_url\": \"https:\\/\\/api.star-citizen.wiki\\/comm-links\\/12663\",\n            \"channel\": \"Transmission\",\n            \"category\": \"General\",\n            \"series\": \"None\",\n            \"images\": 2,\n            \"links\": 1,\n            \"comment_count\": 130,\n            \"created_at\": \"2012-09-04T22:00:00.000000Z\"\n        },\n        {\n            \"id\": 13098,\n            \"title\": \"Welcometo RSI Prime\",\n            \"rsi_url\": \"https:\\/\\/robertsspaceindustries.com\\/comm-link\\/transmission\\/13098-Welcome-To-RSI-Prime\",\n            \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/comm-links\\/13098\",\n            \"api_public_url\": \"https:\\/\\/api.star-citizen.wiki\\/comm-links\\/13098\",\n            \"channel\": \"Transmission\",\n            \"category\": \"General\",\n            \"series\": \"None\",\n            \"images\": 0,\n            \"links\": 0,\n            \"comment_count\": 32,\n            \"created_at\": \"2013-06-27T22:00:00.000000Z\"\n        },\n        {\n            \"id\": 13132,\n            \"title\": \"Welcome New Citizens!\",\n            \"rsi_url\": \"https:\\/\\/robertsspaceindustries.com\\/comm-link\\/transmission\\/13132-Welcome-New-Citizens\",\n            \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/comm-links\\/13132\",\n            \"api_public_url\": \"https:\\/\\/api.star-citizen.wiki\\/comm-links\\/13132\",\n            \"channel\": \"Transmission\",\n            \"category\": \"General\",\n            \"series\": \"None\",\n            \"images\": 1,\n            \"links\": 8,\n            \"comment_count\": 86,\n            \"created_at\": \"2013-07-07T22:00:00.000000Z\"\n        },\n        {\n            \"id\": 14157,\n            \"title\": \"LORE BUILDER:FOURTEEN: Welcome to v2\",\n            \"rsi_url\": \"https:\\/\\/robertsspaceindustries.com\\/comm-link\\/spectrum-dispatch\\/14157-LORE-BUILDER-FOURTEEN-Welcome-To-V2\",\n            \"api_url\": \"https:\\/\\/api.star-citizen.wiki\\/api\\/comm-links\\/14157\",\n            \"api_public_url\": \"https:\\/\\/api.star-citizen.wiki\\/comm-links\\/14157\",\n            \"channel\": \"SpectrumDispatch\",\n            \"category\": \"Lore\",\n            \"series\": \"LoreBuilder\",\n            \"images\": 3,\n            \"links\": 3,\n            \"comment_count\": 526,\n            \"created_at\": \"2014-09-18T22:00:00.000000Z\"\n        },\n        {\n            \"id\": \"...\"\n        }\n    ],\n    \"meta\": {\n        \"processed_at\": \"2020-12-0819:51:58\",\n        \"valid_relations\": [\n            \"images\",\n            \"links\",\n            \"english\",\n            \"german\"\n        ]\n    }\n}\n"
+      }
+    },
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "POST",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"keyword\": \"Keyword\"\n}\n"
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "200",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "[\n    {\n        \"data\": [],\n        \"meta\": {\n            \"processed_at\": \"2020-12-0819:54:01\",\n            \"valid_relations\": [\n                \"images\",\n                \"links\",\n                \"english\",\n                \"german\"\n            ]\n        }\n    }\n]\n"
+      }
+    },
+    {
+      "request": {
+        "title": "",
+        "description": "",
+        "method": "POST",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "example": "application/x.StarCitizenWikiApi.v1+json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"keyword\": \"\"\n}\n"
+      },
+      "response": {
+        "title": "",
+        "description": "",
+        "statusCode": "422",
+        "contentType": "application/json",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "example": "application/json",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "body": "{\n    \"message\": \"The given data was invalid.\",\n    \"errors\": {\n        \"keyword\": [\n            \"keyword muss ausgefüllt sein.\"\n        ]\n    },\n    \"status_code\": 422\n}\n"
+      }
+    }
+  ]
+}
