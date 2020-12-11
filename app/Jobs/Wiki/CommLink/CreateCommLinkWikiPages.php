@@ -64,9 +64,10 @@ class CreateCommLinkWikiPages implements ShouldQueue
         CommLink::query()->whereHas(
             'translations',
             static function (Builder $query) {
-                $query->where('locale_code', config('services.wiki_translations.locale'))->whereRaw(
-                    "translation <> ''"
-                );
+                $query->where('locale_code', config('services.wiki_translations.locale'))
+                    ->whereRaw(
+                        "translation <> ''"
+                    );
             }
         )->chunk(
             100,

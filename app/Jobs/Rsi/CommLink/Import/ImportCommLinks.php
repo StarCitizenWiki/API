@@ -52,22 +52,25 @@ class ImportCommLinks implements ShouldQueue
         $commLinks = CommLink::query()->get();
         $commLinks = $commLinks->keyBy('cig_id');
 
-        $newCommLinkIds = $this->filterDirectories('comm_links', $this->modifiedFolderTime)->each(
-            function ($commLinkDir) use ($commLinks) {
-                $file = Arr::last(Storage::disk('comm_links')->files($commLinkDir));
+        $newCommLinkIds = $this->filterDirectories('comm_links', $this->modifiedFolderTime)
+            ->each(
+                function ($commLinkDir) use ($commLinks) {
+                    $file = Arr::last(Storage::disk('comm_links')->files($commLinkDir));
 
-                if (null !== $file) {
-                    $file = preg_split('/\/|\\\/', $file);
-                    $commLink = $commLinks->get((int)$commLinkDir, null);
+                    if (null !== $file) {
+                        $file = preg_split('/\/|\\\/', $file);
+                        $commLink = $commLinks->get((int)$commLinkDir, null);
 
-                    dispatch(new ImportCommLink((int)$commLinkDir, Arr::last($file), $commLink));
+                        dispatch(new ImportCommLink((int)$commLinkDir, Arr::last($file), $commLink));
+                    }
                 }
-            }
-        )->map(
-            function ($directory) {
-                return (int)$directory;
-            }
-        )->toArray();
+            )
+            ->map(
+                function ($directory) {
+                    return (int)$directory;
+                }
+            )
+            ->toArray();
 
         $this->dispatchChain($newCommLinkIds);
     }
@@ -84,11 +87,11 @@ class ImportCommLinks implements ShouldQueue
             dispatch(new TranslateCommLinks($commLinkIds));
         }
 
-        $clientNotNull = config('services.mediawiki.client_id', null) !== null;
-        $apiUrlNotNull = config('mediawiki.api_url', null) !== null;
+        $clientNotNull = config('services.mediawiki.client_id') !== null;
+        $apiUrlNotNull = config('mediawiki.api_url') !== null;
 
         if ($clientNotNull && $apiUrlNotNull) {
-            dispatch(new CreateCommLinkWikiPages());
+            dispatch(new CreateCommLinkWikiPages())->delay(90);
         }
     }
 }
