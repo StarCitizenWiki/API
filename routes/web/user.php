@@ -101,8 +101,8 @@ Route::group(
                                     static function () {
                                         Route::resources(
                                             [
-                                                'system' => 'Starsystem\StarsystemController',
-                                                'celestial-object' => 'CelestialObject\CelestialObjectController',
+                                                'starsystems' => 'Starsystem\StarsystemController',
+                                                'celestialobjects' => 'CelestialObject\CelestialObjectController',
                                                 'jumppoint' => 'Jumppoint\JumppointController',
                                             ]
                                         );

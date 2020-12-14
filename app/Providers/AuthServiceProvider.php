@@ -12,9 +12,9 @@ use App\Policies\Web\User\DashboardPolicy;
 use App\Policies\Web\User\Job\JobPolicy;
 use App\Policies\Web\User\Notification\NotificationPolicy;
 use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
-use App\Policies\Web\User\Rsi\CommLink\Image\ImagePolicy;
 use App\Policies\Web\User\Rsi\Stat\StatPolicy;
 use App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy;
+use App\Policies\Web\User\StarCitizen\Starmap\StarmapPolicy;
 use App\Policies\Web\User\StarCitizen\Vehicle\VehiclePolicy;
 use App\Policies\Web\User\Transcript\TranscriptPolicy;
 use App\Policies\Web\User\TranslationPolicy;
@@ -82,6 +82,7 @@ class AuthServiceProvider extends ServiceProvider
          */
         Gate::resource('web.user.starcitizen.manufacturers', ManufacturerPolicy::class);
         Gate::resource('web.user.starcitizen.vehicles', VehiclePolicy::class);
+        Gate::resource('web.user.starcitizen.starmap', StarmapPolicy::class);
 
         /*
          * RSI
