@@ -65,11 +65,31 @@ class Content extends BaseElement
 
         $content = '';
 
-        $this->commLink->filter($filter)->each(
-            function (Crawler $crawler) use (&$content) {
-                $content .= ltrim($crawler->html());
-            }
-        );
+        // This is ugly
+        if ($this->commLink->filterXPath('//g-article')->count() > 0) {
+            $this->commLink->filterXPath('//g-article')->each(
+                function (Crawler $crawler) use (&$content) {
+                    $data = [];
+                    $data[] = $crawler->attr('headline');
+                    $data[] = $crawler->attr('byline');
+                    $data[] = $crawler->attr('body');
+
+                    $content .= ltrim(
+                        collect($data)->filter(
+                            function ($data) {
+                                return $data !== null;
+                            }
+                        )->implode('<br>')
+                    );
+                }
+            );
+        } else {
+            $this->commLink->filter($filter)->each(
+                function (Crawler $crawler) use (&$content) {
+                    $content .= ltrim($crawler->html());
+                }
+            );
+        }
 
         return empty($content) ? '' : $this->cleanContent($content);
     }
