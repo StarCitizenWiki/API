@@ -6,7 +6,7 @@ on:
 
 jobs:
   phpunit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
 
@@ -49,7 +49,7 @@ jobs:
           DB_DATABASE: 'db.sqlite'
         run: vendor/phpunit/phpunit/phpunit
   main:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     needs: phpunit
     steps:
       -
