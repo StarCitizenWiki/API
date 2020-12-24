@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Parser\CommLink;
 
 use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
+use App\Services\Parser\CommLink\Content\ContentExtractorFactory;
 use Closure;
+use InvalidArgumentException;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -47,49 +49,13 @@ class Content extends BaseElement
     /**
      * Tries to extract the Comm-Link Content as Text
      *
-     * @param string $filter Content Element class/id
-     *
      * @return string
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
-    public function getContent(string $filter = '.segment'): string
+    public function getContent(): string
     {
-        if ($this->isSpecialPage($this->commLink)) {
-            $filter = '#layout-system';
-        } elseif ($this->isSubscriberPage($this->commLink)) {
-            //$filter = '.album-wrapper';
-
-            return '';
-        }
-
-        $content = '';
-
-        // This is ugly
-        if ($this->commLink->filterXPath('//g-article')->count() > 0) {
-            $this->commLink->filterXPath('//g-article')->each(
-                function (Crawler $crawler) use (&$content) {
-                    $data = [];
-                    $data[] = $crawler->attr('headline');
-                    $data[] = $crawler->attr('byline');
-                    $data[] = $crawler->attr('body');
-
-                    $content .= ltrim(
-                        collect($data)->filter(
-                            function ($data) {
-                                return $data !== null;
-                            }
-                        )->implode('<br>')
-                    );
-                }
-            );
-        } else {
-            $this->commLink->filter($filter)->each(
-                function (Crawler $crawler) use (&$content) {
-                    $content .= ltrim($crawler->html());
-                }
-            );
-        }
+        $content = ContentExtractorFactory::getParserFromCrawler($this->commLink)->getContent();
 
         return empty($content) ? '' : $this->cleanContent($content);
     }

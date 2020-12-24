@@ -254,6 +254,7 @@ EOL;
      * @covers \App\Jobs\Rsi\CommLink\Import\ImportCommLink
      * @covers \App\Services\Parser\CommLink\AbstractBaseElement
      * @covers \App\Services\Parser\CommLink\Content
+     * @covers \App\Services\Parser\CommLink\Content\DefaultExtractor
      * @covers \App\Services\Parser\CommLink\Image
      * @covers \App\Services\Parser\CommLink\Link
      * @covers \App\Services\Parser\CommLink\Metadata
