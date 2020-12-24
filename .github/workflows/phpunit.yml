@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 jobs:
   laravel-test-sqlite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -53,7 +53,7 @@ jobs:
           DB_DATABASE: 'db.sqlite'
         run: vendor/phpunit/phpunit/phpunit
   laravel-test-sql:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     services:
       mysql:
         image: mariadb:latest
