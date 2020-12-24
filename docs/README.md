@@ -124,6 +124,3 @@ This call would include all celestial objects of the starsystem and the jumppoin
 Some endpoints allow localization of the returned text.  
 The locale can be set by setting the `locale` url parameter.  
 Currently `de_DE` and `en_EN` are supported. 
-
-### Playground
-Visit the [Playground](playground/index.html)
