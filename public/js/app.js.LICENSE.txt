@@ -34,13 +34,15 @@
  * Date: 2020-05-04T22:49Z
  */
 
-/*! DataTables 1.10.22
+/*! DataTables 1.10.23
  * ©2008-2020 SpryMedia Ltd - datatables.net/license
  */
 
 /*! DataTables Bootstrap 4 integration
  * ©2011-2017 SpryMedia Ltd - datatables.net/license
  */
+
+/*! https://mths.be/codepointat v0.2.0 by @mathias */
 
 /**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.

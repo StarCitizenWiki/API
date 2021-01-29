@@ -51,7 +51,7 @@ class CommLinkSearchController extends Controller
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
 
-        return view('user.rsi.comm_links.search');
+        return view('user.rsi.comm_links.search')->with('apiToken', Auth::user()->api_token);
     }
 
     /**
