@@ -16,7 +16,7 @@ final class VueArticleExtractor implements ContentExtractorInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getContent(): string
     {
@@ -32,7 +32,7 @@ final class VueArticleExtractor implements ContentExtractorInterface
                 $content .= ltrim(
                     collect($data)->filter(
                         function ($data) {
-                            return $data !== null;
+                            return null !== $data;
                         }
                     )->implode('<br>')
                 );
@@ -43,7 +43,7 @@ final class VueArticleExtractor implements ContentExtractorInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public static function getFilter(): string
     {
@@ -51,7 +51,7 @@ final class VueArticleExtractor implements ContentExtractorInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public static function canParse(Crawler $page): array
     {

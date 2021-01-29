@@ -16,25 +16,20 @@ interface ContentExtractorInterface
     public function __construct(Crawler $page);
 
     /**
-     * The raw HTML text content
-     *
-     * @return string
+     * The raw HTML text content.
      */
     public function getContent(): string;
 
     /**
-     * The filter used by the crawler, CSS Selector of XPath
-     *
-     * @return string
+     * The filter used by the crawler, CSS Selector of XPath.
      */
     public static function getFilter(): string;
 
     /**
      * Check if a parser can parse the page
-     * Usually checks if the element filter exists in the page
+     * Usually checks if the element filter exists in the page.
      *
      * @param Crawler $page
-     *
      * @return array Two element array containing a bool on position 0 and the number of matched elements on position 1
      */
     public static function canParse(Crawler $page): array;

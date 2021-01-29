@@ -16,7 +16,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getContent(): string
     {
@@ -32,7 +32,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public static function getFilter(): string
     {
@@ -40,7 +40,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public static function canParse(Crawler $page): array
     {
