@@ -7,6 +7,7 @@ namespace App\Jobs\Wiki\CommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Traits\GetWikiCsrfTokenTrait as GetWikiCsrfToken;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
+use ErrorException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,6 +31,13 @@ class CreateCommLinkWikiPages implements ShouldQueue
     use GetWikiCsrfToken;
 
     /**
+     * Comm-Link creation config
+     *
+     * @var array
+     */
+    private array $config;
+
+    /**
      * Execute the job.
      *
      * @return void
@@ -42,7 +50,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
 
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
-        } catch (\ErrorException $e) {
+        } catch (ErrorException $e) {
             app('Log')::info(
                 sprintf(
                     '%s: %s',
@@ -56,10 +64,39 @@ class CreateCommLinkWikiPages implements ShouldQueue
             return;
         }
 
-        $config = $this->getCommLinkConfig();
-        $config['token'] = $token;
+        $commLinkConfig = $this->getCommLinkConfig();
+        $commLinkConfig['token'] = $token;
+        $this->config = $commLinkConfig;
 
-        app('Log')::debug('Current config:', $config);
+        app('Log')::debug('Current config:', $commLinkConfig);
+
+        $dispatchFunction = function (Collection $commLinks) {
+            try {
+                $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
+            } catch (RuntimeException $e) {
+                app('Log')::error($e->getMessage());
+
+                return;
+            }
+
+            $localConfig = $this->config;
+
+            $commLinks->each(
+                static function (CommLink $commLink) use ($pageInfoCollection, $localConfig) {
+                    $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
+
+                    if (isset($wikiPage['missing'])) {
+                        dispatch(
+                            new CreateCommLinkWikiPage(
+                                $commLink,
+                                $localConfig['token'],
+                                $localConfig['template']
+                            )
+                        );
+                    }
+                }
+            );
+        };
 
         CommLink::query()->whereHas(
             'translations',
@@ -71,29 +108,12 @@ class CreateCommLinkWikiPages implements ShouldQueue
             }
         )->chunk(
             100,
-            function (Collection $commLinks) use ($config) {
-                try {
-                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (RuntimeException $e) {
-                    app('Log')::error($e->getMessage());
-
-                    return;
-                }
-
-                $commLinks->each(
-                    static function (CommLink $commLink) use ($pageInfoCollection, $config) {
-                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
-
-                        if (isset($wikiPage['missing'])) {
-                            dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
-                        }
-                    }
-                );
-            }
+            $dispatchFunction
         );
 
-        $config = $this->getCommLinkConfig('Comm-Link:Subscriber-Header');
-        $config['token'] = $token;
+        $commLinkConfig = $this->getCommLinkConfig('Comm-Link:Subscriber-Header');
+        $commLinkConfig['token'] = $token;
+        $this->config = $commLinkConfig;
 
         CommLink::query()->whereHas(
             'channel',
@@ -102,29 +122,12 @@ class CreateCommLinkWikiPages implements ShouldQueue
             }
         )->chunk(
             100,
-            function (Collection $commLinks) use ($config) {
-                try {
-                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (RuntimeException $e) {
-                    app('Log')::error($e->getMessage());
-
-                    return;
-                }
-
-                $commLinks->each(
-                    static function (CommLink $commLink) use ($pageInfoCollection, $config) {
-                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
-
-                        if (isset($wikiPage['missing'])) {
-                            dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
-                        }
-                    }
-                );
-            }
+            $dispatchFunction
         );
 
-        $config = $this->getCommLinkConfig('Comm-Link:Press-Header');
-        $config['token'] = $token;
+        $commLinkConfig = $this->getCommLinkConfig('Comm-Link:Press-Header');
+        $commLinkConfig['token'] = $token;
+        $this->config = $commLinkConfig;
 
         CommLink::query()->whereHas(
             'channel',
@@ -133,25 +136,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
             }
         )->chunk(
             100,
-            function (Collection $commLinks) use ($config) {
-                try {
-                    $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (RuntimeException $e) {
-                    app('Log')::error($e->getMessage());
-
-                    return;
-                }
-
-                $commLinks->each(
-                    static function (CommLink $commLink) use ($pageInfoCollection, $config) {
-                        $wikiPage = $pageInfoCollection->get($commLink->cig_id, []);
-
-                        if (isset($wikiPage['missing'])) {
-                            dispatch(new CreateCommLinkWikiPage($commLink, $config['token'], $config['template']));
-                        }
-                    }
-                );
-            }
+            $dispatchFunction
         );
     }
 }

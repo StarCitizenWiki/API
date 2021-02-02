@@ -11,8 +11,8 @@ use App\Models\Rsi\Video\VideoFormat;
 use App\Models\Transcript\Transcript;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 
 class TranscriptController extends Controller
 {
@@ -134,16 +134,8 @@ class TranscriptController extends Controller
     {
         $this->authorize(self::TRANSCRIPT_UPDATE_PERMISSION);
 
-        $data = $request->validated();
-
         $transcript->update(
-            [
-                self::TITLE => $data[self::TITLE],
-                self::YOUTUBE_URL => $data[self::YOUTUBE_URL],
-                self::PUBLISHED_AT => $data[self::PUBLISHED_AT],
-                self::WIKI_ID => $data[self::WIKI_ID],
-                'format_id' => $data['format'],
-            ]
+            $this->getUpdateDataArray($request->validated())
         );
 
         $message = __('crud.updated', ['type' => __('Transkript')]);
@@ -177,13 +169,7 @@ class TranscriptController extends Controller
                 'source_title' => $data['source_title'],
                 'source_url' => $data['source_url'],
                 'source_published_at' => $data['source_published_at'],
-
-                self::TITLE => $data[self::TITLE],
-                self::YOUTUBE_URL => $data[self::YOUTUBE_URL],
-                self::PUBLISHED_AT => $data[self::PUBLISHED_AT],
-                self::WIKI_ID => $data[self::WIKI_ID],
-                'format_id' => $data['format'],
-            ]
+            ] + $this->getUpdateDataArray($data)
         );
         $transcript->save();
 
@@ -214,5 +200,22 @@ class TranscriptController extends Controller
                 ],
             ]
         );
+    }
+
+    /**
+     * Array data used in store / update
+     *
+     * @param array $data
+     * @return array
+     */
+    private function getUpdateDataArray(array $data): array
+    {
+        return [
+            self::TITLE => $data[self::TITLE],
+            self::YOUTUBE_URL => $data[self::YOUTUBE_URL],
+            self::PUBLISHED_AT => $data[self::PUBLISHED_AT],
+            self::WIKI_ID => $data[self::WIKI_ID],
+            'format_id' => $data['format'],
+        ];
     }
 }

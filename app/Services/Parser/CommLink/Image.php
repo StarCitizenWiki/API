@@ -109,16 +109,7 @@ class Image extends BaseElement
                         $matches
                     );
 
-                    if (!empty($matches[1])) {
-                        collect($matches[1])->each(
-                            function ($src) {
-                                $this->images[] = [
-                                    'src' => trim($src),
-                                    'alt' => '',
-                                ];
-                            }
-                        );
-                    }
+                    $this->addImages($matches);
                 }
             );
         }
@@ -126,14 +117,7 @@ class Image extends BaseElement
 
     private function extractImgTags(): void
     {
-        $filter = ImportCommLink::POST_SELECTOR;
-        if ($this->isSubscriberPage($this->commLink)) {
-            $filter = '#subscribers .album-wrapper';
-        } elseif ($this->isSpecialPage($this->commLink)) {
-            $filter = ImportCommLink::SPECIAL_PAGE_SELECTOR;
-        }
-
-        $this->commLink->filter($filter)->filterXPath('//img')->each(
+        $this->commLink->filter($this->getFilterSelector())->filterXPath('//img')->each(
             function (Crawler $crawler) {
                 $src = $crawler->attr('src');
 
@@ -149,14 +133,7 @@ class Image extends BaseElement
 
     private function extractCFeatureTemplateImages(): void
     {
-        $filter = ImportCommLink::POST_SELECTOR;
-        if ($this->isSubscriberPage($this->commLink)) {
-            $filter = '#subscribers .album-wrapper';
-        } elseif ($this->isSpecialPage($this->commLink)) {
-            $filter = ImportCommLink::SPECIAL_PAGE_SELECTOR;
-        }
-
-        $this->commLink->filter($filter)->filterXPath('//c-feature')->each(
+        $this->commLink->filter($this->getFilterSelector())->filterXPath('//c-feature')->each(
             function (Crawler $crawler) {
                 $src = trim($crawler->attr('background-url') ?? '');
 
@@ -201,16 +178,7 @@ class Image extends BaseElement
             $matches
         );
 
-        if (!empty($matches[1])) {
-            collect($matches[1])->each(
-                function ($src) {
-                    $this->images[] = [
-                        'src' => trim($src),
-                        'alt' => '',
-                    ];
-                }
-            );
-        }
+        $this->addImages($matches);
     }
 
     /**
@@ -226,16 +194,7 @@ class Image extends BaseElement
         );
         //phpcs:enable
 
-        if (!empty($matches[1])) {
-            collect($matches[1])->each(
-                function ($src) {
-                    $this->images[] = [
-                        'src' => trim($src),
-                        'alt' => '',
-                    ];
-                }
-            );
-        }
+        $this->addImages($matches);
     }
 
     /**
@@ -249,16 +208,7 @@ class Image extends BaseElement
             $matches
         );
 
-        if (!empty($matches[1])) {
-            collect($matches[1])->each(
-                function ($src) {
-                    $this->images[] = [
-                        'src' => trim($src),
-                        'alt' => '',
-                    ];
-                }
-            );
-        }
+        $this->addImages($matches);
     }
 
     /**
@@ -272,12 +222,35 @@ class Image extends BaseElement
             $matches
         );
 
+        $this->addImages($matches);
+    }
+
+    private function getFilterSelector(): string
+    {
+        $filter = ImportCommLink::POST_SELECTOR;
+        if ($this->isSubscriberPage($this->commLink)) {
+            $filter = '#subscribers .album-wrapper';
+        } elseif ($this->isSpecialPage($this->commLink)) {
+            $filter = ImportCommLink::SPECIAL_PAGE_SELECTOR;
+        }
+
+        return $filter;
+    }
+
+    /**
+     * Adds all found image matches
+     *
+     * @param array $matches
+     * @param string $alt
+     */
+    private function addImages(array $matches, string $alt = ''): void
+    {
         if (!empty($matches[1])) {
             collect($matches[1])->each(
-                function ($src) {
+                function ($src) use ($alt) {
                     $this->images[] = [
                         'src' => trim($src),
-                        'alt' => '',
+                        'alt' => $alt,
                     ];
                 }
             );
