@@ -19,6 +19,7 @@ use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
 use App\Console\Commands\Galactapedia\ImportArticleProperties;
 use App\Console\Commands\Galactapedia\ImportArticles;
 use App\Console\Commands\Galactapedia\ImportCategories;
+use App\Console\Commands\Galactapedia\TranslateArticles;
 use App\Console\Commands\ShipMatrix\Download\DownloadShipMatrix;
 use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
 use App\Console\Commands\Starmap\Download\DownloadStarmap;
@@ -81,6 +82,7 @@ class Kernel extends ConsoleKernel
         ImportCategories::class,
         ImportArticles::class,
         ImportArticleProperties::class,
+        TranslateArticles::class,
     ];
 
     /**
