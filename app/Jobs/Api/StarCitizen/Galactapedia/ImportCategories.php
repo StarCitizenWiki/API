@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Api\StarCitizen\Galactapedia;
 
 use App\Jobs\AbstractBaseDownloadData;
-use App\Models\Api\StarCitizen\Galactapedia\GalactapediaCategory;
+use App\Models\Api\StarCitizen\Galactapedia\Category;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -39,20 +39,20 @@ class ImportCategories extends AbstractBaseDownloadData implements ShouldQueue
     {
         $result = self::$client->post('galactapedia/graphql', [
             'query' => <<<QUERY
-        query GetCategories {
-          allCategory {
-            edges {
-              node {
-                id
-                name
-                slug
-                thumbnail {
-                  url
-                }
-              }
-            }
-          }
+query GetCategories {
+  allCategory {
+    edges {
+      node {
+        id
+        name
+        slug
+        thumbnail {
+          url
         }
+      }
+    }
+  }
+}
 QUERY
         ]);
 
@@ -62,16 +62,18 @@ QUERY
             return;
         }
 
-        collect($result['data']['allCategory']['edges'])->map(function ($edge) {
-            return $edge['node'] ?? false;
-        })->each(function (array $node) {
-
-            GalactapediaCategory::create([
-                'cig_id' => $node['id'],
-                'name' => $node['name'],
-                'slug' => $node['slug'] ?? Str::slug($node['name']),
-                'thumbnail' => $node['thumbnail']['url'] ?? null,
-            ]);
-        });
+        collect($result['data']['allCategory']['edges'])
+            ->map(function ($edge) {
+                return $edge['node'] ?? false;
+            })
+            ->each(function (array $node) {
+                Category::updateOrCreate([
+                    'cig_id' => $node['id'],
+                ], [
+                    'name' => $node['name'],
+                    'slug' => $node['slug'] ?? Str::slug($node['name']),
+                    'thumbnail' => $node['thumbnail']['url'] ?? null,
+                ]);
+            });
     }
 }

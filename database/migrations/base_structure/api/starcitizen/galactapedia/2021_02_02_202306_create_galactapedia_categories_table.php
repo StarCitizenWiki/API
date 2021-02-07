@@ -13,7 +13,7 @@ class CreateGalactapediaCategoriesTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('galactapedia_categories', function (Blueprint $table) {
             $table->id();
@@ -30,7 +30,7 @@ class CreateGalactapediaCategoriesTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('galactapedia_categories');
     }

@@ -1,18 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Api\StarCitizen\Galactapedia;
 
 use App\Events\ModelUpdating;
-use App\Models\System\Translation\AbstractHasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class GalactapediaArticle extends AbstractHasTranslations
+class Template extends Model
 {
     use HasFactory;
     use ModelChangelog;
+
+    protected $table = 'galactapedia_templates';
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
@@ -21,16 +24,11 @@ class GalactapediaArticle extends AbstractHasTranslations
     ];
 
     protected $fillable = [
-        'cig_id',
-        'title',
-        'slug',
+        'template'
     ];
 
-    /**
-     * @return HasMany
-     */
-    public function translations(): HasMany
+    public function article(): BelongsToMany
     {
-        return $this->hasMany(GalactapediaArticleTranslation::class);
+        return $this->belongsToMany(Article::class);
     }
 }

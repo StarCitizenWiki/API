@@ -4,12 +4,13 @@ namespace App\Models\Api\StarCitizen\Galactapedia;
 
 use App\Models\System\Translation\AbstractTranslation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class GalactapediaArticleTranslation extends AbstractTranslation
+class ArticleTranslation extends AbstractTranslation
 {
     use HasFactory;
+
+    protected $table = 'galactapedia_article_translations';
 
     protected $fillable = [
         'locale_code',
@@ -19,6 +20,6 @@ class GalactapediaArticleTranslation extends AbstractTranslation
 
     public function article(): BelongsTo
     {
-        return $this->belongsTo(GalactapediaArticle::class);
+        return $this->belongsTo(Article::class);
     }
 }

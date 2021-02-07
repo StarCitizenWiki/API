@@ -16,6 +16,9 @@ use App\Console\Commands\CommLink\Import\ImportCommLink;
 use App\Console\Commands\CommLink\Import\ImportCommLinks;
 use App\Console\Commands\CommLink\Translate\TranslateCommLinks;
 use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
+use App\Console\Commands\Galactapedia\ImportArticleProperties;
+use App\Console\Commands\Galactapedia\ImportArticles;
+use App\Console\Commands\Galactapedia\ImportCategories;
 use App\Console\Commands\ShipMatrix\Download\DownloadShipMatrix;
 use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
 use App\Console\Commands\Starmap\Download\DownloadStarmap;
@@ -74,6 +77,10 @@ class Kernel extends ConsoleKernel
         DownloadStarmap::class,
         ImportStarmap::class,
         TranslateSystems::class,
+
+        ImportCategories::class,
+        ImportArticles::class,
+        ImportArticleProperties::class,
     ];
 
     /**
@@ -104,6 +111,10 @@ class Kernel extends ConsoleKernel
 
         if (config('schedule.starmap.enabled')) {
             $this->scheduleStarmapJobs();
+        }
+
+        if (config('schedule.galactapedia.enabled')) {
+            $this->scheduleGalactapediaJobs();
         }
     }
 
@@ -153,7 +164,9 @@ class Kernel extends ConsoleKernel
             );
 
         /* Download Comm-Link Images */
-        //$this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
+        if (config('schedule.comm_links.download_local') === true) {
+            $this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
+        }
 
         /* Update Proof Read Status */
         $this->schedule
@@ -191,5 +204,24 @@ class Kernel extends ConsoleKernel
         $this->schedule
             ->command(DownloadStarmap::class, ['--import'])
             ->monthly();
+    }
+
+    /**
+     * Galactapedia Jobs
+     */
+    private function scheduleGalactapediaJobs(): void
+    {
+        $this->schedule
+            ->command(ImportCategories::class)
+            ->onSuccess(function () {
+                $this->call(ImportArticles::class);
+            })
+            ->dailyAt('2:00')
+            ->withoutOverlapping();
+
+        $this->schedule
+            ->command(ImportArticleProperties::class)
+            ->dailyAt('2:30')
+            ->withoutOverlapping();
     }
 }

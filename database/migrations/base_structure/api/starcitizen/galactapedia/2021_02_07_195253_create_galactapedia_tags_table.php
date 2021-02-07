@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGalactapediaArticlesTable extends Migration
+class CreateGalactapediaTagsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,12 +15,11 @@ class CreateGalactapediaArticlesTable extends Migration
      */
     public function up(): void
     {
-        Schema::create('galactapedia_articles', function (Blueprint $table) {
+        Schema::create('galactapedia_tags', function (Blueprint $table) {
             $table->id();
             $table->string('cig_id')->unique();
-            $table->string('title');
+            $table->string('name');
             $table->string('slug');
-            $table->string('thumbnail')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ class CreateGalactapediaArticlesTable extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('galactapedia_articles');
+        Schema::dropIfExists('galactapedia_tags');
     }
 }

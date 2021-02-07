@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Jobs\Api\StarCitizen\Galactapedia;
 
 use App\Jobs\AbstractBaseDownloadData;
-use App\Models\Api\StarCitizen\Galactapedia\GalactapediaArticle;
-use App\Models\Api\StarCitizen\Galactapedia\GalactapediaCategory;
+use App\Models\Api\StarCitizen\Galactapedia\Category;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Str;
 
 class ImportArticlesFromCategory extends AbstractBaseDownloadData implements ShouldQueue
 {
@@ -21,14 +19,17 @@ class ImportArticlesFromCategory extends AbstractBaseDownloadData implements Sho
     use Queueable;
     use SerializesModels;
 
+    private Category $category;
+
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Category $category
      */
-    public function __construct()
+    public function __construct(Category $category)
     {
         $this->makeClient();
+        $this->category = $category;
     }
 
     /**
@@ -36,48 +37,39 @@ class ImportArticlesFromCategory extends AbstractBaseDownloadData implements Sho
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        $cat = GalactapediaCategory::all()->first()->toArray();
-
         $result = self::$client->post('galactapedia/graphql', [
             'query' => <<<QUERY
-         {
-          cat_{$cat['cig_id']}: allArticle(where: {categories: {contains: "${cat['cig_id']}"}}) {
-              edges {
-                node {
-                id,
-                title,
-                slug,
-                body
-                }
-              }
-            
-          }
-        }
-QUERY
+query ArticleByCategory(\$query: String) {
+  allArticle(where: {categories: {contains: \$query}}) {
+    edges {
+      node {
+        id
+        title
+        slug
+      }
+    }
+  }
+}
+QUERY,
+            'variables' => [
+                'query' => $this->category->cig_id,
+            ],
         ]);
 
         $result = $result->json() ?? [];
 
-        if (!isset($result['data']["cat_{$cat['cig_id']}"]['edges'])) {
+        if (!isset($result['data']['allArticle']['edges'])) {
             return;
         }
 
-        collect($result['data']["cat_{$cat['cig_id']}"]['edges'])->map(function ($edge) {
-            return $edge['node'] ?? false;
-        })->each(function (array $node) {
-            /** @var GalactapediaArticle $article */
-            $article = GalactapediaArticle::create([
-                'cig_id' => $node['id'],
-                'title' => $node['title'],
-                'slug' => $node['slug'] ?? Str::slug($node['name']),
-            ]);
-
-            $article->translations()->create([
-                'locale_code' => 'en_EN',
-                'translation' => $node['body']
-            ]);
-        });
+        collect($result['data']['allArticle']['edges'])
+            ->map(function ($edge) {
+                return $edge['node'];
+            })
+            ->each(function (array $node) {
+                ImportArticle::dispatch($node['id']);
+            });
     }
 }
