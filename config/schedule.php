@@ -23,5 +23,10 @@ return [
 
     'comm_links' => [
         'enabled' => true,
+        'download_local' => false,
+    ],
+
+    'galactapedia' => [
+        'enabled' => true,
     ],
 ];
