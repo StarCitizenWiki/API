@@ -33,7 +33,6 @@ class ImportArticle extends AbstractBaseDownloadData implements ShouldQueue
      */
     public function __construct(string $articleId)
     {
-        $this->makeClient();
         $this->articleId = $articleId;
 
         app('Log')::info(sprintf('Importing Galactapedia Article "%s"', $articleId));
@@ -46,7 +45,7 @@ class ImportArticle extends AbstractBaseDownloadData implements ShouldQueue
      */
     public function handle(): void
     {
-        $result = self::$client->post('galactapedia/graphql', [
+        $result = $this->makeClient()->post('galactapedia/graphql', [
             'query' => <<<QUERY
 query ArticleByID(\$query: ID!) {
   Article(id: \$query) {

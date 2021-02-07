@@ -21,23 +21,15 @@ class ImportCategories extends AbstractBaseDownloadData implements ShouldQueue
     use SerializesModels;
 
     /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->makeClient();
-    }
-
-    /**
      * Execute the job.
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        $result = self::$client->post('galactapedia/graphql', [
+        app('Log')::info('Importing Galactapedia categories.');
+
+        $result = $this->makeClient()->post('galactapedia/graphql', [
             'query' => <<<QUERY
 query GetCategories {
   allCategory {

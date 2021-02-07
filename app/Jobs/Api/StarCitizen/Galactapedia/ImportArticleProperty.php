@@ -29,7 +29,6 @@ class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQu
      */
     public function __construct(Article $article)
     {
-        $this->makeClient();
         $this->article = $article;
     }
 
@@ -54,7 +53,7 @@ class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQu
 
         $strFields = implode("\n", $fields->toArray());
 
-        $result = self::$client->post('galactapedia/graphql', [
+        $result = $this->makeClient()->post('galactapedia/graphql', [
             'query' => <<<QUERY
 {
   Article(id: "{$this->article->cig_id}") {
@@ -108,7 +107,7 @@ QUERY,
 
     private function getTemplateFields(): ?Collection
     {
-        $result = self::$client->post('galactapedia/graphql', [
+        $result = $this->makeClient()->post('galactapedia/graphql', [
             'query' => <<<QUERY
 query ArticleAfterCursor(\$type: String!) {
   template: __type(name: \$type) {

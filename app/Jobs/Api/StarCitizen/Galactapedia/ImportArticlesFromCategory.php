@@ -28,7 +28,6 @@ class ImportArticlesFromCategory extends AbstractBaseDownloadData implements Sho
      */
     public function __construct(Category $category)
     {
-        $this->makeClient();
         $this->category = $category;
     }
 
@@ -39,7 +38,7 @@ class ImportArticlesFromCategory extends AbstractBaseDownloadData implements Sho
      */
     public function handle(): void
     {
-        $result = self::$client->post('galactapedia/graphql', [
+        $result = $this->makeClient()->post('galactapedia/graphql', [
             'query' => <<<QUERY
 query ArticleByCategory(\$query: String) {
   allArticle(where: {categories: {contains: \$query}}) {
