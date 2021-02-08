@@ -131,7 +131,8 @@ QUERY,
             })
             ->map(function (Template $template) {
                 return $template->id;
-            });
+            })
+            ->collect();
 
         $this->article->templates()->sync($ids);
     }
@@ -149,7 +150,8 @@ QUERY,
             })
             ->map(function (Category $category) {
                 return $category->id;
-            });
+            })
+            ->collect();
 
         $this->article->categories()->sync($ids);
     }
@@ -167,7 +169,8 @@ QUERY,
             })
             ->map(function (Tag $tag) {
                 return $tag->id;
-            });
+            })
+            ->collect();
 
         $this->article->tags()->sync($ids);
     }
@@ -179,15 +182,16 @@ QUERY,
                 return $related !== null;
             })
             ->map(function (array $related) {
-                return Article::query()->find($related['id'], 'cig_id');
+                return Article::query()->where($related['id'], 'cig_id')->first();
             })
             ->filter(function ($related) {
                 return $related !== null;
             })
-            ->map(function (Tag $tag) {
+            ->map(function (Article $tag) {
                 return $tag->id;
-            });
+            })
+            ->collect();
 
-        $this->article->tags()->sync($ids);
+        $this->article->related()->sync($ids);
     }
 }

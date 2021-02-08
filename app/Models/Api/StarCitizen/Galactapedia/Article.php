@@ -43,7 +43,9 @@ class Article extends AbstractHasTranslations
     {
         return $this->belongsToMany(
             Category::class,
-            'galactapedia_article_categories'
+            'galactapedia_article_categories',
+            'article_id',
+            'category_id',
         );
     }
 
@@ -51,7 +53,9 @@ class Article extends AbstractHasTranslations
     {
         return $this->belongsToMany(
             Tag::class,
-            'galactapedia_article_tags'
+            'galactapedia_article_tags',
+            'article_id',
+            'tag_id',
         );
     }
 
@@ -68,7 +72,7 @@ class Article extends AbstractHasTranslations
             ArticleRelate::class,
             'galactapedia_article_relates',
             'article_id',
-            'related_article_id'
+            'related_article_id',
         );
     }
 
@@ -77,8 +81,8 @@ class Article extends AbstractHasTranslations
         return $this->belongsToMany(
             Template::class,
             'galactapedia_article_templates',
+            'article_id',
             'template_id',
-            'article_id'
         );
     }
 }
