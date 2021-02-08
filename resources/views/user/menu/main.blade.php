@@ -52,6 +52,18 @@
     @endcomponent
 @endcan
 
+@can('web.user.rsi.comm-links.view')
+    @component('components.navs.sidebar_section', [
+        'class' => 'mb-md-2',
+        'titleClass' => 'text-muted pb-0',
+        'contentClass' => 'pl-3 pl-md-2',
+        'id' => 'm_galactapedia',
+        'title' => __('Galactapedia'),
+    ])
+        @include('user.menu.galactapedia')
+    @endcomponent
+@endcan
+
 @can('web.user.starcitizen.vehicles.view')
     @component('components.navs.sidebar_section', [
         'class' => 'mb-md-2',

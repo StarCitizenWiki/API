@@ -91,6 +91,7 @@ Route::group(
                                     'manufacturers' => 'Manufacturer\ManufacturerController',
                                     'production-statuses' => 'ProductionStatus\ProductionStatusController',
                                     'production-notes' => 'ProductionNote\ProductionNoteController',
+                                    'galactapedia' => 'Galactapedia\GalactapediaController',
                                 ]
                             );
 

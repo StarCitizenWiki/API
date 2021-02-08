@@ -8,8 +8,10 @@ use App\Events\ModelUpdating;
 use App\Models\System\Translation\AbstractHasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder;
 
 class Article extends AbstractHasTranslations
 {
@@ -36,7 +38,32 @@ class Article extends AbstractHasTranslations
      */
     public function getRouteKey(): string
     {
-        return $this->cig_id;
+        return $this->cig_id ?? '';
+    }
+
+    public function getUrlAttribute(): string
+    {
+        return sprintf('%s/galactapedia/%s-%s', config('api.rsi_url'), $this->cig_id, $this->slug);
+    }
+
+    /**
+     * Previous Comm-Link
+     *
+     * @return Builder|Model|object|null
+     */
+    public function getPrevAttribute()
+    {
+        return self::query()->where('id', '<', $this->id)->orderBy('id', 'desc')->first(['cig_id']);
+    }
+
+    /**
+     * Next Comm-Link
+     *
+     * @return Builder|Model|object|null
+     */
+    public function getNextAttribute()
+    {
+        return self::query()->where('id', '>', $this->id)->orderBy('id')->first(['cig_id']);
     }
 
     /**
