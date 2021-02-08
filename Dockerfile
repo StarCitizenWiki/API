@@ -72,13 +72,13 @@ LABEL stage=intermediate
 
 WORKDIR /api
 
-COPY composer.json composer.lock /api/
-
 # install git
 RUN apt-get update && \
     apt-get install -y zip unzip
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY composer.json composer.lock /api/
+
+COPY --from=composer:1 /usr/bin/composer /usr/bin/composer
 
 RUN /usr/bin/composer install --no-dev \
    --ignore-platform-reqs \
@@ -88,10 +88,18 @@ RUN /usr/bin/composer install --no-dev \
    --no-scripts
 
 COPY / /api
+
 RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 
 ### Final Image
 FROM php:7.4-apache
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libwebp-dev \
+        libpng-dev
 
 WORKDIR /var/www/html
 
@@ -102,21 +110,20 @@ COPY ./docker/start.sh /usr/local/bin/start
 COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
 COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libwebp-dev \
-        libpng-dev
-
 RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
     echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini
 
-RUN chown -R www-data:www-data /var/www/html && \
-    chmod u+x /usr/local/bin/start && \
-    chmod -R u+w /var/www/html/storage && \
-    chmod -R g+w /var/www/html/storage && \
+COPY ./docker/schedule.sh /usr/local/bin/schedule
+
+RUN chown -R www-data:www-data /var/www/html; \
+    chmod u+x /usr/local/bin/start; \
+    chmod -R u+w /var/www/html/storage; \
+    chmod -R g+w /var/www/html/storage; \
+    chown www-data:www-data /usr/local/bin/schedule; \
+    chmod +x /usr/local/bin/schedule; \
     a2enmod rewrite
+
+USER root
 
 CMD ["/usr/local/bin/start"]

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink;
 
-use App\Jobs\Rsi\CommLink\Parser\Element\Image;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Services\Parser\CommLink\Image;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -62,8 +62,8 @@ class SyncImageId implements ShouldQueue
         $this->crawler = new Crawler();
         $this->crawler->addHtmlContent($content, 'UTF-8');
 
-        $post = $this->crawler->filter(ParseCommLink::POST_SELECTOR);
-        $subscribers = $this->crawler->filter(ParseCommLink::SUBSCRIBERS_SELECTOR);
+        $post = $this->crawler->filter(ImportCommLink::POST_SELECTOR);
+        $subscribers = $this->crawler->filter(ImportCommLink::SUBSCRIBERS_SELECTOR);
 
         if (0 === $post->count() && 0 === $subscribers->count()) {
             app('Log')::info("Comm-Link with id {$this->commLink->cig_id} has no content");

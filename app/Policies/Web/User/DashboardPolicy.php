@@ -23,6 +23,6 @@ class DashboardPolicy extends BaseAdminPolicy
      */
     public function view(User $user)
     {
-        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+        return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
     }
 }

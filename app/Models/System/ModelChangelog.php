@@ -91,9 +91,10 @@ class ModelChangelog extends Model
             case VehicleTranslation::class:
                 $relation = $relation->vehicle;
             case Vehicle::class:
-                $route = 'ground-vehicles';
-                if ($relation instanceof Ship) {
-                    $route = 'ships';
+                $route = 'ships';
+                // Ugly
+                if ($relation->size->english()->translation === 'vehicle') {
+                    $route = 'ground-vehicles';
                 }
 
                 $route = route(

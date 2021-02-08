@@ -50,6 +50,7 @@ class Vehicle extends HasTranslations
         'x_axis_acceleration',
         'y_axis_acceleration',
         'z_axis_acceleration',
+        'msrp',
         'chassis_id',
         'updated_at',
     ];
@@ -87,6 +88,8 @@ class Vehicle extends HasTranslations
         'x_axis_acceleration' => 'float',
         'y_axis_acceleration' => 'float',
         'z_axis_acceleration' => 'float',
+
+        'msrp' => 'integer',
 
         'updated_at' => 'datetime',
     ];

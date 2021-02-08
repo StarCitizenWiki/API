@@ -58,7 +58,7 @@ class StarsystemTransformer extends AbstractTranslationTransformer
                 'danger' => $starsystem->aggregated_danger,
             ],
 
-            'time_modified' => $starsystem->time_modified,
+            'updated_at' => $starsystem->time_modified,
         ];
     }
 

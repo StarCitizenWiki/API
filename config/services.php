@@ -26,6 +26,8 @@ return [
     ],
 
     'wiki_translations' => [
+        'locale' => env('WIKI_TRANS_LOCALE', 'de_DE'),
+
         'consumer_token' => env('WIKI_TRANS_OAUTH_CONSUMER_TOKEN'),
         'consumer_secret' => env('WIKI_TRANS_OAUTH_CONSUMER_SECRET'),
 
@@ -33,7 +35,24 @@ return [
         'access_secret' => env('WIKI_TRANS_OAUTH_ACCESS_SECRET'),
     ],
 
+    'wiki_approve_revs' => [
+        'consumer_token' => env('WIKI_APPROVE_REVS_OAUTH_CONSUMER_TOKEN'),
+        'consumer_secret' => env('WIKI_APPROVE_REVS_CONSUMER_SECRET'),
+
+        'access_token' => env('WIKI_APPROVE_REVS_ACCESS_TOKEN'),
+        'access_secret' => env('WIKI_APPROVE_REVS_ACCESS_SECRET'),
+    ],
+
+    'wiki_upload_image' => [
+        'consumer_token' => env('WIKI_UPLOAD_IMAGE_CONSUMER_TOKEN'),
+        'consumer_secret' => env('WIKI_UPLOAD_IMAGE_CONSUMER_SECRET'),
+
+        'access_token' => env('WIKI_UPLOAD_IMAGE_ACCESS_TOKEN'),
+        'access_secret' => env('WIKI_UPLOAD_IMAGE_ACCESS_SECRET'),
+    ],
+
     'deepl' => [
+        'target_locale' => env('DEEPL_TARGET_LOCALE', 'DE'),
         'auth_key' => env('DEEPL_AUTH_KEY'),
     ],
 

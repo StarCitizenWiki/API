@@ -30,7 +30,7 @@
     <a href="{{ url('/') }}">
         <img src="{{ asset('media/images/Star_Citizen_Wiki_Logo_White.png') }}"
              class="d-block mx-auto my-5 img-fluid"
-             style="max-width: 100px;">
+             style="max-width: 169px;">
     </a>
 @endsection
 

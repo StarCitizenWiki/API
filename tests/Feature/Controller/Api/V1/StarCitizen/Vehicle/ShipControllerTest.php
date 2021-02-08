@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
@@ -158,7 +160,7 @@ class ShipControllerTest extends VehicleControllerTestCase
     {
         $vehicle = $this->makeVehicleWithName('UberVehicle');
         $vehicle->components()->saveMany(
-            factory(Component::class, 20)->make(),
+            Component::factory()->count(20)->make(),
             [
                 'size' => 1,
                 'details' => '',
@@ -213,7 +215,7 @@ class ShipControllerTest extends VehicleControllerTestCase
      * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::search
-     * @covers \App\Http\Requests\StarCitizen\Vehicle\ShipSearchRequest
+     * @covers \App\Http\Requests\StarCitizen\Vehicle\StarsystemRequest
      */
     public function testSearch(string $name = 'Hammerhead'): void
     {
@@ -224,7 +226,7 @@ class ShipControllerTest extends VehicleControllerTestCase
      * {@inheritdoc}
      *
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::search
-     * @covers \App\Http\Requests\StarCitizen\Vehicle\ShipSearchRequest
+     * @covers \App\Http\Requests\StarCitizen\Vehicle\StarsystemRequest
      */
     public function testSearchWithGermanTranslation(string $name = 'Merchantman'): void
     {

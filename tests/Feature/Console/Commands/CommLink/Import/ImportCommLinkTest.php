@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands\CommLink\Import;
 
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
@@ -45,7 +45,7 @@ class ImportCommLinkTest extends TestCase
      */
     public function testHandle(): void
     {
-        factory(CommLink::class)->create(['id' => 12663]);
+        CommLink::factory()->create(['cig_id' => 12663]);
 
         Storage::disk('comm_links')->createDir('12663');
         Storage::disk('comm_links')->put('12663\2012-01-01_000000.html', '');
@@ -55,7 +55,7 @@ class ImportCommLinkTest extends TestCase
         $this->artisan('comm-links:import 12663')
             ->assertExitCode(0);
 
-        Bus::assertDispatched(ParseCommLink::class);
+        Bus::assertDispatched(ImportCommLink::class);
     }
 
     /**
@@ -65,13 +65,13 @@ class ImportCommLinkTest extends TestCase
      */
     public function testHandleMissingFile(): void
     {
-        factory(CommLink::class)->create(['id' => 18000]);
+        CommLink::factory()->create(['id' => 18000]);
 
         Bus::fake();
 
         $this->artisan('comm-links:import 18000')
             ->assertExitCode(1);
 
-        Bus::assertNotDispatched(ParseCommLink::class);
+        Bus::assertNotDispatched(ImportCommLink::class);
     }
 }

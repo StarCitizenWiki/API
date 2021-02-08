@@ -40,7 +40,7 @@ class UserControllerTestCase extends UserTestCase
      */
     public function testEdit()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $response = $this->actingAs($this->user)->get(route('web.user.users.edit', $user->getRouteKey()));
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
@@ -72,7 +72,7 @@ class UserControllerTestCase extends UserTestCase
     public function testUpdate()
     {
         /** @var \App\Models\Account\User\User $user */
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $response = $this->followingRedirects()->actingAs($this->user)->patch(
             route('web.user.users.update', $user->getRouteKey()),
@@ -103,7 +103,7 @@ class UserControllerTestCase extends UserTestCase
     public function testBlock()
     {
         /** @var \App\Models\Account\User\User $user */
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $response = $this->followingRedirects()->actingAs($this->user)->patch(
             route('web.user.users.update', $user->getRouteKey()),

@@ -10,6 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Installing PHP
+        uses: shivammathur/setup-php@master
+        with:
+         php-version: '7.4'
       - name: Get Composer Cache Directory 2
         id: composer-cache
         run: |
@@ -68,6 +72,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Installing PHP
+        uses: shivammathur/setup-php@master
+        with:
+          php-version: '7.4'
       - name: Get Composer Cache Directory 2
         id: composer-cache
         run: |

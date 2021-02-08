@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Web\User\Rsi\CommLink\Channel;
 use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 /**
  * Comm-Link Channel Controller

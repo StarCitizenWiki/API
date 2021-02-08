@@ -54,6 +54,12 @@ Route::group(
                                 'update-proofread-status',
                                 'Job\Wiki\CommLink\JobController@startCommLinkProofReadStatusUpdateJob'
                             )->name('update-proofread-status');
+
+
+                            Route::post(
+                                'download-ship-matrix',
+                                'Job\StarCitizen\ShipMatrix\JobController@startCommLinkWikiPageCreationJob'
+                            )->name('download-ship-matrix');
                         }
                     );
 
@@ -95,8 +101,8 @@ Route::group(
                                     static function () {
                                         Route::resources(
                                             [
-                                                'system' => 'Starsystem\StarsystemController',
-                                                'celestial-object' => 'CelestialObject\CelestialObjectController',
+                                                'starsystems' => 'Starsystem\StarsystemController',
+                                                'celestial_objects' => 'CelestialObject\CelestialObjectController',
                                                 'jumppoint' => 'Jumppoint\JumppointController',
                                             ]
                                         );
@@ -142,6 +148,7 @@ Route::group(
                                         Route::get('series/{series}', 'Series\SeriesController@show')->name('series.show');
 
                                         Route::get('images', 'Image\ImageController@index')->name('images.index');
+                                        Route::post('images/upload-wiki', 'Image\ImageController@upload')->name('images.upload-wiki');
 
                                         Route::get('search', 'CommLinkSearchController@search')->name('search');
                                         Route::post('reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearchPost')->name('reverse-image-link-search.post');

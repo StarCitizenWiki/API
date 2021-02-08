@@ -72,6 +72,8 @@ class CelestialObject extends HasTranslations
         'sensor_economy' => 'float',
         'sensor_population' => 'float',
         'size' => 'float',
+
+        'time_modified' => 'datetime',
     ];
 
     /**

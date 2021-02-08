@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\Dashboard;
 
@@ -14,7 +16,7 @@ use App\Models\Account\User\UserGroup;
 class DashboardControllerMitarbeiterTest extends DashboardControllerTestCase
 {
     protected const RESPONSE_STATUSES = [
-        'show' => \Illuminate\Http\Response::HTTP_FORBIDDEN,
+        'show' => \Illuminate\Http\Response::HTTP_OK,
     ];
 
     /**

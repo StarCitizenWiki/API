@@ -188,6 +188,7 @@
             </div>
         </div>
     </div>
+    @include('user.components.upload_modal')
 @endsection
 
 @section('body__after')
@@ -200,25 +201,45 @@
             });
         }
 
-      $(document).ready(() => {
-        let url = location.href.replace(/\/$/, '');
+        const hoverVideoPlay = () => {
+            document.querySelectorAll('video').forEach(video => {
+                video.addEventListener('mouseenter', () => {
+                    video.play();
+                });
 
-        if (location.hash) {
-          const hash = url.split('#');
-          $('#nav-tab a[href="#' + hash[1] + '"]').tab('show');
-          url = location.href.replace(/\/#/, '#');
-          history.replaceState(null, null, url);
-          updateNavHash('#'+hash[1]);
+                video.addEventListener('mouseleave', () => {
+                    video.pause();
+                });
+            })
         }
 
-        $('a[data-toggle="tab"]').on('click', function () {
-          let newUrl;
-          const hash = $(this).attr('href');
-          newUrl = url.split('#')[0] + hash;
-          updateNavHash(hash);
+        document.addEventListener('DOMContentLoaded', function() {
+            let url = location.href.replace(/\/$/, '');
 
-          history.replaceState(null, null, newUrl)
+            if (location.hash) {
+                const hash = url.split('#');
+                $('#nav-tab a[href="#' + hash[1] + '"]').tab('show');
+                url = location.href.replace(/\/#/, '#');
+                history.replaceState(null, null, url);
+                updateNavHash('#'+hash[1]);
+            }
+
+            $('a[data-toggle="tab"]').on('click', function () {
+                let newUrl;
+                const hash = $(this).attr('href');
+                newUrl = url.split('#')[0] + hash;
+                updateNavHash(hash);
+
+                history.replaceState(null, null, newUrl)
+            })
+
+            document.querySelectorAll('.badge.last-modified').forEach(entry => {
+                entry.addEventListener('click', () => {
+                    navigator.clipboard.writeText(entry.dataset.lastModified);
+                });
+            });
+
+            hoverVideoPlay();
         })
-      })
     </script>
 @endsection

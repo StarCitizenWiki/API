@@ -52,8 +52,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
     public function testEdit()
     {
         /** @var Manufacturer $manufacturer */
-        $manufacturer = factory(Manufacturer::class)->create();
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $manufacturer = Manufacturer::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
             route('web.user.starcitizen.manufacturers.edit', $manufacturer->getRouteKey())
@@ -105,8 +104,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
     public function testUpdate()
     {
         /** @var Manufacturer $manufacturer */
-        $manufacturer = factory(Manufacturer::class)->create();
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
+        $manufacturer = Manufacturer::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.manufacturers.update', $manufacturer->getRouteKey()),
@@ -118,7 +116,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -143,7 +141,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
@@ -155,10 +153,6 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        factory(Manufacturer::class, 10)->create()->each(
-            function (Manufacturer $manufacturer) {
-                $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
-            }
-        );
+        Manufacturer::factory()->count(10)->create();
     }
 }

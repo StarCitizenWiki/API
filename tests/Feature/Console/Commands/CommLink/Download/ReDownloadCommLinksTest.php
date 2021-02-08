@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Console\Commands\CommLink\Download;
 
 use App\Jobs\Rsi\CommLink\Download\ReDownloadDbCommLinks;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLinks;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -26,7 +26,7 @@ class ReDownloadCommLinksTest extends TestCase
         Queue::assertPushedWithChain(
             ReDownloadDbCommLinks::class,
             [
-                ParseCommLinkDownload::class,
+                ImportCommLinks::class,
             ]
         );
     }
@@ -46,7 +46,7 @@ class ReDownloadCommLinksTest extends TestCase
         Queue::assertPushedWithChain(
             ReDownloadDbCommLinks::class,
             [
-                ParseCommLinkDownload::class,
+                ImportCommLinks::class,
             ]
         );
     }

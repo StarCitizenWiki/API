@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Web\User\Rsi\CommLink\Series;
 use App\Http\Controllers\Controller;
 use App\Models\Rsi\CommLink\Series\Series;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 /**
  * Comm-Link Series

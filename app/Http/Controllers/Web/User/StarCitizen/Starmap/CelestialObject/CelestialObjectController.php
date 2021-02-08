@@ -6,21 +6,21 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Starmap\CelestialObject;
 
 use App\Http\Controllers\Controller;
 use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
+/**
+ * Class AdminStarmapController
+ */
 class CelestialObjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return View
-     */
     public function index(): View
     {
+        $this->authorize('web.user.starcitizen.starmap.view');
+
         return view(
-            'user.starmap.celestialobjects.list',
+            'user.starcitizen.starmap.celestial_objects.index',
             [
-                'celestialobjects' => CelestialObject::query()->orderBy('code')->get(),
+                'objects' => CelestialObject::query()->with('starsystem')->orderBy('code')->get(),
             ]
         );
     }

@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController<extended>
  *
- * @covers \App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer<extended>
+ * @covers \App\Transformers\Api\V1\StarCitizen\Manufacturer\ArticleTransformer<extended>
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer<extended>
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer<extended>
  *
@@ -95,12 +95,11 @@ class ManufacturerControllerTest extends StarCitizenTestCase
      */
     private function makeManufacturerWithName(string $name): Manufacturer
     {
-        $manufacturer = factory(Manufacturer::class)->create(
+        $manufacturer = Manufacturer::factory()->create(
             [
                 'name' => $name,
             ]
         );
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
 
         return $manufacturer;
     }
@@ -113,7 +112,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     public function testShowMultipleTranslations(string $name = 'ORIG'): void
     {
         $manufacturer = $this->makeManufacturerWithName($name);
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
+        $manufacturer->translations()->save(ManufacturerTranslation::factory()->german()->make());
 
         parent::testShowMultipleTranslations($name);
     }
@@ -126,7 +125,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     public function testShowLocaleGerman(string $name = 'TMBL'): void
     {
         $manufacturer = $this->makeManufacturerWithName($name);
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
+        $manufacturer->translations()->save(ManufacturerTranslation::factory()->german()->make());
 
         parent::testShowLocaleGerman($name);
     }
@@ -144,7 +143,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     public function testShowLocaleInvalid(string $name = 'DRAK'): void
     {
         $manufacturer = $this->makeManufacturerWithName($name);
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
+        $manufacturer->translations()->save(ManufacturerTranslation::factory()->german()->make());
 
         parent::testShowLocaleInvalid($name);
     }
@@ -171,7 +170,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     public function testSearchWithGermanTranslation(string $name = 'ANVL'): void
     {
         $manufacturer = $this->makeManufacturerWithName($name);
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
+        $manufacturer->translations()->save(ManufacturerTranslation::factory()->german()->make());
 
         parent::testSearchWithGermanTranslation($name);
     }
@@ -183,10 +182,10 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     {
         $name = Str::random(6);
         $manufacturer = $this->makeManufacturerWithName($name);
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
+        $manufacturer->translations()->save(ManufacturerTranslation::factory()->german()->make());
 
         $manufacturer->ships()->saveMany(
-            factory(Vehicle::class, 5)->make()
+            Vehicle::factory()->count(5)->make()
         );
 
         $response = $this->get(
@@ -219,14 +218,14 @@ class ManufacturerControllerTest extends StarCitizenTestCase
         $name = Str::random(5);
 
         $manufacturer = $this->makeManufacturerWithName($name);
-        $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->state('german')->make());
+        $manufacturer->translations()->save(ManufacturerTranslation::factory()->german()->make());
 
         $manufacturer->ships()->saveMany(
-            factory(Vehicle::class, 5)->state('ship')->make()
+            Vehicle::factory()->count(5)->ship()->make()
         );
 
         $manufacturer->vehicles()->saveMany(
-            factory(Vehicle::class, 5)->state('ground_vehicle')->make()
+            Vehicle::factory()->count(5)->groundVehicle()->make()
         );
 
         $response = $this->get(
@@ -286,10 +285,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
         parent::setUp();
         $this->createSystemLanguages();
 
-        factory(Manufacturer::class, 20)->create()->each(
-            function (Manufacturer $manufacturer) {
-                $manufacturer->translations()->save(factory(ManufacturerTranslation::class)->make());
-            }
-        );
+        Manufacturer::factory()->count(20)->create();
     }
 }

@@ -6,8 +6,9 @@ namespace App\Jobs;
 
 use App\Traits\Jobs\CheckRsiDataStructureTrait as CheckRsiDataStructure;
 use Goutte\Client as GoutteClient;
-use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use stdClass;
 use Symfony\Component\BrowserKit\Cookie;
@@ -23,7 +24,7 @@ abstract class AbstractBaseDownloadData
     public const RSI_TOKEN = 'STAR-CITIZEN.WIKI_DE_API_REQUEST';
 
     /**
-     * @var Client
+     * @var PendingRequest
      */
     protected static $client;
 
@@ -41,26 +42,33 @@ abstract class AbstractBaseDownloadData
      * Inits the Guzzle Client.
      *
      * @param bool $withTokenHeader
+     *
+     * @return PendingRequest
      */
-    protected function initClient(bool $withTokenHeader = true): void
+    protected function makeClient(bool $withTokenHeader = true): PendingRequest
     {
         if (null === self::$client) {
             self::$cookieJar = new CookieJar();
 
-            $config = [
-                'base_uri' => config('api.rsi_url'),
-                'timeout' => 60.0,
-                'cookies' => self::$cookieJar,
-            ];
+            $client = Http::withOptions(
+                [
+                    'base_uri' => config('api.rsi_url'),
+                    'cookies' => self::$cookieJar,
+                ]
+            )->timeout(60);
 
             if (true === $withTokenHeader) {
-                $config['headers'] = [
-                    'X-RSI-Token' => self::RSI_TOKEN,
-                ];
+                $client = $client->withHeaders(
+                    [
+                        'X-RSI-Token' => self::RSI_TOKEN,
+                    ]
+                );
             }
 
-            self::$client = new Client($config);
+            self::$client = $client;
         }
+
+        return self::$client;
     }
 
     /**
@@ -83,9 +91,9 @@ abstract class AbstractBaseDownloadData
             ]
         );
 
-        $response = \GuzzleHttp\json_decode($res->getBody()->getContents());
+        $response = $res->json();
 
-        if (1 !== $response->success) {
+        if (1 !== $response['success'] || !$res->successful()) {
             throw new RuntimeException('Login was not successful');
         }
 
@@ -108,24 +116,5 @@ abstract class AbstractBaseDownloadData
         }
 
         return $client;
-    }
-
-    /**
-     * Create a Scraper if it does not exist.
-     *
-     * @param bool $withAuth
-     */
-    protected function makeScraper(bool $withAuth = false): void
-    {
-        if (null === self::$scraper) {
-            $this->initClient(false);
-
-            self::$scraper = new GoutteClient();
-            self::$scraper->setClient(self::$client);
-
-            if ($withAuth) {
-                $this->addGuzzleCookiesToScraper(self::$scraper);
-            }
-        }
     }
 }

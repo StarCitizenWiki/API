@@ -14,7 +14,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 /**
  * Comm-Link Controller.
@@ -51,7 +51,7 @@ class CommLinkSearchController extends Controller
     {
         $this->authorize(self::COMM_LINK_PERMISSION);
 
-        return view('user.rsi.comm_links.search');
+        return view('user.rsi.comm_links.search')->with('apiToken', Auth::user()->api_token);
     }
 
     /**
@@ -111,31 +111,17 @@ class CommLinkSearchController extends Controller
             $options['page'] = $request->get('page');
         }
 
-        $links = $this->api
-            ->with(
-                array_merge(
-                    [
-                        'url' => $request->get('url'),
-                    ],
-                    $options
-                )
-            )->post('api/comm-links/reverse-image-link-search');
-
-        if ($links->isEmpty()) {
-            return redirect()->route('web.user.rsi.comm-links.search')->withMessages(
-                [
-                    'warning' => [
-                        'Keine Comm-Links gefunden.',
-                    ],
-                ]
-            );
-        }
-
-        return view(
-            'user.rsi.comm_links.index',
-            [
-                'commLinks' => $links,
-            ]
+        return $this->handleSearchResult(
+            $this->api
+                ->with(
+                    array_merge(
+                        [
+                            'url' => $request->get('url'),
+                        ],
+                        $options
+                    )
+                )->post('api/comm-links/reverse-image-link-search'),
+            'user.rsi.comm_links.index'
         );
     }
 
@@ -153,21 +139,34 @@ class CommLinkSearchController extends Controller
 
         $data = $request->validated();
 
-        $links = $this->api
-            ->with(
-                [
-                    'method' => $data['method'],
-                    'similarity' => $data['similarity'],
-                ]
-            )
-            ->attach(
-                [
-                    'image' => $data['image'],
-                ]
-            )
-            ->post('api/comm-links/reverse-image-search');
+        return $this->handleSearchResult(
+            $this->api
+                ->with(
+                    [
+                        'method' => $data['method'],
+                        'similarity' => $data['similarity'],
+                    ]
+                )
+                ->attach(
+                    [
+                        'image' => $data['image'],
+                    ]
+                )
+                ->post('api/comm-links/reverse-image-search'),
+            'user.rsi.comm_links.images.index'
+        );
+    }
 
-        if ($links->isEmpty()) {
+    /**
+     * Things to do after a search request was done
+     *
+     * @param $results
+     * @param string $view
+     * @return Application|Factory|View
+     */
+    private function handleSearchResult($results, string $view)
+    {
+        if ($results->isEmpty()) {
             return redirect()->route('web.user.rsi.comm-links.search')->withMessages(
                 [
                     'warning' => [
@@ -178,9 +177,9 @@ class CommLinkSearchController extends Controller
         }
 
         return view(
-            'user.rsi.comm_links.images.index',
+            $view,
             [
-                'images' => $links,
+                'images' => $results,
             ]
         );
     }

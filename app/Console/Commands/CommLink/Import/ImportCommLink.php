@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\CommLink\Import;
 
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLink;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLink as ImportCommLinkJob;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -52,7 +52,7 @@ class ImportCommLink extends Command
 
         $file = basename(Arr::last(Storage::disk('comm_links')->files($id)));
 
-        dispatch(new ParseCommLink($id, $file, $commLink, true));
+        dispatch(new ImportCommLinkJob($id, $file, $commLink, true));
 
         return 0;
     }

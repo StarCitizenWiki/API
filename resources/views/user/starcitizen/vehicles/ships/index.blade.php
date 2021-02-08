@@ -14,6 +14,7 @@
                         @endcan
                         <th>@lang('CIG ID')</th>
                         <th>@lang('Name')</th>
+                        <th>@lang('Preis')</th>
                         <th>@lang('Hersteller')</th>
                         <th>@lang('Fokus')</th>
                         <th>@lang('Typ')</th>
@@ -40,6 +41,9 @@
                         </td>
                         <td>
                             {{ $ship->name }}
+                        </td>
+                        <td>
+                            {{ ($ship->msrp ?? '-') }}$
                         </td>
                         <td>
                             {{ optional($ship->manufacturer)->name_short }}

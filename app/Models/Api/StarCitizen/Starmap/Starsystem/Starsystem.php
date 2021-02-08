@@ -48,6 +48,13 @@ class Starsystem extends HasTranslations
         'translations',
     ];
 
+    protected $withCount = [
+        'stars',
+        'planets',
+        'moons',
+        'stations',
+    ];
+
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
         'created' => ModelUpdating::class,
@@ -65,7 +72,14 @@ class Starsystem extends HasTranslations
         'aggregated_population' => 'float',
         'aggregated_economy' => 'float',
         'aggregated_danger' => 'float',
+
+        'time_modified' => 'datetime',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'code';
+    }
 
     /**
      * @return HasMany
@@ -86,6 +100,16 @@ class Starsystem extends HasTranslations
     }
 
     /**
+     * Celestial objects with type 'STAR'
+     *
+     * @return HasMany
+     */
+    public function stars(): HasMany
+    {
+        return $this->celestialObjects()->where('type', 'STAR');
+    }
+
+    /**
      * Celestial objects with type 'PLANET'
      *
      * @return HasMany
@@ -93,6 +117,26 @@ class Starsystem extends HasTranslations
     public function planets(): HasMany
     {
         return $this->celestialObjects()->where('type', 'PLANET');
+    }
+
+    /**
+     * Celestial objects with type 'SATELLITE'
+     *
+     * @return HasMany
+     */
+    public function moons(): HasMany
+    {
+        return $this->celestialObjects()->where('type', 'SATELLITE');
+    }
+
+    /**
+     * Celestial objects with type 'MANMADE'
+     *
+     * @return HasMany
+     */
+    public function stations(): HasMany
+    {
+        return $this->celestialObjects()->where('type', 'MANMADE');
     }
 
     /**

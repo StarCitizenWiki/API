@@ -14,6 +14,7 @@
                         @endcan
                         <th>@lang('CIG ID')</th>
                         <th>@lang('Name')</th>
+                        <th>@lang('Preis')</th>
                         <th>@lang('Hersteller')</th>
                         <th>@lang('Fokus')</th>
                         <th>@lang('Typ')</th>
@@ -39,6 +40,9 @@
                         </td>
                         <td>
                             {{ $groundVehicle->name }}
+                        </td>
+                        <td>
+                            {{ ($groundVehicle->msrp ?? '-') }}$
                         </td>
                         <td>
                             {{ optional($groundVehicle->manufacturer)->name_short }}

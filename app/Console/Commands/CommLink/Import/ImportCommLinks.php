@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\CommLink\Import;
 
 use App\Console\Commands\CommLink\AbstractCommLinkCommand as CommLinkCommand;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLinks as ImportCommLinkJobs;
 use Illuminate\Bus\Dispatcher;
 
 /**
@@ -18,14 +18,14 @@ class ImportCommLinks extends CommLinkCommand
      *
      * @var string
      */
-    protected $signature = 'comm-links:import-all {offset=0 : Comm-Link start ID}';
+    protected $signature = 'comm-links:import-all {modifiedTime=-1 : Folders to include that were modified in the last minute}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import all Comm-Links starting at the first, or provided Comm-Link ID';
+    protected $description = 'Import all Comm-Links that were created in the last x minutes';
 
     /**
      * @var Dispatcher
@@ -53,11 +53,15 @@ class ImportCommLinks extends CommLinkCommand
     {
         $this->info('Dispatching Comm-Link Import');
 
-        $offset = $this->parseOffset();
+        $offset = (int)$this->argument('modifiedTime');
 
-        $this->info("Starting at Comm-Link ID {$offset}");
+        if ($offset > 0) {
+            $this->info("Including Comm-Links that were created in the last '{$offset}' minutes");
+        } elseif ($offset === -1) {
+            $this->info('Including all Comm-Links');
+        }
 
-        $this->dispatcher->dispatch(new ParseCommLinkDownload($offset));
+        $this->dispatcher->dispatch(new ImportCommLinkJobs($offset));
 
         return 0;
     }

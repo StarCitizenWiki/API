@@ -6,6 +6,7 @@ namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -17,6 +18,8 @@ use Illuminate\Support\Str;
  */
 class Image extends Model
 {
+    use HasFactory;
+
     protected $table = 'comm_link_images';
 
     protected $fillable = [
@@ -129,5 +132,31 @@ class Image extends Model
         }
 
         return $this->url;
+    }
+
+    public function getExtension(): string
+    {
+        switch ($this->metadata->mime) {
+            case 'image/jpeg':
+                $ext = 'jpg';
+                break;
+            case 'image/tiff':
+                $ext = 'tif';
+                break;
+            case 'image/x-icon':
+                $ext = 'ico';
+                break;
+            case 'video/x-m4v':
+                $ext = 'm4v';
+                break;
+            case 'video/h264':
+                $ext = 'mp4';
+                break;
+            default:
+                $ext = explode('/', $this->metadata->mime)[1] ?? '';
+                break;
+        }
+
+        return $ext !== '' ? sprintf('.%s', $ext) : '';
     }
 }

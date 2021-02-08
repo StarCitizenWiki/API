@@ -45,18 +45,6 @@ class ImageControllerTest extends ApiTestCase
         'channel',
         'category',
         'series',
-        'images' => [
-            'data' => [
-                '*' => [
-                    'rsi_url',
-                    'api_url',
-                    'alt',
-                    'size',
-                    'mime_type',
-                    'last_modified',
-                ],
-            ],
-        ],
         'links',
         'comment_count',
         'created_at',
@@ -216,7 +204,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    resource_path('test_files/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -277,7 +265,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    resource_path('test_files/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -303,7 +291,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    resource_path('test_files/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -328,7 +316,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    resource_path('test_files/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -354,7 +342,7 @@ class ImageControllerTest extends ApiTestCase
             sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
             [
                 'image' => new UploadedFile(
-                    resource_path('test_files/ChrisRobertsWCfilm1.jpg'),
+                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
                     'ChrisRobertsWCfilm1.jpg',
                     'image/jpeg',
                     null,
@@ -375,11 +363,11 @@ class ImageControllerTest extends ApiTestCase
     {
         parent::setUp();
 
-        $this->commLinks = factory(CommLink::class, 20)->create();
+        $this->commLinks = CommLink::factory()->count(20)->create();
         $this->commLinks->each(
             function (CommLink $commLink) {
-                $commLink->images()->saveMany(factory(Image::class, 3)->make());
-                $commLink->links()->saveMany(factory(Link::class, 3)->make());
+                $commLink->images()->saveMany(Image::factory()->count(3)->make());
+                $commLink->links()->saveMany(Link::factory()->count(3)->make());
             }
         );
     }

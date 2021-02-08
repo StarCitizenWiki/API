@@ -1,10 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Focus;
 
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Focus\FocusController;
 use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -50,8 +51,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
     public function testEdit()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\Focus $vehicleFocus */
-        $vehicleFocus = factory(Focus::class)->create();
-        $vehicleFocus->translations()->save(factory(FocusTranslation::class)->make());
+        $vehicleFocus = Focus::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
             route('web.user.starcitizen.vehicles.foci.edit', $vehicleFocus->getRouteKey())
@@ -95,8 +95,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
     public function testUpdate()
     {
         /** @var \App\Models\Api\StarCitizen\Vehicle\Focus\Focus $vehicleFocus */
-        $vehicleFocus = factory(Focus::class)->create();
-        $vehicleFocus->translations()->save(factory(FocusTranslation::class)->make());
+        $vehicleFocus = Focus::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(
             route('web.user.starcitizen.vehicles.foci.update', $vehicleFocus->getRouteKey()),
@@ -106,7 +105,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -126,7 +125,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        $this->assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
@@ -137,7 +136,7 @@ class FocusControllerTestCase extends StarCitizenTestCase
     public function testConstructor()
     {
         $controller = $this->getMockBuilder(FocusController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
+        $controller->expects(self::once())->method('middleware')->with('auth');
 
         $reflectedClass = new \ReflectionClass(FocusController::class);
         $constructor = $reflectedClass->getConstructor();
@@ -151,10 +150,6 @@ class FocusControllerTestCase extends StarCitizenTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        factory(Focus::class, 10)->create()->each(
-            function (Focus $vehicleFocus) {
-                $vehicleFocus->translations()->save(factory(FocusTranslation::class)->make());
-            }
-        );
+        Focus::factory()->count(10)->create();
     }
 }

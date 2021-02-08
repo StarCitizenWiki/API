@@ -6,7 +6,7 @@ namespace App\Jobs\Wiki\Transcript;
 
 use App\Models\Transcript\Transcript;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
-use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
+use App\Traits\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use RuntimeException;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
@@ -37,12 +38,12 @@ class CreateTranscriptWikiPages implements ShouldQueue
     {
         app('Log')::info('Starting creation of Transcript Wiki Pages');
 
-        $this->loginWikiBotAccount();
+        $this->loginWikiBotAccount('services.wiki_translations');
 
         $token = MediaWikiApi::query()->meta('tokens')->request();
         if ($token->hasErrors()) {
             $this->fail(
-                new \RuntimeException(
+                new RuntimeException(
                     sprintf('%s: %s', 'Token retrieval failed', collect($token->getErrors())->implode('code', ', '))
                 )
             );
@@ -67,7 +68,7 @@ class CreateTranscriptWikiPages implements ShouldQueue
             function (Collection $transcripts) use ($config) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($transcripts, true);
-                } catch (\RuntimeException $e) {
+                } catch (RuntimeException $e) {
                     app('Log')::error($e->getMessage());
 
                     $this->fail($e);

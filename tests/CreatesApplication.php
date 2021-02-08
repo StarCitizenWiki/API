@@ -32,11 +32,11 @@ trait CreatesApplication
     protected function createUserGroups()
     {
         if (UserGroup::count() === 0) {
-            factory(UserGroup::class)->states('bureaucrat')->create();
-            factory(UserGroup::class)->states('sysop')->create();
-            factory(UserGroup::class)->states('sichter')->create();
-            factory(UserGroup::class)->states('mitarbeiter')->create();
-            factory(UserGroup::class)->states('user')->create();
+            UserGroup::factory()->bureaucrat()->create();
+            UserGroup::factory()->sysop()->create();
+            UserGroup::factory()->sichter()->create();
+            UserGroup::factory()->mitarbeiter()->create();
+            UserGroup::factory()->user()->create();
         }
     }
 
@@ -46,12 +46,12 @@ trait CreatesApplication
     protected function createSystemLanguages()
     {
         if (Language::count() === 0) {
-            factory(Language::class)->create(
+            Language::factory()->create(
                 [
                     'locale_code' => 'en_EN',
                 ]
             );
-            factory(Language::class)->create(
+            Language::factory()->create(
                 [
                     'locale_code' => 'de_DE',
                 ]

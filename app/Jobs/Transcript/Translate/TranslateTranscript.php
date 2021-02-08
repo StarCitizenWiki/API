@@ -62,11 +62,11 @@ class TranslateTranscript implements ShouldQueue
         try {
             if (mb_strlen($english) > self::DEEPL_MAX_LENGTH) {
                 foreach (str_split_unicode($english, self::DEEPL_MAX_LENGTH) as $chunk) {
-                    $chunkTranslation = DeepLyFacade::translate($chunk, 'DE', 'EN');
+                    $chunkTranslation = DeepLyFacade::translate($chunk, config('services.deepl.target_locale'), 'EN');
                     $translation .= " {$chunkTranslation}";
                 }
             } else {
-                $translation = DeepLyFacade::translate($english, 'DE', 'EN');
+                $translation = DeepLyFacade::translate($english, config('services.deepl.target_locale'), 'EN');
             }
         } catch (QuotaException $e) {
             app('Log')::warning('Deepl Quote exceeded!');

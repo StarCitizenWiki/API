@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('web.user.starcitizen.starmap.systems.index'),
+    'route' => route('web.user.starcitizen.starmap.starsystems.index'),
 ])
     <div class="row">
         <div class="col-1">
@@ -14,16 +14,16 @@
 @endcomponent
 
 @component('components.navs.nav_element', [
-    'route' => route('web.user.starcitizen.starmap.celestialobjects.index'),
+    'route' => route('web.user.starcitizen.starmap.celestial_objects.index'),
 ])
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                circle-notch
+                dot-circle
             @endcomponent
         </div>
         <div class="col">
-            @lang('Celestial Objects')
+            @lang('Objekte')
         </div>
     </div>
 @endcomponent

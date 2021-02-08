@@ -8,7 +8,7 @@ use App\Console\Commands\CommLink\AbstractCommLinkCommand as CommLinkCommand;
 use App\Console\Commands\CommLink\Image\CreateImageHashes;
 use App\Jobs\Rsi\CommLink\Download\DownloadCommLink as DownloadCommLinkJob;
 use App\Jobs\Rsi\CommLink\Image\CreateImageMetadata;
-use App\Jobs\Rsi\CommLink\Parser\ParseCommLinkDownload;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLinks;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Support\Collection;
 
@@ -75,8 +75,14 @@ class DownloadCommLink extends CommLinkCommand
             )
             ->each(
                 function (int $id) {
+                    $skipExisting = true;
+
+                    if ($this->option('overwrite') === true) {
+                        $skipExisting = false;
+                    }
+
                     $this->info('Downloading specified Comm-Links');
-                    $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $this->option('overwrite') === true));
+                    $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $skipExisting));
                     $this->advanceBar();
                 }
             )
@@ -99,7 +105,7 @@ class DownloadCommLink extends CommLinkCommand
     private function dispatchImportJob(int $minId): void
     {
         $this->info("\nImporting Comm-Links");
-        $this->dispatcher->dispatch(new ParseCommLinkDownload($minId));
+        $this->dispatcher->dispatch(new ImportCommLinks($minId));
         $this->dispatcher->dispatch(new CreateImageMetadata());
         $this->dispatcher->dispatch(new CreateImageHashes());
     }

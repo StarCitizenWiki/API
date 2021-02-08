@@ -21,12 +21,12 @@ class CreateImageHashesTest extends TestCase
     public function testHandle(): void
     {
         /** @var CommLink $commLink */
-        $commLink = factory(CommLink::class)->create();
+        $commLink = CommLink::factory()->create();
 
-        $images = factory(Image::class, 20)->create();
+        $images = Image::factory()->count(20)->create();
         $images->each(
             function (Image $image) {
-                $image->metadata()->save(factory(ImageMetadata::class)->make());
+                $image->metadata()->save(ImageMetadata::factory()->make());
             }
         );
 

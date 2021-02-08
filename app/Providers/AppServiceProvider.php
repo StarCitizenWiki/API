@@ -7,6 +7,7 @@ namespace App\Providers;
 use Carbon\Carbon;
 use FilesystemIterator;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use RecursiveDirectoryIterator;
@@ -28,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->loadMigrations();
 
+        Paginator::useBootstrap();
         Carbon::setLocale(config('app.locale'));
 
         if ('production' === config('app.env')) {

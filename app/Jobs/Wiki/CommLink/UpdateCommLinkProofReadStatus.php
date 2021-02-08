@@ -6,7 +6,7 @@ namespace App\Jobs\Wiki\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Traits\Jobs\GetCommLinkWikiPageInfoTrait as GetCommLinkWikiPageInfo;
-use App\Traits\Jobs\LoginWikiBotAccountTrait as LoginWikiBotAccount;
+use App\Traits\LoginWikiBotAccountTrait as LoginWikiBotAccount;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,7 +39,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
     {
         app('Log')::info('Starting Update of Proofread Status');
 
-        $this->loginWikiBotAccount();
+        $this->loginWikiBotAccount('services.wiki_translations');
 
         $config = $this->getCommLinkConfig();
 

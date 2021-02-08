@@ -29,6 +29,6 @@ class CommLinkControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        factory(CommLink::class, 1)->create();
+        CommLink::factory()->create();
     }
 }

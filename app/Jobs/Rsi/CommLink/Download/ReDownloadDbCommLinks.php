@@ -1,16 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\CommLink;
-use Goutte\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use InvalidArgumentException;
 
 /**
  * Re-Downloads a new Version of all existing Database Comm-Links
@@ -24,7 +25,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
 
     public const FIRST_COMM_LINK_ID = 12663;
 
-    private $skipExisting;
+    private bool $skipExisting;
 
     /**
      * ReDownloadDbCommLinks constructor.
@@ -47,7 +48,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
 
         $latestDbPost = CommLink::query()->orderByDesc('cig_id')->first();
         if (null === $latestDbPost) {
-            $this->fail(new \InvalidArgumentException('No Comm-Links in DB Found'));
+            $this->fail(new InvalidArgumentException('No Comm-Links in DB Found'));
 
             return;
         }
@@ -59,12 +60,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
             ]
         );
 
-        $this->initClient(false);
-        //$this->getRsiAuthCookie();
-
-        self::$scraper = new Client();
-        self::$scraper->setClient(self::$client);
-        $this->addGuzzleCookiesToScraper(self::$scraper);
+        $this->makeClient(false);
 
         for ($id = self::FIRST_COMM_LINK_ID; $id <= $latestDbPost->cig_id; $id++) {
             dispatch(new DownloadCommLink($id, $this->skipExisting));

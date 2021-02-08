@@ -6,7 +6,6 @@ namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\CommLink;
-use Goutte\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -43,32 +42,25 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     {
         app('Log')::info('Starting Missing Comm-Links Download Job');
 
-        $this->initClient();
-        #$this->getRsiAuthCookie();
+        $response = $this->makeClient()->get(self::COMM_LINK_BASE_URL);
 
-        self::$scraper = new Client();
-        self::$scraper->setClient(self::$client);
-        $this->addGuzzleCookiesToScraper(self::$scraper);
+        if (!$response->successful()) {
+            app('Log')::error('Could not connect to RSI, retrying in 5 minutes.');
+            $this->release(300);
 
-        $postIDs = [];
+            return;
+        }
 
-        /** @var Crawler $crawler */
-        $crawler = self::$scraper->request('GET', self::COMM_LINK_BASE_URL);
-        $crawler->filter('#channel .hub-blocks .hub-block')->each(
-            function (Crawler $crawler) use (&$postIDs) {
-                $link = $crawler->filter('a');
-                $postIDs[] = $this->extractLatestPostId($link);
-            }
-        );
+        $postIds = $this->extractPostIds($response->body());
 
-        if (empty($postIDs)) {
+        if (empty($postIds)) {
             app('Log')::info('Could not retrieve latest Comm-Link ID, retrying in 1 minute.');
             $this->release(60);
 
             return;
         }
 
-        $latestPostId = max($postIDs);
+        $latestPostId = max($postIds);
 
         app('Log')::info(
             "Latest Comm-Link ID is: {$latestPostId}",
@@ -77,22 +69,32 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
             ]
         );
 
-        try {
-            $dbId = CommLink::query()->orderByDesc('cig_id')->firstOrFail()->cig_id++;
-        } catch (ModelNotFoundException $e) {
-            $dbId = self::FIRST_COMM_LINK_ID;
-        }
+        $this->downloadCommLinks($postIds);
+    }
 
-        app('Log')::info(
-            "Latest DB Comm-Link ID is: {$dbId}",
-            [
-                'id' => $dbId,
-            ]
-        );
+    /**
+     * Extracts Post ids from html
+     *
+     * @param string $body
+     *
+     * @return array Ids
+     */
+    private function extractPostIds(string $body): array
+    {
+        $postIds = [];
 
-        for ($id = $dbId; $id <= $latestPostId; $id++) {
-            dispatch(new DownloadCommLink($id, true));
-        }
+        $crawler = new Crawler();
+
+        $crawler->addHtmlContent($body, 'UTF-8');
+        $crawler->filter('#channel .hub-blocks .hub-block')
+            ->each(
+                function (Crawler $crawler) use (&$postIds) {
+                    $link = $crawler->filter('a');
+                    $postIds[] = $this->extractIdFromLink($link);
+                }
+            );
+
+        return $postIds;
     }
 
     /**
@@ -102,7 +104,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
      *
      * @return int
      */
-    private function extractLatestPostId(Crawler $link): int
+    private function extractIdFromLink(Crawler $link): int
     {
         $linkHref = $link->attr('href');
 
@@ -115,5 +117,54 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         $linkHref = explode('-', $linkHref);
 
         return (int)$linkHref[0];
+    }
+
+    /**
+     * Dispatches download jobs for all missing ids
+     *
+     * @param array $postIDs
+     */
+    private function downloadCommLinks(array $postIDs): void
+    {
+        $latestPostId = max($postIDs);
+
+        try {
+            $dbIds = CommLink::query()
+                ->select('cig_id')
+                ->take(count($postIDs))
+                ->orderByDesc('cig_id')
+                ->get()
+                ->pluck('cig_id');
+        } catch (ModelNotFoundException $e) {
+            $dbIds = collect([self::FIRST_COMM_LINK_ID - 1]);
+        }
+
+        $missing = collect($postIDs)->diff($dbIds);
+
+        $missing->each(
+            function (int $id) {
+                dispatch(new DownloadCommLink($id, true));
+            }
+        );
+
+        $dbId = $dbIds->max();
+        if ($dbId > 0) {
+            app('Log')::info(
+                "Latest DB Comm-Link ID is: {$dbId}",
+                [
+                    'id' => $dbId,
+                ]
+            );
+            $dbId++;
+        } else {
+            app('Log')::info('No Comm-Links in DB found');
+            $dbId = self::FIRST_COMM_LINK_ID;
+        }
+
+        for ($id = $dbId; $id <= $latestPostId; $id++) {
+            if (!$missing->contains($id)) {
+                dispatch(new DownloadCommLink($id, true));
+            }
+        }
     }
 }

@@ -26,6 +26,8 @@ abstract class AbstractV1Transformer extends TransformerAbstract
     public const STARMAP_STARSYSTEM_SHOW = '/api/starmap/starsystems/%s';
     public const STARMAP_CELESTIAL_OBJECTS_SHOW = '/api/starmap/celestial-objects/%s';
 
+    public const GALACTAPEDIA_ARTICLE_SHOW = '/api/galactapedia/%s';
+
     public function includeAllAvailableIncludes(): void
     {
         $this->setDefaultIncludes($this->getAvailableIncludes());

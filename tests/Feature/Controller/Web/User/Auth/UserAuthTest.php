@@ -38,7 +38,7 @@ class UserAuthTest extends UserTestCase
         $oauthUser = Mockery::mock('\SocialiteProviders\Manager\OAuth1\User');
 
         /** @var \App\Models\Account\User\User $localUser */
-        $localUser = factory(User::class)->create(
+        $localUser = User::factory()->create(
             [
                 'provider' => $provider,
             ]

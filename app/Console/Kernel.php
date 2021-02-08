@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
+use App\Console\Commands\CommLink\CommLinkSchedule;
 use App\Console\Commands\CommLink\Download\DownloadCommLink;
 use App\Console\Commands\CommLink\Download\DownloadCommLinks;
 use App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages;
@@ -13,17 +14,22 @@ use App\Console\Commands\CommLink\Image\CreateImageMetadata;
 use App\Console\Commands\CommLink\Image\SyncImageIds;
 use App\Console\Commands\CommLink\Import\ImportCommLink;
 use App\Console\Commands\CommLink\Import\ImportCommLinks;
-use App\Console\Commands\CommLink\Import\ImportMissingCommLinks;
 use App\Console\Commands\CommLink\Translate\TranslateCommLinks;
 use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
+use App\Console\Commands\Galactapedia\ImportArticleProperties;
+use App\Console\Commands\Galactapedia\ImportArticles;
+use App\Console\Commands\Galactapedia\ImportCategories;
+use App\Console\Commands\Galactapedia\TranslateArticles;
 use App\Console\Commands\ShipMatrix\Download\DownloadShipMatrix;
 use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
 use App\Console\Commands\Starmap\Download\DownloadStarmap;
 use App\Console\Commands\Starmap\Import\ImportStarmap;
+use App\Console\Commands\Starmap\Translate\TranslateSystems;
 use App\Console\Commands\Stat\Download\DownloadStats;
 use App\Console\Commands\Stat\Import\ImportStats;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
+use App\Console\Commands\Vehicle\ImportMsrp;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Jobs\Wiki\CommLink\UpdateCommLinkProofReadStatus;
@@ -44,12 +50,14 @@ class Kernel extends ConsoleKernel
         DownloadShipMatrix::class,
         ImportShipMatrix::class,
 
+        ImportMsrp::class,
+
         DownloadStats::class,
         ImportStats::class,
 
         ImportCommLinks::class,
         ImportCommLink::class,
-        ImportMissingCommLinks::class,
+        CommLinkSchedule::class,
 
         DownloadCommLink::class,
         DownloadCommLinks::class,
@@ -69,6 +77,12 @@ class Kernel extends ConsoleKernel
 
         DownloadStarmap::class,
         ImportStarmap::class,
+        TranslateSystems::class,
+
+        ImportCategories::class,
+        ImportArticles::class,
+        ImportArticleProperties::class,
+        TranslateArticles::class,
     ];
 
     /**
@@ -90,13 +104,19 @@ class Kernel extends ConsoleKernel
         $this->scheduleStatJobs();
 
         if (config('schedule.ship_matrix.enabled')) {
-            $this->scheduleShipMatrixJobs();
+            $this->scheduleVehicleJobs();
         }
 
-        $this->scheduleCommLinkJobs();
+        if (config('schedule.comm_links.enabled')) {
+            $this->scheduleCommLinkJobs();
+        }
 
         if (config('schedule.starmap.enabled')) {
             $this->scheduleStarmapJobs();
+        }
+
+        if (config('schedule.galactapedia.enabled')) {
+            $this->scheduleGalactapediaJobs();
         }
     }
 
@@ -127,7 +147,7 @@ class Kernel extends ConsoleKernel
     {
         /* Check for new Comm-Links */
         $this->schedule
-            ->command(ImportMissingCommLinks::class)
+            ->command(CommLinkSchedule::class)
             ->hourly()
             ->after(
                 function () {
@@ -146,7 +166,9 @@ class Kernel extends ConsoleKernel
             );
 
         /* Download Comm-Link Images */
-        //$this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
+        if (config('schedule.comm_links.download_local') === true) {
+            $this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
+        }
 
         /* Update Proof Read Status */
         $this->schedule
@@ -158,7 +180,7 @@ class Kernel extends ConsoleKernel
     /**
      * Ship Matrix related Jobs.
      */
-    private function scheduleShipMatrixJobs(): void
+    private function scheduleVehicleJobs(): void
     {
         $hours = config('schedule.ship_matrix.at', []);
         // Ensure first and second key exists
@@ -170,6 +192,10 @@ class Kernel extends ConsoleKernel
                 $hours[0],
                 $hours[1],
             );
+
+        $this->schedule
+            ->command(ImportMsrp::class)
+            ->daily();
     }
 
     /**
@@ -180,5 +206,24 @@ class Kernel extends ConsoleKernel
         $this->schedule
             ->command(DownloadStarmap::class, ['--import'])
             ->monthly();
+    }
+
+    /**
+     * Galactapedia Jobs
+     */
+    private function scheduleGalactapediaJobs(): void
+    {
+        $this->schedule
+            ->command(ImportCategories::class)
+            ->onSuccess(function () {
+                $this->call(ImportArticles::class);
+            })
+            ->dailyAt('2:00')
+            ->withoutOverlapping();
+
+        $this->schedule
+            ->command(ImportArticleProperties::class)
+            ->dailyAt('2:30')
+            ->withoutOverlapping();
     }
 }

@@ -7,10 +7,6 @@ namespace App\Jobs\Rsi\CommLink\Image;
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Services\ImageHash\Implementations\PerceptualHash2;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Exception\TooManyRedirectsException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -74,6 +70,13 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             app('Log')::error('Required extension "GD" or "Imagick" not available.');
 
             $this->fail('Required extension "GD" or "Imagick" not available.');
+            return;
+        }
+
+        if ($this->image->hash !== null && $this->image->hash->exists) {
+            $this->delete();
+
+            return;
         }
 
         $file = $this->image->getLocalOrRemoteUrl();
@@ -142,18 +145,21 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
      */
     private function downloadFile(string $url, bool $selfCall = false): ?string
     {
-        $this->initClient();
+        $response = $this->makeClient()->get($url);
 
-        try {
-            $response = self::$client->get($url);
-        } catch (ServerException | ConnectException | TooManyRedirectsException $e) {
-            app('Log')::debug('Download of Comm-Link image failed. Retrying in 300 seconds.', [$url, $e->getCode()]);
+        if ($response->serverError()) {
+            app('Log')::debug(
+                'Download of Comm-Link image failed. Retrying in 300 seconds.',
+                [$url, $response->status()]
+            );
 
             $this->release(300);
 
             return null;
-        } catch (ClientException $e) {
-            if (!$selfCall && $e->getCode() === 404) {
+        }
+
+        if ($response->clientError()) {
+            if (!$selfCall && $response->status() === 404) {
                 $url = str_replace('/source/', '/post/', $url);
 
                 app('Log')::debug('Retrying download with smaller version.', [$url]);
@@ -162,12 +168,12 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
                 return $this->downloadFile($url, true);
             }
 
-            app('Log')::info("Download of Comm-Link image resulted in code {$e->getCode()}", [$url]);
+            app('Log')::info("Download of Comm-Link image resulted in code {$response->status()}", [$url]);
 
             return null;
         }
 
-        return $response->getBody()->getContents();
+        return $response->body();
     }
 
     /**

@@ -26,7 +26,7 @@ class JobController extends Controller
     {
         $this->authorize('web.user.jobs.start_wiki_page_creation');
 
-        Artisan::call('wiki:create-comm-link-pages');
+        Artisan::call('comm-links:create-wiki-pages');
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [

@@ -46,6 +46,7 @@ class GroundVehicleTransformer extends VehicleTransformer
             'type' => $this->getTypeTranslations($groundVehicle),
             'description' => $this->getDescriptionTranslations($groundVehicle),
             'size' => $this->getSizeTranslations($groundVehicle),
+            'msrp' => $groundVehicle->msrp,
             'manufacturer' => [
                 'code' => $groundVehicle->manufacturer->name_short,
                 'name' => $groundVehicle->manufacturer->name,

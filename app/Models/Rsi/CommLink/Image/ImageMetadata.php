@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\Rsi\CommLink\Image;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ImageMetadata extends Model
 {
+    use HasFactory;
+
     protected $table = 'comm_link_image_metadata';
 
     protected $fillable = [
@@ -41,6 +44,8 @@ class ImageMetadata extends Model
             case 'image/png':
                 return 'primary';
 
+            case 'video/mp4':
+            case 'video/webm':
             case 'image/gif':
                 return 'warning';
 

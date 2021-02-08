@@ -144,6 +144,27 @@ $api->group(
                 );
             }
         );
+
+        $api->group(
+            [
+                'namespace' => 'Galactapedia',
+                'prefix' => 'galactapedia',
+            ],
+            static function (Router $api) {
+                $api->get(
+                    '/',
+                    ['as' => 'api.v1.starcitizen.galactapedia.all', 'uses' => 'GalactapediaController@index']
+                );
+                $api->get(
+                    '{article}',
+                    ['as' => 'api.v1.starcitizen.galactapedia.show', 'uses' => 'GalactapediaController@show']
+                );
+                $api->post(
+                    '/search',
+                    ['as' => 'api.v1.starcitizen.galactapedia.search', 'uses' => 'GalactapediaController@search']
+                );
+            }
+        );
     }
 );
 

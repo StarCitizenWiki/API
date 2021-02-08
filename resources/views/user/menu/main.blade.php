@@ -18,7 +18,6 @@
     @endcomponent
 @endcan
 
-{{--
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
     'titleClass' => 'text-muted pb-0',
@@ -28,7 +27,6 @@
 ])
     @include('user.menu.starmap')
 @endcomponent
---}}
 
 @can('web.user.rsi.stats.view')
     @component('components.navs.sidebar_section', [

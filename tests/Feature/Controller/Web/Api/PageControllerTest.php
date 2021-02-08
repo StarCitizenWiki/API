@@ -30,7 +30,7 @@ class PageControllerTest extends TestCase
      */
     public function testIndexBlockedView()
     {
-        $user = factory(User::class)->states('blocked')->create();
+        $user = User::factory()->blocked()->create();
 
         $response = $this->actingAs($user)->get(route('web.api.index'));
         $response->assertStatus(403);
@@ -52,7 +52,7 @@ class PageControllerTest extends TestCase
      */
     public function testStatusViewWithNotifications()
     {
-        $notification = factory(Notification::class)->state('active')->create();
+        $notification = Notification::factory()->active()->create();
         $response = $this->actingAs($this->user)->get(route('web.api.status'));
         $response->assertOk()
             ->assertViewIs('api.pages.status')
@@ -76,7 +76,7 @@ class PageControllerTest extends TestCase
     {
         parent::setUp();
         $this->createUserGroups();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
         $this->user->groups()->sync(UserGroup::where('name', 'user')->first()->id);
     }
 }

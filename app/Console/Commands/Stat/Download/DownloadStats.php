@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\Stat\Download;
 
 use App\Jobs\Api\StarCitizen\Stat\DownloadStats as DownloadStatsJob;
-use App\Jobs\Api\StarCitizen\Stat\Parser\ParseStat;
+use App\Jobs\Api\StarCitizen\Stat\Import\ImportStat;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
@@ -56,7 +56,7 @@ class DownloadStats extends Command
             $this->info('Downloading funding statistics and starting import');
             DownloadStatsJob::withChain(
                 [
-                    new ParseStat(),
+                    new ImportStat(),
                 ]
             )->dispatch();
         } else {

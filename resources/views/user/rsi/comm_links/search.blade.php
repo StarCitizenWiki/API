@@ -18,40 +18,14 @@
 @endsection
 
 @section('content')
+
     @include('components.messages')
 
     @include('components.errors')
 
+    <div id="cl-live-search"><comm-link-live-search api-token="{{ $apiToken }}"></comm-link-live-search></div>
+
     <div class="card-deck">
-        <div class="card mb-3">
-            <div class="card-header">
-                <h4>
-                    {{ __('Comm-Link Titelsuche') }}
-                </h4>
-            </div>
-            <div class="card-body">
-                @component('components.forms.form', [
-                    'action' => route('web.user.rsi.comm-links.search-by-title.post'),
-                    'class' => 'd-flex h-100 flex-column',
-                ])
-                    @component('components.forms.form-group', [
-                        'inputType' => 'text',
-                        'label' => __('Comm-Link Titel'),
-                        'id' => 'keyword',
-                    ])
-                        @slot('inputOptions')
-                            min="3"
-                            max="255"
-                            required
-                        @endslot
-                        <small>{{ __('Suche nach ganzen Titeln oder Teilwörtern') }}</small>
-                    @endcomponent
-
-                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Titeln')</button>
-                @endcomponent
-            </div>
-        </div>
-
         <div class="card mb-3">
             <div class="card-header">
                 <h4>
@@ -151,5 +125,4 @@
             </div>
 </div>
     </div>
-
 @endsection

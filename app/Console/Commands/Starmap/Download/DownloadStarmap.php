@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\Starmap\Download;
 
 use App\Jobs\Api\StarCitizen\Starmap\Download\DownloadStarmap as DownloadStarmapJob;
-use App\Jobs\Api\StarCitizen\Starmap\Parser\ParseStarmap;
+use App\Jobs\Api\StarCitizen\Starmap\Import\ImportStarmap;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -64,7 +64,7 @@ class DownloadStarmap extends Command
 
         if ($this->option('import') === true) {
             $this->info('Starting Import');
-            $this->dispatcher->dispatch(new ParseStarmap());
+            $this->dispatcher->dispatch(new ImportStarmap());
         }
 
         return 0;

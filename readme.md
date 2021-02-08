@@ -1,15 +1,24 @@
 <p align="center">
-<img src="https://star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/157px-Star_Citizen_Wiki_Logo.png?794c2" alt="Star Citizen Wiki Logo" />
+<img src="https://cdn.star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/320px-Star_Citizen_Wiki_Logo.png" alt="Star Citizen Wiki Logo" />
+</p>
+<p align="center">
+    <img src="https://img.shields.io/github/workflow/status/StarCitizenWiki/API/Laravel%20Tests" />
+    <a href="https://hub.docker.com/r/scwiki/api" alt="Docker Hub">
+        <img src="https://img.shields.io/docker/pulls/scwiki/api" />
+    </a>
 </p>
 
 # Star Citizen Wiki API
 
 The star-citizen.wiki API. Automatically scrapes Comm-Links, Stats and the Ship-Matrix.
 
+## Documentation
+The documentation can be found at https://docs.star-citizen.wiki or in the `/docs` folder.
+
 ## Installation
 Using docker and docker-compose
 
-Build the image:
+Pull `scwiki/api` or build the image:
 ```shell script
 $ ./docker-build.sh
 ```
@@ -80,8 +89,13 @@ WIKI_TRANS_OAUTH_CONSUMER_SECRET=
 WIKI_TRANS_OAUTH_ACCESS_TOKEN=
 WIKI_TRANS_OAUTH_ACCESS_SECRET=
 
+# Translated text to use for wiki comm-link pages Default de_DE
+WIKI_TRANS_LOCALE=
+
 # DEEPL Access key for automated Comm-Link translations
 DEEPL_AUTH_KEY=
+# Target language of DeepL Translations Default: DE
+DEEPL_TARGET_LOCALE=
 
 # User account on RSI // Login currently BROKEN due to recaptcha
 RSI_USERNAME=
@@ -95,7 +109,7 @@ version: '3'
 
 services:
   api.star-citizen.wiki:
-    image: scw-api:7.0
+    image: scwiki/api:dev
     container_name: api.star-citizen.wiki
     restart: unless-stopped
     security_opt:
@@ -112,7 +126,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   scheduler:
-    image: scw-api:7.0
+    image: scwiki/api:dev
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -128,7 +142,7 @@ services:
       CONTAINER_ROLE: scheduler
 
   queue:
-    image: scw-api:7.0
+    image: scwiki/api:dev
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -179,7 +193,7 @@ To get help for a specific command call `php artisan help COMMAND`.
 #### Import missing Comm-Links
 Inside the container execute
 ```shell script
-php artisan comm-links:import-missing
+php artisan comm-links:schedule
 ```
 This will download all Comm-Links, parse them and create metadata.  
 The import command can be safely stopped by `Ctrl+C`.
@@ -228,6 +242,16 @@ The API includes stat dumps from `2012-11-13` until `2018-03-25`. To import the 
 
 Stats should be accessible through `API_URL/api/stats`
 
+### Galactapedia
+#### Import
+```shell script
+php artisan galactapedia:import-categories
+php artisan galactapedia:import-articles
+php artisan galactapedia:import-properties
+```
+
+Articles should be accessible through `API_URL/api/galactapedia`
+
 ### Schedule
 The schedule container specified in `docker-compose` will run the following commands:
 
@@ -235,6 +259,8 @@ The schedule container specified in `docker-compose` will run the following comm
 - Import missing Comm-Links every hour
 - Download all missing Comm-Links starting at the first each month
 - Import the Ship-Matrix twice a day
+- Import all available Galactapedia articles daily at 02:00
+  - Requires to run `galactapedia:import-categories` first
 
 ## Remarks
 The API is heavily integrated into the german Star Citizen Wiki.  
