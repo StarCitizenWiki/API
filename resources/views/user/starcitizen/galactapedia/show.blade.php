@@ -80,7 +80,9 @@
                 <div class="tab-pane fade" id="meta" role="tabpanel" aria-labelledby="nav-meta-tab">
                     <table class="table mb-0">
                         <tr>
-                            <th colspan="2"><img src="{{ $article->thumbnail }}" alt="{{ $article->title }}"></th>
+                            <th colspan="2">
+                                <img class="img-fluid" width="400" src="{{ $article->thumbnail }}" alt="{{ $article->title }}">
+                            </th>
                         </tr>
                         <tr>
                             <th class="border-top-0">ID</th>
