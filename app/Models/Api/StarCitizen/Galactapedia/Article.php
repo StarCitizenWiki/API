@@ -43,7 +43,12 @@ class Article extends AbstractHasTranslations
 
     public function getUrlAttribute(): string
     {
-        return sprintf('%s/galactapedia/%s-%s', config('api.rsi_url'), $this->cig_id, $this->slug);
+        return sprintf(
+            '%s/galactapedia/article/%s-%s',
+            config('api.rsi_url'),
+            $this->cig_id,
+            $this->slug
+        );
     }
 
     /**

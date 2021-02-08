@@ -35,12 +35,7 @@ class ArticleTransformer extends AbstractTranslationTransformer
             'slug' => $article->slug,
             'thumbnail' => $article->thumbnail,
             'type' => $article->templates->isEmpty() ? null : $article->templates[0]->template,
-            'url' => sprintf(
-                '%s/galactapedia/article/%s-%s',
-                config('api.rsi_url'),
-                $article->cig_id,
-                $article->slug
-            ),
+            'url' => $article->url,
             'api_url' => $this->makeApiUrl(
                 self::GALACTAPEDIA_ARTICLE_SHOW,
                 $article->getRouteKey(),

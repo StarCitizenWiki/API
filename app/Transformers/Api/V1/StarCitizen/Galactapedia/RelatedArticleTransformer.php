@@ -31,12 +31,7 @@ class RelatedArticleTransformer extends V1Transformer
         return [
             'id' => $article->cig_id,
             'title' => $article->title,
-            'url' => sprintf(
-                '%s/galactapedia/article/%s-%s',
-                config('api.rsi_url'),
-                $article->cig_id,
-                $article->slug
-            ),
+            'url' => $article->url,
             'api_url' => $this->makeApiUrl(
                 self::GALACTAPEDIA_ARTICLE_SHOW,
                 $article->getRouteKey(),
