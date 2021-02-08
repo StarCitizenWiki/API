@@ -218,19 +218,6 @@ EOF
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController
-     */
-    public function testConstructor(): void
-    {
-        $controller = $this->getMockBuilder(CommLinkController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(CommLinkController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Comm-Link.
      */

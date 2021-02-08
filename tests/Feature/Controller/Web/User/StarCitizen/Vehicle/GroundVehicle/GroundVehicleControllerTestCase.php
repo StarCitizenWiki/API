@@ -149,19 +149,6 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Account\AccountController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(GroundVehicleController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(GroundVehicleController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed GroundVehicles
      */
