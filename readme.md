@@ -12,6 +12,9 @@
 
 The star-citizen.wiki API. Automatically scrapes Comm-Links, Stats and the Ship-Matrix.
 
+## Documentation
+The documentation can be found at https://docs.star-citizen.wiki or in the `/docs` folder.
+
 ## Installation
 Using docker and docker-compose
 
@@ -239,6 +242,16 @@ The API includes stat dumps from `2012-11-13` until `2018-03-25`. To import the 
 
 Stats should be accessible through `API_URL/api/stats`
 
+### Galactapedia
+#### Import
+```shell script
+php artisan galactapedia:import-categories
+php artisan galactapedia:import-articles
+php artisan galactapedia:import-properties
+```
+
+Articles should be accessible through `API_URL/api/galactapedia`
+
 ### Schedule
 The schedule container specified in `docker-compose` will run the following commands:
 
@@ -246,6 +259,8 @@ The schedule container specified in `docker-compose` will run the following comm
 - Import missing Comm-Links every hour
 - Download all missing Comm-Links starting at the first each month
 - Import the Ship-Matrix twice a day
+- Import all available Galactapedia articles daily at 02:00
+  - Requires to run `galactapedia:import-categories` first
 
 ## Remarks
 The API is heavily integrated into the german Star Citizen Wiki.  
