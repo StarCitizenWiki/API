@@ -182,7 +182,7 @@ QUERY,
                 return $related !== null;
             })
             ->map(function (array $related) {
-                return Article::query()->where($related['id'], 'cig_id')->first();
+                return Article::query()->where('cig_id', $related['id'])->first();
             })
             ->filter(function ($related) {
                 return $related !== null;

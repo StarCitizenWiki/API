@@ -32,6 +32,14 @@ class Article extends AbstractHasTranslations
     ];
 
     /**
+     * @return string
+     */
+    public function getRouteKey(): string
+    {
+        return $this->cig_id;
+    }
+
+    /**
      * @return HasMany
      */
     public function translations(): HasMany
@@ -69,7 +77,7 @@ class Article extends AbstractHasTranslations
     public function related(): BelongsToMany
     {
         return $this->belongsToMany(
-            ArticleRelate::class,
+            Article::class,
             'galactapedia_article_relates',
             'article_id',
             'related_article_id',

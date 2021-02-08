@@ -17,7 +17,10 @@ php artisan api:docs --use-controller=App\Http\Controllers\Api\V1\StarCitizen\St
 php artisan api:docs --use-controller=App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController --output-file=docs/vehicles/ground_vehicles.md
 php artisan api:docs --use-controller=App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController --output-file=docs/vehicles/ships.md
 
+# Galactapedia
+php artisan api:docs --use-controller=App\Http\Controllers\Api\V1\StarCitizen\Galactapedia\GalactapediaController --output-file=docs/galactapedia/galactapedia.md
+
 # Generate Playground
-php artisan api:docs --output=api.md
-snowboard html api.md -o ./docs/playground
-rm api.md
+# php artisan api:docs --output=api.md
+# snowboard html api.md -o ./docs/playground
+#rm api.md

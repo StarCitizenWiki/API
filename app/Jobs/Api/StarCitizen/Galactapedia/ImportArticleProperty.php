@@ -89,7 +89,12 @@ QUERY,
             $match = preg_match_all('/\[([^\]]+)\][^\)]+\)/', $result[$field], $matches);
 
             if ($match === false || $match === 0 || !isset($matches[1])) {
-                return;
+                $matches = [
+                    [],
+                    [
+                        $result[$field]
+                    ]
+                ];
             }
 
             collect($matches[1])

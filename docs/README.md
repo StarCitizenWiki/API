@@ -44,6 +44,13 @@ Endpoints related to Star Citizen
 * All : `GET /api/starmap/starsystems`
 * Single : `GET /api/starmap/starsystems/CODE`
 
+### Galactapedia
+
+[Galactapedia articles](galactapedia/galactapedia.md)
+
+* All : `GET /api/galactapedia`
+* Single : `GET /api/galactapedia/ID`
+* Search : `POST /api/galactapedia/search`
 
 ## Roberts Space Industries
 
