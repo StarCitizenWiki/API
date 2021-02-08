@@ -87,7 +87,7 @@ export default {
         return;
       }
 
-      axios.post('https://api.star-citizen.wiki/api/comm-links/search', {
+      axios.post('/api/comm-links/search', {
         keyword: this.term
       }, {
         mode: 'no-cors',

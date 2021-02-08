@@ -15,8 +15,6 @@ class CelestialObjectController extends Controller
 {
     public function index(): View
     {
-        $this->authorize('web.user.starcitizen.starmap.view');
-
         return view(
             'user.starcitizen.starmap.celestial_objects.index',
             [

@@ -15,8 +15,6 @@ class StarsystemController extends Controller
 {
     public function index(): View
     {
-        $this->authorize('web.user.starcitizen.starmap.view');
-
         return view(
             'user.starcitizen.starmap.starsystems.index',
             [
@@ -27,8 +25,6 @@ class StarsystemController extends Controller
 
     public function show(Starsystem $starsystem): View
     {
-        $this->authorize('web.user.starcitizen.starmap.view');
-
         return view(
             'user.starcitizen.starmap.starsystems.show',
             [

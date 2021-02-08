@@ -6,17 +6,15 @@
     @include('user.menu.app_links')
 @endcomponent
 
-@can('web.user.dashboard.view')
-    @component('components.navs.sidebar_section', [
-        'class' => 'mb-md-2',
-        'titleClass' => 'text-muted pb-0',
-        'contentClass' => 'pl-3 pl-md-2',
-        'id' => 'm_admin',
-        'title' => __('Admin'),
-    ])
-        @include('user.menu.admin')
-    @endcomponent
-@endcan
+@component('components.navs.sidebar_section', [
+    'class' => 'mb-md-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_admin',
+    'title' => __('Admin'),
+])
+    @include('user.menu.admin')
+@endcomponent
 
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
@@ -28,65 +26,55 @@
     @include('user.menu.starmap')
 @endcomponent
 
-@can('web.user.rsi.stats.view')
-    @component('components.navs.sidebar_section', [
-        'class' => 'mb-md-2',
-        'titleClass' => 'text-muted pb-0',
-        'contentClass' => 'pl-3 pl-md-2',
-        'id' => 'm_stats',
-        'title' => __('Statistiken'),
-    ])
-        @include('user.menu.stats')
-    @endcomponent
-@endcan
+@component('components.navs.sidebar_section', [
+    'class' => 'mb-md-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_stats',
+    'title' => __('Statistiken'),
+])
+    @include('user.menu.stats')
+@endcomponent
 
-@can('web.user.rsi.comm-links.view')
-    @component('components.navs.sidebar_section', [
-        'class' => 'mb-md-2',
-        'titleClass' => 'text-muted pb-0',
-        'contentClass' => 'pl-3 pl-md-2',
-        'id' => 'm_comm_links',
-        'title' => __('Comm-Link'),
-    ])
-        @include('user.menu.comm_links')
-    @endcomponent
-@endcan
+@component('components.navs.sidebar_section', [
+    'class' => 'mb-md-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_comm_links',
+    'title' => __('Comm-Link'),
+])
+    @include('user.menu.comm_links')
+@endcomponent
 
-@can('web.user.rsi.comm-links.view')
-    @component('components.navs.sidebar_section', [
-        'class' => 'mb-md-2',
-        'titleClass' => 'text-muted pb-0',
-        'contentClass' => 'pl-3 pl-md-2',
-        'id' => 'm_galactapedia',
-        'title' => __('Galactapedia'),
-    ])
-        @include('user.menu.galactapedia')
-    @endcomponent
-@endcan
+@component('components.navs.sidebar_section', [
+    'class' => 'mb-md-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_galactapedia',
+    'title' => __('Galactapedia'),
+])
+    @include('user.menu.galactapedia')
+@endcomponent
 
-@can('web.user.starcitizen.vehicles.view')
-    @component('components.navs.sidebar_section', [
-        'class' => 'mb-md-2',
-        'titleClass' => 'text-muted pb-0',
-        'contentClass' => 'pl-3 pl-md-2',
-        'id' => 'm_vehicles',
-        'title' => __('Fahrzeuge'),
-    ])
-        @include('user.menu.vehicles')
-    @endcomponent
-@endcan
+@component('components.navs.sidebar_section', [
+    'class' => 'mb-md-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_vehicles',
+    'title' => __('Fahrzeuge'),
+])
+    @include('user.menu.vehicles')
+@endcomponent
 
-@can('web.user.starcitizen.manufacturers.view')
-    @component('components.navs.sidebar_section', [
-        'class' => 'mb-md-2',
-        'titleClass' => 'text-muted pb-0',
-        'contentClass' => 'pl-3 pl-md-2',
-        'id' => 'm_manufacturer',
-        'title' => __('Hersteller'),
-    ])
-        @include('user.menu.manufacturer')
-    @endcomponent
-@endcan
+@component('components.navs.sidebar_section', [
+    'class' => 'mb-md-2',
+    'titleClass' => 'text-muted pb-0',
+    'contentClass' => 'pl-3 pl-md-2',
+    'id' => 'm_manufacturer',
+    'title' => __('Hersteller'),
+])
+    @include('user.menu.manufacturer')
+@endcomponent
 
 @can('web.user.translations.view')
     @component('components.navs.sidebar_section', [

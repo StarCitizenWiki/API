@@ -46,7 +46,7 @@ class CommLinkController extends Controller
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['index', 'show']);
         $this->api = $dispatcher;
         $this->api->be(Auth::user());
     }
@@ -57,13 +57,9 @@ class CommLinkController extends Controller
      * @param Request $request
      *
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function index(Request $request): View
     {
-        $this->authorize('web.user.rsi.comm-links.view');
-
         $options = [
             'limit' => 250,
         ];
@@ -89,13 +85,9 @@ class CommLinkController extends Controller
      * @param int $commLinkId
      *
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function show(int $commLinkId): View
     {
-        $this->authorize('web.user.rsi.comm-links.view');
-
         $commLink = CommLink::query()
             ->with(
                 [
@@ -171,6 +163,7 @@ class CommLinkController extends Controller
      */
     public function edit(CommLink $commLink): View
     {
+        $this->middleware('auth');
         $this->authorize(self::COMM_LINK_PERMISSION);
 
         $versions = $this->getCommLinkVersions($commLink->cig_id);
@@ -253,6 +246,7 @@ class CommLinkController extends Controller
      */
     public function update(CommLinkRequest $request, CommLink $commLink): RedirectResponse
     {
+        $this->middleware('auth');
         $this->authorize(self::COMM_LINK_PERMISSION);
 
         $data = $request->validated();

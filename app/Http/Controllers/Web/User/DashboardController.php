@@ -8,10 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Account\User\User;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
-use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
 use Octfx\DeepLy\HttpClient\CallException;
 use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
 
@@ -30,20 +29,16 @@ class DashboardController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->middleware('auth');
+        $this->middleware('auth')->except('index');
     }
 
     /**
      * Returns the Dashboard View.
      *
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function index(): View
     {
-        $this->authorize('web.user.dashboard.view');
-
         return view(
             'user.dashboard',
             [

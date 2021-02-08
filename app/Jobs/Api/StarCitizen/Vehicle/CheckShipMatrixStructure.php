@@ -28,7 +28,7 @@ class CheckShipMatrixStructure implements ShouldQueue
     use SerializesModels;
     use GetNewestShipMatrixFilename;
 
-    private string $shipMatrix;
+    private ?string $shipMatrix;
     private $groundTruth;
 
     /**

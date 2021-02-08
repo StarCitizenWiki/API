@@ -21,8 +21,6 @@ use Illuminate\Contracts\View\View;
  */
 class CommLinkSearchController extends Controller
 {
-    private const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.view';
-
     /**
      * @var Dispatcher
      */
@@ -36,7 +34,6 @@ class CommLinkSearchController extends Controller
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
-        $this->middleware('auth');
         $this->api = $dispatcher;
         $this->api->be(Auth::user());
     }
@@ -45,26 +42,19 @@ class CommLinkSearchController extends Controller
      * Reverse search view
      *
      * @return Application|Factory|View
-     * @throws AuthorizationException
      */
     public function search()
     {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
-        return view('user.rsi.comm_links.search')->with('apiToken', Auth::user()->api_token);
+        return view('user.rsi.comm_links.search')->with('apiToken', optional(Auth::user())->api_token);
     }
 
     /**
      * @param CommLinkSearchRequest $request
      *
      * @return View|RedirectResponse
-     *
-     * @throws AuthorizationException
      */
     public function searchByTitle(CommLinkSearchRequest $request)
     {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
         $data = $request->validated();
 
         $links = $this->api->with(
@@ -97,12 +87,9 @@ class CommLinkSearchController extends Controller
      * @param ReverseImageLinkSearchRequest $request
      *
      * @return Application|Factory|View
-     * @throws AuthorizationException
      */
     public function reverseImageLinkSearchPost(ReverseImageLinkSearchRequest $request)
     {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
         $options = [
             'limit' => 250,
         ];
@@ -131,12 +118,9 @@ class CommLinkSearchController extends Controller
      * @param ReverseImageSearchRequest $request
      *
      * @return Application|Factory|View
-     * @throws AuthorizationException
      */
     public function reverseImageSearchPost(ReverseImageSearchRequest $request)
     {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
         $data = $request->validated();
 
         return $this->handleSearchResult(

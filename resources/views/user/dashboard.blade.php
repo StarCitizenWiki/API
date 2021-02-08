@@ -6,6 +6,9 @@
 @section('content')
     @include('components.errors')
     @include('components.messages')
+    @guest
+        <div class="alert alert-info text-center">@lang('Du bist nicht eingeloggt. Im linken Menü siehst du alle öffentlich einsehbaren RSI Daten.')
+    @endguest
     @can('web.user.dashboard.view')
     @can('web.user.users.view')
         <section class="row equal-height">

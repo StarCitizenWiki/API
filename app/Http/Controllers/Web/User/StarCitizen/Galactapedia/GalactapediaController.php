@@ -7,9 +7,7 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Galactapedia;
 use App\Http\Controllers\Controller;
 use App\Models\Api\StarCitizen\Galactapedia\Article;
 use App\Models\System\ModelChangelog;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
@@ -18,23 +16,20 @@ class GalactapediaController extends Controller
 {
     /**
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function index(): View
     {
         return view(
             'user.starcitizen.galactapedia.index',
             [
-                'articles' => Article::all(),
+                'articles' => Article::query()->paginate(50),
             ]
         );
     }
 
     public function show(string $article): View
     {
-
-        $article = Article::query()->where('cig_id', $article )->firstOrFail();
+        $article = Article::query()->where('cig_id', $article)->firstOrFail();
 
         /** @var Collection $changelogs */
         $changelogs = $article->changelogs;
@@ -55,9 +50,7 @@ class GalactapediaController extends Controller
                     [
                         'collapseRanges' => true,
                         'commonLineThreshold' => 1,
-                        // number of same lines before ending a new hunk and creating a new one (if needed)
                         'contextLines' => 0,
-                        // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
                         'fromFile' => $article->created_at->toString(),
                         'fromFileDate' => '',
                         'toFile' => $changelog->created_at->toString(),
@@ -75,7 +68,6 @@ class GalactapediaController extends Controller
         );
 
         $changelogs = $changelogs->sortByDesc('created_at');
-
 
         return view(
             'user.starcitizen.galactapedia.show',

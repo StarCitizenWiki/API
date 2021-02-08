@@ -1,19 +1,17 @@
-@can('web.user.dashboard.view')
-    @component('components.navs.nav_element', [
-        'route' => route('web.user.dashboard'),
-    ])
-        <div class="row">
-            <div class="col-1">
-                @component('components.elements.icon')
-                    tachometer-alt
-                @endcomponent
-            </div>
-            <div class="col">
-                @lang('Dashboard')
-            </div>
+@component('components.navs.nav_element', [
+    'route' => route('web.user.dashboard'),
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                tachometer-alt
+            @endcomponent
         </div>
-    @endcomponent
-@endcan
+        <div class="col">
+            @lang('Dashboard')
+        </div>
+    </div>
+@endcomponent
 
 @can('web.user.users.view')
     @component('components.navs.nav_element', [

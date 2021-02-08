@@ -32,20 +32,16 @@ class GroundVehicleController extends Controller
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['index']);
         $this->api = $dispatcher;
         $this->api->be(Auth::user());
     }
 
     /**
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function index(): View
     {
-        $this->authorize('web.user.starcitizen.vehicles.view');
-
         $vehicles = $this->api->get('api/vehicles', ['limit' => 0]);
 
         return view(
