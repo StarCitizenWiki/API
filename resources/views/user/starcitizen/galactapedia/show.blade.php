@@ -107,7 +107,7 @@
                     <table class="table mb-0 table-responsive">
                         <caption>Artikel Metadaten</caption>
                         <tr>
-                            <th colspan="2" scope="row">
+                            <th colspan="2" scope="row" class="border-top-0">
                                 <img class="img-fluid" width="400" src="{{ $article->thumbnail }}" alt="{{ $article->title }}">
                             </th>
                         </tr>
@@ -153,12 +153,14 @@
                         <tr>
                             <th scope="row">Verwandte Artikel</th>
                             <td>
-                                @foreach($article->related as $related)
-                                    <a href="{{ route('web.user.starcitizen.galactapedia.show', $related->getRouteKey()) }}">
+                                @forelse($article->related as $related)
+                                    <a href="{{ route('web.user.starcitizen.galactapedia.show', $related->getRouteKey()) }}" style="word-break: break-all">
                                         {{ $related->title }}
                                     </a>
                                     <br>
-                                @endforeach
+                                @empty
+                                    -
+                                @endforelse
                             </td>
                         </tr>
                     </table>

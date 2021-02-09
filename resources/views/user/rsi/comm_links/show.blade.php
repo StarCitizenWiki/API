@@ -174,7 +174,7 @@
                         <tr>
                             <th scope="row">Url</th>
                             <td>
-                                <a href="https://robertsspaceindustries.com{{ $commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">
+                                <a href="https://robertsspaceindustries.com{{ $commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank" style="word-break: break-all">
                                     {{ $commLink->url ?? 'Keine Original URL vorhanden' }}
                                 </a>
                             </td>
