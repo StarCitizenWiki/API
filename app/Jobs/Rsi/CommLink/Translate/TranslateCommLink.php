@@ -66,6 +66,7 @@ class TranslateCommLink implements ShouldQueue
 
         if (null !== optional($this->commLink->german())->translation) {
             $this->delete();
+            return;
         }
 
         $english = $this->commLink->english()->translation;
@@ -79,15 +80,19 @@ class TranslateCommLink implements ShouldQueue
 
         try {
             $translation = $translator->translate(config('services.deepl.target_locale'), $formality);
-        } catch (QuotaException | CallException | AuthenticationException | InvalidArgumentException $e) {
+        } catch (
+            QuotaException |
+            CallException |
+            AuthenticationException |
+            InvalidArgumentException |
+            TextLengthException $e
+        ) {
             $this->fail($e);
 
             return;
         } catch (RateLimitedException $e) {
             $this->release(60);
 
-            return;
-        } catch (TextLengthException $e) {
             return;
         }
 
