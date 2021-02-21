@@ -10,8 +10,8 @@ use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Series\Series;
-use App\Models\System\ModelChangelog;
 use App\Services\Parser\CommLink\Content;
+use App\Traits\DiffTranslationChangelogTrait;
 use Carbon\Carbon;
 use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -22,8 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use SebastianBergmann\Diff\Differ;
-use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -31,6 +29,8 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 class CommLinkController extends Controller
 {
+    use DiffTranslationChangelogTrait;
+
     private const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.update';
 
     /**
@@ -106,46 +106,11 @@ class CommLinkController extends Controller
 
         $changelogs = $changelogs->merge($commLink->translationChangelogs);
 
-        $commLink->textChanges = 0;
-
-        $changelogs->each(
-            static function (ModelChangelog $changelog) use ($commLink) {
-                if (!isset($changelog->changelog['changes']['translation'])) {
-                    return;
-                }
-
-                $commLink->textChanges++;
-
-                $builder = new StrictUnifiedDiffOutputBuilder(
-                    [
-                        'collapseRanges' => true,
-                        'commonLineThreshold' => 1,
-                        // number of same lines before ending a new hunk and creating a new one (if needed)
-                        'contextLines' => 0,
-                        // like `diff:  -u, -U NUM, --unified[=NUM]`, for patch/git apply compatibility best to keep at least @ 3
-                        'fromFile' => $commLink->created_at->toString(),
-                        'fromFileDate' => '',
-                        'toFile' => $changelog->created_at->toString(),
-                        'toFileDate' => '',
-                    ]
-                );
-
-                $differ = new Differ($builder);
-
-                $changelog->diff = ($differ->diff(
-                    $changelog->changelog['changes']['translation']['old'],
-                    $changelog->changelog['changes']['translation']['new'],
-                ));
-            }
-        );
-
-        $changelogs = $changelogs->sortByDesc('created_at');
-
         return view(
             'user.rsi.comm_links.show',
             [
                 'commLink' => $commLink,
-                'changelogs' => $changelogs,
+                'changelogs' => $this->diffTranslations($changelogs, $commLink),
                 'prev' => $commLink->getPrevAttribute(),
                 'next' => $commLink->getNextAttribute(),
             ]
