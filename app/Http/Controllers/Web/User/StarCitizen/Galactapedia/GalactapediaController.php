@@ -36,7 +36,6 @@ class GalactapediaController extends Controller
 
         $changelogs = $changelogs->merge($article->translationChangelogs);
 
-
         return view(
             'user.starcitizen.galactapedia.show',
             [

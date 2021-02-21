@@ -199,6 +199,15 @@
 
                 history.replaceState(null, null, newUrl)
             })
+
+            let html = document.getElementById('english').innerText
+
+            document.getElementById('english').innerHTML = snarkdown(
+                html.replace(
+                    /\(https:\/\/robertsspaceindustries.com\/galactapedia\/article\/(.{10})(?:[\w-]+)?\)/g,
+                    '(/starcitizen/galactapedia/$1)'
+                )
+            )
         })
     </script>
 @endsection

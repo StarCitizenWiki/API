@@ -78,7 +78,7 @@ class TranslateCommLink implements ShouldQueue
 
         $translator = new TranslateText($english);
 
-        // phpcs:ignore PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace
+        // phpcs:disable
         try {
             $translation = $translator->translate(config('services.deepl.target_locale'), $formality);
         } catch (
@@ -96,6 +96,7 @@ class TranslateCommLink implements ShouldQueue
 
             return;
         }
+        // phpcs:enable
 
         $this->commLink->translations()->updateOrCreate(
             [

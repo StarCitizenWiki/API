@@ -6,6 +6,7 @@
  */
 
 import './bootstrap';
+import snarkdown from './snarkdown';
 import 'datatables.net-bs4';
 import { library, dom } from '@fortawesome/fontawesome-svg-core'
 
@@ -139,3 +140,5 @@ if (document.getElementById('cl-live-search')) {
         el: "#cl-live-search",
     })
 }
+
+window.snarkdown = snarkdown
