@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Models\System;
 
 use App\Models\Account\User\User;
+use App\Models\Api\StarCitizen\Galactapedia\Article;
+use App\Models\Api\StarCitizen\Galactapedia\ArticleTranslation;
 use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
 use App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation;
 use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
 use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
@@ -103,8 +104,8 @@ class ModelChangelog extends Model
                 );
                 break;
 
-            /** Set translation to comm-link */
             case CommLinkTranslation::class:
+                /** Set translation to comm-link */
                 $relation = $relation->commLink;
             case CommLink::class:
                 $route = route(
@@ -154,6 +155,15 @@ class ModelChangelog extends Model
                 $route = route(
                     'web.user.starcitizen.production-notes.edit',
                     $relation->productionNote->getRouteKey(),
+                );
+                break;
+
+            case ArticleTranslation::class:
+                $relation = $relation->article;
+            case Article::class:
+                $route = route(
+                    'web.user.starcitizen.galactapedia.show',
+                    $relation->getRouteKey(),
                 );
                 break;
 

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Api\StarCitizen\Galactapedia;
 
-use App\Models\System\Translation\AbstractTranslation;
+use App\Models\System\Translation\AbstractTranslation as Translation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ArticleTranslation extends AbstractTranslation
+class ArticleTranslation extends Translation
 {
     use HasFactory;
 

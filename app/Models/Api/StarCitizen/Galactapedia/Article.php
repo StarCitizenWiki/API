@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Builder;
 
 class Article extends AbstractHasTranslations
@@ -124,5 +125,18 @@ class Article extends AbstractHasTranslations
             'article_id',
             'template_id',
         );
+    }
+
+    /**
+     * @return HasManyThrough
+     */
+    public function translationChangelogs(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            \App\Models\System\ModelChangelog::class,
+            ArticleTranslation::class,
+            'article_id',
+            'changelog_id'
+        )->where('changelog_type', ArticleTranslation::class);
     }
 }
