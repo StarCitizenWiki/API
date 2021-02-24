@@ -130,7 +130,7 @@
                         <tr>
                             <th scope="row">Eigenschaften</th>
                             <td>
-                                <table class="table table-borderless table-sm">
+                                <table class="table table-borderless table-sm table-responsive">
                                     @forelse($article->properties as $property)
                                         <tr>
                                             <th scope="row">{{ $property->name }}</th>
@@ -145,7 +145,7 @@
                         <tr>
                             <th scope="row">Url</th>
                             <td>
-                                <a href="{{ $article->url }}" target="_blank">
+                                <a href="{{ $article->url }}" target="_blank" class="text-break">
                                     {{ $article->url ?? 'Keine Original URL vorhanden' }}
                                 </a>
                             </td>
