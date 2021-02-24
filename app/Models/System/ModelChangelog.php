@@ -186,7 +186,20 @@ class ModelChangelog extends Model
         $data = $this->attributesToArray()['changelog'];
 
         if ($data === null) {
-            return __('Keine');
+            return collect(
+                $this->changelog_type::find($this->changelog_id)
+                    ->setRelations([])
+                    ->makeHidden([
+                        'id',
+                        'created_at',
+                        'updated_at',
+                    ])
+                    ->toArray()
+            )
+                ->map(function ($item, $key) {
+                    return sprintf('%s: %s', $key, $item);
+                })
+                ->implode("<br>");
         }
 
         if ($this->type === 'creation') {

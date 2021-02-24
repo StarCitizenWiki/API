@@ -1,4 +1,4 @@
-@extends('user.layouts.default')
+@extends('user.layouts.default_wide')
 
 @section('title', __('Änderungsübersicht'))
 

@@ -31,7 +31,7 @@ class Article extends AbstractHasTranslations
         'cig_id',
         'title',
         'slug',
-        'thumbnail'
+        'thumbnail',
     ];
 
     /**
@@ -42,6 +42,11 @@ class Article extends AbstractHasTranslations
         return $this->cig_id ?? '';
     }
 
+    /**
+     * Creates a link to the rsi galactapedia
+     *
+     * @return string
+     */
     public function getUrlAttribute(): string
     {
         return sprintf(
@@ -80,6 +85,11 @@ class Article extends AbstractHasTranslations
         return $this->hasMany(ArticleTranslation::class);
     }
 
+    /**
+     * Categories of the article
+     *
+     * @return BelongsToMany
+     */
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -90,6 +100,11 @@ class Article extends AbstractHasTranslations
         );
     }
 
+    /**
+     * Tags of the article
+     *
+     * @return BelongsToMany
+     */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -100,6 +115,11 @@ class Article extends AbstractHasTranslations
         );
     }
 
+    /**
+     * Article properties
+     *
+     * @return HasMany
+     */
     public function properties(): HasMany
     {
         return $this->hasMany(
@@ -107,6 +127,11 @@ class Article extends AbstractHasTranslations
         );
     }
 
+    /**
+     * Related articles
+     *
+     * @return BelongsToMany
+     */
     public function related(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -117,6 +142,11 @@ class Article extends AbstractHasTranslations
         );
     }
 
+    /**
+     * GraphQL Templates associated with this article
+     *
+     * @return BelongsToMany
+     */
     public function templates(): BelongsToMany
     {
         return $this->belongsToMany(
