@@ -22,11 +22,18 @@ class GalactapediaController extends Controller
         return view(
             'user.starcitizen.galactapedia.index',
             [
-                'articles' => Article::query()->paginate(250),
+                'articles' => Article::query()->orderByDesc('id')->paginate(250),
             ]
         );
     }
 
+    /**
+     * Shows a singular article
+     *
+     * @param string $article
+     *
+     * @return View
+     */
     public function show(string $article): View
     {
         $article = Article::query()->where('cig_id', $article)->firstOrFail();

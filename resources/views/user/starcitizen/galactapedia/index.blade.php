@@ -35,6 +35,7 @@
                     <th>@lang('Related')</th>
                     <th>@lang('Inhalt')</th>
                     <th>@lang('Übersetzt')</th>
+                    <th>@lang('Erstellt')</th>
                     @if(isset($appends) && !empty($appends))
                         @foreach($appends as $append)
                             <th>{{$append}}</th>
@@ -95,6 +96,9 @@
                         @endphp
                         <td class="text-{{ $status }}">
                             {{ $text }}
+                        </td>
+                        <td data-content="{{ $article->created_at->format('d.m.Y H:i:s') }}" data-toggle="popover">
+                            {{ $article->created_at->diffForHumans() }}
                         </td>
                         @if(isset($appends) && !empty($appends))
                             @foreach($appends as $append)
