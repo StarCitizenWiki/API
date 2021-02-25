@@ -18,6 +18,15 @@ class JobController extends Controller
     private const DASHBOARD_ROUTE = 'web.user.dashboard';
 
     /**
+     * JobController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+    }
+
+    /**
      * @return RedirectResponse
      *
      * @throws AuthorizationException

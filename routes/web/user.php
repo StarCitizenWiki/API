@@ -58,8 +58,26 @@ Route::group(
 
                             Route::post(
                                 'download-ship-matrix',
-                                'Job\StarCitizen\ShipMatrix\JobController@startCommLinkWikiPageCreationJob'
+                                'Job\StarCitizen\Vehicle\JobController@startDownloadShipMatrixJob'
                             )->name('download-ship-matrix');
+                            Route::post(
+                                'import-vehicle-msrp',
+                                'Job\StarCitizen\Vehicle\JobController@startMsrpImportJob'
+                            )->name('import-vehicle-msrp');
+
+
+                            Route::post(
+                                'import-galactapedia-categories',
+                                'Job\StarCitizen\Galactapedia\JobController@startImportGalactapediaCategoriesJob'
+                            )->name('import-galactapedia-categories');
+                            Route::post(
+                                'import-galactapedia-articles',
+                                'Job\StarCitizen\Galactapedia\JobController@startImportGalactapediaArticlesJob'
+                            )->name('import-galactapedia-articles');
+                            Route::post(
+                                'import-galactapedia-article-properties',
+                                'Job\StarCitizen\Galactapedia\JobController@startImportGalactapediaArticlePropertiesJob'
+                            )->name('import-galactapedia-article-properties');
                         }
                     );
 

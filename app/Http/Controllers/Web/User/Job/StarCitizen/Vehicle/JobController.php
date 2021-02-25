@@ -2,17 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Web\User\Job\Wiki\CommLink;
+namespace App\Http\Controllers\Web\User\Job\StarCitizen\Vehicle;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\Wiki\CommLink\UpdateCommLinkProofReadStatus;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Artisan;
 
-/**
- * Comm Link Wiki Jobs
- */
 class JobController extends Controller
 {
     private const DASHBOARD_ROUTE = 'web.user.dashboard';
@@ -31,38 +27,36 @@ class JobController extends Controller
      *
      * @throws AuthorizationException
      */
-    public function startCommLinkWikiPageCreationJob(): RedirectResponse
+    public function startDownloadShipMatrixJob(): RedirectResponse
     {
-        $this->authorize('web.user.jobs.start_wiki_page_creation');
+        $this->authorize('web.user.jobs.start_ship_matrix_download');
 
-        Artisan::call('comm-links:create-wiki-pages');
+        Artisan::call('ship-matrix:download --import');
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [
                 'success' => [
-                    __('Seitenerstellung gestartet'),
+                    __('Download gestartet'),
                 ],
             ]
         );
     }
 
     /**
-     * Update Comm-Link Proofread Status
-     *
      * @return RedirectResponse
      *
      * @throws AuthorizationException
      */
-    public function startCommLinkProofReadStatusUpdateJob(): RedirectResponse
+    public function startMsrpImportJob(): RedirectResponse
     {
-        $this->authorize('web.user.jobs.start_proofread_update');
+        $this->authorize('web.user.jobs.start_msrp_import');
 
-        $this->dispatch(new UpdateCommLinkProofReadStatus());
+        Artisan::call('vehicles:import-msrp');
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [
                 'success' => [
-                    __('Update gestartet'),
+                    __('Import gestartet'),
                 ],
             ]
         );

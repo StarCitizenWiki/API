@@ -61,6 +61,9 @@ class AuthServiceProvider extends ServiceProvider
                 'start_proofread_update' => 'startCommLinkProofReadStatusUpdateJob',
 
                 'start_ship_matrix_download' => 'startShipMatrixDownloadImportJob',
+                'start_msrp_import' => 'startVehicleMsrpImportJob',
+
+                'import_galactapedia_job' => 'startImportGalactapediaJob',
             ]
         );
 

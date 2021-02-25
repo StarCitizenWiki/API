@@ -66,13 +66,32 @@ class JobPolicy extends BaseUserPolicy
         return $user->getHighestPermissionLevel() >= UserGroup::SICHTER;
     }
 
-
     /**
      * @param User $user
      *
      * @return bool
      */
     public function startShipMatrixDownloadImportJob(User $user): bool
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function startVehicleMsrpImportJob(User $user): bool
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function startImportGalactapediaJob(User $user): bool
     {
         return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
     }

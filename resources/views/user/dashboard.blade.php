@@ -228,7 +228,7 @@
     <section class="row equal-height">
         <div class="col-12 col-lg-3 col-xl-3 mb-4">
             @component('user.components.card', [
-                'title' => __('Jobs'),
+                'title' => __('Vehicle Jobs'),
             ])
                 @can('web.user.jobs.start_ship_matrix_download')
                     @component('components.forms.form', [
@@ -238,8 +238,45 @@
                         <button class="btn btn-block btn-outline-secondary">@lang('ShipMatrix importieren')</button>
                     @endcomponent
                 @endcan
+                @can('web.user.jobs.start_msrp_import')
+                    @component('components.forms.form', [
+                        'action' => route('web.user.dashboard.import-vehicle-msrp'),
+                        'class' => 'mb-3',
+                    ])
+                        <button class="btn btn-block btn-outline-secondary">@lang('Schiffspreise importieren')</button>
+                    @endcomponent
+                @endcan
             @endcomponent
-
+        </div>
+        <div class="col-12 col-lg-3 col-xl-3 mb-4">
+            @component('user.components.card', [
+                'title' => __('Galactapedia Jobs'),
+            ])
+                @can('web.user.jobs.import_galactapedia_job')
+                    @component('components.forms.form', [
+                        'action' => route('web.user.dashboard.import-galactapedia-categories'),
+                        'class' => 'mb-3',
+                    ])
+                        <button class="btn btn-block btn-outline-secondary">@lang('Kategorien importieren')</button>
+                    @endcomponent
+                @endcan
+                @can('web.user.jobs.import_galactapedia_job')
+                    @component('components.forms.form', [
+                        'action' => route('web.user.dashboard.import-galactapedia-articles'),
+                        'class' => 'mb-3',
+                    ])
+                        <button class="btn btn-block btn-outline-secondary">@lang('Artikel importieren')</button>
+                    @endcomponent
+                @endcan
+                @can('web.user.jobs.import_galactapedia_job')
+                    @component('components.forms.form', [
+                        'action' => route('web.user.dashboard.import-galactapedia-article-properties'),
+                        'class' => 'mb-3',
+                    ])
+                        <button class="btn btn-block btn-outline-secondary">@lang('Eigenschaften importieren')</button>
+                    @endcomponent
+                @endcan
+            @endcomponent
         </div>
     </section>
     @endcan
