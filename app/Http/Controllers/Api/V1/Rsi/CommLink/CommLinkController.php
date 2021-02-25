@@ -118,9 +118,7 @@ class CommLinkController extends ApiController
      */
     public function index(): Response
     {
-        $commLinks = CommLink::query()->orderByDesc('cig_id');
-
-        return $this->getResponse($commLinks);
+        return $this->getResponse(CommLink::query()->orderByDesc('cig_id'));
     }
 
     /**
