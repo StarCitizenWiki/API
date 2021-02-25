@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizen\Starmap\Translate;
 
-use App\Console\Commands\StarCitizen\Rsi\CommLink\AbstractCommLinkCommand as CommLinkCommand;
+use App\Console\Commands\AbstractQueueCommand as QueueCommand;
 
-class TranslateSystems extends CommLinkCommand
+class TranslateSystems extends QueueCommand
 {
     /**
      * The name and signature of the console command.
