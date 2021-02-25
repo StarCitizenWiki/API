@@ -54,7 +54,7 @@
                             @endunless
 
                             <p class="mb-0">Details:</p>
-                            <pre><code class="mb-0">{!! $changelog->formatted_changelog !!}</code></pre>
+                            <pre><code class="mb-0" style="white-space: pre-wrap;">{!! $changelog->formatted_changelog !!}</code></pre>
                         </td>
                     </tr>
 
