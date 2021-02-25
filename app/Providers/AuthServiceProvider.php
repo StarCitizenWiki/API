@@ -64,6 +64,8 @@ class AuthServiceProvider extends ServiceProvider
                 'start_msrp_import' => 'startVehicleMsrpImportJob',
 
                 'import_galactapedia_job' => 'startImportGalactapediaJob',
+
+                'view_failed' => 'view',
             ]
         );
 

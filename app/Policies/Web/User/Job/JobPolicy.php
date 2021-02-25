@@ -21,6 +21,16 @@ class JobPolicy extends BaseUserPolicy
      *
      * @return bool
      */
+    public function view(User $user): bool
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
     public function startCommLinkTranslationJob(User $user): bool
     {
         return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;

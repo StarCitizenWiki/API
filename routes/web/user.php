@@ -90,6 +90,15 @@ Route::group(
                         }
                     );
 
+                Route::namespace('Job')
+                    ->name('jobs.')
+                    ->prefix('jobs')
+                    ->group(
+                        static function () {
+                            Route::get('failed', 'JobController@viewFailed')->name('failed');
+                        }
+                    );
+
                 Route::resources(
                     [
                         'notifications' => 'Notification\NotificationController',
