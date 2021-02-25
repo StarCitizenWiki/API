@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
+use App\Console\Commands\FixChangelogNamespaces;
 use App\Console\Commands\Rsi\CommLink\CommLinkSchedule;
 use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLink;
 use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLinks;
@@ -83,6 +84,8 @@ class Kernel extends ConsoleKernel
         ImportArticles::class,
         ImportArticleProperties::class,
         TranslateArticles::class,
+
+        FixChangelogNamespaces::class,
     ];
 
     /**
