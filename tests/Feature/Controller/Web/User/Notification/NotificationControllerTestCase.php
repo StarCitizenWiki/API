@@ -4,7 +4,7 @@ namespace Tests\Feature\Controller\Web\User\Notification;
 
 use App\Http\Controllers\Web\User\Notification\NotificationController;
 use App\Mail\NotificationEmail;
-use App\Models\Api\Notification;
+use App\Models\System\Notification;
 use Carbon\Carbon;
 use Dingo\Api\Dispatcher;
 use Dingo\Api\Http\Response;
@@ -141,7 +141,7 @@ class NotificationControllerTestCase extends UserTestCase
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\Notification $notification */
+        /** @var \App\Models\System\Notification $notification */
         $notification = $this->notifications[1];
 
         $response = $this->actingAs($this->user)->patch(
@@ -176,7 +176,7 @@ class NotificationControllerTestCase extends UserTestCase
      */
     public function testUpdateResendEmail()
     {
-        /** @var \App\Models\Api\Notification $notification */
+        /** @var \App\Models\System\Notification $notification */
         $notification = Notification::factory()->create();
 
         Mail::fake();

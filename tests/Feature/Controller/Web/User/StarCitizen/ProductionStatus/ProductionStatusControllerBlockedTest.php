@@ -9,7 +9,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\User\TranslationPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus<extended>
+ * @covers \App\Models\StarCitizen\ProductionStatus\ProductionStatus<extended>
  */
 class ProductionStatusControllerBlockedTest extends ProductionStatusControllerTestCase
 {

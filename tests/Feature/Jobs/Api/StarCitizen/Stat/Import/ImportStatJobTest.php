@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Jobs\Api\StarCitizen\Stat\Import;
 
-use App\Jobs\Api\StarCitizen\Stat\Import\ImportStat;
-use App\Models\Api\StarCitizen\Stat\Stat;
+use App\Jobs\StarCitizen\Stat\Import\ImportStat;
+use App\Models\StarCitizen\Stat\Stat;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Tests\TestCase;
@@ -11,8 +11,8 @@ use Tests\TestCase;
 class ImportStatJobTest extends TestCase
 {
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Stat\Import\ImportStat::__construct
-     * @covers \App\Jobs\Api\StarCitizen\Stat\Import\ImportStat::handle
+     * @covers \App\Jobs\StarCitizen\Stat\Import\ImportStat::__construct
+     * @covers \App\Jobs\StarCitizen\Stat\Import\ImportStat::handle
      */
     public function testMissingFile(): void
     {
@@ -30,8 +30,8 @@ class ImportStatJobTest extends TestCase
     }
 
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Stat\Import\ImportStat::__construct
-     * @covers \App\Jobs\Api\StarCitizen\Stat\Import\ImportStat::handle
+     * @covers \App\Jobs\StarCitizen\Stat\Import\ImportStat::__construct
+     * @covers \App\Jobs\StarCitizen\Stat\Import\ImportStat::handle
      */
     public function testInvalidFile(): void
     {
@@ -50,8 +50,8 @@ class ImportStatJobTest extends TestCase
     }
 
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Stat\Import\ImportStat::__construct
-     * @covers \App\Jobs\Api\StarCitizen\Stat\Import\ImportStat::handle
+     * @covers \App\Jobs\StarCitizen\Stat\Import\ImportStat::__construct
+     * @covers \App\Jobs\StarCitizen\Stat\Import\ImportStat::handle
      */
     public function testImport(): void
     {

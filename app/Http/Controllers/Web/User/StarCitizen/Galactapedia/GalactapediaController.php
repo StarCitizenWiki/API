@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\User\StarCitizen\Galactapedia;
 
 use App\Http\Controllers\Controller;
-use App\Models\Api\StarCitizen\Galactapedia\Article;
+use App\Models\StarCitizen\Galactapedia\Article;
 use App\Traits\DiffTranslationChangelogTrait;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;

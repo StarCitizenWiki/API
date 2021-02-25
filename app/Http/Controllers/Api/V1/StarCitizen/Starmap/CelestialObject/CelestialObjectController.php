@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\CelestialObject;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
+use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;

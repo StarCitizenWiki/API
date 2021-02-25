@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Galactapedia;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Galactapedia\GalactapediaSearchRequest;
-use App\Models\Api\StarCitizen\Galactapedia\Article;
+use App\Models\StarCitizen\Galactapedia\Article;
 use App\Transformers\Api\V1\StarCitizen\Galactapedia\ArticleTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;

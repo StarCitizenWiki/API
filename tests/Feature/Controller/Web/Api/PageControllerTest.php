@@ -4,7 +4,7 @@ namespace Tests\Feature\Controller\Web\Api;
 
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
-use App\Models\Api\Notification;
+use App\Models\System\Notification;
 use Tests\TestCase;
 
 /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Controller\Web\User\StarCitizen\ProductionStatus;
 
 use App\Http\Controllers\Web\User\StarCitizen\ProductionStatus\ProductionStatusController;
-use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
+use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -50,7 +50,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
+        /** @var \App\Models\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
         $productionStatus = ProductionStatus::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
@@ -94,7 +94,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
+        /** @var \App\Models\StarCitizen\ProductionStatus\ProductionStatus $productionStatus */
         $productionStatus = ProductionStatus::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(

@@ -9,7 +9,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\User\StarCitizen\Vehicle\VehiclePolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle<extended>
  */
 class GroundVehicleControllerBlockedTest extends GroundVehicleControllerTestCase
 {

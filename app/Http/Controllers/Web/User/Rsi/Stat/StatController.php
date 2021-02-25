@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\User\Rsi\Stat;
 
 use App\Http\Controllers\Controller;
-use App\Models\Api\StarCitizen\Stat\Stat;
+use App\Models\StarCitizen\Stat\Stat;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Contracts\View\View;

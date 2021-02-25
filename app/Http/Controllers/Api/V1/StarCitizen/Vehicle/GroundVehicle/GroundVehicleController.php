@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Vehicle\GroundVehicleSearchRequest;
-use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
+use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
 use Dingo\Api\Http\Request;

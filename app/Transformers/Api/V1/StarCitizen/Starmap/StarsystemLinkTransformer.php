@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
-use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 /**

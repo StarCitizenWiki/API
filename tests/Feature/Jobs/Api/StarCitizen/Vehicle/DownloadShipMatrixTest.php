@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Jobs\Api\StarCitizen\Vehicle;
 
-use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
+use App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -15,8 +15,8 @@ use Tests\TestCase;
 class DownloadShipMatrixTest extends TestCase
 {
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::__construct
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::handle
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::__construct
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::handle
      */
     public function testServerError(): void
     {
@@ -38,10 +38,10 @@ class DownloadShipMatrixTest extends TestCase
     }
 
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::__construct
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::handle
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::getPath
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::parseResponseBody
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::__construct
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::handle
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::getPath
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::parseResponseBody
      */
     public function testInvalidData(): void
     {
@@ -63,10 +63,10 @@ class DownloadShipMatrixTest extends TestCase
     }
 
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::__construct
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::handle
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::getPath
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix::parseResponseBody
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::__construct
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::handle
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::getPath
+     * @covers \App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix::parseResponseBody
      */
     public function testValidJsonData(): void
     {

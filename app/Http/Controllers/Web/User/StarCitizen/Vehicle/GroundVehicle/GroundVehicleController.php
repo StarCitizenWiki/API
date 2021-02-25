@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
+use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;

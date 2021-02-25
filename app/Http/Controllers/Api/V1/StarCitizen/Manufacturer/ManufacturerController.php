@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Manufacturer;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Manufacturer\ManufacturerSearchRequest;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;

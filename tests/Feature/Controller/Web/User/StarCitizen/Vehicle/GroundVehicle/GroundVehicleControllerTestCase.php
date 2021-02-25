@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController;
-use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -54,7 +54,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
+        /** @var \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
         $groundVehicle = Vehicle::factory()->groundVehicle()->create();
 
         $response = $this->actingAs($this->user)->get(
@@ -101,12 +101,12 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Requests\System\TranslationRequest
      *
-     * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation
+     * @covers \App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation
      * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
+        /** @var \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
         $groundVehicle = Vehicle::factory()->groundVehicle()->create();
 
         $response = $this->actingAs($this->user)->patch(
@@ -132,7 +132,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdateNotFound()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
+        /** @var \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle $groundVehicle */
         $groundVehicle = Vehicle::factory()->groundVehicle()->create();
 
         $response = $this->actingAs($this->user)->patch(

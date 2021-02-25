@@ -6,7 +6,7 @@ namespace App\Jobs\Web;
 
 use App\Mail\NotificationEmail;
 use App\Models\Account\User\User;
-use App\Models\Api\Notification;
+use App\Models\System\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;

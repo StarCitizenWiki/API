@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\Starmap;
 
-use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObjectSubtype;
+use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObjectSubtype;
 use Illuminate\Support\Collection;
 
 /**

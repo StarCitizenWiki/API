@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Parser\ShipMatrix\Vehicle;
 
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
-use App\Models\Api\StarCitizen\Vehicle\Type\Type as VehicleType;
-use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
+use App\Models\StarCitizen\Vehicle\Type\Type as VehicleType;
+use App\Models\StarCitizen\Vehicle\Type\TypeTranslation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 

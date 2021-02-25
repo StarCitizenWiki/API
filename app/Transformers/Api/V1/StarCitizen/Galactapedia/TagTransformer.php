@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Galactapedia;
 
-use App\Models\Api\StarCitizen\Galactapedia\Article;
-use App\Models\Api\StarCitizen\Galactapedia\Category;
-use App\Models\Api\StarCitizen\Galactapedia\Tag;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\Galactapedia\Article;
+use App\Models\StarCitizen\Galactapedia\Category;
+use App\Models\StarCitizen\Galactapedia\Tag;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;

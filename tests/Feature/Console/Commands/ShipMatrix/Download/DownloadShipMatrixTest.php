@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands\ShipMatrix\Download;
 
-use App\Jobs\Api\StarCitizen\Vehicle\CheckShipMatrixStructure;
-use App\Jobs\Api\StarCitizen\Vehicle\DownloadShipMatrix;
-use App\Jobs\Api\StarCitizen\Vehicle\Import\ImportShipMatrix;
+use App\Jobs\StarCitizen\Vehicle\CheckShipMatrixStructure;
+use App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix;
+use App\Jobs\StarCitizen\Vehicle\Import\ImportShipMatrix;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;

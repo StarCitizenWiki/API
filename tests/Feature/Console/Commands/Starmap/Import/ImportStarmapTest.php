@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Console\Commands\Starmap\Import;
 
-use App\Jobs\Api\StarCitizen\Starmap\Import\ImportStarmap;
+use App\Jobs\StarCitizen\Starmap\Import\ImportStarmap;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
 

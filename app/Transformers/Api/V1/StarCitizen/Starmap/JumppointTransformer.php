@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
-use App\Models\Api\StarCitizen\Starmap\Jumppoint\Jumppoint;
+use App\Models\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use League\Fractal\Resource\Item;
 use Throwable;
