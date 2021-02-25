@@ -108,7 +108,7 @@ class GalactapediaController extends ApiController
      */
     public function index(): Response
     {
-        return $this->getResponse(Article::query());
+        return $this->getResponse(Article::query()->orderByDesc('id'));
     }
 
     /**
