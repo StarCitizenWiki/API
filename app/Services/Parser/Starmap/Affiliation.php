@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\Starmap;
 
-use App\Models\Api\StarCitizen\Starmap\Affiliation as AffiliationModel;
+use App\Models\StarCitizen\Starmap\Affiliation as AffiliationModel;
 use Illuminate\Support\Collection;
 
 /**

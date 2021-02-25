@@ -181,7 +181,7 @@
                                 ])
                                     @slot('value')
                                         {{
-                                            $groundVehicle->foci->transform(function(\App\Models\Api\StarCitizen\Vehicle\Focus\Focus $focus) {
+                                            $groundVehicle->foci->transform(function(\App\Models\StarCitizen\Vehicle\Focus\Focus $focus) {
                                                 return optional($focus->german())->translation ?? optional($focus->english()->translation) ?? __('Keiner');
                                             })->implode(', ')
                                         }}

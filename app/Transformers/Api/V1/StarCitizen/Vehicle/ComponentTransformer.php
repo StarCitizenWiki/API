@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\Component\Component;
+use App\Models\StarCitizen\Vehicle\Component\Component;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 class ComponentTransformer extends V1Transformer

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Type;
 
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Type\TypeController;
-use App\Models\Api\StarCitizen\Vehicle\Type\Type;
+use App\Models\StarCitizen\Vehicle\Type\Type;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -49,7 +49,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $vehicleType */
+        /** @var \App\Models\StarCitizen\Vehicle\Type\Type $vehicleType */
         $vehicleType = Type::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
@@ -93,7 +93,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Type\Type $vehicleType */
+        /** @var \App\Models\StarCitizen\Vehicle\Type\Type $vehicleType */
         $vehicleType = Type::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(

@@ -9,7 +9,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer
+ * @covers \App\Models\StarCitizen\Manufacturer\Manufacturer
  */
 class ManufacturerControllerBureaucratTest extends ManufacturerControllerTestCase
 {

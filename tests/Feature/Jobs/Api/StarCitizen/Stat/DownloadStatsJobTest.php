@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Jobs\Api\StarCitizen\Stat;
 
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats;
+use App\Jobs\StarCitizen\Stat\DownloadStats;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +16,7 @@ use Tests\TestCase;
 class DownloadStatsJobTest extends TestCase
 {
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::handle
+     * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::handle
      *
      * @return void
      */
@@ -43,8 +43,8 @@ class DownloadStatsJobTest extends TestCase
     }
 
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::handle
-     * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::parseResponseBody
+     * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::handle
+     * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::parseResponseBody
      *
      * @return void
      */
@@ -72,9 +72,9 @@ class DownloadStatsJobTest extends TestCase
     }
 
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::handle
-     * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::saveStats
-     * @covers \App\Jobs\Api\StarCitizen\Stat\DownloadStats::parseResponseBody
+     * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::handle
+     * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::saveStats
+     * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::parseResponseBody
      *
      * @return void
      */

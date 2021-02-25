@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands\Stat\Download;
 
-use App\Jobs\Api\StarCitizen\Stat\DownloadStats as DownloadStatsJob;
-use App\Jobs\Api\StarCitizen\Stat\Import\ImportStat;
+use App\Jobs\StarCitizen\Stat\DownloadStats as DownloadStatsJob;
+use App\Jobs\StarCitizen\Stat\Import\ImportStat;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;

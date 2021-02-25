@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Parser\ShipMatrix;
 
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
-use App\Models\Api\StarCitizen\Vehicle\Component\Component as ComponentModel;
+use App\Models\StarCitizen\Vehicle\Component\Component as ComponentModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 

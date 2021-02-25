@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
 use Illuminate\Support\Collection;
 

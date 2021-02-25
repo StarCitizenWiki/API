@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Jobs\Api\StarCitizen\Vehicle\Import;
 
-use App\Jobs\Api\StarCitizen\Vehicle\Import\ImportVehicle;
-use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use App\Models\Api\StarCitizen\Vehicle\Size\Size;
-use App\Models\Api\StarCitizen\Vehicle\Type\Type;
+use App\Jobs\StarCitizen\Vehicle\Import\ImportVehicle;
+use App\Models\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\StarCitizen\Vehicle\Size\Size;
+use App\Models\StarCitizen\Vehicle\Type\Type;
 use Database\Seeders\Api\StarCitizen\ProductionNoteTableSeeder;
 use Database\Seeders\Api\StarCitizen\ProductionStatusTableSeeder;
 use Database\Seeders\Api\StarCitizen\Vehicle\SizeTableSeeder;
@@ -18,8 +18,8 @@ use Tests\TestCase;
 class ImportVehicleTest extends TestCase
 {
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\Import\ImportVehicle::handle
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\Import\ImportVehicle::getData
+     * @covers \App\Jobs\StarCitizen\Vehicle\Import\ImportVehicle::handle
+     * @covers \App\Jobs\StarCitizen\Vehicle\Import\ImportVehicle::getData
      * @covers \App\Services\Parser\ShipMatrix\AbstractBaseElement
      * @covers \App\Services\Parser\ShipMatrix\Manufacturer
      * @covers \App\Services\Parser\ShipMatrix\ProductionNote

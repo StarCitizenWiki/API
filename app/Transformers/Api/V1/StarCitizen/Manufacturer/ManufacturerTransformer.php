@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;

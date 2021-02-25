@@ -3,9 +3,9 @@
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
+use App\Models\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -53,7 +53,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
+        /** @var \App\Models\StarCitizen\Vehicle\Ship\Ship $ship */
         $ship = Vehicle::factory()->ship()->create();
 
         $response = $this->actingAs($this->user)->get(
@@ -102,12 +102,12 @@ class ShipControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Requests\System\TranslationRequest
      *
-     * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation
+     * @covers \App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation
      * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
+        /** @var \App\Models\StarCitizen\Vehicle\Ship\Ship $ship */
         $ship = Vehicle::factory()->ship()->create();
 
         $response = $this->actingAs($this->user)->patch(
@@ -133,7 +133,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdateNotFound()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Ship\Ship $ship */
+        /** @var \App\Models\StarCitizen\Vehicle\Ship\Ship $ship */
         $ship = Vehicle::factory()->ship()->create();
 
         $response = $this->actingAs($this->user)->patch(

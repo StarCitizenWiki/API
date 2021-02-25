@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
-use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObjectSubtype;
+use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObjectSubtype;
 use League\Fractal\TransformerAbstract;
 
 class SubtypeTransformer extends TransformerAbstract

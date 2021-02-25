@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
+use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as VehicleTransformer;
 
 /**

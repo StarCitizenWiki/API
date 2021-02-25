@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Stat;
 
-use App\Models\Api\StarCitizen\Stat\Stat;
+use App\Models\StarCitizen\Stat\Stat;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 /**

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Services\Parser\ShipMatrix;
 
-use App\Jobs\Api\StarCitizen\Vehicle\Import\ImportVehicle;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use App\Models\Api\StarCitizen\Vehicle\Size\Size;
-use App\Models\Api\StarCitizen\Vehicle\Type\Type;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleComponent;
+use App\Jobs\StarCitizen\Vehicle\Import\ImportVehicle;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
+use App\Models\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\StarCitizen\Vehicle\Size\Size;
+use App\Models\StarCitizen\Vehicle\Type\Type;
+use App\Models\StarCitizen\Vehicle\Vehicle\VehicleComponent;
 use Database\Seeders\Api\StarCitizen\ProductionNoteTableSeeder;
 use Database\Seeders\Api\StarCitizen\ProductionStatusTableSeeder;
 use Database\Seeders\Api\StarCitizen\Vehicle\SizeTableSeeder;
@@ -25,7 +25,7 @@ use Tests\TestCase;
 class ParseVehicleTest extends TestCase
 {
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\Import\ImportVehicle
+     * @covers \App\Jobs\StarCitizen\Vehicle\Import\ImportVehicle
      * @covers \App\Services\Parser\ShipMatrix\Manufacturer
      * @covers \App\Services\Parser\ShipMatrix\ProductionNote
      * @covers \App\Services\Parser\ShipMatrix\ProductionStatus

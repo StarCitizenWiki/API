@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\Starsystem;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Starmap\StarsystemRequest;
-use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer;
 use Dingo\Api\Http\Request;

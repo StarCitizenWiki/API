@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Controller\Web\User\StarCitizen\ProductionNote;
 
 use App\Http\Controllers\Web\User\StarCitizen\ProductionNote\ProductionNoteController;
-use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\StarCitizen\ProductionNote\ProductionNote;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -50,7 +50,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $productionNote */
+        /** @var \App\Models\StarCitizen\ProductionNote\ProductionNote $productionNote */
         $productionNote = ProductionNote::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
@@ -94,7 +94,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\ProductionNote\ProductionNote $productionNote */
+        /** @var \App\Models\StarCitizen\ProductionNote\ProductionNote $productionNote */
         $productionNote = ProductionNote::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(

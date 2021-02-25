@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Vehicle\ShipSearchRequest;
 use App\Http\Requests\StarCitizen\Vehicle\StarsystemRequest;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer;
 use Dingo\Api\Http\Request;

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
+use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 
 /**
  * {@inheritdoc}
@@ -11,13 +11,13 @@ use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
  *
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle<extended>
- * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
- * @covers \App\Models\Api\StarCitizen\ProductionNote\ProductionNote<extended>
- * @covers \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Focus\Focus<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Size\Size<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Type\Type<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle<extended>
+ * @covers \App\Models\StarCitizen\Manufacturer\Manufacturer<extended>
+ * @covers \App\Models\StarCitizen\ProductionNote\ProductionNote<extended>
+ * @covers \App\Models\StarCitizen\ProductionStatus\ProductionStatus<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Focus\Focus<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Size\Size<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Type\Type<extended>
  */
 class GroundVehicleControllerTest extends VehicleControllerTestCase
 {

@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Web\User\Notification;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\Web\SendNotificationEmail;
-use App\Models\Api\Notification;
+use App\Models\System\Notification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;

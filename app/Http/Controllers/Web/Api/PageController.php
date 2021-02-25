@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Api\Notification;
+use App\Models\System\Notification;
 use Illuminate\Contracts\View\View;
 
 /**

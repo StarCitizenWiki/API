@@ -14,7 +14,7 @@ use App\Models\Account\User\UserGroup;
  *
  * @covers \App\Providers\RouteServiceProvider
  *
- * @covers \App\Models\Api\Notification
+ * @covers \App\Models\System\Notification
  */
 class NotificationControllerBureaucratTest extends NotificationControllerTestCase
 {

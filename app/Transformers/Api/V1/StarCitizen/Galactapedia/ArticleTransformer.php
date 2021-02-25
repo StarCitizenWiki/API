@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Galactapedia;
 
-use App\Models\Api\StarCitizen\Galactapedia\Article;
+use App\Models\StarCitizen\Galactapedia\Article;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;

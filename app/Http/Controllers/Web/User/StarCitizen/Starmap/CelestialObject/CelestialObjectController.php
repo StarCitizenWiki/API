@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\User\StarCitizen\Starmap\CelestialObject;
 
 use App\Http\Controllers\Controller;
-use App\Models\Api\StarCitizen\Starmap\CelestialObject\CelestialObject;
+use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use Illuminate\Contracts\View\View;
 
 /**

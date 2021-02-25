@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Http\Throttle\ApiThrottle;
-use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\StarCitizen\ProductionNote\ProductionNote;
 use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;

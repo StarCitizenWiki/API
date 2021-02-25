@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Web\User\StarCitizen\ProductionNote;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
-use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\System\Language;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;

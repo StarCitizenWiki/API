@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle\Ship;
 
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\StarCitizen\Vehicle\Ship\Ship;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\AbstractVehicleTransformer as VehicleTransformer;
 
 /**

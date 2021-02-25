@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\User\TranslationPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\ProductionNote\ProductionNote<extended>
+ * @covers \App\Models\StarCitizen\ProductionNote\ProductionNote<extended>
  */
 class ProductionNoteControllerUserTest extends ProductionNoteControllerTestCase
 {
