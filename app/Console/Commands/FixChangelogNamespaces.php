@@ -32,7 +32,7 @@ class FixChangelogNamespaces extends Command
     {
         DB::table('model_changelogs')
             ->update([
-                'changelog_type' => DB::raw('REPLACE("changelog_type", "\Api\StarCitizen", "\StarCitizen")'),
+                'changelog_type' => DB::raw('REPLACE(changelog_type, "\\Api\\StarCitizen", "\\StarCitizen")'),
             ]);
 
         return 0;
