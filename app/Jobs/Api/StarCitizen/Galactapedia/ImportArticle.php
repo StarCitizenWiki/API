@@ -95,27 +95,43 @@ QUERY,
         $data = $result['data']['Article'];
 
         /** @var Article $article */
-        $this->article = Article::updateOrCreate([
-            'cig_id' => $data['id'],
-        ], [
-            'title' => $data['title'],
-            'slug' => $data['slug'] ?? Str::slug($data['name']),
-            'thumbnail' => $data['thumbnail']['url'] ?? null
-        ]);
+        $this->article = Article::updateOrCreate(
+            [
+                'cig_id' => $data['id'],
+            ],
+            [
+                'title' => $data['title'],
+                'slug' => $data['slug'] ?? Str::slug($data['name']),
+                'thumbnail' => $data['thumbnail']['url'] ?? null,
+            ]
+        );
 
-        $this->article->translations()->updateOrCreate([
-            'locale_code' => 'en_EN',
-        ], [
-            'translation' => $data['body']
-        ]);
+        $this->article->translations()->updateOrCreate(
+            [
+                'locale_code' => 'en_EN',
+            ],
+            [
+                'translation' => $data['body'],
+            ]
+        );
 
-        $this->syncTemplates($data['template'] ?? []);
-        $this->syncCategories($data['categories'] ?? []);
-        $this->syncTags($data['tags'] ?? []);
-        $this->syncRelatedArticles($data['relatedArticles'] ?? []);
+        $changes = [];
+        $changes['templates'] = $this->syncTemplates($data['template'] ?? []);
+        $changes['categories'] = $this->syncCategories($data['categories'] ?? []);
+        $changes['tags'] = $this->syncTags($data['tags'] ?? []);
+        $changes['related_articles'] = $this->syncRelatedArticles($data['relatedArticles'] ?? []);
+
+        $this->createArticleChangelog($changes);
     }
 
-    private function syncTemplates(array $data): void
+    /**
+     * Syncs all article templates
+     *
+     * @param array $data
+     *
+     * @return array Changed templates
+     */
+    private function syncTemplates(array $data): array
     {
         $ids = collect($data)
             ->map(function (array $template) {
@@ -134,48 +150,78 @@ QUERY,
             })
             ->collect();
 
-        $this->article->templates()->sync($ids);
+        return $this->article->templates()->sync($ids);
     }
 
-    private function syncCategories(array $data): void
+    /**
+     * Syncs all article categories
+     *
+     * @param array $data
+     *
+     * @return array Changed categories
+     */
+    private function syncCategories(array $data): array
     {
         $ids = collect($data)
+            ->filter(function ($datum) {
+                return $datum !== null;
+            })
             ->map(function (array $category) {
-                return Category::updateOrCreate([
-                    'cig_id' => $category['id'],
-                ], [
-                    'name' => $category['name'],
-                    'slug' => $category['slug'],
-                ]);
+                return Category::updateOrCreate(
+                    [
+                        'cig_id' => $category['id'],
+                    ],
+                    [
+                        'name' => $category['name'],
+                        'slug' => $category['slug'],
+                    ]
+                );
             })
             ->map(function (Category $category) {
                 return $category->id;
             })
             ->collect();
 
-        $this->article->categories()->sync($ids);
+        return $this->article->categories()->sync($ids);
     }
 
-    private function syncTags(array $data): void
+    /**
+     * Syncs all article tags
+     *
+     * @param array $data
+     *
+     * @return array Changed tags
+     */
+    private function syncTags(array $data): array
     {
         $ids = collect($data)
             ->map(function (array $tag) {
-                return Tag::updateOrCreate([
-                    'cig_id' => $tag['id'],
-                ], [
-                    'name' => $tag['name'],
-                    'slug' => $tag['slug'],
-                ]);
+                return Tag::updateOrCreate(
+                    [
+                        'cig_id' => $tag['id'],
+                    ],
+                    [
+                        'name' => $tag['name'],
+                        'slug' => $tag['slug'],
+                    ]
+                );
             })
             ->map(function (Tag $tag) {
                 return $tag->id;
             })
             ->collect();
 
-        $this->article->tags()->sync($ids);
+        return $this->article->tags()->sync($ids);
     }
 
-    private function syncRelatedArticles(array $data): void
+    /**
+     * Syncs all related articles
+     *
+     * @param array $data
+     *
+     * @return array changed data
+     */
+    private function syncRelatedArticles(array $data): array
     {
         $ids = collect($data)
             ->filter(function ($related) {
@@ -192,6 +238,43 @@ QUERY,
             })
             ->collect();
 
-        $this->article->related()->sync($ids);
+        return $this->article->related()->sync($ids);
+    }
+
+    /**
+     * Creates a new changelog for synced templates, tags and related articles
+     *
+     * @param array $data
+     */
+    private function createArticleChangelog(array $data): void
+    {
+        $changedData = collect($data)
+            ->map(function (array $group) {
+                unset($group['updated']);
+
+                return $group;
+            })
+            ->map(function (array $group) {
+                return [
+                    'old' => $group['detached'],
+                    'new' => $group['attached'],
+                ];
+            })
+            ->filter(function (array $group) {
+                return !empty($group['old']) || !empty($group['new']);
+            })
+            ->toArray();
+
+        if (empty($changedData)) {
+            return;
+        }
+
+        $this->article->changelogs()->create([
+            'type' => 'update',
+            'changelog' => [
+                'changes' => $changedData,
+            ],
+            'user_id' => 0,
+        ]);
     }
 }

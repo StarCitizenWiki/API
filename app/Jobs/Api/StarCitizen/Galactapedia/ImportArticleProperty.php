@@ -41,6 +41,7 @@ class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQu
     {
         if ($this->article->templates->isEmpty()) {
             app('Log')::warning(sprintf('Article "%s" has no Templates!', $this->article->title));
+
             return;
         }
 
@@ -48,6 +49,7 @@ class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQu
 
         if ($fields === null) {
             $this->delete();
+
             return;
         }
 
@@ -92,8 +94,8 @@ QUERY,
                 $matches = [
                     [],
                     [
-                        $result[$field]
-                    ]
+                        $result[$field],
+                    ],
                 ];
             }
 
