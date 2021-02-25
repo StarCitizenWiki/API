@@ -9,6 +9,7 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Models\StarCitizen\Galactapedia\Template;
+use App\Traits\CreateRelationChangelogTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,6 +23,7 @@ class ImportArticle extends AbstractBaseDownloadData implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use CreateRelationChangelogTrait;
 
     private string $articleId;
     private Article $article;
@@ -121,7 +123,7 @@ QUERY,
         $changes['tags'] = $this->syncTags($data['tags'] ?? []);
         $changes['related_articles'] = $this->syncRelatedArticles($data['relatedArticles'] ?? []);
 
-        $this->createArticleChangelog($changes);
+        $this->createRelationChangelog($changes, $this->article);
     }
 
     /**
@@ -239,42 +241,5 @@ QUERY,
             ->collect();
 
         return $this->article->related()->sync($ids);
-    }
-
-    /**
-     * Creates a new changelog for synced templates, tags and related articles
-     *
-     * @param array $data
-     */
-    private function createArticleChangelog(array $data): void
-    {
-        $changedData = collect($data)
-            ->map(function (array $group) {
-                unset($group['updated']);
-
-                return $group;
-            })
-            ->map(function (array $group) {
-                return [
-                    'old' => $group['detached'],
-                    'new' => $group['attached'],
-                ];
-            })
-            ->filter(function (array $group) {
-                return !empty($group['old']) || !empty($group['new']);
-            })
-            ->toArray();
-
-        if (empty($changedData)) {
-            return;
-        }
-
-        $this->article->changelogs()->create([
-            'type' => 'update',
-            'changelog' => [
-                'changes' => $changedData,
-            ],
-            'user_id' => 0,
-        ]);
     }
 }

@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 /**
  * Abstract Vehicle Class
  */
-class Vehicle extends HasTranslations
+class Vehicle extends HasTranslations implements \App\Contracts\HasChangelogsInterface
 {
     use ModelChangelog;
 

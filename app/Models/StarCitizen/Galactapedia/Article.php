@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Galactapedia;
 
+use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
 use App\Models\System\Translation\AbstractHasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Builder;
 
-class Article extends AbstractHasTranslations
+class Article extends AbstractHasTranslations implements HasChangelogsInterface
 {
     use HasFactory;
     use ModelChangelog;

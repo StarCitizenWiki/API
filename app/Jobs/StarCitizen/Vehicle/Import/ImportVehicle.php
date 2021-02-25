@@ -12,6 +12,7 @@ use App\Services\Parser\ShipMatrix\ProductionStatus;
 use App\Services\Parser\ShipMatrix\Vehicle\Focus;
 use App\Services\Parser\ShipMatrix\Vehicle\Size;
 use App\Services\Parser\ShipMatrix\Vehicle\Type;
+use App\Traits\CreateRelationChangelogTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -30,6 +31,7 @@ class ImportVehicle implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use CreateRelationChangelogTrait;
 
     protected const VEHICLE_ID = 'id';
     protected const VEHICLE_CHASSIS_ID = 'chassis_id';
@@ -102,8 +104,11 @@ class ImportVehicle implements ShouldQueue
             ]
         );
 
-        $this->syncFociIds($vehicle);
-        $this->syncComponents($vehicle);
+        $changes = [];
+        $changes['foci'] = $this->syncFociIds($vehicle);
+        $changes['components'] = $this->syncComponents($vehicle);
+
+        $this->createRelationChangelog($changes, $vehicle);
     }
 
     /**
@@ -238,76 +243,38 @@ class ImportVehicle implements ShouldQueue
      * Syncs Vehicle Foci IDs to the Model and generates a Changelog if the Focus has changed
      *
      * @param Vehicle $vehicle
+     *
+     * @return array Changed vehicle focis
      */
-    private function syncFociIds(Vehicle $vehicle): void
+    private function syncFociIds(Vehicle $vehicle): array
     {
         $focus = new Focus($this->rawData);
 
-        /** @var \Illuminate\Database\Eloquent\Collection $fociIDsOld */
-        $fociIDsOld = $vehicle->foci->pluck('id');
-        $fociIDs = $focus->getVehicleFociIDs();
-
-        if (!$vehicle->wasRecentlyCreated && count($fociIDsOld->diff($fociIDs)) > 0) {
-            $vehicle->changelogs()->create(
-                [
-                    'type' => 'update',
-                    'user_id' => 0,
-                    'changelog' => [
-                        'changes' => [
-                            'foci' => [
-                                'old' => $fociIDsOld,
-                                'new' => $fociIDs,
-                            ],
-                        ],
-                    ],
-                ]
-            );
-        }
-
-        $vehicle->foci()->sync($fociIDs);
+        return $vehicle->foci()->sync($focus->getVehicleFociIDs());
     }
 
     /**
      * Syncs Vehicle Component IDs to the Model and generates a Changelog if the Focus has changed
      *
      * @param Vehicle $vehicle
+     *
+     * @return array Changed components
      */
-    private function syncComponents(Vehicle $vehicle): void
+    private function syncComponents(Vehicle $vehicle): array
     {
         $component = new Component($this->rawData);
 
-        /** @var \Illuminate\Database\Eloquent\Collection $componentIDsOld */
-        $componentIDsOld = $vehicle->components->pluck('id');
-
-        $componentIDs = collect($component->getComponents())
-            ->mapWithKeys(
-                function (array $data) {
-                    return [
-                        $data['component']->id => $data['data'],
-                    ];
-                }
-            )
-            ->toArray();
-
-        if (!$vehicle->wasRecentlyCreated && count($componentIDsOld->diff(array_keys($componentIDs))) > 0) {
-            $vehicle->changelogs()->create(
-                [
-                    'type' => 'update',
-                    'user_id' => 0,
-                    'changelog' => [
-                        'changes' => [
-                            'components' => [
-                                'old' => $componentIDsOld,
-                                'new' => array_keys($componentIDs),
-                            ],
-                        ],
-                    ],
-                ]
+        return $vehicle->components()
+            ->sync(
+                collect($component->getComponents())
+                    ->mapWithKeys(
+                        function (array $data) {
+                            return [
+                                $data['component']->id => $data['data'],
+                            ];
+                        }
+                    )
+                    ->toArray()
             );
-
-            app('Log')::debug('Updated ship_vehicle_components');
-        }
-
-        $vehicle->components()->sync($componentIDs);
     }
 }
