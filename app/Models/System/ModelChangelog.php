@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models\System;
 
 use App\Models\Account\User\User;
+use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\CommLinkTranslation;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Galactapedia\ArticleTranslation;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
@@ -16,8 +18,7 @@ use App\Models\StarCitizen\Vehicle\Size\SizeTranslation;
 use App\Models\StarCitizen\Vehicle\Type\TypeTranslation;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
-use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinkTranslation;
+use App\Traits\DiffTranslationChangelogTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -27,6 +28,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class ModelChangelog extends Model
 {
+    use DiffTranslationChangelogTrait;
+
     protected $fillable = [
         'type',
         'changelog',
@@ -211,6 +214,14 @@ class ModelChangelog extends Model
                 },
                 ''
             );
+        }
+
+        if (isset($data['changes']['translation'])) {
+            return $this->diffTranslations(collect([$this]), $this)
+                ->map(function ($change) {
+                    return $change->diff;
+                })
+                ->implode("<br>");
         }
 
         return json_encode($data['changes'], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
