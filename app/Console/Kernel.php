@@ -160,7 +160,7 @@ class Kernel extends ConsoleKernel
 
         /* Re-Download all Comm-Links monthly */
         $this->schedule
-            ->command(ReDownloadCommLinks::class)
+            ->command(ReDownloadCommLinks::class, ['--skip=false'])
             ->monthly()
             ->after(
                 function () {

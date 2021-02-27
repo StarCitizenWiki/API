@@ -18,7 +18,7 @@ class ReDownloadCommLinks extends Command
      *
      * @var string
      */
-    protected $signature = 'comm-links:download-new-versions {--s|skip : Skip existing Comm-Links}';
+    protected $signature = 'comm-links:download-new-versions {--skip=true : Skip existing Comm-Links}';
 
     /**
      * The console command description.
@@ -34,15 +34,16 @@ class ReDownloadCommLinks extends Command
      */
     public function handle(): int
     {
-        if (!isset($this->getOptions()['skip'])) {
+        $skip = $this->option('skip');
+        if ($skip === true || $skip === 'true' || $skip === '1') {
             $skip = true;
         } else {
-            $skip = $this->option('skip');
+            $skip = false;
         }
 
         ReDownloadDbCommLinks::withChain(
             [
-                new ImportCommLinks(),
+                new ImportCommLinks(-1),
             ]
         )->dispatch($skip);
 
