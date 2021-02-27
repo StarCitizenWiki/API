@@ -18,14 +18,15 @@ class ReDownloadCommLinks extends Command
      *
      * @var string
      */
-    protected $signature = 'comm-links:download-new-versions {--skip=true : Skip existing Comm-Links}';
+    protected $signature = 'comm-links:download-new-versions {--skip=true}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Re-Download all Database Comm-Links and parse them';
+    protected $description = 'Re-Download all Database Comm-Links and parse them.' .
+                            'Pass "--skip=false" to not skip already downloaded Comm-Links.';
 
     /**
      * Execute the console command.
