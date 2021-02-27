@@ -20,7 +20,7 @@ class ReDownloadCommLinksTest extends TestCase
     {
         Queue::fake();
 
-        $this->artisan('comm-links:download-new-versions -s')
+        $this->artisan('comm-links:download-new-versions --skip')
             ->assertExitCode(0);
 
         Queue::assertPushedWithChain(
