@@ -96,6 +96,7 @@ Route::group(
                     ->group(
                         static function () {
                             Route::get('failed', 'JobController@viewFailed')->name('failed');
+                            Route::post('truncate', 'JobController@truncate')->name('truncate');
                         }
                     );
 

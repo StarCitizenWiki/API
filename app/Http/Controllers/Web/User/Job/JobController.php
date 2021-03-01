@@ -7,14 +7,13 @@ namespace App\Http\Controllers\Web\User\Job;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
     /**
      * JobController constructor.
-     *
-     * @throws AuthorizationException
      */
     public function __construct()
     {
@@ -22,6 +21,13 @@ class JobController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * View failed jobs
+     *
+     * @return View
+     *
+     * @throws AuthorizationException
+     */
     public function viewFailed(): View
     {
         $this->authorize('web.user.jobs.view_failed');
@@ -38,8 +44,31 @@ class JobController extends Controller
                             'exception',
                             'failed_at',
                         ])
+                        ->orderByDesc('id')
                         ->get(),
                 ]
             );
+    }
+
+    /**
+     * Truncate the failed job table
+     *
+     * @return RedirectResponse
+     *
+     * @throws AuthorizationException
+     */
+    public function truncate(): RedirectResponse
+    {
+        $this->authorize('web.user.jobs.truncate');
+
+        DB::table('failed_jobs')->truncate();
+
+        return redirect()->route('web.user.dashboard')->withMessages(
+            [
+                'success' => [
+                    __('Jobs gelöscht'),
+                ],
+            ]
+        );
     }
 }

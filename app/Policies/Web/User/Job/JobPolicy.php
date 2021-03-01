@@ -31,6 +31,16 @@ class JobPolicy extends BaseUserPolicy
      *
      * @return bool
      */
+    public function truncate(User $user): bool
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::BUREAUCRAT;
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
     public function startCommLinkTranslationJob(User $user): bool
     {
         return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;

@@ -66,6 +66,7 @@ class AuthServiceProvider extends ServiceProvider
                 'import_galactapedia_job' => 'startImportGalactapediaJob',
 
                 'view_failed' => 'view',
+                'truncate' => 'truncate',
             ]
         );
 

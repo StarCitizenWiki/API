@@ -56,5 +56,15 @@
                 </tbody>
             </table>
         </div>
+        <div class="card-footer">
+            @can('web.user.jobs.truncate')
+                @component('components.forms.form', [
+                    'action' => route('web.user.jobs.truncate'),
+                    'class' => 'mb-3',
+                ])
+                    <button class="btn btn-danger">@lang('Tabelle leeren')</button>
+                @endcomponent
+            @endcan
+        </div>
     </div>
 @endsection
