@@ -45,7 +45,8 @@ class ImportCommLinks implements ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Import Comm-Links that where created in the last modifiedFolderTime minutes
+     * Also create Metadata, Image Hashes, Translations and Wiki Pages for each imported Comm-Link
      */
     public function handle(): void
     {
@@ -75,6 +76,11 @@ class ImportCommLinks implements ShouldQueue
         $this->dispatchChain($newCommLinkIds);
     }
 
+    /**
+     * Create Metadata, Image Hashes, Translations and Wiki Pages
+     *
+     * @param array $commLinkIds
+     */
     private function dispatchChain(array $commLinkIds): void
     {
         CreateImageMetadata::withChain(
