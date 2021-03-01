@@ -271,15 +271,11 @@ class ImportCommLink implements ShouldQueue
      *
      * @return bool
      */
-    private function contentHasChanged()
+    private function contentHasChanged(): bool
     {
         $contentParser = new Content($this->crawler);
 
-        if ($contentParser->getContent() === '') {
-            return '';
-        }
-
-        return $contentParser->getContent() !== optional($this->commLinkModel->english())->translation;
+        return $contentParser->getContent() !== (optional($this->commLinkModel->english())->translation ?? '');
     }
 
     /**
