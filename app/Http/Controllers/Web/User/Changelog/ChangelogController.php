@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\System\ModelChangelog;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -26,21 +27,39 @@ class ChangelogController extends Controller
     }
 
     /**
+     * @param Request $request
      * @return Factory|View
      *
      * @throws AuthorizationException
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('web.user.changelogs.view');
+
+        $query = ModelChangelog::query()
+            ->with('changelog')
+            ->orderByDesc('id');
+
+        if ($request->get('model') !== null) {
+            $query->where(
+                'changelog_type',
+                $request->get('model'),
+            );
+        }
+
+        if ($request->get('type') !== null) {
+            $query->where(
+                'type',
+                $request->get('type'),
+            );
+        }
 
         return view(
             'user.changelog.index',
             [
-                'changelogs' => ModelChangelog::query()
-                    ->with('changelog')
-                    ->orderByDesc('id')
-                    ->paginate(25),
+                'changelogs' => $query->paginate($request->get('limit', 25)),
+                'models' => ModelChangelog::query()->select('changelog_type')->distinct()->get(),
+                'types' => ModelChangelog::query()->select('type')->distinct()->get(),
             ]
         );
     }

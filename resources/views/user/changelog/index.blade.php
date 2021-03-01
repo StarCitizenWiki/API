@@ -3,6 +3,27 @@
 @section('title', __('Änderungsübersicht'))
 
 @section('content')
+    <div class="d-flex ">
+        <form class="form-inline" id="modelForm">
+            <label class="my-1 mr-2" for="model">Model</label>
+            <select class="custom-select my-1 mr-sm-2" id="model">
+                <option value="" selected>Alle</option>
+                @foreach($models as $model)
+                    <option value="{{ $model->changelog_type }}">{{ class_basename($model->changelog_type) }}</option>
+                @endforeach
+            </select>
+        </form>
+
+        <form class="form-inline" id="typeForm">
+            <label class="my-1 mr-2" for="type">Typ</label>
+            <select class="custom-select my-1 mr-sm-2" id="type">
+                <option value="" selected>Alle</option>
+                @foreach($types as $type)
+                    <option value="{{ $type->type }}">{{ $type->type }}</option>
+                @endforeach
+            </select>
+        </form>
+    </div>
     <div class="card">
         <h4 class="card-header">@lang('Änderungsübersicht')</h4>
         <div class="card-body px-0 table-responsive">
@@ -68,4 +89,53 @@
         </div>
         <div class="card-footer">{{ $changelogs->links() }}</div>
     </div>
+@endsection
+
+@section('body__after')
+    @parent
+    <script>
+        (() => {
+            const currentUrl = new URL(window.location)
+            const modelSelect = document.getElementById('model')
+            const typeSelect = document.getElementById('type')
+            const filters = ['model', 'type'];
+
+            const listener = (ev) => {
+                currentUrl.searchParams.delete('page')
+
+                const filter = ev.target.parentElement.id === 'modelForm' ? 'model' : 'type';
+
+                if (filter === 'model') {
+                    currentUrl.searchParams.delete('model')
+                } else {
+                    currentUrl.searchParams.delete('type')
+                }
+
+                currentUrl.searchParams.append(
+                    filter,
+                    ev.target.value
+                )
+
+                window.location = currentUrl.href
+            };
+
+            filters.forEach((filter) => {
+                if (currentUrl.searchParams.has(filter)) {
+                    modelSelect.querySelectorAll('option').forEach(option => {
+                        option.selected = option.value === currentUrl.searchParams.get(filter);
+                    })
+
+                    document.querySelectorAll('nav .page-item a.page-link').forEach(navLink => {
+                        const url = new URL(navLink.href)
+                        url.searchParams.append(filter, currentUrl.searchParams.get(filter))
+
+                        navLink.href = url.toString()
+                    })
+                }
+            });
+
+            modelSelect.addEventListener('change', listener);
+            typeSelect.addEventListener('change', listener);
+        })();
+    </script>
 @endsection
