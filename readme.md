@@ -30,10 +30,6 @@ $ mkdir -p ./var/lib/api.star-citizen.wiki/logs
 $ mkdir -p ./var/lib/api.star-citizen.wiki/db
 $ touch ./var/lib/api.star-citizen.wiki/db/db.sqlite
 $ mkdir -p ./etc/api.star-citizen.wiki
-# 33:33 is the user and group id of dockers www-data user 
-$ chown -R 33:33 ./var/lib/api.star-citizen.wiki
-$ chmod -R g+s ./var/lib/api.star-citizen.wiki
-$ chown -R 33:33 ./etc/api.star-citizen.wiki
 ```
 
 Create the production environment file:  
