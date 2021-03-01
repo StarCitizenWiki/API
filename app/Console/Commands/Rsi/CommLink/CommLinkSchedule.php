@@ -35,7 +35,7 @@ class CommLinkSchedule extends Command
     {
         DownloadMissingCommLinks::dispatch()->chain(
             [
-                new ImportCommLinks(60),
+                new ImportCommLinks(30),
             ]
         );
 

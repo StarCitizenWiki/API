@@ -21,7 +21,7 @@ trait GetFoldersTrait
      */
     private function filterDirectories(string $disk, int $findTimeMinutes): Collection
     {
-        $now = Carbon::now();
+        $now = Carbon::now()->subMinutes($findTimeMinutes);
 
         return collect(Storage::disk($disk)->directories())
             ->filter(
@@ -32,7 +32,7 @@ trait GetFoldersTrait
                         return true;
                     }
 
-                    return $now->subMinutes($findTimeMinutes)->lessThanOrEqualTo($mTime);
+                    return $mTime->greaterThanOrEqualTo($now);
                 }
             );
     }
