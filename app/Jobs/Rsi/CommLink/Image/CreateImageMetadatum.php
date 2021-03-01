@@ -42,6 +42,10 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
     {
         $url = $this->image->url;
 
+        if (optional($this->image->metadata)->mime !== null) {
+            return; // This should not happen (?)
+        }
+
         $response = $this->makeClient()->head($url);
 
         if ($response->serverError()) {
