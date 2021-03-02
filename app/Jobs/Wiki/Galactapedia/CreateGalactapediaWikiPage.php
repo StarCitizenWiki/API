@@ -11,6 +11,7 @@ use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Services\CommonMark\WikiTextRenderer;
 use App\Services\UploadWikiImage;
+use Carbon\Carbon;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -256,7 +257,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 !!! Achtung, der folgende Text wird automatisiert verwaltet, alle Änderungen werden gelöscht. !!!
 !!! Du kannst Text in einer neuen Zeile unter END--  einfügen. Dieser wird nicht gelöscht.    !!!
 
-START-->%s<!--
+START-->%s%s<!--
 -->%s<!--
 END--></div>
 FORMAT;
@@ -297,12 +298,23 @@ TEMPLATE;
             return sprintf('[[Category:%s]]', self::$categoryTranslations[$category->name] ?? $category->name);
         };
 
+        $content = trim($parser->render($markdown));
+        $categories = $this->article->categories->map($categoryMapper)->implode("\n");
+        $ref = sprintf(
+            '{{Quelle|url=%s|title=Galactapedia %s|date=%s|access_date=%s|ref=true|ref_name=galactapedia}}',
+            $this->article->url,
+            $this->article->title,
+            $this->article->created_at->format('d.m.Y'),
+            $this->article->updated_at->format('d.m.Y'),
+        );
+
         if ($pageContent !== null) {
             $formatted = sprintf(
                 $format,
                 '', // Don't replace template
-                trim($parser->render($markdown)),
-                $this->article->categories->map($categoryMapper)->implode("\n"),
+                $content,
+                $ref,
+                $categories,
             );
 
             return preg_replace(
@@ -316,8 +328,9 @@ TEMPLATE;
         return sprintf(
             $format,
             $template,
-            trim($parser->render($markdown)),
-            $this->article->categories->map($categoryMapper)->implode("\n"),
+            $content,
+            $ref,
+            $categories,
         );
     }
 }
