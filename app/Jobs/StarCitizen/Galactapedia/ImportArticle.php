@@ -113,7 +113,7 @@ QUERY,
                 'locale_code' => 'en_EN',
             ],
             [
-                'translation' => $data['body'],
+                'translation' => $this->fixMarkdownLinks($data['body']),
             ]
         );
 
@@ -241,5 +241,20 @@ QUERY,
             ->collect();
 
         return $this->article->related()->sync($ids);
+    }
+
+    /**
+     * Fixes broken markdown links
+     *
+     * @param string $body
+     * @return string
+     */
+    private function fixMarkdownLinks(string $body): string
+    {
+        return str_replace(
+            '] (https://robertsspaceindustries.com',
+            '](https://robertsspaceindustries.com',
+            $body
+        );
     }
 }

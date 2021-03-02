@@ -11,7 +11,6 @@ use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Services\CommonMark\WikiTextRenderer;
 use App\Services\UploadWikiImage;
-use Carbon\Carbon;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -123,6 +122,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
             MediaWikiApi::edit($this->article->title)
                 ->text($text)
+                ->redirect(1)
                 ->summary("Importing Galactapedia Article {$this->article->title}")
                 ->csrfToken($this->token)
                 ->markBotEdit()
@@ -132,7 +132,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 dispatch(new ApproveRevisions([$this->article->title]));
             }
 
-            $this->uploadGalactapediaImage();
+            //$this->uploadGalactapediaImage();
         } catch (GuzzleException | RuntimeException $e) {
             app('Log')::error('Could not get an CSRF Token', $e->getResponse()->getErrors());
 
@@ -200,7 +200,11 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 ->prop('revisions')
                 ->addParam('rvprop', 'content')
                 ->addParam('rvslot', 'main')
-                ->titles($this->article->title)
+                ->titles(
+                    Normalizer::isNormalized($this->article->title) ?
+                        $this->article->title :
+                        Normalizer::normalize($this->article->title)
+                )
                 ->request();
         } catch (GuzzleException $e) {
             return null;
@@ -237,7 +241,11 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             $text = Normalizer::normalize($text);
         }
 
-        return $text;
+        return str_replace(
+            '] (https',
+            '](https',
+            $text
+        );
     }
 
     /**
