@@ -290,7 +290,7 @@ TEMPLATE;
             return sprintf('[[Category:%s]]', self::$categoryTranslations[$category->name] ?? $category->name);
         };
 
-        if (1 == 2 && $pageContent !== null) {
+        if ($pageContent !== null) {
             $formatted = sprintf(
                 $format,
                 '', // Don't replace template
