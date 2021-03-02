@@ -50,6 +50,10 @@
                                 @lang('API') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
                             </a>
 
+                            <a class="nav-item nav-link" id="nav-wikitext-tab" data-toggle="tab" href="#wikitext" role="tab" aria-controls="wikitext" aria-selected="false">
+                                @lang('Wikitext')
+                            </a>
+
                             <a class="nav-item nav-link" id="nav-changelog-tab" data-toggle="tab" href="#changelog" role="tab" aria-controls="changelog" aria-selected="false">
                                 @lang('Aktualisierungen')
                             </a>
@@ -94,6 +98,12 @@
                             @empty
                                 <p>Keine Textänderungen vorhanden</p>
                             @endforelse
+                        </div>
+
+                        <div class="tab-pane fade" id="wikitext" role="tabpanel" aria-labelledby="nav-wikitext-tab">
+                            <pre>
+{!! htmlspecialchars($wikitext) !!}
+                            </pre>
                         </div>
 
                         @can('web.user.rsi.comm-links.update')

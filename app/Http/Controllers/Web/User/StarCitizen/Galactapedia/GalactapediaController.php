@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\User\StarCitizen\Galactapedia;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Wiki\Galactapedia\CreateGalactapediaWikiPage;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Traits\DiffTranslationChangelogTrait;
 use Illuminate\Contracts\View\View;
@@ -47,6 +48,8 @@ class GalactapediaController extends Controller
             'user.starcitizen.galactapedia.show',
             [
                 'article' => $article,
+                'wikitext' => (new CreateGalactapediaWikiPage($article, ''))
+                    ->getFormattedText($article->german()->translation ?? $article->english()->translation, null),
                 'changelogs' => $this->diffTranslations($changelogs, $article),
                 'prev' => $article->getPrevAttribute(),
                 'next' => $article->getNextAttribute(),
