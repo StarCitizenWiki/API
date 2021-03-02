@@ -132,7 +132,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 dispatch(new ApproveRevisions([$this->article->title]));
             }
 
-            //$this->uploadGalactapediaImage();
+            $this->uploadGalactapediaImage();
         } catch (GuzzleException | RuntimeException $e) {
             app('Log')::error('Could not get an CSRF Token', $e->getResponse()->getErrors());
 
