@@ -142,12 +142,14 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
         $response = $client->head($this->article->thumbnail);
 
         // Todo: Default image has exact size of 5003 bytes
+        // phpcs:disable
         if (
             $response->header('ETag') === '278879e3c41a001689260f0933a7f4ba' ||
             $response->header('Content-Length') === '5003'
         ) {
             return;
         }
+        // phpcs:enable
 
         /** @var Collection $categories */
         $categories = $this->article->categories->map(function (Category $category) {
