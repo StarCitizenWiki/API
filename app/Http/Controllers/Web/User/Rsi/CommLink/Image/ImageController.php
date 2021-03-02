@@ -81,6 +81,6 @@ class ImageController extends Controller
 
         $uploader = new UploadWikiImage();
 
-        return $uploader->upload($params);
+        return $uploader->uploadCommLinkImage($params);
     }
 }
