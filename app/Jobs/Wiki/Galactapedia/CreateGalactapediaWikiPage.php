@@ -254,18 +254,35 @@ START-->%s<!--
 END--></div>
 FORMAT;
 
+        $properties = collect();
+        $this->article->properties
+            ->sortBy('name')
+            ->each(function (ArticleProperty $property) use ($properties) {
+                $counter = 0;
+
+                if ($properties->has($property->name)) {
+                    do {
+                        $counter++;
+                        $key = sprintf('%s%d', $property->name, $counter);
+                    } while ($properties->has($key));
+                    $properties[$key] = $property->content;
+                } else {
+                    $properties[$property->name] = $property->content;
+                }
+            });
+
         $template = <<<TEMPLATE
 {{Galactapedia
 |title={$this->article->title}
 |image=Galactapedia_{$this->article->title}.jpg
-{$this->article->properties->map(function (ArticleProperty $item) {
-            return sprintf("|%s=%s", $item->name, $item->content);
+{$properties->map(function ($item, $key) {
+            return sprintf("|%s=%s", $key, $item);
         })
             ->implode("\n")}
 |related={$this->article->related->map(function (Article $article) {
-            return sprintf('[[%s]]', $article->title);
-        })
-            ->implode("<br>\n")}}
+                return sprintf('[[%s]]', $article->title);
+            })
+            ->implode("<br>\n")}
 }}
 TEMPLATE;
 
