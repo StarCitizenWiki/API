@@ -144,6 +144,10 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
     private function uploadGalactapediaImage(): void
     {
+        if ($this->article->thumbnail === null) {
+            return;
+        }
+
         $client = $this->makeClient();
         $response = $client->head($this->article->thumbnail);
 
