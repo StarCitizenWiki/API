@@ -251,9 +251,9 @@ QUERY,
      */
     private function fixMarkdownLinks(string $body): string
     {
-        return str_replace(
-            '] (https://robertsspaceindustries.com',
-            '](https://robertsspaceindustries.com',
+        return preg_replace(
+            '/]\s+\(http/',
+            '](http',
             $body
         );
     }

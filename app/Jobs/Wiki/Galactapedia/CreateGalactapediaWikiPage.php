@@ -241,9 +241,9 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             $text = Normalizer::normalize($text);
         }
 
-        return str_replace(
-            '] (https',
-            '](https',
+        return preg_replace(
+            '/]\s+\(http/',
+            '](http',
             $text
         );
     }
