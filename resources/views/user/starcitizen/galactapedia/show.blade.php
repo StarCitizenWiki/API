@@ -41,7 +41,7 @@
                             </a>
 
                             @unless(empty($article->english()->translation))
-                                <a class="nav-item nav-link" id="nav-de_DE-tab" href="{{ config('api.wiki_url') }}/{{ urlencode($article->title) }}" aria-selected="false" target="_blank">
+                                <a class="nav-item nav-link" id="nav-de_DE-tab" href="{{ config('api.wiki_url') }}/{{ urlencode(str_replace(' ', '_', $article->title)) }}" aria-selected="false" target="_blank">
                                     @lang('de_DE') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
                                 </a>
                             @endunless
