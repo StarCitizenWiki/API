@@ -46,8 +46,6 @@ class CreateCommLinkWikiPages implements ShouldQueue
     {
         app('Log')::info('Starting creation of Comm-Link Wiki Pages');
 
-        $token = MediaWikiApi::query()->meta('tokens')->request();
-
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
         } catch (ErrorException $e) {
@@ -55,7 +53,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                 sprintf(
                     '%s: %s',
                     'Token retrieval failed',
-                    $token->getErrors()['code'] ?? ''
+                    $e->getMessage()
                 )
             );
 
