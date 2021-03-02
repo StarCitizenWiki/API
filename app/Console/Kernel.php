@@ -29,9 +29,9 @@ use App\Console\Commands\StarCitizen\Starmap\Import\ImportStarmap;
 use App\Console\Commands\StarCitizen\Starmap\Translate\TranslateSystems;
 use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
+use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
-use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Jobs\Wiki\CommLink\UpdateCommLinkProofReadStatus;
@@ -229,6 +229,11 @@ class Kernel extends ConsoleKernel
         $this->schedule
             ->command(ImportArticleProperties::class)
             ->dailyAt('2:30')
+            ->withoutOverlapping();
+
+        $this->schedule
+            ->command(TranslateArticles::class)
+            ->dailyAt('3:00')
             ->withoutOverlapping();
     }
 }

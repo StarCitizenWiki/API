@@ -44,12 +44,15 @@ class TranslateArticle implements ShouldQueue
         app('Log')::info("Translating Galactapedia Article {$this->article->cig_id}");
         $targetLocale = config('services.deepl.target_locale');
 
-        if (null !== optional($this->article->german())->translation) {
+
+        $english = $this->article->english()->translation;
+        $german = optional($this->article->german())->translation;
+
+        // Delete job german and english translation length don't differ in length by <= 20%
+        if (null !== $german && ((strlen($german) / strlen($english)) > 0.80)) {
             $this->delete();
             return;
         }
-
-        $english = $this->article->english()->translation;
 
         $translator = new TranslateText($english);
 
