@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Wiki\Galactapedia;
 
 use App\Jobs\AbstractBaseDownloadData;
+use App\Jobs\Wiki\ApproveRevisions;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Category;
@@ -125,6 +126,10 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 ->csrfToken($this->token)
                 ->markBotEdit()
                 ->request();
+
+            if (config('services.wiki_approve_revs.access_secret', null) !== null) {
+                dispatch(new ApproveRevisions([$this->article->title]));
+            }
 
             $this->uploadGalactapediaImage();
         } catch (GuzzleException | RuntimeException $e) {
