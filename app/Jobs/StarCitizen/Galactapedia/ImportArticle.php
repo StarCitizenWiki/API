@@ -113,7 +113,7 @@ QUERY,
                 'locale_code' => 'en_EN',
             ],
             [
-                'translation' => $this->fixMarkdownLinks($data['body']),
+                'translation' => Article::fixMarkdownLinks($data['body']),
             ]
         );
 
@@ -241,20 +241,5 @@ QUERY,
             ->collect();
 
         return $this->article->related()->sync($ids);
-    }
-
-    /**
-     * Fixes broken markdown links
-     *
-     * @param string $body
-     * @return string
-     */
-    private function fixMarkdownLinks(string $body): string
-    {
-        return preg_replace(
-            '/]\s+\(http/',
-            '](http',
-            $body
-        );
     }
 }

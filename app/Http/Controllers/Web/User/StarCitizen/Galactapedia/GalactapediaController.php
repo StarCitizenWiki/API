@@ -49,7 +49,10 @@ class GalactapediaController extends Controller
             [
                 'article' => $article,
                 'wikitext' => (new CreateGalactapediaWikiPage($article, ''))
-                    ->getFormattedText($article->german()->translation ?? $article->english()->translation, null),
+                    ->getFormattedText(
+                        Article::fixMarkdownLinks($article->german()->translation ?? $article->english()->translation),
+                        null
+                    ),
                 'changelogs' => $this->diffTranslations($changelogs, $article),
                 'prev' => $article->getPrevAttribute(),
                 'next' => $article->getNextAttribute(),

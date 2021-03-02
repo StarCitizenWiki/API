@@ -116,8 +116,8 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
             // Skip if texts are equal
             if (strcmp($text, $wikiText ?? '') === 0) {
-                $this->delete();
-                return;
+                #$this->delete();
+                #return;
             }
 
             MediaWikiApi::edit($this->article->title)
@@ -241,11 +241,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             $text = Normalizer::normalize($text);
         }
 
-        return preg_replace(
-            '/]\s+\(http/',
-            '](http',
-            $text
-        );
+        return Article::fixMarkdownLinks($text);
     }
 
     /**
