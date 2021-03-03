@@ -1,6 +1,6 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Artikel').' - '.$article->title)
+@section('title', __('Artikel').' - '.$article->cleanTitle)
 
 @section('head__content')
     @parent
@@ -27,7 +27,7 @@
     <div class="card">
         <div class="card-header">
             <h4>
-                {{ $article->title }}
+                {{ $article->cleanTitle }}
             </h4>
         </div>
         <div class="card-body">
@@ -76,7 +76,7 @@
 
                     <div class="tab-content" id="nav-tab-translations">
                         <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                            {!! empty($article->english()->translation) ? 'Nicht vorhanden' : nl2br($article->english()->translation) !!}
+                            {!! empty($article->english()->translation) ? 'Nicht vorhanden' : nl2br(\App\Models\StarCitizen\Galactapedia\Article::normalizeContent($article->english()->translation)) !!}
                         </div>
 
                         <div class="tab-pane fade" id="changelog" role="tabpanel" aria-labelledby="nav-changelog-tab">

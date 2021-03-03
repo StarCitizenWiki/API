@@ -102,7 +102,7 @@ QUERY,
                 'cig_id' => $data['id'],
             ],
             [
-                'title' => $data['title'],
+                'title' => Article::normalizeContent($data['title']),
                 'slug' => $data['slug'] ?? Str::slug($data['name']),
                 'thumbnail' => $data['thumbnail']['url'] ?? null,
             ]
@@ -113,7 +113,7 @@ QUERY,
                 'locale_code' => 'en_EN',
             ],
             [
-                'translation' => Article::fixContent($data['body']),
+                'translation' => Article::normalizeContent($data['body']),
             ]
         );
 

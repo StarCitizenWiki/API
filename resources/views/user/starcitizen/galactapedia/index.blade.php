@@ -57,7 +57,7 @@
                             {{ $article->cig_id }}
                         </td>
                         <td>
-                            {{ $article->title }}
+                            {{ $article->cleanTitle }}
                         </td>
                         <td>
                             {{ $article->templates->isEmpty() ? '-' : $article->templates[0]->template }}

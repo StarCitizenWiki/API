@@ -125,7 +125,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
      */
     public function handle(): void
     {
-        app('Log')::info("Creating Wiki Page '{$this->article->title}'");
+        app('Log')::info("Creating Wiki Page '{$this->article->cleanTitle}'");
 
         $this->getRedirectTitle();
         $wikiText = $this->getWikiPageText();
@@ -156,7 +156,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
             if (config('services.wiki_approve_revs.access_secret', null) !== null) {
                 dispatch(new ApproveRevisions([
-                    $this->article->title,
+                    $this->article->cleanTitle,
                     $this->title,
                 ]));
             }
@@ -198,7 +198,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 sprintf(
                     "%s Galactapedia Article %s",
                     ($wikiText === null ? 'Importing' : 'Updating'),
-                    $this->article->title
+                    $this->article->cleanTitle
                 )
             )
             ->csrfToken($this->token)
@@ -232,22 +232,22 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
         try {
             $query = MediaWikiApi::query()
                 ->prop('redirects')
-                ->titles($this->article->title)
+                ->titles($this->article->cleanTitle)
                 ->redirects(1)
                 ->request();
         } catch (GuzzleException $e) {
-            $this->title = $this->article->title;
+            $this->title = $this->article->cleanTitle;
 
             return;
         }
 
         if ($query->hasErrors() || !isset($query->getQuery()['redirects'][0])) {
-            $this->title = $this->article->title;
+            $this->title = $this->article->cleanTitle;
 
             return;
         }
 
-        $this->title = $query->getQuery()['redirects'][0]['to'] ?? $this->article->title;
+        $this->title = $query->getQuery()['redirects'][0]['to'] ?? $this->article->cleanTitle;
     }
 
     /**
@@ -280,7 +280,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             $uploader->upload(
                 sprintf(
                     'Galactapedia_%s.%s',
-                    str_replace('/', '_', $this->article->title),
+                    str_replace('/', '_', $this->article->cleanTitle),
                     (str_contains($this->response->header('Content-Type'), 'jpeg') ? 'jpg' : 'png')
                 ),
                 $this->article->thumbnail,
@@ -290,7 +290,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                         $this->article->thumbnail,
                         $this->article->url,
                     ]),
-                    'description' => sprintf('Bild des Galactapedia Artikels %s', $this->article->title),
+                    'description' => sprintf('Bild des Galactapedia Artikels %s', $this->article->cleanTitle),
                     'filesize' => $this->response->header('Content-Length'),
                 ],
                 $categories->implode("\n"),
@@ -312,11 +312,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 ->prop('revisions')
                 ->addParam('rvprop', 'content')
                 ->addParam('rvslot', 'main')
-                ->titles(
-                    Normalizer::isNormalized($this->title) ?
-                        $this->title :
-                        Normalizer::normalize($this->title)
-                )
+                ->titles(Article::normalizeContent($this->title))
                 ->request();
         } catch (GuzzleException $e) {
             return null;
@@ -349,11 +345,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             $text = optional($this->article->english())->translation;
         }
 
-        if ($text !== null && !Normalizer::isNormalized($text)) {
-            $text = Normalizer::normalize($text);
-        }
-
-        return Article::fixContent($text);
+        return Article::normalizeContent($text);
     }
 
     /**
@@ -446,13 +438,13 @@ FORMAT;
             })
             ->implode("<br>\n");
 
-        $normalizedFileName = str_replace('/', '_', $this->article->title);
+        $normalizedFileName = str_replace('/', '_', $this->article->cleanTitle);
 
         // The actual template content
         return <<<TEMPLATE
 {{Galactapedia
 |title={$normalizedFileName}
-|image=Galactapedia_{$this->article->title}.{$fileEnding}
+|image=Galactapedia_{$this->article->cleanTitle}.{$fileEnding}
 {$properties}
 |related={$relatedArticles}
 }}
@@ -524,7 +516,7 @@ CONTENT;
         return sprintf(
             '{{Quelle|url=%s|title=Galactapedia %s|date=%s|access_date=%s|ref=true|ref_name=galactapedia}}',
             $this->article->url,
-            $this->article->title,
+            $this->article->cleanTitle,
             $this->article->created_at->format('d.m.Y'),
             $this->article->updated_at->format('d.m.Y'),
         );

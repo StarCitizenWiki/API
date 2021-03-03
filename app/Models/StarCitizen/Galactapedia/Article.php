@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Builder;
+use Normalizer;
+use function GuzzleHttp\Psr7\str;
 
 class Article extends AbstractHasTranslations implements HasChangelogsInterface
 {
@@ -35,7 +37,13 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         'thumbnail',
     ];
 
-    public static function fixContent(string $translation): string
+    private static array $ticks = ['’', '´', '‘', '’', '’', '’', '\'', '’'];
+
+    /**
+     * @param string $translation
+     * @return string
+     */
+    public static function normalizeContent(string $translation): string
     {
         $translation = preg_replace(
             '/]\s+\(http/',
@@ -43,7 +51,18 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
             $translation
         );
 
-        return preg_replace('/^(#+)\s+?(\w)/', '$1 $2', $translation);
+        // Fix heading
+        $translation = preg_replace('/^(#+)\s+?(\w)/', '$1 $2', $translation);
+
+        // Fix ticks
+        $translation = str_replace(['“', '”'], '"', $translation);
+        $translation = str_replace(self::$ticks, '\'', $translation);
+
+        if (!Normalizer::isNormalized($translation)) {
+            $translation = Normalizer::normalize($translation);
+        }
+
+        return trim($translation);
     }
 
     /**
@@ -52,6 +71,14 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
     public function getRouteKey(): string
     {
         return $this->cig_id ?? '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getCleanTitleAttribute(): string
+    {
+        return self::normalizeContent($this->title);
     }
 
     /**
