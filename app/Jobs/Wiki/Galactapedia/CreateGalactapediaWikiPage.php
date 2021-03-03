@@ -129,7 +129,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 return;
             }
 
-            MediaWikiApi::edit($this->article->title)
+            $response = MediaWikiApi::edit($this->article->title)
                 ->text($text)
                 ->redirect(1)
                 ->summary(
@@ -142,6 +142,14 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 ->csrfToken($this->token)
                 ->markBotEdit()
                 ->request();
+
+            if ($response->hasErrors()) {
+                app('Log')::error(json_encode($response->getBody()));
+            }
+
+            if ($response->hasWarnings()) {
+                app('Log')::warning(json_encode($response->getBody()));
+            }
 
             if (config('services.wiki_approve_revs.access_secret', null) !== null) {
                 dispatch(new ApproveRevisions([$this->article->title]));
