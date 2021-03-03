@@ -47,7 +47,7 @@ class CreateGalactapediaWikiPages implements ShouldQueue
                 }
             )
             ->chunk(
-                100,
+                25,
                 function (Collection $articles) {
                     try {
                         $token = $this->getCsrfToken('services.wiki_translations');

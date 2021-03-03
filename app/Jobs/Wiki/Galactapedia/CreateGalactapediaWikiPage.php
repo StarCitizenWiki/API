@@ -11,6 +11,8 @@ use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Services\CommonMark\WikiTextRenderer;
 use App\Services\UploadWikiImage;
+use App\Traits\GetWikiCsrfTokenTrait;
+use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,6 +24,7 @@ use Illuminate\Support\Collection;
 use JsonException;
 use Normalizer;
 use RuntimeException;
+use StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
@@ -33,6 +36,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use GetWikiCsrfTokenTrait;
 
     /**
      * TODO Move into DB
@@ -136,21 +140,14 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 return;
             }
 
-            $response = MediaWikiApi::edit($this->title)
-                ->text($text)
-                ->summary(
-                    sprintf(
-                        "%s Galactapedia Article %s",
-                        ($wikiText === null ? 'Importing' : 'Updating'),
-                        $this->article->title
-                    )
-                )
-                ->csrfToken($this->token)
-                ->markBotEdit()
-                ->request();
+            $response = $this->editRequest($text, $wikiText);
 
             if ($response->hasErrors()) {
-                app('Log')::error(json_encode($response->getBody()));
+                $response = $this->editRequest($text, $wikiText, true);
+                // Oof
+                if ($response->hasErrors()) {
+                    app('Log')::error(json_encode($response->getBody()));
+                }
             }
 
             if ($response->hasWarnings()) {
@@ -175,6 +172,41 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     }
 
     /**
+     * Make the edit request
+     *
+     * @param string $text
+     * @param string|null $wikiText
+     * @param bool $refreshToken
+     * @return MediaWikiResponse
+     * @throws GuzzleException
+     */
+    private function editRequest(string $text, ?string $wikiText, bool $refreshToken = false): MediaWikiResponse
+    {
+        if ($refreshToken === true) {
+            try {
+                $this->token = $this->getCsrfToken('services.wiki_translations') ?? $this->token;
+            } catch (Exception $e) {
+                return MediaWikiResponse::fromGuzzleResponse(
+                    new \GuzzleHttp\Psr7\Response($e->getCode(), [], $e->getMessage())
+                );
+            }
+        }
+
+        return MediaWikiApi::edit($this->title)
+            ->text($text)
+            ->summary(
+                sprintf(
+                    "%s Galactapedia Article %s",
+                    ($wikiText === null ? 'Importing' : 'Updating'),
+                    $this->article->title
+                )
+            )
+            ->csrfToken($this->token)
+            ->markBotEdit()
+            ->request();
+    }
+
+    /**
      * Makes a head request on the thumbnail url of the article
      */
     private function loadThumbnailMetadata(): void
@@ -193,7 +225,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     /**
      * Tries to resolve the article title to the final on the wiki
      *
-     * @return string
+     * @return void
      */
     private function getRedirectTitle(): void
     {
@@ -248,7 +280,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             $uploader->upload(
                 sprintf(
                     'Galactapedia_%s.%s',
-                    $this->article->title,
+                    str_replace('/', '_', $this->article->title),
                     (str_contains($this->response->header('Content-Type'), 'jpeg') ? 'jpg' : 'png')
                 ),
                 $this->article->thumbnail,
@@ -321,7 +353,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             $text = Normalizer::normalize($text);
         }
 
-        return Article::fixMarkdownLinks($text);
+        return Article::fixContent($text);
     }
 
     /**
@@ -414,10 +446,12 @@ FORMAT;
             })
             ->implode("<br>\n");
 
+        $normalizedFileName = str_replace('/', '_', $this->article->title);
+
         // The actual template content
         return <<<TEMPLATE
 {{Galactapedia
-|title={$this->article->title}
+|title={$normalizedFileName}
 |image=Galactapedia_{$this->article->title}.{$fileEnding}
 {$properties}
 |related={$relatedArticles}
@@ -437,7 +471,16 @@ TEMPLATE;
     private function createContent(string $markdown, bool $boxed = false): string
     {
         $parser = new WikiTextRenderer();
+
+        // Fix headings
+        $markdown = preg_replace('/^(#+)\s+?(\w)/', '$1 $2', $markdown);
+
         $wikitext = trim($parser->render($markdown));
+
+        // Remove first heading
+        if ($wikitext[0] === '=') {
+            $wikitext = preg_replace('/^=+.*\s?/', '', $wikitext, 1);
+        }
 
         if (!$boxed) {
             return $wikitext;
