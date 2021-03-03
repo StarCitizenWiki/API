@@ -41,7 +41,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
      */
     private static array $categoryTranslations = [
         "Human" => "Menschen",
-        "Vanduul" => "Vanduul",
         "Food and Beverages" => "Essen und Trinken",
         "Entertainment" => "Unterhaltung",
         "Law" => "Recht",
