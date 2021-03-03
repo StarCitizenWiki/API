@@ -39,10 +39,12 @@ class LinkRenderer implements InlineRendererInterface
             if ($article->title !== $urlText) {
                 return sprintf(
                     '[[%s|%s]]',
-                    $article->title,
+                    $article->cleanTitle,
                     $urlText,
                 );
             }
+
+            $urlText = $article->cleanTitle;
         } catch (ModelNotFoundException $e) {
             //
         }
