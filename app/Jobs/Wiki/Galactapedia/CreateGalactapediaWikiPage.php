@@ -434,7 +434,7 @@ FORMAT;
 
         $relatedArticles = $this->article->related
             ->map(function (Article $article) {
-                return sprintf('[[%s]]', $article->title);
+                return sprintf('[[%s]]', $article->cleanTitle);
             })
             ->implode("<br>\n");
 
