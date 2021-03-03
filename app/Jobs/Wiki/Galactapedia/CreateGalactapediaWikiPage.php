@@ -96,6 +96,13 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     private ?Response $response = null;
 
     /**
+     * The article wiki page title
+     *
+     * @var string
+     */
+    private string $title = '';
+
+    /**
      * Create a new job instance.
      *
      * @param Article $article
@@ -116,6 +123,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     {
         app('Log')::info("Creating Wiki Page '{$this->article->title}'");
 
+        $this->getRedirectTitle();
         $wikiText = $this->getWikiPageText();
         $this->loadThumbnailMetadata();
 
@@ -128,7 +136,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 return;
             }
 
-            $response = MediaWikiApi::edit($this->getRedirectTitle())
+            $response = MediaWikiApi::edit($this->title)
                 ->text($text)
                 ->summary(
                     sprintf(
@@ -150,7 +158,10 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             }
 
             if (config('services.wiki_approve_revs.access_secret', null) !== null) {
-                dispatch(new ApproveRevisions([$this->article->title]));
+                dispatch(new ApproveRevisions([
+                    $this->article->title,
+                    $this->title,
+                ]));
             }
 
             $this->uploadGalactapediaImage();
@@ -184,7 +195,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
      *
      * @return string
      */
-    private function getRedirectTitle(): string
+    private function getRedirectTitle(): void
     {
         try {
             $query = MediaWikiApi::query()
@@ -193,14 +204,18 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 ->redirects(1)
                 ->request();
         } catch (GuzzleException $e) {
-            return $this->article->title;
+            $this->title = $this->article->title;
+
+            return;
         }
 
         if ($query->hasErrors() || !isset($query->getQuery()['redirects'][0])) {
-            return $this->article->title;
+            $this->title = $this->article->title;
+
+            return;
         }
 
-        return $query->getQuery()['redirects'][0]['to'] ?? $this->article->title;
+        $this->title = $query->getQuery()['redirects'][0]['to'] ?? $this->article->title;
     }
 
     /**
@@ -266,9 +281,9 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 ->addParam('rvprop', 'content')
                 ->addParam('rvslot', 'main')
                 ->titles(
-                    Normalizer::isNormalized($this->article->title) ?
-                        $this->article->title :
-                        Normalizer::normalize($this->article->title)
+                    Normalizer::isNormalized($this->title) ?
+                        $this->title :
+                        Normalizer::normalize($this->title)
                 )
                 ->request();
         } catch (GuzzleException $e) {
