@@ -113,7 +113,7 @@ QUERY,
                 'locale_code' => 'en_EN',
             ],
             [
-                'translation' => Article::fixMarkdownLinks($data['body']),
+                'translation' => Article::fixContent($data['body']),
             ]
         );
 

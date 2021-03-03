@@ -35,13 +35,15 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         'thumbnail',
     ];
 
-    public static function fixMarkdownLinks(string $translation): string
+    public static function fixContent(string $translation): string
     {
-        return preg_replace(
+        $translation = preg_replace(
             '/]\s+\(http/',
             '](http',
             $translation
         );
+
+        return preg_replace('/^(#+)\s+?(\w)/', '$1 $2', $translation);
     }
 
     /**
