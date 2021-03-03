@@ -128,9 +128,8 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 return;
             }
 
-            $response = MediaWikiApi::edit($this->article->title)
+            $response = MediaWikiApi::edit($this->getRedirectTitle())
                 ->text($text)
-                ->redirect(1)
                 ->summary(
                     sprintf(
                         "%s Galactapedia Article %s",
@@ -178,6 +177,30 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
         if ($head->successful()) {
             $this->response = $head;
         }
+    }
+
+    /**
+     * Tries to resolve the article title to the final on the wiki
+     *
+     * @return string
+     */
+    private function getRedirectTitle(): string
+    {
+        try {
+            $query = MediaWikiApi::query()
+                ->prop('redirects')
+                ->titles($this->article->title)
+                ->redirects(1)
+                ->request();
+        } catch (GuzzleException $e) {
+            return $this->article->title;
+        }
+
+        if ($query->hasErrors() || !isset($query->getQuery()['redirects'][0])) {
+            return $this->article->title;
+        }
+
+        return $query->getQuery()['redirects'][0]['to'] ?? $this->article->title;
     }
 
     /**

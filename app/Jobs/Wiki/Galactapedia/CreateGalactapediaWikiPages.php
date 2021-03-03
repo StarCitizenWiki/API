@@ -35,22 +35,6 @@ class CreateGalactapediaWikiPages implements ShouldQueue
     {
         app('Log')::info('Starting creation of Galactapedia Wiki Pages');
 
-        try {
-            $this->getCsrfToken('services.wiki_translations');
-        } catch (ErrorException $e) {
-            app('Log')::info(
-                sprintf(
-                    '%s: %s',
-                    'Token retrieval failed',
-                    $e->getMessage()
-                )
-            );
-
-            $this->release(300);
-
-            return;
-        }
-
         Article::query()
             ->with(['properties', 'categories', 'translations', 'related'])
             ->whereHas(
@@ -65,8 +49,24 @@ class CreateGalactapediaWikiPages implements ShouldQueue
             ->chunk(
                 100,
                 function (Collection $articles) {
-                    $articles->each(function (Article $article) {
-                        dispatch(new CreateGalactapediaWikiPage($article, self::$csrfToken));
+                    try {
+                        $token = $this->getCsrfToken('services.wiki_translations');
+                    } catch (ErrorException $e) {
+                        app('Log')::info(
+                            sprintf(
+                                '%s: %s',
+                                'Token retrieval failed',
+                                $e->getMessage()
+                            )
+                        );
+
+                        $this->release(300);
+
+                        return;
+                    }
+
+                    $articles->each(function (Article $article) use ($token) {
+                        dispatch(new CreateGalactapediaWikiPage($article, $token));
                     });
                 }
             );
