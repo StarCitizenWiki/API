@@ -37,7 +37,7 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         'thumbnail',
     ];
 
-    private static array $ticks = ['’', '´', '‘', '’', '’', '’', '\'', '’'];
+    private static array $ticks = ['’', '´', '‘', '’', '’', '’', '\'', '’', '’', 'ˈ', '`', '´'];
 
     /**
      * @param string $translation
