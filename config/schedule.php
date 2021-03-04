@@ -28,5 +28,6 @@ return [
 
     'galactapedia' => [
         'enabled' => env('SCHEDULE_GALACTAPEDIA_ENABLE', true),
+        'create_wiki_pages' => env('SCHEDULE_GALACTAPEDIA_ENABLE_WIKI_PAGES', true),
     ],
 ];

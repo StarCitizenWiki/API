@@ -237,5 +237,12 @@ class Kernel extends ConsoleKernel
             ->command(TranslateArticles::class)
             ->dailyAt('3:00')
             ->withoutOverlapping();
+
+        if (config('schedule.galactapedia.create_wiki_pages')) {
+            $this->schedule
+                ->command(CreateWikiPages::class)
+                ->dailyAt('3:30')
+                ->withoutOverlapping();
+        }
     }
 }
