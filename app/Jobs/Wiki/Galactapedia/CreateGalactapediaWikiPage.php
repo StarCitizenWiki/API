@@ -22,7 +22,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use JsonException;
-use Normalizer;
 use RuntimeException;
 use StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
@@ -364,7 +363,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 !!! Du kannst Text in einer neuen Zeile unter END-- einfügen. Dieser wird nicht gelöscht.     !!!
 
 START-->%s%s<!--
--->%s<!--
+-->%s<!--%s
 END--></div>
 FORMAT;
 
@@ -373,12 +372,19 @@ FORMAT;
         $ref = $this->createRef();
 
         if ($pageContent !== null) {
+            if (str_contains($pageContent, 'DISABLE-CATS-->')) {
+                $categories = '';
+            }
+
+            $content = $this->runTextReplacements($content, $pageContent);
+
             $formatted = sprintf(
                 $format,
                 '', // Don't replace template
-                $content,
+                $content['content'],
                 $ref,
                 $categories,
+                $content['repl'] ?? ''
             );
 
             return preg_replace(
@@ -395,6 +401,7 @@ FORMAT;
             $content,
             $ref,
             $categories,
+            ''
         );
     }
 
@@ -520,5 +527,36 @@ CONTENT;
             $this->article->created_at->format('d.m.Y'),
             $this->article->updated_at->format('d.m.Y'),
         );
+    }
+
+    /**
+     * Replaces text tokens formulated as (FROM|TO)
+     *
+     * @param string $content Galactapedia translation
+     * @param string $pageContent Wikitext
+     * @return array|string[] Array containing 'content' 'repl'
+     */
+    private function runTextReplacements(string $content, string $pageContent): array
+    {
+        $found = preg_match_all('/(?:^\((.+?)\|(.+?)\)$)+/m', $pageContent, $matches);
+
+        if ($found === false || $found === 0 || count($matches[1]) !== count($matches[2])) {
+            return [
+                'content' => $content
+            ];
+        }
+
+        foreach ($matches[1] as $key => $from) {
+            if (trim($matches[2][$key]) === '') {
+                continue;
+            }
+
+            $content = str_replace($from, $matches[2][$key], $content);
+        }
+
+        return [
+            'content' => $content,
+            'repl' => sprintf("\n%s", implode("\n", $matches[0]))
+        ];
     }
 }
