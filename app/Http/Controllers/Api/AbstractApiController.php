@@ -167,6 +167,10 @@ abstract class AbstractApiController extends Controller
      */
     protected function getResponse($query): Response
     {
+        if ($query === null) {
+            $query = collect();
+        }
+
         if ($query instanceof Model) {
             return $this->response->item($query, $this->transformer)->setMeta($this->getMeta());
         }

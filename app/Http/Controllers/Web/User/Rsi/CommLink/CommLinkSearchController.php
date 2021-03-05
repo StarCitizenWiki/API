@@ -107,7 +107,8 @@ class CommLinkSearchController extends Controller
                         ],
                         $options
                     )
-                )->post('api/comm-links/reverse-image-link-search'),
+                )
+                ->post('api/comm-links/reverse-image-link-search'),
             'user.rsi.comm_links.index'
         );
     }
