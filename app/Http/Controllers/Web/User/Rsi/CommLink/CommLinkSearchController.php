@@ -109,7 +109,8 @@ class CommLinkSearchController extends Controller
                     )
                 )
                 ->post('api/comm-links/reverse-image-link-search'),
-            'user.rsi.comm_links.index'
+            'user.rsi.comm_links.index',
+            'commLinks'
         );
     }
 
@@ -147,9 +148,10 @@ class CommLinkSearchController extends Controller
      *
      * @param $results
      * @param string $view
+     * @param string $key
      * @return Application|Factory|View
      */
-    private function handleSearchResult($results, string $view)
+    private function handleSearchResult($results, string $view, string $key = 'images')
     {
         if ($results->isEmpty()) {
             return redirect()->route('web.user.rsi.comm-links.search')->withMessages(
@@ -164,7 +166,7 @@ class CommLinkSearchController extends Controller
         return view(
             $view,
             [
-                'images' => $results,
+                $key => $results,
             ]
         );
     }
