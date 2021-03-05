@@ -357,14 +357,15 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     public function getFormattedText(string $markdown, ?string $pageContent): string
     {
         $format = <<<FORMAT
-%s<div class="imported-text"><!--
+%s<!--imported-text
 
 !!! Achtung, der folgende Text wird automatisiert verwaltet, alle Änderungen werden gelöscht. !!!
 !!! Du kannst Text in einer neuen Zeile unter END-- einfügen. Dieser wird nicht gelöscht.     !!!
+!!! Weitere Informationen findest du hier: https://star-citizen.wiki/Vorlage:Galactapedia     !!!
 
 START-->%s%s<!--
 -->%s<!--%s
-END--></div>
+END-->
 FORMAT;
 
         $content = $this->createContent($markdown, str_contains($pageContent ?? '', 'galactapedia-box'));
@@ -388,7 +389,7 @@ FORMAT;
             );
 
             return preg_replace(
-                '/<div class="imported-text"><!--.*END--><\/div>/s',
+                '/(?:<div class="imported-text">)?<!--(?:imported-text)?.*END-->(?:<\/div>)?/s',
                 $formatted,
                 $pageContent,
                 1
