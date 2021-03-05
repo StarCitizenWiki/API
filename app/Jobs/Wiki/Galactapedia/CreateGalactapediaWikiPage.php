@@ -374,7 +374,7 @@ FORMAT;
 
         if ($pageContent !== null) {
             if (str_contains($pageContent, 'DISABLE-CATS-->')) {
-                $categories = '';
+                $categories = '<!--DISABLE-CATS-->';
             }
 
             $content = $this->runTextReplacements($content, $pageContent);
