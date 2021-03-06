@@ -61,7 +61,7 @@ class TranslateCommLink implements ShouldQueue
      */
     public function handle(): void
     {
-        app('Log')::info("Translating Comm-Link with ID {$this->commLink->cig_id}");
+        app('Log')::info('Translating Comm-Link with ID {$this->commLink->cig_id}');
         $targetLocale = config('services.deepl.target_locale');
 
         if (null !== optional($this->commLink->german())->translation) {
@@ -103,9 +103,10 @@ class TranslateCommLink implements ShouldQueue
                 'locale_code' => sprintf('%s_%s', Str::lower($targetLocale), $targetLocale),
             ],
             [
-                'translation' => trim($translation),
+                'translation' => trim(TranslateText::runTextReplacements($translation)),
                 'proofread' => false,
             ]
         );
     }
+
 }

@@ -73,7 +73,7 @@ class TranslateArticle implements ShouldQueue
                 'locale_code' => sprintf('%s_%s', Str::lower($targetLocale), $targetLocale),
             ],
             [
-                'translation' => trim($translation),
+                'translation' => trim(TranslateText::runTextReplacements($translation)),
                 'proofread' => false,
             ]
         );

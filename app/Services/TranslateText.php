@@ -60,4 +60,53 @@ final class TranslateText
 
         return $translation;
     }
+
+    /**
+     * Replace some wrong translations
+     *
+     * @param string $translation
+     * @return string
+     */
+    public static function runTextReplacements(string $translation): string
+    {
+        $replacements = collect([
+            'Geschenke der Sternenbürger' => 'Star Citizen Geschenke',
+            'Überlieferungen der Sternenbürger' => 'Überlieferungen von Star Citizen',
+            'im Sternenbürger TAG' => 'in Star Citizen TAG',
+            'Woche im Sternenbürger' => 'Woche in Star Citizen',
+            'Sternenbürger Live' => 'Star Citizen Live',
+            'Sternenbürger-Community' => 'Star Citizen Community',
+            'der Innere Sternenbürger' => 'Inside Star Citizen',
+            'Im Inneren von Star Citizen' => 'Inside Star Citizen',
+            'Gemeinschaft der Sternenbürger' => 'Star Citizen Community',
+            'der Sternenbürger-Community' => 'der Star Citizen Community',
+            'für alle Sternenbürger' => 'für alle Star Citizen',
+            'Sternenbürger live' => 'Star Citizen live',
+
+
+            'der Sternenbürger' => 'Star Citizen',
+            'zur Sternenbürgerkunde' => 'zur Star Citizen Lore',
+            'von Sternenbürger' => 'von Star Citizen',
+            'den Sternenbürger' => 'Star Citizen',
+            'im Sternenbürger' => 'Star Citizen',
+            'des Sternenbürgers' => 'von Star Citizen',
+
+            'Sternenbürger' => 'Star Citizen',
+            'Sternenbürgern' => 'Star Citizen',
+
+            'Grüße Bürgerinnen und Bürger' => '',
+            'Grüße Bürger' => 'Grüße Citizens',
+
+            'den Vers' => 'das Verse',
+
+            'Staffel 42' => 'Squadron 42',
+        ]);
+
+
+        $replacements->each(function (string $to, string $from) use (&$translation) {
+            $translation = str_replace($from, $to, $translation);
+        });
+
+        return $translation;
+    }
 }
