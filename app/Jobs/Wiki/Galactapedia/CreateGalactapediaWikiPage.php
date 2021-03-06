@@ -364,7 +364,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 !!! Weitere Informationen findest du hier: https://star-citizen.wiki/Vorlage:Galactapedia     !!!
 
 START-->%s%s<!--
--->%s<!--%s
+-->[[Category:Galactapedia]]%s<!--%s
 END-->
 FORMAT;
 
