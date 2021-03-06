@@ -42,10 +42,6 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
     {
         $url = $this->image->url;
 
-        if (optional($this->image->metadata)->mime !== null) {
-            return; // This should not happen (?)
-        }
-
         $response = $this->makeClient()->head($url);
 
         if ($response->serverError()) {
@@ -59,13 +55,15 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
         if ($response->clientError()) {
             app('Log')::info("Header request resulted in code {$response->status()}", [$url]);
 
-            $this->image->metadata()->create(
-                [
-                    'mime' => 'undefined',
-                    'size' => 0,
-                    'last_modified' => '0001-01-01 00:00:00',
-                ]
-            );
+            if ($this->image->metadata === null) {
+                $this->image->metadata()->create(
+                    [
+                        'mime' => 'undefined',
+                        'size' => 0,
+                        'last_modified' => '0001-01-01 00:00:00',
+                    ]
+                );
+            }
 
             return;
         }
@@ -92,6 +90,8 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
             }
         }
 
-        $this->image->metadata()->create($data);
+        if ($this->image->metadata === null) {
+            $this->image->metadata()->create($data);
+        }
     }
 }
