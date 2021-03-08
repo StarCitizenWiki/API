@@ -10,6 +10,7 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Traits\DiffTranslationChangelogTrait;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class GalactapediaController extends Controller
 {
@@ -25,7 +26,7 @@ class GalactapediaController extends Controller
             [
                 'articles' => Article::query()->orderByDesc('id')->paginate(250),
             ]
-        );
+        )->with('apiToken', optional(Auth::user())->api_token);
     }
 
     /**

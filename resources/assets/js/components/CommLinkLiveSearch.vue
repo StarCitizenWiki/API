@@ -112,3 +112,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+table.table {
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+  width: calc(100% + 2.5rem);
+}
+</style>

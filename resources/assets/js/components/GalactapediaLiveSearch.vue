@@ -37,7 +37,8 @@
             <td>{{ (new Date(result.created_at).toLocaleDateString('de-DE', {  year: 'numeric', month: 'numeric', day: 'numeric' })) }} </td>
             <td>
               <div class="btn-group btn-group-sm" role="group" aria-label="">
-                <a target="_blank" class="btn btn-outline-primary" rel="noreferrer noreferrer noopener" :href="`/galactapedia/${result.id}`"><i class="fa fa-eye"></i></a>
+                <a target="_blank" class="btn btn-outline-secondary" rel="noreferrer noreferrer noopener" :href="`/starcitizen/galactapedia/${result.id}`">API</a>
+                <a target="_blank" class="btn btn-outline-secondary" rel="noreferrer noreferrer noopener" :href="result.rsi_url">RSI</a>
               </div>
             </td>
           </tr>
@@ -103,3 +104,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+ table.table {
+   margin-left: -1.25rem;
+   margin-right: -1.25rem;
+   width: calc(100% + 2.5rem);
+ }
+</style>
