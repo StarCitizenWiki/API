@@ -105,11 +105,11 @@ export default {
         }
       })
       .catch((error) => {
-        if (error.status === 404) {
+        if (error.response.status === 404) {
           this.hasNoResult = true;
         } else {
           this.hasError = true;
-          this.error = `${error.status}: ${error.message}`;
+          this.error = `${error.response.status}: ${error.message}`;
         }
       })
     }
