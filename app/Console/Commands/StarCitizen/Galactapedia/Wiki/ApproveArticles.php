@@ -41,7 +41,7 @@ class ApproveArticles extends Command
             })
             ->chunk(25)
             ->each(function (Collection $chunk) {
-                dispatch(new ApproveRevisions($chunk->toArray()));
+                dispatch(new ApproveRevisions($chunk->toArray(), false));
             });
 
         return 0;

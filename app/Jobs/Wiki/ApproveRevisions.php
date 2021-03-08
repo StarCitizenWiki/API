@@ -23,15 +23,17 @@ class ApproveRevisions implements ShouldQueue
 
     private array $pageTitles;
     private string $token = '';
+    private bool $onlyApproveNew;
 
     /**
      * Create a new job instance.
      *
      * @param array $pageTitles
      */
-    public function __construct(array $pageTitles)
+    public function __construct(array $pageTitles, bool $onlyApproveNew = true)
     {
         $this->pageTitles = $pageTitles;
+        $this->onlyApproveNew = $onlyApproveNew;
     }
 
     /**
@@ -46,8 +48,12 @@ class ApproveRevisions implements ShouldQueue
         $ids = collect($ids['pages'] ?? [])
             ->filter(
                 function ($page) {
-                    // Only approve new pages
-                    return isset($page['new']);
+                    if ($this->onlyApproveNew === true) {
+                        // Only approve new pages
+                        return isset($page['new']);
+                    }
+
+                    return true;
                 }
             )
             ->map(
