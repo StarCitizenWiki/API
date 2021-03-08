@@ -305,7 +305,9 @@ class GalactapediaController extends ApiController
         $query = urldecode($request->get('query'));
         $queryBuilder = Article::query()
             ->where('title', 'like', "%{$query}%")
-            ->orWhere('slug', 'like', "%{$query}%");
+            ->orWhere('slug', 'like', "%{$query}%")
+            ->orWhere('type', 'like', "%{$query}%")
+            ->orWhere('cig_id', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));

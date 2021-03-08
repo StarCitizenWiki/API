@@ -127,6 +127,7 @@ class CommLinkSearchController extends ApiController
             ->getResponse(
                 CommLink::query()
                     ->where('title', 'LIKE', sprintf('%%%s%%', $query))
+                    ->orWhere('cig_id', 'LIKE', "%{$query}%")
                     ->limit(100)
             );
     }
