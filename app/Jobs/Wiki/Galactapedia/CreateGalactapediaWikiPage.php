@@ -486,6 +486,17 @@ CONTENT;
      */
     private function runTextReplacements(string $content, string $pageContent): array
     {
+        $tags = ['[[Humans|Human]]', '[[Menschen|Human]]'];
+
+        // Replace humans -> menschen
+        if (preg_match('/\[\[(Humans|Menschen)\|Human]].*(konzern|hersteller)/i', $content)) {
+            $content = str_replace($tags, '[[Menschen|menschlicher]]', $content);
+        } elseif (preg_match('/\[\[(Humans|Menschen)\|Human]].*(show)/i', $content)) {
+            $content = str_replace($tags, '[[Menschen|menschliche]]', $content);
+        } else {
+            $content = str_replace($tags, '[[Menschen|menschliches]]', $content);
+        }
+
         $found = preg_match_all('/(?:^\((.+?)\|(.+?)\)$)+/m', $pageContent, $matches);
 
         if ($found === false || $found === 0 || count($matches[1]) !== count($matches[2])) {
@@ -500,13 +511,6 @@ CONTENT;
             }
 
             $content = str_replace($from, $matches[2][$key], $content);
-        }
-
-        // Replace humans -> menschen
-        if (preg_match('/\[\[(Humans|Menschen)\|Human]] .*(konzern|hersteller)/i', $content) === 1) {
-            $content = str_replace(['[[Humans|Human]]', '[[Menschen|Human]]'], '[[Menschen|menschlicher]]', $content);
-        } else {
-            $content = str_replace(['[[Humans|Human]]', '[[Menschen|Human]]'], '[[Menschen|menschliches]]', $content);
         }
 
         return [
