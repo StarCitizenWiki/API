@@ -108,5 +108,4 @@ class TranslateCommLink implements ShouldQueue
             ]
         );
     }
-
 }

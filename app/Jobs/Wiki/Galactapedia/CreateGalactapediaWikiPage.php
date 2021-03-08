@@ -42,6 +42,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
      *
      * @var string[]
      */
+    /* jscpd:ignore-start */
     private static array $categoryTranslations = [
         "Human" => "Menschen",
         "Food and Beverages" => "Essen und Trinken",
@@ -80,6 +81,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
         "Moons" => "Mond",
         "Planets" => "Planet",
     ];
+    /* jscpd:ignore-end */
 
     /**
      * @var Article
