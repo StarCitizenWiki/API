@@ -504,9 +504,9 @@ CONTENT;
 
         // Replace humans -> menschen
         if (preg_match('/\[\[(Humans|Menschen)\|Human]] .*(konzern|hersteller)/i', $content) === 1) {
-            $content = str_replace('[[Humans|Human]]', '[[Menschen|menschlicher]]', $content);
+            $content = str_replace(['[[Humans|Human]]', '[[Menschen|Human]]'], '[[Menschen|menschlicher]]', $content);
         } else {
-            $content = str_replace('[[Humans|Human]]', '[[Menschen|menschliches]]', $content);
+            $content = str_replace(['[[Humans|Human]]', '[[Menschen|Human]]'], '[[Menschen|menschliches]]', $content);
         }
 
         return [
