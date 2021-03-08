@@ -60,7 +60,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
         "Exploration" => "Erforschung",
         "Archaeology" => "Archäologie",
         "Weapons" => "Waffe",
-        "Commerce" => "Handel",
+        "Commerce" => "Unternehmen",
         "People" => "Persönlichkeit",
         "Civilizations" => "Zivilisation",
         "History" => "Geschichte",
