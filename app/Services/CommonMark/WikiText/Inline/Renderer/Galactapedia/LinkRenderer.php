@@ -50,7 +50,7 @@ class LinkRenderer implements InlineRendererInterface
 
         return sprintf(
             '[[%s]]',
-            $urlText,
+            $this->replaceKnownTranslations($urlText, '')[0],
         );
     }
 

@@ -503,7 +503,7 @@ CONTENT;
         }
 
         // Replace humans -> menschen
-        if (preg_match('/\[\[Humans\|Human]] .*hersteller/i', $content)) {
+        if (preg_match('/\[\[Humans\|Human]] .*(konzern|hersteller)/i', $content)) {
             $content = str_replace('[[Humans|Human]]', '[[Menschen|menschlicher]]', $content);
         } else {
             $content = str_replace('[[Humans|Human]]', '[[Menschen|menschliches]]', $content);
