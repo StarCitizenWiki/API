@@ -2,17 +2,17 @@
   <div class="card mb-3" id="cl-test">
     <div class="card-header">
       <h4>
-        Comm-Link Titelsuche
+        Galactapedia Titelsuche
       </h4>
     </div>
     <div class="card-body">
       <div class="alert alert-danger" v-if="hasError">Fehler bei der Suchabfrage! {{ error }}</div>
-      <div class="alert alert-info" v-if="hasNoResult">Keine Comm-Links zu '{{ term }}' gefunden</div>
+      <div class="alert alert-info" v-if="hasNoResult">Keine Artikel zu '{{ term }}' gefunden</div>
       <div class="row">
         <div class="col-6 mx-auto">
           <form method="POST" class="d-flex h-100 flex-column">
             <div class="form-group">
-              <label for="keyword" aria-label="keyword">Comm-Link Titel</label>
+              <label for="keyword" aria-label="keyword">Artikel Titel</label>
               <input type="text" id="keyword" v-on:input="startSearch" min="3" max="255" required class="form-control" />
               <small>Suche nach ganzen Titeln oder Teilwörtern</small>
             </div>
@@ -24,11 +24,7 @@
           <tr>
             <th>CIG ID</th>
             <th>Titel</th>
-            <th>Bilder</th>
-            <th>Links</th>
-            <th>Channel</th>
-            <th>Kategorie</th>
-            <th>Serie</th>
+            <th>Typ</th>
             <th>Veröffentlichung</th>
             <th>Links</th>
           </tr>
@@ -37,16 +33,11 @@
           <tr class="col-12" v-for="result in results" :key="result.id">
             <td>{{ result.id }} </td>
             <td>{{ result.title }} </td>
-            <td>{{ result.images }} </td>
-            <td>{{ result.links }} </td>
-            <td>{{ result.channel }} </td>
-            <td>{{ result.category }} </td>
-            <td>{{ result.series }} </td>
+            <td>{{ result.type }} </td>
             <td>{{ (new Date(result.created_at).toLocaleDateString('de-DE', {  year: 'numeric', month: 'numeric', day: 'numeric' })) }} </td>
             <td>
               <div class="btn-group btn-group-sm" role="group" aria-label="">
-                <a target="_blank" class="btn btn-outline-secondary" rel="noreferrer noreferrer noopener" :href="`/rsi/comm-links/${result.id}`">API</a>
-                <a target="_blank" class="btn btn-outline-secondary" rel="noreferrer noreferrer noopener" :href="result.rsi_url">RSI</a>
+                <a target="_blank" class="btn btn-outline-primary" rel="noreferrer noreferrer noopener" :href="`/galactapedia/${result.id}`"><i class="fa fa-eye"></i></a>
               </div>
             </td>
           </tr>
@@ -58,7 +49,7 @@
 
 <script>
 export default {
-  name: "CommLinkLiveSearch",
+  name: "GalactapediaLiveSearch",
   props: {
     apiToken: String
   },
@@ -89,7 +80,7 @@ export default {
         return;
       }
 
-      axios.post('/api/comm-links/search', {
+      axios.post('/api/galactapedia/search', {
         query: this.term
       }, {
         mode: 'no-cors',

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Rsi\CommLink;
 
+use App\Http\Requests\StarCitizen\AbstractSearchRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CommLinkSearchRequest extends FormRequest
+class CommLinkSearchRequest extends AbstractSearchRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +27,8 @@ class CommLinkSearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'keyword' => 'required|string|min:3|max:255',
+            'keyword' => 'required_without_all:query|string|min:3|max:255',
+            'query' => 'required|string|min:1|max:255',
         ];
     }
 }

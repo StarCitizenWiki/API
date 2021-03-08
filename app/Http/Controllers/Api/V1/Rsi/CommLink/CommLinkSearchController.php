@@ -121,10 +121,12 @@ class CommLinkSearchController extends ApiController
     {
         $request->validate((new CommLinkSearchRequest())->rules());
 
+        $query = $request->get('keyword', $request->get('query'));
+
         return $this->disablePagination()
             ->getResponse(
                 CommLink::query()
-                    ->where('title', 'LIKE', sprintf('%%%s%%', $request->get('keyword')))
+                    ->where('title', 'LIKE', sprintf('%%%s%%', $query))
                     ->limit(100)
             );
     }

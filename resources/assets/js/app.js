@@ -141,4 +141,10 @@ if (document.getElementById('cl-live-search')) {
     })
 }
 
+if (document.getElementById('g-live-search')) {
+    new window.Vue({
+        el: "#g-live-search",
+    })
+}
+
 window.snarkdown = snarkdown

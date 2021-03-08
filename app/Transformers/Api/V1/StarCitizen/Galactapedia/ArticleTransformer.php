@@ -35,11 +35,12 @@ class ArticleTransformer extends AbstractTranslationTransformer
             'slug' => $article->slug,
             'thumbnail' => $article->thumbnail,
             'type' => $article->templates->isEmpty() ? null : $article->templates[0]->template,
-            'url' => $article->url,
+            'rsi_url' => $article->url,
             'api_url' => $this->makeApiUrl(
                 self::GALACTAPEDIA_ARTICLE_SHOW,
                 $article->getRouteKey(),
-            )
+            ),
+            'created_at' => $article->created_at,
         ];
     }
 

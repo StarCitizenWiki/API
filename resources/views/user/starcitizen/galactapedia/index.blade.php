@@ -13,6 +13,9 @@
 
 @section('content')
     <div class="card">
+        <div id="g-live-search"><galactapedia-live-search api-token="{{ $apiToken ?? '' }}"></galactapedia-live-search></div>
+
+
         <div class="card-header d-flex">
             <h4 class="mb-0 pt-1">@lang('Galactapedia')</h4>
             @unless(empty($articles) || !method_exists($articles, 'links'))
