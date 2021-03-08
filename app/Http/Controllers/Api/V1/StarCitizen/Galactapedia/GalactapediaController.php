@@ -10,6 +10,7 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Transformers\Api\V1\StarCitizen\Galactapedia\ArticleTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -271,7 +272,7 @@ class GalactapediaController extends ApiController
      * @Post("/search")
      * @Versions({"v1"})
      * @Parameters({
-     *     @Parameter("query", type="string", required=true, description="Article (partial) title or slug"),
+     *     @Parameter("query", type="string", required=true, description="Article (partial) title, template or slug"),
      *     @Parameter(
      *          "include",
      *          type="string",
@@ -306,8 +307,10 @@ class GalactapediaController extends ApiController
         $queryBuilder = Article::query()
             ->where('title', 'like', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%")
-            ->orWhere('type', 'like', "%{$query}%")
-            ->orWhere('cig_id', 'like', "%{$query}%");
+            ->orWhere('cig_id', 'like', "%{$query}%")
+            ->orWhereHas('templates', function (Builder $builder) use ($query) {
+                return $builder->where('template', 'like', "%{$query}%");
+            });
 
         if ($queryBuilder->count() === 0) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
