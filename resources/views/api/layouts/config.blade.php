@@ -17,7 +17,7 @@
 
 
 {{-- Body --}}
-@section('sidebar--class', 'd-none d-md-flex flex-column')
+@section('sidebar--class', 'col-md-4 col-lg-3 d-none d-md-flex flex-column')
 
 
 {{-- Sidebar Content --}}
@@ -41,7 +41,9 @@
 
 
 {{-- Main Content --}}
-@section('topNav--class', 'bg-blue-grey')
+@section('main--class', 'col-md-8 col-lg-9')
+
+@section('topNav--class', 'navbar-expand-md bg-blue-grey')
 
 @section('topNav__content')
     @include('api.menu.login_logout')

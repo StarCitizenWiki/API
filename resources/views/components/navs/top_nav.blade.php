@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md navbar-dark col {{ $class ?? '' }}">
+<nav class="navbar navbar-dark col {{ $class ?? '' }}">
     @if (isset($title) && strlen($title) > 0)
         <a class="navbar-brand {{ $titleClass ?? '' }}" href="{{ $titleLink ?? '#' }}">{{ $title }}</a>
     @endif

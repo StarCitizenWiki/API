@@ -150,7 +150,7 @@
             @endcomponent
         </div>
 
-        <div class="col-12 col-md-12 col-lg-7 col-xl-7 mb-4">
+        <div class="col-12 col-md-12 col-lg-6 col-xl-7 mb-4">
             @component('user.components.card', [
                 'title' => __('Comm-Link Jobs'),
             ])
@@ -226,7 +226,7 @@
     </section>
 
     <section class="row equal-height">
-        <div class="col-12 col-lg-3 col-xl-3 mb-4">
+        <div class="col-12 col-lg-6 col-xl-3 mb-4">
             @component('user.components.card', [
                 'title' => __('Vehicle Jobs'),
             ])
@@ -248,7 +248,7 @@
                 @endcan
             @endcomponent
         </div>
-        <div class="col-12 col-lg-3 col-xl-3 mb-4">
+        <div class="col-12 col-lg-6 col-xl-3 mb-4">
             @component('user.components.card', [
                 'title' => __('Galactapedia Jobs'),
             ])

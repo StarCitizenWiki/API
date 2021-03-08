@@ -33,7 +33,7 @@
         <div class="card-body">
             @include('components.messages')
             <div class="row">
-                <div class="col-12 col-lg-7 col-xl-8">
+                <div class="col-12 col-xl-8">
                     <nav class="mb-3">
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <a class="nav-item nav-link active" id="nav-en_EN-tab" data-toggle="tab" href="#english" role="tab" aria-controls="english" aria-selected="true">
@@ -98,7 +98,7 @@
 
                         <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="nav-images-tab">
                             @unless(empty($commLink->images))
-                                <div class="card-columns image-card-column">
+                                <div class="card-columns image-card-column" style="column-count: 3">
                                     @foreach($commLink->images as $image)
                                         @include('user.rsi.comm_links.components.image_info_card', ['image' => $image])
                                     @endforeach
@@ -136,7 +136,7 @@
                         @endcan
                     </div>
                 </div>
-                <div class="col-12 col-lg-5 col-xl-4">
+                <div class="col-12 col-xl-4 mt-xl-0 mt-5">
                     <table class="table mb-0 table-responsive">
                         <caption>Comm-Link Metadaten</caption>
                         <tr>

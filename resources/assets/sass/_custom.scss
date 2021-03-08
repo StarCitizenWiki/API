@@ -29,12 +29,6 @@
   white-space: pre-line;
 }
 
-@media (min-width: 1600px) {
-  .image-card-column {
-    column-count: 5;
-  }
-}
-
 @media (max-width: 620px) {
   .pagination {
     overflow-y: scroll;

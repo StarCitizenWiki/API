@@ -20,14 +20,14 @@
         {{-- Container Content --}}
         <div class="row @yield('containerRow--class')" id="@yield('containerRow--id')" @yield('containerRow--options')>
             {{-- Sidebar --}}
-            <aside class="col-12 col-md-4 col-lg-3 col-xl-2 bg-dark nav-dark mvh-100 @yield('sidebar--class')" id="@yield('sidebar--id')" @yield('sidebar--options')>
+            <aside class="col-12 col-xl-2 bg-dark nav-dark mvh-100 @yield('sidebar--class')" id="@yield('sidebar--id')" @yield('sidebar--options')>
 {{--        --}}@yield('sidebar__pre')
 {{--        --}}@yield('sidebar__content')
 {{--        --}}@yield('sidebar__after')
             </aside>
 
             {{-- Content --}}
-            <main class="col-12 col-md-8 col-lg-9 col-xl-10 @yield('main--class')" id="@yield('main--id')" @yield('main--options')>
+            <main class="col-12 col-xl-10 @yield('main--class')" id="@yield('main--id')" @yield('main--options')>
                 <div class="row @yield('topNavRow--class')" @yield('topNavRow--options')>
                     {{-- Top Nav --}}
                     @component('components.navs.top_nav')

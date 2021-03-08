@@ -1,6 +1,6 @@
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
+    'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
 ])
     @include('user.menu.app_links')
@@ -8,7 +8,7 @@
 
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
+    'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_admin',
     'title' => __('Admin'),
@@ -18,7 +18,7 @@
 
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
+    'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_starmap',
     'title' => __('Starmap'),
@@ -28,7 +28,7 @@
 
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
+    'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_stats',
     'title' => __('Statistiken'),
@@ -38,7 +38,7 @@
 
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
+    'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_comm_links',
     'title' => __('Comm-Link'),
@@ -48,7 +48,7 @@
 
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
+    'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_galactapedia',
     'title' => __('Galactapedia'),
@@ -58,7 +58,7 @@
 
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
+    'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_vehicles',
     'title' => __('Fahrzeuge'),
@@ -68,7 +68,7 @@
 
 @component('components.navs.sidebar_section', [
     'class' => 'mb-md-2',
-    'titleClass' => 'text-muted pb-0',
+    'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_manufacturer',
     'title' => __('Hersteller'),
@@ -79,7 +79,7 @@
 @can('web.user.translations.view')
     @component('components.navs.sidebar_section', [
         'class' => 'mb-md-2',
-        'titleClass' => 'text-muted pb-0',
+        'titleClass' => 'pb-0',
         'contentClass' => 'pl-3 pl-md-2',
         'id' => 'm_translations',
         'title' => __('Übersetzungen'),
@@ -91,7 +91,7 @@
 @can('web.user.transcripts.view')
     @component('components.navs.sidebar_section', [
         'class' => 'mb-md-2',
-        'titleClass' => 'text-muted pb-0',
+        'titleClass' => 'pb-0',
         'contentClass' => 'pl-3 pl-md-2',
         'id' => 'm_transcripts',
         'title' => __('Transkript'),
@@ -103,7 +103,7 @@
 @can('web.user.notifications.view')
     @component('components.navs.sidebar_section', [
         'class' => 'mb-5',
-        'titleClass' => 'text-muted pb-0',
+        'titleClass' => 'pb-0',
         'contentClass' => 'pl-3 pl-md-2',
         'id' => 'm_notifications',
         'title' => __('Benachrichtigungen'),
