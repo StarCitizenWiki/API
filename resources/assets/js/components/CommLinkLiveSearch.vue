@@ -93,9 +93,9 @@ export default {
         query: this.term
       }, {
         mode: 'no-cors',
-        headers: {
+        headers: this.apiToken !== null ? {
           'Authorization': 'Bearer ' + this.apiToken
-        }
+        } : {}
       })
       .then((result) => {
         if (result.data.data.length > 0) {
@@ -105,8 +105,12 @@ export default {
         }
       })
       .catch((error) => {
-        this.hasError = true;
-        this.error = `${error.status}: ${error.message}`;
+        if (error.status === 404) {
+          this.hasNoResult = true;
+        } else {
+          this.hasError = true;
+          this.error = `${error.status}: ${error.message}`;
+        }
       })
     }
   }
