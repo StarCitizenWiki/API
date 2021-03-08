@@ -11,6 +11,7 @@ use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Services\CommonMark\WikiTextRenderer;
 use App\Services\UploadWikiImage;
+use App\Services\WrappedWiki;
 use App\Traits\GetWikiCsrfTokenTrait;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -128,8 +129,8 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     {
         app('Log')::info("Creating Wiki Page '{$this->article->cleanTitle}'");
 
-        $this->getRedirectTitle();
-        $wikiText = $this->getWikiPageText();
+        $this->title = WrappedWiki::getRedirectTitle($this->article->cleanTitle);
+        $wikiText = WrappedWiki::getWikiPageText(Article::normalizeContent($this->title));
         $this->loadThumbnailMetadata();
 
         try {
@@ -224,34 +225,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     }
 
     /**
-     * Tries to resolve the article title to the final on the wiki
-     *
-     * @return void
-     */
-    private function getRedirectTitle(): void
-    {
-        try {
-            $query = MediaWikiApi::query()
-                ->prop('redirects')
-                ->titles($this->article->cleanTitle)
-                ->redirects(1)
-                ->request();
-        } catch (GuzzleException $e) {
-            $this->title = $this->article->cleanTitle;
-
-            return;
-        }
-
-        if ($query->hasErrors() || !isset($query->getQuery()['redirects'][0])) {
-            $this->title = $this->article->cleanTitle;
-
-            return;
-        }
-
-        $this->title = $query->getQuery()['redirects'][0]['to'] ?? $this->article->cleanTitle;
-    }
-
-    /**
      * Uploads the article thumbnail to the wiki
      */
     private function uploadGalactapediaImage(): void
@@ -299,34 +272,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
         } catch (GuzzleException | JsonException $e) {
             app('Log')::error('Could not upload Galactapedia Image: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Page content of the wiki page or null on error or not found
-     *
-     * @return string|null
-     */
-    private function getWikiPageText(): ?string
-    {
-        try {
-            $pageContent = MediaWikiApi::query()
-                ->prop('revisions')
-                ->addParam('rvprop', 'content')
-                ->addParam('rvslot', 'main')
-                ->titles(Article::normalizeContent($this->title))
-                ->request();
-        } catch (GuzzleException $e) {
-            return null;
-        }
-
-        if ($pageContent->hasErrors() || isset($pageContent->getQuery()['pages']['-1'])) {
-            return null;
-        }
-
-        $query = $pageContent->getQuery()['pages'];
-        $first = array_shift($query);
-
-        return $first['revisions'][0]['slots']['main']['*'] ?? $first['revisions'][0]['*'] ?? null;
     }
 
     /**
