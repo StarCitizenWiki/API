@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands\StarCitizen\Galactapedia\Wiki;
 
 use App\Jobs\Wiki\ApproveRevisions;
@@ -30,7 +32,7 @@ class ApproveArticles extends Command
      */
     public function handle()
     {
-        if (config('services.wiki_approve_revs.access_secret', null) === null) {
+        if (config('services.wiki_approve_revs.access_secret') === null) {
             return 1;
         }
 
@@ -41,7 +43,7 @@ class ApproveArticles extends Command
             })
             ->chunk(25)
             ->each(function (Collection $chunk) {
-                dispatch(new ApproveRevisions($chunk->toArray(), false));
+                dispatch(new ApproveRevisions($chunk->toArray(), false, true));
             });
 
         return 0;
