@@ -121,7 +121,7 @@ class CommLinkSearchController extends ApiController
     {
         $request->validate((new CommLinkSearchRequest())->rules());
 
-        $query = $request->get('keyword', $request->get('query'));
+        $query = $request->get('keyword') ?? $request->get('query');
 
         return $this->disablePagination()
             ->getResponse(

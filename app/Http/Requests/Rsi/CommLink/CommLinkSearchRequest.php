@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Rsi\CommLink;
 
 use App\Http\Requests\StarCitizen\AbstractSearchRequest;
-use Illuminate\Foundation\Http\FormRequest;
 
 class CommLinkSearchRequest extends AbstractSearchRequest
 {
@@ -28,7 +27,7 @@ class CommLinkSearchRequest extends AbstractSearchRequest
     {
         return [
             'keyword' => 'required_without_all:query|string|min:3|max:255',
-            'query' => 'required|string|min:1|max:255',
+            'query' => 'required_without_all:keyword|string|min:1|max:255',
         ];
     }
 }
