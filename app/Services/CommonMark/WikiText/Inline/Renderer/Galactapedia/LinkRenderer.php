@@ -39,8 +39,7 @@ class LinkRenderer implements InlineRendererInterface
             if ($article->title !== $urlText) {
                 return sprintf(
                     '[[%s|%s]]',
-                    $article->cleanTitle,
-                    $urlText,
+                    ...$this->replaceKnownTranslations($article->cleanTitle, $urlText)
                 );
             }
 
@@ -53,5 +52,27 @@ class LinkRenderer implements InlineRendererInterface
             '[[%s]]',
             $urlText,
         );
+    }
+
+    /**
+     * WIP
+     *
+     * @param string $articleTitle
+     * @param $urlText
+     * @return array
+     */
+    private function replaceKnownTranslations(string $articleTitle, $urlText): array
+    {
+        $title = $articleTitle;
+        $text = $urlText;
+
+        if ($articleTitle === 'Humans') {
+            $title = 'Menschen';
+        }
+
+        return [
+            $title,
+            $text,
+        ];
     }
 }

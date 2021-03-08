@@ -160,7 +160,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 dispatch(new ApproveRevisions([
                     $this->article->cleanTitle,
                     $this->title,
-                ]));
+                ], false, true));
             }
 
             $this->uploadGalactapediaImage();
@@ -500,6 +500,13 @@ CONTENT;
             }
 
             $content = str_replace($from, $matches[2][$key], $content);
+        }
+
+        // Replace humans -> menschen
+        if (preg_match('/\[\[Humans\|Human]] .*hersteller/i', $content)) {
+            $content = str_replace('[[Humans|Human]]', '[[Menschen|menschlicher]]', $content);
+        } else {
+            $content = str_replace('[[Humans|Human]]', '[[Menschen|menschliches]]', $content);
         }
 
         return [
