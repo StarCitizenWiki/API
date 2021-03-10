@@ -489,13 +489,16 @@ CONTENT;
         $tags = ['[[Humans|Human]]', '[[Menschen|Human]]'];
 
         // Replace humans -> menschen
-        if (preg_match('/\[\[(Humans|Menschen)\|Human]].*(konzern|hersteller)/i', $content)) {
+        if (preg_match('/\[\[(Humans|Menschen)\|Human]].*(konzern|hersteller|händler|mann)/iu', $content)) {
             $content = str_replace($tags, '[[Menschen|menschlicher]]', $content);
-        } elseif (preg_match('/\[\[(Humans|Menschen)\|Human]].*(show)/i', $content)) {
+        } elseif (preg_match('/\[\[(Humans|Menschen)\|Human]].*(show|serie)/i', $content)) {
             $content = str_replace($tags, '[[Menschen|menschliche]]', $content);
         } else {
             $content = str_replace($tags, '[[Menschen|menschliches]]', $content);
         }
+
+        // Add a space between two consecutive links
+        $content = str_replace(']][[', ']] [[', $content);
 
         $found = preg_match_all('/(?:^\((.+?)\|(.+?)\)$)+/m', $pageContent, $matches);
 
