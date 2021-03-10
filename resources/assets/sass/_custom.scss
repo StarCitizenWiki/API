@@ -34,3 +34,9 @@
     overflow-y: scroll;
   }
 }
+
+@media (max-width: 1080px) {
+  .sidebar-section {
+    flex-basis: 25%;
+  }
+}

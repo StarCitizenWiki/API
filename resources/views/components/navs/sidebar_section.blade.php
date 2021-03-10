@@ -1,4 +1,4 @@
-<ul class="nav {{ $class ?? '' }}" {{ $options ?? '' }} style="flex-basis: 25%;">
+<ul class="nav sidebar-section {{ $class ?? '' }}" {{ $options ?? '' }}>
     <li class="nav-item">
         @unless(empty($title))
             <span style="font-size: 1.15rem" class="nav-link {{ $titleClass ?? '' }}">{{ $title ?? '' }}</span>
