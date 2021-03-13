@@ -90,7 +90,7 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
             }
         }
 
-        if ($this->image->metadata === null) {
+        if ($this->image->metadata->mime === 'undefined') {
             $this->image->metadata()->create($data);
         }
     }
