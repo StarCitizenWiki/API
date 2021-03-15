@@ -9,6 +9,7 @@ use App\Services\Gdoc\Parser\VehiclePriceParser;
 use App\Traits\GetWikiCsrfTokenTrait;
 use ErrorException;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,12 +21,25 @@ class GdocCsvController extends Controller
     use GetWikiCsrfTokenTrait;
 
     /**
+     * GdocCsvController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->middleware('auth');
+    }
+
+    /**
      * The upload csv view
      *
      * @return View
+     * @throws AuthorizationException
      */
     public function view(): View
     {
+        $this->authorize('web.user.jobs.upload_csv');
+
         return view('user.jobs.wiki.upload_csv');
     }
 
@@ -34,9 +48,12 @@ class GdocCsvController extends Controller
      *
      * @param Request $request
      * @return View
+     * @throws AuthorizationException
      */
     public function upload(Request $request): View
     {
+        $this->authorize('web.user.jobs.upload_csv');
+
         $request->validate([
             'file' => 'required|mimetypes:text/plain|max:2048'
         ]);
@@ -66,9 +83,12 @@ class GdocCsvController extends Controller
      * Writes the parsed data to the designated wiki page
      *
      * @return View|RedirectResponse
+     * @throws AuthorizationException
      */
     public function uploadWiki()
     {
+        $this->authorize('web.user.jobs.upload_csv');
+
         $format = <<<FORMAT
 <noinclude>
 {{Alert|color=info|title=Information|content=Diese Seite enthält Daten über Kauf- und Mietpreise von Fahrzeugen in Star Citizen.<br>Diese Daten werden automatisch durch die Star Citizen Wiki API verwaltet.}}<!--

@@ -6,8 +6,8 @@
     <div class="card">
         <h4 class="card-header">@lang('Resultat')</h4>
         <div class="card-body px-0 table-responsive">
-            <div class="alert alert-info">
-                <p>Folgende Daten wurden in der CSV Datei gefunden</p>
+            <div class="alert alert-info text-center">
+                <p class="mb-0">Folgende Daten wurden in der CSV Datei gefunden</p>
             </div>
 
             <hr>

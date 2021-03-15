@@ -54,6 +54,8 @@ class AuthServiceProvider extends ServiceProvider
             'web.user.jobs',
             JobPolicy::class,
             [
+                'upload_csv' => 'uploadCsv',
+
                 'start_translation' => 'startCommLinkTranslationJob',
                 'start_wiki_page_creation' => 'startCommLinkWikiPageCreationJob',
                 'start_image_download' => 'startCommLinkImageDownloadJob',
