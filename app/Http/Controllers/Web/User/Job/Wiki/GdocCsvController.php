@@ -89,6 +89,7 @@ class GdocCsvController extends Controller
     {
         $this->authorize('web.user.jobs.upload_csv');
 
+        // phpcs:disable
         $format = <<<FORMAT
 <noinclude>
 {{Alert|color=info|title=Information|content=Diese Seite enthält Daten über Kauf- und Mietpreise von Fahrzeugen in Star Citizen.<br>Diese Daten werden automatisch durch die Star Citizen Wiki API verwaltet.}}<!--
@@ -99,6 +100,7 @@ END: Semantic MediaWiki SubObjects -->
 [[Kategorie:Instandhaltung]]
 </noinclude>
 FORMAT;
+        // phpcs:enable
 
         $path = sprintf('tmp%supload.csv', DIRECTORY_SEPARATOR);
 
@@ -111,7 +113,11 @@ FORMAT;
 
         if ($parser->getBuyables()->isEmpty() || $parser->getRentables()->isEmpty()) {
             return $this->view()
-                ->with('errors', collect(['Die Datei scheint fehlerhafte Daten zu beinhalten. Es wurden keine kaufbaren oder mietbaren Fahrzeuge gefunden']));
+                ->with('errors', collect([
+                    // phpcs:disable
+                    'Die Datei scheint fehlerhafte Daten zu beinhalten. Es wurden keine kaufbaren oder mietbaren Fahrzeuge gefunden'
+                    // phpcs:enable
+                ]));
         }
 
         try {
