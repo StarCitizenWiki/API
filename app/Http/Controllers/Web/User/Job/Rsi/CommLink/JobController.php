@@ -35,7 +35,7 @@ class JobController extends Controller
     {
         $this->authorize('web.user.jobs.start_translation');
 
-        Artisan::call('comm-links:translate');
+        Artisan::call('comm-links:translate', ['modifiedTime' => -1]);
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [
