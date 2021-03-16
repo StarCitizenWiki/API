@@ -81,6 +81,10 @@ class AuthRepository implements AuthRepositoryInterface
             abort(500);
         }
 
+        Session::remove('oauth.req_token');
+        Session::put(config('mediawiki.driver.session.token', ''), $accessToken->key);
+        Session::put(config('mediawiki.driver.session.secret', ''), $accessToken->secret);
+
         try {
             $ident = $this->client->identify($accessToken);
         } catch (OAuthException $e) {

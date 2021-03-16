@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Traits\GetWikiCsrfTokenTrait as GetWikiCsrfToken;
+use App\Traits\LoginWikiUserAccountTrait as LoginWikiUserAccount;
 use Carbon\Carbon;
 use ErrorException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -16,6 +17,7 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class UploadWikiImage
 {
     use GetWikiCsrfToken;
+    use LoginWikiUserAccount;
 
     /**
      * @param string $filename Filename on the wiki
@@ -28,10 +30,8 @@ class UploadWikiImage
      */
     public function upload(string $filename, string $url, array $metadata, string $categories)
     {
-        $this->loginWikiBotAccount('services.wiki_upload_image');
-
         try {
-            $token = $this->getCsrfToken('services.wiki_upload_image');
+            $token = $this->getCsrfToken('services.wiki_upload_image', false, true);
         } catch (ErrorException $e) {
             return $e->getMessage();
         }
@@ -162,7 +162,7 @@ TEXT
             ->unique()
             ->map(
                 function (string $item) {
-                    return str_replace(['Kategorie', 'Categorie', ':'], '', $item);
+                    return str_replace(['Kategorie', 'Category', ':'], '', $item);
                 }
             )
             ->map(

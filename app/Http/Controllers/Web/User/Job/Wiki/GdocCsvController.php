@@ -121,18 +121,29 @@ FORMAT;
         }
 
         try {
-            MediaWikiApi::edit('Spieldaten/Fahrzeuge')
+            $token = $this->getCsrfTokenForUser(true);
+            $response = MediaWikiApi::edit('Spieldaten/Fahrzeuge')
+                ->withAuthentication()
                 ->text(sprintf($format, $parser->toSubObjects()))
-                ->csrfToken($this->getCsrfToken('wiki_upload_image'))
+                ->csrfToken($token)
+                ->summary('Updating Vehicle Prices')
                 ->request();
         } catch (ErrorException | GuzzleException $e) {
             return $this->view()->with('errors', collect([$e->getMessage()]));
         }
 
+        if ($response->hasErrors()) {
+            return $this->view()->with('errors', collect($response->getErrors()));
+        }
+
         Storage::delete($path);
 
-        return redirect()->route('web.user.dashboard', [
-            'message' => 'Upload erfolgreich.'
-        ]);
+        return redirect()->route('web.user.dashboard')->withMessages(
+            [
+                'success' => [
+                    __('Import erfolgreich. Daten auf Seite "Spieldaten/Fahrzeuge" veröffentlicht.'),
+                ],
+            ]
+        );
     }
 }
