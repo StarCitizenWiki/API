@@ -30,7 +30,7 @@
                                     'inputOptions' => 'readonly',
                                     'label' => __('Preis'),
                                     'id' => 'msrp',
-                                    'value' => ($ship->msrp ?? '-').'$',
+                                    'value' => ($groundVehicle->msrp ?? '-').'$',
 
                                 ])@endcomponent
                             </div>
