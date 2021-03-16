@@ -9,10 +9,12 @@ use App\Models\Account\User\User;
 use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Octfx\DeepLy\HttpClient\CallException;
 use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
+use stdClass;
 
 /**
  * Class DashboardController.
@@ -39,14 +41,19 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        return view(
-            'user.dashboard',
-            [
+        $data = [];
+        if (Auth::user() !== null && Auth::user()->can('web.user.dashboard.view')) {
+            $data = [
                 'users' => $this->getUserStats(),
                 'deepl' => $this->getDeeplStats(),
                 'jobs' => $this->getQueueStats(),
                 'changelogs' => ModelChangelog::query()->orderByDesc('id')->take(5),
-            ]
+            ];
+        }
+
+        return view(
+            'user.dashboard',
+            $data
         );
     }
 
@@ -145,7 +152,7 @@ class DashboardController extends Controller
         $jobsFailed = DB::table('failed_jobs')->count();
 
         $active = $jobs->filter(
-            static function (\stdClass $job) {
+            static function (stdClass $job) {
                 return null !== $job->reserved_at;
             }
         );
