@@ -39,6 +39,8 @@ trait GetWikiCsrfTokenTrait
             } catch (RuntimeException $e) {
                 $this->loginWikiBotAccount($configPrefix);
             }
+        } else {
+            $this->loginWikiBotAccount($configPrefix);
         }
 
         $token = $this->requestToken();
