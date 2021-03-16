@@ -97,6 +97,11 @@ Route::group(
                         static function () {
                             Route::get('failed', 'JobController@viewFailed')->name('failed');
                             Route::post('truncate', 'JobController@truncate')->name('truncate');
+
+
+                            Route::get('upload-csv', 'Wiki\GdocCsvController@view')->name('wiki.upload_csv_view');
+                            Route::post('upload-csv', 'Wiki\GdocCsvController@upload')->name('wiki.upload_csv');
+                            Route::post('upload-wiki', 'Wiki\GdocCsvController@uploadWiki')->name('wiki.upload_wiki');
                         }
                     );
 

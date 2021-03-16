@@ -58,7 +58,8 @@ import {
     faUser,
     faUserCircle,
     faUserPlus,
-    faUsers
+    faUsers,
+    faUpload
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -116,7 +117,8 @@ library.add(
     faUser,
     faUserCircle,
     faUserPlus,
-    faUsers
+    faUsers,
+    faUpload,
 )
 
 library.add(

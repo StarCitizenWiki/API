@@ -31,6 +31,16 @@ class JobPolicy extends BaseUserPolicy
      *
      * @return bool
      */
+    public function uploadCsv(User $user): bool
+    {
+        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+    }
+
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
     public function truncate(User $user): bool
     {
         return $user->getHighestPermissionLevel() >= UserGroup::BUREAUCRAT;
