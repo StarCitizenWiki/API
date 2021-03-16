@@ -121,7 +121,7 @@ FORMAT;
         }
 
         try {
-            MediaWikiApi::edit('Raumschiffe/Preisdaten')
+            MediaWikiApi::edit('Spieldaten/Fahrzeuge')
                 ->text(sprintf($format, $parser->toSubObjects()))
                 ->csrfToken($this->getCsrfToken('wiki_upload_image'))
                 ->request();
