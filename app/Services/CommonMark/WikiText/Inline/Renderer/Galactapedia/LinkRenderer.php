@@ -70,6 +70,10 @@ class LinkRenderer implements InlineRendererInterface
             $title = 'Menschen';
         }
 
+        if ($text === 'Roberts Space Industries (RSI)') {
+            $text = 'Roberts Space Industries';
+        }
+
         return [
             $title,
             $text,

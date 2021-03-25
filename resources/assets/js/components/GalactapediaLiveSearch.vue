@@ -82,7 +82,8 @@ export default {
       }
 
       axios.post('/api/galactapedia/search', {
-        query: this.term
+        query: this.term,
+        limit: 0
       }, {
         mode: 'no-cors',
         headers: this.apiToken !== null ? {
