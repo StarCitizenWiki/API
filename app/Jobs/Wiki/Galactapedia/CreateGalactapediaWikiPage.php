@@ -248,6 +248,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             return sprintf('[[Category:%s]]', self::$categoryTranslations[$category->name] ?? $category->name);
         });
         $categories->push('[[Category:Galactapedia]]');
+        $categories->push(sprintf('[[Category:%s]]', $this->article->cleanTitle));
 
         $uploader = new UploadWikiImage();
         try {
@@ -264,7 +265,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                         $this->article->thumbnail,
                         $this->article->url,
                     ]),
-                    'description' => sprintf('Bild des Galactapedia Artikels %s', $this->article->cleanTitle),
+                    'description' => sprintf('Bild des Galactapedia Artikels [[%s]]', $this->article->cleanTitle),
                     'filesize' => $this->response->header('Content-Length'),
                 ],
                 $categories->implode("\n"),
