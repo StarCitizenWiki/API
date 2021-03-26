@@ -33,7 +33,7 @@ class UserInfoProcessor
         }
 
         if ('localhost' !== $userData['name']) {
-            $userData['id'] = $auth::user()->id;
+            $userData['id'] = optional($auth::user())->id ?? 0;
         } else {
             unset($userData['id']);
         }
