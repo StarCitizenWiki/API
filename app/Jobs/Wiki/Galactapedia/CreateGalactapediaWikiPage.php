@@ -10,7 +10,6 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Services\CommonMark\WikiTextRenderer;
-use App\Services\UploadWikiImage;
 use App\Services\WrappedWiki;
 use App\Traits\GetWikiCsrfTokenTrait;
 use Exception;
@@ -22,8 +21,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\Response;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
-use JsonException;
 use RuntimeException;
 use StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
@@ -45,7 +42,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
      * @var string[]
      */
     /* jscpd:ignore-start */
-    private static array $categoryTranslations = [
+    public static array $categoryTranslations = [
         "Human" => "Menschen",
         "Food and Beverages" => "Essen und Trinken",
         "Entertainment" => "Unterhaltung",
@@ -132,7 +129,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
         $this->title = WrappedWiki::getRedirectTitle($this->article->cleanTitle);
         $wikiText = WrappedWiki::getWikiPageText(Article::normalizeContent($this->title));
-        $this->loadThumbnailMetadata();
 
         try {
             $text = $this->getFormattedText($this->getArticleText(), $wikiText);
@@ -164,7 +160,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 ], false, true));
             }
 
-            $this->uploadGalactapediaImage();
+            UploadGalactapediaWikiImages::dispatch($this->article);
         } catch (ConnectException $e) {
             $this->release(60);
 
@@ -211,77 +207,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             ->csrfToken($this->token)
             ->markBotEdit()
             ->request();
-    }
-
-    /**
-     * Makes a head request on the thumbnail url of the article
-     */
-    private function loadThumbnailMetadata(): void
-    {
-        if ($this->article->thumbnail === null) {
-            return;
-        }
-
-        $head = $this->makeClient()->head($this->article->thumbnail);
-
-        if ($head->successful()) {
-            $this->response = $head;
-        }
-    }
-
-    /**
-     * Uploads the article thumbnail to the wiki
-     */
-    private function uploadGalactapediaImage(): void
-    {
-        if ($this->response === null) {
-            return;
-        }
-
-        // Todo: Default image has exact size of 5003 bytes
-        // phpcs:disable
-        if (
-            $this->response->header('ETag') === '278879e3c41a001689260f0933a7f4ba' ||
-            $this->response->header('Content-Length') === '5003'
-        ) {
-            return;
-        }
-        // phpcs:enable
-
-        /** @var Collection $categories */
-        $categories = $this->article->categories->map(function (Category $category) {
-            return sprintf('[[Category:%s]]', self::$categoryTranslations[$category->name] ?? $category->name);
-        });
-        $categories->push('[[Category:Galactapedia]]');
-        $categories->push(sprintf('[[Category:%s]]', $this->article->cleanTitle));
-
-        $uploader = new UploadWikiImage();
-        try {
-            $uploader->upload(
-                sprintf(
-                    'Galactapedia_%s.%s',
-                    str_replace('/', '_', $this->article->cleanTitle),
-                    (str_contains($this->response->header('Content-Type'), 'jpeg') ? 'jpg' : 'png')
-                ),
-                $this->article->thumbnail,
-                [
-                    'date' => $this->response->header('Last-Modified'),
-                    'sources' => implode(',', [
-                        $this->article->thumbnail,
-                        $this->article->url,
-                    ]),
-                    'description' => sprintf('Bild des Galactapedia Artikels [[%s]]', $this->article->cleanTitle),
-                    'filesize' => $this->response->header('Content-Length'),
-                ],
-                $categories->implode("\n"),
-            );
-        } catch (ConnectException $e) {
-            $this->release(60);
-
-            return;
-        } catch (GuzzleException | JsonException $e) {
-            app('Log')::error('Could not upload Galactapedia Image: ' . $e->getMessage());
-        }
     }
 
     /**

@@ -23,6 +23,7 @@ use App\Console\Commands\StarCitizen\Galactapedia\ImportCategories;
 use App\Console\Commands\StarCitizen\Galactapedia\TranslateArticles;
 use App\Console\Commands\StarCitizen\Galactapedia\Wiki\ApproveArticles;
 use App\Console\Commands\StarCitizen\Galactapedia\Wiki\CreateWikiPages;
+use App\Console\Commands\StarCitizen\Galactapedia\Wiki\UploadImages;
 use App\Console\Commands\StarCitizen\ShipMatrix\Download\DownloadShipMatrix;
 use App\Console\Commands\StarCitizen\ShipMatrix\Import\ImportShipMatrix;
 use App\Console\Commands\StarCitizen\Starmap\Download\DownloadStarmap;
@@ -88,6 +89,7 @@ class Kernel extends ConsoleKernel
         ImportArticleProperties::class,
         TranslateArticles::class,
         ApproveArticles::class,
+        UploadImages::class,
 
         FixChangelogNamespaces::class,
     ];
