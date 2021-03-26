@@ -31,7 +31,7 @@
         "starcitizenwiki/mediawikiapi": "^1.0.2"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-master",
+        "roave/security-advisories": "dev-latest",
         "barryvdh/laravel-ide-helper": "^2.7.0",
         "doctrine/dbal": "^2.5",
         "escapestudios/symfony2-coding-standard": "3.11.0",
