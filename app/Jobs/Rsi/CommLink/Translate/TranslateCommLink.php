@@ -6,6 +6,7 @@ namespace App\Jobs\Rsi\CommLink\Translate;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Services\TranslateText;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -91,7 +92,7 @@ class TranslateCommLink implements ShouldQueue
             $this->fail($e);
 
             return;
-        } catch (RateLimitedException $e) {
+        } catch (ConnectException | RateLimitedException $e) {
             $this->release(60);
 
             return;

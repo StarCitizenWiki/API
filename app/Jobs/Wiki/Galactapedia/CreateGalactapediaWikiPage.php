@@ -14,6 +14,7 @@ use App\Services\UploadWikiImage;
 use App\Services\WrappedWiki;
 use App\Traits\GetWikiCsrfTokenTrait;
 use Exception;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -164,6 +165,10 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             }
 
             $this->uploadGalactapediaImage();
+        } catch (ConnectException $e) {
+            $this->release(60);
+
+            return;
         } catch (GuzzleException | RuntimeException $e) {
             app('Log')::error('Could not get an CSRF Token', $e->getResponse()->getErrors());
 
@@ -270,6 +275,10 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 ],
                 $categories->implode("\n"),
             );
+        } catch (ConnectException $e) {
+            $this->release(60);
+
+            return;
         } catch (GuzzleException | JsonException $e) {
             app('Log')::error('Could not upload Galactapedia Image: ' . $e->getMessage());
         }

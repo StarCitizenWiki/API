@@ -7,6 +7,7 @@ namespace App\Jobs\StarCitizen\Galactapedia;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Services\TranslateText;
 use Exception;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -58,7 +59,7 @@ class TranslateArticle implements ShouldQueue
 
         try {
             $translation = $translator->translate(config('services.deepl.target_locale'));
-        } catch (RateLimitedException $e) {
+        } catch (ConnectException | RateLimitedException $e) {
             $this->release(60);
 
             return;

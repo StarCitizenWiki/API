@@ -6,6 +6,8 @@ namespace App\Jobs\Wiki\CommLink;
 
 use App\Jobs\Wiki\ApproveRevisions;
 use App\Models\Rsi\CommLink\CommLink;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -86,7 +88,11 @@ class CreateCommLinkWikiPage implements ShouldQueue
                 ->markBotEdit()
                 ->createOnly()
                 ->request();
-        } catch (RuntimeException $e) {
+        } catch (ConnectException $e) {
+            $this->release(60);
+
+            return;
+        } catch (GuzzleException | RuntimeException $e) {
             app('Log')::error('Could not get an CSRF Token', $e->getResponse()->getErrors());
 
             $this->fail($e);
