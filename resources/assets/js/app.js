@@ -149,4 +149,10 @@ if (document.getElementById('g-live-search')) {
     })
 }
 
+if (document.getElementById('celestial-object-generator')) {
+    new window.Vue({
+        el: "#celestial-object-generator",
+    })
+}
+
 window.snarkdown = snarkdown
