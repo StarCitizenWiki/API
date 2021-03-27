@@ -139,7 +139,6 @@ class UploadGalactapediaWikiImages extends AbstractBaseDownloadData implements S
                 ],
                 $categories->implode("\n"),
             );
-
         } catch (ConnectException $e) {
             $this->release(60);
 
