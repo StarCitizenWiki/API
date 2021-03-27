@@ -83,22 +83,34 @@
               </div>
 
               <div class="row">
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-lg-4">
                   <div class="form-group">
                     <label for="economy">Wirtschaft</label>
                     <input type="number" class="form-control" id="economy" v-model="newObj.economy">
                   </div>
                 </div>
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-lg-4">
                   <div class="form-group">
                     <label for="danger">Gefahr</label>
                     <input type="number" class="form-control" id="danger" v-model="newObj.danger">
                   </div>
                 </div>
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-lg-4">
                   <div class="form-group">
                     <label for="population">Bevölkerung</label>
                     <input type="number" class="form-control" id="population" v-model="newObj.population">
+                  </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                  <div class="form-group" >
+                    <label for="control">Kontrolle</label>
+                    <select id="control" class="form-control" v-model="newObj.control">
+                      <option selected value="">Unbekannt</option>
+                      <option value="UEE">Menschen</option>
+                      <option value="Xi'an">Xi'an</option>
+                      <option value="Banu">Banu</option>
+                      <option value="Vanduul">Vanduul</option>
+                    </select>
                   </div>
                 </div>
                 <div class="col-12 col-lg-3">
@@ -113,7 +125,11 @@
             </div>
           </form>
         </div>
-        <pre id="out" class="text-monospace">{{out}}</pre>
+        <div class="col-12 col-lg-6 mx-auto">
+          <p>Generierter Wikitext:</p>
+          <pre id="out" class="text-monospace">{{out}}</pre>
+          <p>Weiter Informationen unter <a href="https://star-citizen.wiki/Vorlage:CelestialObject">Vorlage:CelestialObject</a>. Statt der Vorlage <code>CelestialObject</code> können auch alle weiteren Vorlagen wie <code>Planet</code>, <code>Raumstation</code>, <code>Stadt</code>, etc. verwendet werden.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -130,7 +146,10 @@ export default {
       out: '',
       hasError: false,
       error: '',
-      newObj: {},
+      newObj: {
+        type: 'ENTITY',
+        control: ''
+      },
 
       starSystems: [],
       selectedSystem: null,
@@ -233,7 +252,7 @@ export default {
 | Starmap Code = ${this.newObj.code}
 | Bezeichnung = ${this.newObj.name}
 | Typ = ${this.newObj.type}
-| Kontrolle = UEE
+| Kontrolle = ${this.newObj.control ?? ''}
 | Elternid = ${this.selectedChild.id}
 | ID = ${this.newObj.id}
 | Wirtschaft = ${this.newObj.economy ?? ''}
