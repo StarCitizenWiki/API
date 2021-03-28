@@ -7,10 +7,10 @@
     </div>
     <div class="card-body">
       <div class="alert alert-danger" v-if="hasError">Fehler bei der Suchabfrage! {{ error }}</div>
+      <div class="alert alert-info" v-if="loading">Lade Daten...</div>
       <div class="row">
         <div class="col-12 col-lg-6 mx-auto">
           <form method="POST" class="d-flex h-100 flex-column">
-
             <div class="row">
               <div class="col-12 col-lg-6">
                 <div class="form-group">
@@ -38,12 +38,12 @@
               </div>
               <div class="form-group">
                 <label for="code">Code</label>
-                <input type="text" class="form-control" id="code" disabled :value="newObj.code">
+                <input type="text" class="form-control" id="code" disabled v-on:change="generate" :value="newObj.code">
               </div>
 
               <div class="form-group" >
                 <label for="parentSelect">Typ</label>
-                <select id="typ" class="form-control" v-model="newObj.type">
+                <select id="typ" class="form-control" v-model="newObj.type" v-on:change="generate">
                   <option selected value="ENTITY">Entität</option>
                   <option value="SINGLE_STAR">SINGLE_STAR</option>
                   <option value="BINARY">BINARY</option>
@@ -70,7 +70,7 @@
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="id">ID</label>
-                    <input type="number" class="form-control" id="id" v-model="newObj.id">
+                    <input type="number" class="form-control" id="id" v-model="newObj.id" v-on:change="generate">
                   </div>
                 </div>
 
@@ -86,25 +86,25 @@
                 <div class="col-12 col-lg-4">
                   <div class="form-group">
                     <label for="economy">Wirtschaft</label>
-                    <input type="number" class="form-control" id="economy" v-model="newObj.economy">
+                    <input type="number" class="form-control" id="economy" v-on:change="generate" v-model="newObj.economy" min="0" max="10">
                   </div>
                 </div>
                 <div class="col-12 col-lg-4">
                   <div class="form-group">
                     <label for="danger">Gefahr</label>
-                    <input type="number" class="form-control" id="danger" v-model="newObj.danger">
+                    <input type="number" class="form-control" id="danger" v-on:change="generate" v-model="newObj.danger" min="0" max="10">
                   </div>
                 </div>
                 <div class="col-12 col-lg-4">
                   <div class="form-group">
                     <label for="population">Bevölkerung</label>
-                    <input type="number" class="form-control" id="population" v-model="newObj.population">
+                    <input type="number" class="form-control" id="population" v-on:change="generate" v-model="newObj.population" min="0" max="10">
                   </div>
                 </div>
                 <div class="col-12 col-lg-9">
                   <div class="form-group" >
                     <label for="control">Kontrolle</label>
-                    <select id="control" class="form-control" v-model="newObj.control">
+                    <select id="control" class="form-control" v-model="newObj.control" v-on:change="generate">
                       <option selected value="">Unbekannt</option>
                       <option value="UEE">Menschen</option>
                       <option value="Xi'an">Xi'an</option>
@@ -116,12 +116,10 @@
                 <div class="col-12 col-lg-3">
                   <div class="form-group">
                     <label for="habitable">Habitabel</label>
-                    <input type="checkbox" class="form-control" id="habitable" v-model="newObj.habitable">
+                    <input type="checkbox" class="form-control" id="habitable" v-model="newObj.habitable" v-on:change="generate">
                   </div>
                 </div>
               </div>
-
-              <button class="btn btn-outline-secondary btn-block" v-on:click="generate">Wikitext erstellen</button>
             </div>
           </form>
         </div>
@@ -143,6 +141,7 @@ export default {
   },
   data: function () {
     return {
+      loading: true,
       out: '',
       hasError: false,
       error: '',
@@ -150,7 +149,6 @@ export default {
         type: 'ENTITY',
         control: ''
       },
-
       starSystems: [],
       selectedSystem: null,
       childObjects: [],
@@ -163,6 +161,7 @@ export default {
     },
   },
   mounted() {
+    this.loading = true;
     axios.get(this.apiUrl, {
       mode: 'no-cors',
       params: {
@@ -174,12 +173,13 @@ export default {
     })
         .then((result) => {
           Object.entries(result.data.query.results).forEach(mapping => {
-
             this.starSystems.push({
               name: mapping[1]?.printouts?.code[0] ?? null,
               id: mapping[1]?.printouts?.id[0] ?? null,
             })
           });
+
+          this.loading = false;
         })
         .catch((error) => {
           this.hasError = true;
@@ -188,12 +188,12 @@ export default {
         })
   },
   methods: {
-
     loadChildren: function () {
       if (this.selectedSystem === null) {
         return;
       }
 
+      this.loading = true;
       this.hasError = false;
 
       this.childObjects =  [];
@@ -207,27 +207,33 @@ export default {
           formatversion: 2,
         }
       })
-          .then((result) => {
-            Object.entries(result.data.query.results).forEach(mapping => {
-              this.childObjects.push({
-                name: mapping[1]?.printouts['Bezeichnung'][0] ?? null,
-                id: mapping[1]?.printouts['ID'][0] ?? null,
-                system: mapping[1]?.printouts['Sternensystemid'][0] ?? null,
-                code: mapping[1]?.printouts['Starmap Code'][0] ?? null,
-                type: mapping[1]?.printouts['Typ'][0] ?? null,
-                control: mapping[1]?.printouts['Kontrolle'][0] ?? null,
-                parent: mapping[1]?.printouts['Elternid'][0] ?? null
-              })
-            });
+        .then((result) => {
+          Object.entries(result.data.query.results).forEach(mapping => {
+            this.childObjects.push({
+              name: mapping[1]?.printouts['Bezeichnung'][0] ?? null,
+              id: mapping[1]?.printouts['ID'][0] ?? null,
+              system: mapping[1]?.printouts['Sternensystemid'][0] ?? null,
+              code: mapping[1]?.printouts['Starmap Code'][0] ?? null,
+              type: mapping[1]?.printouts['Typ'][0] ?? null,
+              control: mapping[1]?.printouts['Kontrolle'][0] ?? null,
+              parent: mapping[1]?.printouts['Elternid'][0] ?? null
+            })
+          });
+
+          this.childObjects = this.childObjects.sort((a, b) => {
+            return a.name.localeCompare(b.name);
           })
-          .catch((error) => {
-            this.hasError = true;
-            this.error = error.message;
-            console.error(error);
-          })
+
+          this.loading = false;
+        })
+        .catch((error) => {
+          this.hasError = true;
+          this.error = error.message;
+          console.error(error);
+        })
     },
 
-    updateChildId: function () {
+    updateChildId: function (e) {
       let id = Number.parseInt(`${this.selectedChild.id}1`, 10)
 
       this.childObjects.forEach(child => {
@@ -242,7 +248,9 @@ export default {
         }
       })
 
-      this.newObj.id = id
+      this.newObj.id = id;
+      this.generate(e);
+      this.setCode(e);
     },
 
     generate: function (e) {
@@ -261,9 +269,8 @@ export default {
 | Habitabel = ${this.newObj.habitable ? 'Ja' : 'Nein'}
 }}`;
     },
-
-    setCode: function () {
-      if (this.newObj.name === null) {
+    setCode: function (e) {
+      if (typeof this.newObj.name === 'undefined' || this.newObj.name === null) {
         return;
       }
 
@@ -276,6 +283,8 @@ export default {
           .toUpperCase();
 
       this.newObj.code = `${this.selectedChild.code}.${str}`
+
+      this.generate(e);
     }
   }
 }
