@@ -57,7 +57,9 @@ class UploadWikiImage
             $response->addParam('filesize', $metadata['filesize']);
         }
 
-        $response = $response->csrfToken($token)->request();
+        $response = $response
+            ->csrfToken($token)
+            ->request();
 
         return json_encode($response->getBody(), JSON_THROW_ON_ERROR);
     }

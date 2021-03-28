@@ -81,7 +81,7 @@ trait GetWikiCsrfTokenTrait
     private function requestToken(): MediaWikiResponse
     {
         try {
-            $token = MediaWikiApi::query()->meta('tokens')->request();
+            $token = MediaWikiApi::query()->withAuthentication()->meta('tokens')->request();
 
             if ($token->hasErrors()) {
                 throw new ErrorException(json_encode($token->getBody(), JSON_THROW_ON_ERROR));
