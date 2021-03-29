@@ -432,7 +432,7 @@ export default {
 | ID = ${this.newObj.id}
 | Wirtschaft = ${this.newObj.economy ?? ''}
 | Bevölkerungsgröße = ${this.newObj.population ?? ''}
-| Gefahrenalge = ${this.newObj.danger ?? ''}
+| Gefahrenlage = ${this.newObj.danger ?? ''}
 | Habitabel = ${this.newObj.habitable ? 'Ja' : 'Nein'}
 ${this.addSystemEntityData()}
 }}`;
