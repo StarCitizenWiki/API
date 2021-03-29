@@ -63,6 +63,7 @@
                   <option value="STRUCTURE">Struktur</option>
                   <option value="SHELTER">Unterkunft</option>
                   <option value="CAVE">Höhle</option>
+                  <option value="PERSON">Person</option>
                 </select>
               </div>
 
