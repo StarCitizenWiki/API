@@ -139,31 +139,42 @@
               </div>
 
               <div class="row" v-if="isSystemEntity">
-                <div class="col-12 col-lg-3">
+                <div class="col-12">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="quantumbeacon" v-model="newObj.quantumbeacon" v-on:change="generate">
-                    <label class="form-check-label" for="quantumbeacon">Navigationspunkt</label>
+                    <input class="form-check-input" type="checkbox" id="zones" checked v-model="noZones" v-on:change="generate">
+                    <label class="form-check-label" for="zones">Zonen entfernen</label>
                   </div>
                 </div>
 
-                <div class="col-12 col-lg-3">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="weapon_zone" v-model="newObj.weapon_zone" v-on:change="generate">
-                    <label class="form-check-label" for="weapon_zone">Waffenfreie Zone</label>
-                  </div>
-                </div>
+                <div class="col-12" v-if="!noZones">
+                  <div class="row">
+                    <div class="col-12 col-lg-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="quantumbeacon" v-model="newObj.quantumbeacon" v-on:change="generate">
+                        <label class="form-check-label" for="quantumbeacon">Navigationspunkt</label>
+                      </div>
+                    </div>
 
-                <div class="col-12 col-lg-3">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="controlled_zone" v-model="newObj.controlled_zone" v-on:change="generate">
-                    <label class="form-check-label" for="controlled_zone">Überwachung von Straftaten</label>
-                  </div>
-                </div>
+                    <div class="col-12 col-lg-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="weapon_zone" v-model="newObj.weapon_zone" v-on:change="generate">
+                        <label class="form-check-label" for="weapon_zone">Waffenfreie Zone</label>
+                      </div>
+                    </div>
 
-                <div class="col-12 col-lg-3">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="atc" v-model="newObj.atc" v-on:change="generate">
-                    <label class="form-check-label" for="atc">Lande- und Startkontrolle</label>
+                    <div class="col-12 col-lg-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="controlled_zone" v-model="newObj.controlled_zone" v-on:change="generate">
+                        <label class="form-check-label" for="controlled_zone">Überwachung von Straftaten</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-lg-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="atc" v-model="newObj.atc" v-on:change="generate">
+                        <label class="form-check-label" for="atc">Lande- und Startkontrolle</label>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -314,6 +325,7 @@ export default {
       childObjects: [],
       selectedChild: null,
       hideBox: false,
+      noZones: false,
     }
   },
   computed: {
@@ -439,20 +451,17 @@ ${this.addSystemEntityData()}
 }}`;
     },
     addSystemEntityData: function () {
-      if (!this.isSystemEntity) {
+      if ( !this.isSystemEntity ) {
         return ''
       }
 
-      return `| Quantum Beacon = ${this.newObj.quantumbeacon ? 'Ja' : 'Nein'}
-| Waffenfreie Zone = ${this.newObj.weapon_zone ? 'Ja' : 'Nein'}
-| Überwachte Zone = ${this.newObj.controlled_zone ? 'Ja' : 'Nein'}
-| ATC = ${this.newObj.atc ? 'Ja' : 'Nein'}
+      if (this.newObj.type === 'Person') {
+        return this.hideBox === true ? `| Infobox = Nein` : '';
+      }
+
+      return `${this.bools()}
 | Rechtsraum = ${this.newObj.control_type ?? ''}
-| Anzahl Landeplattformen = ${this.newObj.landing_platforms ?? ''}
-| Anzahl Hangar = ${this.newObj.hangars ?? ''}
-| Anzahl Garagen = ${this.newObj.garages ?? ''}
-| Anzahl Bodenfahrzeugkonsolen = ${this.newObj.vehicle_terminals ?? ''}
-| Anzahl Raumschiffkonsolen = ${this.newObj.ship_terminals ?? ''}
+${this.hangars()}
 | Temperatur Schattenseite = ${this.newObj.temp_shadow ? `${this.newObj.temp_shadow} °C` : ''}
 | Temperatur Sonnenseite = ${this.newObj.temp_sun ? `${this.newObj.temp_sun} °C` : ''}
 | Anzahl Händler = ${this.newObj.merchants ?? ''}
@@ -477,6 +486,27 @@ ${this.addSystemEntityData()}
       this.newObj.code = `${this.selectedChild.code}.${str}`
 
       this.generate(e);
+    },
+    hangars: function () {
+      if (this.newObj.type === 'PERSON') {
+        return ''
+      }
+
+      return `| Anzahl Landeplattformen = ${this.newObj.landing_platforms ?? ''}
+| Anzahl Hangar = ${this.newObj.hangars ?? ''}
+| Anzahl Garagen = ${this.newObj.garages ?? ''}
+| Anzahl Bodenfahrzeugkonsolen = ${this.newObj.vehicle_terminals ?? ''}
+| Anzahl Raumschiffkonsolen = ${this.newObj.ship_terminals ?? ''}`
+    },
+    bools: function () {
+      if (this.noZones || this.newObj.type === 'PERSON') {
+        return ''
+      }
+
+      return `| ATC = ${this.newObj.atc ? 'Ja' : 'Nein'}
+| Quantum Beacon = ${this.newObj.quantumbeacon ? 'Ja' : 'Nein'}
+| Waffenfreie Zone = ${this.newObj.weapon_zone ? 'Ja' : 'Nein'}
+| Überwachte Zone = ${this.newObj.controlled_zone ? 'Ja' : 'Nein'}`
     }
   }
 }
