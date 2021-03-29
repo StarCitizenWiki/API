@@ -41,28 +41,28 @@
                 <input type="text" class="form-control" id="code" disabled v-on:change="generate" :value="newObj.code">
               </div>
 
-              <div class="form-group" >
+              <div class="form-group">
                 <label for="parentSelect">Typ</label>
                 <select id="typ" class="form-control" v-model="newObj.type" v-on:change="generate">
                   <option selected value="ENTITY">Entität</option>
-                  <option value="SINGLE_STAR">SINGLE_STAR</option>
-                  <option value="BINARY">BINARY</option>
-                  <option value="JUMPPOINT">JUMPPOINT</option>
-                  <option value="PLANET">PLANET</option>
-                  <option value="ASTEROID_BELT">ASTEROID_BELT</option>
-                  <option value="ASTEROID_FIELD">ASTEROID_FIELD</option>
-                  <option value="SATELLITE">SATELLITE</option>
-                  <option value="MANMADE">MANMADE</option>
-                  <option value="STAR">STAR</option>
-                  <option value="BLACKHOLE">BLACKHOLE</option>
+                  <option value="SINGLE_STAR">Einzelner Stern</option>
+                  <option value="BINARY">Binärer Stern</option>
+                  <option value="JUMPPOINT">Sprungpunkt</option>
+                  <option value="PLANET">Planet</option>
+                  <option value="ASTEROID_BELT">Asteroidengürtel</option>
+                  <option value="ASTEROID_FIELD">Asteroidenfeld</option>
+                  <option value="SATELLITE">Mond</option>
+                  <option value="MANMADE">Raumstation</option>
+                  <option value="STAR">Stern</option>
+                  <option value="BLACKHOLE">Schwarzes Loch</option>
                   <option value="POI">POI</option>
-                  <option value="TOWN">TOWN</option>
-                  <option value="SETTLEMENT">SETTLEMENT</option>
-                  <option value="STATE">STATE</option>
-                  <option value="ENTITY">ENTITY</option>
-                  <option value="STRUCTURE">STRUCTURE</option>
-                  <option value="SHELTER">SHELTER</option>
-                  <option value="CAVE">CAVE</option>
+                  <option value="TOWN">Stadt</option>
+                  <option value="LANDINGZONE">Landezone</option>
+                  <option value="SETTLEMENT">Siedlung</option>
+                  <option value="STATE">Staat</option>
+                  <option value="STRUCTURE">Struktur</option>
+                  <option value="SHELTER">Unterkunft</option>
+                  <option value="CAVE">Höhle</option>
                 </select>
               </div>
 
@@ -119,6 +119,161 @@
                     <input type="checkbox" class="form-control" id="habitable" v-model="newObj.habitable" v-on:change="generate">
                   </div>
                 </div>
+
+                <div class="col-12 col-lg-6 my-3">
+                  <hr>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="isSystemEntity" v-model="isSystemEntity" v-on:change="generate">
+                    <label class="form-check-label" for="isSystemEntity">Dies ist ein Sternensystemobjekt</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6 my-3">
+                  <hr>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="hideBox" v-model="hideBox" v-on:change="generate">
+                    <label class="form-check-label" for="hideBox">Infobox verstecken</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" v-if="isSystemEntity">
+                <div class="col-12 col-lg-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="quantumbeacon" v-model="newObj.quantumbeacon" v-on:change="generate">
+                    <label class="form-check-label" for="quantumbeacon">Navigationspunkt</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="weapon_zone" v-model="newObj.weapon_zone" v-on:change="generate">
+                    <label class="form-check-label" for="weapon_zone">Waffenfreie Zone</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="controlled_zone" v-model="newObj.controlled_zone" v-on:change="generate">
+                    <label class="form-check-label" for="controlled_zone">Überwachung von Straftaten</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="atc" v-model="newObj.atc" v-on:change="generate">
+                    <label class="form-check-label" for="atc">Lande- und Startkontrolle</label>
+                  </div>
+                </div>
+
+                <div class="col-12 mt-3">
+                  <div class="form-group">
+                    <label for="control_type">Rechtsraum</label>
+                    <select id="control_type" class="form-control" v-model="newObj.control_type" v-on:change="generate">
+                      <option selected value="Crusader">Crusader</option>
+                      <option value="Hurston">Hurston</option>
+                      <option value="ArcCorp">ArcCorp</option>
+                      <option value="Microtech">Microtech</option>
+                      <option value="GrimHex">GrimHex</option>
+                      <option value="Klescher R.F.">Klescher R.F.</option>
+                    </select>
+                  </div>
+                </div>
+
+                <hr>
+
+                <div class="col-12 col-lg-4">
+                  <div class="form-group">
+                    <label for="landing_platforms">Landeplattformen</label>
+                    <input type="number" class="form-control" id="landing_platforms" v-on:change="generate" v-model="newObj.landing_platforms" min="0" max="50">
+                    <small class="form-text text-muted">Anzahl Landeplattformen</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-4">
+                  <div class="form-group">
+                    <label for="hangars">Hangars</label>
+                    <input type="number" class="form-control" id="hangars" v-on:change="generate" v-model="newObj.hangars" min="0" max="50">
+                    <small class="form-text text-muted">Anzahl Hangars für Raumschiffe</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-4">
+                  <div class="form-group">
+                    <label for="garages">Garagen</label>
+                    <input type="number" class="form-control" id="garages" v-on:change="generate" v-model="newObj.garages" min="0" max="50">
+                    <small class="form-text text-muted">Anzahl Garagen für Bodenfahrzeuge</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="vehicle_terminals">Konsole zum Abrufen von Bodenfahrzeugen</label>
+                    <input type="text" class="form-control" id="vehicle_terminals" v-on:change="generate" v-model="newObj.vehicle_terminals">
+                    <small class="form-text text-muted">z.B. 2x Platinum Bay</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="ship_terminals">Konsole zum Abrufen von Raumschiffen</label>
+                    <input type="number" class="form-control" id="ship_terminals" v-on:change="generate" v-model="newObj.ship_terminals" min="0" max="50">
+                    <small class="form-text text-muted">Anzahl Konsolen</small>
+                  </div>
+                </div>
+
+                <hr>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="temp_shadow">Temperatur (Schattenseite)</label>
+                    <input type="number" class="form-control" id="temp_shadow" v-on:change="generate" v-model="newObj.temp_shadow">
+                    <small class="form-text text-muted">Temperatur ohne Einheit, z.B.: -100 für -100°C</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="temp_sun">Temperatur (Sonnenseite)</label>
+                    <input type="number" class="form-control" id="temp_sun" v-on:change="generate" v-model="newObj.temp_sun">
+                    <small class="form-text text-muted">Temperatur ohne Einheit, z.B.: 60 für 60°C</small>
+                  </div>
+                </div>
+
+                <hr>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="merchants">Anzahl Händler</label>
+                    <input type="number" class="form-control" id="merchants" v-on:change="generate" v-model="newObj.merchants" min="0" max="20">
+                    <small class="form-text text-muted">Anzahl Händler</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="paket_stations">Paketstation</label>
+                    <input type="number" class="form-control" id="paket_stations" v-on:change="generate" v-model="newObj.paket_stations" min="0" max="20">
+                    <small class="form-text text-muted">Anzahl Paketstationen</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="merchants_terminals">Ein- und Verkauf von Handelsware</label>
+                    <input type="text" class="form-control" id="merchants_terminals" v-on:change="generate" v-model="newObj.merchants_terminals">
+                    <small class="form-text text-muted">z.B. 1x Trading & Shipping Terminal, 1x Admin Office</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="refineries">Raffineriestationen</label>
+                    <input type="text" class="form-control" id="refineries" v-on:change="generate" v-model="newObj.refineries">
+                    <small class="form-text text-muted">Anzahl der Verkaufs und Raffineriestationen, z.B. "Verkauf, 2x Raffinerie" zur Angabe von einer Verkaufsstation und 2 Raffineriestationen</small>
+                  </div>
+                </div>
+
               </div>
             </div>
           </form>
@@ -127,6 +282,7 @@
           <p>Generierter Wikitext:</p>
           <pre id="out" class="text-monospace">{{out}}</pre>
           <p>Weiter Informationen unter <a href="https://star-citizen.wiki/Vorlage:CelestialObject">Vorlage:CelestialObject</a>. Statt der Vorlage <code>CelestialObject</code> können auch alle weiteren Vorlagen wie <code>Planet</code>, <code>Raumstation</code>, <code>Stadt</code>, etc. verwendet werden.</p>
+          <p>Füge diesen Text auf der Seite <a :href="`${wikiPageName}?action=edit`">{{wikiPageName}}</a> ein</p>
         </div>
       </div>
     </div>
@@ -147,23 +303,33 @@ export default {
       error: '',
       newObj: {
         type: 'ENTITY',
-        control: ''
+        control: '',
+        code: '',
+        name: '',
       },
+      isSystemEntity: false,
       starSystems: [],
       selectedSystem: null,
       childObjects: [],
-      selectedChild: null
+      selectedChild: null,
+      hideBox: false,
     }
   },
   computed: {
     parent: function () {
       return this.selectedChild.parent ?? this.selectedChild.id
     },
+    wikiPageName: function () {
+      if (typeof this.newObj.name === 'undefined') {
+        return '';
+      }
+
+      return `https://star-citizen.wiki/${this.newObj.name.trim().replace(/\s/g, '_')}`
+    }
   },
   mounted() {
     this.loading = true;
     axios.get(this.apiUrl, {
-      mode: 'no-cors',
       params: {
         action: 'ask',
         query: `[[Kategorie:Sternensystem]][[ID::<500]]|?Starmap Code#-=code|?ID#-=id|limit=250`,
@@ -171,21 +337,21 @@ export default {
         formatversion: 2,
       }
     })
-        .then((result) => {
-          Object.entries(result.data.query.results).forEach(mapping => {
-            this.starSystems.push({
-              name: mapping[1]?.printouts?.code[0] ?? null,
-              id: mapping[1]?.printouts?.id[0] ?? null,
-            })
-          });
+      .then((result) => {
+        Object.entries(result.data.query.results).forEach(mapping => {
+          this.starSystems.push({
+            name: mapping[1]?.printouts?.code[0] ?? null,
+            id: mapping[1]?.printouts?.id[0] ?? null,
+          })
+        });
 
-          this.loading = false;
-        })
-        .catch((error) => {
-          this.hasError = true;
-          this.error = error.message;
-          console.error(error);
-        })
+        this.loading = false;
+      })
+      .catch((error) => {
+        this.hasError = true;
+        this.error = error.message;
+        console.error(error);
+      })
   },
   methods: {
     loadChildren: function () {
@@ -199,7 +365,6 @@ export default {
       this.childObjects =  [];
 
       axios.get(this.apiUrl, {
-        mode: 'no-cors',
         params: {
           action: 'ask',
           query: `[[Sternensystemid::${this.selectedSystem.id}]]|?Sternensystemid|?Starmap Code|?Bezeichnung|?Typ|?Kontrolle|?ID|?Elternid|limit=250`,
@@ -255,7 +420,9 @@ export default {
 
     generate: function (e) {
       e.preventDefault();
-      this.out = `{{CelestialObject
+
+      this.out = `{{${(this.isSystemEntity ? 'SystemEntity' : 'CelestialObject')}
+| image =
 | Sternensystemid = ${this.selectedSystem.id}
 | Starmap Code = ${this.newObj.code}
 | Bezeichnung = ${this.newObj.name}
@@ -267,7 +434,31 @@ export default {
 | Bevölkerungsgröße = ${this.newObj.population ?? ''}
 | Gefahrenalge = ${this.newObj.danger ?? ''}
 | Habitabel = ${this.newObj.habitable ? 'Ja' : 'Nein'}
+${this.addSystemEntityData()}
 }}`;
+    },
+    addSystemEntityData: function () {
+      if (!this.isSystemEntity) {
+        return ''
+      }
+
+      return `| Quantum Beacon = ${this.newObj.quantumbeacon ? 'Ja' : 'Nein'}
+| Waffenfreie Zone = ${this.newObj.weapon_zone ? 'Ja' : 'Nein'}
+| Überwachte Zone = ${this.newObj.controlled_zone ? 'Ja' : 'Nein'}
+| ATC = ${this.newObj.atc ? 'Ja' : 'Nein'}
+| Rechtsraum = ${this.newObj.control_type ?? ''}
+| Anzahl Landeplattformen = ${this.newObj.landing_platforms ?? ''}
+| Anzahl Hangar = ${this.newObj.hangars ?? ''}
+| Anzahl Garagen = ${this.newObj.garages ?? ''}
+| Anzahl Bodenfahrzeugkonsolen = ${this.newObj.vehicle_terminals ?? ''}
+| Anzahl Raumschiffkonsolen = ${this.newObj.ship_terminals ?? ''}
+| Temperatur Schattenseite = ${this.newObj.temp_shadow ?? ''}
+| Temperatur Sonnenseite = ${this.newObj.temp_sun ?? ''}
+| Anzahl Händler = ${this.newObj.merchants ?? ''}
+| Handelsterminals = ${this.newObj.merchants_terminals ?? ''}
+| Anzahl Paketstationen = ${this.newObj.paket_stations ?? ''}
+| Raffineriestationen = ${this.newObj.refineries ?? ''}${(this.hideBox === true ? `
+| Infobox = Nein` : '')}`
     },
     setCode: function (e) {
       if (typeof this.newObj.name === 'undefined' || this.newObj.name === null) {
