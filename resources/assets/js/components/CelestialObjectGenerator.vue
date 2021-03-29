@@ -227,16 +227,16 @@
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="temp_shadow">Temperatur (Schattenseite)</label>
-                    <input type="number" class="form-control" id="temp_shadow" v-on:change="generate" v-model="newObj.temp_shadow">
-                    <small class="form-text text-muted">Temperatur ohne Einheit, z.B.: -100 für -100°C</small>
+                    <input type="number" class="form-control" id="temp_shadow" v-on:change="generate" v-on:input="generate" v-model="newObj.temp_shadow">
+                    <small class="form-text text-muted">Temperatur mit Einheit, z.B.: -100°C</small>
                   </div>
                 </div>
 
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="temp_sun">Temperatur (Sonnenseite)</label>
-                    <input type="number" class="form-control" id="temp_sun" v-on:change="generate" v-model="newObj.temp_sun">
-                    <small class="form-text text-muted">Temperatur ohne Einheit, z.B.: 60 für 60°C</small>
+                    <input type="number" class="form-control" id="temp_sun" v-on:change="generate" v-on:input="generate" v-model="newObj.temp_sun">
+                    <small class="form-text text-muted">Temperatur mit Einheit, z.B.: 60°C</small>
                   </div>
                 </div>
 
@@ -245,7 +245,7 @@
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="merchants">Anzahl Händler</label>
-                    <input type="number" class="form-control" id="merchants" v-on:change="generate" v-model="newObj.merchants" min="0" max="20">
+                    <input type="number" class="form-control" id="merchants" v-on:change="generate" v-on:input="generate" v-model="newObj.merchants" min="0" max="20">
                     <small class="form-text text-muted">Anzahl Händler</small>
                   </div>
                 </div>
@@ -253,7 +253,7 @@
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="paket_stations">Paketstation</label>
-                    <input type="number" class="form-control" id="paket_stations" v-on:change="generate" v-model="newObj.paket_stations" min="0" max="20">
+                    <input type="number" class="form-control" id="paket_stations" v-on:change="generate" v-on:input="generate" v-model="newObj.paket_stations" min="0" max="20">
                     <small class="form-text text-muted">Anzahl Paketstationen</small>
                   </div>
                 </div>
@@ -261,7 +261,7 @@
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="merchants_terminals">Ein- und Verkauf von Handelsware</label>
-                    <input type="text" class="form-control" id="merchants_terminals" v-on:change="generate" v-model="newObj.merchants_terminals">
+                    <input type="text" class="form-control" id="merchants_terminals" v-on:change="generate" v-on:input="generate" v-model="newObj.merchants_terminals">
                     <small class="form-text text-muted">z.B. 1x Trading & Shipping Terminal, 1x Admin Office</small>
                   </div>
                 </div>
@@ -269,7 +269,7 @@
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="refineries">Raffineriestationen</label>
-                    <input type="text" class="form-control" id="refineries" v-on:change="generate" v-model="newObj.refineries">
+                    <input type="text" class="form-control" id="refineries" v-on:change="generate" v-on:input="generate" v-model="newObj.refineries">
                     <small class="form-text text-muted">Anzahl der Verkaufs und Raffineriestationen, z.B. "Verkauf, 2x Raffinerie" zur Angabe von einer Verkaufsstation und 2 Raffineriestationen</small>
                   </div>
                 </div>
@@ -452,8 +452,8 @@ ${this.addSystemEntityData()}
 | Anzahl Garagen = ${this.newObj.garages ?? ''}
 | Anzahl Bodenfahrzeugkonsolen = ${this.newObj.vehicle_terminals ?? ''}
 | Anzahl Raumschiffkonsolen = ${this.newObj.ship_terminals ?? ''}
-| Temperatur Schattenseite = ${this.newObj.temp_shadow ?? ''}
-| Temperatur Sonnenseite = ${this.newObj.temp_sun ?? ''}
+| Temperatur Schattenseite = ${this.newObj.temp_shadow ? `${this.newObj.temp_shadow} °C` : ''}
+| Temperatur Sonnenseite = ${this.newObj.temp_sun ? `${this.newObj.temp_sun} °C` : ''}
 | Anzahl Händler = ${this.newObj.merchants ?? ''}
 | Handelsterminals = ${this.newObj.merchants_terminals ?? ''}
 | Anzahl Paketstationen = ${this.newObj.paket_stations ?? ''}
