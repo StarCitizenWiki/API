@@ -40,3 +40,26 @@
     flex-basis: 25%;
   }
 }
+
+
+.image-card-column {
+  &.images-index {
+    column-count: 5;
+  }
+}
+
+@media (max-width: 576px) {
+  .image-card-column {
+    &.images-index {
+      column-count: 3;
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .image-card-column {
+    &.images-index {
+      column-count: 1;
+    }
+  }
+}

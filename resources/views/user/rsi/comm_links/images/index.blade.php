@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <div class="card-columns image-card-column">
+    <div class="card-columns image-card-column images-index">
         @foreach($images as $image)
             @include('user.rsi.comm_links.components.image_info_card', ['image' => $image])
         @endforeach

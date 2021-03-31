@@ -98,7 +98,7 @@
 
                         <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="nav-images-tab">
                             @unless(empty($commLink->images))
-                                <div class="card-columns image-card-column" style="column-count: 3">
+                                <div class="card-columns image-card-column images-show" style="column-count: 3">
                                     @foreach($commLink->images as $image)
                                         @include('user.rsi.comm_links.components.image_info_card', ['image' => $image])
                                     @endforeach
