@@ -4,7 +4,6 @@ namespace Tests\Feature\Controller\Web\Api;
 
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
-use App\Models\System\Notification;
 use Tests\TestCase;
 
 /**
@@ -34,29 +33,6 @@ class PageControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('web.api.index'));
         $response->assertStatus(403);
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\Api\PageController::showStatusView
-     */
-    public function testStatusView()
-    {
-        $response = $this->actingAs($this->user)->get(route('web.api.status'));
-        $response->assertOk()
-            ->assertViewIs('api.pages.status')
-            ->assertSee(__('Keine Probleme gemeldet'));
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\Api\PageController::showStatusView
-     */
-    public function testStatusViewWithNotifications()
-    {
-        $notification = Notification::factory()->active()->create();
-        $response = $this->actingAs($this->user)->get(route('web.api.status'));
-        $response->assertOk()
-            ->assertViewIs('api.pages.status')
-            ->assertSee($notification->content);
     }
 
     /**
