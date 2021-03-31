@@ -10,7 +10,6 @@ use App\Policies\Web\User\Account\AccountPolicy;
 use App\Policies\Web\User\Changelog\ChangelogPolicy;
 use App\Policies\Web\User\DashboardPolicy;
 use App\Policies\Web\User\Job\JobPolicy;
-use App\Policies\Web\User\Notification\NotificationPolicy;
 use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
 use App\Policies\Web\User\Rsi\Stat\StatPolicy;
 use App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy;
@@ -82,7 +81,6 @@ class AuthServiceProvider extends ServiceProvider
             }
         );
 
-        Gate::resource('web.user.notifications', NotificationPolicy::class);
         Gate::resource('web.user.users', UserPolicy::class);
 
         /*

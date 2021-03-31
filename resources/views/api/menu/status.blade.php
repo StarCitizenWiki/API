@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('web.api.status'),
+    'route' => 'https://status.star-citizen.wiki',
 ])
     <div class="row">
         <div class="col-1">

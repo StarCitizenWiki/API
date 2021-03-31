@@ -5,16 +5,6 @@
 
 {{-- Page Content --}}
 @section('content')
-    <div class="mb-3 mb-lg-5">
-        @foreach($notifications as $notification)
-            <div class="alert alert-{{ $notification->getBootstrapClass() }}">
-                <span class="mr-1">{{ $notification->created_at->format('d.m.Y H:i') }}</span>
-                &mdash;
-                <span class="ml-1">{{ $notification->content }}</span>
-            </div>
-        @endforeach
-    </div>
-
     <div class="card">
         <img src="{{ asset('media/images/api_index.jpg') }}" class="card-img-top">
         <div class="card-body">

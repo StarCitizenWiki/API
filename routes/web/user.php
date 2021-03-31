@@ -107,7 +107,6 @@ Route::group(
 
                 Route::resources(
                     [
-                        'notifications' => 'Notification\NotificationController',
                         'users' => 'User\UserController',
                         'changelogs' => 'Changelog\ChangelogController',
                         'transcripts' => 'Transcript\TranscriptController',
