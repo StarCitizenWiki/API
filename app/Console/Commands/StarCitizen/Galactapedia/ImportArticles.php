@@ -22,7 +22,7 @@ class ImportArticles extends AbstractQueueCommand
      *
      * @var string
      */
-    protected $description = 'Import articles from all imported categories.';
+    protected $description = 'Import all articles.';
 
     /**
      * Execute the console command.
@@ -31,16 +31,7 @@ class ImportArticles extends AbstractQueueCommand
      */
     public function handle(): int
     {
-        $categories = Category::all();
-
-        $this->createProgressBar($categories->count());
-
-        $categories
-            ->each(function (Category $category) {
-                $this->bar->advance();
-                ImportArticlesFromCategory::dispatch($category);
-            });
-
+        \App\Jobs\StarCitizen\Galactapedia\ImportArticles::dispatch();
         return 0;
     }
 }
