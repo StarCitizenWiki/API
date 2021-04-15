@@ -171,14 +171,12 @@ class ImportCommLink implements ShouldQueue
     {
         $metaData = (new Metadata($this->crawler))->getMetaData();
 
-        if ($metaData['created_at'] === Metadata::DEFAULT_CREATION_DATE) {
-            $metaData->put(
-                'created_at',
-                $this->createTimestampFromFile(
-                    $this->getFirstCommLinkFileName()
-                ) ?? Metadata::DEFAULT_CREATION_DATE
-            );
-        }
+        $metaData->put(
+            'created_at',
+            $this->createTimestampFromFile(
+                $this->getFirstCommLinkFileName()
+            ) ?? Metadata::DEFAULT_CREATION_DATE
+        );
 
         return [
             'title' => $metaData->get('title'),
