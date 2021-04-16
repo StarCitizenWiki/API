@@ -25,6 +25,8 @@ class WeaponPersonalTransformer extends AbstractTranslationTransformer
      */
     public function transform(WeaponPersonal $weapon): array
     {
+        $this->missingTranslations = [];
+
         return [
             'name' => $weapon->name,
             'description' => $this->getTranslation($weapon),
