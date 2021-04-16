@@ -23,7 +23,7 @@ class CreateScUnpackedPersonalWeaponModesTable extends Migration
             $table->unsignedDouble('dps');
             $table->timestamps();
 
-            $table->foreign('weapon_id')
+            $table->foreign('weapon_id', 'weapon_weapon_id_foreign')
                 ->references('id')
                 ->on('star_citizen_unpacked_personal_weapons')
                 ->onDelete('cascade');

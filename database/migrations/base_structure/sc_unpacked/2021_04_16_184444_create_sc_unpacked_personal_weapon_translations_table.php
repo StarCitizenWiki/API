@@ -23,8 +23,8 @@ class CreateScUnpackedPersonalWeaponTranslationsTable extends Migration
             $table->timestamps();
 
             $table->unique(['locale_code', 'weapon_id'], 'weapon_translations_primary');
-            $table->foreign('locale_code')->references('locale_code')->on('languages');
-            $table->foreign('weapon_id')
+            $table->foreign('locale_code', 'weapon_translations_locale')->references('locale_code')->on('languages');
+            $table->foreign('weapon_id', 'weapon_weapon_id_foreign')
                 ->references('id')
                 ->on('star_citizen_unpacked_personal_weapons')
                 ->onDelete('cascade');
