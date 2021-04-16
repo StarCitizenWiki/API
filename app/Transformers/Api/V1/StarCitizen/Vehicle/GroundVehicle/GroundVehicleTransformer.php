@@ -51,6 +51,11 @@ class GroundVehicleTransformer extends VehicleTransformer
                 'code' => $groundVehicle->manufacturer->name_short,
                 'name' => $groundVehicle->manufacturer->name,
             ],
+            'insurance' => [
+                'claim_time' => $groundVehicle->unpacked->claim_time ?? 0,
+                'expedite_time' => $groundVehicle->unpacked->expedite_time ?? 0,
+                'expedite_cost' => $groundVehicle->unpacked->expedite_cost ?? 0,
+            ],
             'updated_at' => $groundVehicle->updated_at,
             'missing_translations' => $this->missingTranslations,
         ];

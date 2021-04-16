@@ -64,8 +64,11 @@ class Vehicle implements ShouldQueue
             'operations_crew' => $vehicle['OperationsCrew'],
             'mass' => $vehicle['Mass'],
 
-            'health_nose' => $this->numFormat($vehicle['DamageBeforeDestruction']['Nose'] ?? 0),
-            'health_body' => $this->numFormat($vehicle['DamageBeforeDestruction']['Body'] ?? 0),
+            'health_body' => $this->numFormat(
+                $vehicle['DamageBeforeDestruction']['Body'] ??
+                $vehicle['DamageBeforeDestruction']['rollcage_main'] ??
+                0
+            ),
 
             'scm_speed' => $this->numFormat($vehicle['FlightCharacteristics']['ScmSpeed']),
             'max_speed' => $this->numFormat($vehicle['FlightCharacteristics']['MaxSpeed']),
