@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Abstract Vehicle Class
@@ -234,6 +235,16 @@ class Vehicle extends HasTranslations implements \App\Contracts\HasChangelogsInt
     public function size(): BelongsTo
     {
         return $this->belongsTo(Size::class);
+    }
+
+    /**
+     * Unpacked Data
+     *
+     * @return HasOne
+     */
+    public function unpacked(): HasOne
+    {
+        return $this->hasOne(\App\Models\StarCitizenUnpacked\Vehicle::class, 'shipmatrix_id', 'id');
     }
 
     /**
