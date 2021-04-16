@@ -33,6 +33,7 @@ use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
+use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
@@ -94,7 +95,8 @@ class Kernel extends ConsoleKernel
 
         FixChangelogNamespaces::class,
 
-        ImportVehicles::class
+        ImportVehicles::class,
+        ImportWeaponPersonal::class,
     ];
 
     /**

@@ -97,6 +97,8 @@ DEEPL_TARGET_LOCALE=
 RSI_USERNAME=
 RSI_PASSWORD=
 
+SC_DATA_VERSION=3.13
+
 ```
 
 ## Simple Docker-Compose

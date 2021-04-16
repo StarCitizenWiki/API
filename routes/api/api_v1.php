@@ -300,3 +300,29 @@ $api->group(
     }
 );
 
+$api->group(
+    [
+        'namespace' => 'StarCitizenUnpacked',
+    ],
+    static function (Router $api) {
+        $api->group(
+            [
+                'namespace' => 'Weapons',
+                'prefix' => 'weapons',
+            ],
+            static function (Router $api) {
+
+                /**
+                 * Index
+                 */
+                $api->get(
+                    '/personal',
+                    [
+                        'as' => 'api.v1.scunpacked.weapons.personal.index',
+                        'uses' => 'WeaponPersonalController@index',
+                    ]
+                );
+            }
+        );
+    }
+);

@@ -21,7 +21,7 @@ class ShipTransformer extends VehicleTransformer
     {
         $this->missingTranslations = [];
 
-        return [
+        $data = [
             'id' => $ship->cig_id,
             'chassis_id' => $ship->chassis_id,
             'name' => $ship->name,
@@ -104,5 +104,11 @@ class ShipTransformer extends VehicleTransformer
             'updated_at' => $ship->updated_at,
             'missing_translations' => $this->missingTranslations,
         ];
+
+        if (optional($ship->unpacked)->quantum_speed !== null) {
+            $data['version'] = config('api.sc_data_version');
+        }
+
+        return $data;
     }
 }
