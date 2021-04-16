@@ -322,6 +322,10 @@ $api->group(
                         'uses' => 'WeaponPersonalController@index',
                     ]
                 );
+                $api->get(
+                    '/personal/{weapon}',
+                    ['as' => 'api.v1.scunpacked.weapons.personal.show', 'uses' => 'WeaponPersonalController@show']
+                );
             }
         );
     }

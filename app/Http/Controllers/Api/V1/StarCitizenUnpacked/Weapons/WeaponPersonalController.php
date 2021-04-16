@@ -9,6 +9,9 @@ use App\Models\StarCitizenUnpacked\WeaponPersonal;
 use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonalTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
+
 
 class WeaponPersonalController extends ApiController
 {
@@ -28,5 +31,29 @@ class WeaponPersonalController extends ApiController
     public function index(): Response
     {
         return $this->getResponse(WeaponPersonal::query()->orderBy('name'));
+    }
+
+    public function show(Request $request): Response
+    {
+        ['weapon' => $weapon] = Validator::validate(
+            [
+                'weapon' => $request->weapon,
+            ],
+            [
+                'weapon' => 'required|string|min:1|max:255',
+            ]
+        );
+
+        $weapon = urldecode($weapon);
+
+        try {
+            $weapon = WeaponPersonal::query()
+                ->where('name', 'LIKE', sprintf('%%%s%%%%', $weapon))
+                ->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $weapon));
+        }
+
+        return $this->getResponse($weapon);
     }
 }
