@@ -20,9 +20,9 @@ final class SmwSubObjectMapper
     public static function map(array $data, string $separator = ' ', array $indexContentMaxLengths = []): string
     {
         $string = collect($data)->map(function ($item, $key) use ($indexContentMaxLengths) {
-            $item = trim($item);
+            $item = trim((string)$item);
 
-            return sprintf('|%s=%s', $key, str_pad($item, $indexContentMaxLengths[$key]));
+            return sprintf('|%s=%s', $key, str_pad($item, $indexContentMaxLengths[$key] ?? 0));
         })
             ->implode($separator);
 
