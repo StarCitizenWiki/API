@@ -42,6 +42,8 @@ class WeaponPersonalTransformer extends AbstractTranslationTransformer
                 'barrel' => $weapon->attachment_size_barrel ?? 0,
                 'underbarrel' => $weapon->attachment_size_underbarrel ?? 0,
             ],
+            'ammunition_speed' => $weapon->ammunition_speed ?? 0,
+            'ammunition_range' => $weapon->ammunition_range ?? 0,
             'version' => config('api.sc_data_version'),
             'updated_at' => $weapon->updated_at,
             'missing_translations' => $this->missingTranslations,

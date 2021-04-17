@@ -85,7 +85,7 @@ final class WeaponPersonal
 
         return [
             'size' => $weapon['Size'] ?? 0,
-            'description' => trim($description ?? ''),
+            'description' => str_replace(['’', '`', '´'], '\'', trim($description ?? '')),
             'name' => str_replace(
                 [
                     '“',
