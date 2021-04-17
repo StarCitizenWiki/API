@@ -12,7 +12,6 @@ use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 
-
 class WeaponPersonalController extends ApiController
 {
     /**

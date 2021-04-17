@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\FpsItems;
 
-
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
