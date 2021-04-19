@@ -385,15 +385,20 @@ CONTENT;
      */
     private function createCategories(): string
     {
-        return
-            $this->article->categories
-                ->map(function (Category $category) {
-                    return sprintf(
-                        '[[Category:%s]]',
-                        self::$categoryTranslations[$category->name] ?? $category->name
-                    );
-                })
-                ->implode("\n");
+        $cats = $this->article->categories
+            ->map(function (Category $category) {
+                return sprintf(
+                    '[[Category:%s]]',
+                    self::$categoryTranslations[$category->name] ?? $category->name
+                );
+            })
+            ->implode("\n");
+
+        if (strpos($cats, 'Waffe') !== false && strpos($cats, 'Unternehmen') !== false) {
+            str_replace('Category:Waffe', 'Category:Waffenhersteller', $cats);
+        }
+
+        return $cats;
     }
 
     /**
