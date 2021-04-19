@@ -395,7 +395,7 @@ CONTENT;
             ->implode("\n");
 
         if (strpos($cats, 'Waffe') !== false && strpos($cats, 'Unternehmen') !== false) {
-            str_replace('Category:Waffe', 'Category:Waffenhersteller', $cats);
+            $cats = str_replace('Category:Waffe', 'Category:Waffenhersteller', $cats);
         }
 
         return $cats;
