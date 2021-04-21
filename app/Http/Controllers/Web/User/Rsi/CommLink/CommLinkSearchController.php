@@ -165,7 +165,8 @@ class CommLinkSearchController extends Controller
             ->get()
             ->flatMap(function (CommLink $commLink) {
                 return $commLink->images;
-            });
+            })
+            ->unique('url');
 
         if ($images->isEmpty()) {
             return $this->handleSearchResult($images, 'user.rsi.comm_links.images.index');
