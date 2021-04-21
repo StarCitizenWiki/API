@@ -54,6 +54,33 @@
             </div>
         </div>
 
+        @auth
+        <div class="card mb-3">
+            <div class="card-header">
+                <h4>
+                    {{ __('Comm-Link Inhalt') }}
+                </h4>
+            </div>
+            <div class="card-body">
+                @component('components.forms.form', [
+                    'action' => route('web.user.rsi.comm-links.image-text-search.post'),
+                    'class' => 'd-flex h-100 flex-column',
+                ])
+                    @component('components.forms.form-group', [
+                        'inputType' => 'text',
+                        'label' => __('Comm-Link Inhalt'),
+                        'id' => 'query',
+                        'inputOptions' => 'required',
+                    ])
+                        <small>Text, welcher in einem Comm-Link vorkommt</small>
+                    @endcomponent
+
+                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Bildern')</button>
+                @endcomponent
+            </div>
+        </div>
+        @endauth
+
         <div class="card mb-3">
             <div class="card-header">
                 <h4>
@@ -123,6 +150,6 @@
                     <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Comm-Links mit Bild')</button>
                 @endcomponent
             </div>
-</div>
+        </div>
     </div>
 @endsection

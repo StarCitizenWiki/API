@@ -3,7 +3,7 @@
 @section('title', __('Comm-Link Bilder'))
 
 @section('content')
-    <h3>Comm-Link Bilder</h3>
+    <h3>Comm-Link Bilder @if(isset($keyword)) zu <code>{{ $keyword }}</code>@endif</h3>
 
     @if(is_callable([$images, 'links']) && method_exists($images, 'links'))
         <div class="d-flex justify-content-between">

@@ -8,13 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
+use App\Models\Rsi\CommLink\CommLink;
 use Dingo\Api\Dispatcher;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Contracts\View\View;
 
 /**
  * Comm-Link Controller.
@@ -140,6 +141,42 @@ class CommLinkSearchController extends Controller
                 )
                 ->post('api/comm-links/reverse-image-search'),
             'user.rsi.comm_links.images.index'
+        );
+    }
+
+    /**
+     * Search for images based on text content of the comm-link
+     *
+     * @param CommLinkSearchRequest $request
+     *
+     * @return Application|Factory|View
+     */
+    public function imageTextSearchPost(CommLinkSearchRequest $request)
+    {
+        $this->middleware('auth');
+        $data = $request->validated();
+
+        $data = $data['query'] ?? $data['keyword'];
+
+        $images = CommLink::query()
+            ->whereHas('translations', function (Builder $query) use ($data) {
+                return $query->where('translation', 'LIKE', sprintf('%%%s%%', $data));
+            })
+            ->get()
+            ->flatMap(function (CommLink $commLink) {
+                return $commLink->images;
+            });
+
+        if ($images->isEmpty()) {
+            return $this->handleSearchResult($images, 'user.rsi.comm_links.images.index');
+        }
+
+        return view(
+            'user.rsi.comm_links.images.index',
+            [
+                'images' => $images,
+                'keyword' => $data,
+            ]
         );
     }
 
