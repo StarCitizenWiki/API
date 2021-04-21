@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
+use App\Jobs\Wiki\ApproveRevisions;
 use App\Services\Mapper\SmwSubObjectMapper;
 use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
 use App\Services\Parser\StarCitizenUnpacked\Shops\Shops;
@@ -44,6 +47,9 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
             })
             ->filter(function ($shop, $name) {
                 return strpos($name, 'removed') === false;
+            })
+            ->filter(function ($shop, $name) {
+                return strpos($name, 'Teach\'s') === false;
             });
 
         $this->createProgressBar($data->count());
@@ -58,12 +64,15 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
                         return strpos($inventory['Name'], '[PLACEHOLDER]') === false;
                     })
                     ->map(function ($inventory) {
-                        return SmwSubObjectMapper::map($inventory);
-                    })->implode("\n")
+                        return SmwSubObjectMapper::map($inventory, ' ', [], str_replace('.', '', $inventory['Name']));
+                    })
+                    ->implode("\n")
             );
 
             $this->advanceBar();
         });
+
+        $this->approvePages($data);
 
         return 0;
     }
@@ -107,7 +116,23 @@ FORMAT;
 
             return;
         }
+    }
 
-        #dispatch(new ApproveRevisions([$title], false));
+    private function approvePages(Collection $data): void
+    {
+        $this->info('Approving Pages');
+        $this->createProgressBar($data->count());
+
+        $data->map(function ($unused, $shop) {
+            ['name' => $shop, 'position' => $position] = Inventory::parseShopName($shop);
+
+            return sprintf('Spieldaten/Handelswaren/%s/%s', $position, $shop);
+        })
+            ->each(function ($page) {
+                $this->loginWikiBotAccount('services.wiki_approve_revs');
+
+                dispatch(new ApproveRevisions([$page], false));
+                $this->advanceBar();
+            });
     }
 }

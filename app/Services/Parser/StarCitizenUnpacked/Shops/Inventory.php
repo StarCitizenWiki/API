@@ -11,7 +11,7 @@ final class Inventory
         ['name' => $shop, 'position' => $position] = self::parseShopName($shop);
 
         return [
-            'Shop' => $shop,
+            'Händler' => $shop,
             'Ort' => $position,
             'Name' => $inventory['displayName'],
             'Preis' => str_replace('.', ',', $inventory['basePrice']),

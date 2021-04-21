@@ -6,7 +6,7 @@ namespace App\Services\Mapper;
 
 final class SmwSubObjectMapper
 {
-    private static string $format = "{{#subobject:%s}}";
+    private static string $format = "{{#subobject:%s%s}}";
 
     /**
      * Maps an array of key value pairs to a wikitext SemanticMediaWiki subobject
@@ -15,9 +15,10 @@ final class SmwSubObjectMapper
      * @param string $separator The separator to use after each key value pair
      * @param array $indexContentMaxLengths An optional array containing ['key' => 'Max length of value'].
      *                                      If set will pad all values to the same length
+     * @param string $id Id of the subobject
      * @return string
      */
-    public static function map(array $data, string $separator = ' ', array $indexContentMaxLengths = []): string
+    public static function map(array $data, string $separator = ' ', array $indexContentMaxLengths = [], string $id = ''): string
     {
         $string = collect($data)->map(function ($item, $key) use ($indexContentMaxLengths) {
             $item = trim((string)$item);
@@ -26,7 +27,7 @@ final class SmwSubObjectMapper
         })
             ->implode($separator);
 
-        return sprintf(self::$format, rtrim($string));
+        return sprintf(self::$format, $id, rtrim($string));
     }
 
     /**
