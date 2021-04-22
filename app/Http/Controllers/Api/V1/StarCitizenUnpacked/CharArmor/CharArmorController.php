@@ -30,7 +30,7 @@ class CharArmorController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(CharArmor::query()->orderBy('name'));
+        return $this->getResponse(CharArmor::query());
     }
 
     public function show(Request $request): Response
