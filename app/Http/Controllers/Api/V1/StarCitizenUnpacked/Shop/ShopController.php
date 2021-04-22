@@ -101,4 +101,32 @@ class ShopController extends ApiController
 
         return $this->getResponse($positions);
     }
+
+    public function showShopAtPosition(Request $request): Response
+    {
+        ['position' => $position, 'name' => $name] = Validator::validate(
+            [
+                'position' => $request->position,
+                'name' => $request->name,
+            ],
+            [
+                'position' => 'required|string|min:1|max:255',
+                'name' => 'required|string|min:1|max:255',
+            ]
+        );
+
+        $position = urldecode($position);
+        $name = urldecode($name);
+
+        try {
+            $shop = Shop::query()
+                ->where('position', $position)
+                ->where('name', $name)
+                ->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $position));
+        }
+
+        return $this->getResponse($shop);
+    }
 }

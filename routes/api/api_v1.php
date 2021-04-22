@@ -416,6 +416,14 @@ $api->group(
                 );
 
                 $api->get(
+                    '/{position}/{name}',
+                    [
+                        'as' => 'api.v1.scunpacked.shops.position.name.show',
+                        'uses' => 'ShopController@showShopAtPosition',
+                    ]
+                );
+
+                $api->get(
                     '/{shop}',
                     ['as' => 'api.v1.scunpacked.shops.show', 'uses' => 'ShopController@show']
                 );
