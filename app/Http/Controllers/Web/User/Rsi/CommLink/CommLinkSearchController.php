@@ -162,6 +162,7 @@ class CommLinkSearchController extends Controller
             ->whereHas('translations', function (Builder $query) use ($data) {
                 return $query->where('translation', 'LIKE', sprintf('%%%s%%', $data));
             })
+            ->orderByDesc('created_at')
             ->get()
             ->flatMap(function (CommLink $commLink) {
                 return $commLink->images;
