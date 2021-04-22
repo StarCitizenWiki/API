@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizenUnpacked\Import;
 
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmorAttachment;
+use App\Models\StarCitizenUnpacked\Item;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,6 +37,9 @@ class CharArmor implements ShouldQueue
 
         $weapons->getData()
             ->each(function ($armor) {
+                if (!Item::query()->where('uuid', $armor['uuid'])->exists()) {
+                    return;
+                }
 
                 /** @var \App\Models\StarCitizenUnpacked\CharArmor\CharArmor $armor */
                 $model = \App\Models\StarCitizenUnpacked\CharArmor\CharArmor::updateOrCreate([

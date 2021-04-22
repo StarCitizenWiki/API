@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizenUnpacked\Import;
 
+use App\Models\StarCitizenUnpacked\Item;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -35,6 +36,9 @@ class WeaponPersonal implements ShouldQueue
 
         $weapons->getData(true)
             ->each(function ($weapon) {
+                if (!Item::query()->where('uuid', $weapon['uuid'])->exists()) {
+                    return;
+                }
 
                 /** @var \App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal $weapon */
                 $model = \App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal::updateOrCreate([
