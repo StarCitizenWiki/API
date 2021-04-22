@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\FpsItems;
 
+use App\Services\Parser\StarCitizenUnpacked\AbstractCommodityItem;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use JsonException;
 
-final class WeaponPersonal
+final class WeaponPersonal extends AbstractCommodityItem
 {
     private Collection $items;
 
@@ -29,8 +30,14 @@ final class WeaponPersonal
         return $this->items->filter(function (array $entry) {
             return $entry['type'] ?? '' === 'WeaponPersonal';
         })
+            ->filter(function (array $entry) {
+                return isset($entry['reference']);
+            })
             ->map(function (array $entry) {
-                return $entry['stdItem'] ?? [];
+                $out = $entry['stdItem'] ?? [];
+                $out['reference'] = $entry['reference'] ?? null;
+
+                return $out;
             })
             ->filter(function (array $entry) {
                 return isset($entry['Description'], $entry['Weapon']) && !empty($entry);
@@ -77,14 +84,20 @@ final class WeaponPersonal
          * DPS: 72.8
          */
 
-        $data = $this->tryExtractDataFromDescription($weapon['Description']);
-
-        $description = explode("\n\n", $weapon['Description']);
-        $description = array_pop($description);
+        $data = $this->tryExtractDataFromDescription($weapon['Description'], [
+            'Manufacturer' => 'manufacturer',
+            'Item Type' => 'type',
+            'Class' => 'class',
+            'Magazine Size' => 'magazine_size',
+            'Effective Range' => 'effective_range',
+            'Rate Of Fire' => 'rof',
+            'Attachments' => 'attachments',
+        ]);
 
         return [
+            'uuid' => $weapon['reference'],
             'size' => $weapon['Size'] ?? 0,
-            'description' => str_replace(['’', '`', '´'], '\'', trim($description ?? '')),
+            'description' => str_replace(['’', '`', '´'], '\'', trim($data['description'] ?? '')),
             'name' => str_replace(
                 [
                     '“',
@@ -97,7 +110,8 @@ final class WeaponPersonal
             ),
             'manufacturer' => $this->getManufacturer($weapon),
             'type' => trim($data['type'] ?? 'Unknown Type'),
-            'class' => trim($data['class'] ?? 'Unknown Class'),
+            'class' => trim($weapon['Classification'] ?? 'Unknown Class'),
+            'weapon_class' => trim($data['class'] ?? 'Unknown Weapon Class'),
             'magazine_size' => $data['magazine_size'] ?? 0,
             'effective_range' => $this->buildEffectiveRange($data['effective_range'] ?? '0'),
             'rof' => $data['rof'] ?? 0,
@@ -105,16 +119,6 @@ final class WeaponPersonal
             'ammunition' => $this->buildAmmunitionWeaponPart($weapon['Weapon']),
             'modes' => $this->buildModesPart($weapon['Weapon']),
         ];
-    }
-
-    private function getManufacturer(array $weapon): string
-    {
-        $manufacturer = trim($weapon['Manufacturer']['Name'] ?? 'Unknown Manufacturer');
-        if ($manufacturer === '@LOC_PLACEHOLDER') {
-            $manufacturer = 'Unknown Manufacturer';
-        }
-
-        return $manufacturer;
     }
 
     private function buildAmmunitionWeaponPart(array $weapon): array
@@ -141,41 +145,6 @@ final class WeaponPersonal
                 'rpm' => $mode['RoundsPerMinute'] ?? 0,
                 'dps' => array_shift($mode['DamagePerSecond']) ?? 0
             ];
-        }
-
-        return $out;
-    }
-
-    private function tryExtractDataFromDescription(string $description): array
-    {
-        $wantedMatches = [
-            'Manufacturer' => 'manufacturer',
-            'Item Type' => 'type',
-            'Class' => 'class',
-            'Magazine Size' => 'magazine_size',
-            'Effective Range' => 'effective_range',
-            'Rate Of Fire' => 'rof',
-            'Attachments' => 'attachments',
-        ];
-
-        $match = preg_match_all(
-            sprintf('/^(%s):(?:\s| )?([\w_&\ \(\),\.\/\\\]*)$/m', implode('|', array_keys($wantedMatches))),
-            $description,
-            $matches
-        );
-
-        if ($match === false || $match === 0) {
-            return [];
-        }
-
-        $out = [];
-
-        for ($i = 0, $iMax = count($matches[1]); $i < $iMax; $i++) {
-            if (isset($wantedMatches[$matches[1][$i]])) {
-                $value = trim($matches[2][$i]);
-
-                $out[$wantedMatches[$matches[1][$i]]] = $value;
-            }
         }
 
         return $out;

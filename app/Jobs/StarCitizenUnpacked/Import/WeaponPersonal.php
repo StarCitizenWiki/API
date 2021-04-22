@@ -35,16 +35,14 @@ class WeaponPersonal implements ShouldQueue
 
         $weapons->getData(true)
             ->each(function ($weapon) {
-                /** @var \App\Models\StarCitizenUnpacked\WeaponPersonal $weapon */
-                $model = \App\Models\StarCitizenUnpacked\WeaponPersonal::updateOrCreate([
-                    'name' => $weapon['name'],
+
+                /** @var \App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal $weapon */
+                $model = \App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal::updateOrCreate([
+                    'uuid' => $weapon['uuid'],
                 ], [
-                    'size' => $weapon['size'],
-                    'manufacturer' => $weapon['manufacturer'],
-                    'type' => $weapon['type'],
-                    'class' => $weapon['class'],
                     'magazine_size' => $weapon['magazine_size'],
                     'effective_range' => $weapon['effective_range'],
+                    'weapon_class' => $weapon['weapon_class'],
                     'rof' => $weapon['rof'],
                     'attachment_size_optics' => $weapon['attachments']['optics'] ?? null,
                     'attachment_size_barrel' => $weapon['attachments']['barrel'] ?? null,
@@ -52,7 +50,16 @@ class WeaponPersonal implements ShouldQueue
                     'ammunition_speed' => $weapon['ammunition']['speed'] ?? 0,
                     'ammunition_range' => $weapon['ammunition']['range'] ?? 0,
                     'ammunition_damage' => $weapon['ammunition']['damage'] ?? 0,
+                ]);
 
+                $model->item()->updateOrCreate([
+                    'uuid' => $weapon['uuid'],
+                ], [
+                    'name' => $weapon['name'],
+                    'size' => $weapon['size'],
+                    'manufacturer' => $weapon['manufacturer'],
+                    'type' => $weapon['type'],
+                    'class' => $weapon['class'],
                 ]);
 
                 $model->translations()->updateOrCreate([

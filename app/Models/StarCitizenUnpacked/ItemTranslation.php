@@ -8,23 +8,20 @@ use App\Models\System\Translation\AbstractTranslation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class WeaponPersonalTranslation extends AbstractTranslation
+class ItemTranslation extends AbstractTranslation
 {
     use HasFactory;
 
-    protected $table = 'star_citizen_unpacked_personal_weapon_translations';
+    protected $table = 'star_citizen_unpacked_item_translations';
 
     protected $fillable = [
         'locale_code',
-        'weapon_id',
+        'item_uuid',
         'translation',
     ];
 
-    /**
-     * @return BelongsTo
-     */
-    public function weapon(): BelongsTo
+    public function item(): BelongsTo
     {
-        return $this->belongsTo(WeaponPersonal::class, 'weapon_id');
+        return $this->belongsTo(Item::class, 'uuid', 'item_uuid');
     }
 }

@@ -17,11 +17,8 @@ class CreateScUnpackedPersonalWeaponsTable extends Migration
     {
         Schema::create('star_citizen_unpacked_personal_weapons', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->unsignedInteger('size')->default(0);
-            $table->string('manufacturer')->nullable();
-            $table->string('type')->nullable();
-            $table->string('class')->nullable();
+            $table->string('uuid')->unique();
+            $table->string('weapon_class')->nullable();
             $table->unsignedInteger('magazine_size')->default(0);
             $table->string('effective_range')->default(0);
             $table->string('rof')->default(0);
@@ -32,6 +29,11 @@ class CreateScUnpackedPersonalWeaponsTable extends Migration
             $table->unsignedDouble('ammunition_range')->default(0);
             $table->unsignedDouble('ammunition_damage')->default(0);
             $table->timestamps();
+
+            $table->foreign('uuid', 'personal_weapon_item_uuid')
+                ->references('uuid')
+                ->on('star_citizen_unpacked_items')
+                ->onDelete('cascade');
         });
     }
 

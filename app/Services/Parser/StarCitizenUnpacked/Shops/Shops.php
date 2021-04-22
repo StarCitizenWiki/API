@@ -36,17 +36,63 @@ final class Shops
                 return isset($shop['inventory']);
             })
             ->each(function (array $shop) {
-                $inventory = collect($shop['inventory'])
-                    ->filter(function (array $inventory) {
-                        return isset($inventory['displayName']);
-                    })
-                    ->map(function (array $inventory) use ($shop) {
-                        return Inventory::map($inventory, $shop['name']);
-                    });
-
-                $this->mapped->put($shop['name'], $inventory);
+                $this->mapped->put($shop['name'], [
+                    'shop' => $this->mapShop($shop),
+                    'inventory' => $this->mapInventory($shop)
+                ]);
             });
 
         return $this->mapped;
+    }
+
+    private function mapShop(array $shop): array
+    {
+        ['name' => $name, 'position' => $position] = self::parseShopName($shop['name']);
+
+        return [
+            'uuid' => $shop['reference'],
+            'name_raw' => $shop['name'],
+            'name' => $name,
+            'position' => $position,
+            'profit_margin' => $shop['profitMargin'] ?? 0,
+        ];
+    }
+
+    private function mapInventory(array $shop): Collection
+    {
+        return collect($shop['inventory'])
+            ->filter(function (array $inventory) {
+                return isset($inventory['displayName'], $inventory['item_reference']);
+            })
+            ->map(function (array $inventory) {
+                return Inventory::map($inventory);
+            })
+            ->filter(function ($item) {
+                return $item !== null;
+            })
+            ->filter(function ($item) {
+                return !empty($item['name']) && strpos($item['name'], '[PH]') === false;
+            })
+            ->filter(function ($item) {
+                return ($item['base_price'] ?? null) !== null;
+            });
+    }
+
+    public static function parseShopName(string $name): array
+    {
+        $parts = explode(',', $name);
+        $parts = array_map('trim', $parts);
+
+        if (count($parts) !== 2) {
+            return [
+                'name' => 'Unknown Shop Name',
+                'position' => 'Unknown Shop Position',
+            ];
+        }
+
+        return [
+            'name' => $parts[0],
+            'position' => $parts[1],
+        ];
     }
 }

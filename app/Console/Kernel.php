@@ -32,6 +32,8 @@ use App\Console\Commands\StarCitizen\Starmap\Translate\TranslateSystems;
 use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
+use App\Console\Commands\StarCitizenUnpacked\ImportCharArmor;
+use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
 use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
@@ -98,6 +100,8 @@ class Kernel extends ConsoleKernel
 
         ImportVehicles::class,
         ImportWeaponPersonal::class,
+        ImportCharArmor::class,
+        ImportShopItems::class,
 
         CreateCommodityWikiPages::class
     ];

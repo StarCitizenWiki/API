@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Models\StarCitizenUnpacked;
+namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 
 use App\Events\ModelUpdating;
 use App\Traits\HasModelChangelogTrait;

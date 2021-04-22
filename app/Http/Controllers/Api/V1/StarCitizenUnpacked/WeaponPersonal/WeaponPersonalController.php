@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\Weapons;
+namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\WeaponPersonal;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\StarCitizenUnpacked\WeaponPersonal;
-use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonalTransformer;
+use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
+use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 
@@ -47,7 +48,9 @@ class WeaponPersonalController extends ApiController
 
         try {
             $weapon = WeaponPersonal::query()
-                ->where('name', 'LIKE', sprintf('%%%s%%%%', $weapon))
+                ->whereHas('item', function (Builder $query) use ($weapon) {
+                    return $query->where('name', 'LIKE', sprintf('%%%s%%%%', $weapon));
+                })
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $weapon));

@@ -6,6 +6,7 @@ namespace App\Listeners;
 
 use App\Events\ModelUpdating as ModelUpdateEvent;
 use App\Models\System\Translation\AbstractTranslation as Translation;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -29,17 +30,22 @@ class ModelUpdating
     {
         $this->model = $event->model;
 
-
         // TODO Hacky
         $createdAt = now();
         if ($this->model instanceof Translation) {
             $createdAt = now()->addSecond();
         }
 
+        $data = $this->getChangelogData();
+
+        if ($this->model instanceof Pivot && $this->model->pivotParent !== null) {
+            $this->model = $this->model->pivotParent;
+        }
+
         $this->model->changelogs()->create(
             [
                 'type' => $this->getChangelogType(),
-                'changelog' => $this->getChangelogData(),
+                'changelog' => $data,
                 'user_id' => $this->getCreatorId(),
                 'created_at' => $createdAt,
             ]

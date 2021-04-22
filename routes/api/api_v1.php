@@ -307,7 +307,7 @@ $api->group(
     static function (Router $api) {
         $api->group(
             [
-                'namespace' => 'Weapons',
+                'namespace' => 'WeaponPersonal',
                 'prefix' => 'weapons',
             ],
             static function (Router $api) {
@@ -325,6 +325,104 @@ $api->group(
                 $api->get(
                     '/personal/{weapon}',
                     ['as' => 'api.v1.scunpacked.weapons.personal.show', 'uses' => 'WeaponPersonalController@show']
+                );
+            }
+        );
+
+        $api->group(
+            [
+                'prefix' => 'char',
+            ],
+            static function (Router $api) {
+                $api->group(
+                    [
+                        'namespace' => 'CharArmor',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/armor',
+                            [
+                                'as' => 'api.v1.scunpacked.char.armor.index',
+                                'uses' => 'CharArmorController@index',
+                            ]
+                        );
+                        $api->get(
+                            '/armor/{armor}',
+                            ['as' => 'api.v1.scunpacked.char.armor.show', 'uses' => 'CharArmorController@show']
+                        );
+                    }
+                );
+
+
+                $api->group(
+                    [
+                        'namespace' => 'Item',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/clothing',
+                            [
+                                'as' => 'api.v1.scunpacked.char.clothing.index',
+                                'uses' => 'ItemController@indexClothing',
+                            ]
+                        );
+                        $api->get(
+                            '/clothing/{name}',
+                            ['as' => 'api.v1.scunpacked.char.clothing.show', 'uses' => 'ItemController@showClothing']
+                        );
+                    }
+                );
+            }
+        );
+
+        $api->group(
+            [
+                'namespace' => 'Shop',
+                'prefix' => 'shops',
+            ],
+            static function (Router $api) {
+                /**
+                 * Index
+                 */
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.scunpacked.shops.index',
+                        'uses' => 'ShopController@index',
+                    ]
+                );
+                $api->get(
+                    '/{shop}',
+                    ['as' => 'api.v1.scunpacked.shops.show', 'uses' => 'ShopController@show']
+                );
+            }
+        );
+
+        $api->group(
+            [
+                'namespace' => 'Item',
+                'prefix' => 'items',
+            ],
+            static function (Router $api) {
+                /**
+                 * Index
+                 */
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.scunpacked.items.index',
+                        'uses' => 'ItemController@index',
+                    ]
+                );
+                $api->get(
+                    '/{item}',
+                    ['as' => 'api.v1.scunpacked.items.show', 'uses' => 'ItemController@show']
                 );
             }
         );

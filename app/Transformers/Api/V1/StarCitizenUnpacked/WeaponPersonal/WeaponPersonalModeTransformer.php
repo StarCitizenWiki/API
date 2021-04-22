@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Transformers\Api\V1\StarCitizenUnpacked;
+namespace App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal;
 
-use App\Models\StarCitizenUnpacked\WeaponPersonalMode;
+use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalMode;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 class WeaponPersonalModeTransformer extends AbstractTranslationTransformer

@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Transformers\Api\V1\StarCitizenUnpacked;
+namespace App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal;
 
-use App\Models\StarCitizenUnpacked\WeaponPersonal;
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
+use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
+use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 use League\Fractal\Resource\Collection;
 
-class WeaponPersonalTransformer extends AbstractTranslationTransformer
+class WeaponPersonalTransformer extends AbstractCommodityTransformer
 {
     protected $availableIncludes = [
-        'modes'
+        'modes',
+        'shops'
     ];
 
     protected $defaultIncludes = [
@@ -28,11 +29,12 @@ class WeaponPersonalTransformer extends AbstractTranslationTransformer
         $this->missingTranslations = [];
 
         return [
-            'name' => $weapon->name,
+            'uuid' => $weapon->item->uuid,
+            'name' => $weapon->item->name,
             'description' => $this->getTranslation($weapon),
-            'size' => $weapon->size,
-            'manufacturer' => $weapon->manufacturer,
-            'type' => $weapon->type,
+            'size' => $weapon->item->size,
+            'manufacturer' => $weapon->item->manufacturer,
+            'type' => $weapon->item->type,
             'class' => $weapon->class,
             'magazine_size' => $weapon->magazine_size ?? 0,
             'effective_range' => $weapon->effective_range ?? 0,

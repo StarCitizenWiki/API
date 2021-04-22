@@ -1,24 +1,17 @@
 <?php
 
-namespace App\Models\StarCitizenUnpacked;
+namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 
-use App\Contracts\HasChangelogsInterface;
-use App\Events\ModelUpdating;
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasModelChangelogTrait;
+use App\Models\StarCitizenUnpacked\CommodityItem;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class WeaponPersonal extends HasTranslations implements HasChangelogsInterface
+class WeaponPersonal extends CommodityItem
 {
-    use HasModelChangelogTrait;
-
     protected $table = 'star_citizen_unpacked_personal_weapons';
 
     protected $fillable = [
-        'name',
-        'size',
-        'manufacturer',
-        'type',
+        'uuid',
+        'weapon_class',
         'class',
         'magazine_size',
         'effective_range',
@@ -41,22 +34,9 @@ class WeaponPersonal extends HasTranslations implements HasChangelogsInterface
     ];
 
     protected $with = [
-        'modes'
+        'modes',
+        'item'
     ];
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
-
-    /**
-     * @return HasMany
-     */
-    public function translations()
-    {
-        return $this->hasMany(WeaponPersonalTranslation::class, 'weapon_id', 'id');
-    }
 
     /**
      * @return HasMany
