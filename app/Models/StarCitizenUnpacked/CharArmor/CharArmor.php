@@ -16,6 +16,7 @@ class CharArmor extends CommodityItem
 
     protected $fillable = [
         'uuid',
+        'armor_type',
         'temp_resistance_min',
         'temp_resistance_max',
         'resistance_physical_multiplier',

@@ -56,16 +56,6 @@ class WeaponPersonal implements ShouldQueue
                     'ammunition_damage' => $weapon['ammunition']['damage'] ?? 0,
                 ]);
 
-                $model->item()->updateOrCreate([
-                    'uuid' => $weapon['uuid'],
-                ], [
-                    'name' => $weapon['name'],
-                    'size' => $weapon['size'],
-                    'manufacturer' => $weapon['manufacturer'],
-                    'type' => $weapon['type'],
-                    'class' => $weapon['class'],
-                ]);
-
                 $model->translations()->updateOrCreate([
                     'locale_code' => 'en_EN',
                 ], [
@@ -75,9 +65,8 @@ class WeaponPersonal implements ShouldQueue
                 foreach ($weapon['modes'] as $mode) {
                     $model->modes()->updateOrCreate([
                         'mode' => $mode['name'],
-                    ], [
-                        'rpm' => $mode['rpm'],
-                        'dps' => $mode['dps'],
+                        'rpm' => round($mode['rpm'], 10),
+                        'dps' => round($mode['dps'], 10),
                     ]);
                 }
             });

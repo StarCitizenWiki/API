@@ -45,6 +45,7 @@ class CharArmor implements ShouldQueue
                 $model = \App\Models\StarCitizenUnpacked\CharArmor\CharArmor::updateOrCreate([
                     'uuid' => $armor['uuid'],
                 ], [
+                    'armor_type' => $armor['type'],
                     'temp_resistance_min' => $armor['temp_resistance_min'],
                     'temp_resistance_max' => $armor['temp_resistance_max'],
                     'resistance_physical_multiplier' => $armor['resistance_physical_multiplier'],
@@ -59,16 +60,6 @@ class CharArmor implements ShouldQueue
                     'resistance_biochemical_threshold' => $armor['resistance_biochemical_threshold'],
                     'resistance_stun_multiplier' => $armor['resistance_stun_multiplier'],
                     'resistance_stun_threshold' => $armor['resistance_stun_threshold'],
-                ]);
-
-                $model->item()->updateOrCreate([
-                    'uuid' => $armor['uuid'],
-                ], [
-                    'name' => $armor['name'],
-                    'size' => $armor['size'],
-                    'manufacturer' => $armor['manufacturer'],
-                    'type' => $armor['type'],
-                    'class' => $armor['class'],
                 ]);
 
                 $model->translations()->updateOrCreate([

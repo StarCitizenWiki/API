@@ -53,7 +53,7 @@ final class Item
 
         $attach = $this->item['Raw']['Entity']['Components']['SAttachableComponentParams']['AttachDef'];
         $manufacturer = $this->manufacturers->get($attach['Manufacturer'], []);
-        $manufacturer = $manufacturer['name'] ?? $manufacturer['code'] ?? 'Unknown Manufacturer';
+        $manufacturer = trim($manufacturer['name'] ?? $manufacturer['code'] ?? 'Unknown Manufacturer');
 
         return [
             'uuid' => $this->item['Raw']['Entity']['__ref'],
