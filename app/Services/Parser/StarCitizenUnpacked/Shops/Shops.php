@@ -83,16 +83,18 @@ final class Shops
         $parts = explode(',', $name);
         $parts = array_map('trim', $parts);
 
-        if (count($parts) !== 2) {
+        if (count($parts) < 2) {
             return [
                 'name' => 'Unknown Shop Name',
                 'position' => 'Unknown Shop Position',
             ];
         }
 
+        $position = array_pop($parts);
+
         return [
-            'name' => $parts[0],
-            'position' => $parts[1],
+            'name' => implode(', ', $parts),
+            'position' => $position,
         ];
     }
 }
