@@ -33,7 +33,7 @@ class CreateScUnpackedShopItemTable extends Migration
             $table->boolean('rentable');
             $table->timestamps();
 
-            $table->primary(['shop_id', 'item_id', 'item_uuid']);
+            $table->primary(['shop_id', 'item_id', 'item_uuid'], 'star_citizen_unpacked_shop_item_primary');
             $table->index('item_uuid');
             $table->index('shop_uuid');
 
