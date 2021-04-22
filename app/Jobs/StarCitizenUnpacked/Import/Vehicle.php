@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs\StarCitzenUnpacked\Import;
+namespace App\Jobs\StarCitizenUnpacked\Import;
 
 use Exception;
 use Illuminate\Bus\Queueable;
