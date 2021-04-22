@@ -358,7 +358,6 @@ $api->group(
                     }
                 );
 
-
                 $api->group(
                     [
                         'namespace' => 'Item',
@@ -399,6 +398,23 @@ $api->group(
                         'uses' => 'ShopController@index',
                     ]
                 );
+
+                $api->get(
+                    '/position/{position}',
+                    [
+                        'as' => 'api.v1.scunpacked.shops.position.show',
+                        'uses' => 'ShopController@showPosition',
+                    ]
+                );
+
+                $api->get(
+                    '/name/{name}',
+                    [
+                        'as' => 'api.v1.scunpacked.shops.name.show',
+                        'uses' => 'ShopController@showName',
+                    ]
+                );
+
                 $api->get(
                     '/{shop}',
                     ['as' => 'api.v1.scunpacked.shops.show', 'uses' => 'ShopController@show']

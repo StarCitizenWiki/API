@@ -55,4 +55,50 @@ class ShopController extends ApiController
 
         return $this->getResponse($shop);
     }
+
+    public function showPosition(Request $request): Response
+    {
+        ['position' => $position] = Validator::validate(
+            [
+                'position' => $request->position,
+            ],
+            [
+                'position' => 'required|string|min:1|max:255',
+            ]
+        );
+
+        $position = urldecode($position);
+        $positions = Shop::query()
+            ->where('position', 'LIKE', sprintf('%%%s%%%%', $position))
+            ->get();
+
+        if ($positions->isEmpty()) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $position));
+        }
+
+        return $this->getResponse($positions);
+    }
+
+    public function showName(Request $request): Response
+    {
+        ['name' => $name] = Validator::validate(
+            [
+                'name' => $request->name,
+            ],
+            [
+                'name' => 'required|string|min:1|max:255',
+            ]
+        );
+
+        $name = urldecode($name);
+        $positions = Shop::query()
+            ->where('name', 'LIKE', sprintf('%%%s%%%%', $name))
+            ->get();
+
+        if ($positions->isEmpty()) {
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $name));
+        }
+
+        return $this->getResponse($positions);
+    }
 }
