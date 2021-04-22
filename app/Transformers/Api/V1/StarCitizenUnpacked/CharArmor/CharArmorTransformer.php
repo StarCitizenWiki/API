@@ -31,7 +31,7 @@ class CharArmorTransformer extends AbstractCommodityTransformer
             'size' => $armor->item->size,
             'manufacturer' => $armor->item->manufacturer,
             'type' => $armor->item->type,
-            'class' => $armor->class,
+            'sub_type' => $armor->item->sub_type,
             'version' => config('api.sc_data_version'),
             'updated_at' => $armor->updated_at,
             'missing_translations' => $this->missingTranslations,

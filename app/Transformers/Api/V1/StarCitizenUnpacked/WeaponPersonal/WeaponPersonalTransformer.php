@@ -35,6 +35,7 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
             'size' => $weapon->item->size,
             'manufacturer' => $weapon->item->manufacturer,
             'type' => $weapon->item->type,
+            'sub_type' => $weapon->item->sub_type,
             'class' => $weapon->class,
             'magazine_size' => $weapon->magazine_size ?? 0,
             'effective_range' => $weapon->effective_range ?? 0,
