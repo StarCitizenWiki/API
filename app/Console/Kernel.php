@@ -36,6 +36,7 @@ use App\Console\Commands\StarCitizenUnpacked\ImportCharArmor;
 use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
 use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
+use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
@@ -102,6 +103,8 @@ class Kernel extends ConsoleKernel
         ImportWeaponPersonal::class,
         ImportCharArmor::class,
         ImportShopItems::class,
+
+        TranslateItems::class,
 
         CreateCommodityWikiPages::class
     ];
