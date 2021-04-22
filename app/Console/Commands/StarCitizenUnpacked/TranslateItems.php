@@ -30,7 +30,7 @@ class TranslateItems extends AbstractQueueCommand
     public function handle()
     {
         $this->info('Translating Items');
-        $items = Item::query()->whereHas('translation');
+        $items = Item::query()->whereHas('translations');
         $this->createProgressBar($items->count());
 
         $items->each(function (Item $item) {
