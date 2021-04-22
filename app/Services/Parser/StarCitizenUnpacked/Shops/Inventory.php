@@ -39,8 +39,8 @@ final class Inventory
             'auto_consume' => $inventory['autoConsume'] ?? false,
             'refresh_rate' => $inventory['refreshRatePercentagePerMinute'] ?? 0,
             'buyable' => $inventory['shopSellsThis'] ?? false,
-            'sellable' => $inventory['shopRentThis'] ?? false,
-            'rentable' => $inventory['shopBuysThis'] ?? false,
+            'sellable' => $inventory['shopBuysThis'] ?? false,
+            'rentable' => $inventory['shopRentThis'] ?? false,
         ];
     }
 

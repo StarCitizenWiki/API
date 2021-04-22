@@ -65,7 +65,7 @@ class ShopItems implements ShouldQueue
                         $itemModel->id => [
                             'item_uuid' => $itemModel->uuid,
                             'shop_uuid' => $shopModel->uuid,
-                            'base_price' => $inventory['base_price'],
+                            'base_price' => round($inventory['base_price'], 10),
                             'base_price_offset' => $inventory['base_price_offset'],
                             'max_discount' => $inventory['max_discount'],
                             'max_premium' => $inventory['max_premium'],

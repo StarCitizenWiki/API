@@ -24,6 +24,11 @@ class WeaponPersonalMode extends Model
         'dps',
     ];
 
+    protected $casts = [
+        'rpm' => 'double',
+        'dps' => 'double',
+    ];
+
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
         'created' => ModelUpdating::class,

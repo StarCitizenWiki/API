@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ShopItem extends Pivot
 {
+    protected $primaryKey = 'item_uuid';
+
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
         'created' => ModelUpdating::class,
@@ -54,6 +56,28 @@ class ShopItem extends Pivot
         'sellable' => 'bool',
         'rentable' => 'bool',
     ];
+
+    protected $appends = [
+        'offsettedPrice',
+        'priceRange',
+    ];
+
+    public function getOffsettedPriceAttribute()
+    {
+        if ($this->base_price_offset === null || $this->base_price_offset === 0) {
+            return $this->base_price;
+        }
+
+        return $this->base_price * (1 + ($this->base_price_offset / 100));
+    }
+
+    public function getPriceRangeAttribute(): array
+    {
+        return [
+            'min' => $this->offsettedPrice * (1 - ($this->max_discount / 100)),
+            'max' => $this->offsettedPrice * (1 + ($this->max_premium / 100)),
+        ];
+    }
 
     public function item(): BelongsTo
     {

@@ -110,6 +110,7 @@ final class CharArmor extends AbstractCommodityItem
 
     private function loadResistances(array $data): array
     {
+        // phpcs:disable
         return [
             'temp_resistance_min' => $data['Raw']['Entity']['Components']['SCItemClothingParams']['TemperatureResistance']['MinResistance'] ?? 0,
             'temp_resistance_max' => $data['Raw']['Entity']['Components']['SCItemClothingParams']['TemperatureResistance']['MaxResistance'] ?? 0,
@@ -126,5 +127,6 @@ final class CharArmor extends AbstractCommodityItem
             'resistance_stun_multiplier' => $data['damageResistances']['StunResistance']['Multiplier'] ?? 0,
             'resistance_stun_threshold' => $data['damageResistances']['StunResistance']['Threshold'] ?? 0,
         ];
+        // phpcs:enable
     }
 }

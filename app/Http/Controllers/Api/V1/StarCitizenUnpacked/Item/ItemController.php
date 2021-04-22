@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\Item;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\StarCitizenUnpacked\Item;
+use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ItemTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
@@ -84,5 +85,10 @@ class ItemController extends ApiController
         }
 
         return $this->getResponse($name);
+    }
+
+    public function indexTradeables(): Response
+    {
+        return $this->getResponse(Item::query()->whereIn('type', Inventory::UNKNOWN_TYPES)->orderBy('name'));
     }
 }

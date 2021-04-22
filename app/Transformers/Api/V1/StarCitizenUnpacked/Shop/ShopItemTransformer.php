@@ -15,6 +15,8 @@ class ShopItemTransformer extends TransformerAbstract
             'uuid' => $item->uuid,
             'name' => $item->name,
             'base_price' => $item->shop_data->base_price,
+            'price_calculated' => $item->shop_data->offsetted_price,
+            'price_range' => $item->shop_data->price_range,
             'base_price_offset' => $item->shop_data->base_price_offset,
             'max_discount' => $item->shop_data->max_discount,
             'max_premium' => $item->shop_data->max_premium,

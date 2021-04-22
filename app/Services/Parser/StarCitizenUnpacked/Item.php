@@ -31,6 +31,7 @@ final class Item
 
     public function getData(): ?array
     {
+        // phpcs:disable
         if (
         !isset(
             $this->item['Raw']['Entity']['__ref'],
@@ -44,6 +45,7 @@ final class Item
             $this->item['Raw']['Entity']['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Name'],
             1
         );
+        // phpcs:enable
 
         if (!$this->labels->has($nameKey)) {
             return null;

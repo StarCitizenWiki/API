@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Listeners;
 
 use App\Events\ModelUpdating as ModelUpdateEvent;
+use App\Models\StarCitizenUnpacked\Shop\ShopItem;
+use App\Models\System\ModelChangelog;
 use App\Models\System\Translation\AbstractTranslation as Translation;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -37,19 +38,29 @@ class ModelUpdating
         }
 
         $data = $this->getChangelogData();
+        $data = [
+            'type' => $this->getChangelogType(),
+            'changelog' => $data,
+            'user_id' => $this->getCreatorId(),
+            'created_at' => $createdAt,
+        ];
 
-        if ($this->model instanceof Pivot && $this->model->pivotParent !== null) {
-            $this->model = $this->model->pivotParent;
+        if ($this->model instanceof ShopItem && $this->model->pivotParent !== null) {
+            ModelChangelog::create([
+                'type' => $data['type'],
+                'changelog' => [
+                        'item_uuid' => $this->model->item_uuid,
+                        'shop_uuid' => $this->model->shop_uuid,
+                    ] + ($data['changelog'] ?? []),
+                'changelog_type' => get_class($this->model),
+                'user_id' => 0,
+                'changelog_id' => $this->model->item_id,
+            ]);
+
+            return;
         }
 
-        $this->model->changelogs()->create(
-            [
-                'type' => $this->getChangelogType(),
-                'changelog' => $data,
-                'user_id' => $this->getCreatorId(),
-                'created_at' => $createdAt,
-            ]
-        );
+        $this->model->changelogs()->create($data);
     }
 
     /**

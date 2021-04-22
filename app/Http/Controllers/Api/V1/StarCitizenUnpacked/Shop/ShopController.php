@@ -29,7 +29,7 @@ class ShopController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(Shop::query()->orderBy('name'));
+        return $this->getResponse(Shop::query());
     }
 
     public function show(Request $request): Response

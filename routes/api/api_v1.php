@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 use Dingo\Api\Routing\Router;
 
@@ -420,6 +422,15 @@ $api->group(
                         'uses' => 'ItemController@index',
                     ]
                 );
+
+                $api->get(
+                    '/tradeables',
+                    [
+                        'as' => 'api.v1.scunpacked.items.tradeables.index',
+                        'uses' => 'ItemController@indexTradeables',
+                    ]
+                );
+
                 $api->get(
                     '/{item}',
                     ['as' => 'api.v1.scunpacked.items.show', 'uses' => 'ItemController@show']

@@ -30,7 +30,7 @@ class WeaponPersonalController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(WeaponPersonal::query()->orderBy('name'));
+        return $this->getResponse(WeaponPersonal::query());
     }
 
     public function show(Request $request): Response

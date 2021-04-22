@@ -37,6 +37,7 @@ class ChangelogController extends Controller
         $this->authorize('web.user.changelogs.view');
 
         $query = ModelChangelog::query()
+            #->where('changelog_type', '!=', ShopItem::class)
             ->with('changelog')
             ->orderByDesc('id');
 

@@ -8,7 +8,6 @@ use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Models\StarCitizenUnpacked\Shop\ShopItem;
-use App\Models\System\Translation\AbstractHasTranslations;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -58,6 +57,7 @@ class Item extends HasTranslations implements HasChangelogsInterface
             ->withPivot(
                 'item_uuid',
                 'shop_uuid',
+                'base_price',
                 'base_price',
                 'base_price_offset',
                 'max_discount',

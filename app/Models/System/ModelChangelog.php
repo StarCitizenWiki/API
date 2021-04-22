@@ -33,6 +33,8 @@ class ModelChangelog extends Model
     protected $fillable = [
         'type',
         'changelog',
+        'changelog_type',
+        'changelog_id',
         'user_id',
         'created_at',
     ];
@@ -208,6 +210,10 @@ class ModelChangelog extends Model
         if ($this->type === 'creation') {
             return collect($data)->reduce(
                 function ($carry, $data) {
+                    if (is_string($data)) {
+                        return $carry . sprintf('%s<br>', $data);
+                    }
+
                     $keys = array_keys($data)[0];
 
                     return $carry . sprintf('%s: %s<br>', $keys, $data[$keys]);
