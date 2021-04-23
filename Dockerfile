@@ -112,8 +112,9 @@ COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/*
 
 RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
-    echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini ;\
-    git submodule update --init
+    echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini
+
+RUN git submodule update --init --recursive
 
 COPY ./docker/schedule.sh /usr/local/bin/schedule
 
