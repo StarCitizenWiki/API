@@ -86,6 +86,7 @@ final class CharArmor extends AbstractCommodityItem
                 'type' => trim($data['type'] ?? 'Unknown Type'),
                 'class' => trim($armor['Classification'] ?? 'Unknown Class'),
                 'attachments' => $this->buildAttachmentsPart($itemData),
+                'carrying_capacity' => $data['carrying_capacity'] ?? null
             ] + $this->loadResistances($itemData);
     }
 

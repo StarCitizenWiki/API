@@ -17,6 +17,7 @@ class CreateScUnpackedCharArmorTable extends Migration
             $table->id();
             $table->string('uuid')->unique();
             $table->string('armor_type')->nullable();
+            $table->string('carrying_capacity')->nullable();
             $table->double('temp_resistance_min')->default(0);
             $table->double('temp_resistance_max')->default(0);
             $table->double('resistance_physical_multiplier')->default(0);
