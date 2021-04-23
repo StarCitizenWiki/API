@@ -47,6 +47,7 @@ class CharArmor implements ShouldQueue
                 ], [
                     'armor_type' => $armor['type'],
                     'carrying_capacity' => $armor['carrying_capacity'],
+                    'damage_reduction' => $armor['damage_reduction'],
                     'temp_resistance_min' => $armor['temp_resistance_min'],
                     'temp_resistance_max' => $armor['temp_resistance_max'],
                     'resistance_physical_multiplier' => $armor['resistance_physical_multiplier'],

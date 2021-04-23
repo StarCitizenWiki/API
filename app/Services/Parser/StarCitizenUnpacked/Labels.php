@@ -20,7 +20,7 @@ final class Labels
      */
     public function __construct()
     {
-        $items = File::get(storage_path(sprintf('app/api/scunpacked/api/dist/json/labels.json')));
+        $items = File::get(storage_path(sprintf('app/api/scunpacked-data/labels.json')));
         $this->labels = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
     }
 

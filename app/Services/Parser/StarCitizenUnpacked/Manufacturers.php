@@ -20,7 +20,7 @@ final class Manufacturers
      */
     public function __construct()
     {
-        $items = File::get(storage_path(sprintf('app/api/scunpacked/api/dist/json/manufacturers.json')));
+        $items = File::get(storage_path(sprintf('app/api/scunpacked-data/manufacturers.json')));
         $this->manufacturers = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
     }
 

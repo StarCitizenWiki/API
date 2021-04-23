@@ -18,6 +18,7 @@ class CharArmor extends CommodityItem
         'uuid',
         'armor_type',
         'carrying_capacity',
+        'damage_reduction',
         'temp_resistance_min',
         'temp_resistance_max',
         'resistance_physical_multiplier',

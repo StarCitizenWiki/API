@@ -21,7 +21,7 @@ final class CharArmor extends AbstractCommodityItem
      */
     public function __construct()
     {
-        $items = File::get(storage_path(sprintf('app/api/scunpacked/api/dist/json/fps-items.json')));
+        $items = File::get(storage_path(sprintf('app/api/scunpacked-data/fps-items.json')));
         $this->items = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
     }
 
@@ -46,7 +46,7 @@ final class CharArmor extends AbstractCommodityItem
                 $data = [];
                 try {
                     $data = File::get(storage_path(
-                        sprintf('app/api/scunpacked/api/dist/json/items/%s.json', $entry['ClassName'])
+                        sprintf('app/api/scunpacked-data/items/%s.json', $entry['ClassName'])
                     ));
                     $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
                 } catch (FileNotFoundException | JsonException $e) {
@@ -65,7 +65,7 @@ final class CharArmor extends AbstractCommodityItem
             'Item Type' => 'type',
             'Damage Reduction' => 'damage_reduction',
             'Carrying Capacity' => 'carrying_capacity',
-            'Temp. Rating' => 'temp_rating',
+            'Temp\. Rating' => 'temp_rating',
         ]);
 
         return [
@@ -86,6 +86,7 @@ final class CharArmor extends AbstractCommodityItem
                 'type' => trim($data['type'] ?? 'Unknown Type'),
                 'class' => trim($armor['Classification'] ?? 'Unknown Class'),
                 'attachments' => $this->buildAttachmentsPart($itemData),
+                'damage_reduction' => $data['damage_reduction'] ?? null,
                 'carrying_capacity' => $data['carrying_capacity'] ?? null
             ] + $this->loadResistances($itemData);
     }
