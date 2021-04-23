@@ -74,7 +74,7 @@ WORKDIR /api
 
 # install git
 RUN apt-get update && \
-    apt-get install -y zip unzip
+    apt-get install -y zip unzip git
 
 COPY composer.json composer.lock /api/
 
@@ -88,6 +88,8 @@ RUN /usr/bin/composer install --no-dev \
    --no-scripts
 
 COPY / /api
+
+RUN git clone https://github.com/StarCitizenWiki/scunpacked-data --depth=1 storage/app/api/scunpacked-data
 
 RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 
@@ -113,8 +115,6 @@ COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/*
 RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
     echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini
-
-RUN git submodule update --init --recursive
 
 COPY ./docker/schedule.sh /usr/local/bin/schedule
 
