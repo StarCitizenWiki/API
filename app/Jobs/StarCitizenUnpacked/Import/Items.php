@@ -61,7 +61,7 @@ class Items implements ShouldQueue
         $labels = (new Labels())->getData();
         $manufacturers = (new Manufacturers())->getData();
 
-        $files = Storage::allFiles('api/scunpacked/api/dist/json/items');
+        $files = Storage::allFiles('api/scunpacked-data/items');
 
         collect($files)
             ->filter(function (string $file) {
