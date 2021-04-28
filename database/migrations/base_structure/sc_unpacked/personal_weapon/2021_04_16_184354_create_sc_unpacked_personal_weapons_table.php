@@ -18,6 +18,7 @@ class CreateScUnpackedPersonalWeaponsTable extends Migration
         Schema::create('star_citizen_unpacked_personal_weapons', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
+            $table->string('weapon_type')->nullable();
             $table->string('weapon_class')->nullable();
             $table->unsignedInteger('magazine_size')->default(0);
             $table->string('effective_range')->default(0);

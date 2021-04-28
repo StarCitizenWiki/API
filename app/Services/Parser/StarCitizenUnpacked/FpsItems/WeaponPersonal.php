@@ -109,7 +109,7 @@ final class WeaponPersonal extends AbstractCommodityItem
                 trim($weapon['Name'] ?? 'Unknown Weapon')
             ),
             'manufacturer' => $this->getManufacturer($weapon),
-            'type' => trim($data['type'] ?? 'Unknown Type'),
+            'weapon_type' => trim($data['type'] ?? 'Unknown Type'),
             'class' => trim($weapon['Classification'] ?? 'Unknown Class'),
             'weapon_class' => trim($data['class'] ?? 'Unknown Weapon Class'),
             'magazine_size' => $data['magazine_size'] ?? 0,

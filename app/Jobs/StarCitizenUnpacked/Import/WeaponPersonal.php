@@ -46,7 +46,8 @@ class WeaponPersonal implements ShouldQueue
                 ], [
                     'magazine_size' => $weapon['magazine_size'],
                     'effective_range' => $weapon['effective_range'],
-                    'weapon_class' => $weapon['weapon_class'],
+                    'weapon_type' => $weapon['weapon_type'] ?? null,
+                    'weapon_class' => $weapon['weapon_class'] ?? null,
                     'rof' => $weapon['rof'],
                     'attachment_size_optics' => $weapon['attachments']['optics'] ?? null,
                     'attachment_size_barrel' => $weapon['attachments']['barrel'] ?? null,

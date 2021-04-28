@@ -11,6 +11,7 @@ class WeaponPersonal extends CommodityItem
 
     protected $fillable = [
         'uuid',
+        'weapon_type',
         'weapon_class',
         'class',
         'magazine_size',
