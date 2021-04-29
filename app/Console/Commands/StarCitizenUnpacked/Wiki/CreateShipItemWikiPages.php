@@ -62,7 +62,7 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
 
         // phpcs:disable
         $text = <<<FORMAT
-{{$template}}
+{{{$template}}}
 {{#show:{{SUBPAGENAME}}|?Beschreibung}}
 
 {{Handelswarentabelle
