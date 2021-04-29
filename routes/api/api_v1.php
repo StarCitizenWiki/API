@@ -461,5 +461,126 @@ $api->group(
                 );
             }
         );
+
+        $api->group(
+            [
+                'namespace' => 'Ship',
+                'prefix' => 'ship-items',
+            ],
+            static function (Router $api) {
+                /**
+                 * Cooler
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'coolers',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.coolers.index',
+                                'uses' => 'CoolerController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            ['as' => 'api.v1.scunpacked.ship-items.coolers.show', 'uses' => 'CoolerController@show']
+                        );
+                    }
+                );
+
+                /**
+                 * Power Plants
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'power-plants',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.power-plants.index',
+                                'uses' => 'PowerPlantController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.power-plants.show',
+                                'uses' => 'PowerPlantController@show'
+                            ]
+                        );
+                    }
+                );
+
+                /**
+                 * Quantum Drives
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'quantum-drives',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.quantum-drives.index',
+                                'uses' => 'QuantumDriveController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.quantum-drives.show',
+                                'uses' => 'QuantumDriveController@show'
+                            ]
+                        );
+                    }
+                );
+
+                /**
+                 * Shields
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'shields',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.shields.index',
+                                'uses' => 'ShieldController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.shields.show',
+                                'uses' => 'ShieldController@show'
+                            ]
+                        );
+                    }
+                );
+            }
+        );
     }
 );

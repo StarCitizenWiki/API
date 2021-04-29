@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizenUnpacked;
 
-use App\Jobs\StarCitizenUnpacked\Import\Vehicle;
+use App\Jobs\StarCitizenUnpacked\Import\ShipItems;
 use Illuminate\Console\Command;
 
-class ImportVehicles extends Command
+class ImportShipItems extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'unpacked:import-vehicles';
+    protected $signature = 'unpacked:import-ship-items';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import vehicles from scunpacked';
+    protected $description = 'Import ship items from scunpacked';
 
     /**
      * Execute the console command.
@@ -30,7 +30,7 @@ class ImportVehicles extends Command
      */
     public function handle()
     {
-        Vehicle::dispatch();
+        ShipItems::dispatch();
         return 0;
     }
 }

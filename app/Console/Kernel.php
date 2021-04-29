@@ -33,12 +33,14 @@ use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Console\Commands\StarCitizenUnpacked\ImportCharArmor;
+use App\Console\Commands\StarCitizenUnpacked\ImportShipItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
 use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
 use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
@@ -104,11 +106,13 @@ class Kernel extends ConsoleKernel
         ImportWeaponPersonal::class,
         ImportCharArmor::class,
         ImportShopItems::class,
+        ImportShipItems::class,
 
         TranslateItems::class,
 
         CreateCommodityWikiPages::class,
-        CreateCharArmorWikiPages::class
+        CreateCharArmorWikiPages::class,
+        CreateShipItemWikiPages::class,
     ];
 
     /**

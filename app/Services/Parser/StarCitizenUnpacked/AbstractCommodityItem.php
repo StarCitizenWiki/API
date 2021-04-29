@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked;
 
-class AbstractCommodityItem
+abstract class AbstractCommodityItem
 {
+    abstract public function getData();
+
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
         $match = preg_match_all(
@@ -31,8 +33,10 @@ class AbstractCommodityItem
         $exploded = explode("\n\n", $description);
         $exploded = array_pop($exploded);
 
+        $exploded = str_replace(array('’', '`', '´', ' '), array('\'', '\'', '\'', ' '), trim($exploded ?? ''));
+
         return $out + [
-                'description' => $exploded,
+                'description' => trim($exploded),
             ];
     }
 
