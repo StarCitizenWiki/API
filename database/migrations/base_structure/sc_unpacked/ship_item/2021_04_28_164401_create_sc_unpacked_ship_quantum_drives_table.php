@@ -33,7 +33,7 @@ class CreateScUnpackedShipQuantumDrivesTable extends Migration
             $table->unsignedDouble('spline_spool_time');
             $table->timestamps();
 
-            $table->foreign('ship_item_id', 'cooler_ship_item_id')
+            $table->foreign('ship_item_id', 'quantum_drive_ship_item_id')
                 ->references('id')
                 ->on('star_citizen_unpacked_ship_items')
                 ->onDelete('cascade');
