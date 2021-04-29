@@ -30,7 +30,7 @@ class PowerPlantController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(PowerPlant::query()->orderBy('name'));
+        return $this->getResponse(PowerPlant::query());
     }
 
     public function show(Request $request): Response

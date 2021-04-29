@@ -30,7 +30,7 @@ class ShieldController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(Shield::query()->orderBy('name'));
+        return $this->getResponse(Shield::query());
     }
 
     public function show(Request $request): Response

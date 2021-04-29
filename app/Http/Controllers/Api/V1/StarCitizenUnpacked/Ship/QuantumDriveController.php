@@ -30,7 +30,7 @@ class QuantumDriveController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(QuantumDrive::query()->orderBy('name'));
+        return $this->getResponse(QuantumDrive::query());
     }
 
     public function show(Request $request): Response

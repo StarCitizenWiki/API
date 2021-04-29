@@ -30,7 +30,7 @@ class CoolerController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(Cooler::query()->orderBy('name'));
+        return $this->getResponse(Cooler::query());
     }
 
     public function show(Request $request): Response
