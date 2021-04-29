@@ -6,13 +6,14 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
+use App\Models\StarCitizenUnpacked\Item;
+use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Services\Mapper\SmwSubObjectMapper;
-use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
-use App\Services\Parser\StarCitizenUnpacked\Shops\Shops;
 use App\Traits\GetWikiCsrfTokenTrait;
 use ErrorException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Collection;
+use NumberFormatter;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 class CreateCommodityWikiPages extends AbstractQueueCommand
@@ -40,34 +41,25 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
      */
     public function handle()
     {
-        $shops = new Shops();
-        $data = $shops->getData()
-            ->filter(function ($shop, $name) {
-                return strpos($name, 'IAE Expo') === false;
+        $data = Shop::query()->with(['items'])
+            ->get()
+            ->filter(function (Shop $shop) {
+                return strpos($shop->name_raw, 'IAE Expo') === false;
             })
-            ->filter(function ($shop, $name) {
-                return strpos($name, 'removed') === false;
+            ->filter(function (Shop $shop) {
+                return strpos($shop->name_raw, 'removed') === false;
             })
-            ->filter(function ($shop, $name) {
-                return strpos($name, 'Teach\'s') === false;
+            ->filter(function (Shop $shop) {
+                return strpos($shop->name_raw, 'Teach\'s') === false;
+            })
+            ->filter(function (Shop $shop) {
+                return strpos($shop->name_raw, 'Levski') === false;
             });
 
         $this->createProgressBar($data->count());
 
-        $data->each(function (Collection $shop, $name) {
-            $this->uploadWiki(
-                $name,
-                $shop->filter(function ($inventory) {
-                    return strpos($inventory['Name'], '[PH]') === false;
-                })
-                    ->filter(function ($inventory) {
-                        return strpos($inventory['Name'], '[PLACEHOLDER]') === false;
-                    })
-                    ->map(function ($inventory) {
-                        return SmwSubObjectMapper::map($inventory, ' ', [], str_replace('.', '', $inventory['Name']));
-                    })
-                    ->implode("\n")
-            );
+        $data->each(function (Shop $shop) {
+            $this->uploadWiki($shop);
 
             $this->advanceBar();
         });
@@ -77,11 +69,25 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
         return 0;
     }
 
-    public function uploadWiki(string $shop, string $items)
+    public function uploadWiki(Shop $shop)
     {
-        ['name' => $shop, 'position' => $position] = Inventory::parseShopName($shop);
+        $items = $shop
+            ->items
+            ->filter(function (Item $item) {
+                return strpos($item->name, '[PLACEHOLDER]') === false;
+            })
+            ->sortBy('name')
+            ->map(function (Item $item) use ($shop) {
+                return SmwSubObjectMapper::map(
+                    $this->mapItem($item, $shop),
+                    ' ',
+                    [],
+                    str_replace(['.', '[PH]'], '', $item->name)
+                );
+            })
+            ->implode("\n");
 
-        $title = sprintf('Spieldaten/Handelswaren/%s/%s', $position, $shop);
+        $title = sprintf('Spieldaten/Handelswaren/%s/%s', $shop->position, $shop->name);
 
         // phpcs:disable
         $format = <<<FORMAT
@@ -123,10 +129,8 @@ FORMAT;
         $this->info('Approving Pages');
         $this->createProgressBar($data->count());
 
-        $data->map(function ($unused, $shop) {
-            ['name' => $shop, 'position' => $position] = Inventory::parseShopName($shop);
-
-            return sprintf('Spieldaten/Handelswaren/%s/%s', $position, $shop);
+        $data->map(function (Shop $shop) {
+            return sprintf('Spieldaten/Handelswaren/%s/%s', $shop->position, $shop->name);
         })
             ->each(function ($page) {
                 $this->loginWikiBotAccount('services.wiki_approve_revs');
@@ -134,5 +138,32 @@ FORMAT;
                 dispatch(new ApproveRevisions([$page], false));
                 $this->advanceBar();
             });
+    }
+
+    private function mapItem(Item $item, Shop $shop): array
+    {
+        $formatter = new NumberFormatter(config('app.locale'), NumberFormatter::TYPE_DEFAULT);
+
+        return [
+            'UUID' => $item->uuid,
+            'Name' => str_replace('[PH]', '', $item->name),
+            'Basispreis' => $formatter->format($item->shop_data->base_price) . 'aUEC',
+            'Preis' => $formatter->format($item->shop_data->offsetted_price) . 'aUEC',
+            'Minimalpreis' => $formatter->format($item->shop_data->priceRange['min']) . 'aUEC',
+            'Maximalpreis' => $formatter->format($item->shop_data->priceRange['max']) . 'aUEC',
+            'Preisoffset' => $formatter->format($item->shop_data->base_price_offset),
+            'Rabatt' => $formatter->format($item->shop_data->max_discount),
+            'Premium' => $formatter->format($item->shop_data->max_premium),
+            'Bestand' => $formatter->format($item->shop_data->inventory),
+            'Maximalbestand' => $formatter->format($item->shop_data->max_inventory),
+            'Wiederauffüllungsrate' => $formatter->format($item->shop_data->refresh_rate),
+            'Typ' => $item->type,
+            'Kaufbar' => $item->shop_data->buyable,
+            'Verkaufbar' => $item->shop_data->sellable,
+            'Mietbar' => $item->shop_data->rentable,
+            'Händler' => $shop->name,
+            'Ort' => $shop->position,
+            'Spielversion' => config('api.sc_data_version'),
+        ];
     }
 }
