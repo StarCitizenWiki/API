@@ -23,23 +23,9 @@ class CreateScUnpackedShipMissilesTable extends Migration
             $table->unsignedDouble('range');
             $table->unsignedDouble('size');
             $table->unsignedDouble('capacity')->nullable();
-
-            $table->unsignedDouble('damage_physical')->nullable();
-            $table->unsignedDouble('damage_energy')->nullable();
-            $table->unsignedDouble('damage_distortion')->nullable();
-            $table->unsignedDouble('damage_thermal')->nullable();
-            $table->unsignedDouble('damage_biochemical')->nullable();
-            $table->unsignedDouble('damage_stun')->nullable();
-
-            $table->unsignedDouble('detonation_damage_physical')->nullable();
-            $table->unsignedDouble('detonation_damage_energy')->nullable();
-            $table->unsignedDouble('detonation_damage_distortion')->nullable();
-            $table->unsignedDouble('detonation_damage_thermal')->nullable();
-            $table->unsignedDouble('detonation_damage_biochemical')->nullable();
-            $table->unsignedDouble('detonation_damage_stun')->nullable();
             $table->timestamps();
 
-            $table->foreign('ship_item_id', 'weapons_ship_item_id')
+            $table->foreign('ship_item_id', 'missiles_ship_item_id')
                 ->references('id')
                 ->on('star_citizen_unpacked_ship_items')
                 ->onDelete('cascade');
