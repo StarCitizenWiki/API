@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield;
 
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
-use App\Models\StarCitizenUnpacked\ShipItem\ShipItemPowerData;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 use League\Fractal\Resource\Collection;
 
@@ -15,7 +14,7 @@ class ShipShieldTransformer extends AbstractCommodityTransformer
         'absorption',
     ];
 
-    public function transform(ShipItemPowerData $item): array
+    public function transform(Shield $item): array
     {
         return [
             'max_shield_health' => $item->max_shield_health,

@@ -35,7 +35,7 @@ class CreateScUnpackedShipItemPowerDataTable extends Migration
             $table->unsignedDouble('decay_rate_em')->nullable();
 
             $table->foreign('ship_item_id', 'power_data_id_ship_item_id')
-                ->references('ud')
+                ->references('id')
                 ->on('star_citizen_unpacked_ship_items')
                 ->onDelete('cascade');
         });

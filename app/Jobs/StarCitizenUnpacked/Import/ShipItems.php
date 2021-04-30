@@ -266,7 +266,7 @@ class ShipItems implements ShouldQueue
                 'type' => $type,
             ], [
                 'drive_speed' => $mode['drive_speed'],
-                'cooldown_time' => $mode['cooldown_time'],
+                'cooldown_time' => $mode['cooldown_time'] ?? 0,
                 'stage_one_accel_rate' => $mode['stage_one_accel_rate'],
                 'stage_two_accel_rate' => $mode['stage_two_accel_rate'],
                 'engage_speed' => $mode['engage_speed'],
@@ -276,6 +276,7 @@ class ShipItems implements ShouldQueue
                 'max_calibration_requirement' => $mode['max_calibration_requirement'],
                 'calibration_process_angle_limit' => $mode['calibration_process_angle_limit'],
                 'calibration_warning_angle_limit' => $mode['calibration_warning_angle_limit'],
+                'spool_up_time' => $mode['spool_up_time'],
             ]);
         }
 

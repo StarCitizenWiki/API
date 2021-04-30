@@ -29,6 +29,7 @@ class QuantumDriveMode extends AbstractShipItemSpecification
         'max_calibration_requirement',
         'calibration_process_angle_limit',
         'calibration_warning_angle_limit',
+        'spool_up_time',
     ];
 
     protected $casts = [
@@ -43,6 +44,7 @@ class QuantumDriveMode extends AbstractShipItemSpecification
         'max_calibration_requirement' => 'double',
         'calibration_process_angle_limit' => 'double',
         'calibration_warning_angle_limit' => 'double',
+        'spool_up_time' => 'double',
     ];
 
     public function quantumDrive(): BelongsTo

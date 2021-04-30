@@ -29,7 +29,7 @@ class CreateScUnpackedShipItemDistortionDataTable extends Migration
             $table->unsignedDouble('recovery_time')->nullable();
 
             $table->foreign('ship_item_id', 'distortion_data_id_ship_item_id')
-                ->references('ud')
+                ->references('id')
                 ->on('star_citizen_unpacked_ship_items')
                 ->onDelete('cascade');
         });

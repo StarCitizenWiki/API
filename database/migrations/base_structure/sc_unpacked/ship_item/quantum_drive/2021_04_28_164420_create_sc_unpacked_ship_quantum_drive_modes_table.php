@@ -32,6 +32,7 @@ class CreateScUnpackedShipQuantumDriveModesTable extends Migration
             $table->unsignedDouble('max_calibration_requirement');
             $table->unsignedDouble('calibration_process_angle_limit');
             $table->unsignedDouble('calibration_warning_angle_limit');
+            $table->unsignedDouble('spool_up_time');
 
             $table->timestamps();
 
