@@ -308,7 +308,7 @@ class ShipItems implements ShouldQueue
 
             foreach ($damage as $name => $value) {
                 $weapon->damages()->updateOrCreate([
-                    'weapon_id' => $weapon->id,
+                    'ship_weapon_id' => $weapon->id,
                     'type' => $type,
                     'name' => $name,
                 ], [

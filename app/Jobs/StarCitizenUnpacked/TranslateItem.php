@@ -49,7 +49,7 @@ class TranslateItem implements ShouldQueue
         $german = optional($this->item->german())->translation;
 
         // Delete job german and english translation length don't differ in length by <= 20%
-        if (null !== $german && ((strlen($german) / strlen($english)) > 0.80)) {
+        if ($english === '' || (null !== $german && ((strlen($german) / strlen($english)) > 0.80))) {
             $this->delete();
             return;
         }
