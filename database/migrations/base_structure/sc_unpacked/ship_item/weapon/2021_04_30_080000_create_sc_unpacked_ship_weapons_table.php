@@ -31,7 +31,7 @@ class CreateScUnpackedShipWeaponsTable extends Migration
                 ->on('star_citizen_unpacked_ship_items')
                 ->onDelete('cascade');
 
-            $table->foreign('uuid', 'shields_ship_item_uuid')
+            $table->foreign('uuid', 'weapons_ship_item_uuid')
                 ->references('uuid')
                 ->on('star_citizen_unpacked_ship_items')
                 ->onDelete('cascade');
