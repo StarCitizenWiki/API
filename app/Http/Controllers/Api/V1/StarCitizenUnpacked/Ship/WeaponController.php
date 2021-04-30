@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\Ship;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\StarCitizenUnpacked\ShipItem\PowerPlant;
+use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\ShipItemTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 
-class PowerPlantController extends ApiController
+class WeaponController extends ApiController
 {
     /**
      * ShipController constructor.
@@ -30,7 +30,7 @@ class PowerPlantController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(PowerPlant::query());
+        return $this->getResponse(Weapon::query());
     }
 
     public function show(Request $request): Response
@@ -47,7 +47,7 @@ class PowerPlantController extends ApiController
         $item = urldecode($item);
 
         try {
-            $item = PowerPlant::query()
+            $item = Weapon::query()
                 ->whereHas('shipItem.item', function (Builder $query) use ($item) {
                     return $query->where('name', $item);
                 })

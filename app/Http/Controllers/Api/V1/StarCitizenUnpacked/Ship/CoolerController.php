@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\Ship;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
-use App\Transformers\Api\V1\StarCitizenUnpacked\Ship\ShipItemTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\ShipItemTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Builder;

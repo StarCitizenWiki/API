@@ -1,0 +1,47 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models\StarCitizenUnpacked\ShipItem\Weapon;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class WeaponMode extends Model
+{
+    use HasFactory;
+
+    protected $with = [
+        'damages',
+    ];
+
+    protected $table = 'star_citizen_unpacked_ship_weapon_modes';
+
+    protected $fillable = [
+        'ship_weapon_id',
+        'name',
+        'localized_name',
+        'fire_type',
+        'rounds_per_minute',
+        'ammo_per_shot',
+        'pellets_per_shot',
+    ];
+
+    protected $casts = [
+        'rounds_per_minute' => 'double',
+        'ammo_per_shot' => 'double',
+        'pellets_per_shot' => 'double',
+    ];
+
+    public function weapon(): BelongsTo
+    {
+        return $this->belongsTo(Weapon::class, 'ship_weapon_id', 'id');
+    }
+
+    public function damages(): HasMany
+    {
+        return $this->hasMany(WeaponModeDamage::class, 'ship_weapon_mode_id', 'id');
+    }
+}

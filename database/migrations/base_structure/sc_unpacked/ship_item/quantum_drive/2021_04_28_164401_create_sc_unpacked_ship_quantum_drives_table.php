@@ -19,18 +19,17 @@ class CreateScUnpackedShipQuantumDrivesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('ship_item_id');
             $table->string('uuid')->unique();
-            $table->unsignedDouble('fuel_rate');
+
+            $table->unsignedDouble('quantum_fuel_requirement');
             $table->string('jump_range');
-            $table->unsignedDouble('standard_speed');
-            $table->unsignedDouble('standard_cooldown');
-            $table->unsignedDouble('standard_stage_1_acceleration');
-            $table->unsignedDouble('standard_stage_2_acceleration');
-            $table->unsignedDouble('standard_spool_time');
-            $table->unsignedDouble('spline_speed');
-            $table->unsignedDouble('spline_cooldown');
-            $table->unsignedDouble('spline_stage_1_acceleration');
-            $table->unsignedDouble('spline_stage_2_acceleration');
-            $table->unsignedDouble('spline_spool_time');
+            $table->unsignedDouble('disconnect_range');
+
+            $table->unsignedDouble('pre_ramp_up_thermal_energy_draw');
+            $table->unsignedDouble('ramp_up_thermal_energy_draw');
+            $table->unsignedDouble('in_flight_thermal_energy_draw');
+            $table->unsignedDouble('ramp_down_thermal_energy_draw');
+            $table->unsignedDouble('post_ramp_down_thermal_energy_draw');
+
             $table->timestamps();
 
             $table->foreign('ship_item_id', 'quantum_drive_ship_item_id')

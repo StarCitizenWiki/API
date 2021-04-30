@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\File;
 final class ShipItem extends AbstractCommodityItem
 {
     private Collection $items;
+    private Collection $rawData;
 
     /**
      * AssaultRifle constructor.
@@ -45,6 +46,7 @@ final class ShipItem extends AbstractCommodityItem
             ->map(function (array $entry) {
                 $out = $entry['stdItem'] ?? [];
                 $out['reference'] = $entry['reference'] ?? null;
+                $out['itemName'] = $entry['itemName'] ?? null;
 
                 return $out;
             })
@@ -55,12 +57,23 @@ final class ShipItem extends AbstractCommodityItem
                 return isset($entry['Durability']);
             })
             ->map(function (array $entry) {
-                return $this->map($entry);
+                $item = File::get(
+                    storage_path(
+                        sprintf(
+                            'app/api/scunpacked-data/v2/items/%s-raw.json',
+                            strtolower($entry['itemName'])
+                        )
+                    )
+                );
+
+                $rawData = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+
+                return $this->map($entry, $rawData);
             })
             ->unique('name');
     }
 
-    private function map(array $item): array
+    private function map(array $item, Collection $rawData): array
     {
         /**
          * BASE ALL
@@ -205,110 +218,26 @@ final class ShipItem extends AbstractCommodityItem
             ),
             'manufacturer' => $this->getManufacturer($item),
             'type' => trim($data['item_type'] ?? 'Unknown Type'),
-            'class' => trim($data['item_class'] ?? 'Unknown Type'),
+            'class' => trim($data['item_class'] ?? 'Unknown Class'),
             'grade' => $data['grade'] ?? null,
         ];
 
-        $this->addData($mappedItem, $item);
+        $this->addData($mappedItem, $item, $rawData);
 
         return $mappedItem;
     }
 
-    private function addData(array &$mappedItem, array $item): void
+    private function addData(array &$mappedItem, array $item, Collection $rawData): void
     {
-        $this->addBaseData($mappedItem, $item);
-        $this->addCoolerData($mappedItem, $item);
-        $this->addPowerPlantData($mappedItem, $item);
-        $this->addShieldData($mappedItem, $item);
-        $this->addQuantumDriveData($mappedItem, $item);
-    }
-
-    private function addBaseData(array &$mappedItem, array $item): void
-    {
-        $mappedItem['durability'] = [
-            'health' => $item['Durability']['Health'] ?? 0,
-            'lifetime' => $item['Durability']['Lifetime'] ?? 0,
-        ];
-
-        $mappedItem['power'] = [
-            'power_base' => $item['PowerConnection']['PowerBase'] ?? 0,
-            'power_draw' => $item['PowerConnection']['PowerDraw'] ?? 0,
-        ];
-
-        $mappedItem['thermal'] = [
-            'thermal_energy_base' => $item['HeatConnection']['ThermalEnergyBase'] ?? 0,
-            'thermal_energy_draw' => $item['HeatConnection']['ThermalEnergyDraw'] ?? 0,
-            'cooling_rate' => $item['HeatConnection']['CoolingRate'] ?? 0,
-        ];
-    }
-
-    private function addCoolerData(array &$mappedItem, array $item): void
-    {
-        if (!isset($item['Cooler'])) {
-            return;
-        }
-
-        $mappedItem['cooler'] = [
-            'cooling_rate' => $item['Cooler']['Rate'],
-        ];
-    }
-
-    private function addPowerPlantData(array &$mappedItem, array $item): void
-    {
-        if (!isset($item['PowerPlant'])) {
-            return;
-        }
-
-        $mappedItem['power_plant'] = [
-            'power_output' => $item['PowerPlant']['Output'],
-        ];
-    }
-
-    private function addShieldData(array &$mappedItem, array $item): void
-    {
-        if (!isset($item['Shield'])) {
-            return;
-        }
-
-        $mappedItem['shield'] = [
-            'health' => $item['Shield']['Health'],
-            'regeneration' => $item['Shield']['Regeneration'],
-            'downed_delay' => $item['Shield']['DownedDelay'],
-            'damage_delay' => $item['Shield']['DamagedDelay'],
-            'min_physical_absorption' => $item['Shield']['Absorption']['Physical']['Minimum'],
-            'max_physical_absorption' => $item['Shield']['Absorption']['Physical']['Maximum'],
-            'min_energy_absorption' => $item['Shield']['Absorption']['Energy']['Minimum'],
-            'max_energy_absorption' => $item['Shield']['Absorption']['Energy']['Maximum'],
-            'min_distortion_absorption' => $item['Shield']['Absorption']['Distortion']['Minimum'],
-            'max_distortion_absorption' => $item['Shield']['Absorption']['Distortion']['Maximum'],
-            'min_thermal_absorption' => $item['Shield']['Absorption']['Thermal']['Minimum'],
-            'max_thermal_absorption' => $item['Shield']['Absorption']['Thermal']['Maximum'],
-            'min_biochemical_absorption' => $item['Shield']['Absorption']['Biochemical']['Minimum'],
-            'max_biochemical_absorption' => $item['Shield']['Absorption']['Biochemical']['Maximum'],
-            'min_stun_absorption' => $item['Shield']['Absorption']['Stun']['Minimum'],
-            'max_stun_absorption' => $item['Shield']['Absorption']['Stun']['Maximum'],
-        ];
-    }
-
-    private function addQuantumDriveData(array &$mappedItem, array $item): void
-    {
-        if (!isset($item['QuantumDrive'])) {
-            return;
-        }
-
-        $mappedItem['quantum_drive'] = [
-            'fuel_rate' => $item['QuantumDrive']['FuelRate'],
-            'jump_range' => $item['QuantumDrive']['JumpRange'],
-            'standard_speed' => $item['QuantumDrive']['StandardJump']['Speed'],
-            'standard_cooldown' => $item['QuantumDrive']['StandardJump']['Cooldown'],
-            'standard_stage_1_acceleration' => $item['QuantumDrive']['StandardJump']['Stage1AccelerationRate'],
-            'standard_stage_2_acceleration' => $item['QuantumDrive']['StandardJump']['State2AccelerationRate'],
-            'standard_spool_time' => $item['QuantumDrive']['StandardJump']['SpoolUpTime'],
-            'spline_speed' => $item['QuantumDrive']['SplineJump']['Speed'],
-            'spline_cooldown' => $item['QuantumDrive']['SplineJump']['Cooldown'],
-            'spline_stage_1_acceleration' => $item['QuantumDrive']['SplineJump']['Stage1AccelerationRate'],
-            'spline_stage_2_acceleration' => $item['QuantumDrive']['SplineJump']['State2AccelerationRate'],
-            'spline_spool_time' => $item['QuantumDrive']['SplineJump']['SpoolUpTime'],
-        ];
+        $mappedItem = array_merge(
+            $mappedItem,
+            BaseData::getData($item, $rawData)
+        );
+        $mappedItem['cooler'] = Cooler::getData($item, $rawData);
+        $mappedItem['power_plant'] = PowerPlant::getData($item, $rawData);
+        $mappedItem['shield'] = Shield::getData($item, $rawData);
+        $mappedItem['quantum_drive'] = QuantumDrive::getData($item, $rawData);
+        $mappedItem['weapon'] = Weapon::getData($item, $rawData);
+        $mappedItem['missile'] = Missile::getData($item, $rawData);
     }
 }

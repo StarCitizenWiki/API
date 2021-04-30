@@ -19,22 +19,16 @@ class CreateScUnpackedShipShieldsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('ship_item_id');
             $table->string('uuid')->unique();
-            $table->unsignedDouble('health');
-            $table->unsignedDouble('regeneration');
-            $table->unsignedDouble('downed_delay');
-            $table->unsignedDouble('damage_delay');
-            $table->unsignedDouble('min_physical_absorption');
-            $table->unsignedDouble('max_physical_absorption');
-            $table->unsignedDouble('min_energy_absorption');
-            $table->unsignedDouble('max_energy_absorption');
-            $table->unsignedDouble('min_distortion_absorption');
-            $table->unsignedDouble('max_distortion_absorption');
-            $table->unsignedDouble('min_thermal_absorption');
-            $table->unsignedDouble('max_thermal_absorption');
-            $table->unsignedDouble('min_biochemical_absorption');
-            $table->unsignedDouble('max_biochemical_absorption');
-            $table->unsignedDouble('min_stun_absorption');
-            $table->unsignedDouble('max_stun_absorption');
+            $table->unsignedDouble('max_shield_health');
+            $table->unsignedDouble('max_shield_regen');
+            $table->unsignedDouble('decay_ratio');
+            $table->unsignedDouble('downed_regen_delay');
+            $table->unsignedDouble('damage_regen_delay');
+            $table->unsignedDouble('max_reallocation');
+            $table->unsignedDouble('reallocation_rate');
+            $table->unsignedDouble('shield_hardening_factor');
+            $table->unsignedDouble('shield_hardening_duration');
+            $table->unsignedDouble('shield_hardening_cooldown');
             $table->timestamps();
 
             $table->foreign('ship_item_id', 'shields_ship_item_id')

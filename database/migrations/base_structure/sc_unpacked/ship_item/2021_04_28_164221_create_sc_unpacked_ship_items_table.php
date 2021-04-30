@@ -21,13 +21,6 @@ class CreateScUnpackedShipItemsTable extends Migration
             $table->string('grade')->nullable();
             $table->string('class')->nullable();
             $table->string('type')->nullable();
-            $table->unsignedDouble('health');
-            $table->unsignedDouble('lifetime');
-            $table->unsignedDouble('power_base');
-            $table->unsignedDouble('power_draw');
-            $table->unsignedDouble('thermal_energy_base');
-            $table->unsignedDouble('thermal_energy_draw');
-            $table->unsignedDouble('cooling_rate');
             $table->timestamps();
 
             $table->foreign('uuid', 'ship_item_item_uuid')

@@ -580,6 +580,35 @@ $api->group(
                         );
                     }
                 );
+
+                /**
+                 * Weapons
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'weapons',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.weapons.index',
+                                'uses' => 'WeaponController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.weapons.show',
+                                'uses' => 'WeaponController@show'
+                            ]
+                        );
+                    }
+                );
             }
         );
     }
