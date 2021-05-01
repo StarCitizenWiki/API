@@ -16,7 +16,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="filename-prefix"></span>
                             </div>
-                            <input type="text" class="form-control" id="filename" aria-describedby="filename-prefix" required minlength="5">
+                            <input type="text" class="form-control" id="filename" aria-describedby="filename-prefix" required minlength="3">
                         </div>
                     </div>
                     <div class="form-group">
@@ -28,7 +28,7 @@
                     </div>
                     <div class="form-group">
                         <label for="categories">Kategorien</label>
-                        <input type="text" class="form-control" id="categories" required minlength="5">
+                        <input type="text" class="form-control" id="categories" required minlength="3">
                         <small id="categoriesHelpBlock" class="form-text text-muted">
                             Liste von Kategorien, getrennt durch ein Komma.<br>Die Kategorie des Comm-Links wird automatisch hinzugefügt.
                         </small>
@@ -96,8 +96,8 @@
                 alert.innerHTML = `Bild hochgeladen!<br><code><a href="{!! config('api.wiki_url') !!}/index.php?title=Image:${response.data.upload.filename}">${response.data.upload.filename}</a></code>`
 
                 modal.querySelector('#image').value = 0
-                modal.querySelector('#description').value = ''
-                modal.querySelector('#filename').value = ''
+                //modal.querySelector('#description').value = ''
+                //modal.querySelector('#filename').value = ''
                 modal.querySelector('#categories').placeholder = ''
 
                 console.log(response.data)

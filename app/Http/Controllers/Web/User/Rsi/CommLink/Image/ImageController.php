@@ -60,7 +60,7 @@ class ImageController extends Controller
                 'images' => $query
                     ->orderByDesc('id')
                     ->groupBy('src')
-                    ->paginate(20),
+                    ->paginate(100),
                 'mimes' => ImageMetadata::query()->groupBy('mime')->get('mime'),
             ]
         );
