@@ -49,7 +49,7 @@ class CharArmorController extends ApiController
         try {
             $armor = CharArmor::query()
                 ->whereHas('item', function (Builder $query) use ($armor) {
-                    return $query->where('name', 'LIKE', sprintf('%%%s%%%%', $armor));
+                    return $query->where('name', $armor)->orWhere('uuid', $armor);
                 })
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {

@@ -49,7 +49,8 @@ class WeaponPersonalController extends ApiController
         try {
             $weapon = WeaponPersonal::query()
                 ->whereHas('item', function (Builder $query) use ($weapon) {
-                    return $query->where('name', $weapon);
+                    return $query->where('name', $weapon)
+                        ->orWhere('uuid', $weapon);
                 })
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {

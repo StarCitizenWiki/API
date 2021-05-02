@@ -48,7 +48,8 @@ class ItemController extends ApiController
 
         try {
             $item = Item::query()
-                ->where('name', 'LIKE', sprintf('%%%s%%%%', $item))
+                ->where('name', $item)
+                ->orWhere('uuid', $item)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $item));

@@ -49,7 +49,8 @@ class CoolerController extends ApiController
         try {
             $item = Cooler::query()
                 ->whereHas('shipItem.item', function (Builder $query) use ($item) {
-                    return $query->where('name', $item);
+                    return $query->where('name', $item)
+                        ->orWhere('uuid', $item);
                 })
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {

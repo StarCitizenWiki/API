@@ -49,7 +49,8 @@ class QuantumDriveController extends ApiController
         try {
             $item = QuantumDrive::query()
                 ->whereHas('shipItem.item', function (Builder $query) use ($item) {
-                    return $query->where('name', $item);
+                    return $query->where('name', $item)
+                        ->orWhere('uuid', $item);
                 })
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
