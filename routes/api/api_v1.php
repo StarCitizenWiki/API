@@ -327,7 +327,7 @@ $api->group(
                 $api->get(
                     '/personal/{weapon}',
                     ['as' => 'api.v1.scunpacked.weapons.personal.show', 'uses' => 'WeaponPersonalController@show']
-                );
+                )->where('weapon', '(.*)');
             }
         );
 
@@ -354,7 +354,7 @@ $api->group(
                         $api->get(
                             '/armor/{armor}',
                             ['as' => 'api.v1.scunpacked.char.armor.show', 'uses' => 'CharArmorController@show']
-                        );
+                        )->where('armor', '(.*)');
                     }
                 );
 
@@ -373,10 +373,11 @@ $api->group(
                                 'uses' => 'ItemController@indexClothing',
                             ]
                         );
+
                         $api->get(
                             '/clothing/{name}',
                             ['as' => 'api.v1.scunpacked.char.clothing.show', 'uses' => 'ItemController@showClothing']
-                        );
+                        )->where('name', '(.*)');
                     }
                 );
             }
@@ -458,7 +459,7 @@ $api->group(
                 $api->get(
                     '/{item}',
                     ['as' => 'api.v1.scunpacked.items.show', 'uses' => 'ItemController@show']
-                );
+                )->where('item', '(.*)');
             }
         );
 
@@ -490,7 +491,7 @@ $api->group(
                         $api->get(
                             '/{item}',
                             ['as' => 'api.v1.scunpacked.ship-items.coolers.show', 'uses' => 'CoolerController@show']
-                        );
+                        )->where('item', '(.*)');
                     }
                 );
 
@@ -519,7 +520,7 @@ $api->group(
                                 'as' => 'api.v1.scunpacked.ship-items.power-plants.show',
                                 'uses' => 'PowerPlantController@show'
                             ]
-                        );
+                        )->where('item', '(.*)');
                     }
                 );
 
@@ -548,7 +549,7 @@ $api->group(
                                 'as' => 'api.v1.scunpacked.ship-items.quantum-drives.show',
                                 'uses' => 'QuantumDriveController@show'
                             ]
-                        );
+                        )->where('item', '(.*)');
                     }
                 );
 
@@ -577,7 +578,7 @@ $api->group(
                                 'as' => 'api.v1.scunpacked.ship-items.shields.show',
                                 'uses' => 'ShieldController@show'
                             ]
-                        );
+                        )->where('item', '(.*)');
                     }
                 );
 
@@ -606,7 +607,7 @@ $api->group(
                                 'as' => 'api.v1.scunpacked.ship-items.weapons.show',
                                 'uses' => 'WeaponController@show'
                             ]
-                        );
+                        )->where('item', '(.*)');
                     }
                 );
             }
