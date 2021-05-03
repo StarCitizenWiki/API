@@ -43,10 +43,17 @@ final class WeaponPersonal extends AbstractCommodityItem
                 return isset($entry['Description'], $entry['Weapon']) && !empty($entry);
             })
             ->map(function (array $entry) {
-                $item = File::get(storage_path(sprintf('app/api/scunpacked-data/items/%s.json', $entry['ClassName'])));
-                $item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+                try {
+                    $item = File::get(storage_path(sprintf('app/api/scunpacked-data/items/%s.json', $entry['ClassName'])));
+                    $item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+                } catch (FileNotFoundException $e) {
+                    $item = collect();
+                }
 
                 return $this->map($entry, $item);
+            })
+            ->filter(function (array $weapon) {
+                return !empty($weapon);
             })
             ->filter(function (array $weapon) use ($onlyBaseVersions) {
                 if ($onlyBaseVersions === true) {
@@ -89,6 +96,10 @@ final class WeaponPersonal extends AbstractCommodityItem
          * RoundsPerMinute: 700.0
          * DPS: 72.8
          */
+
+        if ($rawData->isEmpty()) {
+            return [];
+        }
 
         $data = $this->tryExtractDataFromDescription($weapon['Description'], [
             'Manufacturer' => 'manufacturer',
