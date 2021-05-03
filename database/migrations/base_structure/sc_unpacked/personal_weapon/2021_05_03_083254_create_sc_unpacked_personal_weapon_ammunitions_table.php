@@ -22,7 +22,7 @@ class CreateScUnpackedPersonalWeaponAmmunitionsTable extends Migration
             $table->unsignedDouble('range');
             $table->timestamps();
 
-            $table->foreign('weapon_id', 'magazine_weapon_id_foreign')
+            $table->foreign('weapon_id', 'ammunition_weapon_id_foreign')
                 ->references('id')
                 ->on('star_citizen_unpacked_personal_weapons')
                 ->onDelete('cascade');
