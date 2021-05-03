@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 
-use App\Events\ModelUpdating;
-use App\Traits\HasModelChangelogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,26 +11,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class WeaponPersonalMode extends Model
 {
     use HasFactory;
-    use HasModelChangelogTrait;
 
     protected $table = 'star_citizen_unpacked_personal_weapon_modes';
 
     protected $fillable = [
-        'weapon_id',
         'mode',
-        'rpm',
-        'dps',
+        'localised',
+        'type',
+        'rounds_per_minute',
+        'ammo_per_shot',
+        'pellets_per_shot',
     ];
 
     protected $casts = [
-        'rpm' => 'double',
-        'dps' => 'double',
-    ];
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
+        'rounds_per_minute' => 'double',
+        'ammo_per_shot' => 'double',
+        'pellets_per_shot' => 'double',
     ];
 
     /**
@@ -41,5 +35,11 @@ class WeaponPersonalMode extends Model
     public function weapon(): BelongsTo
     {
         return $this->belongsTo(WeaponPersonal::class, 'weapon_id');
+    }
+
+    public function getDamagePerSecondAttribute(): float
+    {
+        $multiplier = $this->rounds_per_minute / 60;
+        return $this->weapon->ammunition->damage * $multiplier;
     }
 }

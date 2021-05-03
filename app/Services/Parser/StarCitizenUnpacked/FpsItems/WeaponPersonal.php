@@ -43,7 +43,10 @@ final class WeaponPersonal extends AbstractCommodityItem
                 return isset($entry['Description'], $entry['Weapon']) && !empty($entry);
             })
             ->map(function (array $entry) {
-                return $this->map($entry);
+                $item = File::get(storage_path(sprintf('app/api/scunpacked-data/items/%s.json', $entry['ClassName'])));
+                $item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+
+                return $this->map($entry, $item);
             })
             ->filter(function (array $weapon) use ($onlyBaseVersions) {
                 if ($onlyBaseVersions === true) {
@@ -60,10 +63,13 @@ final class WeaponPersonal extends AbstractCommodityItem
 
                 return true;
             })
+            ->filter(function (array $weapon) {
+                return !empty($weapon['ammunition']) && !empty($weapon['magazine']);
+            })
             ->unique('name');
     }
 
-    private function map(array $weapon): array
+    private function map(array $weapon, Collection $rawData): array
     {
         /**
          * Name": "Gallant “Stormfall” Rifle
@@ -115,66 +121,144 @@ final class WeaponPersonal extends AbstractCommodityItem
             'magazine_size' => $data['magazine_size'] ?? 0,
             'effective_range' => $this->buildEffectiveRange($data['effective_range'] ?? '0'),
             'rof' => $data['rof'] ?? 0,
-            'attachments' => $this->buildAttachmentsPart($data['attachments'] ?? ''),
-            'ammunition' => $this->buildAmmunitionWeaponPart($weapon['Weapon']),
-            'modes' => $this->buildModesPart($weapon['Weapon']),
+            'attachment_ports' => $this->buildAttachmentPortsPart($rawData),
+            'attachments' => $this->buildAttachmentsPart($rawData),
+            'ammunition' => $this->buildAmmunitionWeaponPart($rawData, $weapon),
+            'modes' => $this->buildModesPart($weapon),
+            'magazine' => $this->buildMagazinePart($rawData),
         ];
     }
 
-    private function buildAmmunitionWeaponPart(array $weapon): array
+    private function buildAmmunitionWeaponPart(Collection $rawData, array $weapon): array
     {
-        if (!isset($weapon['Ammunition']['ImpactDamage'])) {
+        $key = 'ammo';
+
+        if (!$rawData->has($key)) {
             return [];
         }
-        $impactDamage = array_shift($weapon['Ammunition']['ImpactDamage']) ?? 0;
+
+        $damage = collect($rawData->pull('ammo.projectileParams.BulletProjectileParams.damage'))
+            ->flatMap(function ($entry) {
+                return collect($entry)
+                    ->map(function ($damage, $key) {
+                        return [
+                            'type' => 'impact',
+                            'name' => strtolower(str_replace('Damage', '', $key)),
+                            'damage' => $damage,
+                        ];
+                    });
+            })
+            ->filter(function (array $entry) {
+                return $entry['damage'] > 0;
+            })->toArray();
+
+        $detonation = collect($rawData->pull('ammo.projectileParams.BulletProjectileParams.detonationParams.ProjectileDetonationParams.explosionParams.damage'))
+            ->flatMap(function ($entry) {
+                return collect($entry)
+                    ->map(function ($damage, $key) {
+                        return [
+                            'type' => 'detonation',
+                            'name' => strtolower(str_replace('Damage', '', $key)),
+                            'damage' => $damage,
+                        ];
+                    });
+            })
+            ->filter(function (array $entry) {
+                return $entry['damage'] > 0;
+            })->toArray();
 
         return [
-            'speed' => $weapon['Ammunition']['Speed'] ?? 0,
+            'size' => $rawData->pull('ammo.size') ?? 1,
+            'speed' => $rawData->pull('ammo.speed', 0),
+            'lifetime' => $rawData->pull('ammo.lifetime', 0),
             'range' => $weapon['Ammunition']['Range'] ?? 0,
-            'damage' => $impactDamage,
+            'damages' => array_filter([
+                'impact' => $damage,
+                'detonation' => $detonation,
+            ]),
         ];
     }
 
-    private function buildModesPart(array $weapon): array
+    private function buildModesPart($weapon): array
     {
-        $out = [];
-
-        foreach ($weapon['Modes'] as $mode) {
-            $out[] = [
-                'name' => trim($mode['LocalisedName'] ?? 'Unnamed Mode', '[]'),
-                'rpm' => $mode['RoundsPerMinute'] ?? 0,
-                'dps' => array_shift($mode['DamagePerSecond']) ?? 0
-            ];
+        if (!isset($weapon['Weapon']['Modes'])) {
+            return [];
         }
 
-        return $out;
+        $modes = collect($weapon['Weapon']['Modes'])
+            ->map(function (array $mode) {
+
+                return [
+                    'mode' => $mode['Name'],
+                    'localised' => $mode['LocalisedName'],
+                    'type' => $mode['FireType'],
+                    'rounds_per_minute' => $mode['RoundsPerMinute'],
+                    'ammo_per_shot' => $mode['AmmoPerShot'],
+                    'pellets_per_shot' => $mode['PelletsPerShot'],
+                ];
+            });
+
+        return $modes->toArray();
     }
 
-    private function buildAttachmentsPart(string $attachmentLine): array
+    private function buildAttachmentPortsPart(Collection $rawData): array
     {
-        $parts = explode(',', $attachmentLine);
-        $parts = array_map('trim', $parts);
+        $key = 'Raw.Entity.Components.SItemPortContainerComponentParams.Ports';
+        $ports = $rawData->pull($key);
 
-        $out = [];
-
-        foreach ($parts as $part) {
-            $split = explode('(', $part);
-            $split = array_map('trim', $split);
-
-            if ($split[0] === '') {
-                continue;
-            }
-
-            $value = rtrim(array_pop($split), ')');
-
-            if ($value[0] === 'N') {
-                continue;
-            }
-
-            $out[strtolower($split[0])] = trim($value, 'S');
+        if (empty($ports)) {
+            return [];
         }
 
-        return $out;
+        $mapped = collect($ports)->map(function (array $component) {
+            return [
+                'name' => $component['DisplayName'],
+                'position' => str_replace('_attach', '', $component['Name']),
+                'min_size' => $component['MinSize'],
+                'max_size' => $component['MaxSize'],
+            ];
+        });
+
+        return array_filter($mapped->toArray());
+    }
+
+    private function buildAttachmentsPart(Collection $rawData): array
+    {
+        $key = 'Raw.Entity.Components.SEntityComponentDefaultLoadoutParams.loadout.SItemPortLoadoutManualParams.entries';
+        $attachments = $rawData->pull($key);
+
+        if (empty($attachments)) {
+            return [];
+        }
+
+        $mapped = collect($attachments)
+            ->map(function (array $component) {
+                try {
+                    $item = File::get(
+                        storage_path(
+                            sprintf(
+                                'app/api/scunpacked-data/v2/items/%s.json',
+                                $component['entityClassName']
+                            )
+                        )
+                    );
+
+                    /** @var Collection $item */
+                    $item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+                } catch (FileNotFoundException $e) {
+                    return null;
+                }
+
+
+                return [
+                    'name' => $item->get('Name', 'Unnamed Attachment'),
+                    'position' => str_replace('_attach', '', $component['itemPortName']),
+                    'size' => $item['Size'],
+                    'grade' => $item['Grade'],
+                ];
+            });
+
+        return array_filter($mapped->toArray());
     }
 
     private function buildEffectiveRange(string $effectiveRange): string
@@ -193,5 +277,20 @@ final class WeaponPersonal extends AbstractCommodityItem
         }
 
         return (string)$value;
+    }
+
+    private function buildMagazinePart(Collection $rawData)
+    {
+        $key = 'magazine.Components.SAmmoContainerComponentParams';
+        $data = $rawData->pull($key);
+
+        if (empty($data)) {
+            return [];
+        }
+
+        return [
+            'initial_ammo_count' => $data['initialAmmoCount'] ?? 0,
+            'max_ammo_count' => $data['initialAmmoCount'] ?? 0,
+        ];
     }
 }

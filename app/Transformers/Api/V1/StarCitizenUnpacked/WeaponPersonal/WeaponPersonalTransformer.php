@@ -11,12 +11,11 @@ use League\Fractal\Resource\Collection;
 class WeaponPersonalTransformer extends AbstractCommodityTransformer
 {
     protected $availableIncludes = [
+        'shops',
         'modes',
-        'shops'
-    ];
-
-    protected $defaultIncludes = [
-        'modes'
+        'damages',
+        'attachments',
+        'attachmentPorts',
     ];
 
     /**
@@ -37,19 +36,20 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
             'type' => $weapon->weapon_type,
             'sub_type' => $weapon->item->sub_type,
             'class' => $weapon->weapon_class,
-            'magazine_size' => $weapon->magazine_size ?? 0,
+            'magazine_type' => $weapon->magazineType,
+            'magazine_size' => $weapon->magazine->max_ammo_count ?? 0,
             'effective_range' => $weapon->effective_range ?? 0,
+            'damage_per_shot' => $weapon->ammunition->damage ?? 0,
             'rof' => $weapon->rof ?? 0,
-            'attachments' => [
-                'optics' => $weapon->attachment_size_optics ?? 0,
-                'barrel' => $weapon->attachment_size_barrel ?? 0,
-                'underbarrel' => $weapon->attachment_size_underbarrel ?? 0,
-            ],
-            'ammunition_speed' => $weapon->ammunition_speed ?? 0,
-            'ammunition_range' => $weapon->ammunition_range ?? 0,
-            'version' => config('api.sc_data_version'),
             'updated_at' => $weapon->updated_at,
             'missing_translations' => $this->missingTranslations,
+            'ammunition' => [
+                'size' => $weapon->ammunition->size,
+                'lifetime' => $weapon->ammunition->lifetime,
+                'speed' => $weapon->ammunition->speed,
+                'range' => $weapon->ammunition->range,
+            ],
+            'version' => config('api.sc_data_version'),
         ];
     }
 
@@ -61,5 +61,20 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
     public function includeModes(WeaponPersonal $weapon): Collection
     {
         return $this->collection($weapon->modes, new WeaponPersonalModeTransformer());
+    }
+
+    public function includeDamages(WeaponPersonal $weapon): Collection
+    {
+        return $this->collection($weapon->ammunition->damages, new WeaponPersonalAmmunitionDamageTransformer());
+    }
+
+    public function includeAttachments(WeaponPersonal $weapon): Collection
+    {
+        return $this->collection($weapon->attachments, new WeaponPersonalAttachmentsTransformer());
+    }
+
+    public function includeAttachmentPorts(WeaponPersonal $weapon): Collection
+    {
+        return $this->collection($weapon->attachmentPorts, new WeaponPersonalAttachmentPortsTransformer());
     }
 }

@@ -4,6 +4,8 @@ namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 
 use App\Models\StarCitizenUnpacked\CommodityItem;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class WeaponPersonal extends CommodityItem
 {
@@ -14,30 +16,38 @@ class WeaponPersonal extends CommodityItem
         'weapon_type',
         'weapon_class',
         'class',
-        'magazine_size',
         'effective_range',
         'rof',
-        'attachment_size_optics',
-        'attachment_size_barrel',
-        'attachment_size_underbarrel',
-        'ammunition_speed',
-        'ammunition_range',
-        'ammunition_damage',
     ];
 
     protected $casts = [
         'size' => 'int',
         'magazine_size' => 'int',
-        'effective_range',
-        'ammunition_speed' => 'double',
-        'ammunition_range' => 'double',
-        'ammunition_damage' => 'double',
+        'effective_range' => 'double',
+        'rof' => 'double',
     ];
 
     protected $with = [
         'modes',
-        'item'
+        'item',
+        'magazine',
+        'ammunition',
+        'attachmentPorts',
+        'attachments',
     ];
+
+    public function getMagazineTypeAttribute(): string
+    {
+        $magazineAttach = str_replace(
+            $this->name,
+            '',
+            $this->attachments()->where('position', 'magazine')->first()->name
+        );
+
+        $exploded = explode('(', $magazineAttach);
+
+        return trim($exploded[0]);
+    }
 
     /**
      * @return HasMany
@@ -45,5 +55,50 @@ class WeaponPersonal extends CommodityItem
     public function modes(): HasMany
     {
         return $this->hasMany(WeaponPersonalMode::class, 'weapon_id', 'id');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function magazine(): HasOne
+    {
+        return $this->hasOne(WeaponPersonalMagazine::class, 'weapon_id', 'id');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function ammunition(): HasOne
+    {
+        return $this->hasOne(WeaponPersonalAmmunition::class, 'weapon_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function attachmentPorts(): HasMany
+    {
+        return $this->hasMany(WeaponPersonalAttachmentPort::class, 'weapon_id', 'id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(WeaponPersonalAttachment::class, 'weapon_id', 'id');
+    }
+
+    /**
+     * @return HasManyThrough
+     */
+    public function damages(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            WeaponPersonalAmmunitionDamage::class,
+            WeaponPersonalAmmunition::class,
+            'weapon_id',
+            'id'
+        );
     }
 }

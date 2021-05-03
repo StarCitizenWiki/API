@@ -20,15 +20,10 @@ class CreateScUnpackedPersonalWeaponsTable extends Migration
             $table->string('uuid')->unique();
             $table->string('weapon_type')->nullable();
             $table->string('weapon_class')->nullable();
-            $table->unsignedInteger('magazine_size')->default(0);
+
             $table->string('effective_range')->default(0);
             $table->string('rof')->default(0);
-            $table->string('attachment_size_optics')->nullable();
-            $table->string('attachment_size_barrel')->nullable();
-            $table->string('attachment_size_underbarrel')->nullable();
-            $table->unsignedDouble('ammunition_speed')->default(0);
-            $table->unsignedDouble('ammunition_range')->default(0);
-            $table->unsignedDouble('ammunition_damage')->default(0);
+
             $table->timestamps();
 
             $table->foreign('uuid', 'personal_weapon_item_uuid')

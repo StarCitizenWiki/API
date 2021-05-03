@@ -17,6 +17,16 @@ class CreateScUnpackedCharArmorAttachment extends Migration
             $table->id();
             $table->unsignedBigInteger('char_armor_id');
             $table->unsignedBigInteger('char_armor_attachment_id');
+
+            $table->foreign('char_armor_id', 'armor_item_foreign')
+                ->references('id')
+                ->on('star_citizen_unpacked_char_armor')
+                ->onDelete('cascade');
+
+            $table->foreign('char_armor_attachment_id', 'armor_attachment_item_foreign')
+                ->references('id')
+                ->on('star_citizen_unpacked_char_armor_attachments')
+                ->onDelete('cascade');
         });
     }
 
