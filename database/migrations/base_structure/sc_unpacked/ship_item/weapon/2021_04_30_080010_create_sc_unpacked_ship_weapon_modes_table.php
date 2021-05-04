@@ -18,9 +18,9 @@ class CreateScUnpackedShipWeaponModesTable extends Migration
         Schema::create('star_citizen_unpacked_ship_weapon_modes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('ship_weapon_id');
-            $table->string('name');
-            $table->string('localized_name');
-            $table->string('fire_type');
+            $table->string('mode');
+            $table->string('localised');
+            $table->string('type');
             $table->unsignedDouble('rounds_per_minute')->nullable();
             $table->unsignedDouble('ammo_per_shot')->nullable();
             $table->unsignedDouble('pellets_per_shot')->nullable();

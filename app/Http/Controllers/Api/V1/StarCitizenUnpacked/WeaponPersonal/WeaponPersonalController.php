@@ -30,7 +30,8 @@ class WeaponPersonalController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(WeaponPersonal::query());
+        return $this->getResponse(WeaponPersonal::query()
+            ->where('version', config(self::SC_DATA_KEY)));
     }
 
     public function show(Request $request): Response
@@ -48,6 +49,7 @@ class WeaponPersonalController extends ApiController
 
         try {
             $weapon = WeaponPersonal::query()
+                ->where('version', config(self::SC_DATA_KEY))
                 ->whereHas('item', function (Builder $query) use ($weapon) {
                     return $query->where('name', $weapon)
                         ->orWhere('uuid', $weapon);

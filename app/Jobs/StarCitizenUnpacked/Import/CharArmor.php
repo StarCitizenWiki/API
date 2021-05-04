@@ -41,7 +41,7 @@ class CharArmor implements ShouldQueue
                     return;
                 }
 
-                /** @var \App\Models\StarCitizenUnpacked\CharArmor\CharArmor $armor */
+                /** @var \App\Models\StarCitizenUnpacked\CharArmor\CharArmor $model */
                 $model = \App\Models\StarCitizenUnpacked\CharArmor\CharArmor::updateOrCreate([
                     'uuid' => $armor['uuid'],
                 ], [
@@ -50,18 +50,7 @@ class CharArmor implements ShouldQueue
                     'damage_reduction' => $armor['damage_reduction'],
                     'temp_resistance_min' => $armor['temp_resistance_min'],
                     'temp_resistance_max' => $armor['temp_resistance_max'],
-                    'resistance_physical_multiplier' => $armor['resistance_physical_multiplier'],
-                    'resistance_physical_threshold' => $armor['resistance_physical_threshold'],
-                    'resistance_energy_multiplier' => $armor['resistance_energy_multiplier'],
-                    'resistance_energy_threshold' => $armor['resistance_energy_threshold'],
-                    'resistance_distortion_multiplier' => $armor['resistance_distortion_multiplier'],
-                    'resistance_distortion_threshold' => $armor['resistance_distortion_threshold'],
-                    'resistance_thermal_multiplier' => $armor['resistance_thermal_multiplier'],
-                    'resistance_thermal_threshold' => $armor['resistance_thermal_threshold'],
-                    'resistance_biochemical_multiplier' => $armor['resistance_biochemical_multiplier'],
-                    'resistance_biochemical_threshold' => $armor['resistance_biochemical_threshold'],
-                    'resistance_stun_multiplier' => $armor['resistance_stun_multiplier'],
-                    'resistance_stun_threshold' => $armor['resistance_stun_threshold'],
+                    'version' => config('api.sc_data_version'),
                 ]);
 
                 $model->translations()->updateOrCreate([
@@ -78,6 +67,17 @@ class CharArmor implements ShouldQueue
                         'min_size' => $attachment['min_size'],
                         'max_size' => $attachment['max_size'],
                     ]))->id;
+                }
+
+                if (isset($armor['resistances'])) {
+                    foreach ($armor['resistances'] as $type => $resistance) {
+                        $model->resistances()->updateOrCreate([
+                            'type' => $type,
+                        ], [
+                            'multiplier' => $resistance['multiplier'],
+                            'threshold' => $resistance['threshold'] ?? 0,
+                        ]);
+                    }
                 }
 
                 $model->attachments()->sync($ids);

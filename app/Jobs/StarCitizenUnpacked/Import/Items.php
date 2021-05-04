@@ -91,6 +91,7 @@ class Items implements ShouldQueue
                     'sub_type' => $item['sub_type'],
                     'manufacturer' => $item['manufacturer'],
                     'size' => $item['size'],
+                    'version' => config('api.sc_data_version'),
                 ]);
             });
     }

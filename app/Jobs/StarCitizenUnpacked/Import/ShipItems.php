@@ -67,6 +67,7 @@ class ShipItems implements ShouldQueue
                     'grade' => $item['grade'],
                     'class' => $item['class'],
                     'type' => $item['type'],
+                    'version' => config('api.sc_data_version'),
                 ]);
 
                 $this->createPowerDataModel($item, $shipItem);
@@ -198,6 +199,8 @@ class ShipItems implements ShouldQueue
             'uuid' => $item['uuid'],
         ], [
             'cooling_rate' => $item['cooler']['cooling_rate'],
+            'suppression_ir_factor' => $item['cooler']['suppression_ir_factor'],
+            'suppression_heat_factor' => $item['cooler']['suppression_heat_factor'],
             'ship_item_id' => $shipItem->id,
         ]);
     }
@@ -318,33 +321,16 @@ class ShipItems implements ShouldQueue
         }
 
         foreach ($item['weapon']['modes'] as $mode) {
-
             /** @var WeaponMode $mode */
-            $modeModel = $weapon->modes()->updateOrCreate([
-                'name' => $mode['name'],
+            $weapon->modes()->updateOrCreate([
+                'mode' => $mode['mode'],
             ], [
-                'localized_name' => $mode['localized_name'],
-                'fire_type' => $mode['fire_type'],
+                'localised' => $mode['localised'],
+                'type' => $mode['type'],
                 'rounds_per_minute' => $mode['rounds_per_minute'],
                 'ammo_per_shot' => $mode['ammo_per_shot'],
                 'pellets_per_shot' => $mode['pellets_per_shot'],
             ]);
-
-            foreach ($mode['damages'] as $type => $damage) {
-                if (empty($damage)) {
-                    continue;
-                }
-
-                foreach ($damage as $name => $value) {
-                    $modeModel->damages()->updateOrCreate([
-                        'ship_weapon_mode_id' => $modeModel->id,
-                        'type' => $type,
-                        'name' => $name,
-                    ], [
-                        'damage' => $value,
-                    ]);
-                }
-            }
         }
 
         return $weapon;

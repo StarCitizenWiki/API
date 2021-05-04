@@ -22,6 +22,7 @@ class CreateScUnpackedShopsTable extends Migration
             $table->string('name')->nullable();
             $table->string('position')->nullable();
             $table->double('profit_margin')->default(0);
+            $table->string('version');
             $table->timestamps();
         });
     }

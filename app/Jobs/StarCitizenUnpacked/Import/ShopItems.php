@@ -47,40 +47,44 @@ class ShopItems implements ShouldQueue
                     'name' => $shop['shop']['name'],
                     'position' => $shop['shop']['position'],
                     'profit_margin' => $shop['shop']['profit_margin'],
+                    'version' => config('api.sc_data_version'),
                 ]);
 
-                $toSync = $shop['inventory']->mapWithKeys(function ($inventory) use ($shopModel) {
-                    if (in_array($inventory['type'], Inventory::UNKNOWN_TYPES, true)) {
-                        $itemModel = $this->createModel($inventory);
-                    } else {
-                        /** @var Item $itemModel */
-                        $itemModel = Item::query()->where('uuid', $inventory['uuid'])->first();
-                    }
+                $toSync = $shop['inventory']
+                    ->unique('uuid')
+                    ->mapWithKeys(function ($inventory) use ($shopModel) {
+                        if (in_array($inventory['type'], Inventory::UNKNOWN_TYPES, true)) {
+                            $itemModel = $this->createModel($inventory);
+                        } else {
+                            /** @var Item $itemModel */
+                            $itemModel = Item::query()->where('uuid', $inventory['uuid'])->first();
+                        }
 
-                    if ($itemModel === null) {
-                        return ['unknown' => null];
-                    }
+                        if ($itemModel === null) {
+                            return ['unknown' => null];
+                        }
 
-                    return [
-                        $itemModel->id => [
-                            'item_uuid' => $itemModel->uuid,
-                            'shop_uuid' => $shopModel->uuid,
-                            'base_price' => round($inventory['base_price'], 10),
-                            'base_price_offset' => $inventory['base_price_offset'],
-                            'max_discount' => $inventory['max_discount'],
-                            'max_premium' => $inventory['max_premium'],
-                            'inventory' => $inventory['inventory'],
-                            'optimal_inventory' => $inventory['optimal_inventory'],
-                            'max_inventory' => $inventory['max_inventory'],
-                            'auto_restock' => $inventory['auto_restock'],
-                            'auto_consume' => $inventory['auto_consume'],
-                            'refresh_rate' => $inventory['refresh_rate'],
-                            'buyable' => $inventory['buyable'],
-                            'sellable' => $inventory['sellable'],
-                            'rentable' => $inventory['rentable'],
-                        ]
-                    ];
-                })
+                        return [
+                            $itemModel->id => [
+                                'item_uuid' => $itemModel->uuid,
+                                'shop_uuid' => $shopModel->uuid,
+                                'base_price' => round($inventory['base_price'], 10),
+                                'base_price_offset' => $inventory['base_price_offset'],
+                                'max_discount' => $inventory['max_discount'],
+                                'max_premium' => $inventory['max_premium'],
+                                'inventory' => $inventory['inventory'],
+                                'optimal_inventory' => $inventory['optimal_inventory'],
+                                'max_inventory' => $inventory['max_inventory'],
+                                'auto_restock' => $inventory['auto_restock'],
+                                'auto_consume' => $inventory['auto_consume'],
+                                'refresh_rate' => round($inventory['refresh_rate'], 10),
+                                'buyable' => $inventory['buyable'],
+                                'sellable' => $inventory['sellable'],
+                                'rentable' => $inventory['rentable'],
+                                'version' => config('api.sc_data_version'),
+                            ]
+                        ];
+                    })
                     ->filter(function ($item) {
                         return $item !== null;
                     });
@@ -103,6 +107,7 @@ class ShopItems implements ShouldQueue
             'name' => $item['name'],
             'type' => $item['type'],
             'sub_type' => $item['sub_type'],
+            'version' => config('api.sc_data_version'),
         ]);
     }
 }

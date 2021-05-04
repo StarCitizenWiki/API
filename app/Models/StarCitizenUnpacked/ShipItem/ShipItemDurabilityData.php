@@ -23,7 +23,7 @@ class ShipItemDurabilityData extends CommodityItem
 
     protected $casts = [
         'health' => 'double',
-        'max_life_time' => 'double',
+        'max_lifetime' => 'double',
     ];
 
     public function shipItem(): BelongsTo

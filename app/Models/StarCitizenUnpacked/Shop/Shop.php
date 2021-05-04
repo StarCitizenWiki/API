@@ -24,6 +24,7 @@ class Shop extends Model
         'name',
         'position',
         'profit_margin',
+        'version',
     ];
 
     protected $casts = [
@@ -59,7 +60,8 @@ class Shop extends Model
                 'refresh_rate',
                 'buyable',
                 'sellable',
-                'rentable'
+                'rentable',
+                'version',
             );
     }
 }

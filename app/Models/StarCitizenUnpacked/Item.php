@@ -29,6 +29,7 @@ class Item extends HasTranslations implements HasChangelogsInterface
         'sub_type',
         'manufacturer',
         'size',
+        'version',
     ];
 
     protected $dispatchesEvents = [
@@ -70,7 +71,8 @@ class Item extends HasTranslations implements HasChangelogsInterface
                 'refresh_rate',
                 'buyable',
                 'sellable',
-                'rentable'
+                'rentable',
+                'version',
             )
             ->with(['items' => function ($query) {
                 return $query->where('uuid', $this->uuid);

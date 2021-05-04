@@ -16,9 +16,13 @@ class Cooler extends AbstractShipItemSpecification
         'ship_item_id',
         'uuid',
         'cooling_rate',
+        'suppression_ir_factor',
+        'suppression_heat_factor',
     ];
 
     protected $casts = [
         'cooling_rate' => 'double',
+        'suppression_ir_factor' => 'double',
+        'suppression_heat_factor' => 'double',
     ];
 }

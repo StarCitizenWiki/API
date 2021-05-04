@@ -50,6 +50,7 @@ class WeaponPersonal implements ShouldQueue
                     'weapon_class' => $weapon['weapon_class'] ?? null,
                     'effective_range' => $weapon['effective_range'],
                     'rof' => $weapon['rof'],
+                    'version' => config('api.sc_data_version'),
                 ]);
 
                 $model->translations()->updateOrCreate([
@@ -132,7 +133,6 @@ class WeaponPersonal implements ShouldQueue
             $weapon->modes()->updateOrCreate([
                 'mode' => $attachment['mode'],
             ], [
-                'mode' => $attachment['mode'],
                 'localised' => $attachment['localised'],
                 'type' => $attachment['type'],
                 'rounds_per_minute' => $attachment['rounds_per_minute'],

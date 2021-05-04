@@ -21,6 +21,7 @@ class CreateScUnpackedShipItemsTable extends Migration
             $table->string('grade')->nullable();
             $table->string('class')->nullable();
             $table->string('type')->nullable();
+            $table->string('version');
             $table->timestamps();
 
             $table->foreign('uuid', 'ship_item_item_uuid')

@@ -21,6 +21,7 @@ class CreateScUnpackedItems extends Migration
             $table->string('sub_type')->nullable();
             $table->string('manufacturer')->nullable();
             $table->unsignedInteger('size')->default(0);
+            $table->string('version');
             $table->timestamps();
         });
     }

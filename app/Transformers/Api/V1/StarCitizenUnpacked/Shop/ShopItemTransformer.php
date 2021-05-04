@@ -29,7 +29,7 @@ class ShopItemTransformer extends TransformerAbstract
             'buyable' => $item->shop_data->buyable,
             'sellable' => $item->shop_data->sellable,
             'rentable' => $item->shop_data->rentable,
-            'version' => config('api.sc_data_version'),
+            'version' => $item->shop_data->version,
         ];
     }
 }

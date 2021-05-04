@@ -17,7 +17,9 @@ class WeaponDamageTransformer extends TransformerAbstract
     public function transform(Model $mode): array
     {
         return [
-            $mode->name => $mode->damage,
+            'type' => $mode->type,
+            'name' => $mode->name,
+            'damage' => $mode->damage,
         ];
     }
 }

@@ -29,7 +29,8 @@ class ShopController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(Shop::query());
+        return $this->getResponse(Shop::query()
+            ->where('version', config(self::SC_DATA_KEY)));
     }
 
     public function show(Request $request): Response
@@ -47,6 +48,7 @@ class ShopController extends ApiController
 
         try {
             $shop = Shop::query()
+                ->where('version', config(self::SC_DATA_KEY))
                 ->where('name_raw', 'LIKE', sprintf('%%%s%%%%', $shop))
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -69,6 +71,7 @@ class ShopController extends ApiController
 
         $position = urldecode($position);
         $positions = Shop::query()
+            ->where('version', config(self::SC_DATA_KEY))
             ->where('position', 'LIKE', sprintf('%%%s%%%%', $position))
             ->get();
 
@@ -92,6 +95,7 @@ class ShopController extends ApiController
 
         $name = urldecode($name);
         $positions = Shop::query()
+            ->where('version', config(self::SC_DATA_KEY))
             ->where('name', 'LIKE', sprintf('%%%s%%%%', $name))
             ->get();
 
@@ -120,6 +124,7 @@ class ShopController extends ApiController
 
         try {
             $shop = Shop::query()
+                ->where('version', config(self::SC_DATA_KEY))
                 ->where('position', $position)
                 ->where('name', $name)
                 ->firstOrFail();

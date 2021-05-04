@@ -44,4 +44,11 @@ class Weapon extends AbstractShipItemSpecification
     {
         return $this->hasMany(WeaponDamage::class, 'ship_weapon_id');
     }
+
+    public function getDamageAttribute(): float
+    {
+        return $this->damages->reduce(function ($carry, $item) {
+            return $carry + $item->damage;
+        }, 0);
+    }
 }

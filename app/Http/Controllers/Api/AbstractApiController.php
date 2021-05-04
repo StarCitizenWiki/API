@@ -24,6 +24,8 @@ abstract class AbstractApiController extends Controller
 {
     use Helpers;
 
+    public const SC_DATA_KEY = 'api.sc_data_version';
+
     public const INVALID_LIMIT_STRING = 'Limit has to be greater than 0';
 
     public const INVALID_LOCALE_STRING = 'Locale Code \'%s\' is not valid';

@@ -16,6 +16,8 @@ final class Cooler extends AbstractItemSpecification
 
         return [
             'cooling_rate' => $item['Cooler']['Rate'],
+            'suppression_ir_factor' => $rawData->pull('Components.SCItemCoolerParams.SuppressionIRFactor'),
+            'suppression_heat_factor' => $rawData->pull('Components.SCItemCoolerParams.SuppressionHeatFactor'),
         ];
     }
 }

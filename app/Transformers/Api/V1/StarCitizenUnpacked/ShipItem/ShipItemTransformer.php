@@ -42,8 +42,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 'health' => $item->shipItem->health,
                 'lifetime' => $item->shipItem->lifetime,
             ],
-
-            'version' => config('api.sc_data_version'),
+            'version' => $item->shipItem->version,
         ];
 
         $this->addSpecificationData($item);

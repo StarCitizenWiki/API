@@ -35,39 +35,10 @@ class CharArmorTransformer extends AbstractCommodityTransformer
             'armor_type' => $armor->armor_type,
             'carrying_capacity' => $armor->carrying_capacity,
             'damage_reduction' => $armor->damage_reduction,
-            'version' => config('api.sc_data_version'),
             'updated_at' => $armor->updated_at,
             'missing_translations' => $this->missingTranslations,
-            'resistances' => [
-                'temperature' => [
-                    'min' => $armor->temp_resistance_min,
-                    'max' => $armor->temp_resistance_max,
-                ],
-                'physical' => [
-                    'multiplier' => $armor->resistance_physical_multiplier,
-                    'threshold' => $armor->resistance_physical_threshold,
-                ],
-                'energy' => [
-                    'multiplier' => $armor->resistance_energy_multiplier,
-                    'threshold' => $armor->resistance_energy_threshold,
-                ],
-                'distortion' => [
-                    'multiplier' => $armor->resistance_distortion_multiplier,
-                    'threshold' => $armor->resistance_distortion_threshold,
-                ],
-                'thermal' => [
-                    'multiplier' => $armor->resistance_thermal_multiplier,
-                    'threshold' => $armor->resistance_thermal_threshold,
-                ],
-                'biochemical' => [
-                    'multiplier' => $armor->resistance_biochemical_multiplier,
-                    'threshold' => $armor->resistance_biochemical_threshold,
-                ],
-                'stun' => [
-                    'multiplier' => $armor->resistance_stun_multiplier,
-                    'threshold' => $armor->resistance_stun_threshold,
-                ]
-            ]
+            'resistances' => $this->mapResistances($armor),
+            'version' => $armor->version,
         ];
     }
 
@@ -79,5 +50,22 @@ class CharArmorTransformer extends AbstractCommodityTransformer
     public function includeAttachments(CharArmor $armor): Collection
     {
         return $this->collection($armor->attachments, new CharArmorAttachmentTransformer());
+    }
+
+    private function mapResistances(CharArmor $armor): array
+    {
+        $mapped = $armor->resistances->keyBy('type')->map(function ($resistance) {
+            return [
+                'multiplier' => $resistance['multiplier'],
+                'threshold' => $resistance['threshold'],
+            ];
+        });
+
+        return [
+                'temperature' => [
+                    'min' => $armor->temp_resistance_min,
+                    'max' => $armor->temp_resistance_max,
+                ],
+            ] + $mapped->toArray();
     }
 }

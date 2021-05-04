@@ -13,6 +13,7 @@ class ShipWeaponTransformer extends TransformerAbstract
 
     protected $defaultIncludes = [
         'modes',
+        'damages',
     ];
 
     /**
@@ -26,20 +27,13 @@ class ShipWeaponTransformer extends TransformerAbstract
             'range' => $weapon->range,
             'size' => $weapon->size,
             'capacity' => $weapon->capacity,
-            'damages' => $this->mapDamages($weapon->damages->groupBy('type'))
+            'damage_per_shot' => $weapon->damage ?? 0,
         ];
     }
 
-    private function mapDamages(\Illuminate\Support\Collection $damages): array
+    public function includeDamages(Weapon $weapon): Collection
     {
-        return $damages->mapWithKeys(function ($damages, $class) {
-            return [
-                $class => $damages->mapWithKeys(function ($damage) {
-                    return (new WeaponDamageTransformer())->transform($damage);
-                })
-            ];
-        })
-            ->toArray();
+        return $this->collection($weapon->damages, new WeaponDamageTransformer());
     }
 
     public function includeModes(Weapon $weapon): Collection

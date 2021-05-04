@@ -22,7 +22,7 @@ class ShopTransformer extends AbstractV1Transformer
             'name' => $shop->name,
             'position' => $shop->position,
             'profit_margin' => $shop->profit_margin,
-            'version' => config('api.sc_data_version'),
+            'version' => $shop->version,
         ];
     }
 

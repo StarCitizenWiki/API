@@ -21,9 +21,10 @@ class CreateScUnpackedPersonalWeaponsTable extends Migration
             $table->string('weapon_type')->nullable();
             $table->string('weapon_class')->nullable();
 
-            $table->string('effective_range')->default(0);
+            $table->unsignedDouble('effective_range')->default(0);
             $table->string('rof')->default(0);
 
+            $table->string('version');
             $table->timestamps();
 
             $table->foreign('uuid', 'personal_weapon_item_uuid')

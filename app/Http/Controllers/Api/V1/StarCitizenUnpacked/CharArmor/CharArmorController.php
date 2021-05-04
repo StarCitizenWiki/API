@@ -30,7 +30,7 @@ class CharArmorController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(CharArmor::query());
+        return $this->getResponse(CharArmor::query()->where('version', config(self::SC_DATA_KEY)));
     }
 
     public function show(Request $request): Response
@@ -48,6 +48,7 @@ class CharArmorController extends ApiController
 
         try {
             $armor = CharArmor::query()
+                ->where('version', config(self::SC_DATA_KEY))
                 ->whereHas('item', function (Builder $query) use ($armor) {
                     return $query->where('name', $armor)->orWhere('uuid', $armor);
                 })

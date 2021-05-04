@@ -49,7 +49,7 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
                 'speed' => $weapon->ammunition->speed,
                 'range' => $weapon->ammunition->range,
             ],
-            'version' => config('api.sc_data_version'),
+            'version' => $weapon->version,
         ];
     }
 

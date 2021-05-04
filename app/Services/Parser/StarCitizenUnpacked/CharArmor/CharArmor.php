@@ -116,18 +116,36 @@ final class CharArmor extends AbstractCommodityItem
         return [
             'temp_resistance_min' => $data['Raw']['Entity']['Components']['SCItemClothingParams']['TemperatureResistance']['MinResistance'] ?? 0,
             'temp_resistance_max' => $data['Raw']['Entity']['Components']['SCItemClothingParams']['TemperatureResistance']['MaxResistance'] ?? 0,
-            'resistance_physical_multiplier' => $data['damageResistances']['PhysicalResistance']['Multiplier'] ?? 0,
-            'resistance_physical_threshold' => $data['damageResistances']['PhysicalResistance']['Threshold'] ?? 0,
-            'resistance_energy_multiplier' => $data['damageResistances']['EnergyResistance']['Multiplier'] ?? 0,
-            'resistance_energy_threshold' => $data['damageResistances']['EnergyResistance']['Threshold'] ?? 0,
-            'resistance_distortion_multiplier' => $data['damageResistances']['DistortionResistance']['Multiplier'] ?? 0,
-            'resistance_distortion_threshold' => $data['damageResistances']['DistortionResistance']['Threshold'] ?? 0,
-            'resistance_thermal_multiplier' => $data['damageResistances']['ThermalResistance']['Multiplier'] ?? 0,
-            'resistance_thermal_threshold' => $data['damageResistances']['ThermalResistance']['Threshold'] ?? 0,
-            'resistance_biochemical_multiplier' => $data['damageResistances']['BiochemicalResistance']['Multiplier'] ?? 0,
-            'resistance_biochemical_threshold' => $data['damageResistances']['BiochemicalResistance']['Threshold'] ?? 0,
-            'resistance_stun_multiplier' => $data['damageResistances']['StunResistance']['Multiplier'] ?? 0,
-            'resistance_stun_threshold' => $data['damageResistances']['StunResistance']['Threshold'] ?? 0,
+            'resistances' => array_filter([
+                'physical' => array_filter([
+                    'multiplier' => $data['damageResistances']['PhysicalResistance']['Multiplier'] ?? null,
+                    'threshold' => $data['damageResistances']['PhysicalResistance']['Threshold'] ?? null,
+                ]),
+                'energy' => array_filter([
+                    'multiplier' => $data['damageResistances']['EnergyResistance']['Multiplier'] ?? null,
+                    'threshold' => $data['damageResistances']['EnergyResistance']['Threshold'] ?? null,
+
+                ]),
+                'distortion' => array_filter([
+                    'multiplier' => $data['damageResistances']['DistortionResistance']['Multiplier'] ?? null,
+                    'threshold' => $data['damageResistances']['DistortionResistance']['Threshold'] ?? null,
+
+                ]),
+                'thermal' => array_filter([
+                    'multiplier' => $data['damageResistances']['ThermalResistance']['Multiplier'] ?? null,
+                    'threshold' => $data['damageResistances']['ThermalResistance']['Threshold'] ?? null,
+
+                ]),
+                'biochemical' => array_filter([
+                    'multiplier' => $data['damageResistances']['BiochemicalResistance']['Multiplier'] ?? null,
+                    'threshold' => $data['damageResistances']['BiochemicalResistance']['Threshold'] ?? null,
+
+                ]),
+                'stun' => array_filter([
+                    'multiplier' => $data['damageResistances']['StunResistance']['Multiplier'] ?? null,
+                    'threshold' => $data['damageResistances']['StunResistance']['Threshold'] ?? null,
+                ]),
+            ]),
         ];
         // phpcs:enable
     }

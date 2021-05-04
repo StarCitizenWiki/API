@@ -7,7 +7,7 @@ namespace App\Models\StarCitizenUnpacked\ShipItem\Weapon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class WeaponMode extends Model
 {
@@ -21,9 +21,9 @@ class WeaponMode extends Model
 
     protected $fillable = [
         'ship_weapon_id',
-        'name',
-        'localized_name',
-        'fire_type',
+        'mode',
+        'localised',
+        'type',
         'rounds_per_minute',
         'ammo_per_shot',
         'pellets_per_shot',
@@ -40,8 +40,22 @@ class WeaponMode extends Model
         return $this->belongsTo(Weapon::class, 'ship_weapon_id', 'id');
     }
 
-    public function damages(): HasMany
+    /**
+     * @return HasManyThrough
+     */
+    public function damages(): HasManyThrough
     {
-        return $this->hasMany(WeaponModeDamage::class, 'ship_weapon_mode_id', 'id');
+        return $this->hasManyThrough(
+            WeaponDamage::class,
+            Weapon::class,
+            'id',
+            'ship_weapon_id',
+        );
+    }
+
+    public function getDamagePerSecondAttribute(): float
+    {
+        $multiplier = $this->rounds_per_minute / 60;
+        return $this->weapon->damage * $multiplier;
     }
 }

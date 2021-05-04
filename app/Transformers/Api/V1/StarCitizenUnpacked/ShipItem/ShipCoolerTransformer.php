@@ -14,6 +14,8 @@ class ShipCoolerTransformer extends AbstractCommodityTransformer
     {
         return [
             'cooling_rate' => $item->cooling_rate,
+            'suppression_ir_factor' => $item->suppression_ir_factor,
+            'suppression_heat_factor' => $item->suppression_heat_factor,
         ];
     }
 }

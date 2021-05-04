@@ -224,7 +224,7 @@ final class WeaponPersonal extends AbstractCommodityItem
         $mapped = collect($ports)->map(function (array $component) {
             return [
                 'name' => $component['DisplayName'],
-                'position' => str_replace('_attach', '', $component['Name']),
+                'position' => str_replace(['_attach', 'ment'], '', $component['Name']),
                 'min_size' => $component['MinSize'],
                 'max_size' => $component['MaxSize'],
             ];
@@ -263,7 +263,7 @@ final class WeaponPersonal extends AbstractCommodityItem
 
                 return [
                     'name' => $item->get('Name', 'Unnamed Attachment'),
-                    'position' => str_replace('_attach', '', $component['itemPortName']),
+                    'position' => str_replace(['_attach', 'ment'], '', $component['itemPortName']),
                     'size' => $item['Size'],
                     'grade' => $item['Grade'],
                 ];
@@ -272,7 +272,7 @@ final class WeaponPersonal extends AbstractCommodityItem
         return array_filter($mapped->toArray());
     }
 
-    private function buildEffectiveRange(string $effectiveRange): string
+    private function buildEffectiveRange(string $effectiveRange): int
     {
         $split = explode('(', $effectiveRange);
         $split = array_map('trim', $split);
@@ -284,10 +284,14 @@ final class WeaponPersonal extends AbstractCommodityItem
         }
 
         if (!is_numeric(trim($value, ' km'))) {
-            return '0';
+            return 0;
         }
 
-        return (string)$value;
+        if (strpos($value, 'km') !== false) {
+            $value = (int)trim($value, ' km') * 1000;
+        }
+
+        return (int)trim((string)$value, ' m');
     }
 
     private function buildMagazinePart(Collection $rawData)

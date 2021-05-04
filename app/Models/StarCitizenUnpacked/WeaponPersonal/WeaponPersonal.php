@@ -18,6 +18,7 @@ class WeaponPersonal extends CommodityItem
         'class',
         'effective_range',
         'rof',
+        'version',
     ];
 
     protected $casts = [

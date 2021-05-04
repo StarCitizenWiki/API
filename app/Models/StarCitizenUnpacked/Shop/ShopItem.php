@@ -39,6 +39,7 @@ class ShopItem extends Pivot
         'buyable',
         'sellable',
         'rentable',
+        'version',
     ];
 
     protected $casts = [

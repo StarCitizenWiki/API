@@ -31,11 +31,12 @@ class CreateScUnpackedShopItemTable extends Migration
             $table->boolean('buyable');
             $table->boolean('sellable');
             $table->boolean('rentable');
-            $table->timestamps();
+            $table->string('version');
 
-            $table->primary(['shop_id', 'item_id', 'item_uuid'], 'star_citizen_unpacked_shop_item_primary');
+            $table->primary(['shop_id', 'item_id', 'item_uuid', 'version'], 'star_citizen_unpacked_shop_item_primary');
             $table->index('item_uuid');
             $table->index('shop_uuid');
+            $table->index('version');
 
             $table->foreign('item_uuid', 'item_uuid_shop')
                 ->references('uuid')

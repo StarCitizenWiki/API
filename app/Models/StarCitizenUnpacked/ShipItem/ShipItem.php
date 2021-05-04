@@ -29,6 +29,7 @@ class ShipItem extends CommodityItem
         'thermal_energy_base',
         'thermal_energy_draw',
         'cooling_rate',
+        'version',
     ];
 
     protected $casts = [
