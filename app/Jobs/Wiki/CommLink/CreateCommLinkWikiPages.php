@@ -16,7 +16,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use RuntimeException;
-use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
  * Create Comm-Link Wiki Pages.
@@ -73,6 +72,12 @@ class CreateCommLinkWikiPages implements ShouldQueue
                 $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
             } catch (RuntimeException $e) {
                 app('Log')::error($e->getMessage());
+
+                if (strpos($e->getMessage(), 'Guru Meditation') !== false) {
+                    $this->release(60);
+                } else {
+                    $this->fail($e);
+                }
 
                 return;
             }
