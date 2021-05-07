@@ -201,7 +201,7 @@
 
                 <hr>
 
-                <div class="col-12 col-lg-4">
+                <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="landing_platforms">Landeplattformen</label>
                     <input type="number" class="form-control" id="landing_platforms" v-on:change="generate" v-on:input="generate" v-model="newObj.landing_platforms" min="0" max="50">
@@ -209,7 +209,7 @@
                   </div>
                 </div>
 
-                <div class="col-12 col-lg-4">
+                <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="hangars">Hangars</label>
                     <input type="number" class="form-control" id="hangars" v-on:change="generate" v-on:input="generate" v-model="newObj.hangars" min="0" max="50">
@@ -217,11 +217,19 @@
                   </div>
                 </div>
 
-                <div class="col-12 col-lg-4">
+                <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="garages">Garagen</label>
                     <input type="number" class="form-control" id="garages" v-on:change="generate" v-on:input="generate" v-model="newObj.garages" min="0" max="50">
                     <small class="form-text text-muted">Anzahl Garagen für Bodenfahrzeuge</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="docking_stations">Dockingsationen</label>
+                    <input type="number" class="form-control" id="docking_stations" v-on:change="generate" v-on:input="generate" v-model="newObj.docking_stations" min="0" max="50">
+                    <small class="form-text text-muted">Anzahl Dockingstationen für Raumschiffe</small>
                   </div>
                 </div>
 
@@ -512,6 +520,7 @@ ${this.hangars()}
       return `| Anzahl Landeplattformen = ${this.newObj.landing_platforms ?? ''}
 | Anzahl Hangar = ${this.newObj.hangars ?? ''}
 | Anzahl Garagen = ${this.newObj.garages ?? ''}
+| Anzahl Dockingstationen = ${this.newObj.docking_stations ?? ''}
 | Anzahl Bodenfahrzeugkonsolen = ${this.newObj.vehicle_terminals ?? ''}
 | Anzahl Raumschiffkonsolen = ${this.newObj.ship_terminals ?? ''}
 | Anzahl Bußgeldzahlungskonsolen = ${this.newObj.fine_terminals ?? ''}`
