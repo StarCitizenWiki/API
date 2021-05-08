@@ -55,6 +55,7 @@
                   <option selected value="ENTITY">Entität</option>
                   <option value="CAVE">Höhle</option>
                   <option value="LANDINGZONE">Landezone</option>
+                  <option value="LAGRANGE_POINT">Lagrange Punkt</option>
                   <option value="SATELLITE">Mond</option>
                   <option value="PERSON">Person</option>
                   <option value="PLANET">Planet</option>
