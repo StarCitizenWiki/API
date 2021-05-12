@@ -65,6 +65,7 @@
                   <option value="SETTLEMENT">Siedlung</option>
                   <option value="JUMPPOINT">Sprungpunkt</option>
                   <option value="STATE">Staat</option>
+                  <option value="SHOP">Shop</option>
                   <option value="TOWN">Stadt</option>
                   <option value="STAR">Stern</option>
                   <option value="STRUCTURE">Struktur</option>
@@ -141,6 +142,15 @@
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="hideBox" v-model="hideBox" v-on:change="generate">
                     <label class="form-check-label" for="hideBox">Infobox verstecken</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" v-if="newObj.type && newObj.type === 'PERSON'">
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="merchant" v-model="newObj.merchant" v-on:change="generate">
+                    <label class="form-check-label" for="merchant">Person ist ein Händler</label>
                   </div>
                 </div>
               </div>
@@ -305,7 +315,6 @@
                     <small class="form-text text-muted">z.B. 1x Trading & Shipping Terminal, 1x Admin Office</small>
                   </div>
                 </div>
-
               </div>
             </div>
           </form>
@@ -473,16 +482,27 @@ export default {
 | Wirtschaft = ${this.newObj.economy ?? ''}
 | Bevölkerungsgröße = ${this.newObj.population ?? ''}
 | Gefahrenlage = ${this.newObj.danger ?? ''}
-| Habitabel = ${this.newObj.habitable ? 'Ja' : 'Nein'}${this.addSystemEntityData()}
+| Habitabel = ${(typeof this.newObj.habitable === 'undefined' ? '' : (this.newObj.habitable ? 'Ja' : 'Nein')) }${this.addIsMerchant()}${this.addSystemEntityData()}
 }}`;
+    },
+    addIsMerchant: function () {
+      if (this.newObj.type !== 'PERSON') {
+        return '';
+      }
+
+      let out = ''
+
+      if (this.newObj.merchant === true) {
+        out = `\n| Händler = Ja\n`
+      }
+
+      out = out + (this.hideBox === true ? `\n| Infobox = Nein` : '');
+
+      return out;
     },
     addSystemEntityData: function () {
       if ( !this.isSystemEntity ) {
         return ''
-      }
-
-      if (this.newObj.type === 'Person') {
-        return this.hideBox === true ? `\n| Infobox = Nein` : '';
       }
 
       return `${this.bools()}
@@ -548,8 +568,12 @@ ${this.hangars()}
           return 'Landezone';
         case 'SATELLITE':
           return 'Mond';
+        case 'PERSON':
+          return 'Person';
         case 'PLANET':
           return 'Planet';
+        case 'SHOP':
+          return 'Shop';
         case 'STAR':
           return 'Stern';
         case 'TOWN':
