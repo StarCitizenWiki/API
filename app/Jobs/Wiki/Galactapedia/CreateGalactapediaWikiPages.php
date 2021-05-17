@@ -37,6 +37,7 @@ class CreateGalactapediaWikiPages implements ShouldQueue
 
         Article::query()
             ->with(['properties', 'categories', 'translations', 'related'])
+            ->where('disabled', false)
             ->whereHas(
                 'translations',
                 static function (Builder $query) {
