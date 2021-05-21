@@ -22,7 +22,7 @@ class Items implements ShouldQueue
     use SerializesModels;
 
     private array $ignoredNames = [
-        '<= PLACEHOLDER =>',
+        #'<= PLACEHOLDER =>',
         'TRGT. STATUS',
         'TEST STRING NAME',
         'Remote Turret',
