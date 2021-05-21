@@ -30,7 +30,7 @@ final class Manufacturers
             ->mapWithKeys(function (array $manufacturer) {
                 return [
                     $manufacturer['reference'] => [
-                        'name' => $manufacturer['name'],
+                        'name' => $manufacturer['name'] ?? '',
                         'code' => $manufacturer['code'],
                     ]
                 ];
