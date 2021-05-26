@@ -158,7 +158,7 @@ TEXT
             )
             ->filter(
                 function (string $item) {
-                    return strlen($item) > 5;
+                    return strlen($item) >= 3;
                 }
             )
             ->unique()
