@@ -141,12 +141,16 @@ class ImportCommLink implements ShouldQueue
      */
     private function createCommLink(): void
     {
+        $data = $this->getCommLinkData();
+        // Use the file time for new comm-links
+        $data['created_at'] = $data['created_at_file'];
+
         /** @var CommLink $commLink */
         $commLink = CommLink::updateOrCreate(
             [
                 'cig_id' => $this->commLinkId,
             ],
-            $this->getCommLinkData()
+            $data
         );
 
         $this->addEnglishCommLinkTranslation($commLink);
@@ -172,7 +176,7 @@ class ImportCommLink implements ShouldQueue
         $metaData = (new Metadata($this->crawler))->getMetaData();
 
         $metaData->put(
-            'created_at',
+            'created_at_file',
             $this->createTimestampFromFile(
                 $this->getFirstCommLinkFileName()
             ) ?? Metadata::DEFAULT_CREATION_DATE
@@ -187,6 +191,7 @@ class ImportCommLink implements ShouldQueue
             'category_id' => $metaData->get('category_id'),
             'series_id' => $metaData->get('series_id'),
             'created_at' => $metaData->get('created_at'),
+            'created_at_file' => $metaData->get('created_at_file'),
         ];
     }
 
@@ -257,6 +262,15 @@ class ImportCommLink implements ShouldQueue
                     'type' => 'update',
                 ]
             );
+        }
+
+        $dateMetadata = Carbon::parse($data['created_at']);
+        $dateMetadataFile = Carbon::parse($data['created_at_file']);
+        $dateMetadataFile->setSecond(0);
+        $dateMetadataFile->setMinutes(0);
+
+        if ($dateMetadata->diffInHours($dateMetadataFile) <= 24 || $data['created_at'] === Metadata::DEFAULT_CREATION_DATE) {
+            $data['created_at'] = $dateMetadataFile;
         }
 
         $this->commLinkModel->update($data);
