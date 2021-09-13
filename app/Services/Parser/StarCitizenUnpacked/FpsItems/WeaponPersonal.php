@@ -148,6 +148,10 @@ final class WeaponPersonal extends AbstractCommodityItem
             return [];
         }
 
+        $damageFilter = function (array $entry) {
+            return $entry['damage'] > 0;
+        };
+
         $damage = collect($rawData->pull('ammo.projectileParams.BulletProjectileParams.damage'))
             ->flatMap(function ($entry) {
                 return collect($entry)
@@ -159,10 +163,10 @@ final class WeaponPersonal extends AbstractCommodityItem
                         ];
                     });
             })
-            ->filter(function (array $entry) {
-                return $entry['damage'] > 0;
-            })->toArray();
+            ->filter($damageFilter)
+            ->toArray();
 
+        // phpcs:ignore Generic.Files.LineLength.TooLong
         $detonation = collect($rawData->pull('ammo.projectileParams.BulletProjectileParams.detonationParams.ProjectileDetonationParams.explosionParams.damage'))
             ->flatMap(function ($entry) {
                 return collect($entry)
@@ -174,9 +178,8 @@ final class WeaponPersonal extends AbstractCommodityItem
                         ];
                     });
             })
-            ->filter(function (array $entry) {
-                return $entry['damage'] > 0;
-            })->toArray();
+            ->filter($damageFilter)
+            ->toArray();
 
         return [
             'size' => $rawData->pull('ammo.size') ?? 1,
