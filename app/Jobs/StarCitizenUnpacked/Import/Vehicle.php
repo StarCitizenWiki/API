@@ -24,7 +24,7 @@ class Vehicle implements ShouldQueue
     public function handle(): void
     {
         try {
-            $vehicles = File::get(storage_path(sprintf('app/api/scunpacked/api/dist/json/v2/ships.json')));
+            $vehicles = File::get(storage_path(sprintf('app/api/scunpacked-data/v2/ships.json')));
         } catch (FileNotFoundException $e) {
             $this->fail('ship.json not found. Did you clone scunpacked?');
             return;
