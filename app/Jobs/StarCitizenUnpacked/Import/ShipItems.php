@@ -228,9 +228,9 @@ class ShipItems implements ShouldQueue
             'damage_regen_delay' => $item['shield']['damage_regen_delay'],
             'max_reallocation' => $item['shield']['max_reallocation'],
             'reallocation_rate' => $item['shield']['reallocation_rate'],
-            'shield_hardening_factor' => $item['shield']['shield_hardening_factor'],
-            'shield_hardening_duration' => $item['shield']['shield_hardening_duration'],
-            'shield_hardening_cooldown' => $item['shield']['shield_hardening_cooldown'],
+            'shield_hardening_factor' => $item['shield']['shield_hardening_factor'] ?? 0,
+            'shield_hardening_duration' => $item['shield']['shield_hardening_duration'] ?? 0,
+            'shield_hardening_cooldown' => $item['shield']['shield_hardening_cooldown'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
 
