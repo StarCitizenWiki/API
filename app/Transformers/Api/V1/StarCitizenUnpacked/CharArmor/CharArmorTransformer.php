@@ -7,6 +7,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\CharArmor;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 
 class CharArmorTransformer extends AbstractCommodityTransformer
 {
@@ -24,7 +25,8 @@ class CharArmorTransformer extends AbstractCommodityTransformer
     {
         $this->missingTranslations = [];
 
-        return [
+
+        $data = [
             'uuid' => $armor->item->uuid,
             'name' => $armor->item->name,
             'description' => $this->getTranslation($armor),
@@ -35,11 +37,21 @@ class CharArmorTransformer extends AbstractCommodityTransformer
             'armor_type' => $armor->armor_type,
             'carrying_capacity' => $armor->carrying_capacity,
             'damage_reduction' => $armor->damage_reduction,
+        ];
+
+        $baseModel = $armor->baseModel;
+        if ($baseModel !== null) {
+            $data['base_model'] = (new CharArmorLinkTransformer())->transform($baseModel);
+        }
+
+        $data += [
             'updated_at' => $armor->updated_at,
             'missing_translations' => $this->missingTranslations,
             'resistances' => $this->mapResistances($armor),
             'version' => $armor->version,
         ];
+
+        return $data;
     }
 
     /**

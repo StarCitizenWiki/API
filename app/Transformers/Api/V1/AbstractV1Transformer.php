@@ -28,6 +28,8 @@ abstract class AbstractV1Transformer extends TransformerAbstract
 
     public const GALACTAPEDIA_ARTICLE_SHOW = '/api/galactapedia/%s';
 
+    public const UNPACKED_CHAR_ARMOR_SHOW = '/api/char/armor/%s';
+
     public function includeAllAvailableIncludes(): void
     {
         $this->setDefaultIncludes($this->getAvailableIncludes());
