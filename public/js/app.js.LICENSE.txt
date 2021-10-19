@@ -5,7 +5,7 @@
   */
 
 /*!
- * Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com
+ * Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
 
@@ -34,7 +34,7 @@
  * Date: 2021-03-02T17:08Z
  */
 
-/*! DataTables 1.10.24
+/*! DataTables 1.11.3
  * ©2008-2021 SpryMedia Ltd - datatables.net/license
  */
 
