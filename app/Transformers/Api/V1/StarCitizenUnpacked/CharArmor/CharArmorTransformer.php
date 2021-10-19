@@ -7,7 +7,6 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\CharArmor;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 use League\Fractal\Resource\Collection;
-use League\Fractal\Resource\Item;
 
 class CharArmorTransformer extends AbstractCommodityTransformer
 {
@@ -24,7 +23,6 @@ class CharArmorTransformer extends AbstractCommodityTransformer
     public function transform(CharArmor $armor): array
     {
         $this->missingTranslations = [];
-
 
         $data = [
             'uuid' => $armor->item->uuid,
@@ -64,6 +62,12 @@ class CharArmorTransformer extends AbstractCommodityTransformer
         return $this->collection($armor->attachments, new CharArmorAttachmentTransformer());
     }
 
+    /**
+     * Re-formats the resistances into multiple arrays
+     *
+     * @param CharArmor $armor
+     * @return array[]
+     */
     private function mapResistances(CharArmor $armor): array
     {
         $mapped = $armor->resistances->keyBy('type')->map(function ($resistance) {

@@ -67,6 +67,12 @@ class CharArmor extends CommodityItem
         );
     }
 
+    /**
+     * Tries to find the base model of this item
+     * Removes the color string from the name and searches all armors
+     *
+     * @return CharArmor|null
+     */
     public function getBaseModelAttribute(): ?CharArmor
     {
         foreach (self::$splits as $split) {
