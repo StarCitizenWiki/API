@@ -5,13 +5,29 @@ declare(strict_types=1);
 namespace App\Models\StarCitizenUnpacked\CharArmor;
 
 use App\Models\StarCitizenUnpacked\CommodityItem;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class CharArmor extends CommodityItem
 {
     use HasFactory;
+
+    /**
+     * Keywords used as splits for Armor Names
+     * Essentially removes the color from the item name
+     *
+     * @var string[]
+     */
+    public static $splits = [
+        'Arms',
+        'Helmet',
+        'Legs',
+        'Core',
+        'Undersuit',
+    ];
 
     protected $table = 'star_citizen_unpacked_char_armor';
 
@@ -30,9 +46,14 @@ class CharArmor extends CommodityItem
         'temp_resistance_max' => 'double',
     ];
 
+    public function getRouteKey()
+    {
+        return $this->uuid;
+    }
+
     public function attachments(): BelongsToMany
     {
-        return $this->BelongsToMany(
+        return $this->belongsToMany(
             CharArmorAttachment::class,
             'star_citizen_unpacked_char_armor_attachment',
         );
@@ -44,5 +65,39 @@ class CharArmor extends CommodityItem
             CharArmorResistance::class,
             'char_armor_id',
         );
+    }
+
+    public function getBaseModelAttribute(): ?CharArmor
+    {
+        foreach (self::$splits as $split) {
+            if (!Str::contains($this->item->name, $split)) {
+                continue;
+            }
+
+            $splitted = array_filter(explode($split, $this->item->name));
+
+            // This is the base version
+            if (count($splitted) !== 2) {
+                return null;
+            }
+
+            array_pop($splitted);
+            $splitted[] = $split;
+
+            $baseName = implode(' ', $splitted);
+            $baseName = trim(preg_replace('/\s+/', ' ', $baseName));
+
+            return CharArmor::query()
+                ->whereHas('item', function (Builder $query) use ($splitted, $baseName) {
+                    $query->whereIn('name', [
+                        trim($splitted[0]),
+                        $baseName,
+                        sprintf('%s Base', $baseName),
+                    ]);
+                })
+                ->first();
+        }
+
+        return null;
     }
 }

@@ -60,4 +60,6 @@ return [
         'username' => env('RSI_USERNAME'),
         'password' => env('RSI_PASSWORD'),
     ],
+
+    'item_thumbnail_url' => env( 'ITEM_THUMBNAIL_URL'),
 ];

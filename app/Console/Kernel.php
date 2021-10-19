@@ -41,6 +41,7 @@ use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
@@ -113,6 +114,7 @@ class Kernel extends ConsoleKernel
         CreateCommodityWikiPages::class,
         CreateCharArmorWikiPages::class,
         CreateShipItemWikiPages::class,
+        UploadItemImages::class,
     ];
 
     /**
