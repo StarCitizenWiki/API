@@ -93,13 +93,18 @@ class CharArmor extends CommodityItem
             $baseName = implode(' ', $splitted);
             $baseName = trim(preg_replace('/\s+/', ' ', $baseName));
 
+            $toSearch = [
+                trim($splitted[0]),
+                $baseName,
+            ];
+
+            if ($this->item->name !== sprintf('%s Base', $baseName)) {
+                $toSearch[] = sprintf('%s Base', $baseName);
+            }
+
             return CharArmor::query()
-                ->whereHas('item', function (Builder $query) use ($splitted, $baseName) {
-                    $query->whereIn('name', [
-                        trim($splitted[0]),
-                        $baseName,
-                        sprintf('%s Base', $baseName),
-                    ]);
+                ->whereHas('item', function (Builder $query) use ($toSearch) {
+                    $query->whereIn('name', $toSearch);
                 })
                 ->first();
         }
