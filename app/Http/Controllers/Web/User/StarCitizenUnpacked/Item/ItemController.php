@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ItemController extends Controller
 {
-
     /**
      * @return View
      */
