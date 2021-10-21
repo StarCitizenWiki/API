@@ -460,6 +460,11 @@ $api->group(
                     '/{item}',
                     ['as' => 'api.v1.scunpacked.items.show', 'uses' => 'ItemController@show']
                 )->where('item', '(.*)');
+
+                $api->post(
+                    '/search',
+                    ['as' => 'api.v1.scunpacked.items.search', 'uses' => 'ItemController@search']
+                );
             }
         );
 

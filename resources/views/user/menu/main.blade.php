@@ -71,9 +71,9 @@
     'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_manufacturer',
-    'title' => __('Hersteller'),
+    'title' => __('Universum'),
 ])
-    @include('user.menu.manufacturer')
+    @include('user.menu.universe')
 @endcomponent
 
 @can('web.user.translations.view')

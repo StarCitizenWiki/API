@@ -26,6 +26,7 @@ import {
     faCommentAlt,
     faCrosshairs,
     faChartBar,
+    faCube,
     faDesktop,
     faDotCircle,
     faEnvelope,
@@ -85,6 +86,7 @@ library.add(
     faCommentAlt,
     faCrosshairs,
     faChartBar,
+    faCube,
     faDesktop,
     faDotCircle,
     faEnvelope,
@@ -146,6 +148,12 @@ if (document.getElementById('cl-live-search')) {
 if (document.getElementById('g-live-search')) {
     new window.Vue({
         el: "#g-live-search",
+    })
+}
+
+if (document.getElementById('item-live-search')) {
+    new window.Vue({
+        el: "#item-live-search",
     })
 }
 

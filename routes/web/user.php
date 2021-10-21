@@ -213,6 +213,20 @@ Route::group(
                                 );
                         }
                     );
+
+
+                Route::namespace('StarCitizenUnpacked')
+                    ->name('starcitizenunpacked.')
+                    ->prefix('starcitizenunpacked')
+                    ->group(
+                        static function () {
+                            Route::resources(
+                                [
+                                    'items' => 'Item\ItemController',
+                                ]
+                            );
+                        }
+                    );
             }
         );
     }
