@@ -79,7 +79,6 @@ class ItemController extends ApiController
      *
      * @param ItemSearchRequest $request
      * @return Response
-     * @throws ValidationException
      */
     public function search(ItemSearchRequest $request): Response
     {

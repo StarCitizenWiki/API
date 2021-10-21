@@ -207,7 +207,7 @@ Route::group(
                                 ->name('stat.')
 
                                 ->group(
-                                    static function() {
+                                    static function () {
                                         Route::get('stats', 'StatController@index')->name('index');
                                     }
                                 );
