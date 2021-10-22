@@ -26,22 +26,17 @@
           <th>Hersteller</th>
           <th>Shops</th>
           <th>Version</th>
-          <!--            <th>Links</th>-->
         </tr>
         </thead>
         <tbody>
         <tr class="col-12" v-for="result in results" :key="result.id">
-          <!--            <td><a :href="result.uuid">{{ result.name }}</a></td>-->
           <td>{{ result.name }}</td>
           <td>{{ result.type }}</td>
           <td>{{ result.manufacturer }}</td>
-          <td v-html="formatShops(result)"></td>
+          <td>
+            <ItemPriceTable :shops="result.shops.data"></ItemPriceTable>
+          </td>
           <td>{{ result.version }}</td>
-          <!--            <td>
-                        <div class="btn-group btn-group-sm" role="group" aria-label="">
-                          <a target="_blank" class="btn btn-outline-secondary" rel="noreferrer noreferrer noopener" :href="`${result.uuid}`">Details</a>
-                        </div>
-                      </td>-->
         </tr>
         </tbody>
       </table>
@@ -50,8 +45,11 @@
 </template>
 
 <script>
+import ItemPriceTable from "./ItemPriceTable";
+
 export default {
   name: "ItemLiveSearch",
+  components: {ItemPriceTable},
   props: {
     apiToken: String
   },
@@ -82,9 +80,9 @@ export default {
         return;
       }
 
-      axios.post('/api/items/search?include=shops', {
+      axios.post('/api/items/search?include=shops.items', {
         query: this.term,
-        limit: 50
+        limit: 25
       }, {
         mode: 'no-cors',
         headers: this.apiToken !== null ? {
@@ -106,13 +104,6 @@ export default {
               this.error = `${error.response.status}: ${error.message}`;
             }
           })
-    },
-    formatShops: function (data) {
-      if (typeof data.shops.data === 'undefined') {
-        return '-';
-      }
-
-      return data.shops.data.map(shop => shop.name_raw).join('<br>');
     }
   }
 }
