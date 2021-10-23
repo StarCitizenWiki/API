@@ -7,6 +7,7 @@ namespace App\Services\Parser\CommLink;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\Image\Image as ImageModel;
 use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
+use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -99,6 +100,8 @@ class Image extends BaseElement
         $this->extractCssBackgrounds();
         $this->extractMediaImages();
         $this->extractRsiImages();
+        $this->extractGBannerImages();
+        $this->extractGIllustrationImages();
 
         if ($this->isSpecialPage($this->commLink)) {
             $this->commLink->filterXPath('//template')->each(
@@ -144,6 +147,54 @@ class Image extends BaseElement
                 $this->images[] = [
                     'src' => $src,
                     'alt' => 'c-feature',
+                ];
+            }
+        );
+    }
+
+    private function extractGBannerImages(): void
+    {
+        $this->commLink->filter($this->getFilterSelector())->filterXPath('//g-banner')->each(
+            function (Crawler $crawler) {
+                $image = trim($crawler->attr(':background-image') ?? '');
+
+                try {
+                    $image = json_decode($image, true, 512, JSON_THROW_ON_ERROR);
+                } catch (JsonException $e) {
+                    return;
+                }
+
+                if (empty($image) || (!isset($image['max']) && !isset($image['source']))) {
+                    return;
+                }
+
+                $this->images[] = [
+                    'src' => $image['max'] ?? $image['source'],
+                    'alt' => $image['alt'] ?? 'g-banner',
+                ];
+            }
+        );
+    }
+
+    private function extractGIllustrationImages(): void
+    {
+        $this->commLink->filter($this->getFilterSelector())->filterXPath('//g-illustration')->each(
+            function (Crawler $crawler) {
+                $image = trim($crawler->attr(':image') ?? '');
+
+                try {
+                    $image = json_decode($image, true, 512, JSON_THROW_ON_ERROR);
+                } catch (JsonException $e) {
+                    return;
+                }
+
+                if (empty($image) || (!isset($image['max']) && !isset($image['source']))) {
+                    return;
+                }
+
+                $this->images[] = [
+                    'src' => $image['max'] ?? $image['source'],
+                    'alt' => $image['alt'] ?? 'g-illustration',
                 ];
             }
         );
