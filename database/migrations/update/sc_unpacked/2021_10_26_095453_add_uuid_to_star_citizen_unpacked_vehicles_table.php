@@ -16,7 +16,7 @@ class AddUuidToStarCitizenUnpackedVehiclesTable extends Migration
     public function up()
     {
         Schema::table('star_citizen_unpacked_vehicles', function (Blueprint $table) {
-            $table->string('uuid')->unique()
+            $table->string('uuid')->nullable()
                 ->after('shipmatrix_id');
         });
     }
