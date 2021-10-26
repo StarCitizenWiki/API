@@ -7,6 +7,7 @@ namespace App\Models\StarCitizenUnpacked\Shop;
 use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\Item;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ShopItem extends Pivot
@@ -63,6 +64,10 @@ class ShopItem extends Pivot
         'priceRange',
     ];
 
+    protected $with = [
+        'rental'
+    ];
+
     public function getOffsettedPriceAttribute()
     {
         if ($this->base_price_offset === null || $this->base_price_offset === 0) {
@@ -80,6 +85,26 @@ class ShopItem extends Pivot
         ];
     }
 
+    public function getPrice1Attribute()
+    {
+        return round(($this->offsetted_price / 100) * $this->rental->percentage_1);
+    }
+
+    public function getPrice3Attribute()
+    {
+        return round(($this->offsetted_price / 100) * 3 * $this->rental->percentage_3);
+    }
+
+    public function getPrice7Attribute()
+    {
+        return round(($this->offsetted_price / 100) * 7 * $this->rental->percentage_7);
+    }
+
+    public function getPrice30Attribute()
+    {
+        return round(($this->offsetted_price / 100) * 30 * $this->rental->percentage_30);
+    }
+
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class, 'item_uuid', 'uuid');
@@ -88,5 +113,15 @@ class ShopItem extends Pivot
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class, 'shop_uuid', 'uuid');
+    }
+
+    public function rental(): HasOne
+    {
+        return $this->hasOne(ShopItemRental::class, 'item_uuid', 'item_uuid')->withDefault([
+            'percentage_1' => 1,
+            'percentage_3' => 1,
+            'percentage_7' => 1,
+            'percentage_30' => 1,
+        ]);
     }
 }

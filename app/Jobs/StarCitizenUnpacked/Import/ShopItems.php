@@ -6,6 +6,7 @@ namespace App\Jobs\StarCitizenUnpacked\Import;
 
 use App\Models\StarCitizenUnpacked\Item;
 use App\Models\StarCitizenUnpacked\Shop\Shop;
+use App\Models\StarCitizenUnpacked\Shop\ShopItemRental;
 use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
 use App\Services\Parser\StarCitizenUnpacked\Shops\Shops;
 use Illuminate\Bus\Queueable;
@@ -53,7 +54,7 @@ class ShopItems implements ShouldQueue
                 $toSync = $shop['inventory']
                     ->unique('uuid')
                     ->mapWithKeys(function ($inventory) use ($shopModel) {
-                        if (in_array($inventory['type'], Inventory::UNKNOWN_TYPES, true)) {
+                        if (in_array($inventory['type'], Inventory::EXTRA_TYPES, true)) {
                             $itemModel = $this->createModel($inventory);
                         } else {
                             /** @var Item $itemModel */
@@ -62,6 +63,14 @@ class ShopItems implements ShouldQueue
 
                         if ($itemModel === null) {
                             return ['unknown' => null];
+                        }
+
+                        // TODO: Extract
+                        if (isset($inventory['rental']) && !empty($inventory['rental'])) {
+                            ShopItemRental::updateOrCreate([
+                                'item_uuid' => $itemModel->uuid,
+                                'shop_uuid' => $shopModel->uuid,
+                            ], $inventory['rental'] + ['version' => config('api.sc_data_version'),]);
                         }
 
                         return [

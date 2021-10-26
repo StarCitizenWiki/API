@@ -14,6 +14,19 @@ final class Shops
     private Collection $shops;
     private Collection $mapped;
 
+    private array $shopNames = [
+        'TDD_Orison' => 'Trade & Development Division, Orison',
+        'TravelerRentals_Orison' => 'Traveler Rentals, Orison',
+        'Orison_Spaceport' => 'August Dunlow Spaceport, Orison',
+        'AdminOffice_Orison' => 'Admin Office, Orison',
+        'NewBabbage_Spaceport' => 'New Babbage Interstellar Spaceport, New Babbage',
+        /*        'Orison_CrusaderTour',
+                'Covalex-Orison',
+                'Orison_Hospital',
+                'NewBab_Hospital',
+                'Makau_Orison',*/
+    ];
+
     /**
      * AssaultRifle constructor.
      * @throws FileNotFoundException
@@ -30,13 +43,13 @@ final class Shops
     {
         $this->shops
             ->filter(function (array $shop) {
-                return isset($shop['name']) && strpos($shop['name'], ',') !== false;
+                return isset($shop['name']) && (strpos($shop['name'], ',') !== false || isset($this->shopNames[$shop['name']]));
             })
             ->filter(function (array $shop) {
                 return isset($shop['inventory']);
             })
             ->each(function (array $shop) {
-                $this->mapped->put($shop['name'], [
+                $this->mapped->put($this->shopNames[$shop['name']] ?? $shop['name'], [
                     'shop' => $this->mapShop($shop),
                     'inventory' => $this->mapInventory($shop)
                 ]);
@@ -47,11 +60,11 @@ final class Shops
 
     private function mapShop(array $shop): array
     {
-        ['name' => $name, 'position' => $position] = self::parseShopName($shop['name']);
+        ['name' => $name, 'position' => $position] = self::parseShopName($this->shopNames[$shop['name']] ?? $shop['name']);
 
         return [
             'uuid' => $shop['reference'],
-            'name_raw' => $shop['name'],
+            'name_raw' => $this->shopNames[$shop['name']] ?? $shop['name'],
             'name' => $name,
             'position' => $position,
             'profit_margin' => $shop['profitMargin'] ?? 0,

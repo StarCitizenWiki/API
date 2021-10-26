@@ -6,6 +6,7 @@ namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
 use Illuminate\Support\Collection;
 
 /**
@@ -15,6 +16,7 @@ abstract class AbstractVehicleTransformer extends TranslationTransformer
 {
     protected $availableIncludes = [
         'components',
+        'shops',
     ];
 
     /**
@@ -27,6 +29,15 @@ abstract class AbstractVehicleTransformer extends TranslationTransformer
     public function includeComponents(Vehicle $vehicle): \League\Fractal\Resource\Collection
     {
         return $this->collection($vehicle->components, new ComponentTransformer());
+    }
+
+    /**
+     * @param Vehicle $vehicle
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeShops($vehicle): \League\Fractal\Resource\Collection
+    {
+        return $this->collection($vehicle->unpacked->shops, new ShopTransformer());
     }
 
     /**

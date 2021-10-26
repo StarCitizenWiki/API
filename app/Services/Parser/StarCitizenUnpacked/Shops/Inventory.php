@@ -6,7 +6,10 @@ namespace App\Services\Parser\StarCitizenUnpacked\Shops;
 
 final class Inventory
 {
-    public const UNKNOWN_TYPES = [
+    /**
+     * Shop items that do not have an accompanying .json file
+     */
+    public const EXTRA_TYPES = [
         'Mineral',
         'AgriculturalSupply',
         'Natural',
@@ -19,13 +22,15 @@ final class Inventory
         'Metal',
         'Gas',
         'ProcessedGood',
+
+        'Vehicle',
     ];
 
     public static function map(array $inventory): array
     {
         ['type' => $type, 'subType' => $subType] = self::getType($inventory);
 
-        return [
+        $data = [
             'uuid' => $inventory['item_reference'],
             'name' => $inventory['displayName'],
             'type' => $type,
@@ -44,6 +49,25 @@ final class Inventory
             'sellable' => $inventory['shopBuysThis'] ?? false,
             'rentable' => $inventory['shopRentThis'] ?? false,
         ];
+
+        if (isset($inventory['rentalTemplates']) && !empty($inventory['rentalTemplates'])) {
+            $rentalData = collect($inventory['rentalTemplates'])
+                ->filter(function (array $rental) {
+                    return isset($rental['RentalDuration']);
+                })
+                ->mapWithKeys(function (array $rental) {
+                    return [
+                        "percentage_{$rental['RentalDuration']}" => $rental['PercentageOfSalePrice'],
+                    ];
+                })
+                ->toArray();
+
+            if (!isset($rentalData['percentage_2'])) {
+                $data['rental'] = $rentalData;
+            }
+        }
+
+        return $data;
     }
 
     private static function getType(array $inventory): array
@@ -91,6 +115,11 @@ final class Inventory
                 case strpos($inventory['filename'], 'Gas') !== false:
                     $type = 'Gas';
                     break;
+
+                case strpos($inventory['filename'], 'Spaceships') !== false:
+                    $type = 'Vehicle';
+                    break;
+
                 default:
                     $type = null;
                     break;

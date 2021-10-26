@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\Vehicle\Vehicle;
 
+use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * Abstract Vehicle Class
  */
-class Vehicle extends HasTranslations implements \App\Contracts\HasChangelogsInterface
+class Vehicle extends HasTranslations implements HasChangelogsInterface
 {
     use ModelChangelog;
 

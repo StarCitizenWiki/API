@@ -38,7 +38,22 @@ class Vehicle implements ShouldQueue
             return;
         }
 
-        collect($vehicles)->each(function (array $vehicle) {
+        collect($vehicles)->map(function (array $vehicle) {
+            try {
+                $vehicle['rawData'] = json_decode(File::get(storage_path(sprintf(
+                    'app/api/scunpacked-data/v2/ships/%s-raw.json',
+                    strtolower($vehicle['ClassName'])
+                ))), true, 512, JSON_THROW_ON_ERROR);
+            } catch (FileNotFoundException | JsonException $e) {
+                //
+            }
+
+            return $vehicle;
+        })->each(function (array $vehicle) {
+            if (!isset($vehicle['rawData']['Entity']['__ref'])) {
+                return;
+            }
+
             try {
                 \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
                     'class_name' => $vehicle['ClassName']
@@ -52,6 +67,8 @@ class Vehicle implements ShouldQueue
     public function getVehicleModelArray(array $vehicle): array
     {
         return [
+            'uuid' => $vehicle['rawData']['Entity']['__ref'],
+
             'shipmatrix_id' => $this->tryGetShipmatrixIdForVehicle($vehicle)->id ?? -1,
             'name' => $vehicle['Name'],
             'career' => $vehicle['Career'],

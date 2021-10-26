@@ -11,7 +11,7 @@ class ShopItemTransformer extends TransformerAbstract
 {
     public function transform(Item $item): array
     {
-        return [
+        $data = [
             'uuid' => $item->uuid,
             'name' => $item->name,
             'base_price' => $item->shop_data->base_price,
@@ -31,5 +31,17 @@ class ShopItemTransformer extends TransformerAbstract
             'rentable' => $item->shop_data->rentable,
             'version' => $item->shop_data->version,
         ];
+
+
+        if (isset($item->shop_data->rental->id)) {
+            $data['rental_price_days'] = [
+                1 => $item->shop_data->price1,
+                3 => $item->shop_data->price3,
+                7 => $item->shop_data->price7,
+                30 => $item->shop_data->price30,
+            ];
+        }
+
+        return $data;
     }
 }

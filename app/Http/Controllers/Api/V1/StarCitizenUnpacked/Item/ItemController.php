@@ -159,7 +159,7 @@ class ItemController extends ApiController
         return $this->getResponse(
             Item::query()
                 ->where('version', config(self::SC_DATA_KEY))
-                ->whereIn('type', Inventory::UNKNOWN_TYPES)
+                ->whereIn('type', Inventory::EXTRA_TYPES)
                 ->orderBy('name')
         );
     }
