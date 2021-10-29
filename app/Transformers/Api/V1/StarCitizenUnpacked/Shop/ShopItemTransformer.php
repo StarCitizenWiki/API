@@ -14,6 +14,8 @@ class ShopItemTransformer extends TransformerAbstract
         $data = [
             'uuid' => $item->uuid,
             'name' => $item->name,
+            'type' => $item->type,
+            'sub_type' => $item->sub_type,
             'base_price' => $item->shop_data->base_price,
             'price_calculated' => $item->shop_data->offsetted_price,
             'price_range' => $item->shop_data->price_range,
