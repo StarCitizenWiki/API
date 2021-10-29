@@ -82,6 +82,9 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12">
+                    <p>@lang('Benachrichtigungen funktionieren nur, wenn du eine E-Mail-Adresse im Wiki hinterlegt hast').</p>
+                </div>
             </div>
         </div>
         <div class="card-footer d-flex">

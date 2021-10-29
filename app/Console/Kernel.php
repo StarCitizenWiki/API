@@ -187,7 +187,7 @@ class Kernel extends ConsoleKernel
             ->hourlyAt(5)
             ->after(
                 function () {
-                    $this->events->dispatch(new NewCommLinksDownloaded());
+                    NewCommLinksDownloaded::dispatch();
                 }
             );
 
@@ -197,7 +197,7 @@ class Kernel extends ConsoleKernel
             ->monthly()
             ->after(
                 function () {
-                    $this->events->dispatch(new CommLinksChangedEvent());
+                    CommLinksChangedEvent::dispatch();
                 }
             );
 
