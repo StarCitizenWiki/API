@@ -23,6 +23,7 @@ class ShipTransformer extends VehicleTransformer
 
         $data = [
             'id' => $ship->cig_id,
+            'uuid' => $ship->unpacked->uuid,
             'chassis_id' => $ship->chassis_id,
             'name' => $ship->name,
             'slug' => $ship->slug,

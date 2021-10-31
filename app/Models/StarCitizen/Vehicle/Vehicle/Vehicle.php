@@ -245,7 +245,8 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
      */
     public function unpacked(): HasOne
     {
-        return $this->hasOne(\App\Models\StarCitizenUnpacked\Vehicle::class, 'shipmatrix_id', 'id');
+        return $this->hasOne(\App\Models\StarCitizenUnpacked\Vehicle::class, 'shipmatrix_id', 'id')
+            ->withDefault();
     }
 
     /**

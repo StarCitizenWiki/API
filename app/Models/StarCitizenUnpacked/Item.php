@@ -108,6 +108,12 @@ class Item extends HasTranslations implements HasChangelogsInterface
                 return $this->hasOne(WeaponPersonal::class, 'uuid', 'uuid');
 
             /**
+             * Vehicles
+             */
+            case Str::contains($this->type, 'Vehicle'):
+                return $this->hasOne(Vehicle::class, 'uuid', 'uuid');
+
+            /**
              * Ship Items
              */
             case Str::contains($this->type, 'WeaponGun'):
