@@ -100,8 +100,7 @@ class Image extends BaseElement
         $this->extractCssBackgrounds();
         $this->extractMediaImages();
         $this->extractRsiImages();
-        $this->extractGBannerImages();
-        $this->extractGIllustrationImages();
+        $this->extractGElementImages();
 
         if ($this->isSpecialPage($this->commLink)) {
             $this->commLink->filterXPath('//template')->each(
@@ -152,52 +151,38 @@ class Image extends BaseElement
         );
     }
 
-    private function extractGBannerImages(): void
+    private function extractGElementImages(): void
     {
-        $this->commLink->filter($this->getFilterSelector())->filterXPath('//g-banner')->each(
-            function (Crawler $crawler) {
-                $image = trim($crawler->attr(':background-image') ?? '');
+        $elements = [
+            'g-banner' => ':background-image',
+            'g-illustration' => ':image',
 
-                try {
-                    $image = json_decode($image, true, 512, JSON_THROW_ON_ERROR);
-                } catch (JsonException $e) {
-                    return;
-                }
+        ];
 
-                if (empty($image) || (!isset($image['max']) && !isset($image['source']))) {
-                    return;
-                }
+        foreach ($elements as $path => $attr) {
+            $this->commLink
+                ->filter($this->getFilterSelector())->filterXPath(sprintf('//%s', $path))
+                ->each(
+                    function (Crawler $crawler) use ($path, $attr) {
+                        $image = trim($crawler->attr($attr) ?? '');
 
-                $this->images[] = [
-                    'src' => $image['max'] ?? $image['source'],
-                    'alt' => $image['alt'] ?? 'g-banner',
-                ];
-            }
-        );
-    }
+                        try {
+                            $image = json_decode($image, true, 512, JSON_THROW_ON_ERROR);
+                        } catch (JsonException $e) {
+                            return;
+                        }
 
-    private function extractGIllustrationImages(): void
-    {
-        $this->commLink->filter($this->getFilterSelector())->filterXPath('//g-illustration')->each(
-            function (Crawler $crawler) {
-                $image = trim($crawler->attr(':image') ?? '');
+                        if (empty($image) || (!isset($image['max']) && !isset($image['source']))) {
+                            return;
+                        }
 
-                try {
-                    $image = json_decode($image, true, 512, JSON_THROW_ON_ERROR);
-                } catch (JsonException $e) {
-                    return;
-                }
-
-                if (empty($image) || (!isset($image['max']) && !isset($image['source']))) {
-                    return;
-                }
-
-                $this->images[] = [
-                    'src' => $image['max'] ?? $image['source'],
-                    'alt' => $image['alt'] ?? 'g-illustration',
-                ];
-            }
-        );
+                        $this->images[] = [
+                            'src' => $image['max'] ?? $image['source'],
+                            'alt' => $image['alt'] ?? $path,
+                        ];
+                    }
+                );
+        }
     }
 
     private function extractPostBackground(): void
