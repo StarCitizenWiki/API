@@ -73,7 +73,7 @@ class Vehicle implements ShouldQueue
             'name' => $vehicle['Name'],
             'career' => $vehicle['Career'],
             'role' => $vehicle['Role'],
-            'is_ship' => $vehicle['IsSpaceship'],
+            'is_ship' => (bool)$vehicle['IsSpaceship'],
             'size' => $vehicle['Size'],
             'cargo_capacity' => $vehicle['Cargo'],
             'crew' => $vehicle['Crew'],
@@ -162,6 +162,9 @@ class Vehicle implements ShouldQueue
             return 0;
         }
 
-        return $num;
+        $negation = ($num < 0) ? (-1) : 1;
+        $coefficient = 10 ** 3;
+
+        return $negation * floor((abs((float)$num) * $coefficient)) / $coefficient;
     }
 }

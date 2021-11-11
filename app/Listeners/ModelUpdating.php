@@ -38,6 +38,11 @@ class ModelUpdating
         }
 
         $data = $this->getChangelogData();
+
+        if ($data === null) {
+            return;
+        }
+
         $data = [
             'type' => $this->getChangelogType(),
             'changelog' => $data,
@@ -116,6 +121,13 @@ class ModelUpdating
         }
 
         return collect($this->model->getDirty())
+            ->filter(function ($value, $key) {
+                if (!is_numeric($value)) {
+                    return true;
+                }
+
+                return round((float)$value) !== round((float)$this->model->getOriginal($key));
+            })
             ->map(
                 function ($value, $key) {
                     return [
