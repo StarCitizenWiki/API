@@ -81,7 +81,7 @@ final class GFeatureExtractor implements ContentExtractorInterface
      */
     private function getGFeaturesIntro(Crawler $crawler, string &$content): void
     {
-        if ($crawler->attr(':is-header-declared') === true) {
+        if ($crawler->attr(':is-header-declared') === 'true') {
             $crawler->filterXPath('//template')->each(function (Crawler $crawler) use (&$content) {
                 if ($crawler->attr('slot') === 'title') {
                     $content .= sprintf('<h1>%s</h1>', $crawler->text());
