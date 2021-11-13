@@ -71,8 +71,12 @@ class Content extends BaseElement
     {
         $content = $this->removeElements($content);
 
+        // Replace non-breaking spaces with normal ones
+        $content = str_replace(' ', ' ', $content);
+        $content = (string)str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
+
         // Remove empty p Tags
-        $content = preg_replace('/<p><\/p>/m', '', $content);
+        $content = preg_replace('/<p>\s*?<\/p>/m', '', $content);
 
         // Remove Multiline Breaks
         //$content = preg_replace('/^\s+/m', '', $content);
@@ -100,9 +104,6 @@ class Content extends BaseElement
 
         // Remove all tags
         $content = strip_tags($content);
-
-        // Remove Non breaking Spaces with normal space
-        $content = (string)str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
 
         // Replace multiple spaces with one
         $content = preg_replace('/[ \t]+/m', ' ', $content);
