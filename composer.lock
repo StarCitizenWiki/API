@@ -2575,12 +2575,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/octfx/DeepLy.git",
-                "reference": "7253732103a33965cde24330b43f535e716cea89"
+                "reference": "a649872d227898b9c49b668c72b957060f95532a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/octfx/DeepLy/zipball/7253732103a33965cde24330b43f535e716cea89",
-                "reference": "7253732103a33965cde24330b43f535e716cea89",
+                "url": "https://api.github.com/repos/octfx/DeepLy/zipball/a649872d227898b9c49b668c72b957060f95532a",
+                "reference": "a649872d227898b9c49b668c72b957060f95532a",
                 "shasum": ""
             },
             "require": {
