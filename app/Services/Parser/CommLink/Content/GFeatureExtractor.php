@@ -37,6 +37,10 @@ final class GFeatureExtractor implements ContentExtractorInterface
                                 $content .= sprintf('<h2>%s</h2>', $crawler->text());
                                 break;
 
+                            case 'subtitle':
+                                $content .= sprintf('<h3>%s</h3>', $crawler->text());
+                                break;
+
                             case 'body':
                                 $content .= $crawler->html();
                                 break;
