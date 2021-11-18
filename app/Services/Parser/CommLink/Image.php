@@ -156,7 +156,7 @@ class Image extends BaseElement
         $elements = [
             'g-banner' => ':background-image',
             'g-illustration' => ':image',
-
+            'g-feature' => ':main-responsive-image'
         ];
 
         foreach ($elements as $path => $attr) {
