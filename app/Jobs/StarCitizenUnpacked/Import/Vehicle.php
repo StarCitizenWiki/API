@@ -75,6 +75,9 @@ class Vehicle implements ShouldQueue
             'role' => $vehicle['Role'],
             'is_ship' => (bool)$vehicle['IsSpaceship'],
             'size' => $vehicle['Size'],
+            'width' => $vehicle['Width'],
+            'height' => $vehicle['Height'],
+            'length' => $vehicle['Length'],
             'cargo_capacity' => $vehicle['Cargo'],
             'crew' => $vehicle['Crew'],
             'weapon_crew' => $vehicle['WeaponCrew'],
@@ -135,12 +138,26 @@ class Vehicle implements ShouldQueue
         $className = explode('_', $vehicle['ClassName']);
         array_shift($className);
 
-        if ($name === 'M50 Interceptor') {
-            $name = 'M50';
-        }
+        switch ($name) {
+            case 'M50 Interceptor':
+                $name = 'M50';
+                break;
 
-        if ($name === '85X Limited') {
-            $name = '85X';
+            case '85X Limited':
+                $name = '85X';
+                break;
+
+            case 'A2 Hercules Starlifter':
+                $name = 'A2 Hercules';
+                break;
+
+            case 'C2 Hercules Starlifter':
+                $name = 'C2 Hercules';
+                break;
+
+            case 'M2 Hercules Starlifter':
+                $name = 'M2 Hercules';
+                break;
         }
 
         $byName = \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::query()

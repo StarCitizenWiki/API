@@ -25,6 +25,9 @@ class Vehicle extends CommodityItem
         'role',
         'is_ship',
         'size',
+        'width',
+        'height',
+        'length',
         'cargo_capacity',
         'crew',
         'weapon_crew',
@@ -74,6 +77,9 @@ class Vehicle extends CommodityItem
 
     protected $casts = [
         'size' => 'int',
+        'width' => 'double',
+        'height' => 'double',
+        'length' => 'double',
         'ship_matrix_id' => 'int',
         'is_ship' => 'boolean',
         'cargo_capacity' => 'int',

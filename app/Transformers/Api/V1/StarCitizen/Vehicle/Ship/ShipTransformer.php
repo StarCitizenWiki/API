@@ -28,9 +28,9 @@ class ShipTransformer extends VehicleTransformer
             'name' => $ship->name,
             'slug' => $ship->slug,
             'sizes' => [
-                'length' => $ship->length,
-                'beam' => $ship->beam,
-                'height' => $ship->height,
+                'length' => (double)$ship->length,
+                'beam' => (double)$ship->width,
+                'height' => (double)$ship->height,
             ],
             'mass' => $ship->unpacked->mass ?? $ship->mass,
             'cargo_capacity' => $ship->unpacked->cargo_capacity ?? $ship->cargo_capacity,

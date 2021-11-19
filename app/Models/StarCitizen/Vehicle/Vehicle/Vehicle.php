@@ -238,6 +238,36 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
         return $this->belongsTo(Size::class);
     }
 
+    public function getWidthAttribute()
+    {
+        $unpacked = $this->unpacked->width;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $this->beam;
+    }
+
+    public function getHeightAttribute($height)
+    {
+        $unpacked = $this->unpacked->height;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $height;
+    }
+
+    public function getLengthAttribute($length)
+    {
+        $unpacked = $this->unpacked->length;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $length;
+    }
+
     /**
      * Unpacked Data
      *
