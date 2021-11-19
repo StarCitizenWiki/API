@@ -39,7 +39,7 @@ abstract class CommodityItem extends HasTranslations implements HasChangelogsInt
         return $this->belongsTo(Item::class, 'uuid', 'uuid');
     }
 
-    public function getNameAttribute()
+    public function getNameAttribute($name)
     {
         return $this->item->name;
     }

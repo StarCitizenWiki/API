@@ -33,7 +33,7 @@ abstract class AbstractCommodityItem
         $exploded = explode("\n\n", $description);
         $exploded = array_pop($exploded);
 
-        $exploded = str_replace(array('’', '`', '´', ' '), array('\'', '\'', '\'', ' '), trim($exploded ?? ''));
+        $exploded = str_replace(['’', '`', '´', ' '], ['\'', '\'', '\'', ' '], trim($exploded ?? ''));
 
         return $out + [
                 'description' => trim($exploded),

@@ -129,4 +129,9 @@ class Vehicle extends CommodityItem
     {
         return $this->belongsTo(\App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::class, 'shipmatrix_id', 'id');
     }
+
+    public function getNameAttribute($name)
+    {
+        return $name;
+    }
 }
