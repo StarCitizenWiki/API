@@ -130,6 +130,18 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
         $this->title = WrappedWiki::getRedirectTitle($this->article->cleanTitle);
         $wikiText = WrappedWiki::getWikiPageText(Article::normalizeContent($this->title));
 
+        if (preg_match('/(REDIRECT|WEITERLEITUNG)/', $wikiText ?? '') === 1) {
+            app('Log')::warning(sprintf('Could not determine redirect title for "%s"', $this->title));
+            $this->release(7200);
+            return;
+        }
+
+        if ($wikiText === null && WrappedWiki::pageExists($this->title)) {
+            app('Log')::warning(sprintf('Could not load content for "%s"', $this->title));
+            $this->release(7200);
+            return;
+        }
+
         try {
             $text = $this->getFormattedText($this->getArticleText(), $wikiText);
 

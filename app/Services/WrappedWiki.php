@@ -37,7 +37,6 @@ class WrappedWiki
         return $query->getQuery()['redirects'][0]['to'] ?? $title;
     }
 
-
     /**
      * Page content of the wiki page or null on error or not found
      *
@@ -65,5 +64,29 @@ class WrappedWiki
         $first = array_shift($query);
 
         return $first['revisions'][0]['slots']['main']['*'] ?? $first['revisions'][0]['*'] ?? null;
+    }
+
+    /**
+     * Checks if a given title exists
+     *
+     * @param string $title
+     * @return bool|null Null on failure
+     */
+    public static function pageExists(string $title): ?bool
+    {
+        try {
+            $pageContent = MediaWikiApi::query()
+                ->prop('info')
+                ->titles($title)
+                ->request();
+        } catch (GuzzleException $e) {
+            return null;
+        }
+
+        if ($pageContent->hasErrors()) {
+            return null;
+        }
+
+        return isset($pageContent->getQuery()['pages']['-1']);
     }
 }
