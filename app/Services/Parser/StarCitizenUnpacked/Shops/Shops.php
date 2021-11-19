@@ -20,6 +20,16 @@ final class Shops
         'Orison_Spaceport' => 'August Dunlow Spaceport, Orison',
         'AdminOffice_Orison' => 'Admin Office, Orison',
         'NewBabbage_Spaceport' => 'New Babbage Interstellar Spaceport, New Babbage',
+        'Shady Glen Farms' => 'Shady Glen Farms, Wala',
+
+        'stanton_4_shubin_001' => 'Shubin Mining Facility SM0-13, Microtech',
+        'stanton_4_shubin_002' => 'Shubin Mining Facility SM0-22, Microtech',
+        //'stanton_4_shubin_005' => 'Shubin Mining Facility SM0-22, Microtech',
+
+        'GarrityDefense_PortOlisar' => 'Garrity Defense, Port Olisar',
+        'LiveFireWeapons_PortOlisar' => 'Live Fire Weapons, Port Olisar',
+        'DumpersDepot_PortOlisar' => 'Dumper\'s Depot, Port Olisar',
+        'CasabaOutlet_PortOlisar' => 'Casaba Outlet, Port Olisar',
         /*        'Orison_CrusaderTour',
                 'Covalex-Orison',
                 'Orison_Hospital',
