@@ -11,7 +11,7 @@ abstract class AbstractCommodityItem
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
         $match = preg_match_all(
-            sprintf('/^(%s):(?:\s| )?([\w_&\ \(\),\.\-\°\/\\\\%%]*)$/m', implode('|', array_keys($wantedMatches))),
+            sprintf('/^(%s):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\\\%%]*)$/m', implode('|', array_keys($wantedMatches))),
             $description,
             $matches
         );
