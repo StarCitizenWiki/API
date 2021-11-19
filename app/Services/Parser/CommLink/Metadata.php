@@ -70,7 +70,7 @@ class Metadata extends BaseElement
             'series' => 'Star Citizen LIVE',
         ],
         // Q&A: ... Posts
-        '/^Q\s?&\s?A:?.*/' => [
+        '/^Q\s?&\s?A:?.+/' => [
             'channel' => 'Engineering',
             'category' => 'Development',
             // TODO: Is this correct for all?
@@ -82,35 +82,56 @@ class Metadata extends BaseElement
             'category' => 'Development',
         ],
         // Roadmap Roundup ... Posts
-        '/Roadmap Roundup.*/' => [
+        '/Roadmap Roundup.+/' => [
             'channel' => 'Spectrum Dispatch',
             'category' => 'Lore',
             'series' => 'Roadmap Roundup',
         ],
         // ... Subscriber Promotions
-        '/.*Subscriber Promotions$/' => [
+        '/.+Subscriber Promotions$/' => [
+            'channel' => 'Transmission',
+            'category' => 'General',
             // This is not an official series
             'series' => 'Subscriber Promotions',
         ],
-        // Star Citizen Alpha ... Posts
         '/Calling All Devs/' => [
             'channel' => 'Transmission',
             'category' => 'General',
             'series' => 'Calling All Devs',
         ],
-        // Star Citizen Alpha ... Posts
-        '/^Star Citizen (Alpha|Beta) [\d\.]+\s?(?:Available!?)?$/' => [
+        // Star Citizen Patch Infos ... Posts
+        '/^(Star Citizen )?(Alpha|Beta|Patch) v?[\d\.a-g]+\s?(?:Available!?)?$/' => [
             'channel' => 'Transmission',
             'category' => 'General',
             // This is not an official series
             'series' => 'Release Info',
         ],
         // Alpha - ... Posts
-        '/(Alpha|Beta) - .*/' => [
+        '/(Alpha|Beta) - .+/' => [
             'channel' => 'Transmission',
             'category' => 'General',
             // This is not an official series
             'series' => 'Release Info',
+        ],
+        '/^Design Notes:\s.+/' => [
+            'channel' => 'Engineering',
+            'category' => 'Development',
+            'series' => 'Design Post',
+        ],
+        '/^Letter from the Chairman(?:\:\w+)?/' => [
+            'channel' => 'Transmission',
+            'category' => 'General',
+            'series' => 'From the Chairman',
+        ],
+        '/^Bugsmashers!?/i' => [
+            'channel' => 'Transmission',
+            'category' => 'General',
+            'series' => 'Bugsmashers',
+        ],
+        '/^Around the Verse.*?/' => [
+            'channel' => 'Transmission',
+            'category' => 'General',
+            'series' => 'Around the Verse',
         ],
     ];
 
