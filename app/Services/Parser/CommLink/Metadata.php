@@ -70,14 +70,14 @@ class Metadata extends BaseElement
             'series' => 'Star Citizen LIVE',
         ],
         // Q&A: ... Posts
-        '/Q\s?&\s?A:?.*/' => [
+        '/^Q\s?&\s?A:?.*/' => [
             'channel' => 'Engineering',
             'category' => 'Development',
             // TODO: Is this correct for all?
             'series' => 'Concept Ship Q&A',
         ],
         // ... Q&A Posts
-        '/.*Q\s?&\s?A$/' => [
+        '/.+Q\s?&\s?A$/' => [
             'channel' => 'Engineering',
             'category' => 'Development',
         ],
@@ -99,7 +99,7 @@ class Metadata extends BaseElement
             'series' => 'Calling All Devs',
         ],
         // Star Citizen Alpha ... Posts
-        '/Star Citizen (Alpha|Beta) [\d\.]+\s?(?:Available!?)?$/' => [
+        '/^Star Citizen (Alpha|Beta) [\d\.]+\s?(?:Available!?)?$/' => [
             'channel' => 'Transmission',
             'category' => 'General',
             // This is not an official series
@@ -248,11 +248,9 @@ class Metadata extends BaseElement
     {
         $channelId = 1;
 
-        if (
-            $channel === null &&
+        if ($channel === null &&
             ($this->commLink->filter(self::CHANNEL_SELECTOR)->count() > 0 ||
-                $this->isSubscriberPage($this->commLink))
-        ) {
+                $this->isSubscriberPage($this->commLink))) {
             if ($this->isSubscriberPage($this->commLink)) {
                 $channel = self::SUBSCRIBER;
             } else {
