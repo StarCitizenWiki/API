@@ -10,7 +10,7 @@
       <div class="alert alert-info" v-if="hasNoResult">Keine Comm-Links zu '{{ term }}' gefunden</div>
       <div class="row">
         <div class="col-6 mx-auto">
-          <form method="POST" class="d-flex h-100 flex-column">
+          <form method="POST" class="d-flex h-100 flex-column" v-on:submit.p.prevent="">
             <div class="form-group">
               <label for="keyword" aria-label="keyword">Comm-Link Titel</label>
               <input type="text" id="keyword" v-on:input="startSearch" min="3" max="255" required class="form-control" />
