@@ -87,6 +87,6 @@ class WrappedWiki
             return null;
         }
 
-        return isset($pageContent->getQuery()['pages']['-1']);
+        return !isset($pageContent->getQuery()['pages']['-1']);
     }
 }
