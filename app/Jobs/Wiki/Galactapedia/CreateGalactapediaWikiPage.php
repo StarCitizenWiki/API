@@ -21,6 +21,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\Response;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
 use RuntimeException;
 use StarCitizenWiki\MediaWikiApi\Api\Response\MediaWikiResponse;
 use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
@@ -330,7 +331,11 @@ FORMAT;
             });
 
         $properties = $properties->map(function ($item, $key) {
-            return sprintf("|%s=%s", $key, $item);
+            return sprintf(
+                "|%s=%s",
+                $key,
+                DeepLyFacade::translate($item, config('services.deepl.target_locale'), 'EN')
+            );
         })
             ->implode("\n");
 
@@ -355,7 +360,7 @@ TEMPLATE;
 
     /**
      * Creates the page text content and optionally wraps it in a fancy box
-     * THx @alistair
+     * Thx @alistair
      *
      * @param string $markdown The raw galactapedia markdown
      * @param bool $boxed Flag to box the content
@@ -443,7 +448,7 @@ CONTENT;
         // Replace humans -> menschen
         if (preg_match('/\[\[(Humans|Menschen)\|Human]].*(konzern|hersteller|händler|mann)/iu', $content)) {
             $content = str_replace($tags, '[[Menschen|menschlicher]]', $content);
-        } elseif (preg_match('/\[\[(Humans|Menschen)\|Human]].*(show|serie)/i', $content)) {
+        } elseif (preg_match('/\[\[(Humans|Menschen)\|Human]].*(show|serie|regierung)/i', $content)) {
             $content = str_replace($tags, '[[Menschen|menschliche]]', $content);
         } else {
             $content = str_replace($tags, '[[Menschen|menschliches]]', $content);
