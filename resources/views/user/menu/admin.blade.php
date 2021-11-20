@@ -47,22 +47,6 @@
     @endcomponent
 @endcan
 
-@can('web.user.jobs.view_failed')
-    @component('components.navs.nav_element', [
-        'route' => route('web.user.jobs.wiki.upload_csv_view'),
-    ])
-        <div class="row">
-            <div class="col-1">
-                @component('components.elements.icon')
-                    upload
-                @endcomponent
-            </div>
-            <div class="col">
-                @lang('CSV Hochladen')
-            </div>
-        </div>
-    @endcomponent
-@endcan
 
 @can('web.user.jobs.upload_csv')
     @component('components.navs.nav_element', [
