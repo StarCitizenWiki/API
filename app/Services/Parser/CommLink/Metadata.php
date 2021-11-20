@@ -269,9 +269,8 @@ class Metadata extends BaseElement
     {
         $channelId = 1;
 
-        if ($channel === null &&
-            ($this->commLink->filter(self::CHANNEL_SELECTOR)->count() > 0 ||
-                $this->isSubscriberPage($this->commLink))) {
+        // phpcs:ignore Generic.Files.LineLength.TooLong
+        if ($channel === null && ($this->commLink->filter(self::CHANNEL_SELECTOR)->count() > 0 || $this->isSubscriberPage($this->commLink))) {
             if ($this->isSubscriberPage($this->commLink)) {
                 $channel = self::SUBSCRIBER;
             } else {
