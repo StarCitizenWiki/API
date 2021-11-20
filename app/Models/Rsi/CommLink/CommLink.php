@@ -157,4 +157,9 @@ class CommLink extends HasTranslations
             'changelog_id'
         )->where('changelog_type', CommLinkTranslation::class);
     }
+
+    public function getUrlAttribute($url): string
+    {
+        return $url ?? sprintf('/comm-link/SCW/%d-API', $this->cig_id);
+    }
 }
