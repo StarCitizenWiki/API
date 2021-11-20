@@ -30,11 +30,20 @@ final class Shops
         'LiveFireWeapons_PortOlisar' => 'Live Fire Weapons, Port Olisar',
         'DumpersDepot_PortOlisar' => 'Dumper\'s Depot, Port Olisar',
         'CasabaOutlet_PortOlisar' => 'Casaba Outlet, Port Olisar',
-        /*        'Orison_CrusaderTour',
-                'Covalex-Orison',
-                'Orison_Hospital',
-                'NewBab_Hospital',
-                'Makau_Orison',*/
+
+
+        // Ore Sales
+        'MiningKiosks_RS_Stanton1_L1' => 'Ore Sales, HUR-L1',
+        'MiningKiosks_RS_Stanton1_L2' => 'Ore Sales, HUR-L2',
+        'MiningKiosks_RS_Stanton2_L1' => 'Ore Sales, CRU-L1',
+        'MiningKiosks_RS_Stanton3_L1' => 'Ore Sales, ARC-L1',
+        'MiningKiosks_RS_Stanton4_L1' => 'Ore Sales, MIC-L1',
+
+        'RS_RefineryStore_Stanton1_L1' => 'Supply Shop, HUR-L1',
+        'RS_RefineryStore_Stanton1_L2' => 'Supply Shop, HUR-L2',
+        'RS_RefineryStore_Stanton2_L1' => 'Supply Shop, CRU-L1',
+        'RS_RefineryStore_Stanton3_L1' => 'Supply Shop, ARC-L1',
+        'RS_RefineryStore_Stanton4_L1' => 'Supply Shop, MIC-L1',
     ];
 
     /**
@@ -46,6 +55,7 @@ final class Shops
     {
         $items = File::get(storage_path(sprintf('app/api/scunpacked-data/shops.json')));
         $this->shops = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
+        $this->addShops();
         $this->mapped = collect();
     }
 
@@ -119,5 +129,50 @@ final class Shops
             'name' => implode(', ', $parts),
             'position' => $position,
         ];
+    }
+
+    private function addShops(): void
+    {
+        $refineryShops = [
+            'CRU-L1',
+            'ARC-L1',
+            'HUR-L1',
+            'HUR-L2',
+            'MIC-L2',
+        ];
+
+        $cargoShops = [
+            'Port Tressler',
+            'Everus Harbor',
+            'Baijini Point',
+        ];
+
+        $refineryRentals = $this->shops->first(function ($value) {
+            return isset($value['name']) && $value['name'] === 'Refinery_Rentals';
+        });
+
+        if ($refineryRentals !== null) {
+            $refinery = collect($refineryShops)->map(function (string $name) use ($refineryRentals) {
+                $refineryRentals['name'] = sprintf('Vantage Rentals, %s', $name);
+
+                return $refineryRentals;
+            })->toArray();
+
+            $this->shops = $this->shops->concat($refinery);
+        }
+
+        $cargoRentals = $this->shops->first(function ($value) {
+            return isset($value['name']) && $value['name'] === 'CargoOffice_Rentals';
+        });
+
+        if ($cargoRentals !== null) {
+            $cargo = collect($cargoShops)->map(function (string $name) use ($cargoRentals) {
+                $cargoRentals['name'] = sprintf('Traveler Rentals, %s', $name);
+
+                return $cargoRentals;
+            });
+
+            $this->shops = $this->shops->concat($cargo);
+        }
     }
 }
