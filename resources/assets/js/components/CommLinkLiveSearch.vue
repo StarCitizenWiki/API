@@ -14,7 +14,7 @@
             <div class="form-group">
               <label for="keyword" aria-label="keyword">Comm-Link Titel</label>
               <input type="text" id="keyword" v-on:input="startSearch" min="3" max="255" required class="form-control" />
-              <small>Suche nach ganzen Titeln oder Teilwörtern</small>
+              <small>Suche nach ganzen Titeln oder Teilwörtern. Ergebnisse werden automatisch angezeigt.</small>
             </div>
           </form>
         </div>

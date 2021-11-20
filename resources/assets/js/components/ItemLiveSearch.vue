@@ -14,6 +14,7 @@
             <div class="form-group">
               <label for="keyword" aria-label="keyword">Item Name</label>
               <input type="text" id="keyword" v-on:input="startSearch" min="3" max="255" required class="form-control"/>
+              <small>Suche nach ganzen Namen oder Teilwörtern. Ergebnisse werden automatisch nach Eingabe angezeigt.</small>
             </div>
           </form>
         </div>
