@@ -155,8 +155,11 @@ final class Shops
             $refinery = collect($refineryShops)->map(function (string $name) use ($refineryRentals) {
                 $refineryRentals['name'] = sprintf('Vantage Rentals, %s', $name);
 
+                $hex = bin2hex($name);
+                $refineryRentals['reference'] = substr($refineryRentals['reference'], 0, -12) . substr($hex, 0, 12);
+
                 return $refineryRentals;
-            })->toArray();
+            });
 
             $this->shops = $this->shops->concat($refinery);
         }
@@ -168,6 +171,9 @@ final class Shops
         if ($cargoRentals !== null) {
             $cargo = collect($cargoShops)->map(function (string $name) use ($cargoRentals) {
                 $cargoRentals['name'] = sprintf('Traveler Rentals, %s', $name);
+
+                $hex = bin2hex($name);
+                $cargoRentals['reference'] = substr($cargoRentals['reference'], 0, -12) . substr($hex, 0, 12);
 
                 return $cargoRentals;
             });
