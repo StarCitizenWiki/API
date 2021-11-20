@@ -63,7 +63,11 @@ final class Shops
     {
         $this->shops
             ->filter(function (array $shop) {
-                return isset($shop['name']) && (strpos($shop['name'], ',') !== false || isset($this->shopNames[$shop['name']]));
+                return isset($shop['name']) &&
+                    (strpos($shop['name'], ',') !== false || isset($this->shopNames[$shop['name']]));
+            })
+            ->filter(function (array $shop) {
+                return strpos($shop['name'], 'IAE Expo') === false;
             })
             ->filter(function (array $shop) {
                 return isset($shop['inventory']);
