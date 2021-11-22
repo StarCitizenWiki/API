@@ -7,8 +7,7 @@ namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer;
 use League\Fractal\Resource\Collection;
 
 /**
@@ -62,7 +61,7 @@ class ManufacturerTransformer extends TranslationTransformer
      */
     public function includeShips(Manufacturer $manufacturer): Collection
     {
-        return $this->collection($manufacturer->ships, new ShipLinkTransformer());
+        return $this->collection($manufacturer->ships, new VehicleLinkTransformer());
     }
 
     /**
@@ -72,6 +71,6 @@ class ManufacturerTransformer extends TranslationTransformer
      */
     public function includeVehicles(Manufacturer $manufacturer): Collection
     {
-        return $this->collection($manufacturer->vehicles, new GroundVehicleLinkTransformer());
+        return $this->collection($manufacturer->vehicles, new VehicleLinkTransformer());
     }
 }

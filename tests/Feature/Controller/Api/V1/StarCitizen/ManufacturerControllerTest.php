@@ -13,8 +13,7 @@ use Illuminate\Support\Str;
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController<extended>
  *
  * @covers \App\Transformers\Api\V1\StarCitizen\Manufacturer\ArticleTransformer<extended>
- * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer<extended>
- * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer<extended>
+ * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer
  *
  * @covers \App\Models\StarCitizen\Manufacturer\Manufacturer<extended>
  */
