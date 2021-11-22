@@ -88,7 +88,11 @@ final class Shops
 
         return [
             'uuid' => $shop['reference'],
-            'name_raw' => $this->shopNames[$shop['name']] ?? str_replace('Hurston HUR', 'HUR', $shop['name']),
+            'name_raw' => $this->shopNames[$shop['name']] ?? str_replace(
+                ['Hurston HUR', 'Microtech MIC'],
+                ['HUR', 'MIC'],
+                $shop['name']
+            ),
             'name' => $name,
             'position' => $position,
             'profit_margin' => $shop['profitMargin'] ?? 0,
@@ -131,7 +135,11 @@ final class Shops
 
         return [
             'name' => implode(', ', $parts),
-            'position' => str_replace('Hurston HUR', 'HUR', $position),
+            'position' => str_replace(
+                ['Hurston HUR', 'Microtech MIC'],
+                ['HUR', 'MIC'],
+                $position
+            ),
         ];
     }
 
