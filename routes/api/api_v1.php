@@ -48,51 +48,40 @@ $api->group(
             static function (Router $api) {
                 $api->group(
                     [
-                        'namespace' => 'Ship',
                         'prefix' => 'ships',
                     ],
                     static function (Router $api) {
                         $api->get(
                             '/',
-                            ['as' => 'api.v1.starcitizen.vehicles.ships.all', 'uses' => 'ShipController@index']
+                            ['as' => 'api.v1.starcitizen.vehicles.ships.all', 'uses' => 'VehicleController@index']
                         );
                         $api->get(
-                            '{ship}',
-                            ['as' => 'api.v1.starcitizen.vehicles.ships.show', 'uses' => 'ShipController@show']
+                            '{vehicle}',
+                            ['as' => 'api.v1.starcitizen.vehicles.ships.show', 'uses' => 'VehicleController@show']
                         );
                         $api->post(
                             '/search',
-                            ['as' => 'api.v1.starcitizen.vehicles.ships.search', 'uses' => 'ShipController@search']
+                            ['as' => 'api.v1.starcitizen.vehicles.ships.search', 'uses' => 'VehicleController@search']
                         );
                     }
                 );
 
                 $api->group(
                     [
-                        'namespace' => 'GroundVehicle',
                         'prefix' => 'vehicles',
                     ],
                     static function (Router $api) {
                         $api->get(
                             '/',
-                            [
-                                'as' => 'api.v1.starcitizen.vehicles.ground-vehicles.all',
-                                'uses' => 'GroundVehicleController@index',
-                            ]
+                            ['as' => 'api.v1.starcitizen.vehicles.all', 'uses' => 'VehicleController@index']
                         );
                         $api->get(
-                            '{ground_vehicle}',
-                            [
-                                'as' => 'api.v1.starcitizen.vehicles.ground-vehicles.show',
-                                'uses' => 'GroundVehicleController@show',
-                            ]
+                            '{vehicle}',
+                            ['as' => 'api.v1.starcitizen.vehicles.show', 'uses' => 'VehicleController@show']
                         );
                         $api->post(
                             '/search',
-                            [
-                                'as' => 'api.v1.starcitizen.vehicles.ground-vehicles.search',
-                                'uses' => 'GroundVehicleController@search',
-                            ]
+                            ['as' => 'api.v1.starcitizen.vehicles.search', 'uses' => 'VehicleController@search']
                         );
                     }
                 );

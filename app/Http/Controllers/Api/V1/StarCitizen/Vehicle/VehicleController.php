@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle;
+namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Http\Requests\StarCitizen\Vehicle\GroundVehicleSearchRequest;
-use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer;
+use App\Http\Requests\StarCitizen\Vehicle\VehicleSearchRequest;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -16,20 +16,20 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Ground Vehicle API
+ * Vehicles API
  * All Vehicles found in the official [Ship Matrix](https://robertsspaceindustries.com/ship-matrix).
  *
  * @Resource("Vehicles", uri="/vehicles")
  */
-class GroundVehicleController extends ApiController
+class VehicleController extends ApiController
 {
     /**
      * ShipController constructor.
      *
-     * @param GroundVehicleTransformer $transformer
-     * @param Request                  $request
+     * @param VehicleTransformer $transformer
+     * @param Request $request
      */
-    public function __construct(GroundVehicleTransformer $transformer, Request $request)
+    public function __construct(VehicleTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
 
@@ -115,10 +115,11 @@ class GroundVehicleController extends ApiController
     public function index(Request $request): Response
     {
         if ($request->has('transformer') && $request->get('transformer', null) === 'link') {
-            $this->transformer = new GroundVehicleLinkTransformer();
+            $this->transformer = new VehicleLinkTransformer();
+            $this->limit = 100;
         }
 
-        return $this->getResponse(GroundVehicle::query()->orderBy('name'));
+        return $this->getResponse(Vehicle::query()->orderBy('name'));
     }
 
     /**
@@ -248,27 +249,27 @@ class GroundVehicleController extends ApiController
      */
     public function show(Request $request): Response
     {
-        ['ground_vehicle' => $groundVehicle] = Validator::validate(
+        ['vehicle' => $vehicle] = Validator::validate(
             [
-                'ground_vehicle' => $request->ground_vehicle,
+                'vehicle' => $request->vehicle,
             ],
             [
-                'ground_vehicle' => 'required|string|min:1|max:255',
+                'vehicle' => 'required|string|min:1|max:255',
             ]
         );
 
-        $groundVehicle = urldecode($groundVehicle);
+        $vehicle = urldecode($vehicle);
 
         try {
-            $groundVehicle = GroundVehicle::query()
-                ->where('name', $groundVehicle)
-                ->orWhere('slug', $groundVehicle)
+            $vehicle = Vehicle::query()
+                ->where('name', $vehicle)
+                ->orWhere('slug', $vehicle)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $groundVehicle));
+            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $vehicle));
         }
 
-        return $this->getResponse($groundVehicle);
+        return $this->getResponse($vehicle);
     }
 
     /**
@@ -280,12 +281,12 @@ class GroundVehicleController extends ApiController
      */
     public function search(Request $request): Response
     {
-        $rules = (new GroundVehicleSearchRequest())->rules();
+        $rules = (new VehicleSearchRequest())->rules();
 
         $request->validate($rules);
 
         $query = urldecode($request->get('query'));
-        $queryBuilder = GroundVehicle::query()
+        $queryBuilder = Vehicle::query()
             ->where('name', 'like', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%");
 

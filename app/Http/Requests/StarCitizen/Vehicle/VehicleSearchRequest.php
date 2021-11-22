@@ -6,6 +6,6 @@ namespace App\Http\Requests\StarCitizen\Vehicle;
 
 use App\Http\Requests\AbstractSearchRequest;
 
-class ShipSearchRequest extends AbstractSearchRequest
+class VehicleSearchRequest extends AbstractSearchRequest
 {
 }

@@ -20,8 +20,7 @@ abstract class AbstractV1Transformer extends TransformerAbstract
     public const COMM_LINKS_CHANNELS_SHOW = '/api/comm-links/channels/%s';
     public const COMM_LINKS_CATEGORIES_SHOW = '/api/comm-links/categories/%s';
 
-    public const VEHICLES_SHIPS_SHOW = '/api/ships/%s';
-    public const VEHICLES_GROUND_VEHICLES_SHOW = '/api/vehicles/%s';
+    public const VEHICLES_SHOW = '/api/vehicles/%s';
 
     public const STARMAP_STARSYSTEM_SHOW = '/api/starmap/starsystems/%s';
     public const STARMAP_CELESTIAL_OBJECTS_SHOW = '/api/starmap/celestial-objects/%s';
