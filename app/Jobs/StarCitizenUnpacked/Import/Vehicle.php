@@ -24,9 +24,9 @@ class Vehicle implements ShouldQueue
     public function handle(): void
     {
         try {
-            $vehicles = File::get(storage_path(sprintf('app/api/scunpacked-data/v2/ships.json')));
+            $vehicles = File::get(storage_path('app/api/scunpacked-data/v2/ships.json'));
         } catch (FileNotFoundException $e) {
-            $this->fail('ship.json not found. Did you clone scunpacked?');
+            $this->fail('ships.json not found. Did you clone scunpacked?');
             return;
         }
 
@@ -138,37 +138,45 @@ class Vehicle implements ShouldQueue
         $className = explode('_', $vehicle['ClassName']);
         array_shift($className);
 
-        switch ($name) {
-            case 'M50 Interceptor':
-                $name = 'M50';
+        switch ($vehicle['Name']) {
+            case 'Origin 600i':
+                $name = '600i Explorer';
                 break;
 
-            case '85X Limited':
-                $name = '85X';
-                break;
-
-            case 'A2 Hercules Starlifter':
+            case 'Crusader A2 Hercules Starlifter':
                 $name = 'A2 Hercules';
                 break;
 
-            case 'C2 Hercules Starlifter':
+            case 'Crusader C2 Hercules Starlifter':
                 $name = 'C2 Hercules';
                 break;
 
-            case 'M2 Hercules Starlifter':
+            case 'Crusader M2 Hercules Starlifter':
                 $name = 'M2 Hercules';
+                break;
+
+            case 'Drake Dragonfly':
+                $name = 'Dragonfly Black';
+                break;
+
+            case 'Origin M50 Interceptor':
+                $name = 'M50';
+                break;
+
+            case 'Origin 85X Limited':
+                $name = '85X';
                 break;
         }
 
-        $byName = \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::query()
-            ->where('name', 'LIKE', sprintf('%%%s%%', $name))
-            ->first();
+        return $this->queryForName(['name', $name]) ??
+            $this->queryForName(['name', 'LIKE', sprintf('%%%s%%', $name)]) ??
+            $this->queryForName(['name', $nameDashed]) ??
+            $this->queryForName(['name', 'LIKE', sprintf('%%%s%%', $nameDashed)]);
+    }
 
-        $byDashedName = \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::query()
-            ->where('name', 'LIKE', sprintf('%%%s%%', $nameDashed))
-            ->first();
-
-        return $byName ?? $byDashedName;
+    private function queryForName(array $config)
+    {
+        return \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::query()->where(...$config)->first();
     }
 
     private function numFormat($data)
