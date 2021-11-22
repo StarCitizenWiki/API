@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use JsonException;
 
@@ -38,29 +39,31 @@ class Vehicle implements ShouldQueue
             return;
         }
 
-        collect($vehicles)->map(function (array $vehicle) {
-            try {
-                $vehicle['rawData'] = json_decode(File::get(storage_path(sprintf(
-                    'app/api/scunpacked-data/v2/ships/%s-raw.json',
-                    strtolower($vehicle['ClassName'])
-                ))), true, 512, JSON_THROW_ON_ERROR);
-            } catch (FileNotFoundException | JsonException $e) {
-                //
-            }
+        collect($vehicles)->chunk(10)->each(function (Collection $chunk) {
+            $chunk->map(function (array $vehicle) {
+                try {
+                    $vehicle['rawData'] = json_decode(File::get(storage_path(sprintf(
+                        'app/api/scunpacked-data/v2/ships/%s-raw.json',
+                        strtolower($vehicle['ClassName'])
+                    ))), true, 512, JSON_THROW_ON_ERROR);
+                } catch (FileNotFoundException | JsonException $e) {
+                    //
+                }
 
-            return $vehicle;
-        })->each(function (array $vehicle) {
-            if (!isset($vehicle['rawData']['Entity']['__ref'])) {
-                return;
-            }
+                return $vehicle;
+            })->each(function (array $vehicle) {
+                if (!isset($vehicle['rawData']['Entity']['__ref'])) {
+                    return;
+                }
 
-            try {
-                \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
-                    'class_name' => $vehicle['ClassName']
-                ], $this->getVehicleModelArray($vehicle));
-            } catch (Exception $e) {
-                app('Log')::warning($e->getMessage());
-            }
+                try {
+                    \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
+                        'class_name' => $vehicle['ClassName']
+                    ], $this->getVehicleModelArray($vehicle));
+                } catch (Exception $e) {
+                    app('Log')::warning($e->getMessage());
+                }
+            });
         });
     }
 

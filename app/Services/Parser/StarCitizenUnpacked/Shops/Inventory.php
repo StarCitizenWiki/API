@@ -24,6 +24,7 @@ final class Inventory
         'ProcessedGood',
 
         'Vehicle',
+        'GroundVehicle',
     ];
 
     public static function map(array $inventory): array
@@ -115,9 +116,11 @@ final class Inventory
                 case strpos($inventory['filename'], 'Gas') !== false:
                     $type = 'Gas';
                     break;
-
                 case strpos($inventory['filename'], 'Spaceships') !== false:
                     $type = 'Vehicle';
+                    break;
+                case strpos($inventory['filename'], 'GroundVehicles') !== false:
+                    $type = 'GroundVehicle';
                     break;
 
                 default:
