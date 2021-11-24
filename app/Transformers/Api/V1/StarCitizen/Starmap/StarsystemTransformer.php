@@ -56,6 +56,11 @@ class StarsystemTransformer extends AbstractTranslationTransformer
                 'population' => $starsystem->aggregated_population,
                 'economy' => $starsystem->aggregated_economy,
                 'danger' => $starsystem->aggregated_danger,
+
+                'stars' => $starsystem->stars_count,
+                'planets' => $starsystem->planets_count,
+                'moons' => $starsystem->moons_count,
+                'stations' => $starsystem->stations_count,
             ],
 
             'updated_at' => $starsystem->time_modified,
