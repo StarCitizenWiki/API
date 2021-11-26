@@ -158,6 +158,10 @@ class Vehicle implements ShouldQueue
                 $name = 'M2 Hercules';
                 break;
 
+            case 'Crusader Mercury Star Runner':
+                $name = 'Mercury';
+                break;
+
             case 'Drake Dragonfly':
                 $name = 'Dragonfly Black';
                 break;
