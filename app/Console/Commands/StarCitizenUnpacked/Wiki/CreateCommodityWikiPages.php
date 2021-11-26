@@ -54,6 +54,9 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
             })
             ->filter(function (Shop $shop) {
                 return strpos($shop->name_raw, 'Levski') === false;
+            })
+            ->filter(function (Shop $shop) {
+                return strpos($shop->name_raw, 'Rentals') === false;
             });
 
         $this->createProgressBar($data->count());
