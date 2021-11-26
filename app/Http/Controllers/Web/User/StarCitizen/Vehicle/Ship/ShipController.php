@@ -20,21 +20,13 @@ use Illuminate\Support\Facades\Auth;
 class ShipController extends Controller
 {
     /**
-     * @var Dispatcher
-     */
-    private Dispatcher $api;
-
-    /**
      * ShipsController constructor.
      *
-     * @param Dispatcher $dispatcher
      */
-    public function __construct(Dispatcher $dispatcher)
+    public function __construct()
     {
         parent::__construct();
         $this->middleware('auth')->except(['index']);
-        $this->api = $dispatcher;
-        $this->api->be(Auth::user());
     }
 
     /**
@@ -42,12 +34,10 @@ class ShipController extends Controller
      */
     public function index(): View
     {
-        $ships = $this->api->get('api/ships', ['limit' => 0]);
-
         return view(
             'user.starcitizen.vehicles.ships.index',
             [
-                'ships' => $ships,
+                'ships' => Ship::all(),
             ]
         );
     }

@@ -20,21 +20,12 @@ use Illuminate\Support\Facades\Auth;
 class GroundVehicleController extends Controller
 {
     /**
-     * @var Dispatcher
+     * Ground Vehicle Controller constructor.
      */
-    private Dispatcher $api;
-
-    /**
-     * ShipsController constructor.
-     *
-     * @param Dispatcher $dispatcher
-     */
-    public function __construct(Dispatcher $dispatcher)
+    public function __construct()
     {
         parent::__construct();
         $this->middleware('auth')->except(['index']);
-        $this->api = $dispatcher;
-        $this->api->be(Auth::user());
     }
 
     /**
@@ -42,12 +33,10 @@ class GroundVehicleController extends Controller
      */
     public function index(): View
     {
-        $vehicles = $this->api->get('api/vehicles', ['limit' => 0]);
-
         return view(
             'user.starcitizen.vehicles.ground_vehicles.index',
             [
-                'groundVehicles' => $vehicles,
+                'groundVehicles' => GroundVehicle::all(),
             ]
         );
     }
