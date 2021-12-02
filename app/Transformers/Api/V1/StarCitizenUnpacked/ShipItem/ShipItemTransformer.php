@@ -82,6 +82,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'weapon';
                 break;
 
+            case 'MissileLauncher':
+                $this->defaultIncludes[] = 'missileRack';
+                break;
+
             default:
                 break;
         }
@@ -135,5 +139,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     public function includeWeapon(AbstractShipItemSpecification $data): Item
     {
         return $this->item($data, new ShipWeaponTransformer());
+    }
+
+    public function includeMissileRack(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new ShipMissileRackTransformer());
     }
 }

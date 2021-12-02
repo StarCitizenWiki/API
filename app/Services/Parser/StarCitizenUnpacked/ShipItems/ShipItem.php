@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Parser\StarCitizenUnpacked\ShipItems;
 
 use App\Services\Parser\StarCitizenUnpacked\AbstractCommodityItem;
+use App\Services\Parser\StarCitizenUnpacked\Labels;
+use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -12,50 +14,63 @@ use Illuminate\Support\Facades\File;
 final class ShipItem extends AbstractCommodityItem
 {
     private Collection $items;
-    private Collection $rawData;
 
-    /**
-     * AssaultRifle constructor.
-     * @throws FileNotFoundException
-     * @throws JsonException
-     */
+    private $labels;
+    private $manufacturers;
+
     public function __construct()
     {
-        $items = File::get(storage_path(sprintf('app/api/scunpacked-data/ship-items.json')));
+        $this->labels = (new Labels())->getData();
+        $this->manufacturers = (new Manufacturers())->getData();
+    }
+
+    /**
+     * @throws FileNotFoundException
+     * @throws \JsonException
+     */
+    public function loadFromShipItems(): void
+    {
+        $items = File::get(storage_path('app/api/scunpacked-data/ship-items.json'));
         $this->items = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
     }
 
+    public function setItems(Collection $items): void
+    {
+        $this->items = $items;
+    }
 
     public function getData(bool $onlyBaseVersions = false, bool $excludeToy = true): Collection
     {
         return $this->items
             ->filter(function (array $entry) {
-                return isset($entry['reference']);
+                return isset($entry['reference']) || isset($entry['__ref']);
             })
             ->filter(function (array $entry) {
-                return isset($entry['className']) && strpos($entry['className'], 'test_') === false;
+                $className = $entry['ClassName'] ?? $entry['className'] ?? '';
+                return !empty($className) && strpos($className, 'test_') === false;
             })
             ->filter(function (array $entry) {
-                return isset($entry['type']) &&
-                    $entry['type'] !== 'Armor' &&
-                    $entry['type'] !== 'Ping' &&
-                    $entry['type'] !== 'WeaponDefensive' &&
-                    $entry['type'] !== 'Paints' &&
-                    $entry['type'] !== 'Radar';
+                $type = $entry['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? $entry['type'] ?? '';
+
+                return !empty($type) &&
+                    $type !== 'Armor' &&
+                    $type !== 'Ping' &&
+                    $type !== 'WeaponDefensive' &&
+                    $type !== 'Paints';
             })
             ->map(function (array $entry) {
-                $out = $entry['stdItem'] ?? [];
-                $out['reference'] = $entry['reference'] ?? null;
-                $out['itemName'] = $entry['itemName'] ?? null;
+                $out = $entry['stdItem'] ?? $entry;
+                $out['reference'] = $entry['reference'] ?? $entry['__ref'] ?? null;
+                $out['itemName'] = $entry['itemName'] ?? $entry['ClassName'] ?? null;
 
                 return $out;
             })
-            ->filter(function (array $entry) {
-                return isset($entry['Description']) && !empty($entry) && !empty($entry['Description']);
-            })
-            ->filter(function (array $entry) {
-                return isset($entry['Durability']);
-            })
+            /*            ->filter(function (array $entry) {
+                            return isset($entry['Description']) && !empty($entry) && !empty($entry['Description']);
+                        })*/
+            /*            ->filter(function (array $entry) {
+                            return isset($entry['Durability']);
+                        })*/
             ->map(function (array $entry) {
                 $item = File::get(
                     storage_path(
@@ -67,13 +82,19 @@ final class ShipItem extends AbstractCommodityItem
                 );
 
                 $rawData = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+                if (!isset($entry['Description']) || empty($entry['Description'])) {
+                    $entry['Description'] = $this->labels->get(substr($rawData['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Description'], 1));
+                }
 
                 return $this->map($entry, $rawData);
+            })
+            ->filter(function ($entry) {
+                return $entry !== null;
             })
             ->unique('name');
     }
 
-    private function map(array $item, Collection $rawData): array
+    private function map(array $item, Collection $rawData): ?array
     {
         /**
          * BASE ALL
@@ -187,6 +208,12 @@ final class ShipItem extends AbstractCommodityItem
          * MissileLauncher
          */
 
+        if (!isset($item['Description']) || empty($item['Description'])) {
+            return null;
+        }
+
+        $item['Description'] = str_replace(["\n", '\n'], "\n", $item['Description']);
+
         $data = $this->tryExtractDataFromDescription($item['Description'], [
             'Item Type' => 'item_type',
             'Manufacturer' => 'manufacturer',
@@ -200,11 +227,11 @@ final class ShipItem extends AbstractCommodityItem
         ]);
 
         $mappedItem = [
-            'uuid' => $item['reference'],
-            'size' => $item['Size'] ?? 0,
-            'item_type' => $item['Type'] ?? 0,
-            'item_class' => trim($item['Classification'] ?? 'Unknown Class'),
-            'item_grade' => $item['Grade'] ?? 0,
+            'uuid' => $item['__ref'] ?? $item['reference'],
+            'size' => $item['Components']['SAttachableComponentParams']['AttachDef']['Size'] ?? $item['Size'] ?? 0,
+            'item_type' => $item['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? $item['Type'] ?? 0,
+            'item_class' => $item['Components']['SAttachableComponentParams']['AttachDef']['Class'] ?? trim($item['Classification'] ?? 'Unknown Class'),
+            'item_grade' => $item['Components']['SAttachableComponentParams']['AttachDef']['Grade'] ?? $item['Grade'] ?? 0,
             'description' => $data['description'] ?? '',
             'name' => str_replace(
                 [
@@ -214,9 +241,9 @@ final class ShipItem extends AbstractCommodityItem
                     '\'',
                 ],
                 '"',
-                trim($item['Name'] ?? 'Unknown Ship Item')
+                trim($item['Name'] ?? $this->labels->get(substr($item['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Name'], 1)) ?? 'Unknown Ship Item')
             ),
-            'manufacturer' => $this->getManufacturer($item),
+            'manufacturer' => $data['manufacturer'] ?? $this->getManufacturer($item),
             'type' => trim($data['item_type'] ?? 'Unknown Type'),
             'class' => trim($data['item_class'] ?? 'Unknown Class'),
             'grade' => $data['grade'] ?? null,
@@ -238,6 +265,8 @@ final class ShipItem extends AbstractCommodityItem
         $mappedItem['shield'] = Shield::getData($item, $rawData);
         $mappedItem['quantum_drive'] = QuantumDrive::getData($item, $rawData);
         $mappedItem['weapon'] = Weapon::getData($item, $rawData);
+        $mappedItem['missile_rack'] = MissileRack::getData($item, $rawData);
         $mappedItem['missile'] = Missile::getData($item, $rawData);
+        $mappedItem['turret'] = Turret::getData($item, $rawData);
     }
 }

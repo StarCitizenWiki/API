@@ -8,6 +8,7 @@ use App\Models\StarCitizenUnpacked\Item;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem as ShipItemModel;
+use App\Models\StarCitizenUnpacked\ShipItem\Weapon\MissileRack;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\WeaponMode;
 use App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem;
@@ -35,6 +36,8 @@ class ShipItems implements ShouldQueue
         'Ship.Weapon.Gun',
         'Ship.Weapon.Rocket',
         'Ship.Weapon.NoseMounted',
+
+        'Ship.MissileLauncher.MissileRack',
     ];
 
     /**
@@ -44,8 +47,9 @@ class ShipItems implements ShouldQueue
      */
     public function handle()
     {
+        $items = new ShipItem();
         try {
-            $items = new ShipItem();
+            $items->loadFromShipItems();
         } catch (\JsonException | FileNotFoundException $e) {
             $this->fail($e->getMessage());
 
@@ -57,32 +61,39 @@ class ShipItems implements ShouldQueue
                 return in_array($item['item_class'], $this->supportedClasses, true);
             })
             ->each(function ($item) {
-                if (!Item::query()->where('uuid', $item['uuid'])->exists()) {
-                    return;
-                }
-
-                $shipItem = ShipItemModel::updateOrCreate([
-                    'uuid' => $item['uuid'],
-                ], [
-                    'grade' => $item['grade'],
-                    'class' => $item['class'],
-                    'type' => $item['type'],
-                    'version' => config('api.sc_data_version'),
-                ]);
-
-                $this->createPowerDataModel($item, $shipItem);
-                $this->createHeatDataModel($item, $shipItem);
-                $this->createDistortionDataModel($item, $shipItem);
-                $this->createDurabilityDataModel($item, $shipItem);
-
-                $this->createModel($item, $shipItem);
-
-                $shipItem->translations()->updateOrCreate([
-                    'locale_code' => 'en_EN',
-                ], [
-                    'translation' => $item['description'] ?? '',
-                ]);
+                $this->createModel($item);
             });
+    }
+
+    public function createModel($item): ?ShipItemModel
+    {
+        if (!Item::query()->where('uuid', $item['uuid'])->exists()) {
+            return null;
+        }
+
+        $shipItem = ShipItemModel::updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'grade' => $item['grade'],
+            'class' => $item['class'],
+            'type' => $item['type'],
+            'version' => config('api.sc_data_version'),
+        ]);
+
+        $this->createPowerDataModel($item, $shipItem);
+        $this->createHeatDataModel($item, $shipItem);
+        $this->createDistortionDataModel($item, $shipItem);
+        $this->createDurabilityDataModel($item, $shipItem);
+
+        $this->createModelSpecification($item, $shipItem);
+
+        $shipItem->translations()->updateOrCreate([
+            'locale_code' => 'en_EN',
+        ], [
+            'translation' => $item['description'] ?? '',
+        ]);
+
+        return $shipItem;
     }
 
     private function createPowerDataModel(array $item, ShipItemModel $model): void
@@ -168,7 +179,7 @@ class ShipItems implements ShouldQueue
         ]);
     }
 
-    private function createModel(array $item, ShipItemModel $shipItem): ?Model
+    private function createModelSpecification(array $item, ShipItemModel $shipItem): ?Model
     {
         switch ($item['item_class']) {
             case 'Ship.Cooler':
@@ -187,6 +198,12 @@ class ShipItems implements ShouldQueue
             case 'Ship.Weapon.Gun':
             case 'Ship.Weapon.NoseMounted':
                 return $this->createWeapon($item, $shipItem);
+
+            case 'Ship.MissileLauncher.MissileRack':
+                return $this->createMissileRack($item, $shipItem);
+
+            case 'Ship.Turret':
+                return $this->createTurret($item, $shipItem);
 
             default:
                 return null;
@@ -334,5 +351,28 @@ class ShipItems implements ShouldQueue
         }
 
         return $weapon;
+    }
+
+    private function createMissileRack(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'missile_count' => $item['missile_rack']['missile_count'] ?? 0,
+            'missile_size' => $item['missile_rack']['missile_size'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createTurret(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'min_size' => $item['turret']['min_size'] ?? 0,
+            'max_size' => $item['turret']['max_size'] ?? 0,
+            'max_mounts' => $item['turret']['max_mounts'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
     }
 }

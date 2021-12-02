@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizenUnpacked\Import;
 
+use App\Models\StarCitizenUnpacked\Hardpoint;
+use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -13,6 +15,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use JsonException;
 
 class Vehicle implements ShouldQueue
@@ -57,9 +60,11 @@ class Vehicle implements ShouldQueue
                 }
 
                 try {
-                    \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
+                    $vehicleModel = \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
                         'class_name' => $vehicle['ClassName']
                     ], $this->getVehicleModelArray($vehicle));
+
+                    $this->createHardpoints($vehicleModel, $vehicle['rawData']);
                 } catch (Exception $e) {
                     app('Log')::warning($e->getMessage());
                 }
@@ -198,5 +203,132 @@ class Vehicle implements ShouldQueue
         $coefficient = 10 ** 3;
 
         return $negation * floor((abs((float)$num) * $coefficient)) / $coefficient;
+    }
+
+    private function createHardpoints(\App\Models\StarCitizenUnpacked\Vehicle $vehicle, array $rawData): void
+    {
+        if (!isset($rawData['Entity']['Components']['SEntityComponentDefaultLoadoutParams']['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+            return;
+        }
+
+        $hardpoints = [];
+        $this->mapHardpoints($rawData['Vehicle']['Parts'], $hardpoints);
+
+        $toSync = [];
+
+        $parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem();
+
+        collect($rawData['Entity']['Components']['SEntityComponentDefaultLoadoutParams']['loadout']['SItemPortLoadoutManualParams']['entries'])
+            ->filter(function ($entry) use ($hardpoints) {
+                return isset($hardpoints[$entry['itemPortName'] ?? '']);
+            })
+            ->chunk(10)
+            ->each(function (Collection $entries) use ($hardpoints, &$toSync, $vehicle, $parser) {
+                try {
+                    $entries
+                        ->each(function ($hardpoint) use ($hardpoints, &$toSync, $vehicle, $parser) {
+                            $point = Hardpoint::query()->firstOrCreate(['name' => $hardpoint['itemPortName']]);
+
+                            $itemUuid = null;
+                            if (isset($hardpoint['entityClassName']) && !empty($hardpoint['entityClassName'])) {
+                                try {
+                                    $item = File::get(
+                                        storage_path(
+                                            sprintf(
+                                                'app/api/scunpacked-data/v2/items/%s-raw.json',
+                                                str_replace('-', '_', strtolower($hardpoint['entityClassName']))
+                                            )
+                                        )
+                                    );
+
+                                    $itemRaw = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+
+
+                                    if (isset($itemRaw['__ref'])) {
+                                        $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
+
+                                        if (($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? '') === 'Turret' && !Str::contains($itemRaw['ClassName'] ?? 'Remote', ['Remote', 'AI_Turret', 'Item_Turret'])) {
+                                            $itemRaw['Classification'] = 'Ship.Turret';
+                                            $parser->setItems(collect([$itemRaw]));
+                                            $creator = new ShipItems();
+                                            $data = $parser->getData()->first();
+                                            if ($data !== null) {
+                                                $creator->createModel($data);
+                                            }
+
+                                            $itemUuid = $itemRaw['__ref'];
+                                        } elseif ($item !== null) {
+                                            $itemUuid = $item->uuid;
+                                        }
+                                    }
+                                } catch (FileNotFoundException | JsonException $e) {
+                                    //
+                                }
+                            }
+
+                            if ($point->id !== null) {
+                                $toSync[$point->id] = [
+                                    'equipped_vehicle_item_uuid' => $itemUuid,
+                                    'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
+                                    'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
+                                    'vehicle_id' => $vehicle->id,
+                                ];
+                            }
+
+                            if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                                foreach ($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'] as $subPoint) {
+                                    $subPointModel = Hardpoint::query()->firstOrCreate(['name' => $subPoint['itemPortName']]);
+
+                                    if (empty($subPoint['entityClassName'])) {
+                                        continue;
+                                    }
+
+                                    try {
+                                        $item = File::get(
+                                            storage_path(
+                                                sprintf(
+                                                    'app/api/scunpacked-data/v2/items/%s-raw.json',
+                                                    str_replace('-', '_', strtolower($subPoint['entityClassName']))
+                                                )
+                                            )
+                                        );
+
+                                        $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+
+                                        $toSync[$subPointModel->id] = [
+                                            'parent_hardpoint_id' => $point->id,
+                                            'equipped_vehicle_item_uuid' => $item['__ref'],
+                                            'vehicle_id' => $vehicle->id,
+                                        ];
+                                    } catch (JsonException | FileNotFoundException $e) {
+                                        continue;
+                                    }
+                                }
+                            }
+                        });
+                } catch (Exception $e) {
+                }
+            });
+
+        $vehicle->hardpoints()->sync($toSync);
+    }
+
+    private function mapHardpoints(array $parts, array &$out): void
+    {
+        foreach ($parts as $part) {
+            if (!isset($part['name'])) {
+                continue;
+            }
+
+            if (isset($part['Parts'])) {
+                $this->mapHardpoints($part['Parts'], $out);
+                unset($part['Parts']);
+            }
+
+            if (($part['class'] ?? '') === 'ItemPort') {
+                unset($part['ItemPort']['Connections'], $part['ItemPort']['ControllerDef'], $part['ItemPort']['Types']);
+                $out[$part['name']] = $part;
+            }
+        }
     }
 }

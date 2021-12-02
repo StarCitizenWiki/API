@@ -51,22 +51,22 @@ class ShipItem extends CommodityItem
 
     public function heatData(): HasOne
     {
-        return $this->hasOne(ShipItemHeatData::class, 'ship_item_id');
+        return $this->hasOne(ShipItemHeatData::class, 'ship_item_id')->withDefault();
     }
 
     public function powerData(): HasOne
     {
-        return $this->hasOne(ShipItemPowerData::class, 'ship_item_id');
+        return $this->hasOne(ShipItemPowerData::class, 'ship_item_id')->withDefault();
     }
 
     public function distortionData(): HasOne
     {
-        return $this->hasOne(ShipItemDistortionData::class, 'ship_item_id');
+        return $this->hasOne(ShipItemDistortionData::class, 'ship_item_id')->withDefault();
     }
 
     public function durabilityData(): HasOne
     {
-        return $this->hasOne(ShipItemDurabilityData::class, 'ship_item_id');
+        return $this->hasOne(ShipItemDurabilityData::class, 'ship_item_id')->withDefault();
     }
 
     /**
@@ -83,8 +83,12 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(QuantumDrive::class, 'uuid', 'uuid');
             case 'Shield':
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
+            case 'Turret':
+                return $this->hasOne(Turret::class, 'uuid', 'uuid');
             case 'WeaponGun':
                 return $this->hasOne(Weapon\Weapon::class, 'uuid', 'uuid');
+            case 'MissileLauncher':
+                return $this->hasOne(Weapon\MissileRack::class, 'uuid', 'uuid');
             default:
                 throw new ModelNotFoundException();
         }
