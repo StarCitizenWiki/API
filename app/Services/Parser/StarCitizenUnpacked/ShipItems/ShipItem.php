@@ -77,6 +77,7 @@ final class ShipItem extends AbstractCommodityItem
 
                 $rawData = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
                 if (!isset($entry['Description']) || empty($entry['Description'])) {
+                    // phpcs:ignore
                     $entry['Description'] = $this->labels->get(substr($rawData['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Description'], 1));
                 }
 
@@ -220,6 +221,7 @@ final class ShipItem extends AbstractCommodityItem
             'Tracking Signal' => 'tracking_signal',
         ]);
 
+        // phpcs:disable
         $mappedItem = [
             'uuid' => $item['__ref'] ?? $item['reference'],
             'size' => $item['Components']['SAttachableComponentParams']['AttachDef']['Size'] ?? $item['Size'] ?? 0,
@@ -242,6 +244,7 @@ final class ShipItem extends AbstractCommodityItem
             'class' => trim($data['item_class'] ?? 'Unknown Class'),
             'grade' => $data['grade'] ?? null,
         ];
+        // phpcs:enable
 
         $this->addData($mappedItem, $item, $rawData);
 

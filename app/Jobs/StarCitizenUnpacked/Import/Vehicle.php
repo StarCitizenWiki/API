@@ -207,6 +207,7 @@ class Vehicle implements ShouldQueue
 
     private function createHardpoints(\App\Models\StarCitizenUnpacked\Vehicle $vehicle, array $rawData): void
     {
+        // phpcs:ignore
         if (!isset($rawData['Entity']['Components']['SEntityComponentDefaultLoadoutParams']['loadout']['SItemPortLoadoutManualParams']['entries'])) {
             return;
         }
@@ -218,6 +219,7 @@ class Vehicle implements ShouldQueue
 
         $parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem();
 
+        // phpcs:ignore
         collect($rawData['Entity']['Components']['SEntityComponentDefaultLoadoutParams']['loadout']['SItemPortLoadoutManualParams']['entries'])
             ->filter(function ($entry) use ($hardpoints) {
                 return isset($hardpoints[$entry['itemPortName'] ?? '']);
@@ -247,6 +249,7 @@ class Vehicle implements ShouldQueue
                                     if (isset($itemRaw['__ref'])) {
                                         $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
 
+                                        // phpcs:ignore
                                         if (($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? '') === 'Turret' && !Str::contains($itemRaw['ClassName'] ?? 'Remote', ['Remote', 'AI_Turret', 'Item_Turret'])) {
                                             $itemRaw['Classification'] = 'Ship.Turret';
                                             $parser->setItems(collect([$itemRaw]));
@@ -275,10 +278,11 @@ class Vehicle implements ShouldQueue
                                 ];
                             }
 
+                            // phpcs:disable
                             if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
                                 foreach ($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'] as $subPoint) {
                                     $subPointModel = Hardpoint::query()->firstOrCreate(['name' => $subPoint['itemPortName']]);
-
+                                    // phpcs:enable
                                     if (empty($subPoint['entityClassName'])) {
                                         continue;
                                     }
