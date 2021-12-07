@@ -65,12 +65,6 @@ final class ShipItem extends AbstractCommodityItem
 
                 return $out;
             })
-            /*            ->filter(function (array $entry) {
-                            return isset($entry['Description']) && !empty($entry) && !empty($entry['Description']);
-                        })*/
-            /*            ->filter(function (array $entry) {
-                            return isset($entry['Durability']);
-                        })*/
             ->map(function (array $entry) {
                 $item = File::get(
                     storage_path(
