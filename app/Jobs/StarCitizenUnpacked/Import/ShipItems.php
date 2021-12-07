@@ -8,7 +8,6 @@ use App\Models\StarCitizenUnpacked\Item;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem as ShipItemModel;
-use App\Models\StarCitizenUnpacked\ShipItem\Weapon\MissileRack;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\WeaponMode;
 use App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem;
@@ -194,6 +193,10 @@ class ShipItems implements ShouldQueue
             case 'Ship.QuantumDrive':
                 return $this->createQuantumDrive($item, $shipItem);
 
+            case 'Ship.FuelTank':
+            case 'Ship.QuantumFuelTank':
+                return $this->createFuelTank($item, $shipItem);
+
             case 'Ship.Weapon.Rocket':
             case 'Ship.Weapon.Gun':
             case 'Ship.Weapon.NoseMounted':
@@ -204,6 +207,11 @@ class ShipItems implements ShouldQueue
 
             case 'Ship.Turret':
                 return $this->createTurret($item, $shipItem);
+
+
+            case 'Ship.MainThruster':
+            case 'Ship.ManneuverThruster':
+                return $this->createThruster($item, $shipItem);
 
             default:
                 return null;
@@ -303,6 +311,18 @@ class ShipItems implements ShouldQueue
         return $drive;
     }
 
+    private function createFuelTank(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'fill_rate' => $item['fuel_tank']['fill_rate'] ?? 0,
+            'drain_rate' => $item['fuel_tank']['drain_rate'] ?? 0,
+            'capacity' => $item['fuel_tank']['capacity'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
     private function createWeapon(array $item, ShipItemModel $shipItem): ?Model
     {
         if (!isset($item['weapon'])) {
@@ -372,6 +392,19 @@ class ShipItems implements ShouldQueue
             'min_size' => $item['turret']['min_size'] ?? 0,
             'max_size' => $item['turret']['max_size'] ?? 0,
             'max_mounts' => $item['turret']['max_mounts'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createThruster(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'thrust_capacity' => $item['thruster']['thrust_capacity'] ?? 0,
+            'min_health_thrust_multiplier' => $item['thruster']['min_health_thrust_multiplier'] ?? 0,
+            'fuel_burn_per_10k_newton' => $item['thruster']['fuel_burn_per_10k_newton'] ?? 0,
+            'type' => $item['thruster']['type'],
             'ship_item_id' => $shipItem->id,
         ]);
     }

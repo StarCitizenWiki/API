@@ -36,7 +36,6 @@ class Items implements ShouldQueue
         'WeaponDefensive',
         'TargetSelector',
         'FuelIntake',
-        'FuelTank',
         'Door',
         'Ping',
         'FlightController',

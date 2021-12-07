@@ -23,7 +23,6 @@ class CreateScUnpackedVehicleHardpointTable extends Migration
             $table->unsignedInteger('min_size')->nullable();
             $table->unsignedInteger('max_size')->nullable();
 
-            $table->primary(['vehicle_id', 'hardpoint_id'], 'star_citizen_unpacked_vehicle_hardpoint_primary');
             $table->index('vehicle_id');
             $table->index('hardpoint_id');
 

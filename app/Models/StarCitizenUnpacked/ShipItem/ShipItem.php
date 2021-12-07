@@ -81,6 +81,9 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(PowerPlant::class, 'uuid', 'uuid');
             case 'QuantumDrive':
                 return $this->hasOne(QuantumDrive::class, 'uuid', 'uuid');
+            case 'FuelTank':
+            case 'QuantumFuelTank':
+                return $this->hasOne(FuelTank::class, 'uuid', 'uuid');
             case 'Shield':
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
             case 'Turret':
@@ -89,6 +92,9 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(Weapon\Weapon::class, 'uuid', 'uuid');
             case 'MissileLauncher':
                 return $this->hasOne(Weapon\MissileRack::class, 'uuid', 'uuid');
+            case 'MainThruster':
+            case 'ManneuverThruster':
+                return $this->hasOne(Thruster::class, 'uuid', 'uuid');
             default:
                 throw new ModelNotFoundException();
         }

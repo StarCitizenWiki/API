@@ -66,22 +66,26 @@ final class ShipItem extends AbstractCommodityItem
                 return $out;
             })
             ->map(function (array $entry) {
-                $item = File::get(
-                    storage_path(
-                        sprintf(
-                            'app/api/scunpacked-data/v2/items/%s-raw.json',
-                            strtolower($entry['itemName'])
+                try {
+                    $item = File::get(
+                        storage_path(
+                            sprintf(
+                                'app/api/scunpacked-data/v2/items/%s-raw.json',
+                                strtolower($entry['itemName'])
+                            )
                         )
-                    )
-                );
+                    );
 
-                $rawData = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
-                if (!isset($entry['Description']) || empty($entry['Description'])) {
-                    // phpcs:ignore
-                    $entry['Description'] = $this->labels->get(substr($rawData['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Description'], 1));
+                    $rawData = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+                    if (!isset($entry['Description']) || empty($entry['Description'])) {
+                        // phpcs:ignore
+                        $entry['Description'] = $this->labels->get(substr($rawData['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Description'], 1));
+                    }
+
+                    return $this->map($entry, $rawData);
+                } catch (\JsonException | FileNotFoundException $e) {
+                    return null;
                 }
-
-                return $this->map($entry, $rawData);
             })
             ->filter(function ($entry) {
                 return $entry !== null;
@@ -202,9 +206,8 @@ final class ShipItem extends AbstractCommodityItem
          *
          * MissileLauncher
          */
-
         if (!isset($item['Description']) || empty($item['Description'])) {
-            return null;
+            $item['Description'] = '';
         }
 
         $item['Description'] = str_replace(["\n", '\n'], "\n", $item['Description']);
@@ -240,10 +243,14 @@ final class ShipItem extends AbstractCommodityItem
                 trim($item['Name'] ?? $this->labels->get(substr($item['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Name'], 1)) ?? 'Unknown Ship Item')
             ),
             'manufacturer' => $data['manufacturer'] ?? $this->getManufacturer($item),
-            'type' => trim($data['item_type'] ?? 'Unknown Type'),
+            'type' => trim($item['type'] ?? 'Unknown Type'),
             'class' => trim($data['item_class'] ?? 'Unknown Class'),
             'grade' => $data['grade'] ?? null,
         ];
+
+        if ($mappedItem['type'] === 'Unknown Type' && isset($item['Components']['SAttachableComponentParams']['AttachDef']['Type'])) {
+            $mappedItem['type'] = trim(preg_replace('/([A-Z])/', ' $1', $item['Components']['SAttachableComponentParams']['AttachDef']['Type']));
+        }
         // phpcs:enable
 
         $this->addData($mappedItem, $item, $rawData);
@@ -261,9 +268,11 @@ final class ShipItem extends AbstractCommodityItem
         $mappedItem['power_plant'] = PowerPlant::getData($item, $rawData);
         $mappedItem['shield'] = Shield::getData($item, $rawData);
         $mappedItem['quantum_drive'] = QuantumDrive::getData($item, $rawData);
+        $mappedItem['fuel_tank'] = FuelTank::getData($item, $rawData);
         $mappedItem['weapon'] = Weapon::getData($item, $rawData);
         $mappedItem['missile_rack'] = MissileRack::getData($item, $rawData);
         $mappedItem['missile'] = Missile::getData($item, $rawData);
         $mappedItem['turret'] = Turret::getData($item, $rawData);
+        $mappedItem['thruster'] = Thruster::getData($item, $rawData);
     }
 }

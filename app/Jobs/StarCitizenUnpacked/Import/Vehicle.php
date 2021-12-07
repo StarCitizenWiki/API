@@ -18,12 +18,23 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use JsonException;
 
+/**
+ * TODO: Refactor this behemoth :(
+ */
 class Vehicle implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    private $createItemTypes = [
+        'FuelTank',
+        'QuantumFuelTank',
+        'Turret',
+        'MainThruster',
+        'ManneuverThruster',
+    ];
 
     public function handle(): void
     {
@@ -50,7 +61,6 @@ class Vehicle implements ShouldQueue
                         strtolower($vehicle['ClassName'])
                     ))), true, 512, JSON_THROW_ON_ERROR);
                 } catch (FileNotFoundException | JsonException $e) {
-                    //
                 }
 
                 return $vehicle;
@@ -60,6 +70,11 @@ class Vehicle implements ShouldQueue
                 }
 
                 try {
+                    $model = $this->getVehicleModelArray($vehicle);
+                    if ($model['shipmatrix_id'] === -1 || Str::contains($vehicle['ClassName'], ['BIS29', 'Modifiers'])) {
+                        return;
+                    }
+
                     $vehicleModel = \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
                         'class_name' => $vehicle['ClassName']
                     ], $this->getVehicleModelArray($vehicle));
@@ -147,6 +162,10 @@ class Vehicle implements ShouldQueue
         array_shift($className);
 
         switch ($vehicle['Name']) {
+            case 'Anvil F7C-M Hornet Heartseeker':
+                $name = 'F7C-M Super Hornet Heartseeker';
+                break;
+
             case 'Origin 600i':
                 $name = '600i Explorer';
                 break;
@@ -167,8 +186,20 @@ class Vehicle implements ShouldQueue
                 $name = 'Mercury';
                 break;
 
+            case 'Crusader Ares Star Fighter Ion':
+                $name = 'Ares Ion';
+                break;
+
+            case 'Crusader Ares Star Fighter Inferno':
+                $name = 'Ares Inferno';
+                break;
+
             case 'Drake Dragonfly':
                 $name = 'Dragonfly Black';
+                break;
+
+            case 'Kruger P-72 Archimedes':
+                $name = 'P72 Archimedes';
                 break;
 
             case 'Origin M50 Interceptor':
@@ -250,11 +281,13 @@ class Vehicle implements ShouldQueue
                                         $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
 
                                         // phpcs:ignore
-                                        if (($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? '') === 'Turret' && !Str::contains($itemRaw['ClassName'] ?? 'Remote', ['Remote', 'AI_Turret', 'Item_Turret'])) {
-                                            $itemRaw['Classification'] = 'Ship.Turret';
+                                        if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true) && !Str::contains($itemRaw['ClassName'] ?? 'Remote', ['Remote', 'AI_Turret', 'Item_Turret'])) {
+                                            // phpcs:ignore
+                                            $itemRaw['Classification'] = 'Ship.' . $itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'];
                                             $parser->setItems(collect([$itemRaw]));
                                             $creator = new ShipItems();
                                             $data = $parser->getData()->first();
+
                                             if ($data !== null) {
                                                 $creator->createModel($data);
                                             }
@@ -265,7 +298,6 @@ class Vehicle implements ShouldQueue
                                         }
                                     }
                                 } catch (FileNotFoundException | JsonException $e) {
-                                    //
                                 }
                             }
 

@@ -86,6 +86,16 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'missileRack';
                 break;
 
+            case 'FuelTank':
+            case 'QuantumFuelTank':
+                $this->defaultIncludes[] = 'fuelTank';
+                break;
+
+            case 'MainThruster':
+            case 'ManneuverThruster':
+                $this->defaultIncludes[] = 'thruster';
+                break;
+
             default:
                 break;
         }
@@ -144,5 +154,15 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     public function includeMissileRack(AbstractShipItemSpecification $data): Item
     {
         return $this->item($data, new ShipMissileRackTransformer());
+    }
+
+    public function includeFuelTank(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new ShipFuelTankTransformer());
+    }
+
+    public function includeThruster(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new ShipThrusterTransformer());
     }
 }
