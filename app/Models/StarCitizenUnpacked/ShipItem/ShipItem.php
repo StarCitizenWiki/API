@@ -95,6 +95,8 @@ class ShipItem extends CommodityItem
             case 'MainThruster':
             case 'ManneuverThruster':
                 return $this->hasOne(Thruster::class, 'uuid', 'uuid');
+            case 'SelfDestruct':
+                return $this->hasOne(SelfDestruct::class, 'uuid', 'uuid');
             default:
                 throw new ModelNotFoundException();
         }

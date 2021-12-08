@@ -34,6 +34,7 @@ class Vehicle implements ShouldQueue
         'Turret',
         'MainThruster',
         'ManneuverThruster',
+        'SelfDestruct',
     ];
 
     public function handle(): void

@@ -274,5 +274,6 @@ final class ShipItem extends AbstractCommodityItem
         $mappedItem['missile'] = Missile::getData($item, $rawData);
         $mappedItem['turret'] = Turret::getData($item, $rawData);
         $mappedItem['thruster'] = Thruster::getData($item, $rawData);
+        $mappedItem['self_destruct'] = SelfDestruct::getData($item, $rawData);
     }
 }

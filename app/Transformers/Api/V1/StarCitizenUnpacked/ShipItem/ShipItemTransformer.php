@@ -96,6 +96,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'thruster';
                 break;
 
+            case 'SelfDestruct':
+                $this->defaultIncludes[] = 'selfDestruct';
+                break;
+
             default:
                 break;
         }
@@ -164,5 +168,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     public function includeThruster(AbstractShipItemSpecification $data): Item
     {
         return $this->item($data, new ShipThrusterTransformer());
+    }
+
+    public function includeSelfDestruct(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new ShipSelfDestructTransformer());
     }
 }

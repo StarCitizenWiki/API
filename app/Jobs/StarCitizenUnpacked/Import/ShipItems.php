@@ -213,6 +213,9 @@ class ShipItems implements ShouldQueue
             case 'Ship.ManneuverThruster':
                 return $this->createThruster($item, $shipItem);
 
+            case 'Ship.SelfDestruct':
+                return $this->createSelfDestruct($item, $shipItem);
+
             default:
                 return null;
         }
@@ -405,6 +408,21 @@ class ShipItems implements ShouldQueue
             'min_health_thrust_multiplier' => $item['thruster']['min_health_thrust_multiplier'] ?? 0,
             'fuel_burn_per_10k_newton' => $item['thruster']['fuel_burn_per_10k_newton'] ?? 0,
             'type' => $item['thruster']['type'],
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createSelfDestruct(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'damage' => $item['self_destruct']['damage'] ?? 0,
+            'radius' => $item['self_destruct']['radius'] ?? 0,
+            'min_radius' => $item['self_destruct']['min_radius'] ?? 0,
+            'phys_radius' => $item['self_destruct']['phys_radius'] ?? 0,
+            'min_phys_radius' => $item['self_destruct']['min_phys_radius'] ?? 0,
+            'time' => $item['self_destruct']['time'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
     }
