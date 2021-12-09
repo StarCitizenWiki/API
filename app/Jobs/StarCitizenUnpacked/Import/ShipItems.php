@@ -37,6 +37,8 @@ class ShipItems implements ShouldQueue
         'Ship.Weapon.NoseMounted',
 
         'Ship.MissileLauncher.MissileRack',
+
+        'Ship.Missile.Missile',
     ];
 
     /**
@@ -205,9 +207,11 @@ class ShipItems implements ShouldQueue
             case 'Ship.MissileLauncher.MissileRack':
                 return $this->createMissileRack($item, $shipItem);
 
+            case 'Ship.Missile.Missile':
+                return $this->createMissile($item, $shipItem);
+
             case 'Ship.Turret':
                 return $this->createTurret($item, $shipItem);
-
 
             case 'Ship.MainThruster':
             case 'Ship.ManneuverThruster':
@@ -385,6 +389,34 @@ class ShipItems implements ShouldQueue
             'missile_size' => $item['missile_rack']['missile_size'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
+    }
+
+    private function createMissile(array $item, ShipItemModel $shipItem): ?Model
+    {
+        if (!isset($item['missile']['signal_type'])) {
+            return null;
+        }
+
+        $missile = $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'signal_type' => $item['missile']['signal_type'],
+            'lock_time' => $item['missile']['lock_time'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+
+        if (isset($item['missile']['damages'])) {
+            foreach ($item['missile']['damages'] as $name => $damage) {
+                $missile->damages()->updateOrCreate([
+                    'ship_missile_id' => $missile->id,
+                    'name' => $name,
+                ], [
+                    'damage' => $damage,
+                ]);
+            }
+        }
+
+        return $missile;
     }
 
     private function createTurret(array $item, ShipItemModel $shipItem): Model

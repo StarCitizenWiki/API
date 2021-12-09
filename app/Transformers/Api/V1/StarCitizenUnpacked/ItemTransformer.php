@@ -10,7 +10,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
 use App\Models\StarCitizenUnpacked\ShipItem\PowerPlant;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
-use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
+use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Missile;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachment;
 use App\Transformers\Api\V1\StarCitizenUnpacked\CharArmor\CharArmorTransformer;
@@ -58,7 +58,7 @@ class ItemTransformer extends AbstractCommodityTransformer
             case WeaponPersonalAttachment::class:
                 return $this->item($item->specification, new WeaponPersonalAttachmentsTransformer());
 
-            case Weapon::class:
+            case Missile::class:
                 return $this->item($item->specification, new ShipWeaponTransformer());
 
             case Cooler::class:

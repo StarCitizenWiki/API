@@ -303,44 +303,19 @@ class Vehicle implements ShouldQueue
                             }
 
                             if ($point->id !== null) {
-                                $toSync[$point->id] = [
+                                $toSync[] = [
+                                    'hardpoint_id' => $point->id,
                                     'equipped_vehicle_item_uuid' => $itemUuid,
                                     'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
                                     'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
                                     'vehicle_id' => $vehicle->id,
                                 ];
-                            }
 
-                            // phpcs:disable
-                            if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                                foreach ($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'] as $subPoint) {
-                                    $subPointModel = Hardpoint::query()->firstOrCreate(['name' => $subPoint['itemPortName']]);
-                                    // phpcs:enable
-                                    if (empty($subPoint['entityClassName'])) {
-                                        continue;
-                                    }
-
-                                    try {
-                                        $item = File::get(
-                                            storage_path(
-                                                sprintf(
-                                                    'app/api/scunpacked-data/v2/items/%s-raw.json',
-                                                    str_replace('-', '_', strtolower($subPoint['entityClassName']))
-                                                )
-                                            )
-                                        );
-
-                                        $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
-
-                                        $toSync[$subPointModel->id] = [
-                                            'parent_hardpoint_id' => $point->id,
-                                            'equipped_vehicle_item_uuid' => $item['__ref'],
-                                            'vehicle_id' => $vehicle->id,
-                                        ];
-                                    } catch (JsonException | FileNotFoundException $e) {
-                                        continue;
-                                    }
+                                // phpcs:disable
+                                if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                                    $toSync = array_merge($toSync, $this->createSubPoint($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle));
                                 }
+                                // phpcs:enable
                             }
                         });
                 } catch (Exception $e) {
@@ -367,5 +342,46 @@ class Vehicle implements ShouldQueue
                 $out[$part['name']] = $part;
             }
         }
+    }
+
+    private function createSubPoint(array $entries, Hardpoint $parent, \App\Models\StarCitizenUnpacked\Vehicle $vehicle): array
+    {
+        $toSync = [];
+        foreach ($entries as $subPoint) {
+            $subPointModel = Hardpoint::query()->firstOrCreate(['name' => $subPoint['itemPortName']]);
+            if (empty($subPoint['entityClassName'])) {
+                continue;
+            }
+
+            try {
+                $item = File::get(
+                    storage_path(
+                        sprintf(
+                            'app/api/scunpacked-data/v2/items/%s-raw.json',
+                            str_replace('-', '_', strtolower($subPoint['entityClassName']))
+                        )
+                    )
+                );
+
+                $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+
+                $toSync[] = [
+                    'hardpoint_id' => $subPointModel->id,
+                    'parent_hardpoint_id' => $parent->id,
+                    'equipped_vehicle_item_uuid' => $item['__ref'],
+                    'vehicle_id' => $vehicle->id,
+                ];
+
+                // phpcs:disable
+                if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                    $toSync = array_merge($this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $subPointModel, $vehicle), $toSync);
+                }
+                // phpcs:enable
+            } catch (JsonException | FileNotFoundException $e) {
+                continue;
+            }
+        }
+
+        return $toSync;
     }
 }

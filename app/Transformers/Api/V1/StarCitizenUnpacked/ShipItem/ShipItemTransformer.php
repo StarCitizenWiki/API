@@ -8,6 +8,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\AbstractShipItemSpecification;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\QuantumDrive\ShipQuantumDriveTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield\ShipShieldTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\ShipMissileTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\ShipWeaponModeTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\ShipWeaponTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
@@ -37,7 +38,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
             'manufacturer' => $item->shipItem->item->manufacturer,
             'grade' => $item->shipItem->grade,
             'class' => $item->shipItem->class,
-            'type' => $item->shipItem->type,
+            'type' => $item->shipItem->type === 'Unknown Type' ? $item->shipItem->item->type : $item->shipItem->type,
             'durability' => [
                 'health' => $item->shipItem->health,
                 'lifetime' => $item->shipItem->lifetime,
@@ -84,6 +85,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
 
             case 'MissileLauncher':
                 $this->defaultIncludes[] = 'missileRack';
+                break;
+
+            case 'Missile':
+                $this->defaultIncludes[] = 'missile';
                 break;
 
             case 'FuelTank':
@@ -158,6 +163,11 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     public function includeMissileRack(AbstractShipItemSpecification $data): Item
     {
         return $this->item($data, new ShipMissileRackTransformer());
+    }
+
+    public function includeMissile(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new ShipMissileTransformer());
     }
 
     public function includeFuelTank(AbstractShipItemSpecification $data): Item
