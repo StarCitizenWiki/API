@@ -46,8 +46,7 @@ final class ShipItem extends AbstractCommodityItem
                 return isset($entry['reference']) || isset($entry['__ref']);
             })
             ->filter(function (array $entry) {
-                $className = $entry['ClassName'] ?? $entry['className'] ?? '';
-                return !empty($className) && strpos($className, 'test_') === false;
+                return !empty($entry['ClassName'] ?? $entry['className'] ?? '');
             })
             ->filter(function (array $entry) {
                 $type = $entry['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? $entry['type'] ?? '';
@@ -83,6 +82,7 @@ final class ShipItem extends AbstractCommodityItem
 
                     return $this->map($entry, $rawData);
                 } catch (\JsonException | FileNotFoundException $e) {
+                    dump($e->getMessage());
                     return null;
                 }
             })

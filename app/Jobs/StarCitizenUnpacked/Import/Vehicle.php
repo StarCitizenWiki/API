@@ -289,7 +289,7 @@ class Vehicle implements ShouldQueue
                                     $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
 
                                     // phpcs:ignore
-                                    if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true) && !Str::contains($itemRaw['ClassName'] ?? 'Remote', ['Remote', 'AI_Turret', 'Item_Turret'])) {
+                                    if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true)) {
                                         // phpcs:ignore
                                         $itemRaw['Classification'] = 'Ship.' . $itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'];
                                         $parser->setItems(collect([$itemRaw]));

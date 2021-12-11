@@ -25,7 +25,6 @@ class Items implements ShouldQueue
         #'<= PLACEHOLDER =>',
         'TRGT. STATUS',
         'TEST STRING NAME',
-        'Remote Turret',
     ];
 
     private array $ignoredTypes = [
