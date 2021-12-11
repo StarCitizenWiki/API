@@ -35,8 +35,7 @@ class Vehicle extends CommodityItem
         'operations_crew',
         'mass',
 
-        'health_nose',
-        'health_body',
+        'health',
 
         'scm_speed',
         'max_speed',
@@ -88,8 +87,7 @@ class Vehicle extends CommodityItem
         'weapon_crew' => 'int',
         'operations_crew' => 'int',
         'mass' => 'float',
-        'health_nose' => 'float',
-        'health_body' => 'float',
+        'health' => 'float',
         'scm_speed' => 'float',
         'max_speed' => 'float',
         'zero_to_scm' => 'float',
@@ -151,6 +149,7 @@ class Vehicle extends CommodityItem
                 'equipped_vehicle_item_uuid',
                 'min_size',
                 'max_size',
+                'class_name',
             )
             ->wherePivotNull('parent_hardpoint_id');
     }

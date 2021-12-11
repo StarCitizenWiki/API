@@ -6,6 +6,7 @@ namespace App\Jobs\StarCitizenUnpacked\Import;
 
 use App\Models\StarCitizenUnpacked\Hardpoint;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
+use App\Models\StarCitizenUnpacked\VehicleHardpoint;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -30,11 +31,14 @@ class Vehicle implements ShouldQueue
 
     private $createItemTypes = [
         'FuelTank',
+        'FuelTank',
         'QuantumFuelTank',
+        'FuelIntake',
         'Turret',
         'MainThruster',
         'ManneuverThruster',
         'SelfDestruct',
+        'WeaponDefensive',
     ];
 
     public function handle(): void
@@ -53,6 +57,9 @@ class Vehicle implements ShouldQueue
 
             return;
         }
+
+        // TODO: Yeah this needs to go
+        VehicleHardpoint::query()->truncate();
 
         collect($vehicles)->chunk(10)->each(function (Collection $chunk) {
             $chunk->map(function (array $vehicle) {
@@ -108,11 +115,7 @@ class Vehicle implements ShouldQueue
             'operations_crew' => $vehicle['OperationsCrew'],
             'mass' => $vehicle['Mass'],
 
-            'health_body' => $this->numFormat(
-                $vehicle['DamageBeforeDestruction']['Body'] ??
-                $vehicle['DamageBeforeDestruction']['rollcage_main'] ??
-                0
-            ),
+            'health' => $this->numFormat($this->calculateHealth($vehicle['rawData']['Vehicle']['Parts'])),
 
             'scm_speed' => $this->numFormat($vehicle['FlightCharacteristics']['ScmSpeed']),
             'max_speed' => $this->numFormat($vehicle['FlightCharacteristics']['MaxSpeed']),
@@ -258,68 +261,66 @@ class Vehicle implements ShouldQueue
             })
             ->chunk(10)
             ->each(function (Collection $entries) use ($hardpoints, &$toSync, $vehicle, $parser) {
-                try {
-                    $entries
-                        ->each(function ($hardpoint) use ($hardpoints, &$toSync, $vehicle, $parser) {
-                            $point = Hardpoint::query()->firstOrCreate(['name' => $hardpoint['itemPortName']]);
+                $entries
+                    ->each(function ($hardpoint) use ($hardpoints, &$toSync, $vehicle, $parser) {
+                        $point = Hardpoint::query()->firstOrCreate(['name' => $hardpoint['itemPortName']]);
 
-                            $itemUuid = null;
-                            if (isset($hardpoint['entityClassName']) && !empty($hardpoint['entityClassName'])) {
-                                try {
-                                    $item = File::get(
-                                        storage_path(
-                                            sprintf(
-                                                'app/api/scunpacked-data/v2/items/%s-raw.json',
-                                                str_replace('-', '_', strtolower($hardpoint['entityClassName']))
-                                            )
+                        $itemUuid = null;
+                        if (isset($hardpoint['entityClassName']) && !empty($hardpoint['entityClassName'])) {
+                            try {
+                                $item = File::get(
+                                    storage_path(
+                                        sprintf(
+                                            'app/api/scunpacked-data/v2/items/%s-raw.json',
+                                            str_replace('-', '_', strtolower($hardpoint['entityClassName']))
                                         )
-                                    );
+                                    )
+                                );
 
-                                    $itemRaw = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+                                $itemRaw = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
 
 
-                                    if (isset($itemRaw['__ref'])) {
-                                        $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
+                                if (isset($itemRaw['__ref'])) {
+                                    $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
 
+                                    // phpcs:ignore
+                                    if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true) && !Str::contains($itemRaw['ClassName'] ?? 'Remote', ['Remote', 'AI_Turret', 'Item_Turret'])) {
                                         // phpcs:ignore
-                                        if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true) && !Str::contains($itemRaw['ClassName'] ?? 'Remote', ['Remote', 'AI_Turret', 'Item_Turret'])) {
-                                            // phpcs:ignore
-                                            $itemRaw['Classification'] = 'Ship.' . $itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'];
-                                            $parser->setItems(collect([$itemRaw]));
-                                            $creator = new ShipItems();
-                                            $data = $parser->getData()->first();
+                                        $itemRaw['Classification'] = 'Ship.' . $itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'];
+                                        $parser->setItems(collect([$itemRaw]));
+                                        $creator = new ShipItems();
+                                        $data = $parser->getData()->first();
 
-                                            if ($data !== null) {
-                                                $creator->createModel($data);
-                                            }
-
-                                            $itemUuid = $itemRaw['__ref'];
-                                        } elseif ($item !== null) {
-                                            $itemUuid = $item->uuid;
+                                        if ($data !== null) {
+                                            $creator->createModel($data);
                                         }
+
+                                        $itemUuid = $itemRaw['__ref'];
+                                    } elseif ($item !== null) {
+                                        $itemUuid = $item->uuid;
                                     }
-                                } catch (FileNotFoundException | JsonException $e) {
                                 }
+                            } catch (FileNotFoundException | JsonException $e) {
                             }
+                        }
 
-                            if ($point->id !== null) {
-                                $toSync[] = [
-                                    'hardpoint_id' => $point->id,
-                                    'equipped_vehicle_item_uuid' => $itemUuid,
-                                    'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
-                                    'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
-                                    'vehicle_id' => $vehicle->id,
-                                ];
+                        if ($point->id !== null) {
+                            $toSync[] = [
+                                'hardpoint_id' => $point->id,
+                                'equipped_vehicle_item_uuid' => $itemUuid,
+                                'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
+                                'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
+                                'class_name' => $itemRaw['ClassName'] ?? null,
+                                'vehicle_id' => $vehicle->id,
+                            ];
 
-                                // phpcs:disable
-                                if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                                    $toSync = array_merge($toSync, $this->createSubPoint($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle));
-                                }
-                                // phpcs:enable
+                            // phpcs:disable
+                            if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                                $toSync = array_merge($toSync, $this->createSubPoint($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle));
                             }
-                        });
-                } catch (Exception $e) {
-                }
+                            // phpcs:enable
+                        }
+                    });
             });
 
         $vehicle->hardpoints()->sync($toSync);
@@ -367,14 +368,17 @@ class Vehicle implements ShouldQueue
 
                 $toSync[] = [
                     'hardpoint_id' => $subPointModel->id,
+                    'vehicle_id' => $vehicle->id,
                     'parent_hardpoint_id' => $parent->id,
                     'equipped_vehicle_item_uuid' => $item['__ref'],
-                    'vehicle_id' => $vehicle->id,
                 ];
 
                 // phpcs:disable
                 if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                    $toSync = array_merge($this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $subPointModel, $vehicle), $toSync);
+                    $toSync = array_merge(
+                        $this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $subPointModel, $vehicle),
+                        $toSync
+                    );
                 }
                 // phpcs:enable
             } catch (JsonException | FileNotFoundException $e) {
@@ -383,5 +387,28 @@ class Vehicle implements ShouldQueue
         }
 
         return $toSync;
+    }
+
+    /**
+     * Recursively sums all damageMax params from all parts
+     *
+     * @param array $parts
+     * @return float
+     */
+    private function calculateHealth(array $parts): float
+    {
+        $health = 0;
+
+        foreach ($parts as $part) {
+            if (isset($part['damagemax']) || isset($part['damageMax'])) {
+                $health += ($part['damagemax'] ?? 0) + ($part['damageMax'] ?? 0);
+            }
+
+            if (isset($part['Parts'])) {
+                $health += $this->calculateHealth($part['Parts']);
+            }
+        }
+
+        return $health;
     }
 }
