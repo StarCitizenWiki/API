@@ -11,8 +11,8 @@ final class BaseData extends AbstractItemSpecification
     public static function getData(array $item, Collection $rawData): ?array
     {
         $out = [
-            'health' => $item['Durability']['Health'] ?? 0,
-            'lifetime' => $item['Durability']['Lifetime'] ?? 0,
+            'health' => $rawData->pull('Components.SHealthComponentParams.Health', $item['Durability']['Health'] ?? 0),
+            'lifetime' => $rawData->pull('Components.SDegradationParams.MaxLifetimeHours', $item['Durability']['Lifetime'] ?? 0),
         ];
 
         $out['power'] = self::addPowerData($rawData);
@@ -107,13 +107,13 @@ final class BaseData extends AbstractItemSpecification
 
     private static function addDurability(Collection $rawData): array
     {
-        if (!isset($rawData['Components']['SHealthComponentParams'], $rawData['Components']['SDegradationParams'])) {
+        if (!isset($rawData['Components']['SHealthComponentParams']) && !isset($rawData['Components']['SDegradationParams'])) {
             return [];
         }
 
         return array_filter([
             'health' => $rawData->pull('Components.SHealthComponentParams.Health'),
-            'max_lifetime' => $rawData->pull('Components.SDegradationParams.MaxLifetimeHours'),
+            'max_lifetime' => $rawData->pull('Components.SDegradationParams.MaxLifetimeHours', 0),
         ], static function ($entry) {
             return $entry !== null;
         });

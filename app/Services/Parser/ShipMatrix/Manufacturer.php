@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix;
 
-use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use App\Models\StarCitizen\Manufacturer\Manufacturer as ManufacturerModel;
+use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 
 /**
  * Manufacturer Parser

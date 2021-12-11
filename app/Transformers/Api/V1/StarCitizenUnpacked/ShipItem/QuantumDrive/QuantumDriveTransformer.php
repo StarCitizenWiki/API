@@ -8,7 +8,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 use League\Fractal\Resource\Collection;
 
-class ShipQuantumDriveTransformer extends AbstractCommodityTransformer
+class QuantumDriveTransformer extends AbstractCommodityTransformer
 {
     protected $defaultIncludes = [
         'modes'
@@ -32,6 +32,6 @@ class ShipQuantumDriveTransformer extends AbstractCommodityTransformer
 
     public function includeModes(QuantumDrive $drive): Collection
     {
-        return $this->collection($drive->modes, new ShipQuantumDriveModeTransformer());
+        return $this->collection($drive->modes, new QuantumDriveModeTransformer());
     }
 }

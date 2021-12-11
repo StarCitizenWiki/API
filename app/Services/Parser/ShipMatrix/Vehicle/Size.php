@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix\Vehicle;
 
-use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use App\Models\StarCitizen\Vehicle\Size\Size as VehicleSize;
 use App\Models\StarCitizen\Vehicle\Size\SizeTranslation;
+use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 

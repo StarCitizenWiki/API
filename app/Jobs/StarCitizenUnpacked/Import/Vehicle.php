@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizenUnpacked\Import;
 
+use App\Models\StarCitizenUnpacked\Hardpoint;
+use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
+use App\Models\StarCitizenUnpacked\VehicleHardpoint;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -13,14 +16,31 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use JsonException;
 
+/**
+ * TODO: Refactor this behemoth :(
+ */
 class Vehicle implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    private $createItemTypes = [
+        'FuelTank',
+        'FuelTank',
+        'QuantumFuelTank',
+        'FuelIntake',
+        'Turret',
+        'MainThruster',
+        'ManneuverThruster',
+        'SelfDestruct',
+        'WeaponDefensive',
+        'Radar',
+    ];
 
     public function handle(): void
     {
@@ -39,6 +59,9 @@ class Vehicle implements ShouldQueue
             return;
         }
 
+        // TODO: Yeah this needs to go
+        VehicleHardpoint::query()->truncate();
+
         collect($vehicles)->chunk(10)->each(function (Collection $chunk) {
             $chunk->map(function (array $vehicle) {
                 try {
@@ -47,7 +70,6 @@ class Vehicle implements ShouldQueue
                         strtolower($vehicle['ClassName'])
                     ))), true, 512, JSON_THROW_ON_ERROR);
                 } catch (FileNotFoundException | JsonException $e) {
-                    //
                 }
 
                 return $vehicle;
@@ -57,9 +79,16 @@ class Vehicle implements ShouldQueue
                 }
 
                 try {
-                    \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
+                    $model = $this->getVehicleModelArray($vehicle);
+                    if ($model['shipmatrix_id'] === -1 || Str::contains($vehicle['ClassName'], ['BIS29', 'Modifiers'])) {
+                        return;
+                    }
+
+                    $vehicleModel = \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
                         'class_name' => $vehicle['ClassName']
                     ], $this->getVehicleModelArray($vehicle));
+
+                    $this->createHardpoints($vehicleModel, $vehicle['rawData']);
                 } catch (Exception $e) {
                     app('Log')::warning($e->getMessage());
                 }
@@ -87,11 +116,7 @@ class Vehicle implements ShouldQueue
             'operations_crew' => $vehicle['OperationsCrew'],
             'mass' => $vehicle['Mass'],
 
-            'health_body' => $this->numFormat(
-                $vehicle['DamageBeforeDestruction']['Body'] ??
-                $vehicle['DamageBeforeDestruction']['rollcage_main'] ??
-                0
-            ),
+            'health' => $this->numFormat($this->calculateHealth($vehicle['rawData']['Vehicle']['Parts'])),
 
             'scm_speed' => $this->numFormat($vehicle['FlightCharacteristics']['ScmSpeed']),
             'max_speed' => $this->numFormat($vehicle['FlightCharacteristics']['MaxSpeed']),
@@ -101,6 +126,10 @@ class Vehicle implements ShouldQueue
 
             'scm_to_zero' => $this->numFormat($vehicle['FlightCharacteristics']['ScmToZero']),
             'max_to_zero' => $this->numFormat($vehicle['FlightCharacteristics']['MaxToZero']),
+
+            'pitch' => $this->numFormat($vehicle['FlightCharacteristics']['Pitch']),
+            'yaw' => $this->numFormat($vehicle['FlightCharacteristics']['Yaw']),
+            'roll' => $this->numFormat($vehicle['FlightCharacteristics']['Roll']),
 
             'acceleration_main' => $this->numFormat($vehicle['FlightCharacteristics']['Acceleration']['Main'] ?? 0),
             'acceleration_retro' => $this->numFormat($vehicle['FlightCharacteristics']['Acceleration']['Retro'] ?? 0),
@@ -142,6 +171,10 @@ class Vehicle implements ShouldQueue
         array_shift($className);
 
         switch ($vehicle['Name']) {
+            case 'Anvil F7C-M Hornet Heartseeker':
+                $name = 'F7C-M Super Hornet Heartseeker';
+                break;
+
             case 'Origin 600i':
                 $name = '600i Explorer';
                 break;
@@ -162,8 +195,20 @@ class Vehicle implements ShouldQueue
                 $name = 'Mercury';
                 break;
 
+            case 'Crusader Ares Star Fighter Ion':
+                $name = 'Ares Ion';
+                break;
+
+            case 'Crusader Ares Star Fighter Inferno':
+                $name = 'Ares Inferno';
+                break;
+
             case 'Drake Dragonfly':
                 $name = 'Dragonfly Black';
+                break;
+
+            case 'Kruger P-72 Archimedes':
+                $name = 'P72 Archimedes';
                 break;
 
             case 'Origin M50 Interceptor':
@@ -198,5 +243,177 @@ class Vehicle implements ShouldQueue
         $coefficient = 10 ** 3;
 
         return $negation * floor((abs((float)$num) * $coefficient)) / $coefficient;
+    }
+
+    private function createHardpoints(\App\Models\StarCitizenUnpacked\Vehicle $vehicle, array $rawData): void
+    {
+        // phpcs:ignore
+        if (!isset($rawData['Entity']['Components']['SEntityComponentDefaultLoadoutParams']['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+            return;
+        }
+
+        $hardpoints = [];
+        $this->mapHardpoints($rawData['Vehicle']['Parts'], $hardpoints);
+
+        $toSync = [];
+
+        $parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem();
+
+        // phpcs:ignore
+        collect($rawData['Entity']['Components']['SEntityComponentDefaultLoadoutParams']['loadout']['SItemPortLoadoutManualParams']['entries'])
+            ->filter(function ($entry) use ($hardpoints) {
+                return isset($hardpoints[$entry['itemPortName'] ?? '']);
+            })
+            ->chunk(10)
+            ->each(function (Collection $entries) use ($hardpoints, &$toSync, $vehicle, $parser) {
+                $entries
+                    ->each(function ($hardpoint) use ($hardpoints, &$toSync, $vehicle, $parser) {
+                        $point = Hardpoint::query()->firstOrCreate(['name' => $hardpoint['itemPortName']]);
+
+                        $itemUuid = null;
+                        if (isset($hardpoint['entityClassName']) && !empty($hardpoint['entityClassName'])) {
+                            try {
+                                $item = File::get(
+                                    storage_path(
+                                        sprintf(
+                                            'app/api/scunpacked-data/v2/items/%s-raw.json',
+                                            str_replace('-', '_', strtolower($hardpoint['entityClassName']))
+                                        )
+                                    )
+                                );
+
+                                $itemRaw = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+
+
+                                if (isset($itemRaw['__ref'])) {
+                                    $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
+
+                                    // phpcs:ignore
+                                    if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true) && !Str::contains($itemRaw['ClassName'] ?? 'Remote', ['Remote', 'AI_Turret', 'Item_Turret'])) {
+                                        // phpcs:ignore
+                                        $itemRaw['Classification'] = 'Ship.' . $itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'];
+                                        $parser->setItems(collect([$itemRaw]));
+                                        $creator = new ShipItems();
+                                        $data = $parser->getData()->first();
+
+                                        if ($data !== null) {
+                                            $creator->createModel($data);
+                                        }
+
+                                        $itemUuid = $itemRaw['__ref'];
+                                    } elseif ($item !== null) {
+                                        $itemUuid = $item->uuid;
+                                    }
+                                }
+                            } catch (FileNotFoundException | JsonException $e) {
+                            }
+                        }
+
+                        if ($point->id !== null) {
+                            $toSync[] = [
+                                'hardpoint_id' => $point->id,
+                                'equipped_vehicle_item_uuid' => $itemUuid,
+                                'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
+                                'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
+                                'class_name' => $itemRaw['ClassName'] ?? null,
+                                'vehicle_id' => $vehicle->id,
+                            ];
+
+                            // phpcs:disable
+                            if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                                $toSync = array_merge($toSync, $this->createSubPoint($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle));
+                            }
+                            // phpcs:enable
+                        }
+                    });
+            });
+
+        $vehicle->hardpoints()->sync($toSync);
+    }
+
+    private function mapHardpoints(array $parts, array &$out): void
+    {
+        foreach ($parts as $part) {
+            if (!isset($part['name'])) {
+                continue;
+            }
+
+            if (isset($part['Parts'])) {
+                $this->mapHardpoints($part['Parts'], $out);
+                unset($part['Parts']);
+            }
+
+            if (($part['class'] ?? '') === 'ItemPort') {
+                unset($part['ItemPort']['Connections'], $part['ItemPort']['ControllerDef'], $part['ItemPort']['Types']);
+                $out[$part['name']] = $part;
+            }
+        }
+    }
+
+    private function createSubPoint(array $entries, Hardpoint $parent, \App\Models\StarCitizenUnpacked\Vehicle $vehicle): array
+    {
+        $toSync = [];
+        foreach ($entries as $subPoint) {
+            $subPointModel = Hardpoint::query()->firstOrCreate(['name' => $subPoint['itemPortName']]);
+            if (empty($subPoint['entityClassName'])) {
+                continue;
+            }
+
+            try {
+                $item = File::get(
+                    storage_path(
+                        sprintf(
+                            'app/api/scunpacked-data/v2/items/%s-raw.json',
+                            str_replace('-', '_', strtolower($subPoint['entityClassName']))
+                        )
+                    )
+                );
+
+                $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+
+                $toSync[] = [
+                    'hardpoint_id' => $subPointModel->id,
+                    'vehicle_id' => $vehicle->id,
+                    'parent_hardpoint_id' => $parent->id,
+                    'equipped_vehicle_item_uuid' => $item['__ref'],
+                ];
+
+                // phpcs:disable
+                if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                    $toSync = array_merge(
+                        $this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $subPointModel, $vehicle),
+                        $toSync
+                    );
+                }
+                // phpcs:enable
+            } catch (JsonException | FileNotFoundException $e) {
+                continue;
+            }
+        }
+
+        return $toSync;
+    }
+
+    /**
+     * Recursively sums all damageMax params from all parts
+     *
+     * @param array $parts
+     * @return float
+     */
+    private function calculateHealth(array $parts): float
+    {
+        $health = 0;
+
+        foreach ($parts as $part) {
+            if (isset($part['damagemax']) || isset($part['damageMax'])) {
+                $health += ($part['damagemax'] ?? 0) + ($part['damageMax'] ?? 0);
+            }
+
+            if (isset($part['Parts'])) {
+                $health += $this->calculateHealth($part['Parts']);
+            }
+        }
+
+        return $health;
     }
 }

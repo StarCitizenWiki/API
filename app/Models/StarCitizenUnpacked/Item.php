@@ -11,11 +11,10 @@ use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
 use App\Models\StarCitizenUnpacked\ShipItem\PowerPlant;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
-use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
+use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Missile;
 use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Models\StarCitizenUnpacked\Shop\ShopItem;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachment;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait;
 use Illuminate\Database\Eloquent\Builder;
@@ -117,7 +116,7 @@ class Item extends HasTranslations implements HasChangelogsInterface
              * Ship Items
              */
             case Str::contains($this->type, 'WeaponGun'):
-                return $this->hasOne(Weapon::class, 'uuid', 'uuid');
+                return $this->hasOne(Missile::class, 'uuid', 'uuid');
 
             case Str::contains($this->type, 'Cooler'):
                 return $this->hasOne(Cooler::class, 'uuid', 'uuid');

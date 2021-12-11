@@ -6,6 +6,7 @@ namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\HardpointTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
 use Illuminate\Support\Collection;
 
@@ -17,6 +18,7 @@ class VehicleTransformer extends TranslationTransformer
     protected $availableIncludes = [
         'components',
         'shops',
+        'hardpoints',
     ];
 
     /**
@@ -74,9 +76,9 @@ class VehicleTransformer extends TranslationTransformer
                 'quantum_range' => $vehicle->unpacked->quantum_range ?? 0,
             ],
             'agility' => [
-                'pitch' => $vehicle->pitch_max,
-                'yaw' => $vehicle->yaw_max,
-                'roll' => $vehicle->roll_max,
+                'pitch' => $vehicle->unpacked->pitch ?? $vehicle->pitch_max,
+                'yaw' => $vehicle->unpacked->yaw ?? $vehicle->yaw_max,
+                'roll' => $vehicle->unpacked->roll ?? $vehicle->roll_max,
                 'acceleration' => [
                     'x_axis' => $vehicle->x_axis_acceleration,
                     'y_axis' => $vehicle->y_axis_acceleration,
@@ -129,7 +131,18 @@ class VehicleTransformer extends TranslationTransformer
      */
     public function includeComponents(Vehicle $vehicle): \League\Fractal\Resource\Collection
     {
-        return $this->collection($vehicle->components, new ComponentTransformer());
+        $components = $this->collection($vehicle->components, new ComponentTransformer());
+        $components->setMetaValue('info', 'Ship-Matrix Components');
+
+        return $components;
+    }
+
+    public function includeHardpoints(Vehicle $vehicle): \League\Fractal\Resource\Collection
+    {
+        $hardpoints = $this->collection($vehicle->unpacked->hardpoints, new HardpointTransformer());
+        $hardpoints->setMetaValue('info', 'Game Data Components');
+
+        return $hardpoints;
     }
 
     /**

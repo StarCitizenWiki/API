@@ -9,7 +9,6 @@ use League\CommonMark\ElementRendererInterface;
 use League\CommonMark\Inline\Element\AbstractInline;
 use League\CommonMark\Inline\Element\Image;
 use League\CommonMark\Inline\Renderer\InlineRendererInterface;
-
 use function preg_replace;
 
 class ImageRenderer implements InlineRendererInterface

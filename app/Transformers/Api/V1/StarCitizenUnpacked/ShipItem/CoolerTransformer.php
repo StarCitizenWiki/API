@@ -7,7 +7,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
-class ShipCoolerTransformer extends AbstractCommodityTransformer
+class CoolerTransformer extends AbstractCommodityTransformer
 {
 
     public function transform(Cooler $item): array

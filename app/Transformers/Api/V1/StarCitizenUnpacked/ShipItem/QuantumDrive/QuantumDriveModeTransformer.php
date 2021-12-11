@@ -7,7 +7,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDriveMode;
 use League\Fractal\TransformerAbstract;
 
-class ShipQuantumDriveModeTransformer extends TransformerAbstract
+class QuantumDriveModeTransformer extends TransformerAbstract
 {
     public function transform(QuantumDriveMode $item): array
     {

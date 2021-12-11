@@ -19,10 +19,9 @@ class CreateScUnpackedShipMissilesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('ship_item_id');
             $table->string('uuid')->unique();
-            $table->unsignedDouble('speed');
-            $table->unsignedDouble('range');
-            $table->unsignedDouble('size');
-            $table->unsignedDouble('capacity')->nullable();
+            $table->string('signal_type');
+            $table->unsignedDouble('lock_time');
+
             $table->timestamps();
 
             $table->foreign('ship_item_id', 'missiles_ship_item_id')

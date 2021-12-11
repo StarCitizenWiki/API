@@ -29,14 +29,8 @@ class Items implements ShouldQueue
     ];
 
     private array $ignoredTypes = [
-        'SelfDestruct',
-        'WeaponDefensive',
         'Container',
-        'TurretBase',
-        'WeaponDefensive',
         'TargetSelector',
-        'FuelIntake',
-        'FuelTank',
         'Door',
         'Ping',
         'FlightController',

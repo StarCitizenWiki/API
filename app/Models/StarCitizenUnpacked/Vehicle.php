@@ -7,6 +7,7 @@ namespace App\Models\StarCitizenUnpacked;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Vehicle extends CommodityItem
 {
@@ -34,8 +35,7 @@ class Vehicle extends CommodityItem
         'operations_crew',
         'mass',
 
-        'health_nose',
-        'health_body',
+        'health',
 
         'scm_speed',
         'max_speed',
@@ -43,6 +43,10 @@ class Vehicle extends CommodityItem
         'zero_to_max',
         'scm_to_zero',
         'max_to_zero',
+
+        'pitch',
+        'yaw',
+        'roll',
 
         'acceleration_main',
         'acceleration_retro',
@@ -72,7 +76,7 @@ class Vehicle extends CommodityItem
     ];
 
     protected $hidden = [
-        'pivot',
+        //'pivot',
     ];
 
     protected $casts = [
@@ -87,14 +91,16 @@ class Vehicle extends CommodityItem
         'weapon_crew' => 'int',
         'operations_crew' => 'int',
         'mass' => 'float',
-        'health_nose' => 'float',
-        'health_body' => 'float',
+        'health' => 'float',
         'scm_speed' => 'float',
         'max_speed' => 'float',
         'zero_to_scm' => 'float',
         'zero_to_max' => 'float',
         'scm_to_zero' => 'float',
         'max_to_zero' => 'float',
+        'pitch' => 'float',
+        'yaw' => 'float',
+        'roll' => 'float',
         'acceleration_main' => 'float',
         'acceleration_retro' => 'float',
         'acceleration_vtol' => 'float',
@@ -120,6 +126,11 @@ class Vehicle extends CommodityItem
 
     protected $perPage = 5;
 
+    public function getNameAttribute($name)
+    {
+        return $name;
+    }
+
     /**
      * The Vehicle Manufacturer
      *
@@ -130,8 +141,24 @@ class Vehicle extends CommodityItem
         return $this->belongsTo(\App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::class, 'shipmatrix_id', 'id');
     }
 
-    public function getNameAttribute($name)
+    public function hardpoints(): BelongsToMany
     {
-        return $name;
+        return $this->belongsToMany(
+            Hardpoint::class,
+            'star_citizen_unpacked_vehicle_hardpoint',
+            'vehicle_id',
+            'hardpoint_id',
+        )
+            ->using(VehicleHardpoint::class)
+            ->as('hardpoint_data')
+            ->withPivot(
+                'parent_hardpoint_id',
+                'equipped_vehicle_item_uuid',
+                'min_size',
+                'max_size',
+                'class_name',
+            )
+            ->wherePivotNull('parent_hardpoint_id')
+            ->orderBy('name');
     }
 }

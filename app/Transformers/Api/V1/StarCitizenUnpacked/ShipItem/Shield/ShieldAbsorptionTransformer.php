@@ -7,7 +7,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\ShieldAbsorption;
 use League\Fractal\TransformerAbstract;
 
-class ShipShieldAbsorptionTransformer extends TransformerAbstract
+class ShieldAbsorptionTransformer extends TransformerAbstract
 {
     public function transform(ShieldAbsorption $item): array
     {
