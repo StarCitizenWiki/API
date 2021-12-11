@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace App\Models\StarCitizenUnpacked\ShipItem;
 
 use App\Models\StarCitizenUnpacked\CommodityItem;
+use App\Models\StarCitizenUnpacked\CounterMeasure;
+use App\Models\StarCitizenUnpacked\FuelIntake;
+use App\Models\StarCitizenUnpacked\FuelTank;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
+use App\Models\StarCitizenUnpacked\Thruster;
+use App\Models\StarCitizenUnpacked\Turret;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -84,12 +89,16 @@ class ShipItem extends CommodityItem
             case 'FuelTank':
             case 'QuantumFuelTank':
                 return $this->hasOne(FuelTank::class, 'uuid', 'uuid');
+            case 'FuelIntake':
+                return $this->hasOne(FuelIntake::class, 'uuid', 'uuid');
             case 'Shield':
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
             case 'Turret':
                 return $this->hasOne(Turret::class, 'uuid', 'uuid');
             case 'WeaponGun':
                 return $this->hasOne(Weapon\Weapon::class, 'uuid', 'uuid');
+            case 'WeaponDefensive':
+                return $this->hasOne(CounterMeasure::class, 'uuid', 'uuid');
             case 'MissileLauncher':
                 return $this->hasOne(Weapon\MissileRack::class, 'uuid', 'uuid');
             case 'Missile':

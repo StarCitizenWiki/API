@@ -199,10 +199,16 @@ class ShipItems implements ShouldQueue
             case 'Ship.QuantumFuelTank':
                 return $this->createFuelTank($item, $shipItem);
 
+            case 'Ship.FuelIntake':
+                return $this->createFuelIntake($item, $shipItem);
+
             case 'Ship.Weapon.Rocket':
             case 'Ship.Weapon.Gun':
             case 'Ship.Weapon.NoseMounted':
                 return $this->createWeapon($item, $shipItem);
+
+            case 'Ship.WeaponDefensive':
+                return $this->createCounterMeasure($item, $shipItem);
 
             case 'Ship.MissileLauncher.MissileRack':
                 return $this->createMissileRack($item, $shipItem);
@@ -326,6 +332,17 @@ class ShipItems implements ShouldQueue
             'fill_rate' => $item['fuel_tank']['fill_rate'] ?? 0,
             'drain_rate' => $item['fuel_tank']['drain_rate'] ?? 0,
             'capacity' => $item['fuel_tank']['capacity'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createFuelIntake(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'fuel_push_rate' => $item['fuel_intake']['fuel_push_rate'] ?? 0,
+            'minimum_rate' => $item['fuel_intake']['minimum_rate'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
     }
@@ -455,6 +472,17 @@ class ShipItems implements ShouldQueue
             'phys_radius' => $item['self_destruct']['phys_radius'] ?? 0,
             'min_phys_radius' => $item['self_destruct']['min_phys_radius'] ?? 0,
             'time' => $item['self_destruct']['time'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createCounterMeasure(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'initial_ammo_count' => $item['counter_measure']['initial_ammo_count'] ?? 0,
+            'max_ammo_count' => $item['counter_measure']['max_ammo_count'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
     }

@@ -55,7 +55,6 @@ final class ShipItem extends AbstractCommodityItem
                 return !empty($type) &&
                     $type !== 'Armor' &&
                     $type !== 'Ping' &&
-                    $type !== 'WeaponDefensive' &&
                     $type !== 'Paints';
             })
             ->map(function (array $entry) {
@@ -269,11 +268,13 @@ final class ShipItem extends AbstractCommodityItem
         $mappedItem['shield'] = Shield::getData($item, $rawData);
         $mappedItem['quantum_drive'] = QuantumDrive::getData($item, $rawData);
         $mappedItem['fuel_tank'] = FuelTank::getData($item, $rawData);
+        $mappedItem['fuel_intake'] = FuelIntake::getData($item, $rawData);
         $mappedItem['weapon'] = Weapon::getData($item, $rawData);
         $mappedItem['missile_rack'] = MissileRack::getData($item, $rawData);
         $mappedItem['missile'] = Missile::getData($item, $rawData);
         $mappedItem['turret'] = Turret::getData($item, $rawData);
         $mappedItem['thruster'] = Thruster::getData($item, $rawData);
         $mappedItem['self_destruct'] = SelfDestruct::getData($item, $rawData);
+        $mappedItem['counter_measure'] = CounterMeasure::getData($item, $rawData);
     }
 }

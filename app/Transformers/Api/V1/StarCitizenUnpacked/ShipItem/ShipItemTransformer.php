@@ -6,11 +6,11 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem;
 
 use App\Models\StarCitizenUnpacked\ShipItem\AbstractShipItemSpecification;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\QuantumDrive\ShipQuantumDriveTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield\ShipShieldTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\ShipMissileTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\ShipWeaponModeTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\ShipWeaponTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDriveTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield\ShieldTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\MissileTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\WeaponModeTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\WeaponTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
@@ -38,7 +38,9 @@ class ShipItemTransformer extends AbstractCommodityTransformer
             'manufacturer' => $item->shipItem->item->manufacturer,
             'grade' => $item->shipItem->grade,
             'class' => $item->shipItem->class,
-            'type' => $item->shipItem->type === 'Unknown Type' ? $item->shipItem->item->type : $item->shipItem->type,
+            'type' => $item->shipItem->type === 'Unknown Type' ?
+                $item->shipItem->item->type :
+                $item->shipItem->type,
             'durability' => [
                 'health' => $item->shipItem->health,
                 'lifetime' => $item->shipItem->lifetime,
@@ -83,6 +85,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'weapon';
                 break;
 
+            case 'WeaponDefensive':
+                $this->defaultIncludes[] = 'counterMeasure';
+                break;
+
             case 'MissileLauncher':
                 $this->defaultIncludes[] = 'missileRack';
                 break;
@@ -96,6 +102,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'fuelTank';
                 break;
 
+            case 'FuelIntake':
+                $this->defaultIncludes[] = 'fuelIntake';
+                break;
+
             case 'MainThruster':
             case 'ManneuverThruster':
                 $this->defaultIncludes[] = 'thruster';
@@ -105,6 +115,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'selfDestruct';
                 break;
 
+            case 'Turret':
+                $this->defaultIncludes[] = 'turret';
+                break;
+
             default:
                 break;
         }
@@ -112,7 +126,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
 
     public function includeModes($model): Collection
     {
-        return $this->collection($model->modes, new ShipWeaponModeTransformer());
+        return $this->collection($model->modes, new WeaponModeTransformer());
     }
 
     public function includeHeat(AbstractShipItemSpecification $data): Item
@@ -137,51 +151,66 @@ class ShipItemTransformer extends AbstractCommodityTransformer
 
     public function includeShield(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipShieldTransformer());
+        return $this->item($data, new ShieldTransformer());
     }
 
     public function includePowerPlant(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipPowerPlantTransformer());
+        return $this->item($data, new PowerPlantTransformer());
     }
 
     public function includeCooler(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipCoolerTransformer());
+        return $this->item($data, new CoolerTransformer());
     }
 
     public function includeQuantumDrive(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipQuantumDriveTransformer());
+        return $this->item($data, new QuantumDriveTransformer());
     }
 
     public function includeWeapon(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipWeaponTransformer());
+        return $this->item($data, new WeaponTransformer());
     }
 
     public function includeMissileRack(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipMissileRackTransformer());
+        return $this->item($data, new MissileRackTransformer());
     }
 
     public function includeMissile(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipMissileTransformer());
+        return $this->item($data, new MissileTransformer());
     }
 
     public function includeFuelTank(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipFuelTankTransformer());
+        return $this->item($data, new FuelTankTransformer());
+    }
+
+    public function includeFuelIntake(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new FuelIntakeTransformer());
     }
 
     public function includeThruster(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipThrusterTransformer());
+        return $this->item($data, new ThrusterTransformer());
     }
 
     public function includeSelfDestruct(AbstractShipItemSpecification $data): Item
     {
-        return $this->item($data, new ShipSelfDestructTransformer());
+        return $this->item($data, new SelfDestructTransformer());
+    }
+
+    public function includeTurret(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new TurretTransformer());
+    }
+
+    public function includeCounterMeasure(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new CounterMeasureTransformer());
     }
 }
