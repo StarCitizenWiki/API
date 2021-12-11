@@ -6,7 +6,6 @@ namespace App\Models\StarCitizenUnpacked\ShipItem\Weapon;
 
 use App\Models\StarCitizenUnpacked\ShipItem\AbstractShipItemSpecification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MissileRack extends AbstractShipItemSpecification
 {

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink;
 
-use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\Series\Series;
+use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;

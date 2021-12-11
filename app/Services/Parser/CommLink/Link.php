@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink;
 
-use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\Link\Link as LinkModel;
+use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**

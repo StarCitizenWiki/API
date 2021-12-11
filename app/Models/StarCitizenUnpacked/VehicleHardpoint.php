@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked;
 
-use App\Events\ModelUpdating;
-use App\Models\StarCitizenUnpacked\Item;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,6 +25,7 @@ class VehicleHardpoint extends Pivot
         'equipped_vehicle_item_uuid',
         'min_size',
         'max_size',
+        'class_name',
     ];
 
     public function vehicle(): BelongsTo

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Models\StarCitizenUnpacked\Hardpoint;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\HardpointTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
@@ -132,12 +131,18 @@ class VehicleTransformer extends TranslationTransformer
      */
     public function includeComponents(Vehicle $vehicle): \League\Fractal\Resource\Collection
     {
-        return $this->collection($vehicle->components, new ComponentTransformer());
+        $components = $this->collection($vehicle->components, new ComponentTransformer());
+        $components->setMetaValue('info', 'Ship-Matrix Components');
+
+        return $components;
     }
 
     public function includeHardpoints(Vehicle $vehicle): \League\Fractal\Resource\Collection
     {
-        return $this->collection($vehicle->unpacked->hardpoints, new HardpointTransformer());
+        $hardpoints = $this->collection($vehicle->unpacked->hardpoints, new HardpointTransformer());
+        $hardpoints->setMetaValue('info', 'Game Data Components');
+
+        return $hardpoints;
     }
 
     /**

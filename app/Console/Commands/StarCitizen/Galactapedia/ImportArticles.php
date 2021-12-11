@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands\StarCitizen\Galactapedia;
 
 use App\Console\Commands\AbstractQueueCommand;
-use App\Jobs\StarCitizen\Galactapedia\ImportArticlesFromCategory;
-use App\Models\StarCitizen\Galactapedia\Category;
 
 class ImportArticles extends AbstractQueueCommand
 {

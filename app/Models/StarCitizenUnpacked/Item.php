@@ -15,7 +15,6 @@ use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Missile;
 use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Models\StarCitizenUnpacked\Shop\ShopItem;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachment;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait;
 use Illuminate\Database\Eloquent\Builder;

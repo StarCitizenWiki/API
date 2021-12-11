@@ -24,6 +24,7 @@ class HardpointTransformer extends AbstractCommodityTransformer
             $data += [
                 'type' => $hardpoint->hardpoint_data->item->item->type,
                 'sub_type' => $hardpoint->hardpoint_data->item->item->sub_type,
+                'class_name' => $hardpoint->hardpoint_data->class_name,
             ];
         }
 

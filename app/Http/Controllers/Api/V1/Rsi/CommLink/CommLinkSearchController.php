@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 
-use App\Services\Parser\CommLink\Image as ImageParser;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
@@ -13,6 +12,7 @@ use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash as ImageHashModel;
 use App\Services\ImageHash\Implementations\PerceptualHash2;
+use App\Services\Parser\CommLink\Image as ImageParser;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Image\ImageHashTransformer;
 use Dingo\Api\Http\Request;

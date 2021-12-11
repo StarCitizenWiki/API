@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix;
 
-use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use App\Models\StarCitizen\ProductionNote\ProductionNote as ProductionNoteModel;
 use App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation;
+use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
