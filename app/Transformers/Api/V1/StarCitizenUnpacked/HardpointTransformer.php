@@ -18,13 +18,13 @@ class HardpointTransformer extends AbstractCommodityTransformer
             'name' => $hardpoint->name,
             'min_size' => $hardpoint->hardpoint_data->min_size,
             'max_size' => $hardpoint->hardpoint_data->max_size,
+            'class_name' => $hardpoint->hardpoint_data->class_name,
         ];
 
         if ($hardpoint->hardpoint_data->item !== null) {
             $data += [
                 'type' => $hardpoint->hardpoint_data->item->item->type,
                 'sub_type' => $hardpoint->hardpoint_data->item->item->sub_type,
-                'class_name' => $hardpoint->hardpoint_data->class_name,
             ];
         }
 
