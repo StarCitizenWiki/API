@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Models\StarCitizenUnpacked\ShipItem;
+namespace App\Models\StarCitizenUnpacked;
 
+use App\Models\StarCitizenUnpacked\ShipItem\AbstractShipItemSpecification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FuelTank extends AbstractShipItemSpecification
 {
     use HasFactory;
 
-    protected $table = 'star_citizen_unpacked_ship_fuel_tanks';
+    protected $table = 'star_citizen_unpacked_vehicle_fuel_tanks';
 
     protected $fillable = [
         'ship_item_id',

@@ -8,7 +8,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Missile;
 use League\Fractal\Resource\Collection;
 use League\Fractal\TransformerAbstract;
 
-class ShipMissileTransformer extends TransformerAbstract
+class MissileTransformer extends TransformerAbstract
 {
     protected $defaultIncludes = [
         'damages',

@@ -14,11 +14,11 @@ use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Missile;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachment;
 use App\Transformers\Api\V1\StarCitizenUnpacked\CharArmor\CharArmorTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\QuantumDrive\ShipQuantumDriveTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield\ShipShieldTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\ShipCoolerTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\ShipPowerPlantTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\ShipWeaponTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\CoolerTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\PowerPlantTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDriveTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield\ShieldTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\WeaponTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachmentsTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalTransformer;
 use League\Fractal\Resource\ResourceAbstract;
@@ -59,19 +59,19 @@ class ItemTransformer extends AbstractCommodityTransformer
                 return $this->item($item->specification, new WeaponPersonalAttachmentsTransformer());
 
             case Missile::class:
-                return $this->item($item->specification, new ShipWeaponTransformer());
+                return $this->item($item->specification, new WeaponTransformer());
 
             case Cooler::class:
-                return $this->item($item->specification, new ShipCoolerTransformer());
+                return $this->item($item->specification, new CoolerTransformer());
 
             case QuantumDrive::class:
-                return $this->item($item->specification, new ShipQuantumDriveTransformer());
+                return $this->item($item->specification, new QuantumDriveTransformer());
 
             case PowerPlant::class:
-                return $this->item($item->specification, new ShipPowerPlantTransformer());
+                return $this->item($item->specification, new PowerPlantTransformer());
 
             case Shield::class:
-                return $this->item($item->specification, new ShipShieldTransformer());
+                return $this->item($item->specification, new ShieldTransformer());
 
             default:
                 return $this->null();

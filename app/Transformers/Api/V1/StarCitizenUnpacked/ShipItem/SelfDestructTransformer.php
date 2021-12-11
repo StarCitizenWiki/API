@@ -7,7 +7,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem;
 use App\Models\StarCitizenUnpacked\ShipItem\SelfDestruct;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
-class ShipSelfDestructTransformer extends AbstractCommodityTransformer
+class SelfDestructTransformer extends AbstractCommodityTransformer
 {
 
     public function transform(SelfDestruct $item): array

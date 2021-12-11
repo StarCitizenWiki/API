@@ -23,6 +23,8 @@ class CreateScUnpackedVehicleHardpointTable extends Migration
             $table->unsignedInteger('min_size')->nullable();
             $table->unsignedInteger('max_size')->nullable();
 
+            $table->string('class_name')->nullable();
+
             $table->index('vehicle_id');
             $table->index('hardpoint_id');
 

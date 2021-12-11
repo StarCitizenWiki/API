@@ -8,7 +8,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 use League\Fractal\Resource\Collection;
 
-class ShipShieldTransformer extends AbstractCommodityTransformer
+class ShieldTransformer extends AbstractCommodityTransformer
 {
     protected $defaultIncludes = [
         'absorption',
@@ -36,6 +36,6 @@ class ShipShieldTransformer extends AbstractCommodityTransformer
 
     public function includeAbsorption(Shield $item): Collection
     {
-        return $this->collection($item->absorptions, new ShipShieldAbsorptionTransformer());
+        return $this->collection($item->absorptions, new ShieldAbsorptionTransformer());
     }
 }

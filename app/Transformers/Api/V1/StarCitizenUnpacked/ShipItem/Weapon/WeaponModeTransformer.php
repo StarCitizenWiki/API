@@ -8,7 +8,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\Weapon\WeaponMode;
 use League\Fractal\Resource\Collection;
 use League\Fractal\TransformerAbstract;
 
-class ShipWeaponModeTransformer extends TransformerAbstract
+class WeaponModeTransformer extends TransformerAbstract
 {
     protected $defaultIncludes = [
         'damages',

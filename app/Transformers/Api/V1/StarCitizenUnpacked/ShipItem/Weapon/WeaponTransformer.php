@@ -8,7 +8,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use League\Fractal\Resource\Collection;
 use League\Fractal\TransformerAbstract;
 
-class ShipWeaponTransformer extends TransformerAbstract
+class WeaponTransformer extends TransformerAbstract
 {
 
     protected $defaultIncludes = [
@@ -38,6 +38,6 @@ class ShipWeaponTransformer extends TransformerAbstract
 
     public function includeModes(Weapon $weapon): Collection
     {
-        return $this->collection($weapon->modes, new ShipWeaponModeTransformer());
+        return $this->collection($weapon->modes, new WeaponModeTransformer());
     }
 }

@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem;
 
-use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
-use App\Models\StarCitizenUnpacked\ShipItem\FuelTank;
-use App\Models\StarCitizenUnpacked\ShipItem\Weapon\MissileRack;
+use App\Models\StarCitizenUnpacked\FuelTank;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
-class ShipFuelTankTransformer extends AbstractCommodityTransformer
+class FuelTankTransformer extends AbstractCommodityTransformer
 {
 
     public function transform(FuelTank $item): array

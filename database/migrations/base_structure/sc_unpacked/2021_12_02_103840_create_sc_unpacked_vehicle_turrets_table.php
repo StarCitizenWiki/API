@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateScUnpackedShipThrustersTable extends Migration
+class CreateScUnpackedVehicleTurretsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,24 +13,24 @@ class CreateScUnpackedShipThrustersTable extends Migration
      */
     public function up()
     {
-        Schema::create('star_citizen_unpacked_ship_thrusters', function (Blueprint $table) {
+        Schema::create('star_citizen_unpacked_vehicle_turrets', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('ship_item_id');
             $table->string('uuid')->unique();
 
-            $table->unsignedDouble('thrust_capacity');
-            $table->unsignedDouble('min_health_thrust_multiplier');
-            $table->unsignedDouble('fuel_burn_per_10k_newton');
-            $table->string('type');
+            $table->unsignedInteger('max_mounts');
+
+            $table->unsignedInteger('min_size');
+            $table->unsignedInteger('max_size');
 
             $table->timestamps();
 
-            $table->foreign('ship_item_id', 'thruster_ship_item_id')
+            $table->foreign('ship_item_id', 'mount_vehicle_item_id')
                 ->references('id')
                 ->on('star_citizen_unpacked_ship_items')
                 ->onDelete('cascade');
 
-            $table->foreign('uuid', 'thruster_ship_item_uuid')
+            $table->foreign('uuid', 'mount_vehicle_item_uuid')
                 ->references('uuid')
                 ->on('star_citizen_unpacked_ship_items')
                 ->onDelete('cascade');
@@ -44,6 +44,6 @@ class CreateScUnpackedShipThrustersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('star_citizen_unpacked_ship_thrusters');
+        Schema::dropIfExists('star_citizen_unpacked_vehicle_turrets');
     }
 }

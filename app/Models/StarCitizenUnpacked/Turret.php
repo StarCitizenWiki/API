@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Models\StarCitizenUnpacked\ShipItem;
+namespace App\Models\StarCitizenUnpacked;
 
+use App\Models\StarCitizenUnpacked\ShipItem\AbstractShipItemSpecification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Turret extends AbstractShipItemSpecification
 {
     use HasFactory;
 
-    protected $table = 'star_citizen_unpacked_ship_turrets';
+    protected $table = 'star_citizen_unpacked_vehicle_turrets';
 
     protected $fillable = [
         'ship_item_id',
