@@ -127,6 +127,10 @@ class Vehicle implements ShouldQueue
             'scm_to_zero' => $this->numFormat($vehicle['FlightCharacteristics']['ScmToZero']),
             'max_to_zero' => $this->numFormat($vehicle['FlightCharacteristics']['MaxToZero']),
 
+            'pitch' => $this->numFormat($vehicle['FlightCharacteristics']['Pitch']),
+            'yaw' => $this->numFormat($vehicle['FlightCharacteristics']['Yaw']),
+            'roll' => $this->numFormat($vehicle['FlightCharacteristics']['Roll']),
+
             'acceleration_main' => $this->numFormat($vehicle['FlightCharacteristics']['Acceleration']['Main'] ?? 0),
             'acceleration_retro' => $this->numFormat($vehicle['FlightCharacteristics']['Acceleration']['Retro'] ?? 0),
             'acceleration_vtol' => $this->numFormat($vehicle['FlightCharacteristics']['Acceleration']['Vtol'] ?? 0),

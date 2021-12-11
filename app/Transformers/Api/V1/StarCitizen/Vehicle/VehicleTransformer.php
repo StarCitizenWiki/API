@@ -76,9 +76,9 @@ class VehicleTransformer extends TranslationTransformer
                 'quantum_range' => $vehicle->unpacked->quantum_range ?? 0,
             ],
             'agility' => [
-                'pitch' => $vehicle->pitch_max,
-                'yaw' => $vehicle->yaw_max,
-                'roll' => $vehicle->roll_max,
+                'pitch' => $vehicle->unpacked->pitch ?? $vehicle->pitch_max,
+                'yaw' => $vehicle->unpacked->yaw ?? $vehicle->yaw_max,
+                'roll' => $vehicle->unpacked->roll ?? $vehicle->roll_max,
                 'acceleration' => [
                     'x_axis' => $vehicle->x_axis_acceleration,
                     'y_axis' => $vehicle->y_axis_acceleration,

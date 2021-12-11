@@ -44,6 +44,10 @@ class Vehicle extends CommodityItem
         'scm_to_zero',
         'max_to_zero',
 
+        'pitch',
+        'yaw',
+        'roll',
+
         'acceleration_main',
         'acceleration_retro',
         'acceleration_vtol',
@@ -94,6 +98,9 @@ class Vehicle extends CommodityItem
         'zero_to_max' => 'float',
         'scm_to_zero' => 'float',
         'max_to_zero' => 'float',
+        'pitch' => 'float',
+        'yaw' => 'float',
+        'roll' => 'float',
         'acceleration_main' => 'float',
         'acceleration_retro' => 'float',
         'acceleration_vtol' => 'float',
@@ -151,6 +158,7 @@ class Vehicle extends CommodityItem
                 'max_size',
                 'class_name',
             )
-            ->wherePivotNull('parent_hardpoint_id');
+            ->wherePivotNull('parent_hardpoint_id')
+            ->orderBy('name');
     }
 }
