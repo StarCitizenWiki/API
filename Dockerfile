@@ -90,7 +90,7 @@ RUN /usr/bin/composer install --no-dev \
 COPY / /api
 
 RUN rm -rf storage/app/api/scunpacked-data
-RUN git clone https://github.com/StarCitizenWiki/scunpacked-data --branch=3.14.1-LIVE.7721742 --depth=1 storage/app/api/scunpacked-data
+RUN git clone https://github.com/StarCitizenWiki/scunpacked-data --branch=master --depth=1 storage/app/api/scunpacked-data
 
 RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 
