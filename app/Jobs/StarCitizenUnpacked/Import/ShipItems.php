@@ -226,6 +226,9 @@ class ShipItems implements ShouldQueue
             case 'Ship.SelfDestruct':
                 return $this->createSelfDestruct($item, $shipItem);
 
+            case 'Ship.Radar':
+                return $this->createRadar($item, $shipItem);
+
             default:
                 return null;
         }
@@ -483,6 +486,18 @@ class ShipItems implements ShouldQueue
         ], [
             'initial_ammo_count' => $item['counter_measure']['initial_ammo_count'] ?? 0,
             'max_ammo_count' => $item['counter_measure']['max_ammo_count'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createRadar(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->itemSpecification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'detection_lifetime' => $item['radar']['detection_lifetime'] ?? 0,
+            'altitude_ceiling' => $item['radar']['altitude_ceiling'] ?? 0,
+            'enable_cross_section_occlusion' => $item['radar']['enable_cross_section_occlusion'] ?? false,
             'ship_item_id' => $shipItem->id,
         ]);
     }

@@ -39,6 +39,7 @@ class Vehicle implements ShouldQueue
         'ManneuverThruster',
         'SelfDestruct',
         'WeaponDefensive',
+        'Radar',
     ];
 
     public function handle(): void

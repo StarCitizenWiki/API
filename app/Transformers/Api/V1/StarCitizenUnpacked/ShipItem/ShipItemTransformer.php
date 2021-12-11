@@ -119,6 +119,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'turret';
                 break;
 
+            case 'Radar':
+                $this->defaultIncludes[] = 'radar';
+                break;
+
             default:
                 break;
         }
@@ -212,5 +216,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     public function includeCounterMeasure(AbstractShipItemSpecification $data): Item
     {
         return $this->item($data, new CounterMeasureTransformer());
+    }
+
+    public function includeRadar(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new RadarTransformer());
     }
 }

@@ -8,6 +8,7 @@ use App\Models\StarCitizenUnpacked\CommodityItem;
 use App\Models\StarCitizenUnpacked\CounterMeasure;
 use App\Models\StarCitizenUnpacked\FuelIntake;
 use App\Models\StarCitizenUnpacked\FuelTank;
+use App\Models\StarCitizenUnpacked\Radar;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Models\StarCitizenUnpacked\Thruster;
@@ -108,6 +109,8 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(Thruster::class, 'uuid', 'uuid');
             case 'SelfDestruct':
                 return $this->hasOne(SelfDestruct::class, 'uuid', 'uuid');
+            case 'Radar':
+                return $this->hasOne(Radar::class, 'uuid', 'uuid');
             default:
                 throw new ModelNotFoundException();
         }
