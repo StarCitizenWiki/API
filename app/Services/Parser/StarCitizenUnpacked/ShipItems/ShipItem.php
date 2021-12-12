@@ -82,7 +82,6 @@ final class ShipItem extends AbstractCommodityItem
 
                     return $this->map($entry, $rawData);
                 } catch (\JsonException | FileNotFoundException $e) {
-                    dump($e->getMessage());
                     return null;
                 }
             })

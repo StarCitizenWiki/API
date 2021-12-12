@@ -10,8 +10,11 @@ use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
 use App\Models\StarCitizenUnpacked\ShipItem\PowerPlant;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
+use App\Models\StarCitizenUnpacked\ShipItem\SelfDestruct;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Missile;
+use App\Models\StarCitizenUnpacked\ShipItem\Weapon\MissileRack;
+use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Models\StarCitizenUnpacked\Shop\ShopItem;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
@@ -115,20 +118,48 @@ class Item extends HasTranslations implements HasChangelogsInterface
             /**
              * Ship Items
              */
+            case $this->type === 'WeaponGun':
             case Str::contains($this->type, 'WeaponGun'):
+                return $this->hasOne(Weapon::class, 'uuid', 'uuid');
+
+            case $this->type === 'Missile':
+            case Str::contains($this->type, 'Missile'):
                 return $this->hasOne(Missile::class, 'uuid', 'uuid');
 
+            case $this->type === 'Cooler':
             case Str::contains($this->type, 'Cooler'):
                 return $this->hasOne(Cooler::class, 'uuid', 'uuid');
 
+            case $this->type === 'QuantumDrive':
             case Str::contains($this->type, 'QuantumDrive'):
                 return $this->hasOne(QuantumDrive::class, 'uuid', 'uuid');
 
+            case $this->type === 'PowerPlant':
             case Str::contains($this->type, 'PowerPlant'):
                 return $this->hasOne(PowerPlant::class, 'uuid', 'uuid');
 
+            case $this->type === 'Shield':
             case Str::contains($this->type, 'Shield'):
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
+
+            case $this->type === 'FuelTank':
+            case $this->type === 'QuantumFuelTank':
+                return $this->hasOne(FuelTank::class, 'uuid', 'uuid');
+            case $this->type === 'FuelIntake':
+                return $this->hasOne(FuelIntake::class, 'uuid', 'uuid');
+            case $this->type === 'Turret':
+                return $this->hasOne(Turret::class, 'uuid', 'uuid');
+            case $this->type === 'WeaponDefensive':
+                return $this->hasOne(CounterMeasure::class, 'uuid', 'uuid');
+            case $this->type === 'MissileLauncher':
+                return $this->hasOne(MissileRack::class, 'uuid', 'uuid');
+            case $this->type === 'MainThruster':
+            case $this->type === 'ManneuverThruster':
+                return $this->hasOne(Thruster::class, 'uuid', 'uuid');
+            case $this->type === 'SelfDestruct':
+                return $this->hasOne(SelfDestruct::class, 'uuid', 'uuid');
+            case $this->type === 'Radar':
+                return $this->hasOne(Radar::class, 'uuid', 'uuid');
 
             default:
                 return $this->hasOne(CharArmor::class, 'uuid', 'type'); //NULL

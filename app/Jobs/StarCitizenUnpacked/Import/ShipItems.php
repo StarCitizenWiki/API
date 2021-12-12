@@ -236,7 +236,7 @@ class ShipItems implements ShouldQueue
 
     private function createCooler(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'cooling_rate' => $item['cooler']['cooling_rate'],
@@ -248,7 +248,7 @@ class ShipItems implements ShouldQueue
 
     private function createPowerPlant(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'power_output' => $item['power_plant']['power_output'],
@@ -259,7 +259,7 @@ class ShipItems implements ShouldQueue
     private function createShield(array $item, ShipItemModel $shipItem): Model
     {
         /** @var Shield $shield */
-        $shield = $shipItem->itemSpecification()->updateOrCreate([
+        $shield = $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'max_shield_health' => $item['shield']['max_shield_health'],
@@ -291,7 +291,7 @@ class ShipItems implements ShouldQueue
     private function createQuantumDrive(array $item, ShipItemModel $shipItem): Model
     {
         /** @var QuantumDrive $drive */
-        $drive = $shipItem->itemSpecification()->updateOrCreate([
+        $drive = $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'quantum_fuel_requirement' => $item['quantum_drive']['quantum_fuel_requirement'],
@@ -329,7 +329,7 @@ class ShipItems implements ShouldQueue
 
     private function createFuelTank(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'fill_rate' => $item['fuel_tank']['fill_rate'] ?? 0,
@@ -341,7 +341,7 @@ class ShipItems implements ShouldQueue
 
     private function createFuelIntake(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'fuel_push_rate' => $item['fuel_intake']['fuel_push_rate'] ?? 0,
@@ -357,7 +357,7 @@ class ShipItems implements ShouldQueue
         }
 
         /** @var Weapon $weapon */
-        $weapon = $shipItem->itemSpecification()->updateOrCreate([
+        $weapon = $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'speed' => $item['weapon']['speed'],
@@ -402,7 +402,7 @@ class ShipItems implements ShouldQueue
 
     private function createMissileRack(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'missile_count' => $item['missile_rack']['missile_count'] ?? 0,
@@ -417,7 +417,7 @@ class ShipItems implements ShouldQueue
             return null;
         }
 
-        $missile = $shipItem->itemSpecification()->updateOrCreate([
+        $missile = $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'signal_type' => $item['missile']['signal_type'],
@@ -441,7 +441,7 @@ class ShipItems implements ShouldQueue
 
     private function createTurret(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'min_size' => $item['turret']['min_size'] ?? 0,
@@ -453,7 +453,7 @@ class ShipItems implements ShouldQueue
 
     private function createThruster(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'thrust_capacity' => $item['thruster']['thrust_capacity'] ?? 0,
@@ -466,7 +466,7 @@ class ShipItems implements ShouldQueue
 
     private function createSelfDestruct(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'damage' => $item['self_destruct']['damage'] ?? 0,
@@ -481,7 +481,7 @@ class ShipItems implements ShouldQueue
 
     private function createCounterMeasure(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'initial_ammo_count' => $item['counter_measure']['initial_ammo_count'] ?? 0,
@@ -492,7 +492,7 @@ class ShipItems implements ShouldQueue
 
     private function createRadar(array $item, ShipItemModel $shipItem): Model
     {
-        return $shipItem->itemSpecification()->updateOrCreate([
+        return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
             'detection_lifetime' => $item['radar']['detection_lifetime'] ?? 0,

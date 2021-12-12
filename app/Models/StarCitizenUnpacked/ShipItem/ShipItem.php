@@ -78,7 +78,7 @@ class ShipItem extends CommodityItem
     /**
      * @return HasOne
      */
-    public function itemSpecification(): HasOne
+    public function specification(): HasOne
     {
         switch ($this->item->type) {
             case 'Cooler':
