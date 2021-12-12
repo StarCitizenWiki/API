@@ -57,6 +57,21 @@ class VehicleHardpoint extends Pivot
             ->where('vehicle_id', $this->vehicle_id);
     }
 
+    /**
+     * This is needed because fractal re-uses relations?
+     * While this is exactly the same as above this truly retrieves the children from the DB
+     *
+     * @return HasMany
+     */
+    public function children2(): HasMany
+    {
+        return $this->hasMany(
+            __CLASS__,
+            'parent_hardpoint_id',
+            'hardpoint_id',
+        )->where('vehicle_id', $this->vehicle_id);
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(__CLASS__, 'parent_hardpoint_id', 'hardpoint_id')

@@ -28,12 +28,12 @@ class HardpointTransformer extends AbstractCommodityTransformer
             ];
         }
 
-        if ($hardpoint->hardpoint_data->children->isNotEmpty()) {
-            $this->defaultIncludes[] = 'children';
-        }
-
         if ($hardpoint->hardpoint_data->equipped_vehicle_item_uuid !== null) {
             $this->defaultIncludes[] = 'item';
+        }
+
+        if ($hardpoint->hardpoint_data->children->isNotEmpty()) {
+            $this->defaultIncludes[] = 'children';
         }
 
         return $data;

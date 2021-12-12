@@ -353,6 +353,7 @@ class Vehicle implements ShouldQueue
     private function createSubPoint(array $entries, Hardpoint $parent, \App\Models\StarCitizenUnpacked\Vehicle $vehicle): array
     {
         $toSync = [];
+
         foreach ($entries as $subPoint) {
             $subPointModel = Hardpoint::query()->firstOrCreate(['name' => $subPoint['itemPortName']]);
             if (empty($subPoint['entityClassName'])) {
@@ -380,10 +381,8 @@ class Vehicle implements ShouldQueue
 
                 // phpcs:disable
                 if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                    $toSync = array_merge(
-                        $this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $subPointModel, $vehicle),
-                        $toSync
-                    );
+                    $new = $this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $subPointModel, $vehicle);
+                    $toSync = array_merge($new, $toSync);
                 }
                 // phpcs:enable
             } catch (JsonException | FileNotFoundException $e) {
