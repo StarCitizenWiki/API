@@ -87,8 +87,7 @@ final class ShipItem extends AbstractCommodityItem
             })
             ->filter(function ($entry) {
                 return $entry !== null;
-            })
-            ->unique('name');
+            });
     }
 
     private function map(array $item, Collection $rawData): ?array
