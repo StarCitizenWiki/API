@@ -17,6 +17,11 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
         ];
 
         if ($hardpoint->item !== null && $hardpoint->item->specification !== null) {
+            $data += [
+                'type' => $hardpoint->item->item->type,
+                'sub_type' => $hardpoint->item->item->sub_type,
+            ];
+
             $this->defaultIncludes[] = 'item';
         }
 
