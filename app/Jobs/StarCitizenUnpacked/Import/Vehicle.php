@@ -305,12 +305,10 @@ class Vehicle implements ShouldQueue
                             }
                         }
 
-                        $point = $vehicle->hardpoints()->updateOrCreate(
+                        $point = $vehicle->hardpoints()->create(
                             [
                                 'hardpoint_name' => $hardpoint['itemPortName'],
                                 'class_name' => $hardpoint['entityClassName'],
-                            ],
-                            [
                                 'equipped_vehicle_item_uuid' => $itemUuid,
                                 'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
                                 'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
@@ -364,13 +362,11 @@ class Vehicle implements ShouldQueue
 
                 $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
 
-                $point = $vehicle->hardpoints()->updateOrCreate(
+                $point = $vehicle->hardpoints()->create(
                     [
                         'hardpoint_name' => $subPoint['itemPortName'],
                         'class_name' => $subPoint['entityClassName'],
                         'parent_hardpoint_id' => $parent->id,
-                    ],
-                    [
                         'equipped_vehicle_item_uuid' => $item['__ref'],
                     ]
                 );
