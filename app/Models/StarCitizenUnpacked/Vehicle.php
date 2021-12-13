@@ -8,6 +8,7 @@ use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Vehicle extends CommodityItem
 {
@@ -141,24 +142,14 @@ class Vehicle extends CommodityItem
         return $this->belongsTo(\App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::class, 'shipmatrix_id', 'id');
     }
 
-    public function hardpoints(): BelongsToMany
+    public function hardpoints(): HasMany
     {
-        return $this->belongsToMany(
-            Hardpoint::class,
-            'star_citizen_unpacked_vehicle_hardpoint',
+        return $this->hasMany(
+            VehicleHardpoint::class,
             'vehicle_id',
-            'hardpoint_id',
+            'id',
         )
-            ->using(VehicleHardpoint::class)
-            ->as('hardpoint_data')
-            ->withPivot(
-                'parent_hardpoint_id',
-                'equipped_vehicle_item_uuid',
-                'min_size',
-                'max_size',
-                'class_name',
-            )
-            ->wherePivotNull('parent_hardpoint_id')
-            ->orderBy('name');
+            ->whereNull('parent_hardpoint_id')
+            ->orderBy('hardpoint_name');
     }
 }

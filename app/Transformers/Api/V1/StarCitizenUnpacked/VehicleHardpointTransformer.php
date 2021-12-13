@@ -12,8 +12,13 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
 {
     public function transform(VehicleHardpoint $hardpoint): array
     {
+        $this->defaultIncludes = [];
+
         $data = [
-            'name' => $hardpoint->hardpoint->name,
+            'name' => $hardpoint->hardpoint_name,
+            'min_size' => $hardpoint->min_size,
+            'max_size' => $hardpoint->max_size,
+            'class_name' => $hardpoint->class_name,
         ];
 
         if ($hardpoint->item !== null && $hardpoint->item->specification !== null) {
@@ -24,6 +29,8 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
 
             $this->defaultIncludes[] = 'item';
         }
+
+        $data = array_filter($data);
 
         $this->defaultIncludes[] = 'children';
 

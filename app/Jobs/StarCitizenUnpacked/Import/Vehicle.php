@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizenUnpacked\Import;
 
-use App\Models\StarCitizenUnpacked\Hardpoint;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use App\Models\StarCitizenUnpacked\VehicleHardpoint;
 use Exception;
@@ -256,8 +255,6 @@ class Vehicle implements ShouldQueue
         $hardpoints = [];
         $this->mapHardpoints($rawData['Vehicle']['Parts'], $hardpoints);
 
-        $toSync = [];
-
         $parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem();
 
         // phpcs:ignore
@@ -266,11 +263,9 @@ class Vehicle implements ShouldQueue
                 return isset($hardpoints[$entry['itemPortName'] ?? '']);
             })
             ->chunk(10)
-            ->each(function (Collection $entries) use ($hardpoints, &$toSync, $vehicle, $parser) {
+            ->each(function (Collection $entries) use ($hardpoints, $vehicle, $parser) {
                 $entries
-                    ->each(function ($hardpoint) use ($hardpoints, &$toSync, $vehicle, $parser) {
-                        $point = Hardpoint::query()->firstOrCreate(['name' => $hardpoint['itemPortName']]);
-
+                    ->each(function ($hardpoint) use ($hardpoints, $vehicle, $parser) {
                         $itemUuid = null;
                         if (isset($hardpoint['entityClassName']) && !empty($hardpoint['entityClassName'])) {
                             try {
@@ -310,26 +305,25 @@ class Vehicle implements ShouldQueue
                             }
                         }
 
-                        if ($point->id !== null) {
-                            $toSync[] = [
-                                'hardpoint_id' => $point->id,
+                        $point = $vehicle->hardpoints()->updateOrCreate(
+                            [
+                                'hardpoint_name' => $hardpoint['itemPortName'],
+                                'class_name' => $hardpoint['entityClassName'],
+                            ],
+                            [
                                 'equipped_vehicle_item_uuid' => $itemUuid,
                                 'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
                                 'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
-                                'class_name' => $itemRaw['ClassName'] ?? null,
-                                'vehicle_id' => $vehicle->id,
-                            ];
+                            ]
+                        );
 
-                            // phpcs:disable
-                            if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                                $toSync = array_merge($toSync, $this->createSubPoint($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle));
-                            }
-                            // phpcs:enable
+                        // phpcs:disable
+                        if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                            $this->createSubPoint($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle);
                         }
+                        // phpcs:enable
                     });
             });
-
-        $vehicle->hardpoints()->sync($toSync);
     }
 
     private function mapHardpoints(array $parts, array &$out): void
@@ -351,12 +345,9 @@ class Vehicle implements ShouldQueue
         }
     }
 
-    private function createSubPoint(array $entries, Hardpoint $parent, \App\Models\StarCitizenUnpacked\Vehicle $vehicle): array
+    private function createSubPoint(array $entries, VehicleHardpoint $parent, \App\Models\StarCitizenUnpacked\Vehicle $vehicle): void
     {
-        $toSync = [];
-
         foreach ($entries as $subPoint) {
-            $subPointModel = Hardpoint::query()->firstOrCreate(['name' => $subPoint['itemPortName']]);
             if (empty($subPoint['entityClassName'])) {
                 continue;
             }
@@ -373,25 +364,26 @@ class Vehicle implements ShouldQueue
 
                 $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
 
-                $toSync[] = [
-                    'hardpoint_id' => $subPointModel->id,
-                    'vehicle_id' => $vehicle->id,
-                    'parent_hardpoint_id' => $parent->id,
-                    'equipped_vehicle_item_uuid' => $item['__ref'],
-                ];
+                $point = $vehicle->hardpoints()->updateOrCreate(
+                    [
+                        'hardpoint_name' => $subPoint['itemPortName'],
+                        'class_name' => $subPoint['entityClassName'],
+                        'parent_hardpoint_id' => $parent->id,
+                    ],
+                    [
+                        'equipped_vehicle_item_uuid' => $item['__ref'],
+                    ]
+                );
 
                 // phpcs:disable
                 if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                    $new = $this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $subPointModel, $vehicle);
-                    $toSync = array_merge($new, $toSync);
+                    $this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle);
                 }
                 // phpcs:enable
             } catch (JsonException | FileNotFoundException $e) {
                 continue;
             }
         }
-
-        return $toSync;
     }
 
     /**

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateScUnpackedVehicleHardpointTable extends Migration
+class CreateScUnpackedVehicleHardpointsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class CreateScUnpackedVehicleHardpointTable extends Migration
      */
     public function up()
     {
-        Schema::create('star_citizen_unpacked_vehicle_hardpoint', function (Blueprint $table) {
+        Schema::create('star_citizen_unpacked_vehicle_hardpoints', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('vehicle_id');
-            $table->unsignedBigInteger('hardpoint_id');
             $table->unsignedBigInteger('parent_hardpoint_id')->nullable();
+
+            $table->string('hardpoint_name');
 
             $table->uuid('equipped_vehicle_item_uuid')->nullable();
 
@@ -26,16 +28,11 @@ class CreateScUnpackedVehicleHardpointTable extends Migration
             $table->string('class_name')->nullable();
 
             $table->index('vehicle_id');
-            $table->index('hardpoint_id');
+            $table->index('parent_hardpoint_id', 'hardpoint_parent_index');
 
             $table->foreign('vehicle_id', 'vehicle_hardpoint_vehicle_id')
                 ->references('id')
                 ->on('star_citizen_unpacked_vehicles')
-                ->onDelete('cascade');
-
-            $table->foreign('hardpoint_id', 'vehicle_hardpoint_hardpoint_id')
-                ->references('id')
-                ->on('star_citizen_unpacked_vehicle_hardpoints')
                 ->onDelete('cascade');
         });
     }
@@ -47,6 +44,6 @@ class CreateScUnpackedVehicleHardpointTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('star_citizen_unpacked_vehicle_hardpoint');
+        Schema::dropIfExists('star_citizen_unpacked_vehicle_hardpoints');
     }
 }
