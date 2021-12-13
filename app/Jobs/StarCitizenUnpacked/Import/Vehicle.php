@@ -35,6 +35,7 @@ class Vehicle implements ShouldQueue
         'QuantumFuelTank',
         'FuelIntake',
         'Turret',
+        'TurretBase',
         'MainThruster',
         'ManneuverThruster',
         'SelfDestruct',

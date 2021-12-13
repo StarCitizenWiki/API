@@ -125,6 +125,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 break;
 
             case 'Turret':
+            case 'TurretBase':
                 $this->defaultIncludes[] = 'turret';
                 break;
 

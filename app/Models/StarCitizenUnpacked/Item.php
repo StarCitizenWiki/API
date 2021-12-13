@@ -145,19 +145,27 @@ class Item extends HasTranslations implements HasChangelogsInterface
             case $this->type === 'FuelTank':
             case $this->type === 'QuantumFuelTank':
                 return $this->hasOne(FuelTank::class, 'uuid', 'uuid');
+
             case $this->type === 'FuelIntake':
                 return $this->hasOne(FuelIntake::class, 'uuid', 'uuid');
+
             case $this->type === 'Turret':
+            case $this->type === 'TurretBase':
                 return $this->hasOne(Turret::class, 'uuid', 'uuid');
+
             case $this->type === 'WeaponDefensive':
                 return $this->hasOne(CounterMeasure::class, 'uuid', 'uuid');
+
             case $this->type === 'MissileLauncher':
                 return $this->hasOne(MissileRack::class, 'uuid', 'uuid');
+
             case $this->type === 'MainThruster':
             case $this->type === 'ManneuverThruster':
                 return $this->hasOne(Thruster::class, 'uuid', 'uuid');
+
             case $this->type === 'SelfDestruct':
                 return $this->hasOne(SelfDestruct::class, 'uuid', 'uuid');
+
             case $this->type === 'Radar':
                 return $this->hasOne(Radar::class, 'uuid', 'uuid');
 

@@ -95,6 +95,7 @@ class ShipItem extends CommodityItem
             case 'Shield':
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
             case 'Turret':
+            case 'TurretBase':
                 return $this->hasOne(Turret::class, 'uuid', 'uuid');
             case 'WeaponGun':
                 return $this->hasOne(Weapon\Weapon::class, 'uuid', 'uuid');
