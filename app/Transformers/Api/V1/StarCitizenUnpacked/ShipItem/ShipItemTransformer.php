@@ -19,6 +19,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
 {
     protected $availableIncludes = [
         'shops',
+        'heat',
+        'power',
+        'distortion',
+        'durability',
     ];
 
     protected $defaultIncludes = [
@@ -51,6 +55,11 @@ class ShipItemTransformer extends AbstractCommodityTransformer
         $this->addSpecificationData($item);
 
         return $transformed;
+    }
+
+    public function excludeDefaults(): void
+    {
+        $this->defaultIncludes = [];
     }
 
     /**

@@ -36,7 +36,10 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
             return $this->null();
         }
 
-        return $this->item($item->item->specification, new ShipItemTransformer());
+        $transformer = new ShipItemTransformer();
+        $transformer->excludeDefaults();
+
+        return $this->item($item->item->specification, $transformer);
     }
 
     public function includeChildren(VehicleHardpoint $hardpoint): Collection

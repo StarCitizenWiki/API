@@ -50,6 +50,9 @@ class HardpointTransformer extends AbstractCommodityTransformer
             return $this->null();
         }
 
-        return $this->item($item->hardpoint_data->item->specification, new ShipItemTransformer());
+        $transformer = new ShipItemTransformer();
+        $transformer->excludeDefaults();
+
+        return $this->item($item->hardpoint_data->item->specification, $transformer);
     }
 }
