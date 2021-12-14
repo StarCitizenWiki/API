@@ -35,12 +35,23 @@ class Vehicle implements ShouldQueue
         'FuelIntake',
         'Turret',
         'TurretBase',
+        'MiningArm',
         'MainThruster',
         'ManneuverThruster',
         'SelfDestruct',
         'WeaponDefensive',
+        'WeaponMining',
         'Radar',
     ];
+
+    private \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem $parser;
+    private $creator;
+
+    public function __construct()
+    {
+        $this->parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem();
+        $this->creator = new ShipItems();
+    }
 
     public function handle(): void
     {
@@ -62,7 +73,7 @@ class Vehicle implements ShouldQueue
         // TODO: Yeah this needs to go
         VehicleHardpoint::query()->truncate();
 
-        collect($vehicles)->chunk(10)->each(function (Collection $chunk) {
+        collect($vehicles)->chunk(5)->each(function (Collection $chunk) {
             $chunk->map(function (array $vehicle) {
                 try {
                     $vehicle['rawData'] = json_decode(File::get(storage_path(sprintf(
@@ -245,6 +256,46 @@ class Vehicle implements ShouldQueue
         return $negation * floor((abs((float)$num) * $coefficient)) / $coefficient;
     }
 
+    private function createModel(string $className): ?string
+    {
+        try {
+            $item = File::get(
+                storage_path(
+                    sprintf(
+                        'app/api/scunpacked-data/v2/items/%s-raw.json',
+                        str_replace('-', '_', strtolower($className))
+                    )
+                )
+            );
+
+            $itemRaw = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+
+            if (isset($itemRaw['__ref'])) {
+                $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
+
+                // phpcs:ignore
+                if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true)) {
+                    // phpcs:ignore
+                    $itemRaw['Classification'] = 'Ship.' . $itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'];
+                    $this->parser->setItems(collect([$itemRaw]));
+
+                    $data = $this->parser->getData()->first();
+
+                    if ($data !== null) {
+                        $this->creator->createModel($data);
+                    }
+
+                    $itemUuid = $itemRaw['__ref'];
+                } elseif ($item !== null) {
+                    $itemUuid = $item->uuid;
+                }
+            }
+        } catch (FileNotFoundException | JsonException $e) {
+        }
+
+        return $itemUuid ?? null;
+    }
+
     private function createHardpoints(\App\Models\StarCitizenUnpacked\Vehicle $vehicle, array $rawData): void
     {
         // phpcs:ignore
@@ -255,54 +306,18 @@ class Vehicle implements ShouldQueue
         $hardpoints = [];
         $this->mapHardpoints($rawData['Vehicle']['Parts'], $hardpoints);
 
-        $parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem();
-
         // phpcs:ignore
         collect($rawData['Entity']['Components']['SEntityComponentDefaultLoadoutParams']['loadout']['SItemPortLoadoutManualParams']['entries'])
             ->filter(function ($entry) use ($hardpoints) {
                 return isset($hardpoints[$entry['itemPortName'] ?? '']);
             })
-            ->chunk(10)
-            ->each(function (Collection $entries) use ($hardpoints, $vehicle, $parser) {
+            ->chunk(5)
+            ->each(function (Collection $entries) use ($hardpoints, $vehicle) {
                 $entries
-                    ->each(function ($hardpoint) use ($hardpoints, $vehicle, $parser) {
+                    ->each(function ($hardpoint) use ($hardpoints, $vehicle) {
                         $itemUuid = null;
                         if (isset($hardpoint['entityClassName']) && !empty($hardpoint['entityClassName'])) {
-                            try {
-                                $item = File::get(
-                                    storage_path(
-                                        sprintf(
-                                            'app/api/scunpacked-data/v2/items/%s-raw.json',
-                                            str_replace('-', '_', strtolower($hardpoint['entityClassName']))
-                                        )
-                                    )
-                                );
-
-                                $itemRaw = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
-
-
-                                if (isset($itemRaw['__ref'])) {
-                                    $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
-
-                                    // phpcs:ignore
-                                    if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true)) {
-                                        // phpcs:ignore
-                                        $itemRaw['Classification'] = 'Ship.' . $itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'];
-                                        $parser->setItems(collect([$itemRaw]));
-                                        $creator = new ShipItems();
-                                        $data = $parser->getData()->first();
-
-                                        if ($data !== null) {
-                                            $creator->createModel($data);
-                                        }
-
-                                        $itemUuid = $itemRaw['__ref'];
-                                    } elseif ($item !== null) {
-                                        $itemUuid = $item->uuid;
-                                    }
-                                }
-                            } catch (FileNotFoundException | JsonException $e) {
-                            }
+                            $itemUuid = $this->createModel($hardpoint['entityClassName']);
                         }
 
                         $point = $vehicle->hardpoints()->create(
@@ -361,6 +376,10 @@ class Vehicle implements ShouldQueue
                 );
 
                 $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+
+                if (isset($subPoint['entityClassName'])) {
+                    $this->createModel($subPoint['entityClassName']);
+                }
 
                 $point = $vehicle->hardpoints()->create(
                     [

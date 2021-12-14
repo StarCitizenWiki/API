@@ -8,6 +8,7 @@ use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
+use App\Models\StarCitizenUnpacked\ShipItem\MiningLaser;
 use App\Models\StarCitizenUnpacked\ShipItem\PowerPlant;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\SelfDestruct;
@@ -168,6 +169,9 @@ class Item extends HasTranslations implements HasChangelogsInterface
 
             case $this->type === 'Radar':
                 return $this->hasOne(Radar::class, 'uuid', 'uuid');
+
+            case $this->type === 'WeaponMining':
+                return $this->hasOne(MiningLaser::class, 'uuid', 'uuid');
 
             default:
                 return $this->hasOne(CharArmor::class, 'uuid', 'type'); //NULL

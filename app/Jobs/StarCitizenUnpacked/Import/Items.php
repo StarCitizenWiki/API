@@ -72,9 +72,6 @@ class Items implements ShouldQueue
             ->filter(function ($item) {
                 return isset($item['type']) && !in_array($item['type'], $this->ignoredTypes, true);
             })
-            ->filter(function ($item) {
-                return !empty($item['name']) && strpos($item['name'], '[PH]') === false;
-            })
             ->each(function ($item) {
                 Item::updateOrCreate([
                     'uuid' => $item['uuid'],

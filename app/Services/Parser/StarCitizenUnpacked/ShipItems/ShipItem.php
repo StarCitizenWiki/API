@@ -275,5 +275,6 @@ final class ShipItem extends AbstractCommodityItem
         $mappedItem['self_destruct'] = SelfDestruct::getData($item, $rawData);
         $mappedItem['counter_measure'] = CounterMeasure::getData($item, $rawData);
         $mappedItem['radar'] = Radar::getData($item, $rawData);
+        $mappedItem['mining_laser'] = MiningLaser::getData($item, $rawData);
     }
 }

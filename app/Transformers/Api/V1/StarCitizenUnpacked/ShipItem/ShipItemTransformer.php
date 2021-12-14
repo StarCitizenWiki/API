@@ -94,6 +94,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'weapon';
                 break;
 
+            case 'WeaponMining':
+                $this->defaultIncludes[] = 'miningLaser';
+                break;
+
             case 'WeaponDefensive':
                 $this->defaultIncludes[] = 'counterMeasure';
                 break;
@@ -126,6 +130,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
 
             case 'Turret':
             case 'TurretBase':
+            case 'MiningArm':
                 $this->defaultIncludes[] = 'turret';
                 break;
 
@@ -231,5 +236,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     public function includeRadar(AbstractShipItemSpecification $data): Item
     {
         return $this->item($data, new RadarTransformer());
+    }
+
+    public function includeMiningLaser(AbstractShipItemSpecification $data): Item
+    {
+        return $this->item($data, new MiningLaserTransformer());
     }
 }

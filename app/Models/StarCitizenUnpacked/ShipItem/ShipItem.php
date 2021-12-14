@@ -96,9 +96,12 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
             case 'Turret':
             case 'TurretBase':
+            case 'MiningArm':
                 return $this->hasOne(Turret::class, 'uuid', 'uuid');
             case 'WeaponGun':
                 return $this->hasOne(Weapon\Weapon::class, 'uuid', 'uuid');
+            case 'WeaponMining':
+                return $this->hasOne(MiningLaser::class, 'uuid', 'uuid');
             case 'WeaponDefensive':
                 return $this->hasOne(CounterMeasure::class, 'uuid', 'uuid');
             case 'MissileLauncher':

@@ -55,9 +55,14 @@ final class Item
         $manufacturer = $this->manufacturers->get($attach['Manufacturer'], []);
         $manufacturer = trim($manufacturer['name'] ?? $manufacturer['code'] ?? 'Unknown Manufacturer');
 
+        $name = $this->cleanName($nameKey);
+        if (empty($name)) {
+            $name = '<= PLACEHOLDER =>';
+        }
+
         return [
             'uuid' => $this->item['Raw']['Entity']['__ref'],
-            'name' => $this->cleanName($nameKey),
+            'name' => $name,
             'type' => $attach['Type'],
             'sub_type' => $attach['SubType'],
             'manufacturer' => $manufacturer,

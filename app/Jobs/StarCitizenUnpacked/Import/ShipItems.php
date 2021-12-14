@@ -36,6 +36,9 @@ class ShipItems implements ShouldQueue
         'Ship.Weapon.Rocket',
         'Ship.Weapon.NoseMounted',
 
+        'Ship.Weapon.Mining',
+        'Ship.Mining.Gun',
+
         'Ship.MissileLauncher.MissileRack',
 
         'Ship.Missile.Missile',
@@ -207,6 +210,11 @@ class ShipItems implements ShouldQueue
             case 'Ship.Weapon.NoseMounted':
                 return $this->createWeapon($item, $shipItem);
 
+            case 'Ship.WeaponMining':
+            case 'Ship.Weapon.Mining':
+            case 'Ship.Mining.Gun':
+                return $this->createMiningLaser($item, $shipItem);
+
             case 'Ship.WeaponDefensive':
                 return $this->createCounterMeasure($item, $shipItem);
 
@@ -218,6 +226,7 @@ class ShipItems implements ShouldQueue
 
             case 'Ship.Turret':
             case 'Ship.TurretBase':
+            case 'Ship.MiningArm':
                 return $this->createTurret($item, $shipItem);
 
             case 'Ship.MainThruster':
@@ -442,6 +451,7 @@ class ShipItems implements ShouldQueue
 
     private function createTurret(array $item, ShipItemModel $shipItem): Model
     {
+
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
@@ -499,6 +509,28 @@ class ShipItems implements ShouldQueue
             'detection_lifetime' => $item['radar']['detection_lifetime'] ?? 0,
             'altitude_ceiling' => $item['radar']['altitude_ceiling'] ?? 0,
             'enable_cross_section_occlusion' => $item['radar']['enable_cross_section_occlusion'] ?? false,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createMiningLaser(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->specification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'hit_type' => $item['mining_laser']['hit_type'] ?? 0,
+            'energy_rate' => $item['mining_laser']['energy_rate'] ?? 0,
+            'full_damage_range' => $item['mining_laser']['full_damage_range'] ?? 0,
+            'zero_damage_range' => $item['mining_laser']['zero_damage_range'] ?? 0,
+            'heat_per_second' => $item['mining_laser']['heat_per_second'] ?? 0,
+            'damage' => $item['mining_laser']['damage'] ?? 0,
+            'modifier_resistance' => $item['mining_laser']['modifier_resistance'] ?? 0,
+            'modifier_instability' => $item['mining_laser']['modifier_instability'] ?? 0,
+            'modifier_charge_window_size' => $item['mining_laser']['modifier_charge_window_size'] ?? 0,
+            'modifier_charge_window_rate' => $item['mining_laser']['modifier_charge_window_rate'] ?? 0,
+            'modifier_shatter_damage' => $item['mining_laser']['modifier_shatter_damage'] ?? 0,
+            'modifier_catastrophic_window_rate' => $item['mining_laser']['modifier_catastrophic_window_rate'] ?? 0,
+            'consumable_slots' => $item['turret']['max_mounts'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
     }
