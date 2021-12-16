@@ -139,7 +139,7 @@ class VehicleTransformer extends TranslationTransformer
 
     public function includeHardpoints(Vehicle $vehicle): \League\Fractal\Resource\Collection
     {
-        $hardpoints = $this->collection($vehicle->unpacked->hardpoints, new VehicleHardpointTransformer());
+        $hardpoints = $this->collection($vehicle->unpacked->hardpointsWithoutParent, new VehicleHardpointTransformer());
         $hardpoints->setMetaValue('info', 'Game Data Components');
 
         return $hardpoints;

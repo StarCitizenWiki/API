@@ -7,7 +7,6 @@ namespace App\Models\StarCitizenUnpacked;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Vehicle extends CommodityItem
@@ -143,6 +142,15 @@ class Vehicle extends CommodityItem
     }
 
     public function hardpoints(): HasMany
+    {
+        return $this->hasMany(
+            VehicleHardpoint::class,
+            'vehicle_id',
+            'id',
+        );
+    }
+
+    public function hardpointsWithoutParent(): HasMany
     {
         return $this->hasMany(
             VehicleHardpoint::class,
