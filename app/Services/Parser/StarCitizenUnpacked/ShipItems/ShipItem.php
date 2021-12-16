@@ -224,10 +224,10 @@ final class ShipItem extends AbstractCommodityItem
         // phpcs:disable
         $mappedItem = [
             'uuid' => $item['__ref'] ?? $item['reference'],
-            'size' => $data['size'] ?? $item['Components']['SAttachableComponentParams']['AttachDef']['Size'] ?? $item['Size'] ?? 0,
-            'item_type' => $data['item_type'] ?? $item['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? $item['Type'] ?? 0,
-            'item_class' => $data['item_class'] ?? $item['Components']['SAttachableComponentParams']['AttachDef']['Class'] ?? trim($item['Classification'] ?? 'Unknown Class'),
-            'item_grade' => $data['grade'] ?? $item['Components']['SAttachableComponentParams']['AttachDef']['Grade'] ?? $item['Grade'] ?? 0,
+            'size' => $data['size'] ?? $rawData['Components']['SAttachableComponentParams']['AttachDef']['Size'] ?? $item['Size'] ?? 0,
+            'item_type' => $data['item_type'] ?? $rawData['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? $item['Type'] ?? 0,
+            'item_class' => trim($item['Classification'] ?? $rawData['Components']['SAttachableComponentParams']['AttachDef']['Class'] ?? 'Unknown Class'),
+            'item_grade' => $data['grade'] ?? $rawData['Components']['SAttachableComponentParams']['AttachDef']['Grade'] ?? $item['Grade'] ?? 0,
             'description' => $data['description'] ?? '',
             'name' => str_replace(
                 [
@@ -245,8 +245,13 @@ final class ShipItem extends AbstractCommodityItem
             'grade' => $data['grade'] ?? null,
         ];
 
-        if ($mappedItem['type'] === 'Unknown Type' && isset($item['Components']['SAttachableComponentParams']['AttachDef']['Type'])) {
-            $mappedItem['type'] = trim(preg_replace('/([A-Z])/', ' $1', $item['Components']['SAttachableComponentParams']['AttachDef']['Type']));
+        if ($mappedItem['type'] === 'Unknown Type') {
+            if (isset($rawData['Components']['SAttachableComponentParams']['AttachDef']['Type'])) {
+                $mappedItem['type'] = trim(preg_replace('/([A-Z])/', ' $1', $rawData['Components']['SAttachableComponentParams']['AttachDef']['Type']));
+            } else {
+                $tmp = explode('.', $item['Type']);
+                $mappedItem['type'] = trim(preg_replace('/([A-Z])/', ' $1', array_shift($tmp)));
+            }
         }
         // phpcs:enable
 
