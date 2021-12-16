@@ -324,6 +324,8 @@ class Vehicle implements ShouldQueue
                             [
                                 'hardpoint_name' => $hardpoint['itemPortName'],
                                 'class_name' => $hardpoint['entityClassName'],
+                            ],
+                            [
                                 'equipped_vehicle_item_uuid' => $itemUuid,
                                 'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
                                 'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
@@ -385,6 +387,8 @@ class Vehicle implements ShouldQueue
                     [
                         'hardpoint_name' => $subPoint['itemPortName'],
                         'class_name' => $subPoint['entityClassName'],
+                    ],
+                    [
                         'parent_hardpoint_id' => $parent->id,
                         'equipped_vehicle_item_uuid' => $item['__ref'],
                     ]
