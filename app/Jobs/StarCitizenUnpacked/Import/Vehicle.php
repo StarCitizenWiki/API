@@ -95,14 +95,16 @@ class Vehicle implements ShouldQueue
                         return;
                     }
 
+                    /** @var \App\Models\StarCitizenUnpacked\Vehicle $vehicleModel */
                     $vehicleModel = \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
                         'class_name' => $vehicle['ClassName']
                     ], $this->getVehicleModelArray($vehicle));
 
-                    // TODO: WTF?
-                    VehicleHardpoint::query()->where('vehicle_id', $vehicleModel->id)->delete();
+                    $vehicleModel->refresh();
 
-                    $this->createHardpoints($vehicleModel, $vehicle['rawData']);
+                    if ($vehicleModel->hardpoints->count() === 0) {
+                        $this->createHardpoints($vehicleModel, $vehicle['rawData']);
+                    }
                 } catch (Exception $e) {
                     app('Log')::warning($e->getMessage());
                 }
