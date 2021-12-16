@@ -320,7 +320,7 @@ class Vehicle implements ShouldQueue
                             $itemUuid = $this->createModel($hardpoint['entityClassName']);
                         }
 
-                        $point = $vehicle->hardpoints()->create(
+                        $point = $vehicle->hardpoints()->updateOrCreate(
                             [
                                 'hardpoint_name' => $hardpoint['itemPortName'],
                                 'class_name' => $hardpoint['entityClassName'],
@@ -381,7 +381,7 @@ class Vehicle implements ShouldQueue
                     $this->createModel($subPoint['entityClassName']);
                 }
 
-                $point = $vehicle->hardpoints()->create(
+                $point = $vehicle->hardpoints()->updateOrCreate(
                     [
                         'hardpoint_name' => $subPoint['itemPortName'],
                         'class_name' => $subPoint['entityClassName'],
