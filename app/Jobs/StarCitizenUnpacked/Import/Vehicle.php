@@ -99,6 +99,9 @@ class Vehicle implements ShouldQueue
                         'class_name' => $vehicle['ClassName']
                     ], $this->getVehicleModelArray($vehicle));
 
+                    // TODO: WTF?
+                    VehicleHardpoint::query()->where('vehicle_id', $vehicleModel->id)->delete();
+
                     $this->createHardpoints($vehicleModel, $vehicle['rawData']);
                 } catch (Exception $e) {
                     app('Log')::warning($e->getMessage());
