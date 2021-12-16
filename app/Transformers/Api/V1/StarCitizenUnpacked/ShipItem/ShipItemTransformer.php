@@ -45,6 +45,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
             'type' => $item->shipItem->type === 'Unknown Type' ?
                 $item->shipItem->item->type :
                 $item->shipItem->type,
+            'sub_type' => $item->shipItem->item->sub_type,
             'durability' => [
                 'health' => $item->shipItem->health,
                 'lifetime' => $item->shipItem->lifetime,

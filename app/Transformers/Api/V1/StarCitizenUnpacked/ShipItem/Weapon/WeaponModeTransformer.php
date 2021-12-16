@@ -22,8 +22,8 @@ class WeaponModeTransformer extends TransformerAbstract
     public function transform(WeaponMode $mode): array
     {
         return array_filter([
-            'name' => $mode->name,
-            'localized_name' => $mode->localized_name,
+            'mode' => $mode->mode,
+            'type' => $mode->type,
             'rpm' => $mode->rounds_per_minute,
             'ammo_per_shot' => $mode->ammo_per_shot,
             'pellets_per_shot' => $mode->pellets_per_shot,

@@ -22,12 +22,6 @@ abstract class CommodityItem extends HasTranslations
         'item'
     ];
 
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
-
     /**
      * @return BelongsTo
      */

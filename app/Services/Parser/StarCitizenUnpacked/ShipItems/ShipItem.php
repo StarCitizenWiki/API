@@ -224,10 +224,10 @@ final class ShipItem extends AbstractCommodityItem
         // phpcs:disable
         $mappedItem = [
             'uuid' => $item['__ref'] ?? $item['reference'],
-            'size' => $item['Components']['SAttachableComponentParams']['AttachDef']['Size'] ?? $item['Size'] ?? 0,
-            'item_type' => $item['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? $item['Type'] ?? 0,
-            'item_class' => $item['Components']['SAttachableComponentParams']['AttachDef']['Class'] ?? trim($item['Classification'] ?? 'Unknown Class'),
-            'item_grade' => $item['Components']['SAttachableComponentParams']['AttachDef']['Grade'] ?? $item['Grade'] ?? 0,
+            'size' => $data['size'] ?? $item['Components']['SAttachableComponentParams']['AttachDef']['Size'] ?? $item['Size'] ?? 0,
+            'item_type' => $data['item_type'] ?? $item['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? $item['Type'] ?? 0,
+            'item_class' => $data['item_class'] ?? $item['Components']['SAttachableComponentParams']['AttachDef']['Class'] ?? trim($item['Classification'] ?? 'Unknown Class'),
+            'item_grade' => $data['grade'] ?? $item['Components']['SAttachableComponentParams']['AttachDef']['Grade'] ?? $item['Grade'] ?? 0,
             'description' => $data['description'] ?? '',
             'name' => str_replace(
                 [
@@ -240,7 +240,7 @@ final class ShipItem extends AbstractCommodityItem
                 trim($item['Name'] ?? $this->labels->get(substr($item['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Name'], 1)) ?? 'Unknown Ship Item')
             ),
             'manufacturer' => $data['manufacturer'] ?? $this->getManufacturer($item),
-            'type' => trim($item['type'] ?? 'Unknown Type'),
+            'type' => trim($item['type'] ?? $data['item_type'] ?? 'Unknown Type'),
             'class' => trim($data['item_class'] ?? 'Unknown Class'),
             'grade' => $data['grade'] ?? null,
         ];
