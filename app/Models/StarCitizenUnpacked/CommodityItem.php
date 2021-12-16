@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked;
 
-use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Models\StarCitizenUnpacked\Shop\ShopItem;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasModelChangelogTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
-abstract class CommodityItem extends HasTranslations implements HasChangelogsInterface
+abstract class CommodityItem extends HasTranslations
 {
-    use HasModelChangelogTrait;
     use HasFactory;
 
     protected $with = [

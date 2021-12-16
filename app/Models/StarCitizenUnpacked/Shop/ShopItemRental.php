@@ -6,14 +6,11 @@ namespace App\Models\StarCitizenUnpacked\Shop;
 
 use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\Item;
-use App\Traits\HasModelChangelogTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ShopItemRental extends Model
 {
-    use HasModelChangelogTrait;
-
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
         'created' => ModelUpdating::class,

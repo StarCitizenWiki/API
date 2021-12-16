@@ -6,7 +6,6 @@ namespace App\Models\StarCitizenUnpacked\Shop;
 
 use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\Item;
-use App\Traits\HasModelChangelogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,7 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Shop extends Model
 {
     use HasFactory;
-    use HasModelChangelogTrait;
 
     protected $table = 'star_citizen_unpacked_shops';
 

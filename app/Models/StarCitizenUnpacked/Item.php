@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked;
 
-use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
@@ -20,7 +19,6 @@ use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Models\StarCitizenUnpacked\Shop\ShopItem;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Traits\HasModelChangelogTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -28,10 +26,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
-class Item extends HasTranslations implements HasChangelogsInterface
+class Item extends HasTranslations
 {
     use HasFactory;
-    use HasModelChangelogTrait;
 
     protected $table = 'star_citizen_unpacked_items';
 
