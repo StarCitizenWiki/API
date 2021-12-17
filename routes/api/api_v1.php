@@ -604,6 +604,16 @@ $api->group(
                         )->where('item', '(.*)');
                     }
                 );
+
+                $api->get(
+                    '/{item}',
+                    ['as' => 'api.v1.scunpacked.ship-items.show', 'uses' => 'ItemController@show']
+                )->where('item', '(.*)');
+
+                $api->post(
+                    '/search',
+                    ['as' => 'api.v1.scunpacked.ship-items.search', 'uses' => 'ItemController@search']
+                );
             }
         );
     }

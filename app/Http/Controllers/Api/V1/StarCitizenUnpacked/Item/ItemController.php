@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\Item;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Http\Requests\StarCitizen\AbstractSearchRequest;
 use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Models\StarCitizenUnpacked\Item;
 use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
