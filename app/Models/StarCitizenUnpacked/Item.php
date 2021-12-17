@@ -42,12 +42,6 @@ class Item extends HasTranslations
         'version',
     ];
 
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
-
     public function translations(): HasMany
     {
         return $this->hasMany(
@@ -121,7 +115,9 @@ class Item extends HasTranslations
                 return $this->hasOne(Weapon::class, 'uuid', 'uuid');
 
             case $this->type === 'Missile':
+            case $this->type === 'Torpedo':
             case Str::contains($this->type, 'Missile'):
+            case Str::contains($this->type, 'Torpedo'):
                 return $this->hasOne(Missile::class, 'uuid', 'uuid');
 
             case $this->type === 'Cooler':

@@ -107,6 +107,7 @@ class ShipItem extends CommodityItem
             case 'MissileLauncher':
                 return $this->hasOne(Weapon\MissileRack::class, 'uuid', 'uuid');
             case 'Missile':
+            case 'Torpedo':
                 return $this->hasOne(Weapon\Missile::class, 'uuid', 'uuid');
             case 'MainThruster':
             case 'ManneuverThruster':

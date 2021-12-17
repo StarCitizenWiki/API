@@ -42,6 +42,7 @@ class ShipItems implements ShouldQueue
         'Ship.MissileLauncher.MissileRack',
 
         'Ship.Missile.Missile',
+        'Ship.Missile.Torpedo',
     ];
 
     /**
@@ -222,6 +223,7 @@ class ShipItems implements ShouldQueue
                 return $this->createMissileRack($item, $shipItem);
 
             case 'Ship.Missile.Missile':
+            case 'Ship.Missile.Torpedo':
                 return $this->createMissile($item, $shipItem);
 
             case 'Ship.Turret':
