@@ -60,6 +60,11 @@ final class Item
             $name = '<= PLACEHOLDER =>';
         }
 
+        // phpcs:ignore
+        $sizes = $this->item->pull('Raw.Entity.Components.SAttachableComponentParams.AttachDef.inventoryOccupancyDimensions', []);
+        // phpcs:ignore
+        $volume = $this->item->pull('Raw.Entity.Components.SAttachableComponentParams.AttachDef.inventoryOccupancyVolume.SMicroCargoUnit.microSCU', 0);
+
         return [
             'uuid' => $this->item['Raw']['Entity']['__ref'],
             'name' => $name,
@@ -67,6 +72,12 @@ final class Item
             'sub_type' => $attach['SubType'],
             'manufacturer' => $manufacturer,
             'size' => $attach['Size'],
+
+            'width' => $sizes['x'] ?? 0,
+            'height' => $sizes['z'] ?? 0,
+            'length' => $sizes['y'] ?? 0,
+
+            'volume' => $volume,
         ];
     }
 

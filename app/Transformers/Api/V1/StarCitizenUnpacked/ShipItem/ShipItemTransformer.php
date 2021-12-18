@@ -53,6 +53,12 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 'health' => $item->shipItem->health,
                 'lifetime' => $item->shipItem->lifetime,
             ],
+            'volume' => [
+                'width' => $item->shipItem->item->volume->width,
+                'height' => $item->shipItem->item->volume->height,
+                'length' => $item->shipItem->item->volume->length,
+                'volume' => $item->shipItem->item->volume->volume,
+            ],
             'version' => $item->shipItem->version,
         ];
 

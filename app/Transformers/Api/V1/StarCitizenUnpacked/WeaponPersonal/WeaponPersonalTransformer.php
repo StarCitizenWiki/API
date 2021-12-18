@@ -49,6 +49,12 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
                 'speed' => $weapon->ammunition->speed,
                 'range' => $weapon->ammunition->range,
             ],
+            'volume' => [
+                'width' => $weapon->item->volume->width,
+                'height' => $weapon->item->volume->height,
+                'length' => $weapon->item->volume->length,
+                'volume' => $weapon->item->volume->volume,
+            ],
             'version' => $weapon->version,
         ];
     }

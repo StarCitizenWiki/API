@@ -66,7 +66,7 @@ class ShopItems implements ShouldQueue
                         }
 
                         // TODO: Extract
-                        if (isset($inventory['rental']) && !empty($inventory['rental'])) {
+                        if ($inventory['rentable'] === true && isset($inventory['rental']) && !empty($inventory['rental'])) {
                             ShopItemRental::updateOrCreate([
                                 'item_uuid' => $itemModel->uuid,
                                 'shop_uuid' => $shopModel->uuid,

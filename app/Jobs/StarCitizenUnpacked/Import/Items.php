@@ -73,7 +73,8 @@ class Items implements ShouldQueue
                 return isset($item['type']) && !in_array($item['type'], $this->ignoredTypes, true);
             })
             ->each(function ($item) {
-                Item::updateOrCreate([
+                /** @var Item $item */
+                $itemModel = Item::updateOrCreate([
                     'uuid' => $item['uuid'],
                 ], [
                     'name' => $item['name'],
@@ -82,6 +83,16 @@ class Items implements ShouldQueue
                     'manufacturer' => $item['manufacturer'],
                     'size' => $item['size'],
                     'version' => config('api.sc_data_version'),
+                ]);
+
+                $itemModel->volume()->updateOrCreate([
+                    'item_uuid' => $item['uuid'],
+                ], [
+                    'width' => $item['width'],
+                    'height' => $item['height'],
+                    'length' => $item['length'],
+
+                    'volume' => $item['volume'],
                 ]);
             });
     }

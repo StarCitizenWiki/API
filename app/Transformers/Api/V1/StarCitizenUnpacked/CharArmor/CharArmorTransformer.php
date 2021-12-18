@@ -35,6 +35,12 @@ class CharArmorTransformer extends AbstractCommodityTransformer
             'armor_type' => $armor->armor_type,
             'carrying_capacity' => $armor->carrying_capacity,
             'damage_reduction' => $armor->damage_reduction,
+            'volume' => [
+                'width' => $armor->item->volume->width,
+                'height' => $armor->item->volume->height,
+                'length' => $armor->item->volume->length,
+                'volume' => $armor->item->volume->volume,
+            ],
         ];
 
         $baseModel = $armor->baseModel;

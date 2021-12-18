@@ -170,4 +170,13 @@ class Item extends HasTranslations
                 return $this->hasOne(CharArmor::class, 'uuid', 'type'); //NULL
         }
     }
+
+    public function volume(): HasOne
+    {
+        return $this->hasOne(
+            ItemVolume::class,
+            'item_uuid',
+            'uuid'
+        );
+    }
 }
