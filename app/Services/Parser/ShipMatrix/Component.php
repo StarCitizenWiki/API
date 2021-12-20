@@ -85,15 +85,11 @@ class Component extends BaseElement
     {
         app('Log')::debug('Getting Component');
 
-        if ($data->get(self::NAME) === null) {
-            return null;
-        }
-
         /** @var ComponentModel $component */
         $component = ComponentModel::query()->updateOrCreate(
             [
                 'type' => $this->normalizeString($data->get(self::TYPE)),
-                'name' => $this->normalizeString($data->get(self::NAME)),
+                'name' => $this->normalizeString($data->get(self::NAME, '')),
                 'component_class' => $this->normalizeString($data->get(self::COMPONENT_CLASS)),
                 'component_size' => $this->normalizeString($data->get(self::COMPONENT_SIZE)),
             ],
