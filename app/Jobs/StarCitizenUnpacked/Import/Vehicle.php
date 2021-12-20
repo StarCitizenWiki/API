@@ -314,7 +314,7 @@ class Vehicle implements ShouldQueue
         // phpcs:ignore
         collect($rawData['Entity']['Components']['SEntityComponentDefaultLoadoutParams']['loadout']['SItemPortLoadoutManualParams']['entries'])
             ->filter(function ($entry) use ($hardpoints) {
-                return isset($hardpoints[$entry['itemPortName'] ?? '']);
+                return isset($hardpoints[strtolower($entry['itemPortName'] ?? '')]);
             })
             ->chunk(5)
             ->each(function (Collection $entries) use ($hardpoints, $vehicle) {
@@ -330,8 +330,8 @@ class Vehicle implements ShouldQueue
                                 'hardpoint_name' => $hardpoint['itemPortName'],
                                 'class_name' => $hardpoint['entityClassName'],
                                 'equipped_vehicle_item_uuid' => $itemUuid,
-                                'min_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['minsize'] ?? 0,
-                                'max_size' => $hardpoints[$hardpoint['itemPortName']]['ItemPort']['maxsize'] ?? 0,
+                                'min_size' => $hardpoints[strtolower($hardpoint['itemPortName'])]['ItemPort']['minsize'] ?? 0,
+                                'max_size' => $hardpoints[strtolower($hardpoint['itemPortName'])]['ItemPort']['maxsize'] ?? 0,
                             ]
                         );
 
@@ -358,7 +358,7 @@ class Vehicle implements ShouldQueue
 
             if (($part['class'] ?? '') === 'ItemPort') {
                 unset($part['ItemPort']['Connections'], $part['ItemPort']['ControllerDef'], $part['ItemPort']['Types']);
-                $out[$part['name']] = $part;
+                $out[strtolower($part['name'])] = $part;
             }
         }
     }
