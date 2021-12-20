@@ -61,7 +61,7 @@ class ParseVehicleTest extends TestCase
         self::assertCount(2, Focus::all());
         self::assertCount(2, Type::all());
         self::assertCount(2, Size::all());
-        self::assertCount(15, VehicleComponent::all());
+        self::assertCount(17, VehicleComponent::all());
     }
 
     /**
