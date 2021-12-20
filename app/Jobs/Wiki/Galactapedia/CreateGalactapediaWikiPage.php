@@ -274,6 +274,17 @@ FORMAT;
 
             $content = $this->runTextReplacements($content, $pageContent);
 
+            if (strpos($pageContent, '(Getrennter erster Satz)') !== false) {
+                if (isset($content['repl'])) {
+                    $content['repl'] = sprintf("%s\n(Getrennter erster Satz)", $content['repl']);
+                } else {
+                    $content['repl'] = "\n(Getrennter erster Satz)";
+                }
+
+                $text = explode('.', $content['content'], 2);
+                $content['content'] = implode(".\n\n", array_map('trim', $text));
+            }
+
             $formatted = sprintf(
                 $format,
                 '', // Don't replace template
