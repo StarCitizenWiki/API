@@ -281,7 +281,7 @@ FORMAT;
                     $content['repl'] = "\n(Getrennter erster Satz)";
                 }
 
-                $text = explode('.', $content['content'], 2);
+                $text = explode('. ', $content['content'], 2);
                 $content['content'] = implode(".\n\n", array_map('trim', $text));
             }
 
