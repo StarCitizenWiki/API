@@ -16,6 +16,21 @@ use Illuminate\Validation\ValidationException;
 
 class ItemController extends ApiController
 {
+    /** @var array Fixes item names to uuids with shops */
+    private array $uuidFixes = [
+        'Helix I Mining Laser' => '81e1a10a-c7bd-401f-92e1-284115dcd6e1',
+        '153d53e7-c5e0-445c-82ac-6aae2073b565' => '81e1a10a-c7bd-401f-92e1-284115dcd6e1',
+
+        'Impact I Mining Laser' => '6429e3d3-c813-4dfc-bc68-c95b54123722',
+        'af6cede9-7ae7-47a6-ba91-dac5f020f698' => '6429e3d3-c813-4dfc-bc68-c95b54123722',
+
+        'Hofstede-S1 Mining Laser' => '077a4a94-6296-4a83-a6c4-f215f7efd1df',
+        'a5b839fe-c1cc-4cbd-abb6-c9296ad84d46' => '077a4a94-6296-4a83-a6c4-f215f7efd1df',
+
+        'Klein-S1 Mining Laser' => 'e6b284b9-456a-4444-b5fc-7c33bf5a6945',
+        'd04aed0b-3c4a-4aaf-96c6-1abf8b32c12a' => 'e6b284b9-456a-4444-b5fc-7c33bf5a6945',
+    ];
+
     /**
      * ShipController constructor.
      *
@@ -58,6 +73,10 @@ class ItemController extends ApiController
         );
 
         $item = urldecode($item);
+
+        if (isset($this->uuidFixes[$item])) {
+            $item = $this->uuidFixes[$item];
+        }
 
         try {
             $item = ShipItem::query()
