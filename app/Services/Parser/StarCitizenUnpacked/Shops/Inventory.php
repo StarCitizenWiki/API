@@ -137,7 +137,7 @@ final class Inventory
             }
 
             return [
-                'type' => $type,
+                'type' => $type ?? $out['type'],
                 'subType' => $out['subType'] ?? $subType ?? null,
             ];
         }
