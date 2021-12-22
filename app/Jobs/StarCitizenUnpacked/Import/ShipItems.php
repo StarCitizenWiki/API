@@ -364,7 +364,7 @@ class ShipItems implements ShouldQueue
 
     private function createWeapon(array $item, ShipItemModel $shipItem): ?Model
     {
-        if (!isset($item['weapon'])) {
+        if (!isset($item['weapon']) && $item['item_type'] !== 'Tractor Beam') {
             return null;
         }
 
@@ -372,15 +372,15 @@ class ShipItems implements ShouldQueue
         $weapon = $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'speed' => $item['weapon']['speed'],
-            'range' => $item['weapon']['range'],
-            'size' => $item['weapon']['size'],
-            'capacity' => $item['weapon']['capacity'],
+            'speed' => $item['weapon']['speed'] ?? 0,
+            'range' => $item['weapon']['range'] ?? 0,
+            'size' => $item['weapon']['size'] ?? $item['size'],
+            'capacity' => $item['weapon']['capacity'] ?? 0,
 
             'ship_item_id' => $shipItem->id,
         ]);
 
-        foreach ($item['weapon']['damages'] as $type => $damage) {
+        foreach (($item['weapon']['damages'] ?? []) as $type => $damage) {
             if (empty($damage)) {
                 continue;
             }
@@ -396,7 +396,7 @@ class ShipItems implements ShouldQueue
             }
         }
 
-        foreach ($item['weapon']['modes'] as $mode) {
+        foreach (($item['weapon']['modes'] ?? []) as $mode) {
             /** @var WeaponMode $mode */
             $weapon->modes()->updateOrCreate([
                 'mode' => $mode['mode'],
