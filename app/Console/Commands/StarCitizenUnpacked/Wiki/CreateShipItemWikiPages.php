@@ -40,6 +40,10 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
     {
         $items = ShipItem::all();
 
+        $items = $items->filter(function (ShipItem $item) {
+            return strpos(strtolower($item->item->name), 'placeholder') === false;
+        });
+
         $this->createProgressBar($items->count());
 
         $items->each(function (ShipItem $item) {
@@ -100,13 +104,28 @@ FORMAT;
 
     private function getTemplateType(ShipItem $item): ?string
     {
+        if ($item->item !== null && $item->item->name !== '<= PLACEHOLDER =>') {
+            switch ($item->item->type) {
+                case 'WeaponGun':
+                    return 'Fahrzeugwaffe';
+                case 'MissileLauncher':
+                    return 'Raketenwerfer';
+                case 'Missile':
+                    return 'Rakete';
+                case 'Turret':
+                    return 'Waffenturm';
+                case 'WeaponMining':
+                    return 'Bergbaulaser';
+            }
+        }
+
         switch ($item->type) {
             case 'Cooler':
                 return 'Kühler';
             case 'Power Plant':
                 return 'Generator';
             case 'Shield Generator':
-                return 'Schild';
+                return 'Schildgenerator';
             case 'Quantum Drive':
                 return 'Quantenantrieb';
             default:

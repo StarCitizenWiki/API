@@ -53,6 +53,11 @@ class UploadItemImages extends AbstractQueueCommand
         'Power Plant' => 'Generator',
         'Quantum Drive' => 'Quantenantrieb',
         'Shield Generator' => 'Schildgenerator',
+        'WeaponGun' => 'Fahrzeugwaffe',
+
+        'Light Backpack' => 'Leichter Rucksack',
+        'Medium Backpack' => 'Mittlerer Rucksack',
+        'Heavy Backpack' => 'Schwerer Rucksack',
     ];
 
     /**
@@ -77,9 +82,15 @@ class UploadItemImages extends AbstractQueueCommand
         });
 
         $this->info('Uploading Ship Item Images...');
-        ShipItem::whereIn('type', array_keys($this->typeTranslations))->chunk(100, function (Collection $items) {
-            $this->work($items);
-        });
+        ShipItem::query()->whereIn('type', array_keys($this->typeTranslations))
+            ->orWhereRelation('item', 'type', 'WeaponGun')
+            ->orWhereRelation('item', 'type', 'Missile')
+            ->orWhereRelation('item', 'type', 'Torpedo')
+            ->orWhereRelation('item', 'type', 'WeaponMining')
+            ->orWhereRelation('item', 'type', 'MissileLauncher')
+            ->chunk(100, function (Collection $items) {
+                $this->work($items);
+            });
 
         $this->info('Done');
 
@@ -131,9 +142,14 @@ class UploadItemImages extends AbstractQueueCommand
             if (isset($this->typeTranslations[$item->type])) {
                 $categories[] = $this->typeTranslations[$item->type];
 
+                $type = $this->typeTranslations[$item->type];
+                if ($item->item->type === 'WeaponGun') {
+                    $type = 'Fahrzeugwaffe';
+                }
+
                 $metadata['description'] = sprintf(
                     '%s [[%s]] vom Hersteller [[%s]]',
-                    $this->typeTranslations[$item->type],
+                    $type,
                     $item->item->name,
                     $item->item->manufacturer,
                 );

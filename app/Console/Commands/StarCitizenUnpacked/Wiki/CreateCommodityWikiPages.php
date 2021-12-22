@@ -34,6 +34,31 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
      */
     protected $description = 'Create commodity subobjects as wikipages';
 
+    private $ignoredTypes = [
+        'WeaponPersonal',
+
+        'CharArmor',
+        'Char_Armor_Helmet',
+        'Char_Armor_Arms',
+        'Char_Armor_Torso',
+        'Char_Armor_Legs',
+        'Char_Armor_Undersuit',
+        'Char_Armor_Backpack',
+
+        'Vehicle',
+        'GroundVehicle',
+
+        'WeaponGun',
+        'WeaponMining',
+        'Turret',
+        'Missile',
+        'MissileLauncher',
+        'QuantumDrive',
+        'Cooler',
+        'PowerPlant',
+        'Shield',
+    ];
+
     /**
      * Execute the console command.
      *
@@ -63,6 +88,12 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
             })
             ->filter(function (Shop $shop) {
                 return strpos($shop->name_raw, 'Astro Armada') === false;
+            })
+            ->filter(function (Shop $shop) {
+                return $shop->position !== 'Unknown Position';
+            })
+            ->filter(function (Shop $shop) {
+                return $shop->name !== 'Unknown Name';
             });
 
         $this->createProgressBar($data->count());
@@ -85,6 +116,9 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
             ->filter(function (Item $item) {
                 return strpos($item->name, '[PLACEHOLDER]') === false;
             })
+            ->filter(function (Item $item) {
+                return !in_array($item->type, $this->ignoredTypes, true);
+            })
             ->sortBy('name')
             ->map(function (Item $item) use ($shop) {
                 return SmwSubObjectMapper::map(
@@ -97,6 +131,25 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
             ->implode("\n");
 
         $title = sprintf('Spieldaten/Handelswaren/%s/%s', $shop->position, $shop->name);
+
+        if (empty(trim($items))) {
+            dump('Delete: ' . $title);
+            try {
+                $token = $this->getCsrfToken('services.wiki_translations');
+                MediaWikiApi::action('delete', 'POST')
+                    ->withAuthentication()
+                    ->addParam('title', $title)
+                    ->csrfToken($token)
+                    ->addParam('reason', 'Deleting empty commodity page')
+                    ->request();
+
+                return;
+            } catch (ErrorException | GuzzleException $e) {
+                $this->error($e->getMessage());
+
+                return;
+            }
+        }
 
         // phpcs:disable
         $format = <<<FORMAT
