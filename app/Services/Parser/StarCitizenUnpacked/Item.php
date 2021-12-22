@@ -16,8 +16,9 @@ final class Item
     private Collection $manufacturers;
 
     /**
-     * AssaultRifle constructor.
      * @param string $fileName
+     * @param Collection $labels
+     * @param Collection $manufacturers
      * @throws FileNotFoundException
      * @throws JsonException
      */

@@ -66,6 +66,7 @@ final class CharArmor extends AbstractCommodityItem
             'Damage Reduction' => 'damage_reduction',
             'Carrying Capacity' => 'carrying_capacity',
             'Temp\. Rating' => 'temp_rating',
+            'Core Compatibility' => 'core_compatibility',
         ]);
 
         return [
