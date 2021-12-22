@@ -14,6 +14,7 @@ final class MiningLaser extends AbstractItemSpecification
             return null;
         }
 
+        // phpcs:disable
         return array_filter([
             'hit_type' => $rawData['Components']['SCItemWeaponComponentParams']['fireActions'][0]['hitType'],
             'energy_rate' => $rawData['Components']['SCItemWeaponComponentParams']['fireActions'][0]['energyRate'] ?? 0,
@@ -31,5 +32,6 @@ final class MiningLaser extends AbstractItemSpecification
         ], static function ($entry) {
             return !empty($entry);
         });
+        // phpcs:enable
     }
 }
