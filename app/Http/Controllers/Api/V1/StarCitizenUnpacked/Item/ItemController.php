@@ -37,7 +37,7 @@ class ItemController extends ApiController
      */
     public function index(): Response
     {
-        return $this->getResponse(Item::query()->where('version', config(self::SC_DATA_KEY))->orderBy('name'));
+        return $this->getResponse(Item::query()->orderBy('name'));
     }
 
     /**
@@ -62,7 +62,6 @@ class ItemController extends ApiController
 
         try {
             $item = Item::query()
-                ->where('version', config(self::SC_DATA_KEY))
                 ->where('name', $item)
                 ->orWhere('uuid', $item)
                 ->firstOrFail();
@@ -88,7 +87,6 @@ class ItemController extends ApiController
 
         try {
             $item = Item::query()
-                ->where('version', config(self::SC_DATA_KEY))
                 ->where('name', 'like', "%{$query}%")
                 ->orWhere('uuid', $query)
                 ->orWhere('type', $query)
@@ -109,7 +107,6 @@ class ItemController extends ApiController
     {
         return $this->getResponse(
             Item::query()
-                ->where('version', config(self::SC_DATA_KEY))
                 ->where('type', 'LIKE', 'Char_Clothing%')
                 ->orderBy('name')
         );
@@ -137,7 +134,6 @@ class ItemController extends ApiController
 
         try {
             $name = Item::query()
-                ->where('version', config(self::SC_DATA_KEY))
                 ->where('type', 'LIKE', 'Char_Clothing%')
                 ->where('name', 'LIKE', sprintf('%%%s%%%%', $name))
                 ->firstOrFail();
@@ -157,7 +153,6 @@ class ItemController extends ApiController
     {
         return $this->getResponse(
             Item::query()
-                ->where('version', config(self::SC_DATA_KEY))
                 ->whereIn('type', Inventory::EXTRA_TYPES)
                 ->orderBy('name')
         );

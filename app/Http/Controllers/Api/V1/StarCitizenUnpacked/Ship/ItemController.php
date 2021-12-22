@@ -51,7 +51,7 @@ class ItemController extends ApiController
      */
     public function index(): Response
     {
-        return $this->getResponse(ShipItem::query()->where('version', config(self::SC_DATA_KEY))->orderBy('name'));
+        return $this->getResponse(ShipItem::query()->orderBy('name'));
     }
 
     /**

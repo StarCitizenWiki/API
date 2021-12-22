@@ -49,7 +49,6 @@ class WeaponPersonalController extends ApiController
 
         try {
             $weapon = WeaponPersonal::query()
-                ->where('version', config(self::SC_DATA_KEY))
                 ->whereHas('item', function (Builder $query) use ($weapon) {
                     return $query->where('name', $weapon)
                         ->orWhere('uuid', $weapon);
