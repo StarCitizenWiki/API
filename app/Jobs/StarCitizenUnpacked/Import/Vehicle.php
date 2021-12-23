@@ -28,7 +28,12 @@ class Vehicle implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private $createItemTypes = [
+    /**
+     * These are item types that added as an item when found as loadout on a hardpoint
+     *
+     * @var array|string[]
+     */
+    private array $createItemTypes = [
         'FuelTank',
         'FuelTank',
         'QuantumFuelTank',
@@ -41,11 +46,23 @@ class Vehicle implements ShouldQueue
         'SelfDestruct',
         'WeaponDefensive',
         'WeaponMining',
+        'WeaponMount',
         'Radar',
     ];
 
+    /**
+     * Parses a json file to array
+     *
+     * @var \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem
+     */
     private \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem $parser;
-    private $creator;
+
+    /**
+     * Creates a model from parser
+     *
+     * @var ShipItems
+     */
+    private ShipItems $creator;
 
     public function __construct()
     {
@@ -90,11 +107,6 @@ class Vehicle implements ShouldQueue
                 }
 
                 try {
-                    $model = $this->getVehicleModelArray($vehicle);
-                    if ($model['shipmatrix_id'] === -1 || Str::contains($vehicle['ClassName'], ['BIS29', 'Modifiers'])) {
-                        return;
-                    }
-
                     /** @var \App\Models\StarCitizenUnpacked\Vehicle $vehicleModel */
                     $vehicleModel = \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
                         'class_name' => $vehicle['ClassName']
@@ -117,7 +129,7 @@ class Vehicle implements ShouldQueue
         return [
             'uuid' => $vehicle['rawData']['Entity']['__ref'],
 
-            'shipmatrix_id' => $this->tryGetShipmatrixIdForVehicle($vehicle)->id ?? -1,
+            'shipmatrix_id' => $this->tryGetShipmatrixIdForVehicle($vehicle)->id ?? 0,
             'name' => $vehicle['Name'],
             'career' => $vehicle['Career'],
             'role' => $vehicle['Role'],
@@ -176,6 +188,13 @@ class Vehicle implements ShouldQueue
         ];
     }
 
+    /**
+     * As  some in-game ship names differ from the ship matrix, we try to catch this here
+     * Currently an in-game ship needs to have an accompanying ship-matrix entry
+     *
+     * @param array $vehicle
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     */
     private function tryGetShipmatrixIdForVehicle(array $vehicle)
     {
         $nameFix = explode(' ', $vehicle['Name']);
@@ -242,11 +261,23 @@ class Vehicle implements ShouldQueue
             $this->queryForName(['name', 'LIKE', sprintf('%%%s%%', $nameDashed)]);
     }
 
+    /**
+     * Just a small query wrapper
+     *
+     * @param array $config
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
+     */
     private function queryForName(array $config)
     {
         return \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::query()->where(...$config)->first();
     }
 
+    /**
+     * "Rounds" to a given precision
+     *
+     * @param $data
+     * @return float|int
+     */
     private function numFormat($data)
     {
         $num = $data ?? 0;
@@ -261,6 +292,13 @@ class Vehicle implements ShouldQueue
         return $negation * floor((abs((float)$num) * $coefficient)) / $coefficient;
     }
 
+    /**
+     * Creates a ShipItem model for a given className
+     * Loads the item definition from file and parses it
+     *
+     * @param string $className
+     * @return string|null
+     */
     private function createModel(string $className): ?string
     {
         try {
@@ -301,6 +339,13 @@ class Vehicle implements ShouldQueue
         return $itemUuid ?? null;
     }
 
+    /**
+     * Creates all hardpoints found on a vehicle
+     * Iterates through all sup-hardpoints also
+     *
+     * @param \App\Models\StarCitizenUnpacked\Vehicle $vehicle
+     * @param array $rawData
+     */
     private function createHardpoints(\App\Models\StarCitizenUnpacked\Vehicle $vehicle, array $rawData): void
     {
         // phpcs:ignore
@@ -325,25 +370,54 @@ class Vehicle implements ShouldQueue
                             $itemUuid = $this->createModel($hardpoint['entityClassName']);
                         }
 
+                        $itemPortName = strtolower($hardpoint['itemPortName']);
+
                         $point = $vehicle->hardpoints()->create(
                             [
                                 'hardpoint_name' => $hardpoint['itemPortName'],
                                 'class_name' => $hardpoint['entityClassName'],
                                 'equipped_vehicle_item_uuid' => $itemUuid,
-                                'min_size' => $hardpoints[strtolower($hardpoint['itemPortName'])]['ItemPort']['minsize'] ?? 0,
-                                'max_size' => $hardpoints[strtolower($hardpoint['itemPortName'])]['ItemPort']['maxsize'] ?? 0,
+                                'min_size' => $hardpoints[$itemPortName]['ItemPort']['minsize'] ?? 0,
+                                'max_size' => $hardpoints[$itemPortName]['ItemPort']['maxsize'] ?? 0,
                             ]
                         );
 
+                        // "Fix" for the Cutlass Steel mounted weapons
+                        if (strpos($hardpoint['entityClassName'], 'WeaponMount_Gun_S1_DRAK_Cutlass_Steel') !== false) {
+                            $hardpoint['loadout'] = [
+                                'SItemPortLoadoutManualParams' => [
+                                    'entries' => [
+                                        [
+                                        'itemPortName' => 'weapon',
+                                        'entityClassName' => 'GATS_BallisticGatling_Mounted_S1',
+                                        'loadout' => []
+                                        ]
+                                    ],
+                                ]
+                            ];
+                        }
+
                         // phpcs:disable
-                        if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                            $this->createSubPoint($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle);
+                        if (isset($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries']) &&
+                            !empty($hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                            $this->createSubPoint(
+                                $hardpoint['loadout']['SItemPortLoadoutManualParams']['entries'],
+                                $point,
+                                $vehicle
+                            );
                         }
                         // phpcs:enable
                     });
             });
     }
 
+    /**
+     * Flat-maps all hardpoints from hardpoint name to hardpoint data
+     * This is used to get the min and max sizes later on
+     *
+     * @param array $parts
+     * @param array $out
+     */
     private function mapHardpoints(array $parts, array &$out): void
     {
         foreach ($parts as $part) {
@@ -363,6 +437,13 @@ class Vehicle implements ShouldQueue
         }
     }
 
+    /**
+     * This runs on each child hardpoint found on a hardpoint recursively
+     *
+     * @param array $entries
+     * @param VehicleHardpoint $parent
+     * @param \App\Models\StarCitizenUnpacked\Vehicle $vehicle
+     */
     private function createSubPoint(array $entries, VehicleHardpoint $parent, \App\Models\StarCitizenUnpacked\Vehicle $vehicle): void
     {
         foreach ($entries as $subPoint) {
@@ -396,8 +477,13 @@ class Vehicle implements ShouldQueue
                 );
 
                 // phpcs:disable
-                if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) && !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                    $this->createSubPoint($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'], $point, $vehicle);
+                if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) &&
+                    !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                    $this->createSubPoint(
+                        $subPoint['loadout']['SItemPortLoadoutManualParams']['entries'],
+                        $point,
+                        $vehicle
+                    );
                 }
                 // phpcs:enable
             } catch (JsonException | FileNotFoundException $e) {

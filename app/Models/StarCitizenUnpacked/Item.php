@@ -145,6 +145,8 @@ class Item extends HasTranslations
 
             case $this->type === 'Turret':
             case $this->type === 'TurretBase':
+            case $this->type === 'MiningArm':
+            case $this->type === 'WeaponMount':
                 return $this->hasOne(Turret::class, 'uuid', 'uuid');
 
             case $this->type === 'WeaponDefensive':

@@ -229,6 +229,7 @@ class ShipItems implements ShouldQueue
             case 'Ship.Turret':
             case 'Ship.TurretBase':
             case 'Ship.MiningArm':
+            case 'Ship.WeaponMount':
                 return $this->createTurret($item, $shipItem);
 
             case 'Ship.MainThruster':
