@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Vehicle;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Vehicle\VehicleSearchRequest;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizenUnpacked\Vehicle as UnpackedVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\VehicleTransformer as UnpackedVehicleTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -261,15 +263,28 @@ class VehicleController extends ApiController
         $vehicle = urldecode($vehicle);
 
         try {
-            $vehicle = Vehicle::query()
+            $vehicleModel = Vehicle::query()
                 ->where('name', $vehicle)
                 ->orWhere('slug', $vehicle)
-                ->firstOrFail();
+                ->first();
+
+            if ($vehicleModel === null) {
+                $vehicleModel = UnpackedVehicle::query()
+                    ->where('name', 'like', '%' . $vehicle . '%')
+                    ->orWhere('class_name', 'like', '%' . $vehicle . '%')
+                    ->firstOrFail();
+
+                $locale = $this->transformer->getLocale();
+                $this->transformer = new UnpackedVehicleTransformer();
+                if ($locale !== null) {
+                    $this->transformer->setLocale($locale);
+                }
+            }
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $vehicle));
         }
 
-        return $this->getResponse($vehicle);
+        return $this->getResponse($vehicleModel);
     }
 
     /**
