@@ -51,5 +51,4 @@ jobs:
           FILTER_REGEX_INCLUDE: .*app/.*
           OUTPUT_FORMAT: tap
 
-          VALIDATE_PHP_BUILTIN: true # Not php 7.4 ready
-          VALIDATE_PHP_PHPSTAN: true
+          VALIDATE_PHP_BUILTIN: true
