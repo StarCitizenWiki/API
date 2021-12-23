@@ -15,7 +15,8 @@ final class CharArmor extends AbstractCommodityItem
     private Collection $items;
 
     /**
-     * AssaultRifle constructor.
+     * CharArmor constructor.
+     *
      * @throws FileNotFoundException
      * @throws JsonException
      */

@@ -21,6 +21,10 @@ use League\CommonMark\Inline\Element\Emphasis;
 use League\CommonMark\Inline\Element\Link;
 use League\CommonMark\Inline\Element\Strong;
 
+/**
+ * CommonMark is a extensible MarkDown parser
+ * This is mainly used for parsing Galactapedia articles to a format that is understood by MediaWiki
+ */
 final class WikiTextRenderer
 {
     /**
@@ -34,7 +38,7 @@ final class WikiTextRenderer
     private HtmlRenderer $renderer;
 
     /**
-     * @param EnvironmentInterface $environment
+     * Adds new renderer definitions
      */
     public function __construct()
     {

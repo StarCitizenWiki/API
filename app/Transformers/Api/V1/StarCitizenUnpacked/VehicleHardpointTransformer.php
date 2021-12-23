@@ -8,6 +8,10 @@ use App\Models\StarCitizenUnpacked\VehicleHardpoint;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\ShipItemTransformer;
 use League\Fractal\Resource\Collection;
 
+/**
+ * Transformer for hardpoints on a vehicle
+ * Adds the hardpoint name, its min- and max size as well as the equipped item if available
+ */
 class VehicleHardpointTransformer extends AbstractCommodityTransformer
 {
     public function transform(VehicleHardpoint $hardpoint): array

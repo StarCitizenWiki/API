@@ -14,7 +14,9 @@ final class Manufacturers
     private Collection $manufacturers;
 
     /**
-     * AssaultRifle constructor.
+     * Manufacturers contain all available manufacturers
+     * Manufacturers are mapped by UUID
+     *
      * @throws FileNotFoundException
      * @throws JsonException
      */

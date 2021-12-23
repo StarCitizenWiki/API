@@ -75,10 +75,6 @@ class Vehicle extends CommodityItem
         'expedite_cost',
     ];
 
-    protected $hidden = [
-        //'pivot',
-    ];
-
     protected $casts = [
         'size' => 'int',
         'width' => 'double',
@@ -138,7 +134,11 @@ class Vehicle extends CommodityItem
      */
     public function vehicle(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::class, 'shipmatrix_id', 'id');
+        return $this->belongsTo(
+            \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::class,
+            'shipmatrix_id',
+            'id'
+        );
     }
 
     public function hardpoints(): HasMany

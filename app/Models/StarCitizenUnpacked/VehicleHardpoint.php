@@ -36,6 +36,9 @@ class VehicleHardpoint extends Model
         return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');
     }
 
+    /**
+     * @return HasOne
+     */
     public function item(): HasOne
     {
         return $this->hasOne(
@@ -45,6 +48,11 @@ class VehicleHardpoint extends Model
         );
     }
 
+    /**
+     * Retrieve child hardpoints form the same table by joining on the parent_hardpoint_id attribute
+     *
+     * @return HasMany
+     */
     public function children(): HasMany
     {
         return $this->hasMany(

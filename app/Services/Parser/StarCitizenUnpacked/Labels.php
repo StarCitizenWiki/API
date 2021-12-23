@@ -14,7 +14,8 @@ final class Labels
     private Collection $labels;
 
     /**
-     * AssaultRifle constructor.
+     * Labels contain all available translations
+     *
      * @throws FileNotFoundException
      * @throws JsonException
      */

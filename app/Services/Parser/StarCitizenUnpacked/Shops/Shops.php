@@ -14,6 +14,11 @@ final class Shops
     private Collection $shops;
     private Collection $mapped;
 
+    /**
+     * List of game data shop names to "in-game" names
+     *
+     * @var array|string[]
+     */
     private array $shopNames = [
         'TDD_Orison' => 'Trade & Development Division, Orison',
         'TravelerRentals_Orison' => 'Traveler Rentals, Orison',
@@ -84,7 +89,10 @@ final class Shops
 
     private function mapShop(array $shop): array
     {
-        ['name' => $name, 'position' => $position] = self::parseShopName($this->shopNames[$shop['name']] ?? $shop['name']);
+        [
+            'name' => $name,
+            'position' => $position
+        ] = self::parseShopName($this->shopNames[$shop['name']] ?? $shop['name']);
 
         return [
             'uuid' => $shop['reference'],
@@ -119,6 +127,12 @@ final class Shops
             });
     }
 
+    /**
+     * Splits the shop name by ',' and trims it
+     *
+     * @param string $name
+     * @return array|string[]
+     */
     public static function parseShopName(string $name): array
     {
         $parts = explode(',', $name);
@@ -143,6 +157,13 @@ final class Shops
         ];
     }
 
+    /**
+     * This manually adds some shops that are only present once in shops.json
+     * Refinery Shops and Cargo Offices are present on almost all space stations, but are set only once in shops.json
+     * This loads the available inventory for the base shop and adds it as a dedicated shop for each space station
+     *
+     * Note: The Shop UUID is NOT official but manually generated
+     */
     private function addShops(): void
     {
         $refineryShops = [

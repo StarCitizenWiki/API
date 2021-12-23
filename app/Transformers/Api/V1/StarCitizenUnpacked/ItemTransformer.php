@@ -7,22 +7,31 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\Item;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
+use App\Models\StarCitizenUnpacked\ShipItem\MiningLaser;
 use App\Models\StarCitizenUnpacked\ShipItem\PowerPlant;
 use App\Models\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDrive;
 use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Missile;
+use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
+use App\Models\StarCitizenUnpacked\Turret;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachment;
 use App\Transformers\Api\V1\StarCitizenUnpacked\CharArmor\CharArmorTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\CoolerTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\MiningLaserTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\PowerPlantTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDriveTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield\ShieldTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\TurretTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\WeaponTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachmentsTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalTransformer;
 use League\Fractal\Resource\ResourceAbstract;
 
+/**
+ * Generic transformer for all items
+ * Includes the item specification if one exists
+ */
 class ItemTransformer extends AbstractCommodityTransformer
 {
     protected $availableIncludes = [
@@ -78,6 +87,15 @@ class ItemTransformer extends AbstractCommodityTransformer
 
             case Shield::class:
                 return $this->item($item->specification, new ShieldTransformer());
+
+            case Weapon::class:
+                return $this->item($item->specification(), new WeaponTransformer());
+
+            case MiningLaser::class:
+                return $this->item($item->specification(), new MiningLaserTransformer());
+
+            case Turret::class:
+                return $this->item($item->specification(), new TurretTransformer());
 
             default:
                 return $this->null();

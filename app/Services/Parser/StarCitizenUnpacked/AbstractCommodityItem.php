@@ -8,6 +8,17 @@ abstract class AbstractCommodityItem
 {
     abstract public function getData();
 
+    /**
+     * Tries to do some regex magic to extract information from a string
+     *
+     * @param string $description The string to run the matches on.
+     * Should be in the format of 'Keyword: Data Keyword: ...'
+     * @param array $wantedMatches Associative array mapping a Keyword to an output index on the returned array
+     * Example: [ 'Temp. Rating' => 'temp_rating' ] would try to find 'Temp. Rating' in $description and add
+     * the matched content to 'temp_rating' => match on the output
+     *
+     * @return array
+     */
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
         $match = preg_match_all(

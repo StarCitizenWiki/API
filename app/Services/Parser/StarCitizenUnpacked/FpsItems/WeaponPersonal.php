@@ -15,7 +15,8 @@ final class WeaponPersonal extends AbstractCommodityItem
     private Collection $items;
 
     /**
-     * AssaultRifle constructor.
+     * WeaponPersonal constructor
+     *
      * @throws FileNotFoundException
      * @throws JsonException
      */
@@ -44,7 +45,11 @@ final class WeaponPersonal extends AbstractCommodityItem
             })
             ->map(function (array $entry) {
                 try {
-                    $item = File::get(storage_path(sprintf('app/api/scunpacked-data/items/%s.json', $entry['ClassName'])));
+                    $item = File::get(
+                        storage_path(
+                            sprintf('app/api/scunpacked-data/items/%s.json', $entry['ClassName'])
+                        )
+                    );
                     $item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
                 } catch (FileNotFoundException $e) {
                     $item = collect();
