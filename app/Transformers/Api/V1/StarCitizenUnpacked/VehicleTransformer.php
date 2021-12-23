@@ -6,6 +6,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked;
 
 use App\Models\StarCitizenUnpacked\Vehicle;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
 use Illuminate\Support\Str;
 use League\Fractal\Resource\Collection;
 
@@ -251,5 +252,14 @@ class VehicleTransformer extends AbstractTranslationTransformer
         $hardpoints->setMetaValue('info', 'Game Data Components');
 
         return $hardpoints;
+    }
+
+    /**
+     * @param Vehicle $vehicle
+     * @return Collection
+     */
+    public function includeShops(Vehicle $vehicle): Collection
+    {
+        return $this->collection($vehicle->shops, new ShopTransformer());
     }
 }
