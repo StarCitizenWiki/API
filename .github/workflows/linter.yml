@@ -46,15 +46,10 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:
-          VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: develop
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILTER_REGEX_INCLUDE: .*app/.*
           OUTPUT_FORMAT: tap
-          VALIDATE_CSS: false
-          VALIDATE_JAVASCRIPT_ES: false
-          VALIDATE_JAVASCRIPT_STANDARD: false
-          VALIDATE_HTML: false
 
           VALIDATE_PHP_BUILTIN: true # Not php 7.4 ready
           VALIDATE_PHP_PHPSTAN: true
