@@ -255,7 +255,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
 
     private function fixItem($item): AbstractShipItemSpecification
     {
-        if ($item instanceof ShipItem) {
+        if ($item instanceof ShipItem || $item instanceof \App\Models\StarCitizenUnpacked\Item) {
             $item = $item->specification;
         }
 

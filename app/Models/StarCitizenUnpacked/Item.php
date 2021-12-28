@@ -86,87 +86,87 @@ class Item extends HasTranslations
             });
     }
 
-    public function specification(): HasOne
+    public function specification()
     {
         switch (true) {
             /**
              * Char Armor
              */
             case Str::contains($this->type, 'Char_Armor'):
-                return $this->hasOne(CharArmor::class, 'uuid', 'uuid');
+                return $this->hasOne(CharArmor::class, 'uuid', 'uuid')->withDefault();
 
             /**
              * Personal Weapons
              */
             case Str::contains($this->type, 'WeaponPersonal'):
-                return $this->hasOne(WeaponPersonal::class, 'uuid', 'uuid');
+                return $this->hasOne(WeaponPersonal::class, 'uuid', 'uuid')->withDefault();
 
             /**
              * Vehicles
              */
             case Str::contains($this->type, 'Vehicle'):
-                return $this->hasOne(Vehicle::class, 'uuid', 'uuid');
+                return $this->hasOne(Vehicle::class, 'uuid', 'uuid')->withDefault();
 
             /**
              * Ship Items
              */
             case $this->type === 'WeaponGun':
             case Str::contains($this->type, 'WeaponGun'):
-                return $this->hasOne(Weapon::class, 'uuid', 'uuid');
+                return $this->hasOne(Weapon::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'Missile':
             case $this->type === 'Torpedo':
             case Str::contains($this->type, 'Missile'):
             case Str::contains($this->type, 'Torpedo'):
-                return $this->hasOne(Missile::class, 'uuid', 'uuid');
+                return $this->hasOne(Missile::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'Cooler':
             case Str::contains($this->type, 'Cooler'):
-                return $this->hasOne(Cooler::class, 'uuid', 'uuid');
+                return $this->hasOne(Cooler::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'QuantumDrive':
             case Str::contains($this->type, 'QuantumDrive'):
-                return $this->hasOne(QuantumDrive::class, 'uuid', 'uuid');
+                return $this->hasOne(QuantumDrive::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'PowerPlant':
             case Str::contains($this->type, 'PowerPlant'):
-                return $this->hasOne(PowerPlant::class, 'uuid', 'uuid');
+                return $this->hasOne(PowerPlant::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'Shield':
             case Str::contains($this->type, 'Shield'):
-                return $this->hasOne(Shield::class, 'uuid', 'uuid');
+                return $this->hasOne(Shield::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'FuelTank':
             case $this->type === 'QuantumFuelTank':
-                return $this->hasOne(FuelTank::class, 'uuid', 'uuid');
+                return $this->hasOne(FuelTank::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'FuelIntake':
-                return $this->hasOne(FuelIntake::class, 'uuid', 'uuid');
+                return $this->hasOne(FuelIntake::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'Turret':
             case $this->type === 'TurretBase':
             case $this->type === 'MiningArm':
             case $this->type === 'WeaponMount':
-                return $this->hasOne(Turret::class, 'uuid', 'uuid');
+                return $this->hasOne(Turret::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'WeaponDefensive':
-                return $this->hasOne(CounterMeasure::class, 'uuid', 'uuid');
+                return $this->hasOne(CounterMeasure::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'MissileLauncher':
-                return $this->hasOne(MissileRack::class, 'uuid', 'uuid');
+                return $this->hasOne(MissileRack::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'MainThruster':
             case $this->type === 'ManneuverThruster':
-                return $this->hasOne(Thruster::class, 'uuid', 'uuid');
+                return $this->hasOne(Thruster::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'SelfDestruct':
-                return $this->hasOne(SelfDestruct::class, 'uuid', 'uuid');
+                return $this->hasOne(SelfDestruct::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'Radar':
-                return $this->hasOne(Radar::class, 'uuid', 'uuid');
+                return $this->hasOne(Radar::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'WeaponMining':
-                return $this->hasOne(MiningLaser::class, 'uuid', 'uuid');
+                return $this->hasOne(MiningLaser::class, 'uuid', 'uuid')->withDefault();
 
             default:
                 return $this->hasOne(CharArmor::class, 'uuid', 'type'); //NULL

@@ -42,7 +42,7 @@ class WeaponPersonal extends CommodityItem
         $magazineAttach = str_replace(
             $this->name,
             '',
-            $this->attachments()->where('position', 'magazine')->first()->name
+            optional($this->attachments()->where('position', 'magazine')->first())->name
         );
 
         $exploded = explode('(', $magazineAttach);
