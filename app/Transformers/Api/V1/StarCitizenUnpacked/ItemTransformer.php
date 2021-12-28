@@ -52,10 +52,10 @@ class ItemTransformer extends AbstractCommodityTransformer
             'manufacturer' => $item->manufacturer,
             'size' => $item->size,
             'volume' => [
-                'width' => $item->volume->width,
-                'height' => $item->volume->height,
-                'length' => $item->volume->length,
-                'volume' => $item->volume->volume,
+                'width' => $item->volume->width ?? 0,
+                'height' => $item->volume->height ?? 0,
+                'length' => $item->volume->length ?? 0,
+                'volume' => $item->volume->volume ?? 0,
             ],
             'version' => $item->version,
         ];

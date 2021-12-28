@@ -28,21 +28,21 @@ class WeaponTransformer extends TransformerAbstract
         }
 
         return [
-            'speed' => $weapon->speed,
-            'range' => $weapon->range,
-            'size' => $weapon->size,
-            'capacity' => $weapon->capacity,
+            'speed' => $weapon->speed ?? '-',
+            'range' => $weapon->range ?? '-',
+            'size' => $weapon->size ?? '-',
+            'capacity' => $weapon->capacity ?? '-',
             'damage_per_shot' => $weapon->damage ?? 0,
         ];
     }
 
     public function includeDamages($weapon): Collection
     {
-        return $this->collection($weapon->damages, new WeaponDamageTransformer());
+        return $this->collection($weapon->damages ?? [], new WeaponDamageTransformer());
     }
 
     public function includeModes($weapon): Collection
     {
-        return $this->collection($weapon->modes, new WeaponModeTransformer());
+        return $this->collection($weapon->modes ?? [], new WeaponModeTransformer());
     }
 }
