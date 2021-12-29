@@ -95,6 +95,7 @@ QUERY,
         }
 
         $data = $result['data']['Article'];
+        $this->disableDuplicates($data);
 
         /** @var Article $article */
         $this->article = Article::updateOrCreate(
@@ -241,5 +242,34 @@ QUERY,
             ->collect();
 
         return $this->article->related()->sync($ids);
+    }
+
+    /**
+     * Checks if an article with a given title exists under multiple ids
+     * if so, the older article will be disabled
+     *
+     * @param array $data
+     */
+    private function disableDuplicates(array $data): void
+    {
+        /** @var Article $article */
+        $article = Article::query()
+            ->where('title', Article::normalizeContent($data['title']))
+            ->where('disabled', false)
+            ->first();
+        if ($article === null) {
+            return;
+        }
+
+        if ($article->cig_id !== $data['id']) {
+            app('Log')::info(sprintf(
+                'Galactapedia Article "%s" (%s) is duplicate, disabling older one.',
+                $article->cleanTitle,
+                $article->cig_id,
+            ));
+
+            $article->disabled = true;
+            $article->save();
+        }
     }
 }

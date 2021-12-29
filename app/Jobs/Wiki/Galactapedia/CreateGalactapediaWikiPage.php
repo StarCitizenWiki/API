@@ -135,7 +135,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             app('Log')::warning(sprintf(
                 'Could not determine redirect title for "%s" (from %s)',
                 $this->title,
-                $this->article->getCleanTitleAttribute
+                $this->article->cleanTitle
             ));
             $this->release(7200);
             return;
