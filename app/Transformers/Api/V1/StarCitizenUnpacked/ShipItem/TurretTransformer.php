@@ -13,9 +13,9 @@ class TurretTransformer extends AbstractCommodityTransformer
     public function transform($item): array
     {
         return [
-            'max_mounts' => $item->max_mounts ?? '-',
-            'min_size' => $item->min_size ?? '-',
-            'max_size' => $item->max_size ?? '-',
+            'max_mounts' => $item->max_mounts ?? 0,
+            'min_size' => $item->min_size ?? 0,
+            'max_size' => $item->max_size ?? 0,
         ];
     }
 }

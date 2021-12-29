@@ -44,10 +44,10 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
             'updated_at' => $weapon->updated_at,
             'missing_translations' => $this->missingTranslations,
             'ammunition' => [
-                'size' => $weapon->ammunition->size ?? '-',
-                'lifetime' => $weapon->ammunition->lifetime ?? '-',
-                'speed' => $weapon->ammunition->speed ?? '-',
-                'range' => $weapon->ammunition->range ?? '-',
+                'size' => $weapon->ammunition->size ?? 0,
+                'lifetime' => $weapon->ammunition->lifetime ?? 0,
+                'speed' => $weapon->ammunition->speed ?? 0,
+                'range' => $weapon->ammunition->range ?? 0,
             ],
             'volume' => [
                 'width' => $weapon->item->volume->width,
