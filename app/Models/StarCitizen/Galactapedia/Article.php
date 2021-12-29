@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Builder;
 use Normalizer;
-use function GuzzleHttp\Psr7\str;
 
 class Article extends AbstractHasTranslations implements HasChangelogsInterface
 {
@@ -34,6 +33,8 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         'cig_id',
         'title',
         'slug',
+        'in_wiki',
+        'disabled',
         'thumbnail',
     ];
 
