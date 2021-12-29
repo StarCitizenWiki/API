@@ -40,7 +40,7 @@ class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQu
     public function handle(): void
     {
         if ($this->article->templates->isEmpty()) {
-            app('Log')::warning(sprintf('Article "%s" has no Templates!', $this->article->title));
+            app('Log')::info(sprintf('Article "%s" has no Templates, skipping.', $this->article->title));
 
             return;
         }
