@@ -148,6 +148,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
             // Skip if texts are equal
             if (strcmp($text, $wikiText ?? '') === 0) {
+                $this->article->update(['in_wiki' => true]);
                 $this->delete();
                 return;
             }
@@ -172,6 +173,8 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                     $this->title,
                 ], false, true));
             }
+
+            $this->article->update(['in_wiki' => true]);
 
             UploadGalactapediaWikiImages::dispatch($this->article);
         } catch (ConnectException $e) {

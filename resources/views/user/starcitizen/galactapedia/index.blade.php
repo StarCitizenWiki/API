@@ -37,7 +37,7 @@
                     <th>@lang('Eigenschaften')</th>
                     <th>@lang('Related')</th>
                     <th>@lang('Inhalt')</th>
-                    <th>@lang('Übersetzt')</th>
+                    <th>@lang('Im Wiki')</th>
                     <th>@lang('Erstellt')</th>
                     @if(isset($appends) && !empty($appends))
                         @foreach($appends as $append)
@@ -80,25 +80,8 @@
                         <td>
                             {{ optional($article->english())->translation ? 'Ja' : 'Nein' }}
                         </td>
-                        @php
-                            if (null !== $article->german()) {
-                                $status = 'warning';
-                                $text = 'Automatisch';
-                                if ($article->german()->proofread === 1) {
-                                    $status = 'success';
-                                    $text = 'Ja';
-                                }
-                            } else {
-                                $status = 'danger';
-                                $text = 'Nein';
-                                if (empty($article->english()->translation)) {
-                                    $status = 'normal';
-                                    $text = '-';
-                                }
-                            }
-                        @endphp
-                        <td class="text-{{ $status }}">
-                            {{ $text }}
+                        <td class="text-{{ $article->in_wiki ? 'success' : 'danger' }}">
+                            {{ $article->in_wiki ? 'Ja' : 'Nein' }}
                         </td>
                         <td data-content="{{ $article->created_at->format('d.m.Y H:i:s') }}" data-toggle="popover">
                             {{ $article->created_at->diffForHumans() }}
