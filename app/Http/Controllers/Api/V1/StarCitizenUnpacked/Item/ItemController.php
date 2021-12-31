@@ -99,52 +99,6 @@ class ItemController extends ApiController
     }
 
     /**
-     * View only clothes
-     *
-     * @return Response
-     */
-    public function indexClothing(): Response
-    {
-        return $this->getResponse(
-            Item::query()
-                ->where('type', 'LIKE', 'Char_Clothing%')
-                ->orderBy('name')
-        );
-    }
-
-    /**
-     * View singular clothing item
-     *
-     * @param Request $request
-     * @return Response
-     * @throws ValidationException
-     */
-    public function showClothing(Request $request): Response
-    {
-        ['name' => $name] = Validator::validate(
-            [
-                'name' => $request->name,
-            ],
-            [
-                'name' => 'required|string|min:1|max:255',
-            ]
-        );
-
-        $name = urldecode($name);
-
-        try {
-            $name = Item::query()
-                ->where('type', 'LIKE', 'Char_Clothing%')
-                ->where('name', 'LIKE', sprintf('%%%s%%%%', $name))
-                ->firstOrFail();
-        } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $name));
-        }
-
-        return $this->getResponse($name);
-    }
-
-    /**
      * View tradeables
      *
      * @return Response

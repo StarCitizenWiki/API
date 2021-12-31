@@ -34,12 +34,14 @@ use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Console\Commands\StarCitizenUnpacked\ImportCharArmor;
+use App\Console\Commands\StarCitizenUnpacked\ImportClothing;
 use App\Console\Commands\StarCitizenUnpacked\ImportShipItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
 use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
 use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateClothingWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
@@ -107,6 +109,7 @@ class Kernel extends ConsoleKernel
         ImportVehicles::class,
         ImportWeaponPersonal::class,
         ImportCharArmor::class,
+        ImportClothing::class,
         ImportShopItems::class,
         ImportShipItems::class,
 
@@ -114,6 +117,7 @@ class Kernel extends ConsoleKernel
 
         CreateCommodityWikiPages::class,
         CreateCharArmorWikiPages::class,
+        CreateClothingWikiPages::class,
         CreateShipItemWikiPages::class,
         UploadItemImages::class,
 

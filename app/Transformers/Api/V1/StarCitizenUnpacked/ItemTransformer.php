@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Transformers\Api\V1\StarCitizenUnpacked;
 
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
+use App\Models\StarCitizenUnpacked\Clothing;
 use App\Models\StarCitizenUnpacked\Item;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
 use App\Models\StarCitizenUnpacked\ShipItem\MiningLaser;
@@ -66,6 +67,9 @@ class ItemTransformer extends AbstractCommodityTransformer
         switch ($item->specification !== null ? get_class($item->specification) : '') {
             case CharArmor::class:
                 return $this->item($item->specification, new CharArmorTransformer());
+
+            case Clothing::class:
+                return $this->item($item->specification, new ClothingTransformer());
 
             case WeaponPersonal::class:
                 return $this->item($item->specification, new WeaponPersonalTransformer());

@@ -5,29 +5,15 @@ declare(strict_types=1);
 namespace App\Models\StarCitizenUnpacked\CharArmor;
 
 use App\Models\StarCitizenUnpacked\CommodityItem;
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasBaseVersionsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class CharArmor extends CommodityItem
 {
     use HasFactory;
-
-    /**
-     * Keywords used as splits for Armor Names
-     * Essentially removes the color from the item name
-     *
-     * @var string[]
-     */
-    public static $splits = [
-        'Arms',
-        'Helmet',
-        'Legs',
-        'Core',
-        'Undersuit',
-    ];
+    use HasBaseVersionsTrait;
 
     protected $table = 'star_citizen_unpacked_char_armor';
 
@@ -65,50 +51,5 @@ class CharArmor extends CommodityItem
             CharArmorResistance::class,
             'char_armor_id',
         );
-    }
-
-    /**
-     * Tries to find the base model of this item
-     * Removes the color string from the name and searches all armors
-     *
-     * @return CharArmor|null
-     */
-    public function getBaseModelAttribute(): ?CharArmor
-    {
-        foreach (self::$splits as $split) {
-            if (!Str::contains($this->item->name, $split)) {
-                continue;
-            }
-
-            $splitted = array_filter(explode($split, $this->item->name));
-
-            // This is the base version
-            if (count($splitted) !== 2) {
-                return null;
-            }
-
-            array_pop($splitted);
-            $splitted[] = $split;
-
-            $baseName = implode(' ', $splitted);
-            $baseName = trim(preg_replace('/\s+/', ' ', $baseName));
-
-            $toSearch = [
-                trim($splitted[0]),
-                $baseName,
-            ];
-
-            if ($this->item->name !== sprintf('%s Base', $baseName)) {
-                $toSearch[] = sprintf('%s Base', $baseName);
-            }
-
-            return CharArmor::query()
-                ->whereHas('item', function (Builder $query) use ($toSearch) {
-                    $query->whereIn('name', $toSearch);
-                })
-                ->first();
-        }
-
-        return null;
     }
 }

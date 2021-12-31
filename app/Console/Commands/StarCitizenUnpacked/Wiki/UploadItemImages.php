@@ -6,6 +6,7 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
+use App\Models\StarCitizenUnpacked\Clothing;
 use App\Models\StarCitizenUnpacked\CommodityItem;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
@@ -58,6 +59,23 @@ class UploadItemImages extends AbstractQueueCommand
         'Light Backpack' => 'Leichter Rucksack',
         'Medium Backpack' => 'Mittlerer Rucksack',
         'Heavy Backpack' => 'Schwerer Rucksack',
+
+        'Backpack' => 'Rucksack',
+        'Bandana' => 'Bandana',
+        'Beanie' => 'Mütze',
+        'Boots' => 'Stiefel',
+        'Gloves' => 'Handschuhe',
+        'Gown' => 'Kittel',
+        'Hat' => 'Hut',
+        'Head Cover' => 'Kopfbedeckung',
+        'Jacket' => 'Jacke',
+        'Pants' => 'Hose',
+        'Shirt' => 'Hemd',
+        'Shoes' => 'Schuhe',
+        'Slippers' => 'Hausschuhe',
+        'Sweater' => 'Pullover',
+        'T-Shirt' => 'T-Shirt',
+        'Unknown Type' => 'Unbekannter Typ',
     ];
 
     /**
@@ -75,6 +93,10 @@ class UploadItemImages extends AbstractQueueCommand
             $this->work($items, true);
         });
 
+        $this->info('Uploading Clothing Images...');
+        Clothing::chunk(100, function (Collection $items) {
+            $this->work($items, true);
+        });
 
         $this->info('Uploading Weapon Personal Images...');
         WeaponPersonal::chunk(100, function (Collection $items) {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked;
 
-use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
 use App\Models\StarCitizenUnpacked\ShipItem\MiningLaser;
@@ -94,6 +93,11 @@ class Item extends HasTranslations
              */
             case Str::contains($this->type, 'Char_Armor'):
                 return $this->hasOne(CharArmor::class, 'uuid', 'uuid')->withDefault();
+            /**
+             * Char Clothing
+             */
+            case Str::contains($this->type, 'Char_Clothing'):
+                return $this->hasOne(Clothing::class, 'uuid', 'uuid')->withDefault();
 
             /**
              * Personal Weapons

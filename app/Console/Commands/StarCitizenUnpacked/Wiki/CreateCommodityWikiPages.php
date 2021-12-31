@@ -119,6 +119,9 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
             ->filter(function (Item $item) {
                 return !in_array($item->type, $this->ignoredTypes, true);
             })
+            ->filter(function (Item $item) {
+                return strpos($item->type, 'Char_Clothing') === false;
+            })
             ->sortBy('name')
             ->map(function (Item $item) use ($shop) {
                 return SmwSubObjectMapper::map(

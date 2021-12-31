@@ -348,9 +348,7 @@ $api->group(
                 );
 
                 $api->group(
-                    [
-                        'namespace' => 'Item',
-                    ],
+                    [],
                     static function (Router $api) {
                         /**
                          * Index
@@ -359,14 +357,14 @@ $api->group(
                             '/clothing',
                             [
                                 'as' => 'api.v1.scunpacked.char.clothing.index',
-                                'uses' => 'ItemController@indexClothing',
+                                'uses' => 'ClothingController@index',
                             ]
                         );
 
                         $api->get(
-                            '/clothing/{name}',
-                            ['as' => 'api.v1.scunpacked.char.clothing.show', 'uses' => 'ItemController@showClothing']
-                        )->where('name', '(.*)');
+                            '/clothing/{clothing}',
+                            ['as' => 'api.v1.scunpacked.char.clothing.show', 'uses' => 'ClothingController@show']
+                        )->where('clothing', '(.*)');
                     }
                 );
             }
