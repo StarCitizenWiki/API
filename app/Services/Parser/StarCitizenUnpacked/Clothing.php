@@ -51,7 +51,11 @@ final class Clothing extends AbstractCommodityItem
             trim($name ?? 'Unknown Clothing')
         );
 
-        $description = $this->labels->get(substr($attachDef['Localization']['Description'], 1));
+        $description = $this->getDescription($this->item->get('ClassName')) ?? '';
+
+        if (empty($description)) {
+            $description = $this->labels->get(substr($attachDef['Localization']['Description'], 1));
+        }
 
         $data = $this->tryExtractDataFromDescription($description, [
             'Manufacturer' => 'manufacturer',
@@ -66,9 +70,11 @@ final class Clothing extends AbstractCommodityItem
             $manufacturer = 'Unknown Manufacturer';
         }
 
+        $description = str_replace(['’', '`', '´'], '\'', trim($data['description'] ?? $description));
+
         return [
             'uuid' => $this->item->get('__ref'),
-            'description' => str_replace(['’', '`', '´'], '\'', trim($data['description'] ?? '')),
+            'description' => $description,
             'name' => $name,
             'manufacturer' => $manufacturer,
             'temp_resistance_min' => $tempResist['MinResistance'] ?? null,
@@ -146,5 +152,24 @@ final class Clothing extends AbstractCommodityItem
         }
 
         return 'Unknown Type';
+    }
+
+    private function getDescription(?string $classname): ?string
+    {
+        if ($classname === null) {
+            return null;
+        }
+
+        try {
+            $item = File::get(storage_path(
+                sprintf('app/api/scunpacked-data/v2/items/%s.json', strtolower($classname))
+            ));
+
+            $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
+        } catch (FileNotFoundException | JsonException $exception) {
+            return null;
+        }
+
+        return $item['Description'] ?? null;
     }
 }
