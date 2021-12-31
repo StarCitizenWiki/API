@@ -24,4 +24,15 @@ class ItemTranslation extends AbstractTranslation
     {
         return $this->belongsTo(Item::class, 'uuid', 'item_uuid');
     }
+
+    /**
+     * Fix escaped newlines
+     *
+     * @param $translation
+     * @return array|string|string[]
+     */
+    public function getTranslationAttribute($translation)
+    {
+        return str_replace('\\n', "\n", $translation);
+    }
 }
