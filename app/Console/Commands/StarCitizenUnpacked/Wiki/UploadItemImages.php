@@ -128,6 +128,10 @@ class UploadItemImages extends AbstractQueueCommand
         $entries->each(function (CommodityItem $item) use ($normalizeCategory) {
             $url = sprintf('%s.jpg', $item->item->uuid);
 
+            if ($item->item->manufacturer === '@LOC_PLACEHOLDER') {
+                $item->Item->manufacturer = 'Unbekannter Hersteller';
+            }
+
             $this->headResponse = $this->http->head($url);
             if (!$this->headResponse->successful()) {
                 return;
