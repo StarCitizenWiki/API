@@ -6,7 +6,6 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\Clothing;
 use App\Traits\GetWikiCsrfTokenTrait;
 use ErrorException;
@@ -54,7 +53,7 @@ class CreateClothingWikiPages extends AbstractQueueCommand
         return 0;
     }
 
-    public function uploadWiki(CharArmor $armor)
+    public function uploadWiki(Clothing $clothing)
     {
         // phpcs:disable
         $text = <<<FORMAT
@@ -75,7 +74,7 @@ FORMAT;
 
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
-            $response = MediaWikiApi::edit($armor->item->name)
+            $response = MediaWikiApi::edit($clothing->item->name)
                 ->withAuthentication()
                 ->text($text)
                 ->csrfToken($token)
