@@ -38,6 +38,11 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         'thumbnail',
     ];
 
+    protected $casts = [
+        'in_wiki' => 'boolean',
+        'disabled' => 'boolean',
+    ];
+
     private static array $ticks = ['’', '´', '‘', '’', '’', '’', '\'', '’', '’', 'ˈ', '`', '´'];
 
     /**

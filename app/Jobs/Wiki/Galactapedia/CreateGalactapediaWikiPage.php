@@ -152,7 +152,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
             // Skip if texts are equal
             if (strcmp($text, $wikiText ?? '') === 0) {
-                $this->article->update(['in_wiki' => true]);
                 $this->delete();
                 return;
             }
