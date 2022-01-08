@@ -45,6 +45,7 @@ use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateClothingWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
+use App\Console\Commands\Transcript\ImportMetadata;
 use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
@@ -92,6 +93,7 @@ class Kernel extends ConsoleKernel
 
         ImportRelayTranscripts::class,
         TranslateTranscripts::class,
+        ImportMetadata::class,
 
         DownloadStarmap::class,
         ImportStarmap::class,

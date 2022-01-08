@@ -24,15 +24,14 @@ class Transcript extends HasTranslations
     ];
 
     protected $fillable = [
-        'wiki_id',
         'title',
-        'youtube_url',
-        'format_id',
-
-        'source_title',
-        'source_url',
-        'source_published_at',
-        'published_at',
+        'youtube_id',
+        'playlist_name',
+        'upload_date',
+        'runtime',
+        'thumbnail',
+        'youtube_description',
+        'filename',
     ];
 
     protected $with = [
@@ -40,10 +39,8 @@ class Transcript extends HasTranslations
     ];
 
     protected $casts = [
-        'wiki_id' => 'int',
-        'format_id' => 'int',
-        'published_at' => 'datetime',
-        'source_published_at' => 'datetime',
+        'upload_date' => 'date',
+        'runtime' => 'int',
     ];
 
     /**
@@ -55,21 +52,17 @@ class Transcript extends HasTranslations
     }
 
     /**
-     * @return BelongsTo
-     */
-    public function format(): BelongsTo
-    {
-        return $this->belongsTo(VideoFormat::class);
-    }
-
-    /**
      * Previous Transcript.
      *
      * @return Builder|Model|object|null
      */
     public function getPrevAttribute()
     {
-        return Transcript::query()->where('id', '<', $this->id)->orderBy('id', 'desc')->first(['id']);
+        return self::query()
+            ->where('id', '<', $this->id)
+            ->orderBy('id', 'desc')
+            ->limit(1)
+            ->first(['youtube_id', 'title']);
     }
 
     /**
@@ -79,6 +72,15 @@ class Transcript extends HasTranslations
      */
     public function getNextAttribute()
     {
-        return Transcript::query()->where('id', '>', $this->id)->orderBy('id')->first(['id']);
+        return self::query()
+            ->where('id', '>', $this->id)
+            ->orderBy('id')
+            ->limit(1)
+            ->first(['youtube_id', 'title']);
+    }
+
+    public function getYoutubeUrlAttribute()
+    {
+        return sprintf('https://www.youtube.com/watch?v=%s', $this->youtube_id);
     }
 }

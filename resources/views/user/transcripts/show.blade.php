@@ -32,80 +32,70 @@
         </div>
         <div class="card-body">
             @include('components.messages')
-            <nav class="mb-3">
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link active" id="nav-en_EN-tab" data-toggle="tab" href="#english" role="tab" aria-controls="english" aria-selected="true">
-                        @lang('en_EN')
-                    </a>
+            <div class="row">
+                <div class="col-12 col-xl-8">
+                    <nav class="mb-3">
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <a class="nav-item nav-link active" id="nav-en_EN-tab" data-toggle="tab" href="#english" role="tab" aria-controls="english" aria-selected="true">
+                                @lang('en_EN')
+                            </a>
 
-                    <a class="nav-item nav-link" id="nav-de_DE-tab" data-toggle="tab" href="#german" role="tab" aria-controls="german" aria-selected="false">
-                        @lang('de_DE')
-                    </a>
+                            <a class="nav-item nav-link" id="nav-de_DE-tab" data-toggle="tab" href="#german" role="tab" aria-controls="german" aria-selected="false">
+                                @lang('de_DE')
+                            </a>
 
-                    <a class="nav-item nav-link" id="nav-meta-tab" data-toggle="tab" href="#meta" role="tab" aria-controls="meta" aria-selected="false">
-                        @lang('Metadaten')
-                    </a>
+                            <a class="nav-item nav-link" id="nav-description-tab" data-toggle="tab" href="#description" role="tab" aria-controls="meta" aria-selected="false">
+                                @lang('Beschreibung')
+                            </a>
 
-                    <a class="nav-item nav-link" href="{{ route('web.user.transcripts.edit', $transcript->getRouteKey()) }}" aria-selected="false">
-                        @lang('Bearbeiten')
-                    </a>
+                            <a class="nav-item nav-link" href="{{ route('web.user.transcripts.edit', $transcript->getRouteKey()) }}" aria-selected="false">
+                                @lang('Bearbeiten')
+                            </a>
 
-                    <a class="nav-item nav-link" href="{{ config('api.wiki_url') }}/Transkript:{{ $transcript->wiki_id }}?veaction=edit" aria-selected="false">
-                        @lang('Bearbeiten (Wiki)') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
-                    </a>
+                            <a class="nav-item nav-link" href="{{ config('api.wiki_url') }}/Transkript:{{ $transcript->title }}?veaction=edit" aria-selected="false">
+                                @lang('Bearbeiten (Wiki)') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
+                            </a>
+                        </div>
+                    </nav>
+
+                    <div class="tab-content" id="nav-tab-translations">
+                        <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="nav-en_EN-tab">
+                            {!! empty($transcript->english()->translation) ? 'Nicht vorhanden' : nl2br($transcript->english()->translation) !!}
+                        </div>
+
+                        <div class="tab-pane fade show" id="german" role="tabpanel" aria-labelledby="nav-de_DE-tab">
+                            {!! empty($transcript->german()->translation) ? 'Nicht vorhanden' : nl2br($transcript->german()->translation) !!}
+                        </div>
+
+                        <div class="tab-pane fade" id="description" role="tabpanel" aria-labelledby="nav-description-tab">
+                            {!! empty($transcript->youtube_description) ? 'Nicht vorhanden' : nl2br($transcript->youtube_description) !!}
+                        </div>
+                    </div>
                 </div>
-            </nav>
-
-            <div class="tab-content" id="nav-tab-translations">
-                <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                    {!! empty($transcript->english()->translation) ? 'Nicht vorhanden' : nl2br($transcript->english()->translation) !!}
-                </div>
-
-                <div class="tab-pane fade show" id="german" role="tabpanel" aria-labelledby="nav-de_DE-tab">
-                    {!! empty($transcript->german()->translation) ? 'Nicht vorhanden' : nl2br($transcript->german()->translation) !!}
-                </div>
-
-                <div class="tab-pane fade" id="meta" role="tabpanel" aria-labelledby="nav-meta-tab">
+                <div class="col-12 col-xl-4 mt-xl-0 mt-5">
                     <table class="table mb-0">
                         <tr>
-                            <th class="border-top-0">Wiki ID</th>
-                            <td class="border-top-0">{{ $transcript->wiki_id }}</td>
+                            <th class="border-top-0" colspan="2"><img src="{{ $transcript->thumbnail }}" class="img-fluid" alt="thumb" /></th>
                         </tr>
                         <tr>
-                            <th>Titel Quelle</th>
-                            <td>{{ $transcript->source_title ?? '' }}</td>
+                            <th>@lang('Titel')</th>
+                            <td>{{ $transcript->title }}</td>
                         </tr>
                         <tr>
-                            <th>Quell Url</th>
-                            <td>
-                                <a href="{{ $transcript->source_url }}" target="_blank">
-                                    {{ $transcript->source_url ?? 'Keine Quell URL vorhanden' }}
-                                </a>
-                            </td>
+                            <th>@lang('Playlist')</th>
+                            <td>{{ $transcript->playlist_name }}</td>
                         </tr>
                         <tr>
-                            <th>Veröffentlichung Quelle</th>
-                            <td>{{ $transcript->source_published_at ? $transcript->source_published_at->format('d.m.Y') : '-' }}</td>
+                            <th>@lang('YouTube')</th>
+                            <td>{{ $transcript->youtube_url }}</td>
                         </tr>
                         <tr>
-                            <th>Titel</th>
-                            <td>{{ $transcript->tile ?? '' }}</td>
+                            <th>@lang('Veröffentlichung')</th>
+                            <td>{{ $transcript->upload_date->format('d.m.Y') }}</td>
                         </tr>
                         <tr>
-                            <th>YouTube Url</th>
-                            <td>
-                                <a href="{{ $transcript->youtube_url }}" target="_blank">
-                                    {{ $transcript->youtube_url ?? 'Keine YouTube URL vorhanden' }}
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Veröffentlichung</th>
-                            <td>{{ $transcript->published_at ? $transcript->published_at->format('d.m.Y') : $transcript->created_at->format('d.m.Y') }}</td>
-                        </tr>
-                        <tr>
-                            <th>Format</th>
-                            <td>{{ $transcript->format->name }}</td>
+                            <th>@lang('Dauer')</th>
+                            <td>{{ gmdate('H:i:s', $transcript->runtime) }}</td>
                         </tr>
                     </table>
                 </div>
@@ -117,23 +107,32 @@
 @section('body__after')
     @parent
     <script>
-      $(document).ready(() => {
-        let url = location.href.replace(/\/$/, '');
-
-        if (location.hash) {
-          const hash = url.split('#');
-          $('#nav-tab a[href="#' + hash[1] + '"]').tab('show');
-          url = location.href.replace(/\/#/, '#');
-          history.replaceState(null, null, url)
+        const updateNavHash = (hash) => {
+            const links = document.querySelectorAll('.nav-bar a');
+            links.forEach(link => {
+                link.href = link.href.split('#')[0] + hash;
+            });
         }
 
-        $('a[data-toggle="tab"]').on('click', function () {
-          let newUrl;
-          const hash = $(this).attr('href');
-          newUrl = url.split('#')[0] + hash;
+        document.addEventListener('DOMContentLoaded', function() {
+            let url = location.href.replace(/\/$/, '');
 
-          history.replaceState(null, null, newUrl)
+            if (location.hash) {
+                const hash = url.split('#');
+                $('#nav-tab a[href="#' + hash[1] + '"]').tab('show');
+                url = location.href.replace(/\/#/, '#');
+                history.replaceState(null, null, url);
+                updateNavHash('#'+hash[1]);
+            }
+
+            $('a[data-toggle="tab"]').on('click', function () {
+                let newUrl;
+                const hash = $(this).attr('href');
+                newUrl = url.split('#')[0] + hash;
+                updateNavHash(hash);
+
+                history.replaceState(null, null, newUrl)
+            })
         })
-      })
     </script>
 @endsection
