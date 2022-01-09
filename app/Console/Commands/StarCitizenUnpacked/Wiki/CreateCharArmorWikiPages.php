@@ -58,7 +58,7 @@ class CreateCharArmorWikiPages extends AbstractQueueCommand
         // phpcs:disable
         $text = <<<FORMAT
 {{Rüstung}}
-{{#show:{{PAGENAME}}|?Beschreibung}}
+{{#show:{{ROOTPAGENAME}}|?Beschreibung|+lang={{PAGELANGUAGE}}}}
 
 {{Handelswarentabelle
 |Name={{SUBPAGENAME}}
