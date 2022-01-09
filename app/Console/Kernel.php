@@ -18,6 +18,7 @@ use App\Console\Commands\Rsi\CommLink\Import\ImportCommLink;
 use App\Console\Commands\Rsi\CommLink\Import\ImportCommLinks;
 use App\Console\Commands\Rsi\CommLink\Translate\TranslateCommLinks;
 use App\Console\Commands\Rsi\CommLink\Wiki\CreateCommLinkWikiPages;
+use App\Console\Commands\Rsi\CommLink\Wiki\CreateCommLinkWikiTranslationPages;
 use App\Console\Commands\StarCitizen\Galactapedia\ImportArticleProperties;
 use App\Console\Commands\StarCitizen\Galactapedia\ImportArticles;
 use App\Console\Commands\StarCitizen\Galactapedia\ImportCategories;
@@ -84,6 +85,7 @@ class Kernel extends ConsoleKernel
         TranslateCommLinks::class,
 
         CreateCommLinkWikiPages::class,
+        CreateCommLinkWikiTranslationPages::class,
         CreateWikiPages::class,
 
         SyncImageIds::class,

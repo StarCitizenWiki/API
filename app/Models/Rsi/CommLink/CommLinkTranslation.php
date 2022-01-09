@@ -18,6 +18,10 @@ class CommLinkTranslation extends Translation
         'translation',
     ];
 
+    protected $casts = [
+        'proofread' => 'boolean',
+    ];
+
     /**
      * @return BelongsTo
      */
