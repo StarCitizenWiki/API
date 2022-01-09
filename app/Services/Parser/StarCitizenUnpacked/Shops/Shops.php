@@ -120,7 +120,9 @@ final class Shops
                 return $item !== null;
             })
             ->filter(function ($item) {
-                return !empty($item['name']) && strpos($item['name'], '[PH]') === false;
+                return !empty($item['name']) &&
+                    strpos($item['name'], '[PH]') === false &&
+                    strpos($item['name'], 'igp_') === false;
             })
             ->filter(function ($item) {
                 return ($item['base_price'] ?? null) !== null;
