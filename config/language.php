@@ -12,5 +12,6 @@ return [
         'en_EN',
     ],
 
-    'enable_galactapedia_language_links' => env('GALACTAPEDIA_LANGUAGE_LINKS', true),
+    'enable_galactapedia_language_links' => env('GALACTAPEDIA_LANGUAGE_LINKS', false),
+    'translate_wrap_galactapedia' => env('GALACTAPEDIA_TRANSLATE_WRAP', false),
 ];

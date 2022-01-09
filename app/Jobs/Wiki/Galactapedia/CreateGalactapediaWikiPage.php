@@ -264,7 +264,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 !!! Du kannst Text in einer neuen Zeile unter END-- einfügen. Dieser wird nicht gelöscht.     !!!
 !!! Weitere Informationen findest du hier: https://star-citizen.wiki/Vorlage:Galactapedia     !!!
 
-START-->%s%s<!--
+START-->%s<!--
 -->[[Category:Galactapedia]]%s<!--%s
 END-->
 FORMAT;
@@ -291,11 +291,16 @@ FORMAT;
                 $content['content'] = implode(".\n\n", array_map('trim', $text));
             }
 
+            $contentRef = $content['content'] . $ref;
+
+            if (config('translate_wrap_galactapedia') === true && strpos('<translate nowrap>', $contentRef) === false) {
+                $contentRef = sprintf('<translate nowrap>%s</translate>', $contentRef);
+            }
+
             $formatted = sprintf(
                 $format,
                 '', // Don't replace template
-                $content['content'],
-                $ref,
+                $contentRef,
                 $categories,
                 $content['repl'] ?? ''
             );
@@ -308,11 +313,16 @@ FORMAT;
             );
         }
 
+        $contentRef = $content . $ref;
+
+        if (config('translate_wrap_galactapedia') === true && strpos('<translate nowrap>', $contentRef) === false) {
+            $contentRef = sprintf('<translate nowrap>%s</translate>', $contentRef);
+        }
+
         return sprintf(
             $format,
             $this->createTemplate(),
-            $content,
-            $ref,
+            $contentRef,
             $categories,
             ''
         );
