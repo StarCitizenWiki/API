@@ -386,7 +386,7 @@ TEMPLATE;
      */
     private function createContent(string $markdown, bool $boxed = false): string
     {
-        $parser = new WikiTextRenderer();
+        $parser = new WikiTextRenderer(config('language.enable_galactapedia_language_links'));
 
         // Fix headings
         $markdown = preg_replace('/^(#+)\s+?(\w)/', '$1 $2', $markdown);

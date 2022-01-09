@@ -11,10 +11,21 @@ use League\CommonMark\ElementRendererInterface;
 use League\CommonMark\Inline\Element\AbstractInline;
 use League\CommonMark\Inline\Element\Link;
 use League\CommonMark\Inline\Renderer\InlineRendererInterface;
+
 use function get_class;
 
 class LinkRenderer implements InlineRendererInterface
 {
+    private bool $useLanguageLinks;
+
+    /**
+     * @param bool $useLanguageLinks Whether to prefix links with Special:MyLanguage/
+     */
+    public function __construct(bool $useLanguageLinks = false)
+    {
+        $this->useLanguageLinks = $useLanguageLinks;
+    }
+
     /**
      * @param AbstractInline $inline
      * @param ElementRendererInterface $htmlRenderer
@@ -38,7 +49,8 @@ class LinkRenderer implements InlineRendererInterface
 
             if ($article->title !== $urlText) {
                 return sprintf(
-                    '[[%s|%s]]',
+                    '[[%s%s|%s]]',
+                    $this->useLanguageLinks ? 'Special:MyLanguage/' : '',
                     ...$this->replaceKnownTranslations($article->cleanTitle, $urlText)
                 );
             }
@@ -46,6 +58,14 @@ class LinkRenderer implements InlineRendererInterface
             $urlText = $article->cleanTitle;
         } catch (ModelNotFoundException $e) {
             //
+        }
+
+        if ($this->useLanguageLinks) {
+            return sprintf(
+                '[[Special:MyLanguage/%s|%s]]',
+                $this->replaceKnownTranslations($urlText, '')[0],
+                $this->replaceKnownTranslations($urlText, '')[0]
+            );
         }
 
         return sprintf(

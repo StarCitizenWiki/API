@@ -40,7 +40,7 @@ final class WikiTextRenderer
     /**
      * Adds new renderer definitions
      */
-    public function __construct()
+    public function __construct(bool $useLanguageLinks = false)
     {
         $environment = Environment::createCommonMarkEnvironment();
         $environment->setConfig([
@@ -49,7 +49,7 @@ final class WikiTextRenderer
         $environment->addBlockRenderer(Heading::class, new HeadingRenderer());
         $environment->addBlockRenderer(ThematicBreak::class, new ThematicBreakRenderer());
         $environment->addBlockRenderer(Paragraph::class, new ParagraphRenderer());
-        $environment->addInlineRenderer(Link::class, new LinkRenderer());
+        $environment->addInlineRenderer(Link::class, new LinkRenderer($useLanguageLinks));
         $environment->addInlineRenderer(Emphasis::class, new EmphasisRenderer());
         $environment->addInlineRenderer(Strong::class, new StrongRenderer());
 
