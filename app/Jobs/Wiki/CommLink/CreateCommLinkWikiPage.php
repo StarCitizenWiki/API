@@ -76,6 +76,11 @@ class CreateCommLinkWikiPage implements ShouldQueue
                 $text = Normalizer::normalize($text);
             }
 
+            if ($text !== null && config('language.translate_wrap_commlinks')) {
+                $text = sprintf("<translate>\n%s\n</translate>", $text);
+                $this->template = str_replace('{{Comm-Link}}', '<languages/>{{Comm-Link}}', $this->template);
+            }
+
             $response = MediaWikiApi::edit("Comm-Link:{$this->commLink->cig_id}")->text(
                 sprintf(
                     "%s\n%s",
