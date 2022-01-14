@@ -58,7 +58,7 @@ class CreateClothingWikiPages extends AbstractQueueCommand
         // phpcs:disable
         $text = <<<FORMAT
 {{Kleidung}}
-{{#show:{{ROOTPAGENAME}}|?Beschreibung|+lang={{PAGELANGUAGE}}}}
+{{LokalisierteBeschreibung}}
 
 {{Handelswarentabelle
 |Name={{SUBPAGENAME}}

@@ -61,6 +61,7 @@ class PopulateData extends AbstractQueueCommand
             Artisan::call('unpacked:import-weapon-personal');
             Artisan::call('unpacked:import-ship-items');
             Artisan::call('unpacked:import-vehicles');
+            Artisan::call('unpacked:import-clothing');
         }
         $this->bar->finish();
 

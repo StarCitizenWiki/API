@@ -222,7 +222,7 @@ FORMAT;
             'Bestand' => $formatter->format($item->shop_data->inventory),
             'Maximalbestand' => $formatter->format($item->shop_data->max_inventory),
             'Wiederauffüllungsrate' => $formatter->format($item->shop_data->refresh_rate),
-            'Typ' => $item->type,
+            'Typ' => $item->type . '@en',
             'Kaufbar' => $item->shop_data->buyable,
             'Verkaufbar' => $item->shop_data->sellable,
             'Mietbar' => $item->shop_data->rentable,
