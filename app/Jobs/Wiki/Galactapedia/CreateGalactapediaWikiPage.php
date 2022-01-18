@@ -293,7 +293,10 @@ FORMAT;
 
             $contentRef = $content['content'] . $ref;
 
-            if (config('translate_wrap_galactapedia') === true && strpos('<translate nowrap>', $contentRef) === false) {
+            if (
+                config('language.translate_wrap_galactapedia') === true &&
+                strpos('<translate nowrap>', $contentRef) === false
+            ) {
                 $contentRef = sprintf('<translate nowrap>%s</translate>', $contentRef);
             }
 
@@ -315,7 +318,10 @@ FORMAT;
 
         $contentRef = $content . $ref;
 
-        if (config('translate_wrap_galactapedia') === true && strpos('<translate nowrap>', $contentRef) === false) {
+        if (
+            config('language.translate_wrap_galactapedia') === true &&
+            strpos('<translate nowrap>', $contentRef) === false
+        ) {
             $contentRef = sprintf('<translate nowrap>%s</translate>', $contentRef);
         }
 
