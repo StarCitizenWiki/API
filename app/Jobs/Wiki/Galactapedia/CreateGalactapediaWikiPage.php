@@ -265,7 +265,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 !!! Weitere Informationen findest du hier: https://star-citizen.wiki/Vorlage:Galactapedia     !!!
 
 START-->%s<!--
--->[[Category:Galactapedia]]%s<!--%s
+-->[[Category:Galactapedia{{#translation:}}]]%s<!--%s
 END-->
 FORMAT;
 
@@ -438,7 +438,7 @@ CONTENT;
         $cats = $this->article->categories
             ->map(function (Category $category) {
                 return sprintf(
-                    '[[Category:%s]]',
+                    '[[Category:%s{{#translation:}}]]',
                     self::$categoryTranslations[$category->name] ?? $category->name
                 );
             })
