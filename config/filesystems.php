@@ -86,7 +86,7 @@ return [
 
         'transcripts' => [
             'driver' => 'local',
-            'root' => '/mnt/e/SC Audio/Star_Citizen'
+            'root' => env('TRANSCRIPTS_PATH', null),
         ],
     ],
 

@@ -18,7 +18,7 @@
     @component('components.forms.form', [
         'method' => 'PATCH',
         'action' => route('web.user.transcripts.update', $transcript->getRouteKey()),
-        'class' => 'card',
+        'class' => 'card mb-3',
     ])
         <div class="wrapper">
             <h4 class="card-header">@lang('Transkript bearbeiten')</h4>
@@ -90,7 +90,7 @@
                         @component('components.forms.form-group', [
                             'inputType' => 'text',
                             'label' => __('Playlist'),
-                            'id' => 'playlist',
+                            'id' => 'playlist_name',
                             'value' => $transcript->playlist_name,
                         ])
                         @endcomponent
@@ -99,29 +99,35 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-12">
-                        <h5><a data-toggle="collapse" href="#description" role="button" aria-expanded="false" aria-controls="description" data-target=".multi-collapse">Beschreibung</a></h5>
-                    </div>
-                    <div class="col-12 col-lg-8 col-xl-9 collapse collapsed multi-collapse" id="description">
-                        {!! empty($transcript->youtube_description) ? 'Nicht vorhanden' : nl2br($transcript->youtube_description) !!}
-                    </div>
-                    <div class="col-12 col-lg-4 col-xl-3 collapse collapsed multi-collapse">
-                        <img src="{{ $transcript->thumbnail }}" class="img-fluid" alt="thumbnail"/>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12 col-lg-12 col-xl-2 mt-xl-4 pt-xl-2">
-                        <button class="btn btn-outline-secondary" name="save">@lang('Speichern')</button>
-                    </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-12">
-                        {!! empty($transcript->english()->translation) ? 'Nicht vorhanden' : nl2br($transcript->english()->translation) !!}
+                    <div class="col-12 col-lg-12 col-xl-2 mt-3">
+                        <button class="btn btn-outline-secondary btn-block" name="save">@lang('Speichern')</button>
                     </div>
                 </div>
             </div>
         </div>
     @endcomponent
+    <div class="card">
+        <h4 class="card-header">@lang('Inhalt')</h4>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 col-lg-8 col-xl-9" id="description">
+                    <h6>YouTube @lang('Beschreibung')</h6>
+                    {!! empty($transcript->youtube_description) ? 'Nicht vorhanden' : nl2br($transcript->youtube_description) !!}
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>@lang('Transkript Englisch'):</h6>
+                            {!! empty($transcript->english()->translation) ? 'Nicht vorhanden' : nl2br($transcript->english()->translation) !!}
+                            <hr>
+                            <h6>@lang('Transkript Deutsch'):</h6>
+                            {!! empty($transcript->german()->translation) ? 'Nicht vorhanden' : nl2br($transcript->german()->translation) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4 col-xl-3">
+                    <img src="{{ $transcript->thumbnail }}" class="img-fluid" alt="thumbnail"/>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

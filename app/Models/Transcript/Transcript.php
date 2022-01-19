@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Models\Transcript;
 
 use App\Events\ModelUpdating;
-use App\Models\Rsi\Video\VideoFormat;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Transcript extends HasTranslations
@@ -42,6 +40,11 @@ class Transcript extends HasTranslations
         'upload_date' => 'date',
         'runtime' => 'int',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'youtube_id';
+    }
 
     /**
      * @return HasMany

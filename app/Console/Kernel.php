@@ -46,7 +46,6 @@ use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
 use App\Console\Commands\Transcript\ImportMetadata;
-use App\Console\Commands\Transcript\ImportRelayTranscripts;
 use App\Console\Commands\Transcript\TranslateTranscripts;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
@@ -91,7 +90,6 @@ class Kernel extends ConsoleKernel
         CreateImageHashes::class,
         CreateImageMetadata::class,
 
-        ImportRelayTranscripts::class,
         TranslateTranscripts::class,
         ImportMetadata::class,
 
