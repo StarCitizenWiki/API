@@ -10,7 +10,6 @@ use Illuminate\Validation\Rule;
 
 class TranscriptUpdateRequest extends FormRequest
 {
-    private const WIKI_ID = 'wiki_id';
 
     /**
      * Determine if the user is authorized to make this request.
@@ -31,16 +30,7 @@ class TranscriptUpdateRequest extends FormRequest
     {
         return [
             'title' => 'required|string|min:1|max:255',
-            'youtube_url' => 'nullable|url|min:15|max:255',
-            'published_at' => 'required|date',
-            'format' => 'required|string|exists:video_formats,id',
-            self::WIKI_ID => [
-                'required',
-                'integer',
-                'min:1',
-                'max:100000',
-                Rule::unique('transcripts')->ignore($this->request->get(self::WIKI_ID), self::WIKI_ID),
-            ],
+            'playlist_name' => 'required|string|min:1|max:255',
         ];
     }
 }

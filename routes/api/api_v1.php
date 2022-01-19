@@ -288,6 +288,29 @@ $api->group(
                 );
             }
         );
+
+        $api->group(
+            [
+                'namespace' => 'Transcript',
+                'prefix' => 'transcripts',
+            ],
+            static function (Router $api) {
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.rsi.transcripts.index',
+                        'uses' => 'TranscriptController@index',
+                    ]
+                );
+                $api->get(
+                    '{transcript}',
+                    [
+                        'as' => 'api.v1.rsi.transcripts.show',
+                        'uses' => 'TranscriptController@show',
+                    ]
+                );
+            }
+        );
     }
 );
 

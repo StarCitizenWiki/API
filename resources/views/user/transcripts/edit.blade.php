@@ -18,7 +18,7 @@
     @component('components.forms.form', [
         'method' => 'PATCH',
         'action' => route('web.user.transcripts.update', $transcript->getRouteKey()),
-        'class' => 'card',
+        'class' => 'card mb-3',
     ])
         <div class="wrapper">
             <h4 class="card-header">@lang('Transkript bearbeiten')</h4>
@@ -26,24 +26,24 @@
                 @include('components.errors')
                 @include('components.messages')
                 <div class="row">
-                    <div class="col-12 col-lg-8 col-xl-4">
+                    <div class="col-12 col-lg-12 col-xl-4">
                         @component('components.forms.form-group', [
                             'inputType' => 'text',
-                            'label' => __('Titel (Quelle)'),
-                            'id' => 'source_title',
-                            'value' => $transcript->source_title,
+                            'label' => __('YouTube URL'),
+                            'id' => 'youtube_url',
+                            'value' => $transcript->youtube_url,
                         ])
                             @slot('inputOptions')
                                 readonly
                             @endslot
                         @endcomponent
                     </div>
-                    <div class="col-12 col-lg-12 col-xl-5">
+                    <div class="col-12 col-lg-8 col-xl-2">
                         @component('components.forms.form-group', [
                             'inputType' => 'text',
-                            'label' => __('Url (Quelle)'),
-                            'id' => 'source_url',
-                            'value' => $transcript->source_url,
+                            'label' => __('Dauer'),
+                            'id' => 'runtime',
+                            'value' => gmdate('H:i:s', $transcript->runtime),
                         ])
                             @slot('inputOptions')
                                 readonly
@@ -53,9 +53,21 @@
                     <div class="col-12 col-lg-4 col-xl-2">
                         @component('components.forms.form-group', [
                             'inputType' => 'date',
-                            'label' => __('Veröffentlichung (Quelle)'),
-                            'id' => 'created_at',
-                            'value' => $transcript->source_published_at->format('Y-m-d'),
+                            'label' => __('Veröffentlichung'),
+                            'id' => 'upload_date',
+                            'value' => $transcript->upload_date ? $transcript->upload_date->format('Y-m-d') : $transcript->upload_date->format('Y-m-d'),
+                        ])
+                            @slot('inputOptions')
+                                readonly
+                            @endslot
+                        @endcomponent
+                    </div>
+                    <div class="col-12 col-lg-8 col-xl-4">
+                        @component('components.forms.form-group', [
+                            'inputType' => 'text',
+                            'label' => __('Datei'),
+                            'id' => 'file',
+                            'value' => $transcript->filename,
                         ])
                             @slot('inputOptions')
                                 readonly
@@ -63,6 +75,7 @@
                         @endcomponent
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-12 col-lg-8 col-xl-4">
                         @component('components.forms.form-group', [
@@ -71,79 +84,50 @@
                             'id' => 'title',
                             'value' => $transcript->title,
                         ])
-                            @slot('inputOptions')
-                                required
-                            @endslot
                         @endcomponent
                     </div>
-                    <div class="col-12 col-lg-12 col-xl-5">
+                    <div class="col-12 col-lg-8 col-xl-4">
                         @component('components.forms.form-group', [
                             'inputType' => 'text',
-                            'label' => __('YouTube URL'),
-                            'id' => 'youtube_url',
-                            'value' => $transcript->youtube_url,
-                        ])
-                            @slot('inputOptions')
-                                required
-                            @endslot
-                        @endcomponent
-                    </div>
-                    <div class="col-12 col-lg-4 col-xl-2">
-                        @component('components.forms.form-group', [
-                            'inputType' => 'date',
-                            'label' => __('Veröffentlichung'),
-                            'id' => 'published_at',
-                            'value' => $transcript->published_at ? $transcript->published_at->format('Y-m-d') : $transcript->created_at->format('Y-m-d'),
+                            'label' => __('Playlist'),
+                            'id' => 'playlist_name',
+                            'value' => $transcript->playlist_name,
                         ])
                         @endcomponent
                     </div>
+
                 </div>
+
                 <div class="row">
-                    <div class="col-12 col-lg-12 col-xl-3">
-                        @component('components.forms.form-group', [
-                            'inputType' => 'select',
-                            'label' => __('Format'),
-                            'id' => 'format',
-                        ])
-                            @slot('selectOptions')
-                                @foreach($formats as $format)
-                                    <option value="{{ $format->id }}"
-                                        @if($transcript->format->name === $format->name)
-                                        selected
-                                        @endif
-                                    >{{ $format->name }}</option>
-                                @endforeach
-                            @endslot
-                            @slot('inputOptions')
-                                required
-                            @endslot
-                        @endcomponent
-                    </div>
-                    <div class="col-12 col-lg-12 col-xl-1">
-                        @component('components.forms.form-group', [
-                            'inputType' => 'number',
-                            'label' => __('Wiki ID'),
-                            'id' => 'wiki_id',
-                            'value' => $transcript->wiki_id
-                        ])
-                            @slot('inputOptions')
-                                required
-                                min="1"
-                                max="100000"
-                            @endslot
-                        @endcomponent
-                    </div>
-                    <div class="col-12 col-lg-12 col-xl-2 mt-xl-4 pt-xl-2">
-                        <button class="btn btn-outline-secondary" name="save">@lang('Speichern')</button>
-                    </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-12">
-                        {!! empty($transcript->english()->translation) ? 'Nicht vorhanden' : nl2br($transcript->english()->translation) !!}
+                    <div class="col-12 col-lg-12 col-xl-2 mt-3">
+                        <button class="btn btn-outline-secondary btn-block" name="save">@lang('Speichern')</button>
                     </div>
                 </div>
             </div>
         </div>
     @endcomponent
+    <div class="card">
+        <h4 class="card-header">@lang('Inhalt')</h4>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 col-lg-8 col-xl-9" id="description">
+                    <h6>YouTube @lang('Beschreibung')</h6>
+                    {!! empty($transcript->youtube_description) ? 'Nicht vorhanden' : nl2br($transcript->youtube_description) !!}
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>@lang('Transkript Englisch'):</h6>
+                            {!! empty($transcript->english()->translation) ? 'Nicht vorhanden' : nl2br($transcript->english()->translation) !!}
+                            <hr>
+                            <h6>@lang('Transkript Deutsch'):</h6>
+                            {!! empty($transcript->german()->translation) ? 'Nicht vorhanden' : nl2br($transcript->german()->translation) !!}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4 col-xl-3">
+                    <img src="{{ $transcript->thumbnail }}" class="img-fluid" alt="thumbnail"/>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
