@@ -150,8 +150,8 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
         try {
             $text = $this->getFormattedText($this->getArticleText(), $wikiText);
 
-            // Skip if texts are equal
-            if (strcmp($text, $wikiText ?? '') === 0) {
+            // Skip if texts are equal or translation markers are present
+            if (strcmp($text, $wikiText ?? '') === 0 || strpos($text, '<!--T:') !== false) {
                 $this->delete();
                 return;
             }
