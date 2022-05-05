@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap v4.6.0 (https://getbootstrap.com/)
+  * Bootstrap v4.6.1 (https://getbootstrap.com/)
   * Copyright 2011-2021 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
@@ -34,7 +34,7 @@
  * Date: 2021-03-02T17:08Z
  */
 
-/*! DataTables 1.11.3
+/*! DataTables 1.11.5
  * ©2008-2021 SpryMedia Ltd - datatables.net/license
  */
 

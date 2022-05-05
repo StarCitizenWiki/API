@@ -33,44 +33,63 @@
             </div>
 
             <div v-if="selectedChild">
-              <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" class="form-control" id="name" placeholder="Objektname" v-on:input="setCode" v-model="newObj.name">
-                <small class="form-text text-muted">Name des Objekts</small>
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" placeholder="Objektname" v-on:input="setCode" v-model="newObj.name">
+                    <small class="form-text text-muted">Name des Objekts</small>
+                  </div>
+                </div>
               </div>
 
-              <div class="form-group">
-                <label for="code">Code</label>
-                <input type="text" class="form-control" id="code" disabled v-on:change="generate" :value="newObj.code">
-                <small class="form-text text-muted">Der Code wird automatisch anhand des Namens generiert</small>
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                    <label for="code">Code</label>
+                    <input type="text" class="form-control" id="code" disabled v-on:change="generate" :value="newObj.code">
+                    <small class="form-text text-muted">Der Code wird automatisch anhand des Namens generiert</small>
+                  </div>
+                </div>
               </div>
 
-              <div class="form-group">
-                <label for="parentSelect">Typ</label>
-                <select id="typ" class="form-control" v-model="newObj.type" v-on:change="generate">
-                  <option value="ASTEROID_FIELD">Asteroidenfeld</option>
-                  <option value="ASTEROID_BELT">Asteroidengürtel</option>
-                  <option value="BINARY">Binärer Stern</option>
-                  <option value="SINGLE_STAR">Einzelner Stern</option>
-                  <option selected value="ENTITY">Entität</option>
-                  <option value="CAVE">Höhle</option>
-                  <option value="LANDINGZONE">Landezone</option>
-                  <option value="LAGRANGE_POINT">Lagrange Punkt</option>
-                  <option value="SATELLITE">Mond</option>
-                  <option value="PERSON">Person</option>
-                  <option value="PLANET">Planet</option>
-                  <option value="POI">POI</option>
-                  <option value="MANMADE">Raumstation</option>
-                  <option value="BLACKHOLE">Schwarzes Loch</option>
-                  <option value="SETTLEMENT">Siedlung</option>
-                  <option value="JUMPPOINT">Sprungpunkt</option>
-                  <option value="STATE">Staat</option>
-                  <option value="SHOP">Shop</option>
-                  <option value="TOWN">Stadt</option>
-                  <option value="STAR">Stern</option>
-                  <option value="STRUCTURE">Struktur</option>
-                  <option value="SHELTER">Unterkunft</option>
-                </select>
+              <div class="row">
+                <div class="col-12 col-lg-6 col-xl-9">
+                  <div class="form-group">
+                    <label for="parentSelect">Typ</label>
+                    <select id="typ" class="form-control" v-model="newObj.type" v-on:change="generate">
+                      <option value="ASTEROID_FIELD">Asteroidenfeld</option>
+                      <option value="ASTEROID_BELT">Asteroidengürtel</option>
+                      <option value="BINARY">Binärer Stern</option>
+                      <option value="SINGLE_STAR">Einzelner Stern</option>
+                      <option selected value="ENTITY">Entität</option>
+                      <option value="CAVE">Höhle</option>
+                      <option value="LANDINGZONE">Landezone</option>
+                      <option value="LAGRANGE_POINT">Lagrange Punkt</option>
+                      <option value="SATELLITE">Mond</option>
+                      <option value="PERSON">Person</option>
+                      <option value="PLANET">Planet</option>
+                      <option value="POI">POI</option>
+                      <option value="MANMADE">Raumstation</option>
+                      <option value="BLACKHOLE">Schwarzes Loch</option>
+                      <option value="SETTLEMENT">Siedlung</option>
+                      <option value="JUMPPOINT">Sprungpunkt</option>
+                      <option value="STATE">Staat</option>
+                      <option value="SHOP">Shop</option>
+                      <option value="TOWN">Stadt</option>
+                      <option value="STAR">Stern</option>
+                      <option value="STRUCTURE">Struktur</option>
+                      <option value="SHELTER">Unterkunft</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6 col-xl-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="quantumbeacon" v-model="newObj.quantumbeacon" v-on:change="generate">
+                    <label class="form-check-label" for="quantumbeacon">Navigationspunkt</label>
+                  </div>
+                </div>
               </div>
 
               <div class="row">
@@ -110,7 +129,7 @@
                     <input type="number" class="form-control" id="population" v-on:change="generate" v-model="newObj.population" min="0" max="10">
                   </div>
                 </div>
-                <div class="col-12 col-lg-9">
+                <div class="col-12">
                   <div class="form-group" >
                     <label for="control">Kontrolle</label>
                     <select id="control" class="form-control" v-model="newObj.control" v-on:change="generate">
@@ -120,12 +139,6 @@
                       <option value="Banu">Banu</option>
                       <option value="Vanduul">Vanduul</option>
                     </select>
-                  </div>
-                </div>
-                <div class="col-12 col-lg-3">
-                  <div class="form-group">
-                    <label for="habitable">Habitabel</label>
-                    <input type="checkbox" class="form-control" id="habitable" v-model="newObj.habitable" v-on:change="generate">
                   </div>
                 </div>
 
@@ -156,46 +169,12 @@
               </div>
 
               <div class="row" v-if="isSystemEntity">
+
                 <div class="col-12">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="zones" checked v-model="noZones" v-on:change="generate">
-                    <label class="form-check-label" for="zones">Zonen entfernen</label>
-                  </div>
+                  <h4>Recht</h4>
                 </div>
 
-                <div class="col-12" v-if="!noZones">
-                  <div class="row">
-                    <div class="col-12 col-lg-3">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="quantumbeacon" v-model="newObj.quantumbeacon" v-on:change="generate">
-                        <label class="form-check-label" for="quantumbeacon">Navigationspunkt</label>
-                      </div>
-                    </div>
-
-                    <div class="col-12 col-lg-3">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="weapon_zone" v-model="newObj.weapon_zone" v-on:change="generate">
-                        <label class="form-check-label" for="weapon_zone">Waffenfreie Zone</label>
-                      </div>
-                    </div>
-
-                    <div class="col-12 col-lg-3">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="controlled_zone" v-model="newObj.controlled_zone" v-on:change="generate">
-                        <label class="form-check-label" for="controlled_zone">Überwachung von Straftaten</label>
-                      </div>
-                    </div>
-
-                    <div class="col-12 col-lg-3">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="atc" v-model="newObj.atc" v-on:change="generate">
-                        <label class="form-check-label" for="atc">Lande- und Startkontrolle</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-12 mt-3">
+                <div class="col-12">
                   <div class="form-group">
                     <label for="control_type">Rechtsraum</label>
                     <select id="control_type" class="form-control" v-model="newObj.control_type" v-on:change="generate">
@@ -210,7 +189,61 @@
                   </div>
                 </div>
 
-                <hr>
+                  <div class="row mx-1">
+                    <div class="col-12 col-lg-6 col-xl-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="weapon_blocked" v-model="newObj.weapon_blocked" v-on:change="generate">
+                        <label class="form-check-label" for="weapon_blocked">Waffenblockierung</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 col-xl-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="weapon_zone" v-model="newObj.weapon_zone_inner" v-on:change="generate">
+                        <label class="form-check-label" for="weapon_zone">Waffensperrung Innenbereich</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 col-xl-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="weapon_zone_outer" v-model="newObj.weapon_zone_outer" v-on:change="generate">
+                        <label class="form-check-label" for="weapon_zone_outer">Waffensperrung Umgebung</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6 col-xl-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="controlled_zone" v-model="newObj.controlled_zone" v-on:change="generate">
+                        <label class="form-check-label" for="controlled_zone">Überwachung von Straftaten</label>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="col-12"><hr></div>
+
+
+
+
+
+                <div class="col-12">
+                  <h4>Mobilität</h4>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="public_transport" v-model="newObj.public_transport" v-on:change="generate">
+                    <label class="form-check-label" for="public_transport">ÖPNV</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="atc" v-model="newObj.atc" v-on:change="generate">
+                    <label class="form-check-label" for="atc">Lande- und Startkontrolle</label>
+                  </div>
+                </div>
+
+                <div class="col-12 my-2"></div>
 
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
@@ -238,7 +271,7 @@
 
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
-                    <label for="docking_stations">Dockingsationen</label>
+                    <label for="docking_stations">Dockingstationen</label>
                     <input type="number" class="form-control" id="docking_stations" v-on:change="generate" v-on:input="generate" v-model="newObj.docking_stations" min="0" max="50">
                     <small class="form-text text-muted">Anzahl Dockingstationen für Raumschiffe</small>
                   </div>
@@ -260,6 +293,57 @@
                   </div>
                 </div>
 
+                <div class="col-12"><hr></div>
+
+
+
+
+
+
+
+
+
+                <div class="col-12 mb-3">
+                  <h4>Ökologie</h4>
+                </div>
+
+                <div class="col-12 col-lg-6 col-xl-4 mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="habitable" v-model="newObj.habitable_inner" v-on:change="generate">
+                    <label class="form-check-label" for="habitable">Habitabel Innenbereich</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6 col-xl-4 mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="habitable_outer" v-model="newObj.habitable_outer" v-on:change="generate">
+                    <label class="form-check-label" for="habitable_outer">Habitabel Außenbereich</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6 col-xl-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="clinic" v-model="newObj.clinic" v-on:change="generate">
+                    <label class="form-check-label" for="clinic">Krankenhaus / Klinik</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6 col-xl-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="imprinting_possible" v-model="newObj.imprinting_possible" v-on:change="generate">
+                    <label class="form-check-label" for="imprinting_possible">Prägung möglich</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6 col-xl-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="accommodations" v-model="newObj.accommodations" v-on:change="generate">
+                    <label class="form-check-label" for="accommodations">Unterkünfte</label>
+                  </div>
+                </div>
+
+                <div class="col-12 my-2"></div>
+
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="temp_shadow">Temperatur (Schattenseite)</label>
@@ -276,11 +360,62 @@
                   </div>
                 </div>
 
+                <div class="col-12"><hr></div>
+
+
+
+
+
+
+
+                <div class="col-12 mb-3">
+                  <h4>Ökonomie</h4>
+                </div>
+
+                <div class="row mx-1 mb-3 w-100">
+                  <div class="col-12 col-lg-6 col-xl-4">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="refinery" v-model="newObj.refinery" v-on:change="generate">
+                      <label class="form-check-label" for="refinery">Raffineriedeck</label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-lg-6 col-xl-4">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="cargo_area" v-model="newObj.cargo_area" v-on:change="generate">
+                      <label class="form-check-label" for="cargo_area">Frachtbereich</label>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-lg-6 col-xl-4">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="black_market" v-model="newObj.black_market" v-on:change="generate">
+                      <label class="form-check-label" for="black_market">Schwarzmarkt vorhanden</label>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="col-12 col-lg-6">
                   <div class="form-group">
                     <label for="merchants">Anzahl Händler</label>
                     <input type="number" class="form-control" id="merchants" v-on:change="generate" v-on:input="generate" v-model="newObj.merchants" min="0" max="20">
                     <small class="form-text text-muted">Anzahl Händler</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="services">Anzahl Dienstleister</label>
+                    <input type="number" class="form-control" id="services" v-on:change="generate" v-on:input="generate" v-model="newObj.services" min="0" max="50">
+                    <small class="form-text text-muted">Anzahl Mietservices, Versicherungen, etc.</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                  <div class="form-group">
+                    <label for="food_services">Gastronomie</label>
+                    <input type="number" class="form-control" id="food_services" v-on:change="generate" v-on:input="generate" v-model="newObj.food_services" min="0" max="50">
+                    <small class="form-text text-muted">Anzahl Burito Bar, etc.</small>
                   </div>
                 </div>
 
@@ -297,22 +432,6 @@
                     <label for="fine_terminals">Fines & Citations Payment System</label>
                     <input type="number" class="form-control" id="fine_terminals" v-on:change="generate" v-on:input="generate" v-model="newObj.fine_terminals" min="0" max="50">
                     <small class="form-text text-muted">Anzahl Fines & Citations Payment Systems vom Office of Imperial Justice</small>
-                  </div>
-                </div>
-
-                <div class="col-12 col-lg-6">
-                  <div class="form-group">
-                    <label for="refineries">Raffineriestationen</label>
-                    <input type="text" class="form-control" id="refineries" v-on:change="generate" v-on:input="generate" v-model="newObj.refineries">
-                    <small class="form-text text-muted">Anzahl der Verkaufs und Raffineriestationen, z.B. "Verkauf, 2x Raffinerie" zur Angabe von einer Verkaufsstation und 2 Raffineriestationen</small>
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <div class="form-group">
-                    <label for="merchants_terminals">Ein- und Verkauf von Handelsware</label>
-                    <input type="text" class="form-control" id="merchants_terminals" v-on:change="generate" v-on:input="generate" v-model="newObj.merchants_terminals">
-                    <small class="form-text text-muted">z.B. 1x Trading & Shipping Terminal, 1x Admin Office</small>
                   </div>
                 </div>
               </div>
@@ -476,13 +595,13 @@ export default {
 | Starmap Code = ${this.newObj.code}
 | Bezeichnung = ${this.newObj.name}
 | Typ = ${this.newObj.type}
+| Quantum Beacon = ${this.newObj.quantumbeacon ? 'Ja' : 'Nein'}
 | Kontrolle = ${this.newObj.control ?? ''}
 | Elternid = ${this.selectedChild.id}
 | ID = ${this.newObj.id}
 | Wirtschaft = ${this.newObj.economy ?? ''}
 | Bevölkerungsgröße = ${this.newObj.population ?? ''}
-| Gefahrenlage = ${this.newObj.danger ?? ''}
-| Habitabel = ${(typeof this.newObj.habitable === 'undefined' ? '' : (this.newObj.habitable ? 'Ja' : 'Nein')) }${this.addIsMerchant()}${this.addSystemEntityData()}
+| Gefahrenlage = ${this.newObj.danger ?? ''}${this.addIsMerchant()}${this.addSystemEntityData()}
 }}`;
     },
     addIsMerchant: function () {
@@ -508,12 +627,20 @@ export default {
       return `${this.bools()}
 | Rechtsraum = ${this.newObj.control_type ?? ''}
 ${this.hangars()}
+| Habitabel Innenbereich = ${(typeof this.newObj.habitable_inner === 'undefined' ? '' : (this.newObj.habitable_inner ? 'Ja' : 'Nein')) }
+| Habitabel Außenbereich = ${(typeof this.newObj.habitable_outer === 'undefined' ? '' : (this.newObj.habitable_outer ? 'Ja' : 'Nein')) }
 | Temperatur Schattenseite = ${this.newObj.temp_shadow ? `${this.newObj.temp_shadow} °C` : ''}
 | Temperatur Sonnenseite = ${this.newObj.temp_sun ? `${this.newObj.temp_sun} °C` : ''}
+| Klinik = ${(typeof this.newObj.clinic === 'undefined' ? '' : (this.newObj.clinic ? 'Ja' : 'Nein')) }
+| Prägung = ${(typeof this.newObj.imprinting_possible === 'undefined' ? '' : (this.newObj.imprinting_possible ? 'Ja' : 'Nein')) }
+| Unterkünfte = ${(typeof this.newObj.accommodations === 'undefined' ? '' : (this.newObj.accommodations ? 'Ja' : 'Nein')) }
 | Anzahl Händler = ${this.newObj.merchants ?? ''}
-| Handelsterminals = ${this.newObj.merchants_terminals ?? ''}
+| Anzahl Dienstleister = ${this.newObj.services ?? ''}
+| Anzahl Gastronomie = ${this.newObj.food_services ?? ''}
 | Anzahl Paketstationen = ${this.newObj.paket_stations ?? ''}
-| Raffineriestationen = ${this.newObj.refineries ?? ''}${(this.hideBox === true ? `
+| Schwarzmarkt = ${(typeof this.newObj.black_market === 'undefined' ? '' : (this.newObj.black_market ? 'Ja' : 'Nein')) }
+| Frachtbereich = ${(typeof this.newObj.cargo_area === 'undefined' ? '' : (this.newObj.cargo_area ? 'Ja' : 'Nein')) }
+| Raffineriestationen = ${(typeof this.newObj.refinery === 'undefined' ? '' : (this.newObj.refinery ? 'Ja' : 'Nein')) }${(this.hideBox === true ? `
 | Infobox = Nein` : '')}`
     },
     setCode: function (e) {
@@ -538,7 +665,8 @@ ${this.hangars()}
         return ''
       }
 
-      return `| Anzahl Landeplattformen = ${this.newObj.landing_platforms ?? ''}
+      return `| Öffentlicher Transport = ${(typeof this.newObj.public_transport === 'undefined' ? '' : (this.newObj.public_transport ? 'Ja' : 'Nein')) }
+| Anzahl Landeplattformen = ${this.newObj.landing_platforms ?? ''}
 | Anzahl Hangar = ${this.newObj.hangars ?? ''}
 | Anzahl Garagen = ${this.newObj.garages ?? ''}
 | Anzahl Dockingstationen = ${this.newObj.docking_stations ?? ''}
@@ -552,8 +680,9 @@ ${this.hangars()}
       }
 
       return `\n| ATC = ${this.newObj.atc ? 'Ja' : 'Nein'}
-| Quantum Beacon = ${this.newObj.quantumbeacon ? 'Ja' : 'Nein'}
-| Waffenfreie Zone = ${this.newObj.weapon_zone ? 'Ja' : 'Nein'}
+| Waffenblockierung = ${this.newObj.weapon_blocked ? 'Ja' : 'Nein'}
+| Waffensperrung Innenbereich = ${this.newObj.weapon_zone_inner ? 'Ja' : 'Nein'}
+| Waffensperrung Umgebung = ${this.newObj.weapon_zone_outer ? 'Ja' : 'Nein'}
 | Überwachte Zone = ${this.newObj.controlled_zone ? 'Ja' : 'Nein'}`
     },
     getTemplateType: function () {
