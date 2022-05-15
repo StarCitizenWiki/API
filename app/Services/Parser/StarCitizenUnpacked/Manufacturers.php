@@ -33,7 +33,7 @@ final class Manufacturers
                 return [
                     $manufacturer['reference'] => [
                         'name' => $manufacturer['name'] ?? '',
-                        'code' => $manufacturer['code'],
+                        'code' => $manufacturer['code'] ?? '',
                     ]
                 ];
             });

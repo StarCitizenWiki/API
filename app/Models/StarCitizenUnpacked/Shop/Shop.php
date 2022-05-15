@@ -29,12 +29,6 @@ class Shop extends Model
         'profit_margin' => 'double',
     ];
 
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
-
     public function items(): BelongsToMany
     {
         return $this->belongsToMany(

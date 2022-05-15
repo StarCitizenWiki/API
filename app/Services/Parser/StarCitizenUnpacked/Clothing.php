@@ -54,7 +54,7 @@ final class Clothing extends AbstractCommodityItem
         $description = $this->getDescription($this->item->get('ClassName')) ?? '';
 
         if (empty($description)) {
-            $description = $this->labels->get(substr($attachDef['Localization']['Description'], 1));
+            $description = $this->labels->get(substr($attachDef['Localization']['Description'], 1)) ?? '';
         }
 
         $data = $this->tryExtractDataFromDescription($description, [
