@@ -281,5 +281,6 @@ final class ShipItem extends AbstractCommodityItem
         $mappedItem['counter_measure'] = CounterMeasure::getData($item, $rawData);
         $mappedItem['radar'] = Radar::getData($item, $rawData);
         $mappedItem['mining_laser'] = MiningLaser::getData($item, $rawData);
+        $mappedItem['cargo_grid'] = CargoGrid::getData($item, $rawData);
     }
 }

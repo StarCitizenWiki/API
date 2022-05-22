@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked\ShipItem;
 
+use App\Models\StarCitizenUnpacked\CargoGrid;
 use App\Models\StarCitizenUnpacked\CommodityItem;
 use App\Models\StarCitizenUnpacked\CounterMeasure;
 use App\Models\StarCitizenUnpacked\FuelIntake;
@@ -81,6 +82,8 @@ class ShipItem extends CommodityItem
     public function specification(): HasOne
     {
         switch ($this->item->type) {
+            case 'Cargo':
+                return $this->hasOne(CargoGrid::class, 'uuid', 'uuid');
             case 'Cooler':
                 return $this->hasOne(Cooler::class, 'uuid', 'uuid');
             case 'PowerPlant':

@@ -84,6 +84,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     private function addSpecificationData(AbstractShipItemSpecification $item): void
     {
         switch ($this->fixItem($item)->shipItem->item->type) {
+            case 'Cargo':
+                $this->defaultIncludes[] = 'cargoGrid';
+                break;
+
             case 'Cooler':
                 $this->defaultIncludes[] = 'cooler';
                 break;
@@ -251,6 +255,11 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     public function includeMiningLaser($data): Item
     {
         return $this->item($this->fixItem($data), new MiningLaserTransformer());
+    }
+
+    public function includeCargoGrid($data): Item
+    {
+        return $this->item($this->fixItem($data), new CargoGridTransformer());
     }
 
     private function fixItem($item): AbstractShipItemSpecification

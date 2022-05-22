@@ -187,6 +187,9 @@ class ShipItems implements ShouldQueue
     private function createModelSpecification(array $item, ShipItemModel $shipItem): ?Model
     {
         switch ($item['item_class']) {
+            case 'Ship.Cargo':
+                return $this->createCargoGrid($item, $shipItem);
+
             case 'Ship.Cooler':
                 return $this->createCooler($item, $shipItem);
 
@@ -534,6 +537,22 @@ class ShipItems implements ShouldQueue
             'modifier_shatter_damage' => $item['mining_laser']['modifier_shatter_damage'] ?? 0,
             'modifier_catastrophic_window_rate' => $item['mining_laser']['modifier_catastrophic_window_rate'] ?? 0,
             'consumable_slots' => $item['turret']['max_mounts'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createCargoGrid(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->specification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'personal_inventory' => $item['cargo_grid']['personal_inventory'] ?? false,
+            'invisible' => $item['cargo_grid']['invisible'] ?? false,
+            'mining_only' => $item['cargo_grid']['mining_only'] ?? false,
+            'min_volatile_power_to_explode' => $item['cargo_grid']['min_volatile_power_to_explode'] ?? 0,
+            'x' => $item['cargo_grid']['x'] ?? 0,
+            'y' => $item['cargo_grid']['y'] ?? 0,
+            'z' => $item['cargo_grid']['z'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
     }

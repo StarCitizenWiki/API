@@ -35,7 +35,6 @@ class Vehicle implements ShouldQueue
      */
     private array $createItemTypes = [
         'FuelTank',
-        'FuelTank',
         'QuantumFuelTank',
         'FuelIntake',
         'Turret',
@@ -48,6 +47,7 @@ class Vehicle implements ShouldQueue
         'WeaponMining',
         'WeaponMount',
         'Radar',
+        'Cargo',
     ];
 
     /**
