@@ -85,6 +85,36 @@ class Item extends HasTranslations
             });
     }
 
+
+    public function shopsRaw(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Shop::class,
+            'star_citizen_unpacked_shop_item'
+        )
+            ->using(ShopItem::class)
+            ->as('shop_data')
+            ->withPivot(
+                'item_uuid',
+                'shop_uuid',
+                'base_price',
+                'base_price',
+                'base_price_offset',
+                'max_discount',
+                'max_premium',
+                'inventory',
+                'optimal_inventory',
+                'max_inventory',
+                'auto_restock',
+                'auto_consume',
+                'refresh_rate',
+                'buyable',
+                'sellable',
+                'rentable',
+                'version',
+            );
+    }
+
     public function specification()
     {
         switch (true) {

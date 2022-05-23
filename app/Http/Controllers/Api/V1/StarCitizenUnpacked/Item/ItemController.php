@@ -86,8 +86,16 @@ class ItemController extends ApiController
         $query = urldecode($request->get('query'));
 
         try {
-            $item = Item::query()
-                ->where('name', 'like', "%{$query}%")
+            $item = Item::query();
+
+            if ($request->has('shop') && $request->get('shop') !== null) {
+                $item
+                    ->whereHas('shopsRaw', function ($query) use ($request) {
+                        $query->where('shop_uuid', $request->get('shop'));
+                    });
+            }
+
+            $item->where('name', 'like', "%{$query}%")
                 ->orWhere('uuid', $query)
                 ->orWhere('type', $query)
                 ->orWhere('sub_type', $query);

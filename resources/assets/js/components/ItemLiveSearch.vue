@@ -13,8 +13,21 @@
           <form method="POST" class="d-flex h-100 flex-column" v-on:submit.p.prevent="">
             <div class="form-group">
               <label for="keyword" aria-label="keyword">Item Name</label>
-              <input type="text" id="keyword" v-on:input="startSearch" min="3" max="255" required class="form-control"/>
+              <input type="text" id="keyword" v-on:input="startSearch" min="3" max="255" required v-model="term" class="form-control"/>
               <small>Suche nach ganzen Namen oder Teilwörtern. Ergebnisse werden automatisch nach Eingabe angezeigt.</small>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6 mx-auto">
+          <form method="POST" class="d-flex h-100 flex-column" v-on:submit.p.prevent="">
+            <div class="form-group">
+              <label for="shop" aria-label="keyword">Shop</label>
+              <select class="form-control" id="shop" v-model="shopId" v-on:change="search">
+                <option :value="null" selected>All</option>
+                <option v-for="shop in shopIds" :value="shop.uuid">{{ shop.name_raw }}</option>
+              </select>
             </div>
           </form>
         </div>
@@ -62,7 +75,34 @@ export default {
       error: '',
       hasNoResult: false,
       searchTimeoutId: null,
+      shopId: null,
+      shopIds: [],
     }
+  },
+  mounted() {
+    axios.get('/api/shops?limit=0', {
+      mode: 'no-cors',
+      headers: this.apiToken !== null ? {
+        'Authorization': 'Bearer ' + this.apiToken
+      } : {}
+    })
+        .then((result) => {
+          if (result.data.data.length === 0) {
+            return;
+          }
+
+          this.shopIds = result.data.data.sort((a, b) => {
+            return a.name_raw.localeCompare(b.name_raw)
+          });
+        })
+        .catch((error) => {
+          if (error.response.status === 404) {
+            this.hasNoResult = true;
+          } else {
+            this.hasError = true;
+            this.error = `${error.response.status}: ${error.message}`;
+          }
+        })
   },
   methods: {
     startSearch: function (e) {
@@ -83,6 +123,7 @@ export default {
 
       axios.post('/api/items/search?include=shops.items', {
         query: this.term,
+        shop: this.shopId,
         limit: 25
       }, {
         mode: 'no-cors',
@@ -95,6 +136,10 @@ export default {
               this.results = result.data.data;
             } else {
               this.hasNoResult = true;
+
+              if (this.shopId !== null) {
+                this.results = {};
+              }
             }
           })
           .catch((error) => {
