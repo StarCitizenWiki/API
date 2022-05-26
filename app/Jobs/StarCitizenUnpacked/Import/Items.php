@@ -28,7 +28,6 @@ class Items implements ShouldQueue
     ];
 
     private array $ignoredTypes = [
-        'Container',
         'TargetSelector',
         'Door',
         'Ping',

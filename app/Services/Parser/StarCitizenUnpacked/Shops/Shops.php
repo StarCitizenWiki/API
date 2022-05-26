@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\Shops;
 
+use App\Services\Parser\StarCitizenUnpacked\Labels;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -13,6 +14,7 @@ final class Shops
 {
     private Collection $shops;
     private Collection $mapped;
+    private Collection $labels;
 
     /**
      * List of game data shop names to "in-game" names
@@ -41,6 +43,16 @@ final class Shops
     ];
 
     /**
+     * Shops that do not exist anymore
+     *
+     * @var array|string[]
+     */
+    private array $ignoredShops = [
+        'Refining Terminal, GrimHEX',
+        'Mining Kiosks, Port Olisar',
+    ];
+
+    /**
      * AssaultRifle constructor.
      * @throws FileNotFoundException
      * @throws JsonException
@@ -51,6 +63,8 @@ final class Shops
         $this->shops = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
         $this->addShops();
         $this->mapped = collect();
+
+        $this->labels = (new Labels())->getData();
     }
 
     public function getData(): Collection
@@ -62,6 +76,9 @@ final class Shops
             })
             ->filter(function (array $shop) {
                 return strpos($shop['name'], 'IAE Expo') === false;
+            })
+            ->filter(function (array $shop) {
+                return !in_array($shop['name'], $this->ignoredShops, true);
             })
             ->filter(function (array $shop) {
                 return isset($shop['inventory']);
@@ -100,7 +117,38 @@ final class Shops
     {
         return collect($shop['inventory'])
             ->filter(function (array $inventory) {
-                return isset($inventory['displayName'], $inventory['item_reference']);
+                return isset($inventory['item_reference']);
+            })
+            ->map(function (array $inventory) {
+                // Fix MedPen (Hemozal)
+                if ($inventory['item_reference'] === '7d50411f-088c-4c99-b85a-a6eaf95504c3') {
+                    $inventory['name'] = 'crlf_consumable_healing_01';
+                    $inventory['displayName'] = $this->labels->get(sprintf('item_Name%s', $inventory['name']));
+                    $inventory['type'] = 'FPS_Consumable';
+                    $inventory['subType'] = 'MedPack';
+                }
+
+                if (!isset($inventory['displayName'])) {
+                    $key = $this->labels->first(function ($value, $key) use ($inventory) {
+                        return sprintf('item_name_%s', $inventory['name']) === strtolower($key);
+                    });
+
+                    if ($key === false || $key === null) {
+                        return null;
+                    }
+
+                    $inventory['displayName'] = $key;
+                }
+
+                // Fix MedPens
+                if (isset($inventory['subType']) && $inventory['subType'] === 'MedPack') {
+                    $inventory['displayName'] = $this->labels->get(sprintf('item_Name%s', $inventory['name']));
+                }
+
+                return $inventory;
+            })
+            ->filter(function ($inventory) {
+                return $inventory !== false && $inventory !== null;
             })
             ->map(function (array $inventory) {
                 return Inventory::map($inventory);

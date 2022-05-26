@@ -22,6 +22,7 @@ final class Inventory
         'Metal',
         'Gas',
         'ProcessedGood',
+        'MedicalSupplies',
 
         'Vehicle',
         'GroundVehicle',
@@ -121,6 +122,9 @@ final class Inventory
                     break;
                 case strpos($inventory['filename'], 'GroundVehicles') !== false:
                     $type = 'GroundVehicle';
+                    break;
+                case strpos($inventory['filename'], 'MedicalSupplies') !== false:
+                    $type = 'MedicalSupplies';
                     break;
 
                 default:
