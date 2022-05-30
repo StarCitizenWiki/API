@@ -91,36 +91,55 @@ class Vehicle implements ShouldQueue
         VehicleHardpoint::query()->truncate();
 
         collect($vehicles)->chunk(5)->each(function (Collection $chunk) {
-            $chunk->map(function (array $vehicle) {
-                try {
-                    $vehicle['rawData'] = json_decode(File::get(storage_path(sprintf(
-                        'app/api/scunpacked-data/v2/ships/%s-raw.json',
-                        strtolower($vehicle['ClassName'])
-                    ))), true, 512, JSON_THROW_ON_ERROR);
-                } catch (FileNotFoundException | JsonException $e) {
-                }
-
-                return $vehicle;
-            })->each(function (array $vehicle) {
-                if (!isset($vehicle['rawData']['Entity']['__ref'])) {
-                    return;
-                }
-
-                try {
-                    /** @var \App\Models\StarCitizenUnpacked\Vehicle $vehicleModel */
-                    $vehicleModel = \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
-                        'class_name' => $vehicle['ClassName']
-                    ], $this->getVehicleModelArray($vehicle));
-
-                    $vehicleModel->refresh();
-
-                    if ($vehicleModel->hardpoints->count() === 0) {
-                        $this->createHardpoints($vehicleModel, $vehicle['rawData']);
+            $chunk
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'fw22nfz') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'modifiers') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'SM_TE') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'Bombless') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'BIS29') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return $vehicle['ClassName'] !== 'TEST_Boat';
+                })
+                ->map(function (array $vehicle) {
+                    try {
+                        $vehicle['rawData'] = json_decode(File::get(storage_path(sprintf(
+                            'app/api/scunpacked-data/v2/ships/%s-raw.json',
+                            strtolower($vehicle['ClassName'])
+                        ))), true, 512, JSON_THROW_ON_ERROR);
+                    } catch (FileNotFoundException | JsonException $e) {
                     }
-                } catch (Exception $e) {
-                    app('Log')::warning($e->getMessage());
-                }
-            });
+
+                    return $vehicle;
+                })->each(function (array $vehicle) {
+                    if (!isset($vehicle['rawData']['Entity']['__ref'])) {
+                        return;
+                    }
+
+                    try {
+                        /** @var \App\Models\StarCitizenUnpacked\Vehicle $vehicleModel */
+                        $vehicleModel = \App\Models\StarCitizenUnpacked\Vehicle::updateOrCreate([
+                            'class_name' => $vehicle['ClassName']
+                        ], $this->getVehicleModelArray($vehicle));
+
+                        $vehicleModel->refresh();
+
+                        if ($vehicleModel->hardpoints->count() === 0) {
+                            $this->createHardpoints($vehicleModel, $vehicle['rawData']);
+                        }
+                    } catch (Exception $e) {
+                        app('Log')::warning($e->getMessage());
+                    }
+                });
         });
     }
 
