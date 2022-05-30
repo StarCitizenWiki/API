@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked;
 
+use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -159,5 +160,49 @@ class Vehicle extends CommodityItem
         )
             ->whereNull('parent_hardpoint_id')
             ->orderBy('hardpoint_name');
+    }
+
+    /**
+     * Sum the cargo capacities of all cargo grids
+     *
+     * @return float Total capacity in SCU
+     */
+    public function getScuAttribute(): float
+    {
+        return $this->hardpoints()
+            ->whereRelation('item', 'type', 'Cargo')
+            ->get()
+            ->map(function (VehicleHardpoint $hardpoint) {
+                return $hardpoint->item;
+            })
+            ->map(function (ShipItem $item) {
+                return $item->specification;
+            })
+            ->map(function ($item) {
+                return $item->scu ?? 0;
+            })
+            ->sum();
+    }
+
+    /**
+     * Sum the cargo capacities of all personal inventories
+     *
+     * @return float Total capacity in SCU
+     */
+    public function getPersonalInventoryScuAttribute(): float
+    {
+        return $this->hardpoints()
+            ->whereRelation('item', 'type', 'PersonalInventory')
+            ->get()
+            ->map(function (VehicleHardpoint $hardpoint) {
+                return $hardpoint->item;
+            })
+            ->map(function (ShipItem $item) {
+                return $item->specification;
+            })
+            ->map(function ($item) {
+                return $item->scu ?? 0;
+            })
+            ->sum();
     }
 }

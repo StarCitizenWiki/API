@@ -30,6 +30,11 @@ class VehicleTransformer extends TranslationTransformer
     {
         $this->missingTranslations = [];
 
+        $cargo = $vehicle->unpacked->cargo_capacity ?? $vehicle->cargo_capacity;
+        if ($vehicle->unpacked->SCU > 0) {
+            $cargo = $vehicle->unpacked->scu;
+        }
+
         $data = [
             'id' => $vehicle->cig_id,
             'uuid' => $vehicle->unpacked->uuid,
@@ -42,7 +47,8 @@ class VehicleTransformer extends TranslationTransformer
                 'height' => (double)$vehicle->height,
             ],
             'mass' => $vehicle->unpacked->mass ?? $vehicle->mass,
-            'cargo_capacity' => $vehicle->unpacked->cargo_capacity ?? $vehicle->cargo_capacity,
+            'cargo_capacity' => $cargo,
+            'personal_inventory_capacity' => $vehicle->unpacked->personal_inventory_scu ?? null,
             'crew' => [
                 'min' => $vehicle->unpacked->crew ?? $vehicle->min_crew,
                 'max' => $vehicle->max_crew,

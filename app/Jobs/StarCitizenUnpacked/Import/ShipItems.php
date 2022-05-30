@@ -43,6 +43,8 @@ class ShipItems implements ShouldQueue
 
         'Ship.Missile.Missile',
         'Ship.Missile.Torpedo',
+
+        'Ship.PersonalInventory',
     ];
 
     /**
@@ -195,6 +197,9 @@ class ShipItems implements ShouldQueue
 
             case 'Ship.PowerPlant.Power':
                 return $this->createPowerPlant($item, $shipItem);
+
+            case 'Ship.PersonalInventory':
+                return $this->createPersonalInventory($item, $shipItem);
 
             case 'Ship.Shield':
                 return $this->createShield($item, $shipItem);
@@ -553,6 +558,16 @@ class ShipItems implements ShouldQueue
             'x' => $item['cargo_grid']['x'] ?? 0,
             'y' => $item['cargo_grid']['y'] ?? 0,
             'z' => $item['cargo_grid']['z'] ?? 0,
+            'ship_item_id' => $shipItem->id,
+        ]);
+    }
+
+    private function createPersonalInventory(array $item, ShipItemModel $shipItem): Model
+    {
+        return $shipItem->specification()->updateOrCreate([
+            'uuid' => $item['uuid'],
+        ], [
+            'scu' => $item['personal_inventory']['scu'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
     }

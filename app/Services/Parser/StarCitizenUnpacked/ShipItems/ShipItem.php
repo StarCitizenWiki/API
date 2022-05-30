@@ -7,6 +7,7 @@ namespace App\Services\Parser\StarCitizenUnpacked\ShipItems;
 use App\Services\Parser\StarCitizenUnpacked\AbstractCommodityItem;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
+use App\Services\Parser\StarCitizenUnpacked\PersonalInventory;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -253,6 +254,18 @@ final class ShipItem extends AbstractCommodityItem
                 $mappedItem['type'] = trim(preg_replace('/([A-Z])/', ' $1', array_shift($tmp)));
             }
         }
+
+        // Change Cargo type to 'PersonalInventory' if item is in fact not a cargo grid
+        if ($mappedItem['type'] === 'Cargo' && isset($rawData['Components']['SInventoryParams']['capacity'])) {
+            $capacity = $rawData['Components']['SInventoryParams']['capacity']['SCentiCargoUnit'] ?? $rawData['Components']['SInventoryParams']['capacity']['SMicroCargoUnit'] ?? [];
+            $capacity = $capacity['centiSCU'] ?? $capacity['microSCU'] ?? 1;
+
+            if ($capacity > 1) {
+                $mappedItem['type'] = 'PersonalInventory';
+                $mappedItem['item_type'] = 'PersonalInventory';
+                $mappedItem['item_class'] = 'Ship.PersonalInventory';
+            }
+        }
         // phpcs:enable
 
         $this->addData($mappedItem, $item, $rawData);
@@ -282,5 +295,6 @@ final class ShipItem extends AbstractCommodityItem
         $mappedItem['radar'] = Radar::getData($item, $rawData);
         $mappedItem['mining_laser'] = MiningLaser::getData($item, $rawData);
         $mappedItem['cargo_grid'] = CargoGrid::getData($item, $rawData);
+        $mappedItem['personal_inventory'] = PersonalInventory::getData($item, $rawData);
     }
 }

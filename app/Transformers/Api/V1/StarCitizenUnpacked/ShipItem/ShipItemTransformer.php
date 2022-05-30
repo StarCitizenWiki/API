@@ -7,6 +7,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem;
 use App\Models\StarCitizenUnpacked\ShipItem\AbstractShipItemSpecification;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\PersonalInventoryTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\QuantumDrive\QuantumDriveTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Shield\ShieldTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\MissileTransformer;
@@ -90,6 +91,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
 
             case 'Cooler':
                 $this->defaultIncludes[] = 'cooler';
+                break;
+
+            case 'PersonalInventory':
+                $this->defaultIncludes[] = 'personalInventory';
                 break;
 
             case 'PowerPlant':
@@ -260,6 +265,11 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     public function includeCargoGrid($data): Item
     {
         return $this->item($this->fixItem($data), new CargoGridTransformer());
+    }
+
+    public function includePersonalInventory($data): Item
+    {
+        return $this->item($this->fixItem($data), new PersonalInventoryTransformer());
     }
 
     private function fixItem($item): AbstractShipItemSpecification

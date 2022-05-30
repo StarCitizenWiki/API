@@ -123,6 +123,11 @@ class VehicleTransformer extends AbstractTranslationTransformer
         array_shift($name);
         $name = implode(' ', $name);
 
+        $cargo = $vehicle->cargo_capacity;
+        if ($vehicle->SCU > 0) {
+            $cargo = $vehicle->scu;
+        }
+
         $data = [
             'id' => $vehicle->vehicle->cig_id ?? null,
             'uuid' => $vehicle->uuid,
@@ -135,7 +140,8 @@ class VehicleTransformer extends AbstractTranslationTransformer
                 'height' => (double)$vehicle->height,
             ],
             'mass' => $vehicle->mass,
-            'cargo_capacity' => $vehicle->cargo_capacity,
+            'cargo_capacity' => $cargo,
+            'personal_inventory_capacity' => $vehicle->personal_inventory_scu ?? null,
             'crew' => [
                 'min' => $vehicle->crew,
                 'max' => $vehicle->crew,

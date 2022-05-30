@@ -48,10 +48,6 @@ final class Item
         );
         // phpcs:enable
 
-        if (!$this->labels->has($nameKey)) {
-            return null;
-        }
-
         $attach = $this->item['Raw']['Entity']['Components']['SAttachableComponentParams']['AttachDef'];
         $manufacturer = $this->manufacturers->get($attach['Manufacturer'], []);
         $manufacturer = trim($manufacturer['name'] ?? $manufacturer['code'] ?? 'Unknown Manufacturer');
@@ -65,6 +61,18 @@ final class Item
         $sizes = $this->item->pull('Raw.Entity.Components.SAttachableComponentParams.AttachDef.inventoryOccupancyDimensions', []);
         // phpcs:ignore
         $volume = $this->item->pull('Raw.Entity.Components.SAttachableComponentParams.AttachDef.inventoryOccupancyVolume.SMicroCargoUnit.microSCU', 0);
+
+        // Change Cargo type to 'PersonalInventory' if item is in fact not a cargo grid
+        if ($attach['Type'] === 'Cargo' && isset($this->item['Raw']['Entity']['Components']['SInventoryParams']['capacity'])) {
+            $capacity = $this->item['Raw']['Entity']['Components']['SInventoryParams']['capacity']['SStandardCargoUnit'] ??
+                $this->item['Raw']['Entity']['Components']['SInventoryParams']['capacity']['SCentiCargoUnit'] ??
+                $this->item['Raw']['Entity']['Components']['SInventoryParams']['capacity']['SMicroCargoUnit'] ?? [];
+            $capacity = $capacity['SCU'] ?? $capacity['centiSCU'] ?? $capacity['microSCU'] ?? 1;
+
+            if ($capacity > 1) {
+                $attach['Type'] = 'PersonalInventory';
+            }
+        }
 
         return [
             'uuid' => $this->item['Raw']['Entity']['__ref'],
@@ -84,6 +92,10 @@ final class Item
 
     private function cleanName(string $key): string
     {
+        if (!$this->labels->has($key)) {
+            return '<= PLACEHOLDER =>';
+        }
+
         $name = trim(str_replace(' ', ' ', $this->labels->get($key)));
         return str_replace(['“', '”'], '"', $name);
     }
