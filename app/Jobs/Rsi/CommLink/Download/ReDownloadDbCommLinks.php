@@ -63,7 +63,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
         $this->makeClient(false);
 
         for ($id = self::FIRST_COMM_LINK_ID; $id <= $latestDbPost->cig_id; $id++) {
-            dispatch(new DownloadCommLink($id, $this->skipExisting));
+            dispatch(new DownloadCommLink($id, $this->skipExisting))->delay(($id - self::FIRST_COMM_LINK_ID) * 30);
         }
     }
 }
