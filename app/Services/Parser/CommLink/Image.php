@@ -156,7 +156,8 @@ class Image extends BaseElement
         $elements = [
             'g-banner' => ':background-image',
             'g-illustration' => ':image',
-            'g-feature' => ':main-responsive-image'
+            'g-feature' => ':main-responsive-image',
+            'g-trailer' => ':simple-image',
         ];
 
         foreach ($elements as $path => $attr) {
@@ -165,6 +166,7 @@ class Image extends BaseElement
                 ->each(
                     function (Crawler $crawler) use ($path, $attr) {
                         $image = trim($crawler->attr($attr) ?? '');
+                        $data = [];
 
                         try {
                             $image = json_decode($image, true, 512, JSON_THROW_ON_ERROR);
@@ -172,14 +174,23 @@ class Image extends BaseElement
                             return;
                         }
 
-                        if (empty($image) || (!isset($image['max']) && !isset($image['source']))) {
-                            return;
+                        if (isset($image['format']['webp']) || isset($image['format']['originalFormat'])) {
+                            $data = [
+                                'src' => $image['format']['webp']['max'] ?? $image['format']['source'] ?? null,
+                                'alt' => $path,
+                            ];
                         }
 
-                        $this->images[] = [
-                            'src' => $image['max'] ?? $image['source'],
-                            'alt' => $image['alt'] ?? $path,
-                        ];
+                        if (isset($image['max']) || isset($image['source'])) {
+                            $data = [
+                                'src' => $image['max'] ?? $image['source'],
+                                'alt' => $image['alt'] ?? $path,
+                            ];
+                        }
+
+                        if (!empty($data) && $data['src'] !== null) {
+                            $this->images[] = $data;
+                        }
                     }
                 );
         }
