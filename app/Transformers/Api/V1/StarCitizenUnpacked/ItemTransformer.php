@@ -66,40 +66,40 @@ class ItemTransformer extends AbstractCommodityTransformer
     {
         switch ($item->specification !== null ? get_class($item->specification) : '') {
             case CharArmor::class:
-                return $this->item($item->specification, new CharArmorTransformer());
+                return $this->item($item->specification, $this->makeTransformer(CharArmorTransformer::class, $this));
 
             case Clothing::class:
-                return $this->item($item->specification, new ClothingTransformer());
+                return $this->item($item->specification, $this->makeTransformer(ClothingTransformer::class, $this));
 
             case WeaponPersonal::class:
-                return $this->item($item->specification, new WeaponPersonalTransformer());
+                return $this->item($item->specification, $this->makeTransformer(WeaponPersonalTransformer::class, $this));
 
             case WeaponPersonalAttachment::class:
-                return $this->item($item->specification, new WeaponPersonalAttachmentsTransformer());
+                return $this->item($item->specification, $this->makeTransformer(WeaponPersonalAttachmentsTransformer::class, $this));
 
             case Missile::class:
-                return $this->item($item->specification, new WeaponTransformer());
+                return $this->item($item->specification, $this->makeTransformer(WeaponTransformer::class, $this));
 
             case Cooler::class:
-                return $this->item($item->specification, new CoolerTransformer());
+                return $this->item($item->specification, $this->makeTransformer(CoolerTransformer::class, $this));
 
             case QuantumDrive::class:
-                return $this->item($item->specification, new QuantumDriveTransformer());
+                return $this->item($item->specification, $this->makeTransformer(QuantumDriveTransformer::class, $this));
 
             case PowerPlant::class:
-                return $this->item($item->specification, new PowerPlantTransformer());
+                return $this->item($item->specification, $this->makeTransformer(PowerPlantTransformer::class, $this));
 
             case Shield::class:
-                return $this->item($item->specification, new ShieldTransformer());
+                return $this->item($item->specification, $this->makeTransformer(ShieldTransformer::class, $this));
 
             case Weapon::class:
-                return $this->item($item->specification(), new WeaponTransformer());
+                return $this->item($item->specification(), $this->makeTransformer(WeaponTransformer::class, $this));
 
             case MiningLaser::class:
-                return $this->item($item->specification(), new MiningLaserTransformer());
+                return $this->item($item->specification(), $this->makeTransformer(MiningLaserTransformer::class, $this));
 
             case Turret::class:
-                return $this->item($item->specification(), new TurretTransformer());
+                return $this->item($item->specification(), $this->makeTransformer(TurretTransformer::class, $this));
 
             default:
                 return $this->null();
