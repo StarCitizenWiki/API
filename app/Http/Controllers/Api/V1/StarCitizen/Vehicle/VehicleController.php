@@ -116,9 +116,11 @@ class VehicleController extends ApiController
      */
     public function index(Request $request): Response
     {
-        if ($request->has('transformer') && $request->get('transformer', null) === 'link') {
+        if ($request->has('transformer') && $request->get('transformer') === 'link') {
             $this->transformer = new VehicleLinkTransformer();
-            $this->limit = 100;
+            if (!$request->has('limit')) {
+                $this->limit = 100;
+            }
         }
 
         return $this->getResponse(Vehicle::query()->orderBy('name'));
