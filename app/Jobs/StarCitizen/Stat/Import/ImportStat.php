@@ -84,7 +84,7 @@ class ImportStat implements ShouldQueue
         }
 
         // RSI liefert Funds als String ohne Dezimalpunkt aus, letzten beiden Zahlen sind Cent-Beträge der Funds
-        $funds = substr_replace($stat->funds, '.', -2, 0);
+        $funds = substr_replace((string)$stat->funds, '.', -2, 0);
 
         Stat::create(
             [
