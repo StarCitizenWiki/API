@@ -1,5 +1,5 @@
 ### Extensions
-FROM php:7.4-apache as extensions
+FROM php:8.1-apache as extensions
 
 LABEL stage=intermediate
 
@@ -61,7 +61,7 @@ opcache.fast_shutdown=0\n\
 ' >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
 ### Composer
-FROM php:7.4-apache as api
+FROM php:8.1-apache as api
 
 COPY --from=extensions /usr/local/etc/php/conf.d/docker-php-ext-bcmath.ini /usr/local/etc/php/conf.d/docker-php-ext-bcmath.ini
 COPY --from=extensions /usr/local/etc/php/conf.d/docker-php-ext-intl.ini /usr/local/etc/php/conf.d/docker-php-ext-intl.ini
