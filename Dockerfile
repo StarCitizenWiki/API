@@ -32,17 +32,11 @@ RUN apt-get update && \
 RUN ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/local/include/
 
 RUN docker-php-ext-install bcmath && \
-    docker-php-ext-install ctype && \
-    docker-php-ext-install curl && \
     docker-php-ext-install gmp && \
     docker-php-ext-install intl && \
-    docker-php-ext-install json && \
-    docker-php-ext-install mbstring && \
     docker-php-ext-install opcache && \
     docker-php-ext-install pdo_mysql && \
-    docker-php-ext-install simplexml && \
     docker-php-ext-install tokenizer && \
-    docker-php-ext-install xml && \
     docker-php-ext-install zip
 
 RUN set -eux; \
@@ -65,8 +59,8 @@ FROM php:8.1-apache as api
 
 COPY --from=extensions /usr/local/etc/php/conf.d/docker-php-ext-bcmath.ini /usr/local/etc/php/conf.d/docker-php-ext-bcmath.ini
 COPY --from=extensions /usr/local/etc/php/conf.d/docker-php-ext-intl.ini /usr/local/etc/php/conf.d/docker-php-ext-intl.ini
-COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/intl.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/intl.so
-COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/bcmath.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/bcmath.so
+COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20210902/intl.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/intl.so
+COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20210902/bcmath.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/bcmath.so
 
 LABEL stage=intermediate
 
@@ -95,7 +89,7 @@ RUN git clone https://github.com/StarCitizenWiki/scunpacked-data --branch=master
 RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 
 ### Final Image
-FROM php:7.4-apache
+FROM php:8.1-apache
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -111,7 +105,7 @@ COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY ./docker/start.sh /usr/local/bin/start
 
 COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
-COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20190902/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20190902/
+COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20210902/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/
 
 RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
