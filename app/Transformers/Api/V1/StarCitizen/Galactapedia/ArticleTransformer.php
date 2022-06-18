@@ -11,7 +11,7 @@ use League\Fractal\Resource\Item;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'galactapedia',
+    schema: 'galactapedia_article',
     title: 'Galactapedia Article',
     description: 'An article form the Galactapedia',
     properties: [
