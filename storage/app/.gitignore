@@ -4,3 +4,4 @@
 !api/
 !scdb
 !.gitignore
+!swagger.json

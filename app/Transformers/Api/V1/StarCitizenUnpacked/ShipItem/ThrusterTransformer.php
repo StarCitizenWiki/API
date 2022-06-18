@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class ThrusterTransformer extends AbstractCommodityTransformer
 {
-
     public function transform(Thruster $item): array
     {
         return [

@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class TurretTransformer extends AbstractCommodityTransformer
 {
-
     public function transform($item): array
     {
         return [

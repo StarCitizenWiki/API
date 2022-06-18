@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class MiningLaserTransformer extends AbstractCommodityTransformer
 {
-
     public function transform($item): array
     {
         return [

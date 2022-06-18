@@ -16,10 +16,59 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use OpenApi\Attributes as OA;
 
-/**
- * Base Controller that has Dingo Helpers
- */
+#[OA\Info(
+    version: '1.0.0',
+    title: 'Star Citizen API',
+    contact: new OA\Contact(email: 'foxftw@star-citizen.wiki'),
+)]
+#[OA\SecurityScheme(
+    securityScheme: 'bearerAuth',
+    type: 'http',
+    scheme: 'bearer',
+)]
+#[OA\Server(url: 'https://api.star-citizen.wiki')]
+#[OA\Parameter(
+    name: 'page',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'page',
+        description: 'Page of pagination if any',
+        type: 'integer',
+        format: 'int64',
+        minimum: 0,
+    )
+)]
+#[OA\Parameter(
+    name: 'limit',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'limit',
+        description: 'Items per page, set to 0, to return all items',
+        type: 'integer',
+        format: 'int64',
+        maximum: 1000,
+        minimum: 0,
+    ),
+)]
+#[OA\Parameter(
+    name: 'locale',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'locale',
+        description: 'Localization to use.',
+        collectionFormat: 'csv',
+        enum: [
+            'de_DE',
+            'en_EN',
+        ]
+    ),
+)]
+#[OA\Schema(
+    schema: 'query',
+    type: 'string',
+)]
 abstract class AbstractApiController extends Controller
 {
     use Helpers;

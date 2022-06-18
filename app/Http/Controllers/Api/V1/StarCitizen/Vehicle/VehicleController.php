@@ -16,13 +16,8 @@ use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Attributes as OA;
 
-/**
- * Vehicles API
- * All Vehicles found in the official [Ship Matrix](https://robertsspaceindustries.com/ship-matrix).
- *
- * @Resource("Vehicles", uri="/vehicles")
- */
 class VehicleController extends ApiController
 {
     /**
@@ -38,82 +33,41 @@ class VehicleController extends ApiController
         parent::__construct($request);
     }
 
-    /**
-     * Index of all ground vehicles
-     *
-     * @Get("/{?page,locale,include,limit}")
-     * @Versions({"v1"})
-     * @Parameters({
-     *     @Parameter(
-     *          "page",
-     *          type="integer",
-     *          required=false,
-     *          description="Pagination page",
-     *          default=1
-     *     ),
-     *     @Parameter(
-     *          "include",
-     *          type="string",
-     *          required=false,
-     *          description="Relations to include. Valid relations are listed in the meta data"
-     *     ),
-     *     @Parameter(
-     *          "locale",
-     *          type="string",
-     *          required=false,
-     *          description="Localization to use. Supported codes: 'de_DE', 'en_EN'"
-     *     ),
-     *     @Parameter(
-     *          "limit",
-     *          type="integer",
-     *          required=false,
-     *          description="Items per page, set to 0, to return all items",
-     *          default=10
-     *     ),
-     * })
-     *
-     * @Transaction({
-     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={
-     *     "data": {
-     *     {
-     *     "id": 183,
-     *     "chassis_id": 75,
-     *     "name": "Anvil Ballista ",
-     *     "slug": "anvil-ballista",
-     *     "sizes": {"length": 17,"beam": 7,"height": 5.5},
-     *     "mass": 0,
-     *     "cargo_capacity": 0,
-     *     "crew": {"min": 1,"max": 2},
-     *     "speed": {"scm": 33},
-     *     "foci": {{"de_DE": "Militär","en_EN": "Military"}},
-     *     "production_status": {"de_DE": "Flugbereit","en_EN": "flight-ready"},
-     *     "production_note": {"de_DE": "Keine","en_EN": "None"},
-     *     "type": {"de_DE": "Gefecht","en_EN": "combat"},
-     *     "description": {},
-     *     "size": {"de_DE": "Fahrzeug","en_EN": "vehicle"},
-     *     "manufacturer": {"code": "ANVL","name": "Anvil Aerospace"},
-     *     "updated_at": "2020-11-20T00:49:52.000000Z",
-     *     "missing_translations": {"de_DE","anvil-ballista"}
-     *     },
-     *     {"id": "..."}
-     *     },
-     *     "meta": {
-     *     "processed_at": "2020-12-08 20:32:51",
-     *     "valid_relations": {"components"},
-     *     "pagination": {
-     *     "total": 17,
-     *     "count": 5,
-     *     "per_page": 5,
-     *     "current_page": 1,
-     *     "total_pages": 4,
-     *     "links": {"next": "https:\/\/api.star-citizen.wiki\/api\/vehicles?page=2"}}}}),
-     * })
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
+    #[OA\Get(
+        path: '/api/vehicles',
+        tags: ['Vehicles', 'RSI-Website', 'In-Game'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(
+                name: 'include',
+                in: 'query',
+                schema: new OA\Schema(
+                    schema: 'vehicle_includes',
+                    description: 'Available Vehicle includes',
+                    collectionFormat: 'csv',
+                    enum: [
+                        'components',
+                        'hardpoints',
+                        'shops',
+                        'shops.items',
+                    ]
+                ),
+                allowReserved: true
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of Vehicles',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/vehicle')
+                )
+            )
+        ]
+    )]
     public function index(Request $request): Response
     {
         if ($request->has('transformer') && $request->get('transformer') === 'link') {
@@ -126,131 +80,48 @@ class VehicleController extends ApiController
         return $this->getResponse(Vehicle::query()->orderBy('name'));
     }
 
-    /**
-     * Single vehicle
-     * Output of a single vehicle by vehicle name or slug (e.g. Cyclone)
-     *
-     * @Get("/{NAME}{?locale,include}")
-     * @Versions({"v1"})
-     * @Parameters({
-     *     @Parameter("NAME", type="string", required=true, description="URL encoded Name or Slug"),
-     *     @Parameter(
-     *          "include",
-     *          type="string",
-     *          required=false,
-     *          description="Relations to include. Valid relations are listed in the meta data"
-     *     ),
-     *     @Parameter(
-     *          "locale",
-     *          type="string",
-     *          required=false,
-     *          description="Localization to use. Supported codes: 'de_DE', 'en_EN'"
-     *     ),
-     * })
-     *
-     * @Transaction({
-     * @Request({"NAME": "Cyclone"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={
-     *     "data": {
-     *     "id": 134,
-     *     "chassis_id": 53,
-     *     "name": "Cyclone",
-     *     "slug": "cyclone",
-     *     "sizes": {"length": 6,"beam": 4,"height": 2.5},
-     *     "mass": 3022,
-     *     "cargo_capacity": 1,
-     *     "crew": {"min": 1,"max": 2},
-     *     "speed": {"scm": 0},
-     *     "foci": {{"de_DE": "Erkundung","en_EN": "Exploration"},{"de_DE": "Aufklärung","en_EN": "Recon"}},
-     *     "production_status": {"de_DE": "Flugbereit","en_EN": "flight-ready"},
-     *     "production_note": {"de_DE": "Keine","en_EN": "None"},
-     *     "type": {"de_DE": "Gelände","en_EN": "ground"},
-     *     "description": {"de_DE": "...","en_EN": "..."},
-     *     "size": {"de_DE": "Fahrzeug","en_EN": "vehicle"},
-     *     "manufacturer": {"code": "TMBL","name": "Tumbril"},
-     *     "updated_at": "2019-11-10T17:40:17.000000Z",
-     *     "missing_translations": {}
-     *     },"meta": {"processed_at": "2020-12-08 20:31:53","valid_relations": {"components"}}}),
-     *
-     * @Request({"NAME": "Cyclone", "locale": "de_DE"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={
-     *     "data": {
-     *     "id": 134,
-     *     "chassis_id": 53,
-     *     "name": "Cyclone",
-     *     "slug": "cyclone",
-     *     "sizes": {"length": 6,"beam": 4,"height": 2.5},
-     *     "mass": 3022,
-     *     "cargo_capacity": 1,
-     *     "crew": {"min": 1,"max": 2},
-     *     "speed": {"scm": 0},
-     *     "foci": {"Erkundung", "Aufklärung"},
-     *     "production_status": "Flugbereit",
-     *     "production_note": "Keine",
-     *     "type": "Gelände",
-     *     "description": "...",
-     *     "size": "Fahrzeug",
-     *     "manufacturer": {"code": "TMBL","name": "Tumbril"},
-     *     "updated_at": "2019-11-10T17:40:17.000000Z",
-     *     "missing_translations": {}
-     *     },
-     *     "meta": {"processed_at": "2020-12-08 20:29:47","valid_relations": {"components"}}}),
-     *
-     * @Request({"NAME": "Cyclone", "locale": "de_DE", "include": "components"},
-     *     headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={
-     *     "data": {
-     *     "id": 134,
-     *     "chassis_id": 53,
-     *     "name": "Cyclone",
-     *     "slug": "cyclone",
-     *     "sizes": {"length": 6,"beam": 4,"height": 2.5},
-     *     "mass": 3022,
-     *     "cargo_capacity": 1,
-     *     "crew": {"min": 1,"max": 2},
-     *     "speed": {"scm": 0},
-     *     "foci": {"Erkundung", "Aufklärung"},
-     *     "production_status": "Flugbereit",
-     *     "production_note": "Keine",
-     *     "type": "Gelände",
-     *     "description": "...",
-     *     "size": "Fahrzeug",
-     *     "manufacturer": {"code": "TMBL","name": "Tumbril"},
-     *     "updated_at": "2019-11-10T17:40:17.000000Z",
-     *     "missing_translations": {},
-     *     "components": {
-     *     "data": {
-     *     {
-     *     "type": "radar",
-     *     "name": "Radar",
-     *     "mounts": 1,
-     *     "component_size": "S",
-     *     "category": "",
-     *     "size": "S",
-     *     "details": "",
-     *     "quantity": 1,
-     *     "manufacturer": "TBD",
-     *     "component_class": "RSIAvionic"
-     *     },
-     *     {"type": "..."},
-     *     }
-     *     }
-     *     },
-     *     "meta": {"processed_at": "2020-12-08 20:29:47","valid_relations": {"components"}}}),
-     *
-     * @Request({"NAME": "invalid"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(404, body={
-     *     "message": "No Results for Query 'invalid'",
-     *     "status_code": 404
-     * }),
-     * })
-     *
-     *
-     * @param Request $request
-     *
-     * @return Response
-     * @throws ValidationException
-     */
+    #[OA\Get(
+        path: '/api/vehicles/{name}',
+        tags: ['Vehicles', 'RSI-Website', 'In-Game'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(
+                name: 'include',
+                in: 'query',
+                schema: new OA\Schema(
+                    schema: 'vehicle_includes',
+                    description: 'Available Vehicle includes',
+                    collectionFormat: 'csv',
+                    enum: [
+                        'components',
+                        'hardpoints',
+                        'shops',
+                        'shops.items',
+                    ]
+                ),
+                allowReserved: true
+            ),
+            new OA\Parameter(
+                name: 'name',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    schema: 'vehicle_name',
+                    description: '(Partial) Vehicle name',
+                    type: 'string',
+                ),
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                ref: '#/components/schemas/vehicle',
+                response: 200,
+                description: 'A singular vehicle'
+            )
+        ]
+    )]
     public function show(Request $request): Response
     {
         ['vehicle' => $vehicle] = Validator::validate(
@@ -289,13 +160,38 @@ class VehicleController extends ApiController
         return $this->getResponse($vehicleModel);
     }
 
-    /**
-     * Search Endpoint
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
+    #[OA\Post(
+        path: '/api/vehicles/search',
+        requestBody: new OA\RequestBody(
+            description: 'Vehicle (partial) name or slug',
+            required: true,
+            content: [
+                new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        schema: 'query',
+                        type: 'json',
+                    ),
+                    example: '{"query": "Merchant"}',
+                )
+            ]
+        ),
+        tags: ['Vehicles', 'RSI-Website', 'In-Game'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of vehicles matching the query',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/vehicle')
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No vehicle found.',
+            )
+        ],
+    )]
     public function search(Request $request): Response
     {
         $rules = (new VehicleSearchRequest())->rules();

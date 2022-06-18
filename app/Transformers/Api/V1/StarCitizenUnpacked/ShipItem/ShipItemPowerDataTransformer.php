@@ -9,7 +9,6 @@ use League\Fractal\TransformerAbstract;
 
 class ShipItemPowerDataTransformer extends TransformerAbstract
 {
-
     public function transform(ShipItemPowerData $item): array
     {
         return array_filter([

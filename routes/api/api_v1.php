@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 use Dingo\Api\Routing\Router;
 
+$api->get('/', function() {
+    return response(
+        \Illuminate\Support\Facades\File::get(storage_path('app/swagger.json'))
+    )->header('Content-Type', 'application/json');
+});
+
 $api->group(
     [
         'namespace' => 'StarCitizen',

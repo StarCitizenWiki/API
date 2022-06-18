@@ -6,12 +6,20 @@ namespace App\Transformers\Api\V1\StarCitizen\Galactapedia;
 
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
+use OpenApi\Attributes as OA;
 
-/**
- * Manufacturer Transformer
- */
+#[OA\Schema(
+    schema: 'galactpedia_related_article',
+    title: 'Galactapedia related article',
+    description: 'Related article for this galactapedia article',
+    properties: [
+        new OA\Property(property: 'id', type: 'string'),
+        new OA\Property(property: 'title', type: 'string'),
+        new OA\Property(property: 'url', type: 'string'),
+        new OA\Property(property: 'api_url', type: 'string'),
+    ],
+    type: 'object'
+)]
 class RelatedArticleTransformer extends V1Transformer
 {
     /**

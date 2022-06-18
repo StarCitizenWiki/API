@@ -28,11 +28,34 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\WeaponTransforme
 use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachmentsTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalTransformer;
 use League\Fractal\Resource\ResourceAbstract;
+use OpenApi\Attributes as OA;
 
-/**
- * Generic transformer for all items
- * Includes the item specification if one exists
- */
+#[OA\Schema(
+    schema: 'item',
+    title: 'Item',
+    description: 'An in-game item',
+    properties: [
+        new OA\Property(property: 'uuid', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'type', type: 'string'),
+        new OA\Property(property: 'sub_type', type: 'string'),
+        new OA\Property(property: 'manufacturer', type: 'string'),
+        new OA\Property(property: 'size', type: 'float'),
+        new OA\Property(
+            property: 'volume',
+            properties: [
+                new OA\Property(property: 'width', type: 'float'),
+                new OA\Property(property: 'height', type: 'float'),
+                new OA\Property(property: 'length', type: 'float'),
+                new OA\Property(property: 'volume', type: 'float'),
+            ],
+            nullable: true,
+        ),
+        new OA\Property(property: 'version', type: 'string'),
+        new OA\Property(property: 'specification', type: 'object', nullable: true),
+    ],
+    type: 'object'
+)]
 class ItemTransformer extends AbstractCommodityTransformer
 {
     protected $availableIncludes = [

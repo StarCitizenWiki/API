@@ -8,5 +8,4 @@ use App\Http\Requests\AbstractSearchRequest;
 
 class GalactapediaSearchRequest extends AbstractSearchRequest
 {
-
 }

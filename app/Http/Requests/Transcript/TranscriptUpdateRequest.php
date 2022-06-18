@@ -10,7 +10,6 @@ use Illuminate\Validation\Rule;
 
 class TranscriptUpdateRequest extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *

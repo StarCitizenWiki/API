@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class SelfDestructTransformer extends AbstractCommodityTransformer
 {
-
     public function transform(SelfDestruct $item): array
     {
         return [

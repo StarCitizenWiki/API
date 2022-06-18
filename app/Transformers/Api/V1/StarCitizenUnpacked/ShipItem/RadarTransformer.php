@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class RadarTransformer extends AbstractCommodityTransformer
 {
-
     public function transform(Radar $item): array
     {
         return [

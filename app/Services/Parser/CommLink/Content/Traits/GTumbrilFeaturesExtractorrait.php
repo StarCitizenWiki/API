@@ -9,7 +9,6 @@ use Symfony\Component\DomCrawler\Crawler;
 
 trait GTumbrilFeaturesExtractorrait
 {
-
     /**
      * TODO: Generalize this into a generic g-*-features
      * Extract <g-tumbril-features> content

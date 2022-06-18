@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class CoolerTransformer extends AbstractCommodityTransformer
 {
-
     public function transform(Cooler $item): array
     {
         return [

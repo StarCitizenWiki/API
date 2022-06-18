@@ -6,10 +6,19 @@ namespace App\Transformers\Api\V1\StarCitizen\Vehicle;
 
 use App\Models\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use OpenApi\Attributes as OA;
 
-/**
- * Class Ship Link Transformer
- */
+#[OA\Schema(
+    schema: 'vehicle_link',
+    title: 'Vehicle Link',
+    description: 'Link to the full api page',
+    properties: [
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'slug', type: 'string'),
+        new OA\Property(property: 'api_url', type: 'string'),
+    ],
+    type: 'object'
+)]
 class VehicleLinkTransformer extends VehicleTransformer
 {
     /**

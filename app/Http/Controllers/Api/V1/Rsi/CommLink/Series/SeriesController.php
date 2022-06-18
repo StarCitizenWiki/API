@@ -11,6 +11,7 @@ use App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use OpenApi\Attributes as OA;
 
 /**
  * Class Series Controller
@@ -29,11 +30,24 @@ class SeriesController extends ApiController
         parent::__construct($request);
     }
 
-    /**
-     * Ausgabe aller Serien
-     *
-     * @return Response
-     */
+    #[OA\Get(
+        path: '/api/comm-links/series',
+        tags: ['Comm-Links', 'RSI-Website'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of Series',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_series')
+                )
+            )
+        ]
+    )]
     public function index(): Response
     {
         $categories = Series::query()->orderBy('name');
@@ -41,15 +55,38 @@ class SeriesController extends ApiController
         return $this->getResponse($categories);
     }
 
-    /**
-     * @param string $series
-     *
-     * @return Response
-     */
+    #[OA\Get(
+        path: '/api/comm-links/series/{series}',
+        tags: ['Comm-Links', 'RSI-Website'],
+        parameters: [
+            new OA\Parameter(
+                name: 'category',
+                description: 'Name or slug of the series',
+                in: 'path',
+                required: true,
+            ),
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+        ],
+        responses: [
+            new OA\Response(
+                ref: '#/components/schemas/comm_link_series',
+                response: 200,
+                description: 'A singular Comm-Link Series',
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No Series with specified name found.',
+            )
+        ]
+    )]
     public function show(string $series): Response
     {
         try {
-            $series = Series::query()->where('name', $series)->orWhere('slug', $series)->firstOrFail();
+            $series = Series::query()
+                ->where('name', $series)
+                ->orWhere('slug', $series)
+                ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $series));
         }

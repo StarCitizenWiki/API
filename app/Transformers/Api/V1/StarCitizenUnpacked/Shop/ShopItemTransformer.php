@@ -6,7 +6,46 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\Shop;
 
 use App\Models\StarCitizenUnpacked\Item;
 use League\Fractal\TransformerAbstract;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'shop_item',
+    title: 'Shop Item',
+    description: 'An item from an in-game Shop',
+    properties: [
+        new OA\Property(property: 'uuid', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'type', type: 'string'),
+        new OA\Property(property: 'sub_type', type: 'string'),
+        new OA\Property(property: 'base_price', type: 'float'),
+        new OA\Property(property: 'price_calculated', type: 'float'),
+        new OA\Property(property: 'price_range', type: 'float'),
+        new OA\Property(property: 'base_price_offset', type: 'float'),
+        new OA\Property(property: 'max_discount', type: 'float'),
+        new OA\Property(property: 'max_premium', type: 'float'),
+        new OA\Property(property: 'inventory', type: 'float'),
+        new OA\Property(property: 'optimal_inventory', type: 'float'),
+        new OA\Property(property: 'max_inventory', type: 'float'),
+        new OA\Property(property: 'auto_restock', type: 'boolean'),
+        new OA\Property(property: 'auto_consume', type: 'boolean'),
+        new OA\Property(property: 'refresh_rate', type: 'float'),
+        new OA\Property(property: 'buyable', type: 'boolean'),
+        new OA\Property(property: 'sellable', type: 'boolean'),
+        new OA\Property(property: 'rentable', type: 'boolean'),
+        new OA\Property(property: 'version', type: 'string'),
+        new OA\Property(
+            property: 'rental_price_days',
+            properties: [
+                new OA\Property(property: '1', type: 'float'),
+                new OA\Property(property: '3', type: 'float'),
+                new OA\Property(property: '7', type: 'float'),
+                new OA\Property(property: '30', type: 'float'),
+            ],
+            nullable: true,
+        ),
+    ],
+    type: 'object'
+)]
 class ShopItemTransformer extends TransformerAbstract
 {
     public function transform(Item $item): array

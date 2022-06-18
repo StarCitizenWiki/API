@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class CounterMeasureTransformer extends AbstractCommodityTransformer
 {
-
     public function transform(CounterMeasure $item): array
     {
         return [

@@ -6,10 +6,17 @@ namespace App\Transformers\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
+use OpenApi\Attributes as OA;
 
-/**
- * Image Transformer
- */
+#[OA\Schema(
+    schema: 'comm_link_link',
+    title: 'Comm-Link Link',
+    description: 'Resource link to a Comm-Link',
+    properties: [
+        new OA\Property(property: 'api_url', type: 'string'),
+    ],
+    type: 'object'
+)]
 class CommLinkLinkTransformer extends V1Transformer
 {
     /**

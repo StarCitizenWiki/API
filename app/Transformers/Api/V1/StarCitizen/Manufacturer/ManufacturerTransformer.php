@@ -9,10 +9,56 @@ use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer;
 use League\Fractal\Resource\Collection;
+use OpenApi\Attributes as OA;
 
-/**
- * Manufacturer Transformer
- */
+#[OA\Schema(
+    schema: 'manufacturer',
+    title: 'Manufacturer',
+    description: 'An in-game vehicle manufacturer',
+    properties: [
+        new OA\Property(property: 'code', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'known_for', type: 'string'),
+        new OA\Property(property: 'description', type: 'string'),
+        new OA\Property(
+            property: 'ships',
+            properties: [
+                new OA\Property(
+                    property: 'ships',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/vehicle_link',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+        ),
+        new OA\Property(
+            property: 'vehicles',
+            properties: [
+                new OA\Property(
+                    property: 'vehicles',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/vehicle_link',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+        ),
+    ],
+    type: 'object'
+)]
 class ManufacturerTransformer extends TranslationTransformer
 {
     protected $availableIncludes = [

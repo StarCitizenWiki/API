@@ -8,10 +8,45 @@ use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
+use OpenApi\Attributes as OA;
 
-/**
- * Class CelestialObjectTransformer
- */
+#[OA\Schema(
+    schema: 'celestial_object',
+    title: 'Celestial Object',
+    properties: [
+        new OA\Property(property: 'id', type: 'integer'),
+        new OA\Property(property: 'code', type: 'string'),
+        new OA\Property(property: 'system_id', type: 'integer'),
+        new OA\Property(property: 'celestial_object_api_url', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'type', type: 'string'),
+        new OA\Property(property: 'age', type: 'integer'),
+        new OA\Property(property: 'habitable', type: 'boolean'),
+        new OA\Property(property: 'fairchanceact', type: 'boolean'),
+        new OA\Property(property: 'appearance', type: 'string'),
+        new OA\Property(property: 'designation', type: 'string'),
+        new OA\Property(property: 'distance', type: 'float'),
+        new OA\Property(property: 'latitude', type: 'float'),
+        new OA\Property(property: 'longitude', type: 'float'),
+        new OA\Property(property: 'axial_tilt', type: 'float'),
+        new OA\Property(property: 'orbit_period', type: 'float'),
+        new OA\Property(property: 'info_url', type: 'string'),
+        new OA\Property(property: 'description', type: 'object'),
+        new OA\Property(
+            property: 'sensor',
+            properties: [
+                new OA\Property(property: 'population', type: 'float'),
+                new OA\Property(property: 'economy', type: 'float'),
+                new OA\Property(property: 'danger', type: 'float'),
+            ],
+            type: 'object'
+        ),
+        new OA\Property(property: 'size', type: 'float'),
+        new OA\Property(property: 'parent_id', type: 'integer'),
+        new OA\Property(property: 'time_modified', type: 'timestamp'),
+    ],
+    type: 'object'
+)]
 class CelestialObjectTransformer extends AbstractTranslationTransformer
 {
     protected $availableIncludes = [

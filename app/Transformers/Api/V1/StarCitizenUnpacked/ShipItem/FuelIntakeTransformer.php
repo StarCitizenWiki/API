@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class FuelIntakeTransformer extends AbstractCommodityTransformer
 {
-
     public function transform(FuelIntake $item): array
     {
         return [

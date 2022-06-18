@@ -6,12 +6,18 @@ namespace App\Transformers\Api\V1\StarCitizen\Galactapedia;
 
 use App\Models\StarCitizen\Galactapedia\ArticleProperty;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
+use OpenApi\Attributes as OA;
 
-/**
- * Manufacturer Transformer
- */
+#[OA\Schema(
+    schema: 'galactpedia_property',
+    title: 'Galctapedia article property',
+    description: 'Property of an article',
+    properties: [
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'value', type: 'string'),
+    ],
+    type: 'object'
+)]
 class PropertyTransformer extends V1Transformer
 {
     /**

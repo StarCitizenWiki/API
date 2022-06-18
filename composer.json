@@ -8,7 +8,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.1",
         "ext-dom": "*",
         "ext-gd": "*",
         "ext-gmp": "*",
@@ -30,7 +30,8 @@
         "mediawiki/oauthclient": "^1.1.0",
         "octfx/deeply": "^3.1.4",
         "sebastian/diff": "^4.0",
-        "starcitizenwiki/mediawikiapi": "^1.0.2"
+        "starcitizenwiki/mediawikiapi": "^1.0.2",
+        "zircote/swagger-php": "^4.4"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",

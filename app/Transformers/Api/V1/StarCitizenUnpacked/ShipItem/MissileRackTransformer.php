@@ -9,7 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class MissileRackTransformer extends AbstractCommodityTransformer
 {
-
     public function transform(MissileRack $item): array
     {
         return [

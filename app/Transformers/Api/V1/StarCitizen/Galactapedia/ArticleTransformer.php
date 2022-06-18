@@ -8,10 +8,119 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
+use OpenApi\Attributes as OA;
 
-/**
- * Manufacturer Transformer
- */
+#[OA\Schema(
+    schema: 'galactapedia',
+    title: 'Galactapedia Article',
+    description: 'An article form the Galactapedia',
+    properties: [
+        new OA\Property(property: 'id', type: 'integer'),
+        new OA\Property(property: 'title', type: 'string'),
+        new OA\Property(property: 'slug', type: 'string'),
+        new OA\Property(property: 'thumbnail', type: 'string'),
+        new OA\Property(property: 'template', type: 'string', nullable: true),
+        new OA\Property(property: 'rsi_url', type: 'string'),
+        new OA\Property(property: 'api_url', type: 'string'),
+        new OA\Property(property: 'created_at', type: 'timestamp'),
+        new OA\Property(
+            property: 'categories',
+            properties: [
+                new OA\Property(
+                    property: 'categories',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/galactapedia_category',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'tags',
+            properties: [
+                new OA\Property(
+                    property: 'tags',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/galactapedia_tag',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'properties',
+            properties: [
+                new OA\Property(
+                    property: 'properties',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/galactapedia_property',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'related_articles',
+            properties: [
+                new OA\Property(
+                    property: 'related_articles',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/galactpedia_related_article',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'english',
+            properties: [
+                new OA\Property(
+                    property: 'english',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/galactpedia_translation',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            nullable: true,
+        ),
+    ],
+    type: 'object'
+)]
 class ArticleTransformer extends AbstractTranslationTransformer
 {
     protected $availableIncludes = [

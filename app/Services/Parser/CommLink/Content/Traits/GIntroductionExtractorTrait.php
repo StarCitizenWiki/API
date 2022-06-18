@@ -9,7 +9,6 @@ use Symfony\Component\DomCrawler\Crawler;
 
 trait GIntroductionExtractorTrait
 {
-
     /**
      * Extract <g-introduction> content
      *
