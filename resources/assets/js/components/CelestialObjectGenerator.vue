@@ -529,7 +529,7 @@ export default {
       axios.get(this.apiUrl, {
         params: {
           action: 'ask',
-          query: `[[Sternensystemid::${this.selectedSystem.id}]]|?Sternensystemid|?Starmap Code|?Bezeichnung|?Typ|?Kontrolle|?ID|?Elternid|limit=250`,
+          query: `[[Sternensystemid::${this.selectedSystem.id}]]|?Sternensystemid=system_id|?Starmap Code=code|?Bezeichnung=name|?Typ=type|?Kontrolle=control|?ID=id|?Elternid=parent_id|limit=250`,
           format: 'json',
           formatversion: 2,
           maxage: 0,
@@ -541,15 +541,17 @@ export default {
           const dataDate = (new Date(result.data.curtimestamp));
           this.dataTS = `${dataDate.toLocaleDateString()} ${dataDate.toLocaleTimeString()}`;
 
+          const safeAccess = item => item ?? [];
+
           Object.entries(result.data.query.results).forEach(mapping => {
             this.childObjects.push({
-              name: mapping[1]?.printouts['Bezeichnung'][0] ?? null,
-              id: mapping[1]?.printouts['ID'][0] ?? null,
-              system: mapping[1]?.printouts['Sternensystemid'][0] ?? null,
-              code: mapping[1]?.printouts['Starmap Code'][0] ?? null,
-              type: mapping[1]?.printouts['Typ'][0] ?? null,
-              control: mapping[1]?.printouts['Kontrolle'][0] ?? null,
-              parent: mapping[1]?.printouts['Elternid'][0] ?? null
+              name: safeAccess(mapping[1]?.printouts?.name)[0] ?? null,
+              id: safeAccess(mapping[1]?.printouts?.id)[0] ?? null,
+              system: safeAccess(mapping[1]?.printouts?.system_id)[0] ?? null,
+              code: safeAccess(mapping[1]?.printouts.code)[0] ?? null,
+              type: safeAccess(mapping[1]?.printouts?.type)[0] ?? null,
+              control: safeAccess(mapping[1]?.printouts?.control)[0] ?? null,
+              parent: safeAccess(mapping[1]?.printouts?.parent_id)[0] ?? null
             })
           });
 
