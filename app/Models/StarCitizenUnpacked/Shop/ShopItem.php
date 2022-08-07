@@ -6,12 +6,15 @@ namespace App\Models\StarCitizenUnpacked\Shop;
 
 use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\Item;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ShopItem extends Pivot
 {
+    use ModelChangelog;
+
     protected $primaryKey = 'item_uuid';
 
     protected $dispatchesEvents = [
