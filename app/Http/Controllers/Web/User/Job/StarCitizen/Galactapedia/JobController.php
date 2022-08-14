@@ -71,12 +71,33 @@ class JobController extends Controller
     {
         $this->authorize('web.user.jobs.import_galactapedia_job');
 
-        Artisan::call('galactapedia:import-article-properties');
+        Artisan::call('galactapedia:import-properties');
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [
                 'success' => [
                     __('Galactapedia Import der Artikeleigenschaften gestartet'),
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @return RedirectResponse
+     *
+     * @throws AuthorizationException
+     */
+    public function startCreateWikiPagesJob(): RedirectResponse
+    {
+        $this->authorize('web.user.jobs.import_galactapedia_job');
+
+        Artisan::call('galactapedia:create-wiki-pages');
+        Artisan::call('galactapedia:upload-wiki-images');
+
+        return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
+            [
+                'success' => [
+                    __('Galactapedia Wiki Seiten werden erstellt'),
                 ],
             ]
         );

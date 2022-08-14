@@ -78,6 +78,10 @@ Route::group(
                                 'import-galactapedia-article-properties',
                                 'Job\StarCitizen\Galactapedia\JobController@startImportGalactapediaArticlePropertiesJob'
                             )->name('import-galactapedia-article-properties');
+                            Route::post(
+                                'create-galactapedia-pages',
+                                'Job\StarCitizen\Galactapedia\JobController@startCreateWikiPagesJob'
+                            )->name('create-galactapedia-pages');
                         }
                     );
 

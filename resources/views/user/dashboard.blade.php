@@ -276,6 +276,14 @@
                         <button class="btn btn-block btn-outline-secondary">@lang('Eigenschaften importieren')</button>
                     @endcomponent
                 @endcan
+                @can('web.user.jobs.import_galactapedia_job')
+                    @component('components.forms.form', [
+                        'action' => route('web.user.dashboard.create-galactapedia-pages'),
+                        'class' => 'mb-3',
+                    ])
+                        <button class="btn btn-block btn-outline-secondary">@lang('Wiki Seiten erstellen')</button>
+                    @endcomponent
+                @endcan
             @endcomponent
         </div>
     </section>
