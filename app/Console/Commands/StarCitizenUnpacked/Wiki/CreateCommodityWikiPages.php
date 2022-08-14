@@ -104,7 +104,9 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
             $this->advanceBar();
         });
 
-        $this->approvePages($data);
+        if (config('services.wiki_approve_revs.access_secret') !== null) {
+            $this->approvePages($data);
+        }
 
         return 0;
     }
@@ -184,8 +186,6 @@ FORMAT;
 
         if ($response->hasErrors()) {
             $this->error(implode(', ', $response->getErrors()));
-
-            return;
         }
     }
 

@@ -48,7 +48,9 @@ class CreateCharArmorWikiPages extends AbstractQueueCommand
             $this->advanceBar();
         });
 
-        $this->approvePages($charArmor->pluck('item.name'));
+        if (config('services.wiki_approve_revs.access_secret') !== null) {
+            $this->approvePages($charArmor->pluck('item.name'));
+        }
 
         return 0;
     }
@@ -89,8 +91,6 @@ FORMAT;
 
         if ($response->hasErrors()) {
             $this->error(implode(', ', $response->getErrors()));
-
-            return;
         }
     }
 
