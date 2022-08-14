@@ -9,11 +9,22 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use JsonException;
 
-final class Item
+/**
+ * An item can be any entity like a weapon, food, ship doors, paints, etc.
+ */
+final class Item extends AbstractCommodityItem
 {
     private Collection $item;
     private Collection $labels;
     private Collection $manufacturers;
+
+    private array $manufacturerFixes = [
+        'Lighting Power Ltd.' => 'Lightning Power Ltd.',
+        'MISC' => 'Musashi Industrial & Starflight Concern',
+        'Nav-E7' => 'Nav-E7 Gadgets',
+        'RSI' => 'Roberts Space Industries',
+        'YORM' => 'Yorm',
+    ];
 
     /**
      * @param string $fileName
@@ -51,6 +62,19 @@ final class Item
         $attach = $this->item['Raw']['Entity']['Components']['SAttachableComponentParams']['AttachDef'];
         $manufacturer = $this->manufacturers->get($attach['Manufacturer'], []);
         $manufacturer = trim($manufacturer['name'] ?? $manufacturer['code'] ?? 'Unknown Manufacturer');
+
+        // Use manufacturer from description if available
+        $descriptionData = $this->tryExtractDataFromDescription(
+            $this->labels->get(ltrim($attach['Localization']['Description'] ?? '', '@'), ''),
+            [
+                'Manufacturer' => 'manufacturer',
+            ]
+        );
+
+        if (!empty($descriptionData['manufacturer'])) {
+            $manufacturer = $descriptionData['manufacturer'];
+            $manufacturer = $this->manufacturerFixes[$manufacturer] ?? $manufacturer;
+        }
 
         $name = $this->cleanName($nameKey);
         if (empty($name)) {

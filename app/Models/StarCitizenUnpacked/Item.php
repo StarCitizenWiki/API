@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked;
 
+use App\Events\ModelUpdating;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\ShipItem\Cooler;
 use App\Models\StarCitizenUnpacked\ShipItem\MiningLaser;
@@ -18,6 +19,7 @@ use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Models\StarCitizenUnpacked\Shop\ShopItem;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -27,9 +29,16 @@ use Illuminate\Support\Str;
 
 class Item extends HasTranslations
 {
+    use ModelChangelog;
     use HasFactory;
 
     protected $table = 'star_citizen_unpacked_items';
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
+    ];
 
     protected $fillable = [
         'uuid',

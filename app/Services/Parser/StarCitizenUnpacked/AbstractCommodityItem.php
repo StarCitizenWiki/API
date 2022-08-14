@@ -22,7 +22,7 @@ abstract class AbstractCommodityItem
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
         $match = preg_match_all(
-            '/^(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%]*)(?:\\\n|$)/m',
+            '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%]*)(?:\\n|\n|\\\n|$)/m',
             $description,
             $matches
         );
