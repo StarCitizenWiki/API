@@ -4,27 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class WeaponPersonalAttachment extends Model
+class WeaponPersonalAttachment extends Pivot
 {
-    use HasFactory;
-
-    protected $table = 'star_citizen_unpacked_personal_weapon_attachments';
+    protected $table = 'star_citizen_unpacked_personal_weapon_attachment';
 
     protected $fillable = [
         'weapon_id',
-        'name',
-        'position',
-        'size',
-        'grade',
-    ];
-
-    protected $casts = [
-        'size' => 'int',
-        'grade' => 'int',
+        'attachment_id',
     ];
 
     /**
@@ -33,5 +22,13 @@ class WeaponPersonalAttachment extends Model
     public function weapon(): BelongsTo
     {
         return $this->belongsTo(WeaponPersonal::class, 'weapon_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function attachment(): BelongsTo
+    {
+        return $this->belongsTo(Attachment::class, 'attachment_id');
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizenUnpacked\Import;
 
 use App\Models\StarCitizenUnpacked\Item;
+use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal as WeaponPersonalModel;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAmmunition;
 use Illuminate\Bus\Queueable;
@@ -62,7 +63,6 @@ class WeaponPersonal implements ShouldQueue
                 $this->addAmmunition($weapon, $model);
                 $this->addAttachments($weapon, $model);
                 $this->addAttachmentPorts($weapon, $model);
-                $this->addMagazine($weapon, $model);
                 $this->addModes($weapon, $model);
             });
     }
@@ -93,15 +93,18 @@ class WeaponPersonal implements ShouldQueue
 
     private function addAttachments(array $data, WeaponPersonalModel $weapon): void
     {
-        collect($data['attachments'])->each(function ($attachment) use ($weapon) {
-            $weapon->attachments()->updateOrCreate([
-                'position' => $attachment['position'],
-            ], [
-                'name' => $attachment['name'],
-                'size' => $attachment['size'],
-                'grade' => $attachment['grade'],
-            ]);
-        });
+        $ids = collect($data['attachments'])->map(function ($uuid) {
+            $attachment = Attachment::query()->where('uuid', $uuid)->first();
+            if ($attachment !== null) {
+                $attachment = $attachment->id;
+            }
+
+            return $attachment;
+        })
+            ->filter()
+            ->toArray();
+
+        $weapon->attachments()->sync($ids);
     }
 
     private function addAttachmentPorts(array $data, WeaponPersonalModel $weapon): void
@@ -115,16 +118,6 @@ class WeaponPersonal implements ShouldQueue
                 'max_size' => $attachment['max_size'],
             ]);
         });
-    }
-
-    private function addMagazine(array $data, WeaponPersonalModel $weapon): void
-    {
-        $weapon->magazine()->updateOrCreate([
-            'weapon_id' => $weapon->id,
-        ], [
-            'initial_ammo_count' => $data['magazine']['initial_ammo_count'],
-            'max_ammo_count' => $data['magazine']['max_ammo_count'],
-        ]);
     }
 
     private function addModes(array $data, WeaponPersonalModel $weapon): void

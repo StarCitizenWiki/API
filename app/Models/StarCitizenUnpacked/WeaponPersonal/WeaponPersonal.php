@@ -3,9 +3,11 @@
 namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 
 use App\Models\StarCitizenUnpacked\CommodityItem;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Optional;
 
 class WeaponPersonal extends CommodityItem
 {
@@ -31,7 +33,6 @@ class WeaponPersonal extends CommodityItem
     protected $with = [
         'modes',
         'item',
-        'magazine',
         'ammunition',
         'attachmentPorts',
         'attachments',
@@ -42,7 +43,7 @@ class WeaponPersonal extends CommodityItem
         $magazineAttach = str_replace(
             $this->name,
             '',
-            optional($this->attachments()->where('position', 'magazine')->first())->name
+            optional($this->attachments()->where('position', 'Magazine Well')->first())->name
         );
 
         $exploded = explode('(', $magazineAttach);
@@ -59,11 +60,11 @@ class WeaponPersonal extends CommodityItem
     }
 
     /**
-     * @return HasOne
+     * @return Optional
      */
-    public function magazine(): HasOne
+    public function getMagazineAttribute(): Optional
     {
-        return $this->hasOne(WeaponPersonalMagazine::class, 'weapon_id', 'id');
+        return optional($this->attachments()->where('position', 'Magazine Well')->first());
     }
 
     /**
@@ -83,11 +84,16 @@ class WeaponPersonal extends CommodityItem
     }
 
     /**
-     * @return HasMany
+     * @return BelongsToMany
      */
-    public function attachments(): HasMany
+    public function attachments(): BelongsToMany
     {
-        return $this->hasMany(WeaponPersonalAttachment::class, 'weapon_id', 'id');
+        return $this->belongsToMany(
+            Attachment::class,
+            'star_citizen_unpacked_personal_weapon_attachment',
+            'weapon_id',
+            'attachment_id'
+        );
     }
 
     /**

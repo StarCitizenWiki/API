@@ -256,7 +256,7 @@ final class WeaponPersonal extends AbstractCommodityItem
                     $item = File::get(
                         storage_path(
                             sprintf(
-                                'app/api/scunpacked-data/v2/items/%s.json',
+                                'app/api/scunpacked-data/v2/items/%s-raw.json',
                                 $component['entityClassName']
                             )
                         )
@@ -270,10 +270,7 @@ final class WeaponPersonal extends AbstractCommodityItem
 
 
                 return [
-                    'name' => $item->get('Name', 'Unnamed Attachment'),
-                    'position' => str_replace(['_attach', 'ment'], '', $component['itemPortName']),
-                    'size' => $item['Size'],
-                    'grade' => $item['Grade'],
+                    'uuid' => $item->get('__ref'),
                 ];
             });
 

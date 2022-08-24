@@ -17,6 +17,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\Weapon\MissileRack;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Models\StarCitizenUnpacked\Shop\ShopItem;
+use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
@@ -143,6 +144,8 @@ class Item extends HasTranslations
              */
             case Str::contains($this->type, 'WeaponPersonal'):
                 return $this->hasOne(WeaponPersonal::class, 'uuid', 'uuid')->withDefault();
+            case Str::contains($this->type, 'WeaponAttachment'):
+                return $this->hasOne(Attachment::class, 'uuid', 'uuid')->withDefault();
 
             /**
              * Vehicles

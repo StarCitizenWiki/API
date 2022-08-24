@@ -346,6 +346,21 @@ $api->group(
                     '/personal/{weapon}',
                     ['as' => 'api.v1.scunpacked.weapons.personal.show', 'uses' => 'WeaponPersonalController@show']
                 )->where('weapon', '(.*)');
+
+                /**
+                 * Attachments Index
+                 */
+                $api->get(
+                    '/attachments',
+                    [
+                        'as' => 'api.v1.scunpacked.weapons.attachments.index',
+                        'uses' => 'AttachmentController@index',
+                    ]
+                );
+                $api->get(
+                    '/attachments/{attachment}',
+                    ['as' => 'api.v1.scunpacked.weapons.attachments.show', 'uses' => 'AttachmentController@show']
+                )->where('attachment', '(.*)');
             }
         );
 

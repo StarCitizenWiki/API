@@ -37,7 +37,7 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
             'sub_type' => $weapon->item->sub_type,
             'class' => $weapon->weapon_class,
             'magazine_type' => $weapon->magazineType,
-            'magazine_size' => $weapon->magazine->max_ammo_count ?? 0,
+            'magazine_size' => $weapon->magazine->magazine->capacity ?? 0,
             'effective_range' => $weapon->effective_range ?? 0,
             'damage_per_shot' => $weapon->ammunition->damage ?? 0,
             'rof' => $weapon->rof ?? 0,

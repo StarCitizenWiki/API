@@ -9,6 +9,7 @@ use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\Clothing;
 use App\Models\StarCitizenUnpacked\CommodityItem;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
+use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Services\UploadWikiImage;
 use Exception;
@@ -56,6 +57,18 @@ class UploadItemImages extends AbstractQueueCommand
         'Shield Generator' => 'Schildgenerator',
         'WeaponGun' => 'Fahrzeugwaffe',
 
+        'Magazine' => 'Magazin',
+        'Ballistic Compensator' => 'Ballistischer Kompensator',
+        'Flash Hider' => 'Mündungsfeuerdämpfer',
+        'Energy Stabilizer' => 'Energie-Stabilisator',
+        'Suppressor' => 'Schalldämpfer',
+        'Scope' => 'Zielfernrohr',
+        'MedGel Refill' => 'MedGel-Nachfüllpackung',
+        'Multi-Tool Attachment' => 'Multi-Tool-Aufsatz',
+        'Battery' => 'Batterie',
+        'Flashlight' => 'Taschenlampe',
+        'Laser Pointer' => 'Laserpointer',
+
         'Light Backpack' => 'Leichter Rucksack',
         'Medium Backpack' => 'Mittlerer Rucksack',
         'Heavy Backpack' => 'Schwerer Rucksack',
@@ -100,6 +113,11 @@ class UploadItemImages extends AbstractQueueCommand
 
         $this->info('Uploading Weapon Personal Images...');
         WeaponPersonal::chunk(100, function (Collection $items) {
+            $this->work($items);
+        });
+
+        $this->info('Uploading Weapon Attachment Images...');
+        Attachment::chunk(100, function (Collection $items) {
             $this->work($items);
         });
 

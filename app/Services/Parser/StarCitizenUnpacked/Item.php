@@ -98,6 +98,10 @@ final class Item extends AbstractCommodityItem
             }
         }
 
+        if ($manufacturer === '@LOC_PLACEHOLDER') {
+            $manufacturer = 'Unknown Manufacturer';
+        }
+
         return [
             'uuid' => $this->item['Raw']['Entity']['__ref'],
             'name' => $name,

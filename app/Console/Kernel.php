@@ -39,6 +39,7 @@ use App\Console\Commands\StarCitizenUnpacked\ImportClothing;
 use App\Console\Commands\StarCitizenUnpacked\ImportShipItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
+use App\Console\Commands\StarCitizenUnpacked\ImportWeaponAttachments;
 use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
 use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
@@ -110,6 +111,7 @@ class Kernel extends ConsoleKernel
 
         ImportVehicles::class,
         ImportWeaponPersonal::class,
+        ImportWeaponAttachments::class,
         ImportCharArmor::class,
         ImportClothing::class,
         ImportShopItems::class,

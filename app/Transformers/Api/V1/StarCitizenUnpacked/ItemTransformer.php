@@ -15,8 +15,8 @@ use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Missile;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use App\Models\StarCitizenUnpacked\Turret;
+use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAttachment;
 use App\Transformers\Api\V1\StarCitizenUnpacked\CharArmor\CharArmorTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\CoolerTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\MiningLaserTransformer;
@@ -97,7 +97,7 @@ class ItemTransformer extends AbstractCommodityTransformer
             case WeaponPersonal::class:
                 return $this->item($item->specification, $this->makeTransformer(WeaponPersonalTransformer::class, $this));
 
-            case WeaponPersonalAttachment::class:
+            case Attachment::class:
                 return $this->item($item->specification, $this->makeTransformer(WeaponPersonalAttachmentsTransformer::class, $this));
 
             case Missile::class:
