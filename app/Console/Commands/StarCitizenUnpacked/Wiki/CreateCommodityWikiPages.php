@@ -36,6 +36,7 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
 
     private $ignoredTypes = [
         'WeaponPersonal',
+        'WeaponAttachment',
 
         'CharArmor',
         'Char_Armor_Helmet',

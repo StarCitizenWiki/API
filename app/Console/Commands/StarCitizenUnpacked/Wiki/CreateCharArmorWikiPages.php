@@ -63,7 +63,7 @@ class CreateCharArmorWikiPages extends AbstractQueueCommand
 {{LokalisierteBeschreibung}}
 
 {{Handelswarentabelle
-|Name={{SUBPAGENAME}}
+|Name={{#invoke:Localized|getMainTitle}}
 |Kaufbar=1
 |Spalten=Händler,Ort,Preis,Spielversion
 |Limit=5
