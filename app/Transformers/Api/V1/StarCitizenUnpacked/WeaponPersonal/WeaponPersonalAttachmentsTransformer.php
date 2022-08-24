@@ -21,11 +21,14 @@ class WeaponPersonalAttachmentsTransformer extends AbstractCommodityTransformer
     public function transform(Attachment $port): array
     {
         $data = [
+            'uuid' => $port->item->uuid,
             'name' => $port->attachment_name,
             'description' => $this->getTranslation($port),
             'type' => $port->type,
+            'sub_type' => $port->item->sub_type,
             'position' => $port->position,
             'size' => $port->size,
+            'manufacturer' => $port->item->manufacturer,
             'grade' => $port->grade,
             'volume' => [
                 'width' => $port->item->volume->width,
@@ -33,6 +36,7 @@ class WeaponPersonalAttachmentsTransformer extends AbstractCommodityTransformer
                 'length' => $port->item->volume->length,
                 'volume' => $port->item->volume->volume,
             ],
+            'updated_at' => $port->updated_at,
             'version' => $port->version,
         ];
 
