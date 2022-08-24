@@ -19,17 +19,32 @@ class UpdateAttributesOnScUnpackedPersonalWeaponAttachments extends Migration
             \Illuminate\Support\Facades\DB::table('star_citizen_unpacked_personal_weapon_attachments')->truncate();
         }
 
+        if (DB::getDriverName() !== 'sqlite') {
+            Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
+                $table->dropForeign('attachment_weapon_id_foreign');
+            });
+        }
+
         Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
-            $table->dropForeign('attachment_weapon_id_foreign');
             $table->dropColumn('weapon_id');
+        });
+
+        Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
             $table->dropColumn('name');
         });
 
         Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
-            $table->string('uuid')->unique();
-            $table->string('attachment_name');
-            $table->string('type');
-            $table->string('version');
+            if (DB::getDriverName() === 'sqlite') {
+                $table->string('uuid')->unique()->nullable();
+                $table->string('attachment_name')->nullable();
+                $table->string('type')->nullable();
+                $table->string('version')->nullable();
+            } else {
+                $table->string('uuid')->unique();
+                $table->string('attachment_name');
+                $table->string('type');
+                $table->string('version');
+            }
 
             $table->foreign('uuid', 'attachment_uuid_item')
                 ->references('uuid')
@@ -55,11 +70,25 @@ class UpdateAttributesOnScUnpackedPersonalWeaponAttachments extends Migration
                 ->onDelete('cascade');
         });
 
+        if (DB::getDriverName() !== 'sqlite') {
+            Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
+                $table->dropForeign('attachment_uuid_item');
+            });
+        }
+
         Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
-            $table->dropForeign('attachment_uuid_item');
             $table->dropColumn('uuid');
+        });
+
+        Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
             $table->dropColumn('type');
+        });
+
+        Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
             $table->dropColumn('attachment_name');
+        });
+
+        Schema::table('star_citizen_unpacked_personal_weapon_attachments', function (Blueprint $table) {
             $table->dropColumn('version');
         });
     }
