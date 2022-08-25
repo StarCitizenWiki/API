@@ -46,6 +46,7 @@ use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateClothingWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponAttachmentWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
 use App\Console\Commands\Transcript\ImportMetadata;
 use App\Console\Commands\Transcript\TranslateTranscripts;
@@ -123,6 +124,7 @@ class Kernel extends ConsoleKernel
         CreateCharArmorWikiPages::class,
         CreateClothingWikiPages::class,
         CreateShipItemWikiPages::class,
+        CreateWeaponAttachmentWikiPages::class,
         UploadItemImages::class,
 
 
