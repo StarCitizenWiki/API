@@ -62,7 +62,6 @@ trait HasBaseVersionsTrait
             $baseName = trim(preg_replace('/\s+/', ' ', $baseName));
 
             $toSearch = [
-                trim($splitted[0]),
                 $baseName,
             ];
 
@@ -70,16 +69,22 @@ trait HasBaseVersionsTrait
                 $toSearch[] = sprintf('%s Base', $baseName);
             }
 
-            return self::query()
+            $result = self::query()
                 ->whereHas('item', function (Builder $query) use ($toSearch, $baseName) {
                     $query->whereIn('name', $toSearch)
                         ->orWhere('type', $this->item->type)
                         ->where('name', 'LIKE', "{$baseName}%")
-                        ->where('name', 'NOT LIKE', '%Modified%');
+                        ->where('name', 'NOT LIKE', '%Modified%')
+                        ->orderBy('name');
                 })
                 ->get()
-                ->sortBy('item.name')
-                ->first();
+                ->sortBy('item.name');
+
+            $base = $result->first(function ($value) use ($baseName) {
+                return Str::contains($value->item->name, 'Base') || $value->item->name === $baseName;
+            });
+
+            return $base ?? $result->first();
         }
 
         return null;
