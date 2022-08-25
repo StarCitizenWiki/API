@@ -71,9 +71,14 @@ trait HasBaseVersionsTrait
             }
 
             return self::query()
-                ->whereHas('item', function (Builder $query) use ($toSearch) {
-                    $query->whereIn('name', $toSearch);
+                ->whereHas('item', function (Builder $query) use ($toSearch, $baseName) {
+                    $query->whereIn('name', $toSearch)
+                        ->orWhere('type', $this->item->type)
+                        ->where('name', 'LIKE', "{$baseName}%")
+                        ->where('name', 'NOT LIKE', '%Modified%');
                 })
+                ->get()
+                ->sortBy('item.name')
                 ->first();
         }
 

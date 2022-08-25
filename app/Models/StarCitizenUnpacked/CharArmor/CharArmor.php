@@ -9,6 +9,7 @@ use App\Traits\HasBaseVersionsTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CharArmor extends CommodityItem
 {
@@ -49,6 +50,14 @@ class CharArmor extends CommodityItem
     {
         return $this->hasMany(
             CharArmorResistance::class,
+            'char_armor_id',
+        );
+    }
+
+    public function helmetParams(): HasOne
+    {
+        return $this->hasOne(
+            CharArmorHelmetParams::class,
             'char_armor_id',
         );
     }

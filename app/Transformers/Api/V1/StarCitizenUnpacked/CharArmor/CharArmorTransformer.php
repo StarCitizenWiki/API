@@ -7,6 +7,40 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\CharArmor;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 use League\Fractal\Resource\Collection;
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: 'char_armor',
+    title: 'Char Armor',
+    description: 'A in-game armor',
+    properties: [
+        new OA\Property(property: 'uuid', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'description', type: 'object'),
+        new OA\Property(property: 'size', type: 'float'),
+        new OA\Property(property: 'manufacturer', type: 'string'),
+        new OA\Property(property: 'type', type: 'string'),
+        new OA\Property(property: 'sub_type', type: 'string'),
+        new OA\Property(property: 'armor_type', type: 'string'),
+        new OA\Property(property: 'carrying_capacity', type: 'string'),
+        new OA\Property(property: 'damage_reduction', type: 'string'),
+        new OA\Property(
+            property: 'volume',
+            properties: [
+                new OA\Property(property: 'width', type: 'float'),
+                new OA\Property(property: 'height', type: 'float'),
+                new OA\Property(property: 'length', type: 'float'),
+                new OA\Property(property: 'volume', type: 'float'),
+            ],
+            nullable: true,
+        ),
+        new OA\Property(property: 'base_model', type: 'object', nullable: true),
+        new OA\Property(property: 'updated_at', type: 'timestamp', nullable: true),
+        new OA\Property(property: 'resistances', type: 'object'),
+        new OA\Property(property: 'version', type: 'string'),
+    ],
+    type: 'object'
+)]
 
 class CharArmorTransformer extends AbstractCommodityTransformer
 {
@@ -44,7 +78,7 @@ class CharArmorTransformer extends AbstractCommodityTransformer
         ];
 
         $baseModel = $armor->baseModel;
-        if ($baseModel !== null) {
+        if ($baseModel !== null && $baseModel->item->name !== $armor->item->name) {
             $data['base_model'] = (new CharArmorLinkTransformer())->transform($baseModel);
         }
 
