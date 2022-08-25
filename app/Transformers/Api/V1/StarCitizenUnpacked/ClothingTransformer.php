@@ -39,7 +39,7 @@ class ClothingTransformer extends AbstractCommodityTransformer
         ];
 
         $baseModel = $clothing->baseModel;
-        if ($baseModel !== null) {
+        if ($baseModel !== null && $baseModel->item->name !== $clothing->item->name) {
             $data['base_model'] = (new ClothingLinkTransformer())->transform($baseModel);
         }
 

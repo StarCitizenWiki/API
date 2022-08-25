@@ -31,7 +31,7 @@ class ClothingController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(CharArmor::query());
+        return $this->getResponse(Clothing::query());
     }
 
     public function show(Request $request): Response
