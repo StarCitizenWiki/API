@@ -33,6 +33,8 @@ trait HasBaseVersionsTrait
         'T-Shirt',
         'Shoes',
         'Vest',
+
+        'Scrub Top',
     ];
 
     /**
