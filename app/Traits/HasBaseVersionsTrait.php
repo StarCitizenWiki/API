@@ -74,7 +74,10 @@ trait HasBaseVersionsTrait
                     $query->whereIn('name', $toSearch)
                         ->orWhere('type', $this->item->type)
                         ->where('name', 'LIKE', "{$baseName}%")
+                        // Ignore Nine-Tails Armor
                         ->where('name', 'NOT LIKE', '%Modified%')
+                        // Ignore Versions with " in their name
+                        ->where('name', 'NOT LIKE', '%"%')
                         ->orderBy('name');
                 })
                 ->get()
