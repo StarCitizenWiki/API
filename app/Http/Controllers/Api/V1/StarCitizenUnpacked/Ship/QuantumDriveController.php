@@ -44,7 +44,7 @@ class QuantumDriveController extends ApiController
             ]
         );
 
-        $item = urldecode($item);
+        $item = $this->cleanQueryName($item);
 
         try {
             $item = QuantumDrive::query()

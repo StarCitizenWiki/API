@@ -116,7 +116,7 @@ class ShopController extends ApiController
             ]
         );
 
-        $shop = urldecode($shop);
+        $shop = $this->cleanQueryName($shop);
 
         try {
             $shop = Shop::query()
@@ -185,7 +185,7 @@ class ShopController extends ApiController
             ]
         );
 
-        $position = urldecode($position);
+        $position = $this->cleanQueryName($position);
         $positions = Shop::query()
             ->where('position', 'LIKE', sprintf('%%%s%%%%', $position))
             ->get();
@@ -250,7 +250,7 @@ class ShopController extends ApiController
             ]
         );
 
-        $name = urldecode($name);
+        $name = $this->cleanQueryName($name);
         $positions = Shop::query()
             ->where('name', 'LIKE', sprintf('%%%s%%%%', $name))
             ->get();
@@ -327,8 +327,8 @@ class ShopController extends ApiController
             ]
         );
 
-        $position = urldecode($position);
-        $name = urldecode($name);
+        $position = $this->cleanQueryName($position);
+        $name = $this->cleanQueryName($name);
 
         try {
             $shop = Shop::query()

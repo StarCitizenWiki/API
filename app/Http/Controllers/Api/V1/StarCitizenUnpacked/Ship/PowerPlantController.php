@@ -44,7 +44,7 @@ class PowerPlantController extends ApiController
             ]
         );
 
-        $item = urldecode($item);
+        $item = $this->cleanQueryName($item);
 
         try {
             $item = PowerPlant::query()

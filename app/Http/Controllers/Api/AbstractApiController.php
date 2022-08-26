@@ -303,4 +303,15 @@ abstract class AbstractApiController extends Controller
                 }
             );
     }
+
+    /**
+     * Cleans the name for query use
+     *
+     * @param string $name
+     * @return string
+     */
+    protected function cleanQueryName(string $name): string
+    {
+        return str_replace('_', ' ', urldecode($name));
+    }
 }

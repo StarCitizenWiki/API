@@ -44,7 +44,7 @@ class ShieldController extends ApiController
             ]
         );
 
-        $item = urldecode($item);
+        $item = $this->cleanQueryName($item);
 
         try {
             $item = Shield::query()

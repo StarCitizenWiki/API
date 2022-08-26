@@ -44,7 +44,7 @@ class CoolerController extends ApiController
             ]
         );
 
-        $item = urldecode($item);
+        $item = $this->cleanQueryName($item);
 
         try {
             $item = Cooler::query()

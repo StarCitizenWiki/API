@@ -44,7 +44,7 @@ class WeaponController extends ApiController
             ]
         );
 
-        $item = urldecode($item);
+        $item = $this->cleanQueryName($item);
 
         try {
             $item = Weapon::query()

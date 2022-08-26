@@ -43,7 +43,7 @@ class AttachmentController extends ApiController
             ]
         );
 
-        $attachment = urldecode($attachment);
+        $attachment = $this->cleanQueryName($attachment);
 
         try {
             $attachment = Attachment::query()

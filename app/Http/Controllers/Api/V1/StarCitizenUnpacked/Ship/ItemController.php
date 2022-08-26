@@ -72,7 +72,7 @@ class ItemController extends ApiController
             ]
         );
 
-        $item = urldecode($item);
+        $item = $this->cleanQueryName($item);
 
         if (isset($this->uuidFixes[$item])) {
             $item = $this->uuidFixes[$item];
@@ -101,7 +101,7 @@ class ItemController extends ApiController
         $rules = (new ItemSearchRequest())->rules();
         $request->validate($rules);
 
-        $query = urldecode($request->get('query'));
+        $query = $this->cleanQueryName($request->get('query'));
 
         try {
             $item = ShipItem::query()

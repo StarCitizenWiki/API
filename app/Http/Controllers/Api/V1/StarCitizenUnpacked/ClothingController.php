@@ -45,7 +45,7 @@ class ClothingController extends ApiController
             ]
         );
 
-        $clothing = urldecode($clothing);
+        $clothing = $this->cleanQueryName($clothing);
 
         try {
             $clothing = Clothing::query()

@@ -44,7 +44,7 @@ class CharArmorController extends ApiController
             ]
         );
 
-        $armor = urldecode($armor);
+        $armor = $this->cleanQueryName($armor);
 
         try {
             $armor = CharArmor::query()
