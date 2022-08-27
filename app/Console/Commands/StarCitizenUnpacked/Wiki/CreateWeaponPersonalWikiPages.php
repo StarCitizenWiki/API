@@ -71,10 +71,9 @@ class CreateWeaponPersonalWikiPages extends AbstractQueueCommand
 
 {{Itemvarianten}}
 
-{{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
-
 {{Quellen}}
 
+{{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;
         // phpcs:enable
 

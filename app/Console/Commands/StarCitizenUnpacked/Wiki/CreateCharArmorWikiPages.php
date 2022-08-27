@@ -43,6 +43,10 @@ class CreateCharArmorWikiPages extends AbstractQueueCommand
         $this->createProgressBar($charArmor->count());
 
         $charArmor->each(function (CharArmor $armor) {
+            if (str_contains($armor->item->name, 'PLACEHOLDER') || str_contains($armor->item->name, '[PH]')) {
+                return;
+            }
+
             $this->uploadWiki($armor);
 
             $this->advanceBar();
@@ -68,9 +72,11 @@ class CreateCharArmorWikiPages extends AbstractQueueCommand
 |Spalten=Händler,Ort,Preis,Spielversion
 |Limit=5
 }}
+{{Rüstungskomponenten}}
 
 {{Quellen}}
 
+{{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;
         // phpcs:enable
 

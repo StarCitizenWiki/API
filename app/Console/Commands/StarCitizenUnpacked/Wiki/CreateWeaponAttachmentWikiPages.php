@@ -69,10 +69,11 @@ class CreateWeaponAttachmentWikiPages extends AbstractQueueCommand
 |Limit=5
 }}
 
-{{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
+{{Standardausrüstung|Kategorie=Waffe|Query=[[Kategorie:!Waffenbefestigung]]|Text=Waffen}}
 
 {{Quellen}}
 
+{{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;
         // phpcs:enable
 

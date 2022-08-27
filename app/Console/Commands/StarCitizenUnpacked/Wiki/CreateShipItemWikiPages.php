@@ -78,7 +78,11 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
 |Limit=5
 }}
 
+{{Standardausrüstung}}
+
 {{Quellen}}
+
+{{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;
         // phpcs:enable
 
