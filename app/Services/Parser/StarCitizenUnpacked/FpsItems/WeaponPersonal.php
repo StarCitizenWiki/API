@@ -60,17 +60,16 @@ final class WeaponPersonal extends AbstractCommodityItem
             ->filter(function (array $weapon) {
                 return !empty($weapon);
             })
-            ->filter(function (array $weapon) use ($onlyBaseVersions) {
-                if ($onlyBaseVersions === true) {
-                    return strpos($weapon['name'], '"') === false;
-                }
-
-                return true;
-            })
+//            ->filter(function (array $weapon) use ($onlyBaseVersions) {
+//                if ($onlyBaseVersions === true) {
+//                    return strpos($weapon['name'], '"') === false;
+//                }
+//
+//                return true;
+//            })
             ->filter(function (array $weapon) use ($excludeToy) {
                 if ($excludeToy === true) {
-                    return strpos($weapon['name'], 'Toy Pistol') === false &&
-                        strpos($weapon['name'], 'Multi-Tool') === false;
+                    return !str_contains($weapon['name'], 'Toy Pistol');
                 }
 
                 return true;

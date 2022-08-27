@@ -27,7 +27,7 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
     {
         $this->missingTranslations = [];
 
-        return [
+        $data = [
             'uuid' => $weapon->item->uuid,
             'name' => $weapon->item->name,
             'description' => $this->getTranslation($weapon),
@@ -41,8 +41,6 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
             'effective_range' => $weapon->effective_range ?? 0,
             'damage_per_shot' => $weapon->ammunition->damage ?? 0,
             'rof' => $weapon->rof ?? 0,
-            'updated_at' => $weapon->updated_at,
-            'missing_translations' => $this->missingTranslations,
             'ammunition' => [
                 'size' => $weapon->ammunition->size ?? 0,
                 'lifetime' => $weapon->ammunition->lifetime ?? 0,
@@ -55,8 +53,20 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
                 'length' => $weapon->item->volume->length,
                 'volume' => $weapon->item->volume->volume,
             ],
+        ];
+
+        $baseModel = $weapon->baseModel;
+        if ($baseModel !== null && $baseModel->item->name !== $weapon->item->name) {
+            $data['base_model'] = (new WeaponPersonalLinkTransformer())->transform($baseModel);
+        }
+
+        $data += [
+            'updated_at' => $weapon->updated_at,
+            'missing_translations' => $this->missingTranslations,
             'version' => $weapon->version,
         ];
+
+        return $data;
     }
 
     /**

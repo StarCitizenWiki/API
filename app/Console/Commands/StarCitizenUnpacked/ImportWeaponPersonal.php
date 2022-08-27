@@ -33,7 +33,7 @@ class ImportWeaponPersonal extends Command
     {
         if (Item::count() === 0) {
             $this->error('You need to run "unpacked:import-shop-items" first');
-           # return 1;
+            return 1;
         }
 
         WeaponPersonal::dispatch();

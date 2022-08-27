@@ -3,6 +3,7 @@
 namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 
 use App\Models\StarCitizenUnpacked\CommodityItem;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -37,6 +38,11 @@ class WeaponPersonal extends CommodityItem
         'attachmentPorts',
         'attachments',
     ];
+
+    public function getRouteKey()
+    {
+        return $this->uuid;
+    }
 
     public function getMagazineTypeAttribute(): string
     {
@@ -107,5 +113,15 @@ class WeaponPersonal extends CommodityItem
             'weapon_id',
             'id'
         );
+    }
+
+    public function getBaseModelAttribute(): ?self
+    {
+        $baseName = preg_replace('/"\w+"\s/', '', $this->item->name);
+        return self::query()
+            ->whereHas('item', function (Builder $query) use ($baseName) {
+                $query->where('name', $baseName);
+            })
+            ->first();
     }
 }

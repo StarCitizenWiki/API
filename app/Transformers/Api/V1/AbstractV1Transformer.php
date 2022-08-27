@@ -28,6 +28,7 @@ abstract class AbstractV1Transformer extends TransformerAbstract
     public const GALACTAPEDIA_ARTICLE_SHOW = '/api/galactapedia/%s';
 
     public const UNPACKED_CHAR_ARMOR_SHOW = '/api/char/armor/%s';
+    public const UNPACKED_WEAPON_PERSONAL_SHOW = '/api/weapons/personal/%s';
     public const UNPACKED_CLOTHING_SHOW = '/api/char/clothing/%s';
 
     public function includeAllAvailableIncludes(): void
