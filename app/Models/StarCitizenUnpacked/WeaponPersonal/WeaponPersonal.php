@@ -117,7 +117,7 @@ class WeaponPersonal extends CommodityItem
 
     public function getBaseModelAttribute(): ?self
     {
-        $baseName = preg_replace('/"\w+"\s/', '', $this->item->name);
+        $baseName = preg_replace('/"[\w\s\']+"\s/', '', $this->item->name);
         return self::query()
             ->whereHas('item', function (Builder $query) use ($baseName) {
                 $query->where('name', $baseName);
