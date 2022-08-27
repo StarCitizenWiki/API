@@ -119,7 +119,7 @@ class UploadGalactapediaWikiImages extends AbstractBaseDownloadData implements S
         $categories->push('[[Category:Galactapedia]]');
         $categories->push(sprintf('[[Category:%s]]', $this->article->cleanTitle));
 
-        $uploader = new UploadWikiImage();
+        $uploader = new UploadWikiImage(true);
         try {
             $uploader->upload(
                 sprintf(

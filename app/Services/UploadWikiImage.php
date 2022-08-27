@@ -19,6 +19,13 @@ class UploadWikiImage
     use GetWikiCsrfToken;
     use LoginWikiUserAccount;
 
+    private bool $overwriteFile;
+
+    public function __construct(bool $overwriteFile = false)
+    {
+        $this->overwriteFile = $overwriteFile;
+    }
+
     /**
      * @param string $filename Filename on the wiki
      * @param string $url Remote url
@@ -52,6 +59,10 @@ class UploadWikiImage
                 )
             )
             ->addParam('url', $url);
+
+        if ($this->overwriteFile === true) {
+            $response->addParam('ignorewarnings', 1);
+        }
 
         if (isset($metadata['filesize'])) {
             $response->addParam('filesize', $metadata['filesize']);

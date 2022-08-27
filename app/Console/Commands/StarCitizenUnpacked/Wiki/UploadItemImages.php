@@ -99,7 +99,7 @@ class UploadItemImages extends AbstractQueueCommand
     public function handle(): int
     {
         $this->http = Http::baseUrl(config('services.item_thumbnail_url'));
-        $this->upload = new UploadWikiImage();
+        $this->upload = new UploadWikiImage(true);
 
         $this->info('Uploading Char Armor Images...');
         CharArmor::chunk(100, function (Collection $items) {
