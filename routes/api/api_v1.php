@@ -501,6 +501,34 @@ $api->group(
 
         $api->group(
             [
+                'prefix' => 'food',
+            ],
+            static function (Router $api) {
+                /**
+                 * Index
+                 */
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.scunpacked.food.index',
+                        'uses' => 'FoodController@index',
+                    ]
+                );
+
+                $api->get(
+                    '/{food}',
+                    ['as' => 'api.v1.scunpacked.food.show', 'uses' => 'FoodController@show']
+                )->where('item', '(.*)');
+
+                $api->post(
+                    '/search',
+                    ['as' => 'api.v1.scunpacked.food.search', 'uses' => 'FoodController@search']
+                );
+            }
+        );
+
+        $api->group(
+            [
                 'namespace' => 'Ship',
                 'prefix' => 'ship-items',
             ],

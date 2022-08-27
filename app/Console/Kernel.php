@@ -36,6 +36,7 @@ use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Console\Commands\StarCitizenUnpacked\ImportCharArmor;
 use App\Console\Commands\StarCitizenUnpacked\ImportClothing;
+use App\Console\Commands\StarCitizenUnpacked\ImportFood;
 use App\Console\Commands\StarCitizenUnpacked\ImportShipItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
@@ -45,8 +46,10 @@ use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateClothingWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateFoodWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponAttachmentWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponPersonalWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
 use App\Console\Commands\Transcript\ImportMetadata;
 use App\Console\Commands\Transcript\TranslateTranscripts;
@@ -117,6 +120,7 @@ class Kernel extends ConsoleKernel
         ImportClothing::class,
         ImportShopItems::class,
         ImportShipItems::class,
+        ImportFood::class,
 
         TranslateItems::class,
 
@@ -125,6 +129,8 @@ class Kernel extends ConsoleKernel
         CreateClothingWikiPages::class,
         CreateShipItemWikiPages::class,
         CreateWeaponAttachmentWikiPages::class,
+        CreateWeaponPersonalWikiPages::class,
+        CreateFoodWikiPages::class,
         UploadItemImages::class,
 
 

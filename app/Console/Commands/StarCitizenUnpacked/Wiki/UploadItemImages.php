@@ -8,6 +8,7 @@ use App\Console\Commands\AbstractQueueCommand;
 use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\Clothing;
 use App\Models\StarCitizenUnpacked\CommodityItem;
+use App\Models\StarCitizenUnpacked\Food\Food;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
@@ -19,7 +20,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
-class UploadItemImages extends AbstractQueueCommand
+class  UploadItemImages extends AbstractQueueCommand
 {
     /**
      * The name and signature of the console command.
@@ -89,6 +90,9 @@ class UploadItemImages extends AbstractQueueCommand
         'Sweater' => 'Pullover',
         'T-Shirt' => 'T-Shirt',
         'Unknown Type' => 'Unbekannter Typ',
+
+        'Food' => 'Lebensmittel',
+        'Drink' => 'Getränk',
     ];
 
     /**
@@ -101,36 +105,41 @@ class UploadItemImages extends AbstractQueueCommand
         $this->http = Http::baseUrl(config('services.item_thumbnail_url'));
         $this->upload = new UploadWikiImage(true);
 
-        $this->info('Uploading Char Armor Images...');
-        CharArmor::chunk(100, function (Collection $items) {
-            $this->work($items, true);
-        });
+//        $this->info('Uploading Char Armor Images...');
+//        CharArmor::chunk(100, function (Collection $items) {
+//            $this->work($items, true);
+//        });
+//
+//        $this->info('Uploading Clothing Images...');
+//        Clothing::chunk(100, function (Collection $items) {
+//            $this->work($items, true);
+//        });
+//
+//        $this->info('Uploading Weapon Personal Images...');
+//        WeaponPersonal::chunk(100, function (Collection $items) {
+//            $this->work($items);
+//        });
+//
+//        $this->info('Uploading Weapon Attachment Images...');
+//        Attachment::chunk(100, function (Collection $items) {
+//            $this->work($items);
+//        });
 
-        $this->info('Uploading Clothing Images...');
-        Clothing::chunk(100, function (Collection $items) {
-            $this->work($items, true);
-        });
-
-        $this->info('Uploading Weapon Personal Images...');
-        WeaponPersonal::chunk(100, function (Collection $items) {
+        $this->info('Uploading Food Images...');
+        Food::chunk(100, function (Collection $items) {
             $this->work($items);
         });
 
-        $this->info('Uploading Weapon Attachment Images...');
-        Attachment::chunk(100, function (Collection $items) {
-            $this->work($items);
-        });
-
-        $this->info('Uploading Ship Item Images...');
-        ShipItem::query()->whereIn('type', array_keys($this->typeTranslations))
-            ->orWhereRelation('item', 'type', 'WeaponGun')
-            ->orWhereRelation('item', 'type', 'Missile')
-            ->orWhereRelation('item', 'type', 'Torpedo')
-            ->orWhereRelation('item', 'type', 'WeaponMining')
-            ->orWhereRelation('item', 'type', 'MissileLauncher')
-            ->chunk(100, function (Collection $items) {
-                $this->work($items);
-            });
+//        $this->info('Uploading Ship Item Images...');
+//        ShipItem::query()->whereIn('type', array_keys($this->typeTranslations))
+//            ->orWhereRelation('item', 'type', 'WeaponGun')
+//            ->orWhereRelation('item', 'type', 'Missile')
+//            ->orWhereRelation('item', 'type', 'Torpedo')
+//            ->orWhereRelation('item', 'type', 'WeaponMining')
+//            ->orWhereRelation('item', 'type', 'MissileLauncher')
+//            ->chunk(100, function (Collection $items) {
+//                $this->work($items);
+//            });
 
         $this->info('Done');
 
@@ -164,7 +173,7 @@ class UploadItemImages extends AbstractQueueCommand
             ];
 
             $categories = [
-                $item->item->manufacturer,
+                str_replace('[PH] ', '', $item->item->manufacturer),
             ];
 
             $name = preg_replace('/[^\w-]/', ' ', $item->item->name);
@@ -179,7 +188,7 @@ class UploadItemImages extends AbstractQueueCommand
                 $metadata['description'] = sprintf(
                     '[[%s]] vom Hersteller [[%s]]',
                     $item->item->name,
-                    $item->item->manufacturer,
+                    str_replace('[PH] ', '', $item->item->manufacturer),
                 );
             }
 
@@ -195,7 +204,7 @@ class UploadItemImages extends AbstractQueueCommand
                     '%s [[%s]] vom Hersteller [[%s]]',
                     $type,
                     $item->item->name,
-                    $item->item->manufacturer,
+                    str_replace('[PH] ', '', $item->item->manufacturer),
                 );
             }
 

@@ -58,6 +58,9 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
         'Cooler',
         'PowerPlant',
         'Shield',
+
+        'Food',
+        'Drink',
     ];
 
     /**
