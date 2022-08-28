@@ -33,6 +33,8 @@ final class Food extends AbstractCommodityItem
     public function getData(): ?array
     {
         $attachDef = $this->item->pull('Components.SAttachableComponentParams.AttachDef');
+        $consumable = $this->item->pull('Components.SCItemConsumableParams', []);
+        $commodity = $this->item->pull('Components.CommodityComponentParams', []);
 
         if ($attachDef === null || !in_array($attachDef['Type'], ['Drink', 'Food'], true)) {
             return null;
@@ -65,6 +67,10 @@ final class Food extends AbstractCommodityItem
 
         $description = str_replace(['’', '`', '´'], '\'', trim($data['description'] ?? $description));
 
+        if (empty($consumable['containerTypeTag'])) {
+            $consumable['containerTypeTag'] = null;
+        }
+
         return [
             'uuid' => $this->item->get('__ref'),
             'description' => $description,
@@ -74,6 +80,11 @@ final class Food extends AbstractCommodityItem
             'hydration_efficacy_index' => $data['hydration_efficacy_index'] ?? null,
             'effects' => array_filter(array_map('trim', explode(',', $data['effects'] ?? ''))),
             'type' => $attachDef['Type'],
+            'container_type' => $consumable['containerTypeTag'] ?? null,
+            'one_shot_consume' => $consumable['oneShotConsume'] ?? null,
+            'can_be_reclosed' => $consumable['canBeReclosed'] ?? null,
+            'discard_when_consumed' => $consumable['discardWhenConsumed'] ?? null,
+            'occupancy_volume' => $commodity['occupancy']['SMicroCargoUnit']['microSCU'] ?? null,
         ];
     }
 }

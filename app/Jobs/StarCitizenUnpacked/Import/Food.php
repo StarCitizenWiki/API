@@ -55,6 +55,11 @@ class Food implements ShouldQueue
                 ], [
                     'nutritional_density_rating' => $item['nutritional_density_rating'] ?? null,
                     'hydration_efficacy_index' => $item['hydration_efficacy_index'] ?? null,
+                    'container_type' => $item['container_type'] ?? null,
+                    'one_shot_consume' => $item['one_shot_consume'] ?? null,
+                    'can_be_reclosed' => $item['can_be_reclosed'] ?? null,
+                    'discard_when_consumed' => $item['discard_when_consumed'] ?? null,
+                    'occupancy_volume' => $item['occupancy_volume'] ?? null,
                     'version' => config('api.sc_data_version'),
                 ]);
 

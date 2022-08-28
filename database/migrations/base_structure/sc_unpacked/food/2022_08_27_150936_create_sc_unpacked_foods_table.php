@@ -18,6 +18,11 @@ class CreateScUnpackedFoodsTable extends Migration
             $table->string('uuid')->unique();
             $table->unsignedInteger('nutritional_density_rating')->nullable();
             $table->unsignedInteger('hydration_efficacy_index')->nullable();
+            $table->string('container_type')->nullable();
+            $table->boolean('one_shot_consume')->nullable();
+            $table->boolean('can_be_reclosed')->nullable();
+            $table->boolean('discard_when_consumed')->nullable();
+            $table->unsignedInteger('occupancy_volume')->nullable();
             $table->string('version');
             $table->timestamps();
         });

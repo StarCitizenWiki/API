@@ -38,6 +38,11 @@ class FoodTransformer extends AbstractCommodityTransformer
             'nutritional_density_rating' => $food->nutritional_density_rating,
             'hydration_efficacy_index' => $food->hydration_efficacy_index,
             'effects' => $food->effects->pluck('name'),
+            'container_type' => $food->container_type,
+            'one_shot_consume' => $food->one_shot_consume,
+            'can_be_reclosed' => $food->can_be_reclosed,
+            'discard_when_consumed' => $food->discard_when_consumed,
+            'occupancy_volume' => $food->occupancy_volume,
             'updated_at' => $food->updated_at,
             'version' => $food->version,
         ];
