@@ -58,6 +58,7 @@ final class Food extends AbstractCommodityItem
             'NDR' => 'nutritional_density_rating',
             'HEI' => 'hydration_efficacy_index',
             'Effects' => 'effects',
+            'Effect' => 'effect',
         ]);
 
         $manufacturer = $this->manufacturers->get($attachDef['Manufacturer'], 'Unknown Manufacturer');
@@ -71,6 +72,9 @@ final class Food extends AbstractCommodityItem
             $consumable['containerTypeTag'] = null;
         }
 
+        $effects = array_filter(array_map('trim', explode(',', $data['effects'] ?? '')));
+        $effect = array_filter(array_map('trim', explode(',', $data['effect'] ?? '')));
+
         return [
             'uuid' => $this->item->get('__ref'),
             'description' => $description,
@@ -78,7 +82,7 @@ final class Food extends AbstractCommodityItem
             'manufacturer' => $manufacturer,
             'nutritional_density_rating' => $data['nutritional_density_rating'] ?? null,
             'hydration_efficacy_index' => $data['hydration_efficacy_index'] ?? null,
-            'effects' => array_filter(array_map('trim', explode(',', $data['effects'] ?? ''))),
+            'effects' => array_merge($effects, $effect),
             'type' => $attachDef['Type'],
             'container_type' => $consumable['containerTypeTag'] ?? null,
             'one_shot_consume' => $consumable['oneShotConsume'] ?? null,
