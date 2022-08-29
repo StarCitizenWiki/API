@@ -29,12 +29,16 @@ trait HasBaseVersionsTrait
         'Pants',
         'Beanie',
         'Hat',
+        'Head Cover',
         'Gloves',
         'T-Shirt',
         'Shoes',
         'Vest',
 
         'Scrub Top',
+        'Scrub Pants',
+        'Slippers',
+        'Gown',
     ];
 
     /**
