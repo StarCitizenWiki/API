@@ -198,6 +198,9 @@ QUERY,
     private function syncTags(array $data): array
     {
         $ids = collect($data)
+            ->filter(function ($tag) {
+                return is_array($tag);
+            })
             ->map(function (array $tag) {
                 return Tag::updateOrCreate(
                     [
