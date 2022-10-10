@@ -105,41 +105,41 @@ class  UploadItemImages extends AbstractQueueCommand
         $this->http = Http::baseUrl(config('services.item_thumbnail_url'));
         $this->upload = new UploadWikiImage(true);
 
-//        $this->info('Uploading Char Armor Images...');
-//        CharArmor::chunk(100, function (Collection $items) {
-//            $this->work($items, true);
-//        });
-//
-//        $this->info('Uploading Clothing Images...');
-//        Clothing::chunk(100, function (Collection $items) {
-//            $this->work($items, true);
-//        });
-//
-//        $this->info('Uploading Weapon Personal Images...');
-//        WeaponPersonal::chunk(100, function (Collection $items) {
-//            $this->work($items);
-//        });
-//
-//        $this->info('Uploading Weapon Attachment Images...');
-//        Attachment::chunk(100, function (Collection $items) {
-//            $this->work($items);
-//        });
+        $this->info('Uploading Char Armor Images...');
+        CharArmor::chunk(100, function (Collection $items) {
+            $this->work($items, true);
+        });
+
+        $this->info('Uploading Clothing Images...');
+        Clothing::chunk(100, function (Collection $items) {
+            $this->work($items, true);
+        });
+
+        $this->info('Uploading Weapon Personal Images...');
+        WeaponPersonal::chunk(100, function (Collection $items) {
+            $this->work($items);
+        });
+
+        $this->info('Uploading Weapon Attachment Images...');
+        Attachment::chunk(100, function (Collection $items) {
+            $this->work($items);
+        });
 
         $this->info('Uploading Food Images...');
         Food::chunk(100, function (Collection $items) {
             $this->work($items);
         });
 
-//        $this->info('Uploading Ship Item Images...');
-//        ShipItem::query()->whereIn('type', array_keys($this->typeTranslations))
-//            ->orWhereRelation('item', 'type', 'WeaponGun')
-//            ->orWhereRelation('item', 'type', 'Missile')
-//            ->orWhereRelation('item', 'type', 'Torpedo')
-//            ->orWhereRelation('item', 'type', 'WeaponMining')
-//            ->orWhereRelation('item', 'type', 'MissileLauncher')
-//            ->chunk(100, function (Collection $items) {
-//                $this->work($items);
-//            });
+        $this->info('Uploading Ship Item Images...');
+        ShipItem::query()->whereIn('type', array_keys($this->typeTranslations))
+            ->orWhereRelation('item', 'type', 'WeaponGun')
+            ->orWhereRelation('item', 'type', 'Missile')
+            ->orWhereRelation('item', 'type', 'Torpedo')
+            ->orWhereRelation('item', 'type', 'WeaponMining')
+            ->orWhereRelation('item', 'type', 'MissileLauncher')
+            ->chunk(100, function (Collection $items) {
+                $this->work($items);
+            });
 
         $this->info('Done');
 
