@@ -29,6 +29,9 @@
                     <div class="form-group">
                         <label for="categories">Kategorien</label>
                         <input type="text" class="form-control" id="categories" required minlength="3">
+                        <div id="category-pills">
+                            <span class="badge badge-secondary" role="button">Galerie</span>
+                        </div>
                         <small id="categoriesHelpBlock" class="form-text text-muted">
                             Liste von Kategorien, getrennt durch ein Komma.<br>Die Kategorie des Comm-Links wird automatisch hinzugefügt.
                         </small>
@@ -109,29 +112,42 @@
             }).finally(() => {
                 modal.querySelector('.modal-body').style.pointerEvents = 'auto'
             })
-        })
-    })
+        });
+    });
+
+    /** @type HTMLInputElement */
+    const categoryInput = document.getElementById('categories');
+    document.querySelectorAll('#category-pills span').forEach(category => {
+        category.addEventListener('click', () => {
+            let prefix = '';
+            if (categoryInput.value.length > 0) {
+                prefix = ', ';
+            }
+
+            categoryInput.value += `${prefix}${category.textContent}`;
+        });
+    });
 
     const initModalButtons = () => {
         document.querySelectorAll('.upload-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                updateModal(e.target.dataset.clId, e.target.dataset.id)
-                $('#uploadModal').modal('show')
+                updateModal(e.target.dataset.clId, e.target.dataset.id);
+                $('#uploadModal').modal('show');
             })
         })
     }
 
     const updateModal = (commLinkId, imageId) => {
-        const modal = document.getElementById('uploadModal')
-        const alert = modal.querySelector('.alert')
+        const modal = document.getElementById('uploadModal');
+        const alert = modal.querySelector('.alert');
 
-        alert.classList.add('d-none')
-        alert.classList.remove('alert-danger', 'alert-success', 'alert-info', 'alert-warning')
+        alert.classList.add('d-none');
+        alert.classList.remove('alert-danger', 'alert-success', 'alert-info', 'alert-warning');
 
-        modal.querySelector('#image').value = imageId
-        modal.querySelector('#description').value = ''
-        modal.querySelector('#filename').value = ''
-        modal.querySelector('#filename-prefix').innerHTML = `Comm-Link ${commLinkId}`
-        modal.querySelector('#categories').placeholder = `Comm-Link ${commLinkId},`
+        modal.querySelector('#image').value = imageId;
+        modal.querySelector('#description').value = '';
+        modal.querySelector('#filename').value = '';
+        modal.querySelector('#filename-prefix').innerHTML = `Comm-Link ${commLinkId}`;
+        modal.querySelector('#categories').placeholder = `Comm-Link ${commLinkId},`;
     }
 </script>
