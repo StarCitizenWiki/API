@@ -61,5 +61,10 @@ return [
         'password' => env('RSI_PASSWORD'),
     ],
 
-    'item_thumbnail_url' => env( 'ITEM_THUMBNAIL_URL'),
+    'item_thumbnail_url' => env('ITEM_THUMBNAIL_URL'),
+
+    'plausible' => [
+        'enabled' => env('PLAUSIBLE_ENABLED', false),
+        'domain' => env('PLAUSIBLE_DOMAIN'),
+    ]
 ];

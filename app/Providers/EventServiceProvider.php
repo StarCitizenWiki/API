@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Events\ApiRouteCalled;
 use App\Events\ModelUpdating;
 use App\Events\Rsi\CommLink\CommLinksChanged;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Events\StarCitizen\ShipMatrix\ShipMatrixStructureChanged;
+use App\Listeners\AddApiRouteTrackingJob;
 use App\Listeners\LogSuccessfulLogin;
 use App\Listeners\Rsi\CommLink\SendCommLinksChangedNotification;
 use App\Listeners\Rsi\CommLink\SendNewCommLinksDownloadedNotification;
@@ -31,6 +33,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         ModelUpdating::class => [
             \App\Listeners\ModelUpdating::class,
+        ],
+        ApiRouteCalled::class => [
+            AddApiRouteTrackingJob::class,
         ],
 
         /**

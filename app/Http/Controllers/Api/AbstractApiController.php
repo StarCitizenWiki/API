@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ApiRouteCalled;
 use App\Http\Controllers\Controller;
 use App\Transformers\Api\LocalizableTransformerInterface;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
@@ -235,6 +236,8 @@ abstract class AbstractApiController extends Controller
         }
 
         $paginate = $query->paginate($this->limit);
+
+        ApiRouteCalled::dispatch($this->request);
 
         return $this->response->paginator($paginate, $this->transformer)->setMeta($this->getMeta());
     }
