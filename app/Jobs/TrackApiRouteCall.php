@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use Dingo\Api\Http\Request;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,14 +18,14 @@ class TrackApiRouteCall implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public Request $request;
+    public array $request;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Request $request)
+    public function __construct(array $request)
     {
         $this->request = $request;
     }
@@ -39,14 +38,14 @@ class TrackApiRouteCall implements ShouldQueue
     public function handle()
     {
         Http::withHeaders([
-            'User-Agent' => $this->request->userAgent() ?? 'Star Citizen Wiki API',
-            'X-Forwarded-For' => $this->request->header('X-Forwarded-For', '127.0.0.1'),
+            'User-Agent' => $this->request['user-agent'],
+            'X-Forwarded-For' => $this->request['forwarded-for'],
         ])
             ->timeout(10)
-            ->retry(5)->dd()
+            ->retry(5)
             ->post(sprintf('%s/api/event', config('services.plausible.domain')), [
                 'name' => 'pageview',
-                'url' => $this->request->fullUrl(),
+                'url' => $this->request['url'],
                 'domain' => parse_url(config('app.url'))['host'],
             ]);
     }
