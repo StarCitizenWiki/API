@@ -148,8 +148,16 @@ class Content extends BaseElement
      */
     private function removeScriptStyleElements(Crawler $crawler): Crawler
     {
+        $remover = $this->removeNode;
+
         $crawler->filter('script')->each($this->removeNode);
         $crawler->filter('style')->each($this->removeNode);
+
+        $crawler->filter('component')->each(function (Crawler $crawler) use ($remover) {
+            if ($crawler->attr('is') === 'script') {
+                $remover($crawler);
+            }
+        });
 
         return $crawler;
     }

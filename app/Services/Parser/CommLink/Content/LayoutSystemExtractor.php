@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Parser\CommLink\Content;
 
 use App\Services\Parser\CommLink\Content\Traits\GExploreExtractorTrait;
+use App\Services\Parser\CommLink\Content\Traits\GGridExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GIntroductionExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GTumbrilFeaturesExtractorrait;
 use Symfony\Component\DomCrawler\Crawler;
@@ -14,6 +15,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
     use GIntroductionExtractorTrait;
     use GTumbrilFeaturesExtractorrait;
     use GExploreExtractorTrait;
+    use GGridExtractorTrait;
 
     private Crawler $page;
 
@@ -30,6 +32,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
         $content = $this->getIntroduction($this->page);
         $content .= $this->getTumbrilFeatures($this->page);
         $content .= $this->getExplore($this->page);
+        $content .= $this->getGrid($this->page);
 
         $this->page->filter(self::getFilter())->each(
             function (Crawler $crawler) use (&$content) {
