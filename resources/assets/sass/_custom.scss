@@ -29,6 +29,11 @@
   white-space: pre-line;
 }
 
+a.badge.badge-success.upload-btn {
+    padding: 9px;
+    margin-top: 10px;
+}
+
 @media (max-width: 620px) {
   .pagination {
     overflow-y: scroll;
