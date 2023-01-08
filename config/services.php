@@ -27,6 +27,7 @@ return [
 
     'wiki_translations' => [
         'locale' => env('WIKI_TRANS_LOCALE', 'de_DE'),
+        'create_english_subpage' => env('WIKI_TRANS_CREATE_ENGLISH_SUBPAGE'),
 
         'consumer_token' => env('WIKI_TRANS_OAUTH_CONSUMER_TOKEN'),
         'consumer_secret' => env('WIKI_TRANS_OAUTH_CONSUMER_SECRET'),

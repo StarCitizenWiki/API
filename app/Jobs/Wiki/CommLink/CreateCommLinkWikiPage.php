@@ -63,10 +63,26 @@ class CreateCommLinkWikiPage implements ShouldQueue
      */
     public function handle(): void
     {
-        app('Log')::info("Creating Wiki Page 'Comm-Link:{$this->commLink->cig_id}'");
+        $this->createCommLinkPage(config('services.wiki_translations.locale'), "Comm-Link:{$this->commLink->cig_id}");
+
+        if (config('services.wiki_translations.create_english_subpage') === true) {
+            $this->createCommLinkPage('en_EN', "Comm-Link:{$this->commLink->cig_id}/en");
+        }
+    }
+
+    /**
+     * Handle the actual creation
+     *
+     * @param string $language Text language
+     * @param string $title MediaWiki Page Title
+     * @return void
+     */
+    private function createCommLinkPage(string $language, string $title): void
+    {
+        app('Log')::info("Creating Wiki Page '{$title}'");
 
         try {
-            if (config('services.wiki_translations.locale') === 'de_DE') {
+            if ($language === 'de_DE') {
                 $text = optional($this->commLink->german())->translation;
             } else {
                 $text = optional($this->commLink->english())->translation;
@@ -81,7 +97,7 @@ class CreateCommLinkWikiPage implements ShouldQueue
                 $this->template = str_replace('{{Comm-Link}}', '<languages/>{{Comm-Link}}', $this->template);
             }
 
-            $response = MediaWikiApi::edit("Comm-Link:{$this->commLink->cig_id}")->text(
+            $response = MediaWikiApi::edit($title)->text(
                 sprintf(
                     "%s\n%s",
                     $this->template,
