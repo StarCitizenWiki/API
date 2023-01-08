@@ -1,8 +1,8 @@
 <p align="center">
-<img src="https://cdn.star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/320px-Star_Citizen_Wiki_Logo.png" alt="Star Citizen Wiki Logo" />
+<img src="https://star-citizen.wiki/thumb.php?f=Star_Citizen_Wiki_Logo.png&width=300" alt="Star Citizen Wiki Logo" />
 </p>
 <p align="center">
-    <img src="https://img.shields.io/github/workflow/status/StarCitizenWiki/API/Laravel%20Tests" />
+    <img src="https://img.shields.io/github/actions/workflow/status/StarCitizenWiki/API/phpunit.yml" />
     <a href="https://hub.docker.com/r/scwiki/api" alt="Docker Hub">
         <img src="https://img.shields.io/docker/pulls/scwiki/api" />
     </a>
