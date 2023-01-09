@@ -19,6 +19,7 @@ class StatTableSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('stats')->truncate();
         DB::unprepared(
             file_get_contents(database_path('dumps/crowdfundstats/crowdfundstats_2012-11-13_-_2018-03-16.sql'))
         );
@@ -27,6 +28,9 @@ class StatTableSeeder extends Seeder
         );
         DB::unprepared(
             file_get_contents(database_path('dumps/crowdfundstats/crowdfundstats_2018-03-25_-_2018-09-26.sql'))
+        );
+        DB::unprepared(
+            file_get_contents(database_path('dumps/crowdfundstats/crowdfundstats_2018-09-27_-_2022_01_24.sql'))
         );
     }
 }
