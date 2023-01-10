@@ -32,7 +32,7 @@ class StatController extends Controller
 
         $every = (int)$every;
 
-        if ($every === 0) {
+        if ($every === 0 || config('database.default') === 'sqlite') {
             $data = Stat::query();
         } else {
             $data = Stat::query()->whereRaw('id mod ' . $every . ' = 0');

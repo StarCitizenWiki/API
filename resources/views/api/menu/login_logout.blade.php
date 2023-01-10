@@ -15,6 +15,7 @@
                 @endcomponent
                 @lang('Account')
             </a>
+            <button class="dropdown-item" id="darkmode-toggle">Dark-Mode Umschalten</button>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 @component('components.forms.form', [

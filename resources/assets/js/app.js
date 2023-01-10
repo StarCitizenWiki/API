@@ -162,5 +162,5 @@ if (document.getElementById('celestial-object-generator')) {
         el: "#celestial-object-generator",
     })
 }
-
+document.getElementById('darkmode-toggle').addEventListener('click', () => { document.body.classList.toggle('darkmode'); } );
 window.snarkdown = snarkdown
