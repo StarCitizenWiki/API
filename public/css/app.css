@@ -10410,6 +10410,11 @@ body.darkmode {
   color: #507caf;
 }
 
+/* List Group Item */
+.darkmode .list-group-item {
+  background-color: #232939;
+}
+
 /* Inputs */
 .darkmode .form-control {
   border: 1px solid #6c757d;
