@@ -36,6 +36,16 @@
         @endslot
         v{{ config('app.version') }}
     @endcomponent
+    @component('components.navs.nav_element', ['contentClass' => 'small'])
+        @slot('options')
+            style="padding-top: 0.7rem; cursor: pointer"
+            id="darkmode-toggle"
+        @endslot
+        @component('components.elements.icon', ['class' => 'mr-1'])
+            toggle-off
+        @endcomponent
+        <span>@lang('Darkmode')</span>
+    @endcomponent
 @else
     @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])
         @component('components.elements.icon')

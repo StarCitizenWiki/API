@@ -29,6 +29,7 @@
 
 @section('sidebar__pre')
     @parent
+    <script>(()=>{'on'===window.localStorage.getItem("darkmode")&&document.body.parentElement.classList.add("darkmode");})();</script>
     <a href="@if(Auth::check() && Auth::user()->isAdmin())
     {{ route('web.user.dashboard') }}
     @else
