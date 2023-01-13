@@ -15,7 +15,6 @@
                 @endcomponent
                 @lang('Account')
             </a>
-            <button class="dropdown-item" id="darkmode-toggle">Dark-Mode Umschalten</button>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 @component('components.forms.form', [
@@ -36,6 +35,16 @@
             style="padding-top: 0.7rem; cursor: default"
         @endslot
         v{{ config('app.version') }}
+    @endcomponent
+    @component('components.navs.nav_element', ['contentClass' => 'small'])
+        @slot('options')
+            style="padding-top: 0.7rem; cursor: pointer"
+            id="darkmode-toggle"
+        @endslot
+        @component('components.elements.icon', ['class' => 'mr-1'])
+            toggle-off
+        @endcomponent
+        <span>@lang('Darkmode')</span>
     @endcomponent
 @else
     @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])

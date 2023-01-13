@@ -60,7 +60,9 @@ import {
     faUserCircle,
     faUserPlus,
     faUsers,
-    faUpload
+    faUpload,
+    faToggleOn,
+    faToggleOff,
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -121,6 +123,8 @@ library.add(
     faUserPlus,
     faUsers,
     faUpload,
+    faToggleOn,
+    faToggleOff,
 )
 
 library.add(
@@ -162,5 +166,32 @@ if (document.getElementById('celestial-object-generator')) {
         el: "#celestial-object-generator",
     })
 }
-document.getElementById('darkmode-toggle').addEventListener('click', () => { document.body.classList.toggle('darkmode'); } );
-window.snarkdown = snarkdown
+
+window.snarkdown = snarkdown;
+
+(() => {
+    const changeButtonText = () => {
+        let text = 'Darkmode an';
+        if (document.body.parentElement.classList.contains('darkmode')) {
+            text = 'Darkmode aus';
+        }
+        document.querySelector('#darkmode-toggle span').textContent = text;
+    };
+
+    if (document.body.parentElement.classList.contains('darkmode')) {
+        changeButtonText();
+        document.querySelector('#darkmode-toggle i').classList.remove('fa-toggle-off');
+        document.querySelector('#darkmode-toggle i').classList.add('fa-toggle-on');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('darkmode-toggle').addEventListener('click', (e) => {
+            document.body.parentElement.classList.toggle('darkmode');
+            e.target.parentElement.querySelector('svg').classList.toggle('fa-toggle-on');
+            e.target.parentElement.querySelector('svg').classList.toggle('fa-toggle-off');
+
+            window.localStorage.setItem('darkmode', document.body.parentElement.classList.contains('darkmode') ? 'on' : 'off');
+            changeButtonText();
+        });
+    });
+})();

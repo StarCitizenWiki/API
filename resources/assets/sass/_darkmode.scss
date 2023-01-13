@@ -1,39 +1,60 @@
 /* Base */
-body.darkmode {
-    color: #fff;
-    background-color: #14181f !important;
+:root.darkmode {
+    --text-color: #fff;
+    --body-bg-color: #14181f;
+    --dropdown-bg-color: #232939;
+    --dropdown-menu-bg-color: #1d2330;
+    --dropdown-divider-color: #61757d;
+
+}
+
+.darkmode body {
+    color: var( --text-color );
+    background-color: var( --body-bg-color ) !important;
 }
 
 /* Side and Nav Bar */
-.darkmode .bg-blue-grey, .darkmode .bg-dark {
-    background-color: #1d2330 !important;
+.darkmode .bg-blue-grey,
+.darkmode .bg-dark {
+    background-color: var( --dropdown-menu-bg-color ) !important;
 }
 
 /* Dropdown Menu */
 .darkmode .dropdown-menu {
-    background-color: #1d2330;
+    background-color: var( --dropdown-menu-bg-color );
 }
 /* Dropdown Item */
 .darkmode .dropdown-item {
-    color: #fff;
+    color: var( --text-color );
 }
 /* Dropdown Item:Hover */
 .darkmode .dropdown-item:hover {
-    background-color: #232939;
+    background-color: var( --dropdown-bg-color );
 }
 /* Dropdown Divider */
 .darkmode .dropdown-divider {
-    border-top: 1px solid #61757d;
+    border-top-color: var( --dropdown-divider-color );
 }
 
 /* Pannels */
 .darkmode .card {
-    background-color: #232939;
+    background-color: var( --dropdown-bg-color );
+}
+
+/* Modals */
+.darkmode .modal-content {
+    background-color: var( --dropdown-bg-color );
+}
+
+.darkmode .modal-footer,
+.darkmode .modal-header {
+    background-color: var( --dropdown-bg-color );
+    border-color: var( --dropdown-divider-color );
 }
 
 /* Tabel Text Color */
 .darkmode th, .darkmode td {
-    color: #fff;
+    color: var( --text-color );
 }
 
 /* Links */
@@ -43,65 +64,81 @@ body.darkmode {
 
 /* List Group Item */
 .darkmode .list-group-item {
-    background-color: #232939;
+    background-color: var( --dropdown-bg-color );
 }
 
 /* Inputs */
+.darkmode .input-group-text,
 .darkmode .form-control {
-    border: 1px solid #6c757d;
+    border-color: #6c757d;
     color: #ececec;
-    background-color: #1d2330;
+    background-color: var( --dropdown-menu-bg-color );
+}
+
+.darkmode .input-group-text {
+    background-color: var( --dropdown-divider-color );
 }
 
 /* Previous/Next Pages */
+.darkmode .popover-header,
 .darkmode .page-link {
     border-color: #6c757d !important;
-    background-color: #1d2330 !important;
+    background-color: var( --dropdown-menu-bg-color ) !important;
 }
 
 /* Tabs */
 .darkmode .nav-tabs .nav-link.active {
-    border-color: #61757d #61757d #232939;
+    border-color: var( --dropdown-divider-color ) var( --dropdown-divider-color ) var( --dropdown-bg-color );
     color: #ececec;
-    background-color: #232939;
+    background-color: var( --dropdown-bg-color );
 }
 .darkmode .nav-tabs {
-    border-bottom: 1px solid #61757d;
+    border-bottom: 1px solid var( --dropdown-divider-color );
 }
 
 /* Custom Dropdown */
 .darkmode .custom-select {
     border-color: #6c757d;
     color: #ececec;
-    background: #1d2330 url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ececec' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") right 0.75rem center/8px 10px no-repeat;
+    background: var( --dropdown-menu-bg-color ) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ececec' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") right 0.75rem center/8px 10px no-repeat;
 }
 
 /* Table separating lines */
 .darkmode .table th, .darkmode .table td {
-    border-top: 1px solid #6c757d;
+    border-top-color: #6c757d;
 }
 .darkmode .table thead th {
-    border-bottom: 2px solid #6c757d;
+    border-bottom-color: #6c757d;
+}
+
+/* Buttons */
+.darkmode .btn-outline-secondary {
+    border-color: #ececec;
+    color: #ececec;
+}
+
+.darkmode .btn-outline-secondary:hover {
+    border-color: #6c757d;
 }
 
 /* Alerts */
 .darkmode .alert-danger {
     border-color: var(--danger);
-    color: #fff;
+    color: var( --text-color );
     background-color: var(--danger);
 }
 .darkmode .alert-info {
     border-color: var(--info);
-    color: #fff;
+    color: var( --text-color );
     background-color: var(--info);
 }
 .darkmode .alert-warning {
     border-color: var(--warning);
-    color: #fff;
+    color: var( --text-color );
     background-color: var(--warning);
 }
 .darkmode .alert-success {
     border-color: var(--success);
-    color: #fff;
+    color: var( --text-color );
     background-color: var(--success);
 }
