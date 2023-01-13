@@ -136,7 +136,7 @@ final class WeaponPersonal extends AbstractCommodityItem
             'magazine_size' => $data['magazine_size'] ?? 0,
             'effective_range' => $this->buildEffectiveRange($data['effective_range'] ?? '0'),
             'rof' => $data['rof'] ?? 0,
-            'attachment_ports' => $this->buildAttachmentPortsPart($rawData),
+            'attachment_ports' => $this->buildAttachmentPortsPart($rawData, $data),
             'attachments' => $this->buildAttachmentsPart($rawData),
             'ammunition' => $this->buildAmmunitionWeaponPart($rawData, $weapon),
             'modes' => $this->buildModesPart($weapon),
@@ -219,21 +219,56 @@ final class WeaponPersonal extends AbstractCommodityItem
         return $modes->toArray();
     }
 
-    private function buildAttachmentPortsPart(Collection $rawData): array
+    private function buildAttachmentPortsPart(Collection $rawData, array $descriptionData): array
     {
         $key = 'Raw.Entity.Components.SItemPortContainerComponentParams.Ports';
         $ports = $rawData->pull($key);
 
-        if (empty($ports)) {
+        if (empty($ports) && empty($descriptionData['attachments'])) {
             return [];
         }
 
-        $mapped = collect($ports)->map(function (array $component) {
+        $attachments = collect(explode(', ', $descriptionData['attachments'] ?? ''))
+            ->mapWithKeys(static function (string $attachment) {
+                $parts = explode(' (', $attachment);
+
+                if (count($parts) !== 2) {
+                    return [];
+                }
+
+                $parts[1] = trim($parts[1], ')');
+                if ($parts[1] === 'N/A') {
+                    $parts[1] = 'S0';
+                }
+
+                return [
+                    strtolower($parts[0]) => [
+                        'min_size' => substr($parts[1], 1)
+                    ]
+                ];
+            })->toArray();
+
+        $mapped = collect($ports)->map(function (array $component) use ($attachments) {
+            $position = str_replace(['_attach', 'ment'], '', $component['Name']);
+            $minSize = $component['MinSize'];
+            $maxSize = $component['MaxSize'];
+
+            if (isset($attachments[$position])) {
+                $size = $attachments[$position]['min_size'];
+                if ((int)$maxSize > (int)$size) {
+                    $maxSize = $size;
+                }
+
+                if ((int)$minSize < (int)$size) {
+                    $minSize = $size;
+                }
+            }
+
             return [
                 'name' => $component['DisplayName'],
-                'position' => str_replace(['_attach', 'ment'], '', $component['Name']),
-                'min_size' => $component['MinSize'],
-                'max_size' => $component['MaxSize'],
+                'position' => $position,
+                'min_size' => (int)$minSize,
+                'max_size' => (int)$maxSize,
             ];
         });
 
