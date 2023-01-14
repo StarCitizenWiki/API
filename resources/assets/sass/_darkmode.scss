@@ -1,10 +1,12 @@
 /* Base */
 :root.darkmode {
     --text-color: #fff;
+    --text-color-grey: #ececec;
     --body-bg-color: #14181f;
     --dropdown-bg-color: #232939;
     --dropdown-menu-bg-color: #1d2330;
     --dropdown-divider-color: #61757d;
+    --border-color-grey: #6c757d;
 
 }
 
@@ -13,10 +15,19 @@
     background-color: var( --body-bg-color ) !important;
 }
 
+/* Wiki Text */
+pre {
+    color: var( --text-color-grey );
+}
+
 /* Side and Nav Bar */
 .darkmode .bg-blue-grey,
 .darkmode .bg-dark {
     background-color: var( --dropdown-menu-bg-color ) !important;
+}
+
+.darkmode .page-link:hover {
+    color: #0ab2f5;
 }
 
 /* Dropdown Menu */
@@ -70,8 +81,8 @@
 /* Inputs */
 .darkmode .input-group-text,
 .darkmode .form-control {
-    border-color: #6c757d;
-    color: #ececec;
+    border-color: var( --border-color-grey );
+    color: var( --text-color-grey );
     background-color: var( --dropdown-menu-bg-color );
 }
 
@@ -82,14 +93,14 @@
 /* Previous/Next Pages */
 .darkmode .popover-header,
 .darkmode .page-link {
-    border-color: #6c757d !important;
+    border-color: var( --border-color-grey ) !important;
     background-color: var( --dropdown-menu-bg-color ) !important;
 }
 
 /* Tabs */
 .darkmode .nav-tabs .nav-link.active {
     border-color: var( --dropdown-divider-color ) var( --dropdown-divider-color ) var( --dropdown-bg-color );
-    color: #ececec;
+    color: var( --text-color-grey );
     background-color: var( --dropdown-bg-color );
 }
 .darkmode .nav-tabs {
@@ -98,27 +109,27 @@
 
 /* Custom Dropdown */
 .darkmode .custom-select {
-    border-color: #6c757d;
-    color: #ececec;
+    border-color: var( --border-color-grey );
+    color: var( --text-color-grey );
     background: var( --dropdown-menu-bg-color ) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ececec' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") right 0.75rem center/8px 10px no-repeat;
 }
 
 /* Table separating lines */
 .darkmode .table th, .darkmode .table td {
-    border-top-color: #6c757d;
+    border-top-color: var( --border-color-grey );
 }
 .darkmode .table thead th {
-    border-bottom-color: #6c757d;
+    border-bottom-color: var( --border-color-grey );
 }
 
 /* Buttons */
 .darkmode .btn-outline-secondary {
-    border-color: #ececec;
-    color: #ececec;
+    border-color: var( --text-color-grey );
+    color: var( --text-color-grey );
 }
 
 .darkmode .btn-outline-secondary:hover {
-    border-color: #6c757d;
+    border-color: var( --border-color-grey );
 }
 
 /* Alerts */
