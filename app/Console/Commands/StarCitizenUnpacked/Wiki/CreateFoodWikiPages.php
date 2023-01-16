@@ -9,6 +9,7 @@ use App\Jobs\Wiki\ApproveRevisions;
 use App\Models\StarCitizenUnpacked\Food\Food;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Traits\GetWikiCsrfTokenTrait;
+use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Collection;
@@ -17,6 +18,7 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class CreateFoodWikiPages extends AbstractQueueCommand
 {
     use GetWikiCsrfTokenTrait;
+    use CreateEnglishSubpageTrait;
 
     /**
      * The name and signature of the console command.
@@ -95,7 +97,9 @@ FORMAT;
             return;
         }
 
-        if ($response->hasErrors()) {
+        $this->createEnglishSubpage($food->item->name, $token);
+
+        if ($response->hasErrors() && $response->getErrors()['code'] !== 'articleexists') {
             $this->error(implode(', ', $response->getErrors()));
         }
     }

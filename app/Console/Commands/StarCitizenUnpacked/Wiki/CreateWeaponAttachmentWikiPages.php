@@ -8,6 +8,7 @@ use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Traits\GetWikiCsrfTokenTrait;
+use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Collection;
@@ -16,6 +17,7 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class CreateWeaponAttachmentWikiPages extends AbstractQueueCommand
 {
     use GetWikiCsrfTokenTrait;
+    use CreateEnglishSubpageTrait;
 
     /**
      * The name and signature of the console command.
@@ -55,7 +57,7 @@ class CreateWeaponAttachmentWikiPages extends AbstractQueueCommand
         return 0;
     }
 
-    public function uploadWiki(Attachment $armor)
+    public function uploadWiki(Attachment $attachment)
     {
         // phpcs:disable
         $text = <<<FORMAT
@@ -79,7 +81,7 @@ FORMAT;
 
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
-            $response = MediaWikiApi::edit($armor->item->name)
+            $response = MediaWikiApi::edit($attachment->item->name)
                 ->withAuthentication()
                 ->text($text)
                 ->csrfToken($token)
@@ -92,7 +94,9 @@ FORMAT;
             return;
         }
 
-        if ($response->hasErrors()) {
+        $this->createEnglishSubpage($attachment->item->name, $token);
+
+        if ($response->hasErrors() && $response->getErrors()['code'] !== 'articleexists') {
             $this->error(implode(', ', $response->getErrors()));
         }
     }
