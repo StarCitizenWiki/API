@@ -23,7 +23,7 @@ trait CreateEnglishSubpageTrait
                     ->text(sprintf('{{:%s}}', $pageName))
                     ->csrfToken($csrfToken)
                     ->createOnly()
-                    ->summary('Creating Weapon Personal Page')
+                    ->summary('Creating english subpage')
                     ->request();
             } catch (GuzzleException $e) {
                 return;
