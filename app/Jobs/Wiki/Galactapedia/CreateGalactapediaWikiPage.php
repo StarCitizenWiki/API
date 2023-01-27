@@ -269,7 +269,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 !!! Weitere Informationen findest du hier: https://star-citizen.wiki/Vorlage:Galactapedia     !!!
 
 START-->%s<!--
--->[[Category:Galactapedia{{#translation:}}]]%s<!--%s
+-->[[Category:Galactapedia]]%s<!--%s
 END-->
 FORMAT;
 
@@ -441,9 +441,17 @@ CONTENT;
     {
         $cats = $this->article->categories
             ->map(function (Category $category) {
+                $suffix = '';
+                if (
+                    config('language.translate_wrap_galactapedia') === true &&
+                    strpos('<translate nowrap>', $contentRef) === false
+                ) {
+                    $suffix = '{{#translation:}}';
+                }
                 return sprintf(
-                    '[[Category:%s{{#translation:}}]]',
-                    self::$categoryTranslations[$category->name] ?? $category->name
+                    '[[Category:%s%s]]',
+                    self::$categoryTranslations[$category->name] ?? $category->name,
+                    $suffix
                 );
             })
             ->implode("\n");
