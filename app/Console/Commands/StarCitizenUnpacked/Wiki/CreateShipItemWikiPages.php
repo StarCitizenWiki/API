@@ -82,7 +82,9 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
 
 {{Standardausrüstung}}
 
-{{Quellen}}
+== Quellen ==
+<references />
+{{Galerie}}
 
 {{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;

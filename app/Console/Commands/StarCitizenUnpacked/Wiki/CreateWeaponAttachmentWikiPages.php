@@ -73,7 +73,9 @@ class CreateWeaponAttachmentWikiPages extends AbstractQueueCommand
 
 {{Standardausrüstung|Kategorie=Waffe|Query=[[Kategorie:!Waffenbefestigung]]|Text=Waffen}}
 
-{{Quellen}}
+== Quellen ==
+<references />
+{{Galerie}}
 
 {{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;

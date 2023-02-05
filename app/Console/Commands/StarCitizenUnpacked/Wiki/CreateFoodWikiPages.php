@@ -76,7 +76,9 @@ class CreateFoodWikiPages extends AbstractQueueCommand
 |Limit=5
 }}
 
-{{Quellen}}
+== Quellen ==
+<references />
+{{Galerie}}
 
 {{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;

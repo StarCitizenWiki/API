@@ -73,7 +73,9 @@ class CreateWeaponPersonalWikiPages extends AbstractQueueCommand
 
 {{Itemvarianten}}
 
-{{Quellen}}
+== Quellen ==
+<references />
+{{Galerie}}
 
 {{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;

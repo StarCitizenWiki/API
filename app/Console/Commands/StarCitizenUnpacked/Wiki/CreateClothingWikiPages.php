@@ -76,7 +76,9 @@ class CreateClothingWikiPages extends AbstractQueueCommand
 }}
 {{Rüstungskomponenten}}
 
-{{Quellen}}
+== Quellen ==
+<references />
+{{Galerie}}
 
 {{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;
