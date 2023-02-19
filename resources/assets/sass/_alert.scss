@@ -3,3 +3,28 @@
   border-color: rgba(0, 0, 0, 0.125);
   border-width: 1px 0 1px 0;
 }
+
+/* Alerts */
+.alert {
+  border-radius: 8px;
+}
+.alert-danger {
+  border-color: var(--danger) !important;
+  color: #fff !important;
+  background-color: var(--danger) !important;
+}
+.alert-info {
+  border-color: var(--info) !important;
+  color: #fff !important;
+  background-color: var(--info) !important;
+}
+.alert-warning {
+  border-color: var(--warning) !important;
+  color: #fff !important;
+  background-color: var(--warning) !important;
+}
+.alert-success {
+  border-color: var(--success) !important;
+  color: #fff !important;
+  background-color: var(--success) !important;
+}

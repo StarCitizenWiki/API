@@ -1,6 +1,6 @@
 @extends('errors.layouts.default')
 
-@section('title', 'Be right back.')
+@section('title', '503 - Gleich wieder da')
 
 @section('top')
     @lang('Wartungsarbeiten')

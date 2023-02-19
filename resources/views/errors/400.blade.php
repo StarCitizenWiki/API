@@ -1,11 +1,11 @@
 @extends('errors.layouts.default')
 
-@section('title', '400 - Bad Request')
+@section('title', '400 - Schlechte Anfrage')
 
 @section('top', 400)
 
 @section('content')
-    @lang('Bad Request')
+    @lang('Schlechte Anfrage')
 @endsection
 
 @section('style')
