@@ -1,11 +1,11 @@
 @extends('errors.layouts.default')
 
-@section('title', '401 - Unauthorized')
+@section('title', '401 - Unbefugt')
 
 @section('top', 401)
 
 @section('content')
-    @lang('Unauthorized')
+    @lang('Unbefugter Zugriff')
 @endsection
 
 @section('style')

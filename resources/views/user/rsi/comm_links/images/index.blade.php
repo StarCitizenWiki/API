@@ -10,7 +10,7 @@
             {{ $images->links() }}
             <form class="form-inline ml-auto" id="mimeForm">
                 <label class="my-1 mr-2" for="mime">Mime Type</label>
-                <select class="custom-select my-1 mr-sm-2" id="mime">
+                <select class="custom-select form-control my-1 mr-sm-2" id="mime">
                     <option value="" selected>Alle</option>
                     @foreach($mimes as $mime)
                         <option value="{{ $mime->mime }}">{{ $mime->mime }}</option>

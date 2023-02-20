@@ -171,9 +171,9 @@ window.snarkdown = snarkdown;
 
 (() => {
     const changeButtonText = () => {
-        let text = 'Darkmode an';
+        let text = 'Darkmode';
         if (document.body.parentElement.classList.contains('darkmode')) {
-            text = 'Darkmode aus';
+            text = 'Darkmode';
         }
         document.querySelector('#darkmode-toggle span').textContent = text;
     };
