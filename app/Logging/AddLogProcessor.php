@@ -18,7 +18,6 @@ class AddLogProcessor
      */
     public function __invoke($monolog)
     {
-        $monolog->pushProcessor(new UserInfoProcessor());
         $monolog->pushProcessor(new WebProcessor());
     }
 }

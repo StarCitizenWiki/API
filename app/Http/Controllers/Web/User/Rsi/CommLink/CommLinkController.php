@@ -254,8 +254,12 @@ class CommLinkController extends Controller
         $this->authorize('web.user.rsi.comm-links.preview');
 
         $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}.html");
+        if ($content === null) {
+            throw new FileNotFoundException();
+        }
+
         $crawler = new Crawler();
-        $crawler->addHtmlContent($content, 'UTF-8');
+        $crawler->addHtmlContent($content);
 
         $contentParser = new Content($crawler);
 

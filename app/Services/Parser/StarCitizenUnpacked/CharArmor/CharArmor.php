@@ -22,7 +22,7 @@ final class CharArmor extends AbstractCommodityItem
      */
     public function __construct()
     {
-        $items = File::get(storage_path(sprintf('app/api/scunpacked-data/fps-items.json')));
+        $items = File::get(storage_path('app/api/scunpacked-data/fps-items.json'));
         $this->items = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
     }
 

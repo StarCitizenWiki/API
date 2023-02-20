@@ -108,6 +108,10 @@ class ImportCommLink implements ShouldQueue
         );
 
         $content = Storage::disk('comm_links')->get($this->filePath());
+        if ($content === null) {
+            throw new FileNotFoundException();
+        }
+
         $this->crawler = new Crawler();
         $this->crawler->addHtmlContent($content, 'UTF-8');
 

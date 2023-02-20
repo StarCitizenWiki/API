@@ -13,7 +13,7 @@ use League\Fractal\Resource\Item;
  */
 class TranscriptTransformer extends V1Transformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'english',
         'german',
     ];

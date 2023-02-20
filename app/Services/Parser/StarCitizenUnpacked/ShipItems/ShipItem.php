@@ -11,6 +11,7 @@ use App\Services\Parser\StarCitizenUnpacked\PersonalInventory;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use JsonException;
 
 final class ShipItem extends AbstractCommodityItem
 {
@@ -27,7 +28,7 @@ final class ShipItem extends AbstractCommodityItem
 
     /**
      * @throws FileNotFoundException
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function loadFromShipItems(): void
     {
@@ -82,7 +83,7 @@ final class ShipItem extends AbstractCommodityItem
                     }
 
                     return $this->map($entry, $rawData);
-                } catch (\JsonException | FileNotFoundException $e) {
+                } catch (JsonException | FileNotFoundException $e) {
                     return null;
                 }
             })

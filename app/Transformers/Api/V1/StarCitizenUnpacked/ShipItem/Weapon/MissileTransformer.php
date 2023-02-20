@@ -10,7 +10,7 @@ use League\Fractal\TransformerAbstract;
 
 class MissileTransformer extends TransformerAbstract
 {
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'damages',
     ];
 

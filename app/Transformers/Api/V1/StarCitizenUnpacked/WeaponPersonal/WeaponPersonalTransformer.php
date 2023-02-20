@@ -10,7 +10,7 @@ use League\Fractal\Resource\Collection;
 
 class WeaponPersonalTransformer extends AbstractCommodityTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'shops',
         'modes',
         'damages',

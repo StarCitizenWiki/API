@@ -11,7 +11,7 @@ use League\Fractal\TransformerAbstract;
 
 class WeaponTransformer extends TransformerAbstract
 {
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'modes',
         'damages',
     ];

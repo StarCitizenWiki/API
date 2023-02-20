@@ -61,7 +61,7 @@ use OpenApi\Attributes as OA;
 )]
 class ManufacturerTransformer extends TranslationTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'ships',
         'vehicles',
     ];

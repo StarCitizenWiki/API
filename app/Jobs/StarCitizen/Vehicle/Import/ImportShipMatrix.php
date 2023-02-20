@@ -57,8 +57,13 @@ class ImportShipMatrix implements ShouldQueue
         app('Log')::info('Parsing Ship Matrix Download');
 
         try {
+            $content = Storage::disk('vehicles')->get($this->shipMatrixFileName ?? 'HowCanThisBeNull??');
+            if ($content === null) {
+                throw new FileNotFoundException();
+            }
+
             $vehicles = json_decode(
-                Storage::disk('vehicles')->get($this->shipMatrixFileName),
+                $content,
                 true,
                 512,
                 JSON_THROW_ON_ERROR

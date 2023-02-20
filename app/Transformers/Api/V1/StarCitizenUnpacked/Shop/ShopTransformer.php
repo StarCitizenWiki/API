@@ -43,7 +43,7 @@ use OpenApi\Attributes as OA;
 )]
 class ShopTransformer extends AbstractV1Transformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'items'
     ];
 

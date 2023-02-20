@@ -44,7 +44,7 @@ use OpenApi\Attributes as OA;
 
 class CharArmorTransformer extends AbstractCommodityTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'attachments',
         'shops'
     ];

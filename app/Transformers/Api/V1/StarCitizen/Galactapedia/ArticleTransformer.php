@@ -123,7 +123,7 @@ use OpenApi\Attributes as OA;
 )]
 class ArticleTransformer extends AbstractTranslationTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'categories',
         'properties',
         'tags',

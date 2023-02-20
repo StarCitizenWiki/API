@@ -58,7 +58,7 @@ use OpenApi\Attributes as OA;
 )]
 class ItemTransformer extends AbstractCommodityTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'shops'
     ];
 

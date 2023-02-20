@@ -59,7 +59,7 @@ final class Shops
      */
     public function __construct()
     {
-        $items = File::get(storage_path(sprintf('app/api/scunpacked-data/shops.json')));
+        $items = File::get(storage_path('app/api/scunpacked-data/shops.json'));
         $this->shops = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
         $this->addShops();
         $this->mapped = collect();
