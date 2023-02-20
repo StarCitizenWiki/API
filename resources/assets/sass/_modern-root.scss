@@ -1,0 +1,63 @@
+:root {
+    --body-background: #f8f9fa;
+
+    --scrollbar-track: #f8f9fa;
+    --scrollbar-thumb: #e1e1e1;
+
+    --border-radius: 8px;
+
+    --text-color: #212529;
+    --text-disabled: #6c757d;
+
+    --nav: #efeded;
+
+    --logo-filter: brightness(0.1);
+    --svg: #212529;
+    --svg-hover: #636d76;
+
+    --button: #efeded;
+    --button-hover: #e1e1e1;
+    --button-active: #d2d2d2;
+
+    --input-border: #d8d8d8;
+
+    --card: #ffffff;
+    --card-line: #d8d8d8;
+
+    --shadow-color: #B9B9B9;
+
+    --link: #3366cc;
+
+    --table-item-odd: #efeded90;
+}
+
+:root.darkmode {
+    --body-background: #14181f;
+
+    --scrollbar-track: #14181f;
+    --scrollbar-thumb: #293044;
+
+    --border-radius: 8px;
+
+    --text-color: #ffffff;
+    --text-disabled: #6c757d;
+
+    --nav: #1e2433;
+
+    --logo-filter: none;
+    --svg: #ced4da;
+    --svg-hover: #b2bac2;
+
+    --button: #293044;
+    --button-hover: #35405e;
+    --button-active: #49577e;
+
+    --input-border: #252f42;
+
+    --card: #1d2330;
+    --card-line: #252f42;
+
+    --shadow-color: #0A0C11;
+
+    --table-item-odd: #29304490;
+}

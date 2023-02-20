@@ -1,0 +1,18 @@
+/* Scrollbar */
+* {
+    scrollbar-width: auto;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+    width: 15px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: var(--border-radius);
+}

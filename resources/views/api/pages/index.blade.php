@@ -21,7 +21,7 @@
                 <p>
                     <a href="mailto:info@star-citizen.wiki" class="font-italic">@lang('Schreib')</a>
                     @lang('uns, oder besuch uns auf unserem')
-                    <a href="ts3server://ts.star-citizen.wiki" class="font-italic">Teamspeak-Server</a>!
+                    <a href="https://discord.gg/M9TT8kzXNe" class="font-italic">Discord-Server</a>!
                 </p>
             </div>
         </div>

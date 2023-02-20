@@ -1,11 +1,11 @@
 @extends('errors.layouts.default')
 
-@section('title', '403 - Forbidden')
+@section('title', '403 - Verboten')
 
 @section('top', 403)
 
 @section('content')
-    @lang('Forbidden')
+    @lang('Verboten')
 @endsection
 
 @section('style')

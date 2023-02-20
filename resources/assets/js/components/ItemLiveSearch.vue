@@ -1,5 +1,5 @@
 <template>
-  <div class="card mb-3" id="cl-test">
+  <div class="mb-3" id="cl-test">
     <div class="card-header">
       <h4>
         Star Citizen Item Suche

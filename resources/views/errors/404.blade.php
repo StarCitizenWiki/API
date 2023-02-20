@@ -1,11 +1,11 @@
 @extends('errors.layouts.default')
 
-@section('title', '404 - Not Found')
+@section('title', '404 - Nicht gefunden')
 
 @section('top', 404)
 
 @section('content')
-    @lang('You drift into the endless nothingness of Space&hellip;')
+    @lang('Du driftest in das endlose Nichts des Weltraums&hellip;')
 @endsection
 
 @section('style')
