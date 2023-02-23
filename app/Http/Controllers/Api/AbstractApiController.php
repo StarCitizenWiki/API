@@ -237,11 +237,11 @@ abstract class AbstractApiController extends Controller
 
         $paginate = $query->paginate($this->limit);
 
-        ApiRouteCalled::dispatch([
-            'url' => $this->request->fullUrl(),
-            'user-agent' => $this->request->userAgent() ?? 'Star Citizen Wiki API',
-            'forwarded-for' => $this->request->header('X-Forwarded-For', '127.0.0.1'),
-        ]);
+//        ApiRouteCalled::dispatch([
+//            'url' => $this->request->fullUrl(),
+//            'user-agent' => $this->request->userAgent() ?? 'Star Citizen Wiki API',
+//            'forwarded-for' => $this->request->header('X-Forwarded-For', '127.0.0.1'),
+//        ]);
 
         return $this->response->paginator($paginate, $this->transformer)->setMeta($this->getMeta());
     }

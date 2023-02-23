@@ -177,7 +177,7 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
      *
      * @return BelongsToMany
      */
-    public function related(): BelongsToMany
+    public function relatedArticles(): BelongsToMany
     {
         return $this->belongsToMany(
             Article::class,

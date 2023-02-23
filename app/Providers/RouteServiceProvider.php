@@ -91,6 +91,12 @@ class RouteServiceProvider extends ServiceProvider
                 );
             }
         );
+
+        Route::middleware('api.v2')
+            ->name('api.v2.')
+            ->namespace($this->namespace . '\Api\V2')
+            ->prefix('api/v2')
+            ->group(base_path('routes/api/api_v2.php'));
     }
 
     /**
