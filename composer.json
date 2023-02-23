@@ -24,7 +24,7 @@
         "jenssegers/imagehash": "^v0.8.0",
         "laravel/framework": "^v9.0",
         "laravel/ui": "^4.2",
-        "league/commonmark": "^2.0",
+        "league/commonmark": "^1.0",
         "mediawiki/oauthclient": "^1.1.0",
         "octfx/deeply": "^3.1",
         "sebastian/diff": "^4.0.4",
