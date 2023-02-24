@@ -10,6 +10,7 @@
   -->
 
 <ruleset name="super-linter">
+    <arg name="basepath" value="."/>
     <description>PSR12 - minor customizations</description>
     <rule ref="PSR12">
         <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock" />
@@ -27,4 +28,8 @@
             <property phpcbf-only="true" name="lineLimit" value="120"/>
         </properties>
     </rule>
+
+    <file>./app</file>
+    <arg name="extensions" value="php"/>
+    <arg name="encoding" value="UTF-8"/>
 </ruleset>

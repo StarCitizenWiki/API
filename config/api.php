@@ -239,4 +239,6 @@ return [
         'limit_authenticated' => env('THROTTLE_REQUESTS', 60),
         'period_authenticated' => env('THROTTLE_PERIOD', 1),
     ],
+
+    'sc_data_version' => env('SC_DATA_VERSION'),
 ];

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix;
 
+use App\Models\StarCitizen\ProductionStatus\ProductionStatus as ProductionStatusModel;
+use App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
-use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus as ProductionStatusModel;
-use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 

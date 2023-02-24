@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\ShipMatrix\Vehicle;
 
+use App\Models\StarCitizen\Vehicle\Focus\Focus as VehicleFocus;
+use App\Models\StarCitizen\Vehicle\Focus\FocusTranslation;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
-use App\Models\Api\StarCitizen\Vehicle\Focus\Focus as VehicleFocus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
 

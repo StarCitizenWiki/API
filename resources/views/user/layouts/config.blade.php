@@ -19,7 +19,7 @@
 
 
 {{-- Body --}}
-@section('sidebar--class', 'd-none d-md-flex flex-column')
+@section('sidebar--class', 'd-none d-xl-flex flex-column')
 
 
 {{-- Sidebar Content --}}
@@ -35,10 +35,11 @@
     {{ route('web.user.account.index') }}
     @endif">
         <img src="{{ asset('media/images/Star_Citizen_Wiki_Logo_White.png') }}"
-             class="d-block mx-auto my-5 img-fluid"
+             class="d-block mx-auto my-5 img-fluid "
              style="max-width: 169px;">
     </a>
 @endsection
+
 
 @section('sidebar__after')
     @parent
@@ -47,11 +48,11 @@
 
 
 {{-- Main Content --}}
-@section('topNav--class', 'bg-blue-grey')
+@section('topNav--class', 'navbar-expand-xl bg-blue-grey')
 
 @section('topNav__content')
     @include('api.menu.login_logout')
-    <div class="d-sm-block d-md-none">
+    <div class="d-flex d-xl-none flex-md-wrap flex-column flex-lg-row">
         @include('user.menu.main')
     </div>
 @endsection

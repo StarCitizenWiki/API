@@ -69,7 +69,11 @@ class TranslateCommLinks implements ShouldQueue
                     } catch (RuntimeException $e) {
                         app('Log')::error($e->getMessage());
 
-                        $this->fail($e);
+                        if (strpos($e->getMessage(), 'Guru Meditation') !== false) {
+                            $this->release(60);
+                        } else {
+                            $this->fail($e);
+                        }
 
                         return;
                     }
@@ -83,6 +87,8 @@ class TranslateCommLinks implements ShouldQueue
                             }
                         }
                     );
+
+                    usleep(100000);
                 }
             );
     }

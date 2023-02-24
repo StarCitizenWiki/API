@@ -79,6 +79,7 @@ class UserControllerTestCase extends UserTestCase
             [
                 'api_token' => $user->api_token,
                 'no_api_throttle' => 'on',
+                'language' => 'de'
             ]
         );
 

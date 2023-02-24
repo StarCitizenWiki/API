@@ -4,21 +4,101 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 
-use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use League\Fractal\Resource\Collection;
+use OpenApi\Attributes as OA;
 
-/**
- * Class StarsystemTransformer
- */
+#[OA\Schema(
+    schema: 'starsystem',
+    title: 'Starsystem',
+    properties: [
+        new OA\Property(property: 'id', type: 'integer'),
+        new OA\Property(property: 'code', type: 'string'),
+        new OA\Property(property: 'system_api_url', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'status', type: 'string'),
+        new OA\Property(property: 'type', type: 'string'),
+        new OA\Property(
+            property: 'position',
+            properties: [
+                new OA\Property(property: 'x', type: 'float'),
+                new OA\Property(property: 'y', type: 'float'),
+                new OA\Property(property: 'z', type: 'float'),
+            ],
+            type: 'object'
+        ),
+        new OA\Property(property: 'frost_line', type: 'float'),
+        new OA\Property(property: 'habitable_zone_inner', type: 'float'),
+        new OA\Property(property: 'habitable_zone_outer', type: 'float'),
+        new OA\Property(property: 'info_url', type: 'string'),
+        new OA\Property(property: 'description', type: 'object'),
+
+        new OA\Property(
+            property: 'aggregated',
+            properties: [
+                new OA\Property(property: 'size', type: 'float'),
+                new OA\Property(property: 'population', type: 'float'),
+                new OA\Property(property: 'economy', type: 'float'),
+                new OA\Property(property: 'danger', type: 'float'),
+
+                new OA\Property(property: 'stars', type: 'integer'),
+                new OA\Property(property: 'planets', type: 'integer'),
+                new OA\Property(property: 'moons', type: 'integer'),
+                new OA\Property(property: 'stations', type: 'integer'),
+            ],
+            type: 'object'
+        ),
+        new OA\Property(property: 'time_modified', type: 'timestamp'),
+        new OA\Property(
+            property: 'celestial_object',
+            properties: [
+                new OA\Property(
+                    property: 'celestial_object',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/celestial_object',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'jumppoints',
+            properties: [
+                new OA\Property(
+                    property: 'jumppoints',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/jumppoint',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            nullable: true,
+        ),
+    ],
+    type: 'object'
+)]
 class StarsystemTransformer extends AbstractTranslationTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'jumppoints',
         'celestial_objects',
     ];
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'affiliation',
     ];
 
@@ -56,6 +136,11 @@ class StarsystemTransformer extends AbstractTranslationTransformer
                 'population' => $starsystem->aggregated_population,
                 'economy' => $starsystem->aggregated_economy,
                 'danger' => $starsystem->aggregated_danger,
+
+                'stars' => $starsystem->stars_count,
+                'planets' => $starsystem->planets_count,
+                'moons' => $starsystem->moons_count,
+                'stations' => $starsystem->stations_count,
             ],
 
             'updated_at' => $starsystem->time_modified,

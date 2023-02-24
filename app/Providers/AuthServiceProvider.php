@@ -10,7 +10,6 @@ use App\Policies\Web\User\Account\AccountPolicy;
 use App\Policies\Web\User\Changelog\ChangelogPolicy;
 use App\Policies\Web\User\DashboardPolicy;
 use App\Policies\Web\User\Job\JobPolicy;
-use App\Policies\Web\User\Notification\NotificationPolicy;
 use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
 use App\Policies\Web\User\Rsi\Stat\StatPolicy;
 use App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy;
@@ -54,6 +53,8 @@ class AuthServiceProvider extends ServiceProvider
             'web.user.jobs',
             JobPolicy::class,
             [
+                'upload_csv' => 'uploadCsv',
+
                 'start_translation' => 'startCommLinkTranslationJob',
                 'start_wiki_page_creation' => 'startCommLinkWikiPageCreationJob',
                 'start_image_download' => 'startCommLinkImageDownloadJob',
@@ -61,6 +62,12 @@ class AuthServiceProvider extends ServiceProvider
                 'start_proofread_update' => 'startCommLinkProofReadStatusUpdateJob',
 
                 'start_ship_matrix_download' => 'startShipMatrixDownloadImportJob',
+                'start_msrp_import' => 'startVehicleMsrpImportJob',
+
+                'import_galactapedia_job' => 'startImportGalactapediaJob',
+
+                'view_failed' => 'view',
+                'truncate' => 'truncate',
             ]
         );
 
@@ -74,7 +81,6 @@ class AuthServiceProvider extends ServiceProvider
             }
         );
 
-        Gate::resource('web.user.notifications', NotificationPolicy::class);
         Gate::resource('web.user.users', UserPolicy::class);
 
         /*

@@ -6,13 +6,11 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use Dingo\Api\Dispatcher;
+use App\Models\StarCitizen\Vehicle\Ship\Ship;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ShipsController
@@ -20,38 +18,24 @@ use Illuminate\Support\Facades\Auth;
 class ShipController extends Controller
 {
     /**
-     * @var Dispatcher
-     */
-    private Dispatcher $api;
-
-    /**
      * ShipsController constructor.
      *
-     * @param Dispatcher $dispatcher
      */
-    public function __construct(Dispatcher $dispatcher)
+    public function __construct()
     {
         parent::__construct();
-        $this->middleware('auth');
-        $this->api = $dispatcher;
-        $this->api->be(Auth::user());
+        $this->middleware('auth')->except(['index']);
     }
 
     /**
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function index(): View
     {
-        $this->authorize('web.user.starcitizen.vehicles.view');
-
-        $ships = $this->api->get('api/ships', ['limit' => 0]);
-
         return view(
             'user.starcitizen.vehicles.ships.index',
             [
-                'ships' => $ships,
+                'ships' => Ship::all(),
             ]
         );
     }

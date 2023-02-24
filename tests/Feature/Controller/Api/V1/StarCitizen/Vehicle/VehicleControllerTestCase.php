@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
 use Illuminate\Support\Str;
 use Tests\Feature\Controller\Api\V1\StarCitizen\StarCitizenTestCase;
 

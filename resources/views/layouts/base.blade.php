@@ -14,5 +14,8 @@
         @yield('body__pre')
         @yield('body__content')
         @yield('body__after')
+        @if(config('services.plausible.enabled'))
+            <script defer data-domain="{{parse_url(config('app.url'))['host']}}" src="{{config('services.plausible.domain')}}/js/plausible.js"></script>
+        @endif
     </body>
 </html>

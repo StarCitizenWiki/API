@@ -8,21 +8,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
+use App\Models\Rsi\CommLink\CommLink;
 use Dingo\Api\Dispatcher;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Contracts\View\View;
 
 /**
  * Comm-Link Controller.
  */
 class CommLinkSearchController extends Controller
 {
-    private const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.view';
-
     /**
      * @var Dispatcher
      */
@@ -36,7 +35,6 @@ class CommLinkSearchController extends Controller
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
-        $this->middleware('auth');
         $this->api = $dispatcher;
         $this->api->be(Auth::user());
     }
@@ -45,26 +43,19 @@ class CommLinkSearchController extends Controller
      * Reverse search view
      *
      * @return Application|Factory|View
-     * @throws AuthorizationException
      */
     public function search()
     {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
-        return view('user.rsi.comm_links.search')->with('apiToken', Auth::user()->api_token);
+        return view('user.rsi.comm_links.search')->with('apiToken', optional(Auth::user())->api_token);
     }
 
     /**
      * @param CommLinkSearchRequest $request
      *
      * @return View|RedirectResponse
-     *
-     * @throws AuthorizationException
      */
     public function searchByTitle(CommLinkSearchRequest $request)
     {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
         $data = $request->validated();
 
         $links = $this->api->with(
@@ -97,12 +88,9 @@ class CommLinkSearchController extends Controller
      * @param ReverseImageLinkSearchRequest $request
      *
      * @return Application|Factory|View
-     * @throws AuthorizationException
      */
     public function reverseImageLinkSearchPost(ReverseImageLinkSearchRequest $request)
     {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
         $options = [
             'limit' => 250,
         ];
@@ -120,8 +108,10 @@ class CommLinkSearchController extends Controller
                         ],
                         $options
                     )
-                )->post('api/comm-links/reverse-image-link-search'),
-            'user.rsi.comm_links.index'
+                )
+                ->post('api/comm-links/reverse-image-link-search'),
+            'user.rsi.comm_links.index',
+            'commLinks'
         );
     }
 
@@ -131,12 +121,9 @@ class CommLinkSearchController extends Controller
      * @param ReverseImageSearchRequest $request
      *
      * @return Application|Factory|View
-     * @throws AuthorizationException
      */
     public function reverseImageSearchPost(ReverseImageSearchRequest $request)
     {
-        $this->authorize(self::COMM_LINK_PERMISSION);
-
         $data = $request->validated();
 
         return $this->handleSearchResult(
@@ -158,13 +145,52 @@ class CommLinkSearchController extends Controller
     }
 
     /**
+     * Search for images based on text content of the comm-link
+     *
+     * @param CommLinkSearchRequest $request
+     *
+     * @return Application|Factory|View
+     */
+    public function imageTextSearchPost(CommLinkSearchRequest $request)
+    {
+        $this->middleware('auth');
+        $data = $request->validated();
+
+        $data = $data['query'] ?? $data['keyword'];
+
+        $images = CommLink::query()
+            ->whereHas('translations', function (Builder $query) use ($data) {
+                return $query->where('translation', 'LIKE', sprintf('%%%s%%', $data));
+            })
+            ->orderByDesc('created_at')
+            ->get()
+            ->flatMap(function (CommLink $commLink) {
+                return $commLink->images;
+            })
+            ->unique('url');
+
+        if ($images->isEmpty()) {
+            return $this->handleSearchResult($images, 'user.rsi.comm_links.images.index');
+        }
+
+        return view(
+            'user.rsi.comm_links.images.index',
+            [
+                'images' => $images,
+                'keyword' => $data,
+            ]
+        );
+    }
+
+    /**
      * Things to do after a search request was done
      *
      * @param $results
      * @param string $view
+     * @param string $key
      * @return Application|Factory|View
      */
-    private function handleSearchResult($results, string $view)
+    private function handleSearchResult($results, string $view, string $key = 'images')
     {
         if ($results->isEmpty()) {
             return redirect()->route('web.user.rsi.comm-links.search')->withMessages(
@@ -179,7 +205,7 @@ class CommLinkSearchController extends Controller
         return view(
             $view,
             [
-                'images' => $results,
+                $key => $results,
             ]
         );
     }

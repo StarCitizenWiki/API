@@ -33,19 +33,35 @@
                     ])@endcomponent
                 </div>
             </div>
-            @component('components.forms.form-group', [
-                'id' => 'groups',
-                'inputOptions' => 'readonly',
-                'label' => __('Gruppen'),
-            ])
-                @slot('value')
-                    {{ $user->groups->map(function($group) { return __($group->name); })->implode(', ') }}
-                @endslot
-            @endcomponent
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    @component('components.forms.form-group', [
+                        'id' => 'groups',
+                        'inputOptions' => 'readonly',
+                        'label' => __('Gruppen'),
+                    ])
+                        @slot('value')
+                            {{ $user->groups->map(function($group) { return __($group->name); })->implode(', ') }}
+                        @endslot
+                    @endcomponent
+                </div>
+                <div class="col-12 col-lg-6">
+                    @component('components.forms.form-group', [
+                        'id' => 'language',
+                        'inputType' => 'select',
+                        'label' => __('Sprache'),
+                    ])
+                        @slot('selectOptions')
+                            <option value="de" @if($user->settings->language === 'de')selected @endif>@lang('de_DE')</option>
+                            <option value="en" @if($user->settings->language === 'en')selected @endif>@lang('en_EN')</option>
+                        @endslot
+                    @endcomponent
+                </div>
+            </div>
 
             <hr>
 
-            <h6 class="card-title">Api-Daten:</h6>
+            <h6 class="card-title">@lang('Api-Daten'):</h6>
             @component('components.forms.form-group', [
                 'id' => 'api_token',
                 'value' => $user->api_token,
@@ -58,7 +74,7 @@
 
             <hr>
 
-            <h6 class="card-title">Einstellungen:</h6>
+            <h6 class="card-title">@lang('Einstellungen'):</h6>
             <div class="row">
                 <div class="col-12 col-lg-6">
                     <div class="form-group">
@@ -81,6 +97,9 @@
                             </small>
                         </div>
                     </div>
+                </div>
+                <div class="col-12">
+                    <p>@lang('Benachrichtigungen funktionieren nur, wenn du eine E-Mail-Adresse im Wiki hinterlegt hast').</p>
                 </div>
             </div>
         </div>

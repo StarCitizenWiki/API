@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 /**
@@ -54,6 +55,10 @@ class AccountController extends Controller
     {
         $this->authorize('web.user.account.update');
 
+        Validator::validate($request->all(), [
+           'language' => 'required|in:en,de'
+        ]);
+
         Auth::user()->settings()->updateOrCreate(
             [
                 'user_id' => Auth::id(),
@@ -61,6 +66,7 @@ class AccountController extends Controller
             [
                 'receive_comm_link_notifications' => $request->has('receive_comm_link_notifications'),
                 'receive_api_notifications' => $request->has('api_notifications'),
+                'language' => $request->get('language')
             ]
         );
 

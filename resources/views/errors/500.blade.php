@@ -1,11 +1,11 @@
 @extends('errors.layouts.default')
 
-@section('title', '500 - Server Error.')
+@section('title', '500 - Server Error')
 
 @section('top', 500)
 
 @section('content')
-    @lang('This should not have happened')
+    @lang('Das hätte nicht passieren dürfen')
 @endsection
 
 @section('style')

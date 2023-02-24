@@ -6,20 +6,15 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Manufacturer;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Manufacturer\ManufacturerSearchRequest;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Attributes as OA;
 
-/**
- * Manufacturer API
- * Manufacturers found in the ShipMatrix
- *
- * @Resource("Manufacturers", uri="/manufacturers")
- */
 class ManufacturerController extends ApiController
 {
     /**
@@ -34,255 +29,84 @@ class ManufacturerController extends ApiController
         parent::__construct($request);
     }
 
-    /**
-     * Returns all manufacturers
-     *
-     * @Get("/{?page,limit,include,locale}")
-     * @Versions({"v1"})
-     * @Parameters({
-     *     @Parameter("page", type="integer", required=false, description="Pagination page", default=1),
-     *     @Parameter(
-     *          "include",
-     *          type="string",
-     *          required=false,
-     *          description="Relations to include. Valid relations are listed in the meta data"
-     *     ),
-     *     @Parameter(
-     *          "limit",
-     *          type="integer",
-     *          required=false,
-     *          description="Items per page, set to 0, to return all items",
-     *          default=10
-     *     ),
-     *     @Parameter(
-     *          "locale",
-     *          type="string",
-     *          required=false,
-     *          description="Localization to use. Supported codes: 'de_DE', 'en_EN'"
-     *     ),
-     * })
-     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"})
-     * @Response(200, body={
-     * "data": {
-     *  {
-     *      "code": "RSI",
-     *      "name": "Roberts Space Industries",
-     *      "known_for": {
-     *          "de_DE": "Die Aurora und die Constellation",
-     *          "en_EN": "the Aurora and the Constellation"
-     *      },
-     *      "description": {
-     *          "de_DE": "...",
-     *          "en_EN": "..."
-     *      },
-     *  },
-     *  {
-     *      "code": "ORIG",
-     *      "name": "Origin Jumpworks GmbH",
-     *      "known_for": {
-     *          "de_DE": "Die 300i Serie",
-     *          "en_EN": "the 300i series"
-     *      },
-     *      "description": {
-     *          "de_DE": "...",
-     *          "en_EN": "..."
-     *      },
-     *  },
-     * },
-     * "meta": {
-     *  "processed_at": "2020-12-07 13:25:54",
-     *  "valid_relations": {
-     *      "ships",
-     *      "vehicles"
-     *  },
-     *  "pagination": {
-     *      "total": 17,
-     *      "count": 10,
-     *      "per_page": 10,
-     *      "current_page": 1,
-     *      "total_pages": 2,
-     *      "links": {
-     *          "next": "https:\/\/api.star-citizen.wiki\/api\/manufacturers?page=2"
-     *      }
-     *  }
-     * }
-     * })
-     *
-     * @return Response
-     */
+    #[OA\Get(
+        path: '/api/manufacturers',
+        tags: ['Manufacturers', 'RSI-Website'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(
+                name: 'include',
+                in: 'query',
+                schema: new OA\Schema(
+                    schema: 'manufacturer_includes',
+                    collectionFormat: 'csv',
+                    enum: [
+                        'vehicles',
+                        'ships',
+                    ]
+                ),
+                allowReserved: true
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of Manufacturers',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/manufacturer')
+                )
+            )
+        ]
+    )]
     public function index(): Response
     {
         return $this->getResponse(Manufacturer::query());
     }
 
-    /**
-     * Returns a single manufacturer
-     *
-     * @Get("/{CODE}{?include,locale}")
-     * @Versions({"v1"})
-     * @Parameters({
-     *     @Parameter("CODE", type="string", required=true, description="Manufacturer Code"),
-     *     @Parameter(
-     *          "include",
-     *          type="string",
-     *          required=false,
-     *          description="Relations to include. Valid relations are listed in the meta data"
-     *     ),
-     *     @Parameter(
-     *          "locale",
-     *          type="string",
-     *          required=false,
-     *          description="Localization to use. Supported codes: 'de_DE', 'en_EN'"
-     *     ),
-     * })
-     *
-     * @Transaction({
-     * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={
-     * "data": {
-     *  {
-     *      "code": "RSI",
-     *      "name": "Roberts Space Industries",
-     *      "known_for": {
-     *          "de_DE": "Die Aurora und die Constellation",
-     *          "en_EN": "the Aurora and the Constellation"
-     *      },
-     *      "description": {
-     *          "de_DE": "...",
-     *          "en_EN": "..."
-     *      },
-     *  }
-     * },
-     * "meta": {
-     *  "processed_at": "2020-12-07 13:25:54",
-     *  "valid_relations": {
-     *      "ships",
-     *      "vehicles"
-     *  },
-     * }
-     * }),
-     *
-     * @Request({"locale": "de_DE"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={
-     * "data": {
-     *  {
-     *      "code": "RSI",
-     *      "name": "Roberts Space Industries",
-     *      "known_for": "Die Aurora und die Constellation",
-     *      "description": "...",
-     *  }
-     * },
-     * "meta": {
-     *  "processed_at": "2020-12-07 13:25:54",
-     *  "valid_relations": {
-     *      "ships",
-     *      "vehicles"
-     *  },
-     * }
-     * }),
-     *
-     * @Request({"include": "ships"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={
-     * "data": {
-     *  {
-     *      "code": "RSI",
-     *      "name": "Roberts Space Industries",
-     *      "known_for": {
-     *          "de_DE": "Die Aurora und die Constellation",
-     *          "en_EN": "the Aurora and the Constellation"
-     *      },
-     *      "description": {
-     *          "de_DE": "...",
-     *          "en_EN": "..."
-     *      },
-     *      "ships": {
-     *          "data": {
-     *              {
-     *                  "name": "Orion",
-     *                  "slug": "orion",
-     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/ships\/orion"
-     *              },
-     *              {
-     *                  "name": "Polaris",
-     *                  "slug": "polaris",
-     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/ships\/polaris"
-     *              },
-     *              {
-     *                  "name": "...",
-     *              },
-     *          }
-     *      }
-     *  }
-     * },
-     * "meta": {
-     *  "processed_at": "2020-12-07 13:25:54",
-     *  "valid_relations": {
-     *      "ships",
-     *      "vehicles"
-     *  },
-     * }
-     * }),
-     *
-     * @Request({"include": "ships,vehicles"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     * @Response(200, body={
-     * "data": {
-     *  {
-     *      "code": "RSI",
-     *      "name": "Roberts Space Industries",
-     *      "known_for": {
-     *          "de_DE": "Die Aurora und die Constellation",
-     *          "en_EN": "the Aurora and the Constellation"
-     *      },
-     *      "description": {
-     *          "de_DE": "...",
-     *          "en_EN": "..."
-     *      },
-     *      "ships": {
-     *          "data": {
-     *              {
-     *                  "name": "Orion",
-     *                  "slug": "orion",
-     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/ships\/orion"
-     *              },
-     *              {
-     *                  "name": "Polaris",
-     *                  "slug": "polaris",
-     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/ships\/polaris"
-     *              },
-     *              {
-     *                  "name": "...",
-     *              },
-     *          }
-     *      },
-     *      "vehicles": {
-     *          "data": {
-     *              {
-     *                  "name": "Ursa Rover",
-     *                  "slug": "ursa-rover",
-     *                  "api_url": "https:\/\/api.star-citizen.wiki\/api\/vehicles\/ursa-rover"
-     *              },
-     *              {
-     *                  "name": "...",
-     *              },
-     *          }
-     *      }
-     *  }
-     * },
-     * "meta": {
-     *  "processed_at": "2020-12-07 13:25:54",
-     *  "valid_relations": {
-     *      "ships",
-     *      "vehicles"
-     *  },
-     * }
-     * }),
-     * })
-     *
-     * @param Request $request
-     *
-     * @return Response
-     * @throws ValidationException
-     */
+    #[OA\Get(
+        path: '/api/manufacturer/{code}',
+        tags: ['Manufacturers', 'RSI-Website'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(
+                name: 'include',
+                in: 'query',
+                schema: new OA\Schema(
+                    schema: 'manufacturer_includes',
+                    collectionFormat: 'csv',
+                    enum: [
+                        'vehicles',
+                        'ships',
+                    ]
+                ),
+                allowReserved: true
+            ),
+            new OA\Parameter(
+                name: 'code',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    schema: 'manufacturer_code',
+                    description: 'Manufacturer Code, e.g. RSI',
+                    type: 'string',
+                ),
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                ref: '#/components/schemas/manufacturer',
+                response: 200,
+                description: 'A singular manufacturer',
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No Manufacturer with specified CODE found.',
+            )
+        ]
+    )]
     public function show(Request $request): Response
     {
         ['manufacturer' => $manufacturer] = Validator::validate(
@@ -308,56 +132,54 @@ class ManufacturerController extends ApiController
         return $this->getResponse($model);
     }
 
-    /**
-     * Search Endpoint
-     *
-     * @Post("/search")
-     * @Versions({"v1"})
-     * @Parameters({
-     *     @Parameter("query", type="string", required=true, description="Manufacturer Code or partial name"),
-     *     @Parameter(
-     *          "include",
-     *          type="string",
-     *          required=false,
-     *          description="Relations to include. Valid relations are listed in the meta data"
-     *     ),
-     * })
-     *
-     * @Transaction({
-     *      @Request({"query": "RSI"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     *      @Response(200, body={
-     *      "data": {
-     *       {
-     *           "code": "RSI",
-     *           "name": "Roberts Space Industries",
-     *           "known_for": {
-     *               "de_DE": "Die Aurora und die Constellation",
-     *               "en_EN": "the Aurora and the Constellation"
-     *           },
-     *           "description": {
-     *               "de_DE": "...",
-     *               "en_EN": "..."
-     *           },
-     *       }
-     *      },
-     *      "meta": {
-     *       "processed_at": "2020-12-07 13:25:54",
-     *       "valid_relations": {
-     *           "ships",
-     *           "vehicles"
-     *       },
-     *      }
-     *      }),
-     *
-     *      @Request({"query": "INVALID"}, headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
-     *      @Response(404, body={"message": "No Results for Query 'INVALID'", "status_code": 404})
-     * })
-     *
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
+    #[OA\Post(
+        path: '/api/manufacturers/search',
+        requestBody: new OA\RequestBody(
+            description: 'Name',
+            required: true,
+            content: [
+                new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        schema: 'query',
+                        type: 'json',
+                    ),
+                    example: '{"query": "RSI"}',
+                )
+            ]
+        ),
+        tags: ['Manufacturers', 'RSI-Website'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(
+                name: 'include',
+                in: 'query',
+                schema: new OA\Schema(
+                    schema: 'manufacturer_includes',
+                    collectionFormat: 'csv',
+                    enum: [
+                        'vehicles',
+                        'ships',
+                    ]
+                ),
+                allowReserved: true
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of manufacturers matching the query',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/manufacturer')
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No manufacturer found.',
+            )
+        ],
+    )]
     public function search(Request $request): Response
     {
         $rules = (new ManufacturerSearchRequest())->rules();

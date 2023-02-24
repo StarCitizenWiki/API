@@ -3,6 +3,9 @@
 @section('title', __('Objekte'))
 
 @section('content')
+    <div id="celestial-object-generator">
+        <celestial-object-generator api-url="{{ config('mediawiki.api_url') }}"></celestial-object-generator>
+    </div>
     <div class="card">
         <h4 class="card-header">@lang('Objekte')</h4>
         <div class="card-body px-0 table-responsive">

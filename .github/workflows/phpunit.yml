@@ -8,17 +8,17 @@ jobs:
   laravel-test-sqlite:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Installing PHP
         uses: shivammathur/setup-php@master
         with:
-         php-version: '7.4'
+         php-version: '8.1'
       - name: Get Composer Cache Directory 2
         id: composer-cache
         run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
         id: actions-cache
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
       - name: Cache PHP dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: vendor-cache
         with:
           path: vendor
@@ -70,17 +70,17 @@ jobs:
           --health-timeout=5s
           --health-retries=3
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Installing PHP
         uses: shivammathur/setup-php@master
         with:
-          php-version: '7.4'
+          php-version: '8.1'
       - name: Get Composer Cache Directory 2
         id: composer-cache
         run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
         id: actions-cache
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
@@ -88,7 +88,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
       - name: Cache PHP dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: vendor-cache
         with:
           path: vendor

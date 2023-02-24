@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink;
 
-use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\Link\Link as LinkModel;
+use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -66,34 +66,39 @@ class Link extends BaseElement
      */
     private function extractLinks(): void
     {
-        $this->commLink->filter(ImportCommLink::POST_SELECTOR)->filterXPath('//a')->each(
-            function (Crawler $crawler) {
-                $href = $crawler->attr('href');
+        collect([
+            ImportCommLink::POST_SELECTOR,
+            ImportCommLink::SPECIAL_PAGE_SELECTOR,
+        ])->each(function (string $selector) {
+            $this->commLink->filter($selector)->filterXPath('//a')->each(
+                function (Crawler $crawler) {
+                    $href = $crawler->attr('href');
 
-                if (null !== $href && null !== parse_url($href, PHP_URL_HOST)) {
-                    $this->links[] = [
-                        'href' => $href,
-                        'text' => $crawler->text(),
-                    ];
-                }
-            }
-        );
-
-        $this->commLink->filter(ImportCommLink::POST_SELECTOR)->filterXPath('//iframe')->each(
-            function (Crawler $crawler) {
-                $src = $crawler->attr('src');
-
-                if (null !== $src && null !== parse_url($src, PHP_URL_HOST)) {
-                    if (null === parse_url($src, PHP_URL_SCHEME)) {
-                        $src = 'https:' . $src;
+                    if (null !== $href && null !== parse_url($href, PHP_URL_HOST)) {
+                        $this->links[] = [
+                            'href' => $href,
+                            'text' => $crawler->text(),
+                        ];
                     }
-
-                    $this->links[] = [
-                        'href' => $src,
-                        'text' => 'iframe',
-                    ];
                 }
-            }
-        );
+            );
+
+            $this->commLink->filter($selector)->filterXPath('//iframe')->each(
+                function (Crawler $crawler) {
+                    $src = $crawler->attr('src');
+
+                    if (null !== $src && null !== parse_url($src, PHP_URL_HOST)) {
+                        if (null === parse_url($src, PHP_URL_SCHEME)) {
+                            $src = 'https:' . $src;
+                        }
+
+                        $this->links[] = [
+                            'href' => $src,
+                            'text' => 'iframe',
+                        ];
+                    }
+                }
+            );
+        });
     }
 }

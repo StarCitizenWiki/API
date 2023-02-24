@@ -1,7 +1,7 @@
-<ul class="nav {{ $class ?? '' }}" {{ $options ?? '' }}>
+<ul class="nav sidebar-section {{ $class ?? '' }}" {{ $options ?? '' }}>
     <li class="nav-item">
         @unless(empty($title))
-            <span class="nav-link {{ $titleClass ?? '' }}">{{ $title ?? '' }}</span>
+            <span style="font-size: 1.15rem" class="nav-link {{ $titleClass ?? '' }}">{{ $title ?? '' }}</span>
         @endunless
 
         <ul class="list-unstyled {{ $id ?? '' }} {{ $contentClass ?? '' }}{{--

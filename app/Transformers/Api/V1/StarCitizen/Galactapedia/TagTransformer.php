@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Galactapedia;
 
-use App\Models\Api\StarCitizen\Galactapedia\Article;
-use App\Models\Api\StarCitizen\Galactapedia\Category;
-use App\Models\Api\StarCitizen\Galactapedia\Tag;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
+use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
-use League\Fractal\Resource\Collection;
-use League\Fractal\TransformerAbstract;
+use OpenApi\Attributes as OA;
 
-/**
- * Manufacturer Transformer
- */
+#[OA\Schema(
+    schema: 'galactpedia_tag',
+    title: 'Galctapedia article tag',
+    description: 'Tag of an article',
+    properties: [
+        new OA\Property(property: 'id', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+    ],
+    type: 'object'
+)]
 class TagTransformer extends V1Transformer
 {
     /**

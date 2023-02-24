@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
-use App\Models\Api\StarCitizen\Stat\Stat;
+use App\Models\StarCitizen\Stat\Stat;
 use Tests\Feature\Controller\Api\ApiTestCase as ApiTestCase;
 
 /**
@@ -12,7 +12,7 @@ use Tests\Feature\Controller\Api\ApiTestCase as ApiTestCase;
  *
  * @covers \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Stat\Stat<extended>
+ * @covers \App\Models\StarCitizen\Stat\Stat<extended>
  */
 class StatControllerTest extends ApiTestCase
 {

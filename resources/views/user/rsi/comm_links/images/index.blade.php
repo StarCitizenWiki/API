@@ -3,14 +3,14 @@
 @section('title', __('Comm-Link Bilder'))
 
 @section('content')
-    <h3>Comm-Link Bilder</h3>
+    <h3>Comm-Link Bilder @if(isset($keyword)) zu <code>{{ $keyword }}</code>@endif</h3>
 
     @if(is_callable([$images, 'links']) && method_exists($images, 'links'))
         <div class="d-flex justify-content-between">
             {{ $images->links() }}
             <form class="form-inline ml-auto" id="mimeForm">
                 <label class="my-1 mr-2" for="mime">Mime Type</label>
-                <select class="custom-select my-1 mr-sm-2" id="mime">
+                <select class="custom-select form-control my-1 mr-sm-2" id="mime">
                     <option value="" selected>Alle</option>
                     @foreach($mimes as $mime)
                         <option value="{{ $mime->mime }}">{{ $mime->mime }}</option>
@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <div class="card-columns image-card-column">
+    <div class="image-card-column images-index">
         @foreach($images as $image)
             @include('user.rsi.comm_links.components.image_info_card', ['image' => $image])
         @endforeach

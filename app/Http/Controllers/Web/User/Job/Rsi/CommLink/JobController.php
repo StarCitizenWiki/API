@@ -18,6 +18,15 @@ class JobController extends Controller
     private const DASHBOARD_ROUTE = 'web.user.dashboard';
 
     /**
+     * JobController constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware('auth');
+    }
+
+    /**
      * @return RedirectResponse
      *
      * @throws AuthorizationException
@@ -26,7 +35,7 @@ class JobController extends Controller
     {
         $this->authorize('web.user.jobs.start_translation');
 
-        Artisan::call('comm-links:translate');
+        Artisan::call('comm-links:translate', ['modifiedTime' => -1]);
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [

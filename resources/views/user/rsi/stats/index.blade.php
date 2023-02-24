@@ -26,25 +26,31 @@
             </div>
         </div>
     </div>
-    <div class="card">
-        <h4 class="card-header">@lang('Spenden')</h4>
-        <div class="card-body">
-            <canvas id="fundsChart" width="400" height="100"></canvas>
+    <div class="stats-card">
+        <div class="card">
+            <h4 class="card-header">@lang('Spenden')</h4>
+            <div class="card-body">
+                <canvas id="fundsChart" width="400" height="100"></canvas>
+            </div>
         </div>
     </div>
-    <div class="card">
-        <h4 class="card-header">@lang('Fans')</h4>
-        <div class="card-body">
-            <canvas id="fansChart" width="400" height="100"></canvas>
+    <div class="stats-card">
+        <div class="card">
+            <h4 class="card-header">@lang('Fans')</h4>
+            <div class="card-body">
+                <canvas id="fansChart" width="400" height="100"></canvas>
+            </div>
         </div>
     </div>
-    <div class="card">
-        <h4 class="card-header">@lang('Fleet')</h4>
-        <div class="card-body">
-            <canvas id="fleetChart" width="400" height="100"></canvas>
-            <p class="text-center mt-3">
-                Seit dem 20.11.2019 entspricht Fleet = Fans.
-            </p>
+    <div class="stats-card">
+        <div class="card">
+            <h4 class="card-header">@lang('Fleet')</h4>
+            <div class="card-body">
+                <canvas id="fleetChart" width="400" height="100"></canvas>
+                <p class="text-center mt-3">
+                    Seit dem 20.11.2019 entspricht Fleet = Fans.
+                </p>
+            </div>
         </div>
     </div>
 @endsection
@@ -76,7 +82,7 @@
             data: {
                 labels: {!! $labels !!},
                 datasets: [{
-                    backgroundColor: 'lightblue',
+                    backgroundColor: '#1090ac',
                     label: 'Funds',
                     data: {!! $funds !!},
                 }]
@@ -117,7 +123,7 @@
             data: {
                 labels: {!! $labels !!},
                 datasets: [{
-                    backgroundColor: 'lightgreen',
+                    backgroundColor: '#12b87f',
                     label: 'Fleet',
                     data: {!! $fleet !!},
                 }]
@@ -158,7 +164,7 @@
             data: {
                 labels: {!! $labels !!},
                 datasets: [{
-                    backgroundColor: '#F08080',
+                    backgroundColor: '#d24418',
                     label: 'Fans',
                     data: {!! $fans !!},
                 }]

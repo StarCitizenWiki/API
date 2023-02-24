@@ -24,10 +24,9 @@
                     @can('web.user.internals.view')
                         <th>@lang('ID')</th>
                     @endcan
-                    <th>@lang('Wiki ID')</th>
                     <th>@lang('Titel')</th>
-                    <th>@lang('Titel (Quelle)')</th>
-                    <th>@lang('Format')</th>
+                    <th>@lang('Playlist')</th>
+                    <th>@lang('YouTube')</th>
                     <th>@lang('Übersetzt')</th>
                     <th>@lang('Veröffentlichung')</th>
                     <th data-orderable="false">&nbsp;</th>
@@ -43,16 +42,13 @@
                             </td>
                         @endcan
                         <td>
-                            {{ $transcript->wiki_id ?? '-' }}
+                            {{ $transcript->title ?? '-' }}
                         </td>
                         <td>
-                            {{ $transcript->title ?? '' }}
+                            {{ $transcript->playlist_name ?? '' }}
                         </td>
                         <td>
-                            {{ $transcript->source_title ?? '' }}
-                        </td>
-                        <td>
-                            {{ $transcript->format->name }}
+                            <a href="{{ $transcript->youtube_url }}" rel="noopener noreferrer noopener">{{ $transcript->youtube_id }}</a>
                         </td>
                         @php
                             if (null !== $transcript->german()) {
@@ -74,13 +70,13 @@
                         <td class="text-{{ $status }}">
                             {{ $text }}
                         </td>
-                        @if(null === $transcript->published_at)
+                        @if(null === $transcript->upload_date)
                             <td data-content="{{ $transcript->created_at->format('d.m.Y') }}" data-toggle="popover" data-search="{{ $transcript->created_at->format('d.m.Y') }}" data-sort="{{ $transcript->created_at->timestamp }}">
                                 {{ $transcript->created_at->diffForHumans() }}
                             </td>
                         @else
-                            <td data-content="{{ $transcript->published_at->format('d.m.Y') }}" data-toggle="popover" data-search="{{ $transcript->published_at->format('d.m.Y') }}" data-sort="{{ $transcript->published_at->timestamp }}">
-                                {{ $transcript->published_at->diffForHumans() }}
+                            <td data-content="{{ $transcript->upload_date->format('d.m.Y') }}" data-toggle="popover" data-search="{{ $transcript->upload_date->format('d.m.Y') }}" data-sort="{{ $transcript->upload_date->timestamp }}">
+                                {{ $transcript->upload_date->diffForHumans() }}
                             </td>
                         @endif
                         <td class="text-center">

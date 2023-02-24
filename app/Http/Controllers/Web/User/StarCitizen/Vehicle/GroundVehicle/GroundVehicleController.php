@@ -6,13 +6,11 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
-use Dingo\Api\Dispatcher;
+use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class GroundVehicleController
@@ -20,38 +18,23 @@ use Illuminate\Support\Facades\Auth;
 class GroundVehicleController extends Controller
 {
     /**
-     * @var Dispatcher
+     * Ground Vehicle Controller constructor.
      */
-    private Dispatcher $api;
-
-    /**
-     * ShipsController constructor.
-     *
-     * @param Dispatcher $dispatcher
-     */
-    public function __construct(Dispatcher $dispatcher)
+    public function __construct()
     {
         parent::__construct();
-        $this->middleware('auth');
-        $this->api = $dispatcher;
-        $this->api->be(Auth::user());
+        $this->middleware('auth')->except(['index']);
     }
 
     /**
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function index(): View
     {
-        $this->authorize('web.user.starcitizen.vehicles.view');
-
-        $vehicles = $this->api->get('api/vehicles', ['limit' => 0]);
-
         return view(
             'user.starcitizen.vehicles.ground_vehicles.index',
             [
-                'groundVehicles' => $vehicles,
+                'groundVehicles' => GroundVehicle::all(),
             ]
         );
     }

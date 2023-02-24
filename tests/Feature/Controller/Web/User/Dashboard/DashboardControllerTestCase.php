@@ -38,17 +38,4 @@ class DashboardControllerTestCase extends UserTestCase
             $response->assertViewIs('user.dashboard');
         }
     }
-
-    /**
-     * @covers \App\Http\Controllers\Web\User\DashboardController
-     */
-    public function testConstructor(): void
-    {
-        $controller = $this->getMockBuilder(DashboardController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(DashboardController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
-    }
 }

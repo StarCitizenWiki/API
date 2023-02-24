@@ -17,6 +17,7 @@ class UserSetting extends Model
         'receive_comm_link_notifications',
         'receive_api_notifications',
         'no_api_throttle',
+        'language'
     ];
 
     protected $casts = [

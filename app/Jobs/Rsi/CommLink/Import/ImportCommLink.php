@@ -108,6 +108,10 @@ class ImportCommLink implements ShouldQueue
         );
 
         $content = Storage::disk('comm_links')->get($this->filePath());
+        if ($content === null) {
+            throw new FileNotFoundException();
+        }
+
         $this->crawler = new Crawler();
         $this->crawler->addHtmlContent($content, 'UTF-8');
 
@@ -141,12 +145,16 @@ class ImportCommLink implements ShouldQueue
      */
     private function createCommLink(): void
     {
+        $data = $this->getCommLinkData();
+        // Use the file time for new comm-links
+        $data['created_at'] = $data['created_at_file'];
+
         /** @var CommLink $commLink */
         $commLink = CommLink::updateOrCreate(
             [
                 'cig_id' => $this->commLinkId,
             ],
-            $this->getCommLinkData()
+            $data
         );
 
         $this->addEnglishCommLinkTranslation($commLink);
@@ -171,14 +179,12 @@ class ImportCommLink implements ShouldQueue
     {
         $metaData = (new Metadata($this->crawler))->getMetaData();
 
-        if ($metaData['created_at'] === Metadata::DEFAULT_CREATION_DATE) {
-            $metaData->put(
-                'created_at',
-                $this->createTimestampFromFile(
-                    $this->getFirstCommLinkFileName()
-                ) ?? Metadata::DEFAULT_CREATION_DATE
-            );
-        }
+        $metaData->put(
+            'created_at_file',
+            $this->createTimestampFromFile(
+                $this->getFirstCommLinkFileName()
+            ) ?? Metadata::DEFAULT_CREATION_DATE
+        );
 
         return [
             'title' => $metaData->get('title'),
@@ -189,6 +195,7 @@ class ImportCommLink implements ShouldQueue
             'category_id' => $metaData->get('category_id'),
             'series_id' => $metaData->get('series_id'),
             'created_at' => $metaData->get('created_at'),
+            'created_at_file' => $metaData->get('created_at_file'),
         ];
     }
 
@@ -261,6 +268,15 @@ class ImportCommLink implements ShouldQueue
             );
         }
 
+        $dateMetadata = Carbon::parse($data['created_at']);
+        $dateMetadataFile = Carbon::parse($data['created_at_file']);
+        $dateMetadataFile->setSecond(0);
+        $dateMetadataFile->setMinutes(0);
+
+        if ($dateMetadata->diffInHours($dateMetadataFile) <= 24 || $data['created_at'] === Metadata::DEFAULT_CREATION_DATE) {
+            $data['created_at'] = $dateMetadataFile;
+        }
+
         $this->commLinkModel->update($data);
         $this->syncImageIds($this->commLinkModel);
         $this->syncLinkIds($this->commLinkModel);
@@ -271,15 +287,11 @@ class ImportCommLink implements ShouldQueue
      *
      * @return bool
      */
-    private function contentHasChanged()
+    private function contentHasChanged(): bool
     {
         $contentParser = new Content($this->crawler);
 
-        if ($contentParser->getContent() === '') {
-            return '';
-        }
-
-        return $contentParser->getContent() !== optional($this->commLinkModel->english())->translation;
+        return $contentParser->getContent() !== (optional($this->commLinkModel->english())->translation ?? '');
     }
 
     /**

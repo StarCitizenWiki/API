@@ -1,8 +1,8 @@
 <p align="center">
-<img src="https://cdn.star-citizen.wiki/images/thumb/e/ef/Star_Citizen_Wiki_Logo.png/320px-Star_Citizen_Wiki_Logo.png" alt="Star Citizen Wiki Logo" />
+<img src="https://star-citizen.wiki/thumb.php?f=Star_Citizen_Wiki_Logo.png&width=300" alt="Star Citizen Wiki Logo" />
 </p>
 <p align="center">
-    <img src="https://img.shields.io/github/workflow/status/StarCitizenWiki/API/Laravel%20Tests" />
+    <img src="https://img.shields.io/github/actions/workflow/status/StarCitizenWiki/API/phpunit.yml" />
     <a href="https://hub.docker.com/r/scwiki/api" alt="Docker Hub">
         <img src="https://img.shields.io/docker/pulls/scwiki/api" />
     </a>
@@ -30,10 +30,6 @@ $ mkdir -p ./var/lib/api.star-citizen.wiki/logs
 $ mkdir -p ./var/lib/api.star-citizen.wiki/db
 $ touch ./var/lib/api.star-citizen.wiki/db/db.sqlite
 $ mkdir -p ./etc/api.star-citizen.wiki
-# 33:33 is the user and group id of dockers www-data user 
-$ chown -R 33:33 ./var/lib/api.star-citizen.wiki
-$ chmod -R g+s ./var/lib/api.star-citizen.wiki
-$ chown -R 33:33 ./etc/api.star-citizen.wiki
 ```
 
 Create the production environment file:  
@@ -100,6 +96,8 @@ DEEPL_TARGET_LOCALE=
 # User account on RSI // Login currently BROKEN due to recaptcha
 RSI_USERNAME=
 RSI_PASSWORD=
+
+SC_DATA_VERSION=3.13
 
 ```
 

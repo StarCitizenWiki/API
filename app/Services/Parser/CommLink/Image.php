@@ -7,6 +7,7 @@ namespace App\Services\Parser\CommLink;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\Image\Image as ImageModel;
 use App\Services\Parser\CommLink\AbstractBaseElement as BaseElement;
+use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -99,6 +100,7 @@ class Image extends BaseElement
         $this->extractCssBackgrounds();
         $this->extractMediaImages();
         $this->extractRsiImages();
+        $this->extractGElementImages();
 
         if ($this->isSpecialPage($this->commLink)) {
             $this->commLink->filterXPath('//template')->each(
@@ -147,6 +149,51 @@ class Image extends BaseElement
                 ];
             }
         );
+    }
+
+    private function extractGElementImages(): void
+    {
+        $elements = [
+            'g-banner' => ':background-image',
+            'g-illustration' => ':image',
+            'g-feature' => ':main-responsive-image',
+            'g-trailer' => ':simple-image',
+        ];
+
+        foreach ($elements as $path => $attr) {
+            $this->commLink
+                ->filter($this->getFilterSelector())->filterXPath(sprintf('//%s', $path))
+                ->each(
+                    function (Crawler $crawler) use ($path, $attr) {
+                        $image = trim($crawler->attr($attr) ?? '');
+                        $data = [];
+
+                        try {
+                            $image = json_decode($image, true, 512, JSON_THROW_ON_ERROR);
+                        } catch (JsonException $e) {
+                            return;
+                        }
+
+                        if (isset($image['format']['webp']) || isset($image['format']['originalFormat'])) {
+                            $data = [
+                                'src' => $image['format']['webp']['max'] ?? $image['format']['source'] ?? null,
+                                'alt' => $path,
+                            ];
+                        }
+
+                        if (isset($image['max']) || isset($image['source'])) {
+                            $data = [
+                                'src' => $image['max'] ?? $image['source'],
+                                'alt' => $image['alt'] ?? $path,
+                            ];
+                        }
+
+                        if (!empty($data) && $data['src'] !== null) {
+                            $this->images[] = $data;
+                        }
+                    }
+                );
+        }
     }
 
     private function extractPostBackground(): void

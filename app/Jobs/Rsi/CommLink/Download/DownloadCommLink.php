@@ -31,19 +31,19 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     /**
      * @var int Post ID
      */
-    private int $postId = 0;
+    private int $commLinkId = 0;
 
     private bool $skipExisting = false;
 
     /**
      * Create a new job instance.
      *
-     * @param int  $id
+     * @param int  $commLinkId
      * @param bool $skipExisting
      */
-    public function __construct(int $id, bool $skipExisting = false)
+    public function __construct(int $commLinkId, bool $skipExisting = false)
     {
-        $this->postId = $id;
+        $this->commLinkId = $commLinkId;
         $this->skipExisting = $skipExisting;
     }
 
@@ -54,11 +54,11 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->skipExisting && Storage::disk(self::DISK)->exists($this->postId)) {
+        if ($this->skipExisting && Storage::disk(self::DISK)->exists($this->commLinkId)) {
             app('Log')::debug(
-                "Skipping existing Comm-Link {$this->postId}",
+                "Skipping existing Comm-Link {$this->commLinkId}",
                 [
-                    'id' => $this->postId,
+                    'id' => $this->commLinkId,
                 ]
             );
 
@@ -66,14 +66,14 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
         }
 
         app('Log')::info(
-            "Downloading Comm-Link with ID {$this->postId}",
+            "Downloading Comm-Link with ID {$this->commLinkId}",
             [
-                'id' => $this->postId,
+                'id' => $this->commLinkId,
             ]
         );
 
         $response = $this->makeClient()->get(
-            sprintf('%s/%s/%d-IMPORT', self::COMM_LINK_BASE_URL, 'SCW', $this->postId)
+            sprintf('%s/%s/%d-IMPORT', self::COMM_LINK_BASE_URL, 'SCW', $this->commLinkId)
         );
 
         if (!$response->successful()) {
@@ -86,9 +86,9 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 
         if (!Str::contains($content, ['id="post"', 'id="subscribers"', 'id="layout-system"'])) {
             app('Log')::info(
-                "Comm-Link with ID {$this->postId} does not exist",
+                "Comm-Link with ID {$this->commLinkId} does not exist",
                 [
-                    'id' => $this->postId,
+                    'id' => $this->commLinkId,
                 ]
             );
 
@@ -118,7 +118,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     private function writeFile(string $content): void
     {
         Storage::disk(self::DISK)->put(
-            sprintf('%d/%s.html', $this->postId, Carbon::now()->format('Y-m-d_His')),
+            sprintf('%d/%s.html', $this->commLinkId, Carbon::now()->format('Y-m-d_His')),
             $content
         );
     }

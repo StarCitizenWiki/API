@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Manufacturer;
 
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\Manufacturer\ManufacturerTranslation;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -98,7 +98,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Requests\StarCitizen\Manufacturer\ManufacturerTranslationRequest
      *
-     * @covers \App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation
+     * @covers \App\Models\StarCitizen\Manufacturer\ManufacturerTranslation
      * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()

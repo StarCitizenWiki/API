@@ -10,11 +10,11 @@
       <div class="alert alert-info" v-if="hasNoResult">Keine Comm-Links zu '{{ term }}' gefunden</div>
       <div class="row">
         <div class="col-6 mx-auto">
-          <form method="POST" class="d-flex h-100 flex-column">
+          <form method="POST" class="d-flex h-100 flex-column" v-on:submit.p.prevent="">
             <div class="form-group">
               <label for="keyword" aria-label="keyword">Comm-Link Titel</label>
               <input type="text" id="keyword" v-on:input="startSearch" min="3" max="255" required class="form-control" />
-              <small>Suche nach ganzen Titeln oder Teilwörtern</small>
+              <small>Suche nach ganzen Titeln oder Teilwörtern. Ergebnisse werden automatisch angezeigt.</small>
             </div>
           </form>
         </div>
@@ -44,8 +44,10 @@
             <td>{{ result.series }} </td>
             <td>{{ (new Date(result.created_at).toLocaleDateString('de-DE', {  year: 'numeric', month: 'numeric', day: 'numeric' })) }} </td>
             <td>
-              <a target="_blank" rel="noreferrer noreferrer noopener" :href="`/rsi/comm-links/${result.id}`">API</a> /
-              <a target="_blank" rel="noreferrer noreferrer noopener" :href="result.rsi_url">RSI</a>
+              <div class="btn-group btn-group-sm" role="group" aria-label="">
+                <a target="_blank" class="btn btn-outline-secondary" rel="noreferrer noreferrer noopener" :href="`/rsi/comm-links/${result.id}`">API</a>
+                <a target="_blank" class="btn btn-outline-secondary" rel="noreferrer noreferrer noopener" :href="result.rsi_url">RSI</a>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -87,13 +89,13 @@ export default {
         return;
       }
 
-      axios.post('https://api.star-citizen.wiki/api/comm-links/search', {
-        keyword: this.term
+      axios.post('/api/comm-links/search', {
+        query: this.term
       }, {
         mode: 'no-cors',
-        headers: {
+        headers: this.apiToken !== null ? {
           'Authorization': 'Bearer ' + this.apiToken
-        }
+        } : {}
       })
       .then((result) => {
         if (result.data.data.length > 0) {
@@ -103,10 +105,22 @@ export default {
         }
       })
       .catch((error) => {
-        this.hasError = true;
-        this.error = `${error.status}: ${error.message}`;
+        if (error.response.status === 404) {
+          this.hasNoResult = true;
+        } else {
+          this.hasError = true;
+          this.error = `${error.response.status}: ${error.message}`;
+        }
       })
     }
   }
 }
 </script>
+
+<style scoped>
+table.table {
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+  width: calc(100% + 2.5rem);
+}
+</style>

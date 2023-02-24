@@ -3,8 +3,8 @@
 namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Size;
 
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Size\SizeController;
-use App\Models\Api\StarCitizen\Vehicle\Size\Size;
-use App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation;
+use App\Models\StarCitizen\Vehicle\Size\Size;
+use App\Models\StarCitizen\Vehicle\Size\SizeTranslation;
 use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -49,7 +49,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
      */
     public function testEdit()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $vehicleSize */
+        /** @var \App\Models\StarCitizen\Vehicle\Size\Size $vehicleSize */
         $vehicleSize = Size::factory()->create();
 
         $response = $this->actingAs($this->user)->get(
@@ -93,7 +93,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
      */
     public function testUpdate()
     {
-        /** @var \App\Models\Api\StarCitizen\Vehicle\Size\Size $vehicleSize */
+        /** @var \App\Models\StarCitizen\Vehicle\Size\Size $vehicleSize */
         $vehicleSize = Size::factory()->create();
 
         $response = $this->actingAs($this->user)->patch(

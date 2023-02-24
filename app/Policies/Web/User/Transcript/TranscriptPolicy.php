@@ -16,7 +16,7 @@ class TranscriptPolicy extends BaseAdminPolicy
     /**
      * View all / single resource.
      *
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
      * @return bool
      */
@@ -26,21 +26,9 @@ class TranscriptPolicy extends BaseAdminPolicy
     }
 
     /**
-     * Create.
-     *
-     * @param \App\Models\Account\User\User $user
-     *
-     * @return bool
-     */
-    public function create(User $user): bool
-    {
-        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
-    }
-
-    /**
      * View all / single resource.
      *
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
      * @return bool
      */
@@ -52,7 +40,7 @@ class TranscriptPolicy extends BaseAdminPolicy
     /**
      * Update a Resource.
      *
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
      * @return bool
      */

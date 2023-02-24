@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Services\Parser\Starmap;
 
-use App\Jobs\Api\StarCitizen\Starmap\Import\ImportStarsystem;
-use App\Models\Api\StarCitizen\Starmap\Affiliation;
-use App\Models\Api\StarCitizen\Starmap\Starsystem\Starsystem;
+use App\Jobs\StarCitizen\Starmap\Import\ImportStarsystem;
+use App\Models\StarCitizen\Starmap\Affiliation;
+use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class ParseStarsystemTest extends TestCase
 {
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Starmap\Import\ImportStarsystem::handle
+     * @covers \App\Jobs\StarCitizen\Starmap\Import\ImportStarsystem::handle
      * @covers \App\Services\Parser\Starmap\Affiliation::getAffiliation
      * @covers \App\Services\Parser\Starmap\Affiliation::getData
      * @covers \App\Services\Parser\Starmap\CelestialSubtype::getCelestialSubtype

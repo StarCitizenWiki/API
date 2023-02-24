@@ -33,20 +33,16 @@ class ManufacturerController extends Controller
     public function __construct(Dispatcher $dispatcher)
     {
         parent::__construct();
-        $this->middleware('auth');
+        $this->middleware('auth')->except('index');
         $this->api = $dispatcher;
         $this->api->be(Auth::user());
     }
 
     /**
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function index(): View
     {
-        $this->authorize('web.user.starcitizen.manufacturers.view');
-
         $manufacturers = $this->api->get('api/manufacturers', ['limit' => 0]);
 
         return view(

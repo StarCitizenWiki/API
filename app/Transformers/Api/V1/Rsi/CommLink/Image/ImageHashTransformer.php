@@ -13,7 +13,7 @@ use League\Fractal\Resource\Collection;
  */
 class ImageHashTransformer extends ImageTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'hashes',
         'commLinks',
     ];

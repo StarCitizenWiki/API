@@ -28,62 +28,64 @@
     </div>
 @endcomponent
 
-@component('components.navs.nav_element', [
-    'route' => route('web.user.rsi.comm-links.categories.index'),
-])
-    <div class="row">
-        <div class="col-1">
-            @component('components.elements.icon')
-                tag
-            @endcomponent
+@can('web.user.rsi.comm-links.view')
+    @component('components.navs.nav_element', [
+        'route' => route('web.user.rsi.comm-links.categories.index'),
+    ])
+        <div class="row">
+            <div class="col-1">
+                @component('components.elements.icon')
+                    tag
+                @endcomponent
+            </div>
+            <div class="col">
+                @lang('Kategorien')
+            </div>
         </div>
-        <div class="col">
-            @lang('Kategorien')
-        </div>
-    </div>
-@endcomponent
+    @endcomponent
 
-@component('components.navs.nav_element', [
-    'route' => route('web.user.rsi.comm-links.channels.index'),
-])
-    <div class="row">
-        <div class="col-1">
-            @component('components.elements.icon')
-                circle
-            @endcomponent
+    @component('components.navs.nav_element', [
+        'route' => route('web.user.rsi.comm-links.channels.index'),
+    ])
+        <div class="row">
+            <div class="col-1">
+                @component('components.elements.icon')
+                    circle
+                @endcomponent
+            </div>
+            <div class="col">
+                @lang('Channel')
+            </div>
         </div>
-        <div class="col">
-            @lang('Channel')
-        </div>
-    </div>
-@endcomponent
+    @endcomponent
 
-@component('components.navs.nav_element', [
-    'route' => route('web.user.rsi.comm-links.series.index'),
-])
-    <div class="row">
-        <div class="col-1">
-            @component('components.elements.icon')
-                bookmark
-            @endcomponent
+    @component('components.navs.nav_element', [
+        'route' => route('web.user.rsi.comm-links.series.index'),
+    ])
+        <div class="row">
+            <div class="col-1">
+                @component('components.elements.icon')
+                    bookmark
+                @endcomponent
+            </div>
+            <div class="col">
+                @lang('Serien')
+            </div>
         </div>
-        <div class="col">
-            @lang('Serien')
-        </div>
-    </div>
-@endcomponent
+    @endcomponent
 
-@component('components.navs.nav_element', [
-    'route' => route('web.user.rsi.comm-links.images.index'),
-])
-    <div class="row">
-        <div class="col-1">
-            @component('components.elements.icon')
-                image
-            @endcomponent
+    @component('components.navs.nav_element', [
+        'route' => route('web.user.rsi.comm-links.images.index'),
+    ])
+        <div class="row">
+            <div class="col-1">
+                @component('components.elements.icon')
+                    image
+                @endcomponent
+            </div>
+            <div class="col">
+                @lang('Bilder')
+            </div>
         </div>
-        <div class="col">
-            @lang('Bilder')
-        </div>
-    </div>
-@endcomponent
+    @endcomponent
+@endcan

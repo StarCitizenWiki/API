@@ -6,6 +6,7 @@ namespace App\Http;
 
 use App\Http\Middleware\CheckUserState;
 use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\SetPreferredLocale;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\VerifyCsrfToken;
@@ -57,6 +58,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             CheckUserState::class,
+            SetPreferredLocale::class,
         ],
 
         'api' => [

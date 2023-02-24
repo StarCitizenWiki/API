@@ -52,6 +52,42 @@ Endpoints related to Star Citizen
 * Single : `GET /api/galactapedia/ID`
 * Search : `POST /api/galactapedia/search`
 
+### Shops
+* All : `GET /api/shops`
+* Single : `GET /api/shops/NAME`
+* SHop at Position : `GET /api/shops/position/NAME`
+
+### Items
+
+#### FPS Weapons
+* All : `GET /api/weapons/personal`
+* Single : `GET /api/weapons/personal/NAME`
+
+#### Armor
+* All : `GET /api/char/armor`
+* Single : `GET /api/char/armor/NAME`
+
+#### Clothing
+* All : `GET /api/char/clothing`
+* Single : `GET /api/char/clothing/NAME`
+
+#### Vehicles
+##### Coolers
+* All : `GET /api/ship-items/coolers`
+* Single : `GET /api/ship-items/coolers/NAME`
+
+##### Shields
+* All : `GET /api/ship-items/shields`
+* Single : `GET /api/ship-items/shields/NAME`
+
+##### Quantum Drives
+* All : `GET /api/ship-items/quanutm-drives`
+* Single : `GET /api/ship-items/quanutm-drives/NAME`
+
+##### Power Plants
+* All : `GET /api/ship-items/power-plants`
+* Single : `GET /api/ship-items/power-plants/NAME`
+
 ## Roberts Space Industries
 
 Endpoints related to the RSI Website

@@ -16,7 +16,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use RuntimeException;
-use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 /**
  * Create Comm-Link Wiki Pages.
@@ -46,8 +45,6 @@ class CreateCommLinkWikiPages implements ShouldQueue
     {
         app('Log')::info('Starting creation of Comm-Link Wiki Pages');
 
-        $token = MediaWikiApi::query()->meta('tokens')->request();
-
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
         } catch (ErrorException $e) {
@@ -55,7 +52,7 @@ class CreateCommLinkWikiPages implements ShouldQueue
                 sprintf(
                     '%s: %s',
                     'Token retrieval failed',
-                    $token->getErrors()['code'] ?? ''
+                    $e->getMessage()
                 )
             );
 
@@ -75,6 +72,12 @@ class CreateCommLinkWikiPages implements ShouldQueue
                 $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
             } catch (RuntimeException $e) {
                 app('Log')::error($e->getMessage());
+
+                if (strpos($e->getMessage(), 'Guru Meditation') !== false) {
+                    $this->release(60);
+                } else {
+                    $this->fail($e);
+                }
 
                 return;
             }

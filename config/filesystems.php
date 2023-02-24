@@ -84,6 +84,10 @@ return [
             'root' => storage_path('app/api/stats'),
         ],
 
+        'transcripts' => [
+            'driver' => 'local',
+            'root' => env('TRANSCRIPTS_PATH', null),
+        ],
     ],
 
 ];

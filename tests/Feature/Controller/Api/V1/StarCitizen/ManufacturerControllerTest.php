@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\Manufacturer\ManufacturerTranslation;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Support\Str;
 
 /**
@@ -13,10 +13,9 @@ use Illuminate\Support\Str;
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController<extended>
  *
  * @covers \App\Transformers\Api\V1\StarCitizen\Manufacturer\ArticleTransformer<extended>
- * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer<extended>
- * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer<extended>
+ * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer
  *
- * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
+ * @covers \App\Models\StarCitizen\Manufacturer\Manufacturer<extended>
  */
 class ManufacturerControllerTest extends StarCitizenTestCase
 {

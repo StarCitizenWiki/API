@@ -29,8 +29,6 @@ class CreateTranscriptsTable extends Migration
 
                 $table->timestamp('published_at')->nullable();
                 $table->timestamps();
-
-                $table->foreign('format_id')->references('id')->on('video_formats')->onDelete('cascade');
             }
         );
     }

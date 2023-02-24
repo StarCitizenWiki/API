@@ -29,7 +29,7 @@ class ReverseImageLinkSearchRequest extends FormRequest
             'url' => [
                 'required',
                 'url',
-                'regex:/http?s:\/\/(?:media\.)?robertsspaceindustries.com\/.*/',
+                'regex:/https?:\/\/(?:media\.)?robertsspaceindustries.com\/.*/',
             ],
         ];
     }

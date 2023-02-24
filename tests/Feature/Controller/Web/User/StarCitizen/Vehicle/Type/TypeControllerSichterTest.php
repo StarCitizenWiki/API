@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\User\TranslationPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\Type\Type<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Type\Type<extended>
  */
 class TypeControllerSichterTest extends TypeControllerTestCase
 {

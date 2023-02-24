@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Web\User\Rsi\Stat;
 
 use App\Http\Controllers\Controller;
-use App\Models\Api\StarCitizen\Stat\Stat;
+use App\Models\StarCitizen\Stat\Stat;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
-use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class StatController extends Controller
 {
@@ -18,13 +17,9 @@ class StatController extends Controller
      * @param Request $request
      *
      * @return View
-     *
-     * @throws AuthorizationException
      */
     public function index(Request $request): View
     {
-        $this->authorize('web.user.rsi.stats.view');
-
         $every = $request->get('skip', 100);
 
         if (!is_numeric($every) || $every < 0) {
@@ -37,7 +32,7 @@ class StatController extends Controller
 
         $every = (int)$every;
 
-        if ($every === 0) {
+        if ($every === 0 || config('database.default') === 'sqlite') {
             $data = Stat::query();
         } else {
             $data = Stat::query()->whereRaw('id mod ' . $every . ' = 0');

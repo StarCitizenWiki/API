@@ -5,18 +5,20 @@ declare(strict_types=1);
 namespace App\Models\System;
 
 use App\Models\Account\User\User;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\Api\StarCitizen\Manufacturer\ManufacturerTranslation;
-use App\Models\Api\StarCitizen\ProductionNote\ProductionNoteTranslation;
-use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatusTranslation;
-use App\Models\Api\StarCitizen\Vehicle\Focus\FocusTranslation;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use App\Models\Api\StarCitizen\Vehicle\Size\SizeTranslation;
-use App\Models\Api\StarCitizen\Vehicle\Type\TypeTranslation;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
+use App\Models\StarCitizen\Galactapedia\Article;
+use App\Models\StarCitizen\Galactapedia\ArticleTranslation;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\Manufacturer\ManufacturerTranslation;
+use App\Models\StarCitizen\ProductionNote\ProductionNoteTranslation;
+use App\Models\StarCitizen\ProductionStatus\ProductionStatusTranslation;
+use App\Models\StarCitizen\Vehicle\Focus\FocusTranslation;
+use App\Models\StarCitizen\Vehicle\Size\SizeTranslation;
+use App\Models\StarCitizen\Vehicle\Type\TypeTranslation;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
+use App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
+use App\Traits\DiffTranslationChangelogTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -26,9 +28,13 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class ModelChangelog extends Model
 {
+    use DiffTranslationChangelogTrait;
+
     protected $fillable = [
         'type',
         'changelog',
+        'changelog_type',
+        'changelog_id',
         'user_id',
         'created_at',
     ];
@@ -103,8 +109,8 @@ class ModelChangelog extends Model
                 );
                 break;
 
-            /** Set translation to comm-link */
             case CommLinkTranslation::class:
+                /** Set translation to comm-link */
                 $relation = $relation->commLink;
             case CommLink::class:
                 $route = route(
@@ -157,6 +163,15 @@ class ModelChangelog extends Model
                 );
                 break;
 
+            case ArticleTranslation::class:
+                $relation = $relation->article;
+            case Article::class:
+                $route = route(
+                    'web.user.starcitizen.galactapedia.show',
+                    $relation->getRouteKey(),
+                );
+                break;
+
             default:
                 $route = '#';
         }
@@ -176,18 +191,43 @@ class ModelChangelog extends Model
         $data = $this->attributesToArray()['changelog'];
 
         if ($data === null) {
-            return __('Keine');
+            return collect(
+                $this->changelog_type::find($this->changelog_id)
+                    ->setRelations([])
+                    ->makeHidden([
+                        'id',
+                        'created_at',
+                        'updated_at',
+                    ])
+                    ->toArray()
+            )
+                ->map(function ($item, $key) {
+                    return sprintf('%s: %s', $key, $item);
+                })
+                ->implode("<br>");
         }
 
         if ($this->type === 'creation') {
             return collect($data)->reduce(
                 function ($carry, $data) {
+                    if (is_string($data)) {
+                        return $carry . sprintf('%s<br>', $data);
+                    }
+
                     $keys = array_keys($data)[0];
 
                     return $carry . sprintf('%s: %s<br>', $keys, $data[$keys]);
                 },
                 ''
             );
+        }
+
+        if (isset($data['changes']['translation'])) {
+            return $this->diffTranslations(collect([$this]), $this)
+                ->map(function ($change) {
+                    return $change->diff;
+                })
+                ->implode("<br>");
         }
 
         return json_encode($data['changes'], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);

@@ -5,16 +5,6 @@
 
 {{-- Page Content --}}
 @section('content')
-    <div class="mb-3 mb-lg-5">
-        @foreach($notifications as $notification)
-            <div class="alert alert-{{ $notification->getBootstrapClass() }}">
-                <span class="mr-1">{{ $notification->created_at->format('d.m.Y H:i') }}</span>
-                &mdash;
-                <span class="ml-1">{{ $notification->content }}</span>
-            </div>
-        @endforeach
-    </div>
-
     <div class="card">
         <img src="{{ asset('media/images/api_index.jpg') }}" class="card-img-top">
         <div class="card-body">
@@ -31,7 +21,7 @@
                 <p>
                     <a href="mailto:info@star-citizen.wiki" class="font-italic">@lang('Schreib')</a>
                     @lang('uns, oder besuch uns auf unserem')
-                    <a href="ts3server://ts.star-citizen.wiki" class="font-italic">Teamspeak-Server</a>!
+                    <a href="https://discord.gg/M9TT8kzXNe" class="font-italic">Discord-Server</a>!
                 </p>
             </div>
         </div>

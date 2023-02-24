@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use RuntimeException;
 
 /**
  * Update the Proof Read Status of Comm-Link Translations
@@ -53,7 +54,7 @@ class UpdateCommLinkProofReadStatus implements ShouldQueue
             function (Collection $commLinks) use ($config) {
                 try {
                     $pageInfoCollection = $this->getPageInfoForCommLinks($commLinks, true);
-                } catch (\RuntimeException $e) {
+                } catch (RuntimeException $e) {
                     app('Log')::error($e->getMessage());
 
                     $this->fail($e);

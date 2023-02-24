@@ -29,7 +29,7 @@ class ImageUploadRequest extends FormRequest
             'filename' => [
                 'required',
                 'string',
-                'min:5',
+                'min:3',
                 'max:255',
             ],
             'image' => [
@@ -45,7 +45,7 @@ class ImageUploadRequest extends FormRequest
             'categories' => [
                 'required',
                 'string',
-                'min:5',
+                'min:3',
                 'max:255',
             ]
         ];

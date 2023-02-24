@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Galactapedia;
 
-use App\Models\Api\StarCitizen\Galactapedia\Article;
-use App\Models\Api\StarCitizen\Galactapedia\Category;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use App\Transformers\Api\V1\AbstractV1Transformer;
+use App\Models\StarCitizen\Galactapedia\Article;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
-use League\Fractal\Resource\Collection;
-use League\Fractal\TransformerAbstract;
+use OpenApi\Attributes as OA;
 
-/**
- * Manufacturer Transformer
- */
+#[OA\Schema(
+    schema: 'galactpedia_related_article',
+    title: 'Galactapedia related article',
+    description: 'Related article for this galactapedia article',
+    properties: [
+        new OA\Property(property: 'id', type: 'string'),
+        new OA\Property(property: 'title', type: 'string'),
+        new OA\Property(property: 'url', type: 'string'),
+        new OA\Property(property: 'api_url', type: 'string'),
+    ],
+    type: 'object'
+)]
 class RelatedArticleTransformer extends V1Transformer
 {
     /**
@@ -31,12 +32,7 @@ class RelatedArticleTransformer extends V1Transformer
         return [
             'id' => $article->cig_id,
             'title' => $article->title,
-            'url' => sprintf(
-                '%s/galactapedia/article/%s-%s',
-                config('api.rsi_url'),
-                $article->cig_id,
-                $article->slug
-            ),
+            'url' => $article->url,
             'api_url' => $this->makeApiUrl(
                 self::GALACTAPEDIA_ARTICLE_SHOW,
                 $article->getRouteKey(),

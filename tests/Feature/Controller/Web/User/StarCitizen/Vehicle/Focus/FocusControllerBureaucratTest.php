@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\User\StarCitizen\Vehicle\VehiclePolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\Ship\Ship<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Ship\Ship<extended>
  */
 class FocusControllerBureaucratTest extends FocusControllerTestCase
 {

@@ -4,19 +4,64 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizen\Manufacturer;
 
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleLinkTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipLinkTransformer;
+use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer;
 use League\Fractal\Resource\Collection;
+use OpenApi\Attributes as OA;
 
-/**
- * Manufacturer Transformer
- */
+#[OA\Schema(
+    schema: 'manufacturer',
+    title: 'Manufacturer',
+    description: 'An in-game vehicle manufacturer',
+    properties: [
+        new OA\Property(property: 'code', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'known_for', type: 'string'),
+        new OA\Property(property: 'description', type: 'string'),
+        new OA\Property(
+            property: 'ships',
+            properties: [
+                new OA\Property(
+                    property: 'ships',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/vehicle_link',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+        ),
+        new OA\Property(
+            property: 'vehicles',
+            properties: [
+                new OA\Property(
+                    property: 'vehicles',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            ref: '#/components/schemas/vehicle_link',
+                            type: 'array',
+                            items: new OA\Items(),
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+        ),
+    ],
+    type: 'object'
+)]
 class ManufacturerTransformer extends TranslationTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'ships',
         'vehicles',
     ];
@@ -62,7 +107,7 @@ class ManufacturerTransformer extends TranslationTransformer
      */
     public function includeShips(Manufacturer $manufacturer): Collection
     {
-        return $this->collection($manufacturer->ships, new ShipLinkTransformer());
+        return $this->collection($manufacturer->ships, new VehicleLinkTransformer());
     }
 
     /**
@@ -72,6 +117,6 @@ class ManufacturerTransformer extends TranslationTransformer
      */
     public function includeVehicles(Manufacturer $manufacturer): Collection
     {
-        return $this->collection($manufacturer->vehicles, new GroundVehicleLinkTransformer());
+        return $this->collection($manufacturer->vehicles, new VehicleLinkTransformer());
     }
 }

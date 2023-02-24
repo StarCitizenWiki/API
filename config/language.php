@@ -1,10 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
 
-/**
- * User: Hannes
- * Date: 18.07.2018
- * Time: 15:17
- */
+declare(strict_types=1);
 
 return [
     'english' => 'en_EN',
@@ -15,4 +11,9 @@ return [
         'de_DE',
         'en_EN',
     ],
+
+    'enable_galactapedia_language_links' => env('GALACTAPEDIA_LANGUAGE_LINKS', false),
+    'translate_wrap_galactapedia' => env('GALACTAPEDIA_TRANSLATE_WRAP', false),
+
+    'translate_wrap_commlinks' => env('COMMLINKS_TRANSLATE_WRAP', false),
 ];

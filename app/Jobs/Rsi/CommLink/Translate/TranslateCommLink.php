@@ -6,6 +6,7 @@ namespace App\Jobs\Rsi\CommLink\Translate;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Services\TranslateText;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -61,11 +62,12 @@ class TranslateCommLink implements ShouldQueue
      */
     public function handle(): void
     {
-        app('Log')::info("Translating Comm-Link with ID {$this->commLink->cig_id}");
+        app('Log')::info('Translating Comm-Link with ID {$this->commLink->cig_id}');
         $targetLocale = config('services.deepl.target_locale');
 
         if (null !== optional($this->commLink->german())->translation) {
             $this->delete();
+            return;
         }
 
         $english = $this->commLink->english()->translation;
@@ -77,26 +79,32 @@ class TranslateCommLink implements ShouldQueue
 
         $translator = new TranslateText($english);
 
+        // phpcs:disable
         try {
             $translation = $translator->translate(config('services.deepl.target_locale'), $formality);
-        } catch (QuotaException | CallException | AuthenticationException | InvalidArgumentException $e) {
+        } catch (
+            QuotaException |
+            CallException |
+            AuthenticationException |
+            InvalidArgumentException |
+            TextLengthException $e
+        ) {
             $this->fail($e);
 
             return;
-        } catch (RateLimitedException $e) {
+        } catch (ConnectException | RateLimitedException $e) {
             $this->release(60);
 
             return;
-        } catch (TextLengthException $e) {
-            return;
         }
+        // phpcs:enable
 
         $this->commLink->translations()->updateOrCreate(
             [
                 'locale_code' => sprintf('%s_%s', Str::lower($targetLocale), $targetLocale),
             ],
             [
-                'translation' => trim($translation),
+                'translation' => trim(TranslateText::runTextReplacements($translation)),
                 'proofread' => false,
             ]
         );

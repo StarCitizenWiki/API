@@ -72,14 +72,19 @@ class AuthRepository implements AuthRepositoryInterface
     public function getUserFromProvider(Request $request): User
     {
         $ver = $request->get('oauth_verifier');
+        $token = Session::get('oauth.req_token');
 
         try {
-            $accessToken = $this->client->complete(Session::get('oauth.req_token'), $ver);
+            $accessToken = $this->client->complete($token, $ver);
         } catch (OAuthException $e) {
             app('Log')::error(sprintf('Error in retrieving OAuth User: %s', $e->getMessage()));
 
             abort(500);
         }
+
+        Session::remove('oauth.req_token');
+        Session::put(config('mediawiki.driver.session.token', ''), $accessToken->key);
+        Session::put(config('mediawiki.driver.session.secret', ''), $accessToken->secret);
 
         try {
             $ident = $this->client->identify($accessToken);

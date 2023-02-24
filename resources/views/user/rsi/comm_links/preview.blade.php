@@ -15,7 +15,7 @@
     <div class="card">
         <div class="card-header">
             <h4>
-                {{ $commLink->title }} Vorschau: {{ $version }}
+                {{ $commLink->title }} @lang('Vorschau'): {{ $version }}
             </h4>
         </div>
         <div class="card-body">
@@ -33,7 +33,7 @@
 
             <div class="tab-content" id="nav-tab-translations">
                 <div class="tab-pane fade show active" id="nav-preview" role="tabpanel" aria-labelledby="nav-preview-tab">
-                    {!! empty($preview) ? 'Nicht vorhanden' : nl2br($preview) !!}
+                    {!! empty($preview) ? __('Nicht vorhanden') : nl2br($preview) !!}
                 </div>
                 <div class="tab-pane fade" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
                     {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}

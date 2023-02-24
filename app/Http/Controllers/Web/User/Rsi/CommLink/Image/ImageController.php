@@ -60,7 +60,7 @@ class ImageController extends Controller
                 'images' => $query
                     ->orderByDesc('id')
                     ->groupBy('src')
-                    ->paginate(20),
+                    ->paginate(100),
                 'mimes' => ImageMetadata::query()->groupBy('mime')->get('mime'),
             ]
         );
@@ -81,6 +81,6 @@ class ImageController extends Controller
 
         $uploader = new UploadWikiImage();
 
-        return $uploader->upload($params);
+        return $uploader->uploadCommLinkImage($params);
     }
 }

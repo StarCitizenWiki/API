@@ -1,6 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 use Dingo\Api\Routing\Router;
+
+$api->get('/openapi', function() {
+    return response(
+        \Illuminate\Support\Facades\File::get(storage_path('app/swagger.json'))
+    )->header('Content-Type', 'application/json');
+});
 
 $api->group(
     [
@@ -46,51 +54,40 @@ $api->group(
             static function (Router $api) {
                 $api->group(
                     [
-                        'namespace' => 'Ship',
                         'prefix' => 'ships',
                     ],
                     static function (Router $api) {
                         $api->get(
                             '/',
-                            ['as' => 'api.v1.starcitizen.vehicles.ships.all', 'uses' => 'ShipController@index']
+                            ['as' => 'api.v1.starcitizen.vehicles.ships.all', 'uses' => 'VehicleController@index']
                         );
                         $api->get(
-                            '{ship}',
-                            ['as' => 'api.v1.starcitizen.vehicles.ships.show', 'uses' => 'ShipController@show']
+                            '{vehicle}',
+                            ['as' => 'api.v1.starcitizen.vehicles.ships.show', 'uses' => 'VehicleController@show']
                         );
                         $api->post(
                             '/search',
-                            ['as' => 'api.v1.starcitizen.vehicles.ships.search', 'uses' => 'ShipController@search']
+                            ['as' => 'api.v1.starcitizen.vehicles.ships.search', 'uses' => 'VehicleController@search']
                         );
                     }
                 );
 
                 $api->group(
                     [
-                        'namespace' => 'GroundVehicle',
                         'prefix' => 'vehicles',
                     ],
                     static function (Router $api) {
                         $api->get(
                             '/',
-                            [
-                                'as' => 'api.v1.starcitizen.vehicles.ground-vehicles.all',
-                                'uses' => 'GroundVehicleController@index',
-                            ]
+                            ['as' => 'api.v1.starcitizen.vehicles.all', 'uses' => 'VehicleController@index']
                         );
                         $api->get(
-                            '{ground_vehicle}',
-                            [
-                                'as' => 'api.v1.starcitizen.vehicles.ground-vehicles.show',
-                                'uses' => 'GroundVehicleController@show',
-                            ]
+                            '{vehicle}',
+                            ['as' => 'api.v1.starcitizen.vehicles.show', 'uses' => 'VehicleController@show']
                         );
                         $api->post(
                             '/search',
-                            [
-                                'as' => 'api.v1.starcitizen.vehicles.ground-vehicles.search',
-                                'uses' => 'GroundVehicleController@search',
-                            ]
+                            ['as' => 'api.v1.starcitizen.vehicles.search', 'uses' => 'VehicleController@search']
                         );
                     }
                 );
@@ -297,6 +294,397 @@ $api->group(
                 );
             }
         );
+
+        $api->group(
+            [
+                'namespace' => 'Transcript',
+                'prefix' => 'transcripts',
+            ],
+            static function (Router $api) {
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.rsi.transcripts.index',
+                        'uses' => 'TranscriptController@index',
+                    ]
+                );
+                $api->get(
+                    '{transcript}',
+                    [
+                        'as' => 'api.v1.rsi.transcripts.show',
+                        'uses' => 'TranscriptController@show',
+                    ]
+                );
+            }
+        );
     }
 );
 
+$api->group(
+    [
+        'namespace' => 'StarCitizenUnpacked',
+    ],
+    static function (Router $api) {
+        $api->group(
+            [
+                'namespace' => 'WeaponPersonal',
+                'prefix' => 'weapons',
+            ],
+            static function (Router $api) {
+
+                /**
+                 * Index
+                 */
+                $api->get(
+                    '/personal',
+                    [
+                        'as' => 'api.v1.scunpacked.weapons.personal.index',
+                        'uses' => 'WeaponPersonalController@index',
+                    ]
+                );
+                $api->get(
+                    '/personal/{weapon}',
+                    ['as' => 'api.v1.scunpacked.weapons.personal.show', 'uses' => 'WeaponPersonalController@show']
+                )->where('weapon', '(.*)');
+
+                /**
+                 * Attachments Index
+                 */
+                $api->get(
+                    '/attachments',
+                    [
+                        'as' => 'api.v1.scunpacked.weapons.attachments.index',
+                        'uses' => 'AttachmentController@index',
+                    ]
+                );
+                $api->get(
+                    '/attachments/{attachment}',
+                    ['as' => 'api.v1.scunpacked.weapons.attachments.show', 'uses' => 'AttachmentController@show']
+                )->where('attachment', '(.*)');
+            }
+        );
+
+        $api->group(
+            [
+                'prefix' => 'char',
+            ],
+            static function (Router $api) {
+                $api->group(
+                    [
+                        'namespace' => 'CharArmor',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/armor',
+                            [
+                                'as' => 'api.v1.scunpacked.char.armor.index',
+                                'uses' => 'CharArmorController@index',
+                            ]
+                        );
+                        $api->get(
+                            '/armor/{armor}',
+                            ['as' => 'api.v1.scunpacked.char.armor.show', 'uses' => 'CharArmorController@show']
+                        )->where('armor', '(.*)');
+                    }
+                );
+
+                $api->group(
+                    [],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/clothing',
+                            [
+                                'as' => 'api.v1.scunpacked.char.clothing.index',
+                                'uses' => 'ClothingController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/clothing/{clothing}',
+                            ['as' => 'api.v1.scunpacked.char.clothing.show', 'uses' => 'ClothingController@show']
+                        )->where('clothing', '(.*)');
+                    }
+                );
+            }
+        );
+
+        $api->group(
+            [
+                'namespace' => 'Shop',
+                'prefix' => 'shops',
+            ],
+            static function (Router $api) {
+                /**
+                 * Index
+                 */
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.scunpacked.shops.index',
+                        'uses' => 'ShopController@index',
+                    ]
+                );
+
+                $api->get(
+                    '/position/{position}',
+                    [
+                        'as' => 'api.v1.scunpacked.shops.position.show',
+                        'uses' => 'ShopController@showPosition',
+                    ]
+                );
+
+                $api->get(
+                    '/name/{name}',
+                    [
+                        'as' => 'api.v1.scunpacked.shops.name.show',
+                        'uses' => 'ShopController@showName',
+                    ]
+                );
+
+                $api->get(
+                    '/{position}/{name}',
+                    [
+                        'as' => 'api.v1.scunpacked.shops.position.name.show',
+                        'uses' => 'ShopController@showShopAtPosition',
+                    ]
+                );
+
+                $api->get(
+                    '/{shop}',
+                    ['as' => 'api.v1.scunpacked.shops.show', 'uses' => 'ShopController@show']
+                );
+            }
+        );
+
+        $api->group(
+            [
+                'namespace' => 'Item',
+                'prefix' => 'items',
+            ],
+            static function (Router $api) {
+                /**
+                 * Index
+                 */
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.scunpacked.items.index',
+                        'uses' => 'ItemController@index',
+                    ]
+                );
+
+                $api->get(
+                    '/tradeables',
+                    [
+                        'as' => 'api.v1.scunpacked.items.tradeables.index',
+                        'uses' => 'ItemController@indexTradeables',
+                    ]
+                );
+
+                $api->get(
+                    '/{item}',
+                    ['as' => 'api.v1.scunpacked.items.show', 'uses' => 'ItemController@show']
+                )->where('item', '(.*)');
+
+                $api->post(
+                    '/search',
+                    ['as' => 'api.v1.scunpacked.items.search', 'uses' => 'ItemController@search']
+                );
+            }
+        );
+
+        $api->group(
+            [
+                'prefix' => 'food',
+            ],
+            static function (Router $api) {
+                /**
+                 * Index
+                 */
+                $api->get(
+                    '/',
+                    [
+                        'as' => 'api.v1.scunpacked.food.index',
+                        'uses' => 'FoodController@index',
+                    ]
+                );
+
+                $api->get(
+                    '/{food}',
+                    ['as' => 'api.v1.scunpacked.food.show', 'uses' => 'FoodController@show']
+                )->where('item', '(.*)');
+
+                $api->post(
+                    '/search',
+                    ['as' => 'api.v1.scunpacked.food.search', 'uses' => 'FoodController@search']
+                );
+            }
+        );
+
+        $api->group(
+            [
+                'namespace' => 'Ship',
+                'prefix' => 'ship-items',
+            ],
+            static function (Router $api) {
+                /**
+                 * Cooler
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'coolers',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.coolers.index',
+                                'uses' => 'CoolerController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            ['as' => 'api.v1.scunpacked.ship-items.coolers.show', 'uses' => 'CoolerController@show']
+                        )->where('item', '(.*)');
+                    }
+                );
+
+                /**
+                 * Power Plants
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'power-plants',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.power-plants.index',
+                                'uses' => 'PowerPlantController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.power-plants.show',
+                                'uses' => 'PowerPlantController@show'
+                            ]
+                        )->where('item', '(.*)');
+                    }
+                );
+
+                /**
+                 * Quantum Drives
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'quantum-drives',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.quantum-drives.index',
+                                'uses' => 'QuantumDriveController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.quantum-drives.show',
+                                'uses' => 'QuantumDriveController@show'
+                            ]
+                        )->where('item', '(.*)');
+                    }
+                );
+
+                /**
+                 * Shields
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'shields',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.shields.index',
+                                'uses' => 'ShieldController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.shields.show',
+                                'uses' => 'ShieldController@show'
+                            ]
+                        )->where('item', '(.*)');
+                    }
+                );
+
+                /**
+                 * Weapons
+                 */
+                $api->group(
+                    [
+                        'prefix' => 'weapons',
+                    ],
+                    static function (Router $api) {
+                        /**
+                         * Index
+                         */
+                        $api->get(
+                            '/',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.weapons.index',
+                                'uses' => 'WeaponController@index',
+                            ]
+                        );
+
+                        $api->get(
+                            '/{item}',
+                            [
+                                'as' => 'api.v1.scunpacked.ship-items.weapons.show',
+                                'uses' => 'WeaponController@show'
+                            ]
+                        )->where('item', '(.*)');
+                    }
+                );
+
+                $api->get(
+                    '/{item}',
+                    ['as' => 'api.v1.scunpacked.ship-items.show', 'uses' => 'ItemController@show']
+                )->where('item', '(.*)');
+
+                $api->post(
+                    '/search',
+                    ['as' => 'api.v1.scunpacked.ship-items.search', 'uses' => 'ItemController@search']
+                );
+            }
+        );
+    }
+);

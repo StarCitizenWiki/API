@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands\Stat\Import;
 
-use App\Jobs\Api\StarCitizen\Stat\Import\ImportStat;
+use App\Jobs\StarCitizen\Stat\Import\ImportStat;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
 

@@ -2,7 +2,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="uploadModalLabel">Upload Image</h5>
+                <h5 class="modal-title" id="uploadModalLabel">@lang('Upload Image')</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -11,34 +11,37 @@
                 <div class="alert d-none"></div>
                 <form id="uploadForm">
                     <div class="form-group">
-                        <label for="filename">Dateiname</label>
+                        <label for="filename">@lang('Dateiname')</label>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="filename-prefix"></span>
                             </div>
-                            <input type="text" class="form-control" id="filename" aria-describedby="filename-prefix" required minlength="5">
+                            <input type="text" class="form-control" id="filename" aria-describedby="filename-prefix" required minlength="3">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="description">Beschreibung</label>
+                        <label for="description">@lang('Beschreibung')</label>
                         <textarea class="form-control" id="description" rows="3" required minlength="10"></textarea>
                         <small id="descriptionHelpBlock" class="form-text text-muted">
-                            Bildbeschreibung. Kann Wikitext enthalten.
+                            @lang('Bildbeschreibung. Kann Wikitext enthalten.')
                         </small>
                     </div>
                     <div class="form-group">
-                        <label for="categories">Kategorien</label>
-                        <input type="text" class="form-control" id="categories" required minlength="5">
+                        <label for="categories">@lang('Kategorien')</label>
+                        <input type="text" class="form-control" id="categories" required minlength="3">
+                        <div id="category-pills">
+                            <span class="badge badge-secondary" role="button">@lang('Galerie')</span>
+                        </div>
                         <small id="categoriesHelpBlock" class="form-text text-muted">
-                            Liste von Kategorien, getrennt durch ein Komma.<br>Die Kategorie des Comm-Links wird automatisch hinzugefügt.
+                            @lang('Liste von Kategorien, getrennt durch ein Komma.<br>Die Kategorie des Comm-Links wird automatisch hinzugefügt.')
                         </small>
                     </div>
                     <input type="hidden" name="image" id="image" />
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="submit" class="btn btn-primary">@lang('Upload')</button>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('Schließen')</button>
             </div>
         </div>
     </div>
@@ -96,8 +99,8 @@
                 alert.innerHTML = `Bild hochgeladen!<br><code><a href="{!! config('api.wiki_url') !!}/index.php?title=Image:${response.data.upload.filename}">${response.data.upload.filename}</a></code>`
 
                 modal.querySelector('#image').value = 0
-                modal.querySelector('#description').value = ''
-                modal.querySelector('#filename').value = ''
+                //modal.querySelector('#description').value = ''
+                //modal.querySelector('#filename').value = ''
                 modal.querySelector('#categories').placeholder = ''
 
                 console.log(response.data)
@@ -109,29 +112,42 @@
             }).finally(() => {
                 modal.querySelector('.modal-body').style.pointerEvents = 'auto'
             })
-        })
-    })
+        });
+    });
+
+    /** @type HTMLInputElement */
+    const categoryInput = document.getElementById('categories');
+    document.querySelectorAll('#category-pills span').forEach(category => {
+        category.addEventListener('click', () => {
+            let prefix = '';
+            if (categoryInput.value.length > 0) {
+                prefix = ', ';
+            }
+
+            categoryInput.value += `${prefix}${category.textContent}`;
+        });
+    });
 
     const initModalButtons = () => {
         document.querySelectorAll('.upload-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                updateModal(e.target.dataset.clId, e.target.dataset.id)
-                $('#uploadModal').modal('show')
+                updateModal(e.target.dataset.clId, e.target.dataset.id);
+                $('#uploadModal').modal('show');
             })
         })
     }
 
     const updateModal = (commLinkId, imageId) => {
-        const modal = document.getElementById('uploadModal')
-        const alert = modal.querySelector('.alert')
+        const modal = document.getElementById('uploadModal');
+        const alert = modal.querySelector('.alert');
 
-        alert.classList.add('d-none')
-        alert.classList.remove('alert-danger', 'alert-success', 'alert-info', 'alert-warning')
+        alert.classList.add('d-none');
+        alert.classList.remove('alert-danger', 'alert-success', 'alert-info', 'alert-warning');
 
-        modal.querySelector('#image').value = imageId
-        modal.querySelector('#description').value = ''
-        modal.querySelector('#filename').value = ''
-        modal.querySelector('#filename-prefix').innerHTML = `Comm-Link ${commLinkId}`
-        modal.querySelector('#categories').placeholder = `Comm-Link ${commLinkId},`
+        modal.querySelector('#image').value = imageId;
+        modal.querySelector('#description').value = '';
+        modal.querySelector('#filename').value = '';
+        modal.querySelector('#filename-prefix').innerHTML = `Comm-Link ${commLinkId}`;
+        modal.querySelector('#categories').placeholder = `Comm-Link ${commLinkId},`;
     }
 </script>

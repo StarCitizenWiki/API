@@ -8,17 +8,17 @@ jobs:
   phpunit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Installing PHP
         uses: shivammathur/setup-php@master
         with:
-          php-version: '7.4'
+          php-version: '8.1'
       - name: Get Composer Cache Directory 2
         id: composer-cache
         run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
         id: actions-cache
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
       - name: Cache PHP dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: vendor-cache
         with:
           path: vendor
@@ -58,10 +58,10 @@ jobs:
     steps:
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       -
         name: Login to DockerHub
         uses: docker/login-action@v1
@@ -71,7 +71,7 @@ jobs:
       -
         name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           tags: scwiki/api:latest
           push: true

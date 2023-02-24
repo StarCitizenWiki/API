@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use InvalidArgumentException;
+use Octfx\DeepLy\DeepLy;
 use Octfx\DeepLy\Exceptions\AuthenticationException;
 use Octfx\DeepLy\Exceptions\QuotaException;
 use Octfx\DeepLy\Exceptions\RateLimitedException;
@@ -27,8 +28,6 @@ class TranslateTranscript implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-
-    private const DEEPL_MAX_LENGTH = 30000;
 
     /**
      * @var Transcript
@@ -60,8 +59,8 @@ class TranslateTranscript implements ShouldQueue
         $translation = '';
 
         try {
-            if (mb_strlen($english) > self::DEEPL_MAX_LENGTH) {
-                foreach (str_split_unicode($english, self::DEEPL_MAX_LENGTH) as $chunk) {
+            if (mb_strlen($english) > DeepLy::MAX_TRANSLATION_TEXT_LEN) {
+                foreach (str_split_unicode($english, DeepLy::MAX_TRANSLATION_TEXT_LEN) as $chunk) {
                     $chunkTranslation = DeepLyFacade::translate($chunk, config('services.deepl.target_locale'), 'EN');
                     $translation .= " {$chunkTranslation}";
                 }

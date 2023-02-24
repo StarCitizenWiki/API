@@ -2,16 +2,16 @@
     @forelse($changelogs as $changelog)
         <li>
             @if(isset($changelog->changelog['extra']['locale']))
-                Übersetzung @lang($changelog->changelog['extra']['locale'])
+                @lang('Übersetzung') @lang($changelog->changelog['extra']['locale'])
                 @if($changelog->type === 'creation')
-                    erstellt durch
+                    @lang('erstellt durch')
                 @else
-                    aktualisiert durch
+                    @lang('aktualisiert durch')
                 @endif
             @else
                 {{ $slot }}
                 @if($changelog->type === 'creation')
-                    importiert von
+                    @lang('importiert von')
                 @else
                     @unless(empty($changelog->changelog->get('changes', [])))
                         <span
@@ -31,10 +31,10 @@
                             data-toggle="popover"
                             data-html="true"
                         >
-                            <u>aktualisiert</u>
-                        </span> durch
+                            <u>@lang('aktualisiert')</u>
+                        </span> @lang('durch')
                     @else
-                        aktualisiert durch
+                        @lang('aktualisiert durch')
                     @endunless
                 @endif
             @endif
@@ -46,6 +46,6 @@
             </span>
         </li>
     @empty
-        <li>Keine Änderungen vorhanden</li>
+        <li>@lang('Keine Änderungen vorhanden')</li>
     @endforelse
 </ul>

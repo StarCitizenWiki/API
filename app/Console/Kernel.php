@@ -4,32 +4,55 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Console\Commands\CommLink\CommLinkSchedule;
-use App\Console\Commands\CommLink\Download\DownloadCommLink;
-use App\Console\Commands\CommLink\Download\DownloadCommLinks;
-use App\Console\Commands\CommLink\Download\Image\DownloadCommLinkImages;
-use App\Console\Commands\CommLink\Download\ReDownloadCommLinks;
-use App\Console\Commands\CommLink\Image\CreateImageHashes;
-use App\Console\Commands\CommLink\Image\CreateImageMetadata;
-use App\Console\Commands\CommLink\Image\SyncImageIds;
-use App\Console\Commands\CommLink\Import\ImportCommLink;
-use App\Console\Commands\CommLink\Import\ImportCommLinks;
-use App\Console\Commands\CommLink\Translate\TranslateCommLinks;
-use App\Console\Commands\CommLink\Wiki\CreateCommLinkWikiPages;
-use App\Console\Commands\Galactapedia\ImportArticleProperties;
-use App\Console\Commands\Galactapedia\ImportArticles;
-use App\Console\Commands\Galactapedia\ImportCategories;
-use App\Console\Commands\Galactapedia\TranslateArticles;
-use App\Console\Commands\ShipMatrix\Download\DownloadShipMatrix;
-use App\Console\Commands\ShipMatrix\Import\ImportShipMatrix;
-use App\Console\Commands\Starmap\Download\DownloadStarmap;
-use App\Console\Commands\Starmap\Import\ImportStarmap;
-use App\Console\Commands\Starmap\Translate\TranslateSystems;
-use App\Console\Commands\Stat\Download\DownloadStats;
-use App\Console\Commands\Stat\Import\ImportStats;
-use App\Console\Commands\Transcript\ImportRelayTranscripts;
+use App\Console\Commands\FixChangelogNamespaces;
+use App\Console\Commands\PopulateData;
+use App\Console\Commands\Rsi\CommLink\CommLinkSchedule;
+use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLink;
+use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLinks;
+use App\Console\Commands\Rsi\CommLink\Download\Image\DownloadCommLinkImages;
+use App\Console\Commands\Rsi\CommLink\Download\ReDownloadCommLinks;
+use App\Console\Commands\Rsi\CommLink\Image\CreateImageHashes;
+use App\Console\Commands\Rsi\CommLink\Image\CreateImageMetadata;
+use App\Console\Commands\Rsi\CommLink\Image\SyncImageIds;
+use App\Console\Commands\Rsi\CommLink\Import\ImportCommLink;
+use App\Console\Commands\Rsi\CommLink\Import\ImportCommLinks;
+use App\Console\Commands\Rsi\CommLink\Translate\TranslateCommLinks;
+use App\Console\Commands\Rsi\CommLink\Wiki\CreateCommLinkWikiPages;
+use App\Console\Commands\Rsi\CommLink\Wiki\CreateCommLinkWikiTranslationPages;
+use App\Console\Commands\StarCitizen\Galactapedia\ImportArticleProperties;
+use App\Console\Commands\StarCitizen\Galactapedia\ImportArticles;
+use App\Console\Commands\StarCitizen\Galactapedia\ImportCategories;
+use App\Console\Commands\StarCitizen\Galactapedia\TranslateArticles;
+use App\Console\Commands\StarCitizen\Galactapedia\Wiki\ApproveArticles;
+use App\Console\Commands\StarCitizen\Galactapedia\Wiki\CreateWikiPages;
+use App\Console\Commands\StarCitizen\Galactapedia\Wiki\UploadImages;
+use App\Console\Commands\StarCitizen\ShipMatrix\Download\DownloadShipMatrix;
+use App\Console\Commands\StarCitizen\ShipMatrix\Import\ImportShipMatrix;
+use App\Console\Commands\StarCitizen\Starmap\Download\DownloadStarmap;
+use App\Console\Commands\StarCitizen\Starmap\Import\ImportStarmap;
+use App\Console\Commands\StarCitizen\Starmap\Translate\TranslateSystems;
+use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
+use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
+use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
+use App\Console\Commands\StarCitizenUnpacked\ImportCharArmor;
+use App\Console\Commands\StarCitizenUnpacked\ImportClothing;
+use App\Console\Commands\StarCitizenUnpacked\ImportFood;
+use App\Console\Commands\StarCitizenUnpacked\ImportShipItems;
+use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
+use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
+use App\Console\Commands\StarCitizenUnpacked\ImportWeaponAttachments;
+use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
+use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateClothingWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateFoodWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponAttachmentWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponPersonalWikiPages;
+use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
+use App\Console\Commands\Transcript\ImportMetadata;
 use App\Console\Commands\Transcript\TranslateTranscripts;
-use App\Console\Commands\Vehicle\ImportMsrp;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
 use App\Events\Rsi\CommLink\NewCommLinksDownloaded;
 use App\Jobs\Wiki\CommLink\UpdateCommLinkProofReadStatus;
@@ -67,13 +90,15 @@ class Kernel extends ConsoleKernel
         TranslateCommLinks::class,
 
         CreateCommLinkWikiPages::class,
+        CreateCommLinkWikiTranslationPages::class,
+        CreateWikiPages::class,
 
         SyncImageIds::class,
         CreateImageHashes::class,
         CreateImageMetadata::class,
 
-        ImportRelayTranscripts::class,
         TranslateTranscripts::class,
+        ImportMetadata::class,
 
         DownloadStarmap::class,
         ImportStarmap::class,
@@ -83,6 +108,33 @@ class Kernel extends ConsoleKernel
         ImportArticles::class,
         ImportArticleProperties::class,
         TranslateArticles::class,
+        ApproveArticles::class,
+        UploadImages::class,
+
+        FixChangelogNamespaces::class,
+
+        ImportVehicles::class,
+        ImportWeaponPersonal::class,
+        ImportWeaponAttachments::class,
+        ImportCharArmor::class,
+        ImportClothing::class,
+        ImportShopItems::class,
+        ImportShipItems::class,
+        ImportFood::class,
+
+        TranslateItems::class,
+
+        CreateCommodityWikiPages::class,
+        CreateCharArmorWikiPages::class,
+        CreateClothingWikiPages::class,
+        CreateShipItemWikiPages::class,
+        CreateWeaponAttachmentWikiPages::class,
+        CreateWeaponPersonalWikiPages::class,
+        CreateFoodWikiPages::class,
+        UploadItemImages::class,
+
+
+        PopulateData::class,
     ];
 
     /**
@@ -148,20 +200,20 @@ class Kernel extends ConsoleKernel
         /* Check for new Comm-Links */
         $this->schedule
             ->command(CommLinkSchedule::class)
-            ->hourly()
-            ->after(
-                function () {
-                    $this->events->dispatch(new NewCommLinksDownloaded());
-                }
-            );
+            ->hourlyAt(5);
+
+        /* Run CommLink Notification only once each day */
+        $this->schedule->call(function () {
+            NewCommLinksDownloaded::dispatch();
+        })->dailyAt('18:00');
 
         /* Re-Download all Comm-Links monthly */
         $this->schedule
-            ->command(ReDownloadCommLinks::class)
+            ->command(ReDownloadCommLinks::class, ['--skip=false'])
             ->monthly()
             ->after(
                 function () {
-                    $this->events->dispatch(new CommLinksChangedEvent());
+                    CommLinksChangedEvent::dispatch();
                 }
             );
 
@@ -225,5 +277,17 @@ class Kernel extends ConsoleKernel
             ->command(ImportArticleProperties::class)
             ->dailyAt('2:30')
             ->withoutOverlapping();
+
+        $this->schedule
+            ->command(TranslateArticles::class)
+            ->dailyAt('3:00')
+            ->withoutOverlapping();
+
+        if (config('schedule.galactapedia.create_wiki_pages')) {
+            $this->schedule
+                ->command(CreateWikiPages::class)
+                ->dailyAt('3:30')
+                ->withoutOverlapping();
+        }
     }
 }

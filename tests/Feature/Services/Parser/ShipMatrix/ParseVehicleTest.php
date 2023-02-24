@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Services\Parser\ShipMatrix;
 
-use App\Jobs\Api\StarCitizen\Vehicle\Import\ImportVehicle;
-use App\Models\Api\StarCitizen\Manufacturer\Manufacturer;
-use App\Models\Api\StarCitizen\ProductionNote\ProductionNote;
-use App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus;
-use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
-use App\Models\Api\StarCitizen\Vehicle\Size\Size;
-use App\Models\Api\StarCitizen\Vehicle\Type\Type;
-use App\Models\Api\StarCitizen\Vehicle\Vehicle\VehicleComponent;
-use Database\Seeders\Api\StarCitizen\ProductionNoteTableSeeder;
-use Database\Seeders\Api\StarCitizen\ProductionStatusTableSeeder;
-use Database\Seeders\Api\StarCitizen\Vehicle\SizeTableSeeder;
-use Database\Seeders\Api\StarCitizen\Vehicle\TypeTableSeeder;
-use Illuminate\Support\Collection;
+use App\Jobs\StarCitizen\Vehicle\Import\ImportVehicle;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
+use App\Models\StarCitizen\ProductionNote\ProductionNote;
+use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
+use App\Models\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\StarCitizen\Vehicle\Size\Size;
+use App\Models\StarCitizen\Vehicle\Type\Type;
+use App\Models\StarCitizen\Vehicle\Vehicle\VehicleComponent;
+use Database\Seeders\StarCitizen\ProductionNoteTableSeeder;
+use Database\Seeders\StarCitizen\ProductionStatusTableSeeder;
+use Database\Seeders\StarCitizen\Vehicle\SizeTableSeeder;
+use Database\Seeders\StarCitizen\Vehicle\TypeTableSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
@@ -25,7 +24,7 @@ use Tests\TestCase;
 class ParseVehicleTest extends TestCase
 {
     /**
-     * @covers \App\Jobs\Api\StarCitizen\Vehicle\Import\ImportVehicle
+     * @covers \App\Jobs\StarCitizen\Vehicle\Import\ImportVehicle
      * @covers \App\Services\Parser\ShipMatrix\Manufacturer
      * @covers \App\Services\Parser\ShipMatrix\ProductionNote
      * @covers \App\Services\Parser\ShipMatrix\ProductionStatus
@@ -62,7 +61,7 @@ class ParseVehicleTest extends TestCase
         self::assertCount(2, Focus::all());
         self::assertCount(2, Type::all());
         self::assertCount(2, Size::all());
-        self::assertCount(15, VehicleComponent::all());
+        self::assertCount(17, VehicleComponent::all());
     }
 
     /**

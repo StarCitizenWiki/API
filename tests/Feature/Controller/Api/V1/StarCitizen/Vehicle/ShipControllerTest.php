@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
-use App\Models\Api\StarCitizen\Vehicle\Component\Component;
-use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
+use App\Models\StarCitizen\Vehicle\Component\Component;
+use App\Models\StarCitizen\Vehicle\Ship\Ship;
 
 /**
  * {@inheritdoc}
@@ -14,13 +14,13 @@ use App\Models\Api\StarCitizen\Vehicle\Ship\Ship;
  *
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\Ship\Ship<extended>
- * @covers \App\Models\Api\StarCitizen\Manufacturer\Manufacturer<extended>
- * @covers \App\Models\Api\StarCitizen\ProductionNote\ProductionNote<extended>
- * @covers \App\Models\Api\StarCitizen\ProductionStatus\ProductionStatus<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Focus\Focus<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Size\Size<extended>
- * @covers \App\Models\Api\StarCitizen\Vehicle\Type\Type<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Ship\Ship<extended>
+ * @covers \App\Models\StarCitizen\Manufacturer\Manufacturer<extended>
+ * @covers \App\Models\StarCitizen\ProductionNote\ProductionNote<extended>
+ * @covers \App\Models\StarCitizen\ProductionStatus\ProductionStatus<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Focus\Focus<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Size\Size<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Type\Type<extended>
  */
 class ShipControllerTest extends VehicleControllerTestCase
 {
@@ -154,7 +154,7 @@ class ShipControllerTest extends VehicleControllerTestCase
     /**
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
      * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\ComponentTransformer
-     * @covers \App\Models\Api\StarCitizen\Vehicle\Vehicle\Vehicle::components
+     * @covers \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::components
      */
     public function testShowIncludeComponents(): void
     {

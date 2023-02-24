@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 /**
  * @covers \App\Policies\Web\User\TranslationPolicy<extended>
  *
- * @covers \App\Models\Api\StarCitizen\Vehicle\Focus\Focus<extended>
+ * @covers \App\Models\StarCitizen\Vehicle\Focus\Focus<extended>
  */
 class FocusControllerSichterTest extends FocusControllerTestCase
 {

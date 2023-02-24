@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ApiRouteCalled;
 use App\Http\Controllers\Controller;
 use App\Transformers\Api\LocalizableTransformerInterface;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
@@ -16,13 +17,64 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use OpenApi\Attributes as OA;
 
-/**
- * Base Controller that has Dingo Helpers
- */
+#[OA\Info(
+    version: '1.0.0',
+    title: 'Star Citizen API',
+    contact: new OA\Contact(email: 'foxftw@star-citizen.wiki'),
+)]
+#[OA\SecurityScheme(
+    securityScheme: 'bearerAuth',
+    type: 'http',
+    scheme: 'bearer',
+)]
+#[OA\Server(url: 'https://api.star-citizen.wiki')]
+#[OA\Parameter(
+    name: 'page',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'page',
+        description: 'Page of pagination if any',
+        type: 'integer',
+        format: 'int64',
+        minimum: 0,
+    )
+)]
+#[OA\Parameter(
+    name: 'limit',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'limit',
+        description: 'Items per page, set to 0, to return all items',
+        type: 'integer',
+        format: 'int64',
+        maximum: 1000,
+        minimum: 0,
+    ),
+)]
+#[OA\Parameter(
+    name: 'locale',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'locale',
+        description: 'Localization to use.',
+        collectionFormat: 'csv',
+        enum: [
+            'de_DE',
+            'en_EN',
+        ]
+    ),
+)]
+#[OA\Schema(
+    schema: 'query',
+    type: 'string',
+)]
 abstract class AbstractApiController extends Controller
 {
     use Helpers;
+
+    public const SC_DATA_KEY = 'api.sc_data_version';
 
     public const INVALID_LIMIT_STRING = 'Limit has to be greater than 0';
 
@@ -167,6 +219,10 @@ abstract class AbstractApiController extends Controller
      */
     protected function getResponse($query): Response
     {
+        if ($query === null) {
+            $query = collect();
+        }
+
         if ($query instanceof Model) {
             return $this->response->item($query, $this->transformer)->setMeta($this->getMeta());
         }
@@ -180,6 +236,12 @@ abstract class AbstractApiController extends Controller
         }
 
         $paginate = $query->paginate($this->limit);
+
+        ApiRouteCalled::dispatch([
+            'url' => $this->request->fullUrl(),
+            'user-agent' => $this->request->userAgent() ?? 'Star Citizen Wiki API',
+            'forwarded-for' => $this->request->header('X-Forwarded-For', '127.0.0.1'),
+        ]);
 
         return $this->response->paginator($paginate, $this->transformer)->setMeta($this->getMeta());
     }
@@ -247,5 +309,16 @@ abstract class AbstractApiController extends Controller
                     }
                 }
             );
+    }
+
+    /**
+     * Cleans the name for query use
+     *
+     * @param string $name
+     * @return string
+     */
+    protected function cleanQueryName(string $name): string
+    {
+        return str_replace('_', ' ', urldecode($name));
     }
 }

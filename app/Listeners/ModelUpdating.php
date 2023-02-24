@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Listeners;
 
 use App\Events\ModelUpdating as ModelUpdateEvent;
+use App\Models\StarCitizenUnpacked\Shop\ShopItem;
+use App\Models\System\ModelChangelog;
 use App\Models\System\Translation\AbstractTranslation as Translation;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,21 +31,41 @@ class ModelUpdating
     {
         $this->model = $event->model;
 
-
         // TODO Hacky
         $createdAt = now();
         if ($this->model instanceof Translation) {
             $createdAt = now()->addSecond();
         }
 
-        $this->model->changelogs()->create(
-            [
-                'type' => $this->getChangelogType(),
-                'changelog' => $this->getChangelogData(),
-                'user_id' => $this->getCreatorId(),
-                'created_at' => $createdAt,
-            ]
-        );
+        $data = $this->getChangelogData();
+
+        if ($data === null) {
+            return;
+        }
+
+        $data = [
+            'type' => $this->getChangelogType(),
+            'changelog' => $data,
+            'user_id' => $this->getCreatorId(),
+            'created_at' => $createdAt,
+        ];
+
+        if ($this->model instanceof ShopItem && $this->model->pivotParent !== null) {
+            ModelChangelog::create([
+                'type' => $data['type'],
+                'changelog' => [
+                        'item_uuid' => $this->model->item_uuid,
+                        'shop_uuid' => $this->model->shop_uuid,
+                    ] + ($data['changelog'] ?? []),
+                'changelog_type' => get_class($this->model),
+                'user_id' => 0,
+                'changelog_id' => $this->model->item_id,
+            ]);
+
+            return;
+        }
+
+        $this->model->changelogs()->create($data);
     }
 
     /**
@@ -99,6 +121,13 @@ class ModelUpdating
         }
 
         return collect($this->model->getDirty())
+            ->filter(function ($value, $key) {
+                if (!is_numeric($value)) {
+                    return true;
+                }
+
+                return round((float)$value) !== round((float)$this->model->getOriginal($key));
+            })
             ->map(
                 function ($value, $key) {
                     return [

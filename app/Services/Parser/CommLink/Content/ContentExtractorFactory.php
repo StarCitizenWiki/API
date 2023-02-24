@@ -20,6 +20,7 @@ class ContentExtractorFactory
                 DefaultExtractor::class,
                 LayoutSystemExtractor::class,
                 VueArticleExtractor::class,
+                GFeatureExtractor::class,
             ]
         )
             ->map(

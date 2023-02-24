@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Vehicle\Focus;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\System\TranslationRequest;
-use App\Models\Api\StarCitizen\Vehicle\Focus\Focus;
+use App\Models\StarCitizen\Vehicle\Focus\Focus;
 use App\Models\System\Language;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;

@@ -71,8 +71,12 @@ class Content extends BaseElement
     {
         $content = $this->removeElements($content);
 
+        // Replace non-breaking spaces with normal ones
+        $content = str_replace(' ', ' ', $content);
+        $content = (string)str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
+
         // Remove empty p Tags
-        $content = preg_replace('/<p><\/p>/m', '', $content);
+        $content = preg_replace('/<p>\s*?<\/p>/m', '', $content);
 
         // Remove Multiline Breaks
         //$content = preg_replace('/^\s+/m', '', $content);
@@ -81,7 +85,7 @@ class Content extends BaseElement
         $content = preg_replace('/\s+/Sm', ' ', $content);
 
         // Remove all Tags except p, br and headings
-        $content = trim(strip_tags($content, '<p><br><h1><h2><h3><h4><h5><h6>'));
+        $content = trim(strip_tags($content, '<p><li><br><h1><h2><h3><h4><h5><h6>'));
 
         // Add New Line to ending heading tags
         $content = preg_replace('/<\/h([1-6])>/m', "</h$1>\n", $content);
@@ -95,11 +99,11 @@ class Content extends BaseElement
         // Replace br with new line
         $content = (string)str_replace('<br>', "\n", $content);
 
+        // Replace li with new line
+        $content = (string)str_replace('</li>', "</li>\n\n", $content);
+
         // Remove all tags
         $content = strip_tags($content);
-
-        // Remove Non breaking Spaces with normal space
-        $content = (string)str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
 
         // Replace multiple spaces with one
         $content = preg_replace('/[ \t]+/m', ' ', $content);
@@ -125,7 +129,7 @@ class Content extends BaseElement
         $crawler = new Crawler();
         $crawler->addHtmlContent($html);
 
-        $crawler = $this->removeScriptElements($crawler);
+        $crawler = $this->removeScriptStyleElements($crawler);
         $crawler = $this->removeStoreSections($crawler);
         $crawler = $this->removeSupElements($crawler);
         $crawler = $this->removeCommentsContainer($crawler);
@@ -136,15 +140,24 @@ class Content extends BaseElement
     }
 
     /**
-     * Removes all script Elements
+     * Removes all script and style Elements
      *
      * @param Crawler $crawler
      *
      * @return Crawler
      */
-    private function removeScriptElements(Crawler $crawler): Crawler
+    private function removeScriptStyleElements(Crawler $crawler): Crawler
     {
+        $remover = $this->removeNode;
+
         $crawler->filter('script')->each($this->removeNode);
+        $crawler->filter('style')->each($this->removeNode);
+
+        $crawler->filter('component')->each(function (Crawler $crawler) use ($remover) {
+            if ($crawler->attr('is') === 'script') {
+                $remover($crawler);
+            }
+        });
 
         return $crawler;
     }

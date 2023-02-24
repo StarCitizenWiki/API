@@ -19,19 +19,17 @@ class ManufacturerPolicy extends BaseAdminPolicy
     /**
      * View all / single resource
      *
-     * @param \App\Models\Account\User\User $user
-     *
      * @return bool
      */
-    public function view(User $user)
+    public function view(): bool
     {
-        return $user->getHighestPermissionLevel() >= UserGroup::USER;
+        return true;
     }
 
     /**
      * Update a Resource
      *
-     * @param \App\Models\Account\User\User $user
+     * @param User $user
      *
      * @return bool
      */

@@ -1,0 +1,2914 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Star Citizen API",
+        "contact": {
+            "email": "foxftw@star-citizen.wiki"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.star-citizen.wiki"
+        }
+    ],
+    "paths": {
+        "/api/comm-links/categories": {
+            "get": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "5b7610a5224a3e893a01b7cda29db958",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Categories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/comm_link_category"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/comm-links/categories/{category}": {
+            "get": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "d7584eedfc2f5da6c41cb593e42a5017",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "description": "Name or slug of the category",
+                        "required": true
+                    },
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/comm_link_category"
+                    },
+                    "404": {
+                        "description": "No Category with specified name found."
+                    }
+                }
+            }
+        },
+        "/api/comm-links/channels": {
+            "get": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "a10e8ec3047fd5274b6a0a69ba335718",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Channels",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/comm_link_channel"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/comm-links/channels/{channel}": {
+            "get": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "f5c092c42e5a62dce69e14042cfe6163",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "description": "Name or slug of the category",
+                        "required": true
+                    },
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/comm_link_channel"
+                    },
+                    "404": {
+                        "description": "No Channel with specified name found."
+                    }
+                }
+            }
+        },
+        "/api/comm-links": {
+            "get": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "cd0bfc3e292ecbec94e857a7617be349",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "comm_link_includes",
+                            "description": "Available Comm-Link includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "english",
+                                "german",
+                                "images",
+                                "links"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Comm-Links",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/comm_link"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/comm-links/{id}": {
+            "get": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "a623f5f5f5d6d173510b497e7e443b2f",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "comm_link_includes",
+                            "description": "Available Comm-Link includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "english",
+                                "german",
+                                "images",
+                                "links"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "comm_link_id",
+                            "description": "Comm-Link ID, starting from 12663",
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 12663
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/comm_link"
+                    },
+                    "404": {
+                        "description": "No Comm-Link with specified ID found."
+                    }
+                }
+            }
+        },
+        "/api/comm-links/search": {
+            "post": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "5bf31e4ed017ccae451ed325f664e5dd",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/locale"
+                    }
+                ],
+                "requestBody": {
+                    "description": "(Partial) Comm-Link Title or ID",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "schema": "query",
+                                "type": "json"
+                            },
+                            "example": "{\"query\": \"Banu Merchantman\"}"
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/comm_link"
+                    },
+                    "404": {
+                        "description": "No Comm-Link with found."
+                    }
+                }
+            }
+        },
+        "/api/comm-links/reverse-image-link-search": {
+            "post": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "1d2dbc6d15a4bf23898423f8908b5479",
+                "requestBody": {
+                    "description": "Url to an image hosted on (media.)robertsspaceindustries.com",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "schema": "url",
+                                "type": "json"
+                            },
+                            "example": "{\"url\": \"https://robertsspaceindustries.com/i/cc75a45005a236c6e015dfc2782a2f55ed1e84a2/ADdPNihJzmPbNuTnFsH1DqUeqBRpXdSXVVtgJTyDDgscGKrzJuoFjResiiucPBBDeyrBscqRyZz4qxNsSbWvqUwdG/alien-week-2022-front.webp\"}"
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of Comm-Links that use that image",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/comm_link_link"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No Comm-Link found."
+                    }
+                }
+            }
+        },
+        "/api/comm-links/reverse-image-search": {
+            "post": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "bc65a596111a1b4dd2d8651c9d13813b",
+                "parameters": [
+                    {
+                        "name": "similarity",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "schema": "image_similarity",
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "method",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "schema": "image_search_method",
+                            "collectionFormat": "csv",
+                            "default": "perceptual",
+                            "enum": [
+                                "perceptual",
+                                "difference",
+                                "average"
+                            ]
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/octet-stream": {
+                            "schema": {
+                                "schema": "image",
+                                "description": "The image to reverse-search",
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of Comm-Links that use that image",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/comm_link_link"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No Comm-Link found."
+                    }
+                }
+            }
+        },
+        "/api/comm-links/series": {
+            "get": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "adcc274a0cd99cbd1b56083f8ae1acf9",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Series",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/comm_link_series"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/comm-links/series/{series}": {
+            "get": {
+                "tags": [
+                    "Comm-Links",
+                    "RSI-Website"
+                ],
+                "operationId": "76b48d9ee095caf2acfc2e76b921f1a2",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "description": "Name or slug of the series",
+                        "required": true
+                    },
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/comm_link_series"
+                    },
+                    "404": {
+                        "description": "No Series with specified name found."
+                    }
+                }
+            }
+        },
+        "/api/items": {
+            "get": {
+                "tags": [
+                    "In-Game",
+                    "Items"
+                ],
+                "operationId": "d8dd7c88a403031692087423945c71d0",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/locale"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "item_includes",
+                            "description": "Available Item includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "shops"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of In-game Items",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/item"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/items/{item}": {
+            "get": {
+                "tags": [
+                    "In-Game",
+                    "Items"
+                ],
+                "operationId": "f9fc410321d989c7bcbc25f095a21822",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/locale"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "item_includes",
+                            "description": "Available Item includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "shops"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "item_name_uuid",
+                            "description": "Item name or UUID",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/item"
+                    },
+                    "404": {
+                        "description": "No Item with specified UUID or name found."
+                    }
+                }
+            }
+        },
+        "/api/items/search": {
+            "post": {
+                "tags": [
+                    "In-Game",
+                    "Items"
+                ],
+                "operationId": "ce34078dca7ac9180cac4e2db27b7190",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/locale"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "item_includes",
+                            "description": "Available Item includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "shops",
+                                "shops.items"
+                            ]
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Article (partial) name, type, sub-type or uuid",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "schema": "query",
+                                "type": "json"
+                            },
+                            "example": "{\"query\": \"Arrowhead\"}"
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of items matching the query",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/item"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No item found."
+                    }
+                }
+            }
+        },
+        "/api/items/tradeables": {
+            "get": {
+                "tags": [
+                    "In-Game",
+                    "Items"
+                ],
+                "operationId": "eb86aab62eba9b8276ae4b23c1382e09",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/locale"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "item_includes",
+                            "description": "Available Item includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "shops"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of tradeable In-game Items",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/item"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shops": {
+            "get": {
+                "tags": [
+                    "In-Game",
+                    "Shops"
+                ],
+                "operationId": "becd1fc05366d43c2321cfbf4fd02c1c",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "shop_includes",
+                            "description": "Available Shop includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "items"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Shops",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/shop"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/shops/{shop}": {
+            "get": {
+                "tags": [
+                    "In-Game",
+                    "Shops"
+                ],
+                "operationId": "f4234560b9b8501089dfddb8349a283c",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "shop_includes",
+                            "description": "Available Shop includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "items"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "shop",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "shop_name",
+                            "description": "Shop name or position",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/shop"
+                    },
+                    "404": {
+                        "description": "No shop with specified name found."
+                    }
+                }
+            }
+        },
+        "/api/shops/position/{position}": {
+            "get": {
+                "tags": [
+                    "In-Game",
+                    "Shops"
+                ],
+                "operationId": "370055e39a1d4038d7b1ee371bac5862",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "shop_includes",
+                            "description": "Available Shop includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "items"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "position",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "shop_position",
+                            "description": "Shop position",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Shops in that position",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/shop"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No shop with specified position found."
+                    }
+                }
+            }
+        },
+        "/api/shops/name/{name}": {
+            "get": {
+                "tags": [
+                    "In-Game",
+                    "Shops"
+                ],
+                "operationId": "89162ca7f1215d5bd7a537d67d38151c",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "shop_includes",
+                            "description": "Available Shop includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "items"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "position",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "name",
+                            "description": "Shop Name",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/shop"
+                    },
+                    "404": {
+                        "description": "No shop with specified name found."
+                    }
+                }
+            }
+        },
+        "/api/shops/{position}/{name}": {
+            "get": {
+                "tags": [
+                    "In-Game",
+                    "Shops"
+                ],
+                "operationId": "44f2dacea479aa314b2307f0283923cf",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "shop_includes",
+                            "description": "Available Shop includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "items"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "position",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "name",
+                            "description": "Shop Name",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "name",
+                            "description": "Shop Name",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/shop"
+                    },
+                    "404": {
+                        "description": "No shop with specified name found."
+                    }
+                }
+            }
+        },
+        "/api/galactapedia": {
+            "get": {
+                "tags": [
+                    "Galactapedia",
+                    "RSI-Website"
+                ],
+                "operationId": "46b424f31513576a1a48a65ba83133ef",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "galacapedia_includes",
+                            "description": "Available Galactapedia includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "english",
+                                "tags",
+                                "categories",
+                                "related_articles",
+                                "properties"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Galactapedia Articles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/galactapedia_article"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/galactapedia/{id}": {
+            "get": {
+                "tags": [
+                    "Galactapedia",
+                    "RSI-Website"
+                ],
+                "operationId": "5fa1397565f2d5affaddd7e3183f8924",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "galactapedia_include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "galacapedia_includes",
+                            "description": "Available Galactapedia includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "english",
+                                "tags",
+                                "categories",
+                                "related_articles",
+                                "properties"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "galactapedia_id",
+                            "description": "Galactapedia Article ID",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/galactapedia_article"
+                    },
+                    "404": {
+                        "description": "No Article with specified ID found."
+                    }
+                }
+            }
+        },
+        "/api/galactapedia/search": {
+            "post": {
+                "tags": [
+                    "Galactapedia",
+                    "RSI-Website"
+                ],
+                "operationId": "47c2cd30987b64ca6cb6e4fea7141b9c",
+                "requestBody": {
+                    "description": "Article (partial) title, template or slug",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "schema": "query",
+                                "type": "json"
+                            },
+                            "example": "{\"query\": \"Banu\"}"
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of articles matching the query",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/galactapedia_article"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No Article found."
+                    }
+                }
+            }
+        },
+        "/api/manufacturers": {
+            "get": {
+                "tags": [
+                    "Manufacturers",
+                    "RSI-Website"
+                ],
+                "operationId": "a4ae46c87cea379d68faa8c566bd6938",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "manufacturer_includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "vehicles",
+                                "ships"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Manufacturers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/manufacturer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/manufacturer/{code}": {
+            "get": {
+                "tags": [
+                    "Manufacturers",
+                    "RSI-Website"
+                ],
+                "operationId": "8d338996b5b1acdfa660469e484e3a74",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "manufacturer_includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "vehicles",
+                                "ships"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "manufacturer_code",
+                            "description": "Manufacturer Code, e.g. RSI",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/manufacturer"
+                    },
+                    "404": {
+                        "description": "No Manufacturer with specified CODE found."
+                    }
+                }
+            }
+        },
+        "/api/manufacturers/search": {
+            "post": {
+                "tags": [
+                    "Manufacturers",
+                    "RSI-Website"
+                ],
+                "operationId": "febeca562e148d2f6d161f589d47ce90",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/locale"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "manufacturer_includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "vehicles",
+                                "ships"
+                            ]
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Name",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "schema": "query",
+                                "type": "json"
+                            },
+                            "example": "{\"query\": \"RSI\"}"
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of manufacturers matching the query",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/manufacturer"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No manufacturer found."
+                    }
+                }
+            }
+        },
+        "/api/starmap/starsystems": {
+            "get": {
+                "tags": [
+                    "Starmap",
+                    "RSI-Website"
+                ],
+                "operationId": "6634c1cd24787d3b437b0ac57aafd94b",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "starsystem_includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "celestial_objects",
+                                "jumppoints"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Starsystems",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/starsystem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/starmap/starsystem/{code}": {
+            "get": {
+                "tags": [
+                    "Starmap",
+                    "RSI-Website"
+                ],
+                "operationId": "b5e436e3948b9cccc428c2bb85ce9e89",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "starsystem_includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "celestial_objects",
+                                "jumppoints"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "starsystem_code",
+                            "description": "Starsystem Code, e.g. SOL",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/starsystem"
+                    },
+                    "404": {
+                        "description": "No System with specified Code found."
+                    }
+                }
+            }
+        },
+        "/api/stats/latest": {
+            "get": {
+                "tags": [
+                    "Stats",
+                    "RSI-Website"
+                ],
+                "operationId": "a29b30cf7cd5e77d3ca36c9ece9c09dd",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/stat"
+                    }
+                }
+            }
+        },
+        "/api/stats": {
+            "get": {
+                "tags": [
+                    "Stats",
+                    "RSI-Website"
+                ],
+                "operationId": "cb8b064b1570163c1080bc0d33609c96",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of stats",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/stat"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vehicles": {
+            "get": {
+                "tags": [
+                    "Vehicles",
+                    "RSI-Website",
+                    "In-Game"
+                ],
+                "operationId": "de0a749847a980f03abde78b1e337dc9",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/locale"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "vehicle_includes",
+                            "description": "Available Vehicle includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "components",
+                                "hardpoints",
+                                "shops",
+                                "shops.items"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Vehicles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/vehicle"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vehicles/{name}": {
+            "get": {
+                "tags": [
+                    "Vehicles",
+                    "RSI-Website",
+                    "In-Game"
+                ],
+                "operationId": "25d07dddfdf486048420adada27a9733",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/page"
+                    },
+                    {
+                        "$ref": "#/components/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/locale"
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "allowReserved": true,
+                        "schema": {
+                            "schema": "vehicle_includes",
+                            "description": "Available Vehicle includes",
+                            "collectionFormat": "csv",
+                            "enum": [
+                                "components",
+                                "hardpoints",
+                                "shops",
+                                "shops.items"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "schema": "vehicle_name",
+                            "description": "(Partial) Vehicle name",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/schemas/vehicle"
+                    }
+                }
+            }
+        },
+        "/api/vehicles/search": {
+            "post": {
+                "tags": [
+                    "Vehicles",
+                    "RSI-Website",
+                    "In-Game"
+                ],
+                "operationId": "b1106c4c340c93b89188771d3af60cf7",
+                "requestBody": {
+                    "description": "Vehicle (partial) name or slug",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "schema": "query",
+                                "type": "json"
+                            },
+                            "example": "{\"query\": \"Merchant\"}"
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "List of vehicles matching the query",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/vehicle"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No vehicle found."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "comm_link_category": {
+                "title": "Comm-Link Category",
+                "description": "Category of a Comm-Link",
+                "properties": {
+                    "name": {
+                        "description": "Category Name",
+                        "type": "string"
+                    },
+                    "slug": {
+                        "description": "Slug of the name",
+                        "type": "string"
+                    },
+                    "api_url": {
+                        "description": "Link to the api page",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "comm_link_channel": {
+                "title": "Comm-Link Channel",
+                "description": "Channel of a Comm-Link",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "api_url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "comm_link_link": {
+                "title": "Comm-Link Link",
+                "description": "Resource link to a Comm-Link",
+                "properties": {
+                    "api_url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "comm_link": {
+                "title": "Comm-Link",
+                "description": "A Comm-Link",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "rsi_url": {
+                        "type": "string"
+                    },
+                    "api_url": {
+                        "type": "string"
+                    },
+                    "api_public_url": {
+                        "type": "string"
+                    },
+                    "channel": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "series": {
+                        "type": "string"
+                    },
+                    "images": {
+                        "oneOf": [
+                            {
+                                "properties": {
+                                    "": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "properties": {
+                                    "images": {
+                                        "properties": {
+                                            "data": {
+                                                "$ref": "#/components/schemas/comm_link_image"
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "links": {
+                        "oneOf": [
+                            {
+                                "properties": {
+                                    "": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "properties": {
+                                    "links": {
+                                        "properties": {
+                                            "data": {
+                                                "$ref": "#/components/schemas/comm_link_content_link"
+                                            }
+                                        },
+                                        "type": "object",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "comment_count": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "timestamp"
+                    },
+                    "english": {
+                        "properties": {
+                            "data": {
+                                "$ref": "#/components/schemas/comm_link_translation"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "comm_link_image": {
+                "title": "Comm-Link Image",
+                "description": "Image used in a Comm-Link",
+                "properties": {
+                    "rsi_url": {
+                        "type": "string"
+                    },
+                    "api_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "alt": {
+                        "type": "string"
+                    },
+                    "size": {
+                        "type": "integer"
+                    },
+                    "mime_type": {
+                        "type": "string"
+                    },
+                    "last_modified": {
+                        "type": "timestamp"
+                    },
+                    "hashes": {
+                        "properties": {
+                            "data": {
+                                "properties": {
+                                    "perceptual_hash": {
+                                        "type": "integer"
+                                    },
+                                    "difference_hash": {
+                                        "type": "integer"
+                                    },
+                                    "average_hash": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "array",
+                                "items": {}
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "comm_link_content_link": {
+                "title": "Comm-Link Content Link",
+                "description": "Link contained in the content of a Comm-Link",
+                "properties": {
+                    "href": {
+                        "description": "URL",
+                        "type": "string"
+                    },
+                    "text": {
+                        "description": "Link content",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "comm_link_series": {
+                "title": "Comm-Link Series",
+                "description": "Series of a Comm-Link",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "api_url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "comm_link_translation": {
+                "title": "Comm-Link Translation",
+                "description": "Translations of a Comm-Link",
+                "properties": {
+                    "locale": {
+                        "type": "string"
+                    },
+                    "translation": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "item": {
+                "title": "Item",
+                "description": "An in-game item",
+                "properties": {
+                    "uuid": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "sub_type": {
+                        "type": "string"
+                    },
+                    "manufacturer": {
+                        "type": "string"
+                    },
+                    "size": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "volume": {
+                        "properties": {
+                            "width": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "height": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "length": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "volume": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "specification": {
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "shop_item": {
+                "title": "Shop Item",
+                "description": "An item from an in-game Shop",
+                "properties": {
+                    "uuid": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "sub_type": {
+                        "type": "string"
+                    },
+                    "base_price": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "price_calculated": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "price_range": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "base_price_offset": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "max_discount": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "max_premium": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "inventory": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "optimal_inventory": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "max_inventory": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "auto_restock": {
+                        "type": "boolean"
+                    },
+                    "auto_consume": {
+                        "type": "boolean"
+                    },
+                    "refresh_rate": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "buyable": {
+                        "type": "boolean"
+                    },
+                    "sellable": {
+                        "type": "boolean"
+                    },
+                    "rentable": {
+                        "type": "boolean"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "rental_price_days": {
+                        "properties": {
+                            "1": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "3": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "7": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "30": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "shop": {
+                "title": "Shop",
+                "description": "An in-game Shop",
+                "properties": {
+                    "uuid": {
+                        "type": "string"
+                    },
+                    "name_raw": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "string"
+                    },
+                    "profit_margin": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "items": {
+                        "properties": {
+                            "items": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/item"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "galactapedia": {
+                "title": "Galactapedia Article",
+                "description": "An article form the Galactapedia",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "thumbnail": {
+                        "type": "string"
+                    },
+                    "template": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "rsi_url": {
+                        "type": "string"
+                    },
+                    "api_url": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "timestamp"
+                    },
+                    "categories": {
+                        "properties": {
+                            "categories": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/galactapedia_category"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "tags": {
+                        "properties": {
+                            "tags": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/galactapedia_tag"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "properties": {
+                        "properties": {
+                            "properties": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/galactapedia_property"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "related_articles": {
+                        "properties": {
+                            "related_articles": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/galactpedia_related_article"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "english": {
+                        "properties": {
+                            "english": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/galactpedia_translation"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "galactpedia_category": {
+                "title": "Galctapedia article category",
+                "description": "Category of an article",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "galactpedia_property": {
+                "title": "Galctapedia article property",
+                "description": "Property of an article",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "galactpedia_related_article": {
+                "title": "Galactapedia related article",
+                "description": "Related article for this galactapedia article",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "api_url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "galactpedia_tag": {
+                "title": "Galctapedia article tag",
+                "description": "Tag of an article",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "galactapedia_translation": {
+                "title": "Galactapedia Translation",
+                "description": "Translations of a Galactapedia Article",
+                "properties": {
+                    "locale": {
+                        "type": "string"
+                    },
+                    "translation": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "manufacturer": {
+                "title": "Manufacturer",
+                "description": "An in-game vehicle manufacturer",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "known_for": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "ships": {
+                        "properties": {
+                            "ships": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/vehicle_link"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "vehicles": {
+                        "properties": {
+                            "vehicles": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/vehicle_link"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "celestial_object": {
+                "title": "Celestial Object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "system_id": {
+                        "type": "integer"
+                    },
+                    "celestial_object_api_url": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "integer"
+                    },
+                    "habitable": {
+                        "type": "boolean"
+                    },
+                    "fairchanceact": {
+                        "type": "boolean"
+                    },
+                    "appearance": {
+                        "type": "string"
+                    },
+                    "designation": {
+                        "type": "string"
+                    },
+                    "distance": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "axial_tilt": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "orbit_period": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "info_url": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "object"
+                    },
+                    "sensor": {
+                        "properties": {
+                            "population": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "economy": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "danger": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "size": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "parent_id": {
+                        "type": "integer"
+                    },
+                    "time_modified": {
+                        "type": "timestamp"
+                    }
+                },
+                "type": "object"
+            },
+            "jumppoint": {
+                "title": "Jumppoint",
+                "description": "A jumppoint from the starmap",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "size": {
+                        "type": "string"
+                    },
+                    "direction": {
+                        "type": "string"
+                    },
+                    "entry": {
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            },
+                            "system_id": {
+                                "type": "string"
+                            },
+                            "system_api_url": {
+                                "type": "string"
+                            },
+                            "celestial_object_api_url": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "code": {
+                                "type": "string"
+                            },
+                            "designation": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "exit": {
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            },
+                            "system_id": {
+                                "type": "string"
+                            },
+                            "system_api_url": {
+                                "type": "string"
+                            },
+                            "celestial_object_api_url": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "code": {
+                                "type": "string"
+                            },
+                            "designation": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "starsystem_link": {
+                "title": "Starsystem Link",
+                "description": "Link to the full star system page",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "api_url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "starsystem": {
+                "title": "Starsystem",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "system_api_url": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "properties": {
+                            "x": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "y": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "z": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "frost_line": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "habitable_zone_inner": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "habitable_zone_outer": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "info_url": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "object"
+                    },
+                    "aggregated": {
+                        "properties": {
+                            "size": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "population": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "economy": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "danger": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "stars": {
+                                "type": "integer"
+                            },
+                            "planets": {
+                                "type": "integer"
+                            },
+                            "moons": {
+                                "type": "integer"
+                            },
+                            "stations": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "time_modified": {
+                        "type": "timestamp"
+                    },
+                    "celestial_object": {
+                        "properties": {
+                            "celestial_object": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/celestial_object"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "jumppoints": {
+                        "properties": {
+                            "jumppoints": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/jumppoint"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "celestial_object_subtype": {
+                "title": "Celestial Object Subtype",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "stat": {
+                "title": "RSI Stats",
+                "description": "Stats about fans and funds",
+                "properties": {
+                    "funds": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "fans": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "fleet": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "timestamp": {
+                        "type": "timestamp"
+                    }
+                },
+                "type": "object"
+            },
+            "vehicle_component": {
+                "title": "Vehicle Component",
+                "description": "Components from in-game files",
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "mounts": {
+                        "type": "integer"
+                    },
+                    "component_size": {
+                        "type": "integer"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "size": {
+                        "type": "integer"
+                    },
+                    "details": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "manufacturer": {
+                        "type": "string"
+                    },
+                    "component_class": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "vehicle_link": {
+                "title": "Vehicle Link",
+                "description": "Link to the full api page",
+                "type": "object",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/vehicle"
+                    },
+                    {
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "slug": {
+                                "type": "string"
+                            },
+                            "api_url": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ]
+            },
+            "vehicle": {
+                "title": "Vehicle",
+                "description": "In-game or Ship-Matrix vehicles",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "uuid": {
+                        "type": "string"
+                    },
+                    "chassis_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "sizes": {
+                        "properties": {
+                            "length": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "beam": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "height": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "mass": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "cargo_capacity": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "personal_inventory_capacity": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "crew": {
+                        "properties": {
+                            "min": {
+                                "type": "integer"
+                            },
+                            "max": {
+                                "type": "integer"
+                            },
+                            "weapon": {
+                                "type": "integer"
+                            },
+                            "operation": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "health": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "speed": {
+                        "properties": {
+                            "scm": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "afterburner": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "max": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "zero_to_scm": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "zero_to_max": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "scm_to_zero": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "max_to_zero": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "fuel": {
+                        "properties": {
+                            "capacity": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "afterburner": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "intake_rate": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "usage": {
+                                "properties": {
+                                    "main": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "retro": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "vtol": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "maneuvering": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "quantum": {
+                        "properties": {
+                            "quantum_speed": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "quantum_spool_time": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "quantum_fuel_capacity": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "quantum_range": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "agility": {
+                        "properties": {
+                            "pitch": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "yaw": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "roll": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "acceleration": {
+                                "properties": {
+                                    "x_axis": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "y_axis": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "z_axis": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "main": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "retro": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "vtol": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "maneuvering": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "main_g": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "retro_g": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "vtol_g": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "maneuvering_g": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "foci": {
+                        "type": "object"
+                    },
+                    "production_status": {
+                        "type": "object"
+                    },
+                    "production_note": {
+                        "type": "object"
+                    },
+                    "type": {
+                        "type": "object"
+                    },
+                    "description": {
+                        "type": "object"
+                    },
+                    "size": {
+                        "type": "object"
+                    },
+                    "msrp": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "manufacturer": {
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "insurance": {
+                        "properties": {
+                            "claim_time": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "expedite_time": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "expedite_cost": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "updated_at": {
+                        "type": "timestamp"
+                    },
+                    "components": {
+                        "properties": {
+                            "components": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/vehicle_component"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "hardpoints": {
+                        "properties": {
+                            "hardpoints": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/vehicle_hardpoint"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "shops": {
+                        "properties": {
+                            "shops": {
+                                "properties": {
+                                    "data": {
+                                        "$ref": "#/components/schemas/shop"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "parameters": {
+            "page": {
+                "name": "page",
+                "in": "query",
+                "schema": {
+                    "schema": "page",
+                    "description": "Page of pagination if any",
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0
+                }
+            },
+            "limit": {
+                "name": "limit",
+                "in": "query",
+                "schema": {
+                    "schema": "limit",
+                    "description": "Items per page, set to 0, to return all items",
+                    "type": "integer",
+                    "format": "int64",
+                    "maximum": 1000,
+                    "minimum": 0
+                }
+            },
+            "locale": {
+                "name": "locale",
+                "in": "query",
+                "schema": {
+                    "schema": "locale",
+                    "description": "Localization to use.",
+                    "collectionFormat": "csv",
+                    "enum": [
+                        "de_DE",
+                        "en_EN"
+                    ]
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    }
+}

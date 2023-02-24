@@ -58,8 +58,30 @@ Route::group(
 
                             Route::post(
                                 'download-ship-matrix',
-                                'Job\StarCitizen\ShipMatrix\JobController@startCommLinkWikiPageCreationJob'
+                                'Job\StarCitizen\Vehicle\JobController@startDownloadShipMatrixJob'
                             )->name('download-ship-matrix');
+                            Route::post(
+                                'import-vehicle-msrp',
+                                'Job\StarCitizen\Vehicle\JobController@startMsrpImportJob'
+                            )->name('import-vehicle-msrp');
+
+
+                            Route::post(
+                                'import-galactapedia-categories',
+                                'Job\StarCitizen\Galactapedia\JobController@startImportGalactapediaCategoriesJob'
+                            )->name('import-galactapedia-categories');
+                            Route::post(
+                                'import-galactapedia-articles',
+                                'Job\StarCitizen\Galactapedia\JobController@startImportGalactapediaArticlesJob'
+                            )->name('import-galactapedia-articles');
+                            Route::post(
+                                'import-galactapedia-article-properties',
+                                'Job\StarCitizen\Galactapedia\JobController@startImportGalactapediaArticlePropertiesJob'
+                            )->name('import-galactapedia-article-properties');
+                            Route::post(
+                                'create-galactapedia-pages',
+                                'Job\StarCitizen\Galactapedia\JobController@startCreateWikiPagesJob'
+                            )->name('create-galactapedia-pages');
                         }
                     );
 
@@ -72,9 +94,18 @@ Route::group(
                         }
                     );
 
+                Route::namespace('Job')
+                    ->name('jobs.')
+                    ->prefix('jobs')
+                    ->group(
+                        static function () {
+                            Route::get('failed', 'JobController@viewFailed')->name('failed');
+                            Route::post('truncate', 'JobController@truncate')->name('truncate');
+                        }
+                    );
+
                 Route::resources(
                     [
-                        'notifications' => 'Notification\NotificationController',
                         'users' => 'User\UserController',
                         'changelogs' => 'Changelog\ChangelogController',
                         'transcripts' => 'Transcript\TranscriptController',
@@ -91,6 +122,7 @@ Route::group(
                                     'manufacturers' => 'Manufacturer\ManufacturerController',
                                     'production-statuses' => 'ProductionStatus\ProductionStatusController',
                                     'production-notes' => 'ProductionNote\ProductionNoteController',
+                                    'galactapedia' => 'Galactapedia\GalactapediaController',
                                 ]
                             );
 
@@ -153,6 +185,7 @@ Route::group(
                                         Route::get('search', 'CommLinkSearchController@search')->name('search');
                                         Route::post('reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearchPost')->name('reverse-image-link-search.post');
                                         Route::post('reverse-image-search', 'CommLinkSearchController@reverseImageSearchPost')->name('reverse-image-search.post');
+                                        Route::post('image-text-search', 'CommLinkSearchController@imageTextSearchPost')->name('image-text-search.post');
 
                                         Route::post('search', 'CommLinkSearchController@searchByTitle')->name('search-by-title.post');
                                     }
@@ -173,10 +206,24 @@ Route::group(
                                 ->name('stat.')
 
                                 ->group(
-                                    static function() {
+                                    static function () {
                                         Route::get('stats', 'StatController@index')->name('index');
                                     }
                                 );
+                        }
+                    );
+
+
+                Route::namespace('StarCitizenUnpacked')
+                    ->name('starcitizenunpacked.')
+                    ->prefix('starcitizenunpacked')
+                    ->group(
+                        static function () {
+                            Route::resources(
+                                [
+                                    'items' => 'Item\ItemController',
+                                ]
+                            );
                         }
                     );
             }

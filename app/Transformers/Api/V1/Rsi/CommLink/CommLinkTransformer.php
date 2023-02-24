@@ -11,13 +11,88 @@ use App\Transformers\Api\V1\Rsi\CommLink\Link\LinkTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Translation\TranslationTransformer;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
+use OpenApi\Attributes as OA;
 
-/**
- * Class CommLinkTransformer
- */
+#[OA\Schema(
+    schema: 'comm_link',
+    title: 'Comm-Link',
+    description: 'A Comm-Link',
+    properties: [
+        new OA\Property(property: 'id', type: 'integer'),
+        new OA\Property(property: 'title', type: 'string'),
+        new OA\Property(property: 'rsi_url', type: 'string'),
+        new OA\Property(property: 'api_url', type: 'string'),
+        new OA\Property(property: 'api_public_url', type: 'string'),
+        new OA\Property(property: 'channel', type: 'string'),
+        new OA\Property(property: 'category', type: 'string'),
+        new OA\Property(property: 'series', type: 'string'),
+        new OA\Property(
+            property: 'images',
+            oneOf: [
+                new OA\Schema(properties: [new OA\Property(type: 'integer')]),
+                new OA\Schema(
+                    properties: [
+                        new OA\Property(
+                            property: 'images',
+                            properties: [
+                                new OA\Property(
+                                    property: 'data',
+                                    ref: '#/components/schemas/comm_link_image',
+                                    type: 'array',
+                                    items: new OA\Items(),
+                                ),
+                            ],
+                            type: 'object',
+                            nullable: true
+                        ),
+                    ],
+                    type: 'object'
+                ),
+            ]
+        ),
+        new OA\Property(
+            property: 'links',
+            oneOf: [
+                new OA\Schema(properties: [new OA\Property(type: 'integer')]),
+                new OA\Schema(
+                    properties: [
+                        new OA\Property(
+                            property: 'links',
+                            properties: [
+                                new OA\Property(
+                                    property: 'data',
+                                    ref: '#/components/schemas/comm_link_content_link',
+                                    type: 'array',
+                                    items: new OA\Items(),
+                                ),
+                            ],
+                            type: 'object',
+                            nullable: true
+                        ),
+                    ],
+                    type: 'object'
+                )
+            ]
+        ),
+        new OA\Property(property: 'comment_count', type: 'integer'),
+        new OA\Property(property: 'created_at', type: 'timestamp'),
+        new OA\Property(
+            property: 'english',
+            properties: [
+                new OA\Property(
+                    property: 'data',
+                    ref: '#/components/schemas/comm_link_translation',
+                ),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+    ],
+    type: 'object'
+)]
 class CommLinkTransformer extends V1Transformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'images',
         'links',
         'english',

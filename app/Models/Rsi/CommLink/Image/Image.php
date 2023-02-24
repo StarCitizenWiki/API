@@ -113,7 +113,7 @@ class Image extends Model
     {
         $url = config('api.rsi_url');
 
-        if (!Str::startsWith($this->src, ['/media', '/rsi', '/layoutscache'])) {
+        if (!Str::startsWith($this->src, ['/media', '/rsi', '/layoutscache', '/i/'])) {
             $url = 'https://media.robertsspaceindustries.com';
         }
 
@@ -139,6 +139,9 @@ class Image extends Model
         switch ($this->metadata->mime) {
             case 'image/jpeg':
                 $ext = 'jpg';
+                break;
+            case 'image/webp':
+                $ext = 'webp';
                 break;
             case 'image/tiff':
                 $ext = 'tif';

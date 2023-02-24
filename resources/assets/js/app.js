@@ -6,6 +6,7 @@
  */
 
 import './bootstrap';
+import snarkdown from './snarkdown';
 import 'datatables.net-bs4';
 import { library, dom } from '@fortawesome/fontawesome-svg-core'
 
@@ -25,6 +26,7 @@ import {
     faCommentAlt,
     faCrosshairs,
     faChartBar,
+    faCube,
     faDesktop,
     faDotCircle,
     faEnvelope,
@@ -57,7 +59,10 @@ import {
     faUser,
     faUserCircle,
     faUserPlus,
-    faUsers
+    faUsers,
+    faUpload,
+    faToggleOn,
+    faToggleOff,
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -83,6 +88,7 @@ library.add(
     faCommentAlt,
     faCrosshairs,
     faChartBar,
+    faCube,
     faDesktop,
     faDotCircle,
     faEnvelope,
@@ -115,7 +121,10 @@ library.add(
     faUser,
     faUserCircle,
     faUserPlus,
-    faUsers
+    faUsers,
+    faUpload,
+    faToggleOn,
+    faToggleOff,
 )
 
 library.add(
@@ -139,3 +148,50 @@ if (document.getElementById('cl-live-search')) {
         el: "#cl-live-search",
     })
 }
+
+if (document.getElementById('g-live-search')) {
+    new window.Vue({
+        el: "#g-live-search",
+    })
+}
+
+if (document.getElementById('item-live-search')) {
+    new window.Vue({
+        el: "#item-live-search",
+    })
+}
+
+if (document.getElementById('celestial-object-generator')) {
+    new window.Vue({
+        el: "#celestial-object-generator",
+    })
+}
+
+window.snarkdown = snarkdown;
+
+(() => {
+    const changeButtonText = () => {
+        let text = 'Darkmode';
+        if (document.body.parentElement.classList.contains('darkmode')) {
+            text = 'Darkmode';
+        }
+        document.querySelector('#darkmode-toggle span').textContent = text;
+    };
+
+    if (document.body.parentElement.classList.contains('darkmode')) {
+        changeButtonText();
+        document.querySelector('#darkmode-toggle i').classList.remove('fa-toggle-off');
+        document.querySelector('#darkmode-toggle i').classList.add('fa-toggle-on');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('darkmode-toggle').addEventListener('click', (e) => {
+            document.body.parentElement.classList.toggle('darkmode');
+            e.target.parentElement.querySelector('svg').classList.toggle('fa-toggle-on');
+            e.target.parentElement.querySelector('svg').classList.toggle('fa-toggle-off');
+
+            window.localStorage.setItem('darkmode', document.body.parentElement.classList.contains('darkmode') ? 'on' : 'off');
+            changeButtonText();
+        });
+    });
+})();

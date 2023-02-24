@@ -1,5 +1,5 @@
 @component('components.navs.nav_element', [
-    'route' => route('web.api.status'),
+    'route' => 'https://status.star-citizen.wiki',
 ])
     <div class="row">
         <div class="col-1">
@@ -9,6 +9,21 @@
         </div>
         <div class="col">
             @lang('Api Status')
+        </div>
+    </div>
+@endcomponent
+
+@component('components.navs.nav_element', [
+    'route' => route('web.user.dashboard'),
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                tachometer-alt
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Dashboard')
         </div>
     </div>
 @endcomponent
