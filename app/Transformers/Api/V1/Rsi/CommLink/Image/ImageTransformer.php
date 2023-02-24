@@ -42,7 +42,7 @@ use OpenApi\Attributes as OA;
 )]
 class ImageTransformer extends V1Transformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'hashes',
     ];
 

@@ -8,6 +8,7 @@ use App\Services\Parser\StarCitizenUnpacked\ShipItems\AbstractItemSpecification;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use JsonException;
 
 final class PersonalInventory extends AbstractItemSpecification
 {
@@ -34,7 +35,7 @@ final class PersonalInventory extends AbstractItemSpecification
                     'scu' => $item['personalInventory']['SCU'],
                 ];
             }
-        } catch (FileNotFoundException | \JsonException $e) {
+        } catch (FileNotFoundException | JsonException $e) {
             //
         }
 

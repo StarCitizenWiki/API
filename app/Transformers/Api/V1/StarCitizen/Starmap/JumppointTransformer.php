@@ -47,7 +47,7 @@ use OpenApi\Attributes as OA;
 )]
 class JumppointTransformer extends AbstractTranslationTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'celestial_object_entry',
         'celestial_object_exit',
     ];

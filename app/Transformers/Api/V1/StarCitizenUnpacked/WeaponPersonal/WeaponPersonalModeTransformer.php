@@ -10,7 +10,7 @@ use League\Fractal\Resource\Collection;
 
 class WeaponPersonalModeTransformer extends AbstractTranslationTransformer
 {
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'damages'
     ];
 

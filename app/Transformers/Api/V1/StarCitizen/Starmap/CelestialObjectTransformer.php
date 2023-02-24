@@ -49,12 +49,12 @@ use OpenApi\Attributes as OA;
 )]
 class CelestialObjectTransformer extends AbstractTranslationTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'starsystem',
         'jumppoint',
     ];
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'affiliation',
         'subtype',
     ];

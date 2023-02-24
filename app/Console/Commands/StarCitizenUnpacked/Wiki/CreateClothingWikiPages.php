@@ -8,6 +8,7 @@ use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
 use App\Models\StarCitizenUnpacked\Clothing;
 use App\Traits\GetWikiCsrfTokenTrait;
+use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Collection;
@@ -16,6 +17,7 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class CreateClothingWikiPages extends AbstractQueueCommand
 {
     use GetWikiCsrfTokenTrait;
+    use CreateEnglishSubpageTrait;
 
     /**
      * The name and signature of the console command.
@@ -74,7 +76,9 @@ class CreateClothingWikiPages extends AbstractQueueCommand
 }}
 {{Rüstungskomponenten}}
 
-{{Quellen}}
+== Quellen ==
+<references />
+{{Galerie}}
 
 {{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;
@@ -95,7 +99,9 @@ FORMAT;
             return;
         }
 
-        if ($response->hasErrors()) {
+        $this->createEnglishSubpage($clothing->item->name, $token);
+
+        if ($response->hasErrors() && $response->getErrors()['code'] !== 'articleexists') {
             $this->error(implode(', ', $response->getErrors()));
         }
     }

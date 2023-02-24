@@ -8,6 +8,7 @@ use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use App\Traits\GetWikiCsrfTokenTrait;
+use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Collection;
@@ -16,6 +17,7 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class CreateShipItemWikiPages extends AbstractQueueCommand
 {
     use GetWikiCsrfTokenTrait;
+    use CreateEnglishSubpageTrait;
 
     /**
      * The name and signature of the console command.
@@ -80,7 +82,9 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
 
 {{Standardausrüstung}}
 
-{{Quellen}}
+== Quellen ==
+<references />
+{{Galerie}}
 
 {{HerstellerNavplate|{{#show:{{#invoke:Localized|getMainTitle}}|?Hersteller#-}}}}
 FORMAT;
@@ -101,7 +105,9 @@ FORMAT;
             return;
         }
 
-        if ($response->hasErrors()) {
+        $this->createEnglishSubpage($item->item->name, $token);
+
+        if ($response->hasErrors() && $response->getErrors()['code'] !== 'articleexists') {
             $this->error(implode(', ', $response->getErrors()));
         }
     }

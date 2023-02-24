@@ -10,7 +10,7 @@ use League\Fractal\Resource\Collection;
 
 class ShieldTransformer extends AbstractCommodityTransformer
 {
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'absorption',
     ];
 

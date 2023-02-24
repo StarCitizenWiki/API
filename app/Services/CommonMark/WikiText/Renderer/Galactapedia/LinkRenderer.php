@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Services\CommonMark\WikiText\Inline\Renderer\Galactapedia;
+namespace App\Services\CommonMark\WikiText\Renderer\Galactapedia;
 
 use App\Models\StarCitizen\Galactapedia\Article;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use InvalidArgumentException;
-use League\CommonMark\ElementRendererInterface;
-use League\CommonMark\Inline\Element\AbstractInline;
-use League\CommonMark\Inline\Element\Link;
-use League\CommonMark\Inline\Renderer\InlineRendererInterface;
+use League\CommonMark\Extension\CommonMark\Node\Inline\Link;
+use League\CommonMark\Node\Node;
+use League\CommonMark\Renderer\ChildNodeRendererInterface;
+use League\CommonMark\Renderer\NodeRendererInterface;
 
 use function get_class;
 
-class LinkRenderer implements InlineRendererInterface
+class LinkRenderer implements NodeRendererInterface
 {
     private bool $useLanguageLinks;
 
@@ -27,20 +27,19 @@ class LinkRenderer implements InlineRendererInterface
     }
 
     /**
-     * @param AbstractInline $inline
-     * @param ElementRendererInterface $htmlRenderer
-     *
+     * @param Node $node
+     * @param ChildNodeRendererInterface $childRenderer
      * @return string
      */
-    public function render(AbstractInline $inline, ElementRendererInterface $htmlRenderer): string
+    public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
-        if (!($inline instanceof Link)) {
-            throw new InvalidArgumentException('Incompatible inline type: ' . get_class($inline));
+        if (!($node instanceof Link)) {
+            throw new InvalidArgumentException('Incompatible inline type: ' . get_class($node));
         }
 
-        $urlText = $htmlRenderer->renderInlines($inline->children());
+        $urlText = $childRenderer->renderNodes($node->children());
 
-        $path = parse_url($inline->getUrl())['path'];
+        $path = parse_url($node->getUrl())['path'];
         $id = last(explode('/', $path));
         $id = explode('-', $id)[0];
 

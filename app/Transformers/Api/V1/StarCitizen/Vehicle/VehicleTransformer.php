@@ -199,7 +199,7 @@ use OpenApi\Attributes as OA;
 )]
 class VehicleTransformer extends TranslationTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'components',
         'shops',
         'hardpoints',

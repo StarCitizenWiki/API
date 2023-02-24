@@ -9,7 +9,7 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class WeaponPersonalAttachmentsTransformer extends AbstractCommodityTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'shops',
     ];
 

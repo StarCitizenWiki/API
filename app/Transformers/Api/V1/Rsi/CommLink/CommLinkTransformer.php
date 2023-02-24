@@ -92,7 +92,7 @@ use OpenApi\Attributes as OA;
 )]
 class CommLinkTransformer extends V1Transformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'images',
         'links',
         'english',

@@ -15,7 +15,7 @@ use League\Fractal\Resource\Collection;
  */
 class VehicleTransformer extends AbstractTranslationTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'shops',
         'hardpoints',
     ];

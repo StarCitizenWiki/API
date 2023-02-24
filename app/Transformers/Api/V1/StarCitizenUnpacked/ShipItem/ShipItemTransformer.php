@@ -19,7 +19,7 @@ use League\Fractal\Resource\Item;
 
 class ShipItemTransformer extends AbstractCommodityTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'shops',
         'heat',
         'power',
@@ -27,7 +27,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
         'durability',
     ];
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'heat',
         'power',
         'distortion',

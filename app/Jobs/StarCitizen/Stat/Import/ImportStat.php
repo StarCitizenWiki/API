@@ -54,8 +54,13 @@ class ImportStat implements ShouldQueue
         $year = now()->year;
 
         try {
+            $content = Storage::disk(self::STATS_DISK)->get(sprintf('%d/%s', $year, $this->statFileName));
+            if ($content === null) {
+                throw new FileNotFoundException();
+            }
+
             $stat = json_decode(
-                Storage::disk(self::STATS_DISK)->get(sprintf('%d/%s', $year, $this->statFileName)),
+                $content,
                 false,
                 512,
                 JSON_THROW_ON_ERROR

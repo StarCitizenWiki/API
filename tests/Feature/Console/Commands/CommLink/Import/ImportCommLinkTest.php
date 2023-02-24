@@ -47,7 +47,7 @@ class ImportCommLinkTest extends TestCase
     {
         CommLink::factory()->create(['cig_id' => 12663]);
 
-        Storage::disk('comm_links')->createDir('12663');
+        Storage::disk('comm_links')->createDirectory('12663');
         Storage::disk('comm_links')->put('12663\2012-01-01_000000.html', '');
 
         Bus::fake();

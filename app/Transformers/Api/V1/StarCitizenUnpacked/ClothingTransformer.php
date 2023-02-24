@@ -8,7 +8,7 @@ use App\Models\StarCitizenUnpacked\Clothing;
 
 class ClothingTransformer extends AbstractCommodityTransformer
 {
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'shops'
     ];
 
