@@ -83,7 +83,7 @@
                             @component('user.components.changelog_list', [
                                 'changelogs' => $changelogs,
                             ])
-                                Artikel
+                                @lang('Artikel')
                             @endcomponent
                         </div>
 
@@ -96,7 +96,7 @@
                                     <pre class="mt-2 bg-light p-3" id="change-{{ $changelog->getRouteKey() }}"><code>{{ $changelog->diff }}</code></pre>
                                 </div>
                             @empty
-                                <p>Keine Textänderungen vorhanden</p>
+                                <p>@lang('Keine Textänderungen vorhanden')</p>
                             @endforelse
                         </div>
 
@@ -115,7 +115,7 @@
                 </div>
                 <div class="col-12 col-xl-4">
                     <table class="table mb-0 table-responsive">
-                        <caption>Artikel Metadaten</caption>
+                        <caption>@lang('Artikel Metadaten')</caption>
                         <tr>
                             <th colspan="2" scope="row" class="border-top-0">
                                 <img class="img-fluid" width="400" src="{{ $article->thumbnail }}" alt="{{ $article->title }}">
@@ -126,19 +126,19 @@
                             <td class="border-top-0">{{ $article->cig_id }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Kategorien</th>
+                            <th scope="row">@lang('Kategorien')</th>
                             <td>
                                 {!! $article->categories->map(function($cat){return $cat->name;})->implode('<br>') !!}
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Tags</th>
+                            <th scope="row">@lang('Tags')</th>
                             <td>
                                 {!! $article->tags->map(function($tag){return sprintf('<span class="badge badge-info">#%s</span>', $tag->name);})->implode('<br>') !!}
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Eigenschaften</th>
+                            <th scope="row">@lang('Eigenschaften')</th>
                             <td>
                                 <table class="table table-borderless table-sm table-responsive">
                                     @forelse($article->properties as $property)
@@ -161,7 +161,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Verwandte Artikel</th>
+                            <th scope="row">@lang('Verwandte Artikel')</th>
                             <td>
                                 @forelse($article->related as $related)
                                     <a href="{{ route('web.user.starcitizen.galactapedia.show', $related->getRouteKey()) }}" style="word-break: break-all">

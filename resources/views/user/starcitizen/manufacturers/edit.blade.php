@@ -11,7 +11,7 @@
                 'class' => 'mb-4',
             ])
                 @slot('title')
-                    <h4 class="mb-0">@lang('Herstellerdaten') <small class="float-right mt-1">Letztes Update: {{ $manufacturer->updated_at->diffForHumans() }}</small></h4>
+                    <h4 class="mb-0">@lang('Herstellerdaten') <small class="float-right mt-1">@lang('Letztes Update'): {{ $manufacturer->updated_at->diffForHumans() }}</small></h4>
                 @endslot
                 @component('components.forms.form')
                     <div class="row">
@@ -68,12 +68,12 @@
             @endcomponent
 
             <div class="card mt-3">
-                <h4 class="card-header">Änderungen</h4>
+                <h4 class="card-header">@lang('Änderungen')</h4>
                 <div class="card-body">
                     @component('user.components.changelog_list', [
                         'changelogs' => $changelogs,
                     ])
-                        Hersteller
+                        @lang('Hersteller')
                     @endcomponent
                 </div>
             </div>

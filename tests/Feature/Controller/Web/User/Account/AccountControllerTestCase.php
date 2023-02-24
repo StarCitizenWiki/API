@@ -46,6 +46,7 @@ class AccountControllerTestCase extends UserTestCase
             route('web.user.account.update', $this->user->getRouteKey()),
             [
                 'api_notifications' => 'on',
+                'language' => 'de'
             ]
         );
 

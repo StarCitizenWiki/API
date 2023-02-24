@@ -19,11 +19,11 @@
     </a>
     <div class="card-body">
         @if(isset($image->similarity))
-            <p>Ähnlichkeit {{ $image->similarity }}%</p>
+            <p>@lang('Ähnlichkeit') {{ $image->similarity }}%</p>
         @endif
 
         @unless(empty($image->alt))
-            <p>Bildbeschreibung: {{ $image->alt }}</p>
+            <p>@lang('Bildbeschreibung'): {{ $image->alt }}</p>
         @endunless
 
         <div class="text-center">

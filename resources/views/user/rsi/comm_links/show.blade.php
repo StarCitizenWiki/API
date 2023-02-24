@@ -83,7 +83,7 @@
 
                     <div class="tab-content" id="nav-tab-translations">
                         <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                            {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}
+                            {!! empty($commLink->english()->translation) ? __('Nicht vorhanden') : nl2br($commLink->english()->translation) !!}
                         </div>
 
                         <div class="tab-pane fade" id="links" role="tabpanel" aria-labelledby="nav-links-tab">
@@ -91,7 +91,7 @@
                                 @forelse($commLink->links as $link)
                                     <li><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> &mdash; {{ $link->href }}</li>
                                 @empty
-                                    <li>Keine Links vorhanden</li>
+                                    <li>@lang('Keine Links vorhanden')</li>
                                 @endforelse
                             </ul>
                         </div>
@@ -104,7 +104,7 @@
                                     @endforeach
                                 </div>
                             @else
-                                Keine Bilder vorhanden
+                                @lang('Keine Bilder vorhanden')
                             @endif
                         </div>
 
@@ -125,30 +125,30 @@
                                     <pre class="mt-2 bg-light p-3" id="change-{{ $changelog->getRouteKey() }}"><code>{{ $changelog->diff }}</code></pre>
                                 </div>
                             @empty
-                                <p>Keine Textänderungen vorhanden</p>
+                                <p>@lang('Keine Textänderungen vorhanden')</p>
                             @endforelse
                         </div>
 
                         @can('web.user.rsi.comm-links.update')
                             <div class="tab-pane fade" id="deepl" role="tabpanel" aria-labelledby="nav-deepl-tab">
-                                {!! empty($commLink->german()->translation) ? 'Nicht vorhanden' : nl2br($commLink->german()->translation) !!}
+                                {!! empty($commLink->german()->translation) ? __('Nicht vorhanden') : nl2br($commLink->german()->translation) !!}
                             </div>
                         @endcan
                     </div>
                 </div>
                 <div class="col-12 col-xl-4 mt-xl-0 mt-5">
                     <table class="table mb-0 table-responsive">
-                        <caption>Comm-Link Metadaten</caption>
+                        <caption>@lang('Comm-Link Metadaten')</caption>
                         <tr>
                             <th scope="row" class="border-top-0">ID</th>
                             <td class="border-top-0">{{ $commLink->cig_id }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Veröffentlichung</th>
+                            <th scope="row">@lang('Veröffentlichung')</th>
                             <td>{{ $commLink->created_at->format('d.m.Y') }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Kategorie</th>
+                            <th scope="row">@lang('Kategorie')</th>
                             <td>
                                 <a href="{{ route('web.user.rsi.comm-links.categories.show', $commLink->category->getRouteKey()) }}">
                                     {{ $commLink->category->name }}
@@ -156,7 +156,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Channel</th>
+                            <th scope="row">@lang('Channel')</th>
                             <td>
                                 <a href="{{ route('web.user.rsi.comm-links.channels.show', $commLink->channel->getRouteKey()) }}">
                                     {{ $commLink->channel->name }}
@@ -164,7 +164,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Serie</th>
+                            <th scope="row">@lang('Serie')</th>
                             <td>
                                 <a href="{{ route('web.user.rsi.comm-links.series.show', $commLink->series->getRouteKey()) }}">
                                     {{ $commLink->series->name }}
@@ -172,15 +172,15 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Url</th>
+                            <th scope="row">@lang('Url')</th>
                             <td>
                                 <a href="https://robertsspaceindustries.com{{ $commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank" style="word-break: break-all">
-                                    {{ $commLink->url ?? 'Keine Original URL vorhanden' }}
+                                    {{ $commLink->url ?? __('Keine Original URL vorhanden') }}
                                 </a>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Kommentare</th>
+                            <th scope="row">@lang('Kommentare')</th>
                             <td>{{ $commLink->comment_count }}</td>
                         </tr>
                     </table>

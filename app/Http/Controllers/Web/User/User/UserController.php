@@ -88,6 +88,7 @@ class UserController extends Controller
         $data = $request->validate(
             [
                 self::API_TOKEN => "required|min:60|max:60|string|unique:users,api_token,{$user->id}",
+                'language' => 'required|in:en,de',
             ]
         );
 
@@ -104,6 +105,7 @@ class UserController extends Controller
                 ],
                 [
                     'no_api_throttle' => true,
+                    'language' => $request->get('language'),
                 ]
             );
         }

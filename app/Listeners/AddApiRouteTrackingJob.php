@@ -20,6 +20,9 @@ class AddApiRouteTrackingJob
      */
     public function handle(ApiRouteCalled $event)
     {
-        TrackApiRouteCall::dispatchIf(config('services.plausible.enabled'), $event->request);
+        TrackApiRouteCall::dispatchIf(
+            config('services.plausible.enabled') && config('app.env') === 'production',
+            $event->request
+        );
     }
 }

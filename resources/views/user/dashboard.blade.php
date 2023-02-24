@@ -59,7 +59,7 @@
             <div class="col-12 col-md-12 col-lg-6 col-xl-8 mb-4">
                 @component('user.components.card', [
                     'contentClass' => 'table-responsive',
-                    'title' => __('Benutzerübersicht'),
+                    'title' => __('Benutzer Übersicht'),
                     'icon' => 'table',
                 ])
                     <table class="table table-sm mb-2 border-top-0">

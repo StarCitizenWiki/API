@@ -46,7 +46,7 @@
                             pattern="http?s:\/\/(?:media\.)?robertsspaceindustries.com\/.*"
                             placeholder="https://robertsspaceindustries.com/media/..." required
                         @endslot
-                        <small>URL der Form: <br>https://robertsspaceindustries.com/media/...<br>https://media.robertsspaceindustries.com/...</small>
+                        <small>@lang('URL der Form'): <br>https://robertsspaceindustries.com/media/...<br>https://media.robertsspaceindustries.com/...</small>
                     @endcomponent
 
                     <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Comm-Links mit Bildlink')</button>
@@ -72,7 +72,7 @@
                         'id' => 'query',
                         'inputOptions' => 'required',
                     ])
-                        <small>Text, welcher in einem Comm-Link vorkommt</small>
+                        <small>@lang('Text, welcher in einem Comm-Link vorkommt')</small>
                     @endcomponent
 
                     <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Bildern')</button>
@@ -101,7 +101,7 @@
                         ])
                     @endcomponent
 
-                    <p>Genauigkeit:</p>
+                    <p>@lang('Genauigkeit'):</p>
                     <div class="flex-row">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="similarity" id="similarity1" value="1">
@@ -128,22 +128,22 @@
 
                     <p class="mt-3">
                         <a data-toggle="collapse" href="#method" role="button" aria-expanded="false" aria-controls="method">
-                            Methode:
+                            @lang('Methode'):
                         </a>
                     </p>
 
                     <div class="collapse mb-3" id="method">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="method" id="method1" value="perceptual" checked>
-                            <label class="form-check-label" for="method1">{{ __('Wahrnehmung') }} &mdash; Hash basierend auf Merkmalen des Inhalts</label>
+                            <label class="form-check-label" for="method1">{{ __('Wahrnehmung') }} &mdash; @lang('Hash basierend auf Merkmalen des Inhalts')</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="method" id="method2" value="difference">
-                            <label class="form-check-label" for="method2">{{ __('Differenz') }} &mdash; Hash basierend auf dem vorherigen Pixel</label>
+                            <label class="form-check-label" for="method2">{{ __('Differenz') }} &mdash; @lang('Hash basierend auf dem vorherigen Pixel')</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="method" id="method3" value="average">
-                            <label class="form-check-label" for="method3">{{ __('Durchschnitt') }} &mdash; Hash basierend auf der durchschnittlichen Bildfarbe</label>
+                            <label class="form-check-label" for="method3">{{ __('Durchschnitt') }} &mdash; @lang('Hash basierend auf der durchschnittlichen Bildfarbe')</label>
                         </div>
                     </div>
 

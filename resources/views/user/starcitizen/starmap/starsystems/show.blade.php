@@ -12,7 +12,7 @@
             ])
                 @slot('title')
                     <h4 class="mb-0">@lang('Sternensystemdaten')
-                        <small class="float-right mt-1">Letztes Update: {{ $system->time_modified->diffForHumans() }}</small>
+                        <small class="float-right mt-1">@lang('Letztes Update'): {{ $system->time_modified->diffForHumans() }}</small>
                     </h4>
                 @endslot
                 @component('components.forms.form')
@@ -145,7 +145,7 @@
             <div class="card">
                 <h4 class="card-header">
                     <a data-toggle="collapse" href="#celestial_objects" role="button"
-                       aria-expanded="false" aria-controls="celestial_objects">Himmelskörper</a>
+                       aria-expanded="false" aria-controls="celestial_objects">@lang('Himmelskörper')</a>
                 </h4>
                 <div class="card-body" id="celestial_objects">
                     <ul>

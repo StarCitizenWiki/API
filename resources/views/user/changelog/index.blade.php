@@ -5,9 +5,9 @@
 @section('content')
     <div class="d-flex ">
         <form class="form-inline" id="modelForm">
-            <label class="my-1 mr-2" for="model">Model</label>
+            <label class="my-1 mr-2" for="model">@lang('Model')</label>
             <select class="custom-select form-control my-1 mr-sm-2" id="model">
-                <option value="" selected>Alle</option>
+                <option value="" selected>@lang('Alle')</option>
                 @foreach($models as $model)
                     <option value="{{ $model->changelog_type }}">{{ class_basename($model->changelog_type) }}</option>
                 @endforeach
@@ -17,7 +17,7 @@
         <form class="form-inline" id="typeForm">
             <label class="my-1 mr-2" for="type">Typ</label>
             <select class="custom-select form-control my-1 mr-sm-2" id="type">
-                <option value="" selected>Alle</option>
+                <option value="" selected>@lang('Alle')</option>
                 @foreach($types as $type)
                     <option value="{{ $type->type }}">{{ $type->type }}</option>
                 @endforeach
