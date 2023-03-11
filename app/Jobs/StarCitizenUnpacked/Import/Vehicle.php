@@ -108,6 +108,27 @@ class Vehicle implements ShouldQueue
                     return stripos($vehicle['ClassName'], 'BIS29') === false;
                 })
                 ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'Indestructible') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'Prison') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'NoCrimesAgainst') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'Unmanned') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'F7A_Mk1') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'CINEMATIC_ONLY') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'Test') === false;
+                })
+                ->filter(function (array $vehicle) {
                     return $vehicle['ClassName'] !== 'TEST_Boat';
                 })
                 ->map(function (array $vehicle) {

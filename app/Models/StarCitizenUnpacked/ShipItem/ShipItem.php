@@ -83,6 +83,7 @@ class ShipItem extends CommodityItem
     public function specification(): HasOne
     {
         switch ($this->item->type) {
+            case 'CargoGrid':
             case 'Cargo':
                 return $this->hasOne(CargoGrid::class, 'uuid', 'uuid');
             case 'Cooler':
@@ -124,6 +125,7 @@ class ShipItem extends CommodityItem
             case 'PersonalInventory':
                 return $this->hasOne(PersonalInventory::class, 'uuid', 'uuid');
             default:
+                dd($this->item->type);
                 throw new ModelNotFoundException();
         }
     }
