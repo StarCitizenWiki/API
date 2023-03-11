@@ -49,6 +49,9 @@ class WeaponAttachments implements ShouldQueue
             ->filter(function ($item) {
                 return Item::query()->where('uuid', $item['uuid'])->exists();
             })
+            ->filter(function ($item) {
+                return isset($item['attachment_point']);
+            })
             ->each(function ($item) {
                 if ($item['name'] === '<= PLACEHOLDER =>') {
                     return;
@@ -67,7 +70,7 @@ class WeaponAttachments implements ShouldQueue
                     'uuid' => $item['uuid'],
                 ], [
                     'attachment_name' => trim($item['name'], '  '),
-                    'position' => $item['attachment_point'] ?? null,
+                    'position' => $item['attachment_point'],
                     'size' => $item['size'],
                     'grade' => $item['grade'],
                     'type' => $item['item_type'] ?? $item['type'],

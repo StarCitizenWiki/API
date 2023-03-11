@@ -301,8 +301,8 @@ class ShipItems implements ShouldQueue
                 'ship_shield_id' => $shield->id,
                 'type' => $type
             ], [
-                'min' => $absorption['min'],
-                'max' => $absorption['max'],
+                'min' => $absorption['min'] ?? 0,
+                'max' => $absorption['max'] ?? 0,
             ]);
         }
 
