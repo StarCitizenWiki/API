@@ -5,12 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\StarCitizen\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\TranslationCollection;
 use App\Http\Resources\TranslationResourceFactory;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer as TranslationTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\VehicleHardpointTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
