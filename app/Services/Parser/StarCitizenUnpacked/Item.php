@@ -125,6 +125,7 @@ final class Item extends AbstractCommodityItem
         }
 
         $name = trim(str_replace(' ', ' ', $this->labels->get($key)));
+        $name = preg_replace('/\s+/', ' ', $name);
         return str_replace(['“', '”'], '"', $name);
     }
 }
