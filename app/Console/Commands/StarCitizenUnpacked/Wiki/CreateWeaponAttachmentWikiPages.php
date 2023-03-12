@@ -71,7 +71,7 @@ class CreateWeaponAttachmentWikiPages extends AbstractQueueCommand
 |Limit=5
 }}
 
-{{Standardausrüstung|Kategorie=Waffe|Query=[[Kategorie:!Waffenbefestigung]]|Text=Waffen}}
+{{Standardausrüstung|Kategorie=Waffe|Query=[[Hat Unterobjekt.Position::+]]|Text=Waffen}}
 
 == Quellen ==
 <references />
