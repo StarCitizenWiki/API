@@ -214,6 +214,10 @@ class Item extends HasTranslations
             case $this->type === 'WeaponMining':
                 return $this->hasOne(MiningLaser::class, 'uuid', 'uuid')->withDefault();
 
+            case $this->type === 'Cargo':
+            case $this->type === 'CargoGrid':
+                return $this->hasOne(CargoGrid::class, 'uuid', 'uuid')->withDefault();
+
             default:
                 return $this->hasOne(CharArmor::class, 'uuid', 'type'); //NULL
         }

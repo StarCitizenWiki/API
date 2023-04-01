@@ -45,6 +45,8 @@ class ShipItems implements ShouldQueue
         'Ship.Missile.Torpedo',
 
         'Ship.PersonalInventory',
+
+        'Ship.CargoGrid',
     ];
 
     /**

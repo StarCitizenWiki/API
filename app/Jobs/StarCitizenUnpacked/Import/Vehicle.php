@@ -48,6 +48,7 @@ class Vehicle implements ShouldQueue
         'WeaponMount',
         'Radar',
         'Cargo',
+        'CargoGrid',
     ];
 
     /**
