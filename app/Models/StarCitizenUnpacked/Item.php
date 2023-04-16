@@ -189,6 +189,7 @@ class Item extends HasTranslations
             case $this->type === 'FuelIntake':
                 return $this->hasOne(FuelIntake::class, 'uuid', 'uuid')->withDefault();
 
+            case $this->type === 'ToolArm':
             case $this->type === 'Turret':
             case $this->type === 'TurretBase':
             case $this->type === 'MiningArm':

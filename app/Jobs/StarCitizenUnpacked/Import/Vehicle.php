@@ -43,6 +43,7 @@ class Vehicle implements ShouldQueue
         'MainThruster',
         'ManneuverThruster',
         'SelfDestruct',
+        'ToolArm',
         'WeaponDefensive',
         'WeaponMining',
         'WeaponMount',
@@ -125,6 +126,9 @@ class Vehicle implements ShouldQueue
                 })
                 ->filter(function (array $vehicle) {
                     return stripos($vehicle['ClassName'], 'CINEMATIC_ONLY') === false;
+                })
+                ->filter(function (array $vehicle) {
+                    return stripos($vehicle['ClassName'], 'NO_CUSTOM') === false;
                 })
                 ->filter(function (array $vehicle) {
                     return stripos($vehicle['ClassName'], 'Test') === false;

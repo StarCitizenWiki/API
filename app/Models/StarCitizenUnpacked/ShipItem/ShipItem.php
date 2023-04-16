@@ -101,6 +101,8 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
             case 'Turret':
             case 'TurretBase':
+            // Todo: Separate to Model?
+            case 'ToolArm':
             case 'MiningArm':
             case 'WeaponMount':
                 return $this->hasOne(Turret::class, 'uuid', 'uuid');
@@ -125,7 +127,6 @@ class ShipItem extends CommodityItem
             case 'PersonalInventory':
                 return $this->hasOne(PersonalInventory::class, 'uuid', 'uuid');
             default:
-                dd($this->item->type);
                 throw new ModelNotFoundException();
         }
     }

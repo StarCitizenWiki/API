@@ -149,6 +149,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'selfDestruct';
                 break;
 
+            case 'ToolArm':
             case 'Turret':
             case 'TurretBase':
             case 'MiningArm':
