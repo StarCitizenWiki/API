@@ -46,23 +46,30 @@ class WeaponAttachments implements ShouldQueue
             ->filter(function ($item) {
                 return $item !== null;
             })
-            ->filter(function ($item) {
-                return isset($item['attachment_point']);
-            })
+//            ->filter(function ($item) {
+//                return isset($item['attachment_point']);
+//            })
             ->filter(function ($item) {
                 return Item::query()->where('uuid', $item['uuid'])->exists();
             })
-            ->each(function ($item) {
-                if ($item['name'] === '<= PLACEHOLDER =>') {
-                    return;
-                }
-
+            ->map(function($item) {
                 if ($item['attachment_point'] === null && $item['type'] === 'Utility') {
                     $item['attachment_point'] = 'Utility';
                 }
 
                 if ($item['attachment_point'] === 'Optic') {
                     $item['item_type'] = 'Scope';
+                }
+
+                if ($item['attachment_point'] === null && $item['item_type'] === 'Ammo' && $item['type'] === 'Missile') {
+                    $item['attachment_point'] = 'Barrel';
+                }
+
+                return $item;
+            })
+            ->each(function ($item) {
+                if ($item['name'] === '<= PLACEHOLDER =>') {
+                    return;
                 }
 
                 /** @var Attachment $model */
