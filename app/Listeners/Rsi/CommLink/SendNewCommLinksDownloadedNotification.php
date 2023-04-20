@@ -27,13 +27,13 @@ class SendNewCommLinksDownloadedNotification
         if ($event->commLinks->count() > 0) {
             $admins = User::query()
                 ->whereNotNull('email')
+                ->where('email', '!=', '')
                 ->whereHas(
                     'settings',
                     static function (Builder $query) {
-                        $query->where('receive_comm_link_notifications', true);
+                        $query->where('receive_comm_link_notifications', 1);
                     }
                 )
-                ->orWhereHas('adminGroup')
                 ->get();
 
             Notification::send($admins, new NewCommLinksDownloadedNotification($event->commLinks));
