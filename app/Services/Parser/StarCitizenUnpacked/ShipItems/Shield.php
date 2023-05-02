@@ -4,54 +4,52 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\ShipItems;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 final class Shield extends AbstractItemSpecification
 {
-    public static function getData(array $item, Collection $rawData): ?array
+    public static function getData(Collection $item): ?array
     {
-        if (!isset($rawData['Components']['SCItemShieldGeneratorParams'])) {
+        $data = self::get($item, 'SCItemShieldGeneratorParams');
+
+        if ($data === null) {
             return null;
         }
 
-        $basePath = 'Components.SCItemShieldGeneratorParams.';
-
         return array_filter([
-            'max_shield_health' => $rawData->pull($basePath . 'MaxShieldHealth'),
-            'max_shield_regen' => $rawData->pull($basePath . 'MaxShieldRegen'),
-            'decay_ratio' => $rawData->pull($basePath . 'DecayRatio'),
-            'downed_regen_delay' => $rawData->pull($basePath . 'DownedRegenDelay'),
-            'damage_regen_delay' => $rawData->pull($basePath . 'DamagedRegenDelay'),
-            'max_reallocation' => $rawData->pull($basePath . 'MaxReallocation'),
-            'reallocation_rate' => $rawData->pull($basePath . 'ReallocationRate'),
-            'shield_hardening_factor' => $rawData->pull($basePath . 'ShieldHardening.Factor'),
-            'shield_hardening_duration' => $rawData->pull($basePath . 'ShieldHardening.Duration'),
-            'shield_hardening_cooldown' => $rawData->pull($basePath . 'ShieldHardening.Cooldown'),
+            'max_shield_health' => Arr::get($data, 'MaxShieldHealth'),
+            'max_shield_regen' => Arr::get($data, 'MaxShieldRegen'),
+            'decay_ratio' => Arr::get($data, 'DecayRatio'),
+            'downed_regen_delay' => Arr::get($data, 'DownedRegenDelay'),
+            'damage_regen_delay' => Arr::get($data, 'DamagedRegenDelay'),
+            'max_reallocation' => Arr::get($data, 'MaxReallocation'),
+            'reallocation_rate' => Arr::get($data, 'ReallocationRate'),
 
             'absorptions' => [
                 'physical' => array_filter([
-                    'min' => $item['Shield']['Absorption']['Physical']['Minimum'],
-                    'max' => $item['Shield']['Absorption']['Physical']['Maximum'],
+                    'min' => $data['ShieldAbsorption'][0]['Min'],
+                    'max' => $data['ShieldAbsorption'][0]['Max'],
                 ]),
                 'energy' => array_filter([
-                    'min' => $item['Shield']['Absorption']['Energy']['Minimum'],
-                    'max' => $item['Shield']['Absorption']['Energy']['Maximum'],
+                    'min' => $data['ShieldAbsorption'][1]['Min'],
+                    'max' => $data['ShieldAbsorption'][1]['Max'],
                 ]),
                 'distortion' => array_filter([
-                    'min' => $item['Shield']['Absorption']['Distortion']['Minimum'],
-                    'max' => $item['Shield']['Absorption']['Distortion']['Maximum'],
+                    'min' => $data['ShieldAbsorption'][2]['Min'],
+                    'max' => $data['ShieldAbsorption'][2]['Max'],
                 ]),
                 'thermal' => array_filter([
-                    'min' => $item['Shield']['Absorption']['Thermal']['Minimum'],
-                    'max' => $item['Shield']['Absorption']['Thermal']['Maximum'],
+                    'min' => $data['ShieldAbsorption'][3]['Min'],
+                    'max' => $data['ShieldAbsorption'][3]['Max'],
                 ]),
                 'biochemical' => array_filter([
-                    'min' => $item['Shield']['Absorption']['Biochemical']['Minimum'],
-                    'max' => $item['Shield']['Absorption']['Biochemical']['Maximum'],
+                    'min' => $data['ShieldAbsorption'][4]['Min'],
+                    'max' => $data['ShieldAbsorption'][4]['Max'],
                 ]),
                 'stun' => array_filter([
-                    'min' => $item['Shield']['Absorption']['Stun']['Minimum'],
-                    'max' => $item['Shield']['Absorption']['Stun']['Maximum'],
+                    'min' => $data['ShieldAbsorption'][5]['Min'],
+                    'max' => $data['ShieldAbsorption'][5]['Max'],
                 ]),
             ],
         ], static function ($entry) {

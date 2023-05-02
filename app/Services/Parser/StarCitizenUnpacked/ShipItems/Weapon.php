@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 
 final class Weapon extends AbstractItemSpecification
 {
-    public static function getData(array $item, Collection $rawData): ?array
+    public static function getData(Collection $item): ?array
     {
         if (!isset($item['Weapon'])) {
             return null;

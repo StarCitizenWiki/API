@@ -8,14 +8,22 @@ use Illuminate\Support\Collection;
 
 final class PowerPlant extends AbstractItemSpecification
 {
-    public static function getData(array $item, Collection $rawData): ?array
+    public static function getData(Collection $item): ?array
     {
-        if (!isset($item['PowerPlant'])) {
+        $attachDef = self::getAttachDef($item);
+
+        if ($attachDef === null || (!isset($attachDef['Type']) && $attachDef['Type'] !== 'PowerPlant')) {
+            return null;
+        }
+
+        $powerPlant = self::get($item, 'EntityComponentPowerConnection');
+
+        if ($powerPlant === null) {
             return null;
         }
 
         return [
-            'power_output' => $item['PowerPlant']['Output'],
+            'power_output' => $powerPlant['PowerDraw'],
         ];
     }
 }

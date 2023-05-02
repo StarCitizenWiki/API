@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizenUnpacked;
 
+use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\StarCitizenUnpacked\Import\Items;
+use App\Jobs\StarCitizenUnpacked\Import\ItemSpecificationCreator;
 use App\Jobs\StarCitizenUnpacked\Import\ShopItems;
+use App\Services\Parser\StarCitizenUnpacked\Item;
+use App\Services\Parser\StarCitizenUnpacked\Labels;
+use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
-class ImportShopItems extends Command
+class ImportShopItems extends AbstractQueueCommand
 {
     /**
      * The name and signature of the console command.
@@ -24,14 +31,83 @@ class ImportShopItems extends Command
      */
     protected $description = 'Import Shops and Items';
 
+    private array $ignoredNames = [
+        'TRGT. STATUS',
+        'TEST STRING NAME',
+    ];
+
+    private array $ignoredTypes = [
+        'TargetSelector',
+        'Door',
+        'Ping',
+        'FlightController',
+        'CommsController',
+        'CoolerController',
+        'DoorController',
+        'EnergyController',
+        'LightController',
+        'ShieldController',
+        'TargetSelector',
+        'WeaponController',
+        'WheeledController',
+    ];
+
     /**
      * Execute the console command.
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        Items::dispatch();
+        $labels = (new Labels())->getData();
+        $manufacturers = (new Manufacturers())->getData();
+
+        $files = Storage::allFiles('api/scunpacked-data/items');
+
+        $this->info('Importing Items');
+        collect($files)
+            ->filter(function (string $file) {
+                return strpos($file, '-raw.json') === false;
+            })
+            ->chunk(25)
+            ->tap(function (Collection $chunks) {
+                $this->createProgressBar($chunks->count());
+            })
+            ->each(function (Collection $chunk) use ($labels, $manufacturers) {
+                $this->bar->advance();
+
+                $chunk->map(function (string $file) use ($labels, $manufacturers) {
+                    return [
+                        'file' => $file,
+                        'item' => (new Item($file, $labels, $manufacturers))->getData()
+                    ];
+                })
+                    ->filter(function (array $data) {
+                        return $data['item'] !== null;
+                    })
+                    ->filter(function (array $data) {
+                        $item = $data['item'];
+                        return isset($item['name']) && !in_array($item['name'], $this->ignoredNames, true);
+                    })
+//                    ->filter(function (array $data) {
+//                        $item = $data['item'];
+//                        return isset($item['type']) && !in_array($item['type'], $this->ignoredTypes, true);
+//                    })
+                    ->map(function (array $data) {
+                        \App\Jobs\StarCitizenUnpacked\Import\Item::dispatch($data['item']);
+
+                        return [
+                            'item' =>  $data['item'],
+                            'file' => $data['file'],
+                        ];
+                    })
+                    ->each(function (array $data) {
+                        ['item' => $item, 'file' => $path] = $data;
+                        ItemSpecificationCreator::createSpecification($item, $path);
+                    });
+            });
+
+        $this->info('Importing Shops');
         ShopItems::dispatch();
         return 0;
     }

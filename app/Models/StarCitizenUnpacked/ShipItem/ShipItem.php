@@ -77,14 +77,27 @@ class ShipItem extends CommodityItem
         return $this->hasOne(ShipItemDurabilityData::class, 'ship_item_id')->withDefault();
     }
 
+    public function hasSpecification(): bool {
+        try {
+            $this->specification();
+        } catch (ModelNotFoundException $e) {
+            return false;
+        } catch (\Exception $e) {
+          //  dd($e->getTraceAsString());
+        }
+
+        return true;
+    }
+
     /**
      * @return HasOne
      */
-    public function specification(): HasOne
+    public function specification(): ?HasOne
     {
         switch ($this->item->type) {
-            case 'CargoGrid':
+//            case 'Container':
             case 'Cargo':
+            case 'CargoGrid':
                 return $this->hasOne(CargoGrid::class, 'uuid', 'uuid');
             case 'Cooler':
                 return $this->hasOne(Cooler::class, 'uuid', 'uuid');
@@ -99,13 +112,13 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(FuelIntake::class, 'uuid', 'uuid');
             case 'Shield':
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
-            case 'Turret':
-            case 'TurretBase':
-            // Todo: Separate to Model?
-            case 'ToolArm':
-            case 'MiningArm':
-            case 'WeaponMount':
-                return $this->hasOne(Turret::class, 'uuid', 'uuid');
+//            case 'Turret':
+//            case 'TurretBase':
+//            // Todo: Separate to Model?
+//            case 'ToolArm':
+//            case 'MiningArm':
+//            case 'WeaponMount':
+//                return $this->hasOne(Turret::class, 'uuid', 'uuid');
             case 'WeaponGun':
                 return $this->hasOne(Weapon\Weapon::class, 'uuid', 'uuid');
             case 'WeaponMining':
@@ -124,8 +137,8 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(SelfDestruct::class, 'uuid', 'uuid');
             case 'Radar':
                 return $this->hasOne(Radar::class, 'uuid', 'uuid');
-            case 'PersonalInventory':
-                return $this->hasOne(PersonalInventory::class, 'uuid', 'uuid');
+//            case 'PersonalInventory':
+//                return $this->hasOne(PersonalInventory::class, 'uuid', 'uuid');
             default:
                 throw new ModelNotFoundException();
         }

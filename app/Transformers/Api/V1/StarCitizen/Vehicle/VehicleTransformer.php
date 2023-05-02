@@ -214,7 +214,7 @@ class VehicleTransformer extends TranslationTransformer
     {
         $this->missingTranslations = [];
 
-        $cargo = $vehicle->unpacked->cargo_capacity ?? $vehicle->cargo_capacity;
+        $cargo = $vehicle->unpacked->scu ?? $vehicle->cargo_capacity;
         if ($vehicle->unpacked->SCU > 0) {
             $cargo = $vehicle->unpacked->scu;
         }

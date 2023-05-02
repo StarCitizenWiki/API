@@ -45,7 +45,7 @@ class VehicleHardpoint extends Model
             ShipItem::class,
             'uuid',
             'equipped_vehicle_item_uuid',
-        );
+        )->withDefault();
     }
 
     /**

@@ -4,8 +4,33 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
+use JsonException;
+
 abstract class AbstractCommodityItem
 {
+    protected string $filePath;
+    protected Collection $item;
+
+    protected Collection $labels;
+
+    /**
+     * @param string $filePath
+     * @param Collection $labels
+     * @throws FileNotFoundException
+     * @throws JsonException
+     */
+    public function __construct(string $filePath, Collection $labels)
+    {
+        $this->filePath = $filePath;
+        $item = File::get($filePath);
+        $this->item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+        $this->labels = $labels;
+    }
+
     abstract public function getData();
 
     /**
@@ -52,17 +77,49 @@ abstract class AbstractCommodityItem
         $exploded = str_replace(['’', '`', '´', ' '], ['\'', '\'', '\'', ' '], trim($exploded ?? ''));
 
         return $out + [
-                'description' => trim($exploded),
+                'description' => trim(str_replace(["\n", '\n'], "\n", $exploded)),
             ];
     }
 
-    protected function getManufacturer(array $item): string
+    protected function getName(array $attachDef, string $default): string
     {
-        $manufacturer = trim($item['Manufacturer']['Name'] ?? 'Unknown Manufacturer');
+        $name = $this->labels->get(substr($attachDef['Localization']['Name'], 1));
+        $name = $this->cleanString(trim($name ?? $default));
+        return empty($name) ? $default : $name;
+    }
+
+    protected function getDescription(array $attachDef): string
+    {
+        return $this->cleanString($this->labels->get(substr($attachDef['Localization']['Description'], 1), ''));
+    }
+
+    protected function getManufacturer(array $attachDef, Collection $manufacturers): string
+    {
+        $manufacturer = $manufacturers->get($attachDef['Manufacturer'], ['name' => 'Unknown Manufacturer'])['name'];
         if ($manufacturer === '@LOC_PLACEHOLDER') {
             $manufacturer = 'Unknown Manufacturer';
         }
 
         return $manufacturer;
+    }
+
+    protected function cleanString(string $string): string
+    {
+        $string = str_replace(['’', '`', '´'], "'", $string);
+        $string = str_replace(['“', '”', '"'], '"', $string);
+        $string = trim(str_replace(' ', ' ', $string));
+        return preg_replace('/\s+/', ' ', $string);
+    }
+
+    protected function getUUID(): ?string {
+        return Arr::get($this->item, 'Raw.Entity.__ref');
+    }
+
+    protected function getAttachDef(): ?array {
+        return $this->get('SAttachableComponentParams.AttachDef');
+    }
+
+    protected function get(string $key, $default = null): mixed {
+        return Arr::get($this->item, 'Raw.Entity.Components.' . $key, $default);
     }
 }

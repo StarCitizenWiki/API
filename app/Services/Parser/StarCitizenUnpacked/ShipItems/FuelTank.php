@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\ShipItems;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 final class FuelTank extends AbstractItemSpecification
 {
-    public static function getData(array $item, Collection $rawData): ?array
+    public static function getData(Collection $item): ?array
     {
-        if (!isset($rawData['Components']['SCItemFuelTankParams'])) {
+        $data = self::get($item, 'SCItemFuelTankParams');
+
+        if ($data === null) {
             return null;
         }
 
-        $basePath = 'Components.SCItemFuelTankParams.';
-
         return array_filter([
-            'fill_rate' => $rawData->pull($basePath . 'fillRate'),
-            'drain_rate' => $rawData->pull($basePath . 'drainRate'),
-            'capacity' => $rawData->pull($basePath . 'capacity'),
+            'fill_rate' => Arr::get($data, 'fillRate'),
+            'drain_rate' => Arr::get($data, 'drainRate'),
+            'capacity' => Arr::get($data, 'capacity'),
         ], static function ($entry) {
-            return !empty($entry);
+            return $entry !== null;
         });
     }
 }

@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Services\Parser\StarCitizenUnpacked;
 
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use JsonException;
+use phpDocumentor\Reflection\Utils;
 
 /**
  * An item can be any entity like a weapon, food, ship doors, paints, etc.
  */
 final class Item extends AbstractCommodityItem
 {
-    private Collection $item;
-    private Collection $labels;
     private Collection $manufacturers;
 
     private array $manufacturerFixes = [
@@ -43,29 +43,19 @@ final class Item extends AbstractCommodityItem
 
     public function getData(): ?array
     {
-        // phpcs:disable
-        if (
-        !isset(
-            $this->item['Raw']['Entity']['__ref'],
-            $this->item['Raw']['Entity']['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Name'],
-        )
-        ) {
+        $attachDef = $this->getAttachDef();
+
+        if ($attachDef === null || !Arr::has($this->item, 'Raw.Entity.ClassName')) {
             return null;
         }
 
-        $nameKey = substr(
-            $this->item['Raw']['Entity']['Components']['SAttachableComponentParams']['AttachDef']['Localization']['Name'],
-            1
-        );
-        // phpcs:enable
+        $name = $this->getName($attachDef, '<= PLACEHOLDER =>');
 
-        $attach = $this->item['Raw']['Entity']['Components']['SAttachableComponentParams']['AttachDef'];
-        $manufacturer = $this->manufacturers->get($attach['Manufacturer'], []);
-        $manufacturer = trim($manufacturer['name'] ?? $manufacturer['code'] ?? 'Unknown Manufacturer');
+        $manufacturer = $this->getManufacturer($attachDef, $this->manufacturers);
 
         // Use manufacturer from description if available
         $descriptionData = $this->tryExtractDataFromDescription(
-            $this->labels->get(ltrim($attach['Localization']['Description'] ?? '', '@'), ''),
+            $this->getDescription($attachDef),
             [
                 'Manufacturer' => 'manufacturer',
             ]
@@ -76,56 +66,90 @@ final class Item extends AbstractCommodityItem
             $manufacturer = $this->manufacturerFixes[$manufacturer] ?? $manufacturer;
         }
 
-        $name = $this->cleanName($nameKey);
-        if (empty($name)) {
-            $name = '<= PLACEHOLDER =>';
-        }
+        $sizes = $this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyDimensions', []);
+        $sizeOverride = $this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyDimensionsUIOverride.Vec3', []);
 
-        // phpcs:ignore
-        $sizes = $this->item->pull('Raw.Entity.Components.SAttachableComponentParams.AttachDef.inventoryOccupancyDimensions', []);
-        // phpcs:ignore
-        $volume = $this->item->pull('Raw.Entity.Components.SAttachableComponentParams.AttachDef.inventoryOccupancyVolume.SMicroCargoUnit.microSCU', 0);
-
-        // Change Cargo type to 'PersonalInventory' if item is in fact not a cargo grid
-        if ($attach['Type'] === 'Cargo' && isset($this->item['Raw']['Entity']['Components']['SInventoryParams']['capacity'])) {
-            $capacity = $this->item['Raw']['Entity']['Components']['SInventoryParams']['capacity']['SStandardCargoUnit'] ??
-                $this->item['Raw']['Entity']['Components']['SInventoryParams']['capacity']['SCentiCargoUnit'] ??
-                $this->item['Raw']['Entity']['Components']['SInventoryParams']['capacity']['SMicroCargoUnit'] ?? [];
-            $capacity = $capacity['SCU'] ?? $capacity['centiSCU'] ?? $capacity['microSCU'] ?? 1;
-
-            if ($capacity > 1) {
-                $attach['Type'] = 'PersonalInventory';
-            }
-        }
-
-        if ($manufacturer === '@LOC_PLACEHOLDER') {
-            $manufacturer = 'Unknown Manufacturer';
-        }
+        $volume = $this->convertToSCU($this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyVolume', []));
 
         return [
-            'uuid' => $this->item['Raw']['Entity']['__ref'],
+            'uuid' => $this->getUUID(),
             'name' => $name,
-            'type' => $attach['Type'],
-            'sub_type' => $attach['SubType'],
+            'type' => $attachDef['Type'],
+            'tags' => $attachDef['Tags'],
+            'sub_type' => $attachDef['SubType'],
             'manufacturer' => $manufacturer,
-            'size' => $attach['Size'],
+            'size' => $attachDef['Size'],
+            'class_name' => strtolower(Arr::get($this->item, 'Raw.Entity.ClassName')),
 
-            'width' => $sizes['x'] ?? 0,
-            'height' => $sizes['z'] ?? 0,
-            'length' => $sizes['y'] ?? 0,
+            'dimension' => [
+                'width' => $sizes['x'] ?? 0,
+                'height' => $sizes['z'] ?? 0,
+                'length' => $sizes['y'] ?? 0,
+            ],
+
+            'dimension_override' => [
+                'width' => $sizeOverride['x'] ?? null,
+                'height' => $sizeOverride['z'] ?? null,
+                'length' => $sizeOverride['y'] ?? null,
+            ],
 
             'volume' => $volume,
+
+            'inventory_container' => [
+                'width' => Arr::get($this->item, 'inventoryContainer.x'),
+                'height' => Arr::get($this->item, 'inventoryContainer.z'),
+                'length' => Arr::get($this->item, 'inventoryContainer.y'),
+                'scu' => Arr::get($this->item, 'inventoryContainer.SCU'),
+            ],
+
+            'ports' => $this->mapPorts(),
         ];
     }
 
-    private function cleanName(string $key): string
+    private function convertToSCU(array $volume): float
     {
-        if (!$this->labels->has($key)) {
-            return '<= PLACEHOLDER =>';
+        if (isset($volume['SStandardCargoUnit']['standardCargoUnits'])) {
+            $volume = $volume['SStandardCargoUnit']['standardCargoUnits'];
+        } elseif (isset($volume['SCentiCargoUnit']['centiSCU'])) {
+            $volume = (float)($volume['SCentiCargoUnit']['centiSCU']) * (10 ** -2);
+        } elseif (isset($volume['SMicroCargoUnit']['microSCU'])) {
+            $volume = (float)($volume['SMicroCargoUnit']['microSCU']) * (10 ** -6);
+        } else {
+            $volume = 0;
         }
 
-        $name = trim(str_replace(' ', ' ', $this->labels->get($key)));
-        $name = preg_replace('/\s+/', ' ', $name);
-        return str_replace(['“', '”'], '"', $name);
+        return $volume;
+    }
+
+    private function mapPorts(): array
+    {
+        if ($this->get('SItemPortContainerComponentParams.Ports') === null) {
+            return [];
+        }
+
+        $out = [];
+
+        foreach ($this->get('SItemPortContainerComponentParams.Ports') as $port) {
+            $position = null;
+            if (stripos($port['DisplayName'], 'optics') !== false) {
+                $position = 'optics';
+            } elseif (stripos($port['DisplayName'], 'underbarrel') !== false) {
+                $position = 'underbarrel';
+            } elseif (stripos($port['DisplayName'], 'barrel') !== false) {
+                $position = 'barrel';
+            } elseif (stripos($port['DisplayName'], 'magazine') !== false) {
+                $position = 'magazine_well';
+            }
+
+            $out[$port['Name']] = [
+                'name' => $port['Name'],
+                'display_name' => $port['DisplayName'],
+                'min_size' => $port['MinSize'] ?? null,
+                'max_size' => $port['MaxSize'] ?? null,
+                'position' => $position,
+            ];
+        }
+
+        return $out;
     }
 }

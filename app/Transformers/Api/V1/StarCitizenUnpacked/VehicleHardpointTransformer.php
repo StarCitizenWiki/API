@@ -6,6 +6,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked;
 
 use App\Models\StarCitizenUnpacked\VehicleHardpoint;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\ShipItemTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use League\Fractal\Resource\Collection;
 
 /**
@@ -25,7 +26,7 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
             'class_name' => $hardpoint->class_name,
         ];
 
-        if ($hardpoint->item !== null && $hardpoint->item->specification !== null) {
+        if ($hardpoint->item->uuid !== null && $hardpoint->item->hasSpecification()) {
             $data += [
                 'type' => $hardpoint->item->item->type,
                 'sub_type' => $hardpoint->item->item->sub_type,
@@ -43,14 +44,18 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
 
     public function includeItem(VehicleHardpoint $item)
     {
-        if ($item->item === null) {
+        if ($item->item->uuid === null || !$item->item->hasSpecification()) {
             return $this->null();
         }
 
         $transformer = new ShipItemTransformer();
         $transformer->excludeDefaults();
 
-        return $this->item($item->item->specification, $transformer);
+        try {
+            return $this->item($item->item->specification, $transformer);
+        } catch (ModelNotFoundException $e) {
+            return $this->null();
+        }
     }
 
     public function includeChildren(VehicleHardpoint $hardpoint): Collection

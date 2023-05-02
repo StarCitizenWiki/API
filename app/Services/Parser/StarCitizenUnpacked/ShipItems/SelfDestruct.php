@@ -4,27 +4,28 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\ShipItems;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 final class SelfDestruct extends AbstractItemSpecification
 {
-    public static function getData(array $item, Collection $rawData): ?array
+    public static function getData(Collection $item): ?array
     {
-        if (!isset($rawData['Components']['SSCItemSelfDestructComponentParams'])) {
+        $data = self::get($item, 'SSCItemSelfDestructComponentParams');
+
+        if ($data === null) {
             return null;
         }
 
-        $basePath = 'Components.SSCItemSelfDestructComponentParams.';
-
         return array_filter([
-            'damage' => $rawData->pull($basePath . 'damage'),
-            'radius' => $rawData->pull($basePath . 'radius'),
-            'min_radius' => $rawData->pull($basePath . 'minRadius'),
-            'phys_radius' => $rawData->pull($basePath . 'physRadius'),
-            'min_phys_radius' => $rawData->pull($basePath . 'minPhysRadius'),
-            'time' => $rawData->pull($basePath . 'time'),
+            'damage' => Arr::get($data, 'damage'),
+            'radius' => Arr::get($data, 'radius'),
+            'min_radius' => Arr::get($data, 'minRadius'),
+            'phys_radius' => Arr::get($data, 'physRadius'),
+            'min_phys_radius' => Arr::get($data, 'minPhysRadius'),
+            'time' => Arr::get($data, 'time'),
         ], static function ($entry) {
-            return !empty($entry);
+            return $entry !== null;
         });
     }
 }

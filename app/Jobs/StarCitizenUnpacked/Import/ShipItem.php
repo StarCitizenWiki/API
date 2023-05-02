@@ -10,7 +10,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem as ShipItemModel;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\WeaponMode;
-use App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem;
+use App\Services\Parser\StarCitizenUnpacked\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,36 +18,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
+use JsonException;
 
-class ShipItems implements ShouldQueue
+class ShipItem implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
 
-    private array $supportedClasses = [
-        'Ship.Cooler',
-        'Ship.PowerPlant.Power',
-        'Ship.Shield',
-        'Ship.QuantumDrive',
+    private string $filePath;
 
-        'Ship.Weapon.Gun',
-        'Ship.Weapon.Rocket',
-        'Ship.Weapon.NoseMounted',
-
-        'Ship.Weapon.Mining',
-        'Ship.Mining.Gun',
-
-        'Ship.MissileLauncher.MissileRack',
-
-        'Ship.Missile.Missile',
-        'Ship.Missile.Torpedo',
-
-        'Ship.PersonalInventory',
-
-        'Ship.CargoGrid',
-    ];
+    public function __construct(string $filePath)
+    {
+        $this->filePath = $filePath;
+    }
 
     /**
      * Execute the job.
@@ -56,29 +42,16 @@ class ShipItems implements ShouldQueue
      */
     public function handle()
     {
-        $items = new ShipItem();
-        try {
-            $items->loadFromShipItems();
-        } catch (\JsonException | FileNotFoundException $e) {
-            $this->fail($e->getMessage());
+        $labels = (new Labels())->getData();
 
+        try {
+            $parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem($this->filePath, $labels);
+        } catch (FileNotFoundException | JsonException $e) {
+            $this->fail($e);
             return;
         }
 
-        $items->getData()
-            ->filter(function (array $item) {
-                return in_array($item['item_class'], $this->supportedClasses, true);
-            })
-            ->each(function ($item) {
-                $this->createModel($item);
-            });
-    }
-
-    public function createModel($item): ?ShipItemModel
-    {
-        if (!Item::query()->where('uuid', $item['uuid'])->exists()) {
-            return null;
-        }
+        $item = $parser->getData();
 
         $shipItem = ShipItemModel::updateOrCreate([
             'uuid' => $item['uuid'],
@@ -190,66 +163,59 @@ class ShipItems implements ShouldQueue
 
     private function createModelSpecification(array $item, ShipItemModel $shipItem): ?Model
     {
-        switch ($item['item_class']) {
-            case 'Ship.Cargo':
+        switch ($shipItem->item->type) {
+            case 'CargoGrid':
+            case 'Cargo':
                 return $this->createCargoGrid($item, $shipItem);
 
-            case 'Ship.Cooler':
+            case 'Cooler':
                 return $this->createCooler($item, $shipItem);
 
-            case 'Ship.PowerPlant.Power':
+            case 'PowerPlant':
                 return $this->createPowerPlant($item, $shipItem);
 
-            case 'Ship.PersonalInventory':
-                return $this->createPersonalInventory($item, $shipItem);
-
-            case 'Ship.Shield':
+            case 'Shield':
                 return $this->createShield($item, $shipItem);
 
-            case 'Ship.QuantumDrive':
+            case 'QuantumDrive':
                 return $this->createQuantumDrive($item, $shipItem);
 
-            case 'Ship.FuelTank':
-            case 'Ship.QuantumFuelTank':
+            case 'FuelTank':
+            case 'QuantumFuelTank':
                 return $this->createFuelTank($item, $shipItem);
 
-            case 'Ship.FuelIntake':
+            case 'FuelIntake':
                 return $this->createFuelIntake($item, $shipItem);
 
-            case 'Ship.Weapon.Rocket':
-            case 'Ship.Weapon.Gun':
-            case 'Ship.Weapon.NoseMounted':
+            case 'WeaponGun':
                 return $this->createWeapon($item, $shipItem);
 
-            case 'Ship.WeaponMining':
-            case 'Ship.Weapon.Mining':
-            case 'Ship.Mining.Gun':
+            case 'WeaponMining':
                 return $this->createMiningLaser($item, $shipItem);
 
-            case 'Ship.WeaponDefensive':
+            case 'WeaponDefensive':
                 return $this->createCounterMeasure($item, $shipItem);
 
-            case 'Ship.MissileLauncher.MissileRack':
+            case 'MissileLauncher':
                 return $this->createMissileRack($item, $shipItem);
 
-            case 'Ship.Missile.Missile':
-            case 'Ship.Missile.Torpedo':
+            case 'Missile':
                 return $this->createMissile($item, $shipItem);
 
-            case 'Ship.Turret':
-            case 'Ship.TurretBase':
-            case 'Ship.MiningArm':
-            case 'Ship.WeaponMount':
-                return $this->createTurret($item, $shipItem);
+//            case 'Ship.Turret':
+//            case 'Ship.TurretBase':
+//            case 'Ship.MiningArm':
+//            case 'Ship.WeaponMount':
+//                return $this->createTurret($item, $shipItem);
 
-            case 'Ship.MainThruster':
-            case 'Ship.ManneuverThruster':
+            case 'MainThruster':
+            case 'ManneuverThruster':
                 return $this->createThruster($item, $shipItem);
 
-            case 'Ship.SelfDestruct':
+            case 'SelfDestruct':
                 return $this->createSelfDestruct($item, $shipItem);
 
-            case 'Ship.Radar':
+            case 'Radar':
                 return $this->createRadar($item, $shipItem);
 
             default:
@@ -292,9 +258,6 @@ class ShipItems implements ShouldQueue
             'damage_regen_delay' => $item['shield']['damage_regen_delay'],
             'max_reallocation' => $item['shield']['max_reallocation'],
             'reallocation_rate' => $item['shield']['reallocation_rate'],
-            'shield_hardening_factor' => $item['shield']['shield_hardening_factor'] ?? 0,
-            'shield_hardening_duration' => $item['shield']['shield_hardening_duration'] ?? 0,
-            'shield_hardening_cooldown' => $item['shield']['shield_hardening_cooldown'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
 
@@ -333,7 +296,7 @@ class ShipItems implements ShouldQueue
                 'type' => $type,
             ], [
                 'drive_speed' => $mode['drive_speed'],
-                'cooldown_time' => $mode['cooldown_time'] ?? 0,
+                'cooldown_time' => $mode['cooldown_time'] ?? null,
                 'stage_one_accel_rate' => $mode['stage_one_accel_rate'],
                 'stage_two_accel_rate' => $mode['stage_two_accel_rate'],
                 'engage_speed' => $mode['engage_speed'],
@@ -355,54 +318,59 @@ class ShipItems implements ShouldQueue
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'fill_rate' => $item['fuel_tank']['fill_rate'] ?? 0,
-            'drain_rate' => $item['fuel_tank']['drain_rate'] ?? 0,
-            'capacity' => $item['fuel_tank']['capacity'] ?? 0,
+            'fill_rate' => $item['fuel_tank']['fill_rate'] ?? null,
+            'drain_rate' => $item['fuel_tank']['drain_rate'] ?? null,
+            'capacity' => $item['fuel_tank']['capacity'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }
 
-    private function createFuelIntake(array $item, ShipItemModel $shipItem): Model
+    private function createFuelIntake(array $item, ShipItemModel $shipItem): ?Model
     {
+        if ($item['fuel_intake'] === null) {
+            return null;
+        }
+
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'fuel_push_rate' => $item['fuel_intake']['fuel_push_rate'] ?? 0,
-            'minimum_rate' => $item['fuel_intake']['minimum_rate'] ?? 0,
+            'fuel_push_rate' => $item['fuel_intake']['fuel_push_rate'] ?? null,
+            'minimum_rate' => $item['fuel_intake']['minimum_rate'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }
 
     private function createWeapon(array $item, ShipItemModel $shipItem): ?Model
     {
-        if (!isset($item['weapon']) && $item['item_type'] !== 'Tractor Beam') {
+        if (!isset($item['weapon']) && $shipItem->item->type !== 'Tractor Beam') {
             return null;
         }
+
 
         /** @var Weapon $weapon */
         $weapon = $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'speed' => $item['weapon']['speed'] ?? 0,
-            'range' => $item['weapon']['range'] ?? 0,
-            'size' => $item['weapon']['size'] ?? $item['size'],
-            'capacity' => $item['weapon']['capacity'] ?? 0,
+            'speed' => Arr::get($item, 'weapon.ammunition.speed'),
+            'range' => Arr::get($item, 'weapon.ammunition.range'),
+            'size' => Arr::get($item, 'weapon.size'),
+            'capacity' => Arr::get($item, 'weapon.capacity'),
 
             'ship_item_id' => $shipItem->id,
         ]);
 
-        foreach (($item['weapon']['damages'] ?? []) as $type => $damage) {
+        foreach (($item['weapon']['ammunition']['damages'] ?? []) as $type => $damage) {
             if (empty($damage)) {
                 continue;
             }
 
-            foreach ($damage as $name => $value) {
+            foreach ($damage as $value) {
                 $weapon->damages()->updateOrCreate([
                     'ship_weapon_id' => $weapon->id,
-                    'type' => $type,
-                    'name' => $name,
+                    'type' => $value['type'],
+                    'name' => $value['name'],
                 ], [
-                    'damage' => $value,
+                    'damage' => $value['damage'],
                 ]);
             }
         }
@@ -412,24 +380,39 @@ class ShipItems implements ShouldQueue
             $weapon->modes()->updateOrCreate([
                 'mode' => $mode['mode'],
             ], [
-                'localised' => $mode['localised'],
-                'type' => $mode['type'],
-                'rounds_per_minute' => $mode['rounds_per_minute'],
-                'ammo_per_shot' => $mode['ammo_per_shot'],
-                'pellets_per_shot' => $mode['pellets_per_shot'],
+                'localised' => $mode['localised'] ?? null,
+                'type' => $mode['type'] ?? null,
+                'rounds_per_minute' => $mode['rounds_per_minute'] ?? null,
+                'ammo_per_shot' => $mode['ammo_per_shot'] ?? null,
+                'pellets_per_shot' => $mode['pellets_per_shot'] ?? null,
+            ]);
+        }
+
+        if (!empty($item['weapon']['regen_consumption'])) {
+            $weapon->regen()->updateOrCreate([
+                'ship_weapon_id' => $weapon->id,
+            ], [
+                'requested_regen_per_sec' => $item['weapon']['regen_consumption']['requested_regen_per_sec'],
+                'requested_ammo_load' => $item['weapon']['regen_consumption']['requested_ammo_load'],
+                'cooldown' => $item['weapon']['regen_consumption']['cooldown'],
+                'cost_per_bullet' => $item['weapon']['regen_consumption']['cost_per_bullet'],
             ]);
         }
 
         return $weapon;
     }
 
-    private function createMissileRack(array $item, ShipItemModel $shipItem): Model
+    private function createMissileRack(array $item, ShipItemModel $shipItem): ?Model
     {
+        if ($item['missile_rack'] === null) {
+            return null;
+        }
+
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'missile_count' => $item['missile_rack']['missile_count'] ?? 0,
-            'missile_size' => $item['missile_rack']['missile_size'] ?? 0,
+            'missile_count' => $item['missile_rack']['missile_count'] ?? null,
+            'missile_size' => $item['missile_rack']['missile_size'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }
@@ -444,7 +427,7 @@ class ShipItems implements ShouldQueue
             'uuid' => $item['uuid'],
         ], [
             'signal_type' => $item['missile']['signal_type'],
-            'lock_time' => $item['missile']['lock_time'] ?? 0,
+            'lock_time' => $item['missile']['lock_time'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
 
@@ -468,21 +451,25 @@ class ShipItems implements ShouldQueue
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'min_size' => $item['turret']['min_size'] ?? 0,
-            'max_size' => $item['turret']['max_size'] ?? 0,
-            'max_mounts' => $item['turret']['max_mounts'] ?? 0,
+            'min_size' => $item['turret']['min_size'] ?? null,
+            'max_size' => $item['turret']['max_size'] ?? null,
+            'max_mounts' => $item['turret']['max_mounts'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }
 
-    private function createThruster(array $item, ShipItemModel $shipItem): Model
+    private function createThruster(array $item, ShipItemModel $shipItem): ?Model
     {
+        if ($item['thruster'] === null) {
+            return null;
+        }
+
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'thrust_capacity' => $item['thruster']['thrust_capacity'] ?? 0,
-            'min_health_thrust_multiplier' => $item['thruster']['min_health_thrust_multiplier'] ?? 0,
-            'fuel_burn_per_10k_newton' => $item['thruster']['fuel_burn_per_10k_newton'] ?? 0,
+            'thrust_capacity' => $item['thruster']['thrust_capacity'] ?? null,
+            'min_health_thrust_multiplier' => $item['thruster']['min_health_thrust_multiplier'] ?? null,
+            'fuel_burn_per_10k_newton' => $item['thruster']['fuel_burn_per_10k_newton'] ?? null,
             'type' => $item['thruster']['type'],
             'ship_item_id' => $shipItem->id,
         ]);
@@ -493,12 +480,12 @@ class ShipItems implements ShouldQueue
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'damage' => $item['self_destruct']['damage'] ?? 0,
-            'radius' => $item['self_destruct']['radius'] ?? 0,
-            'min_radius' => $item['self_destruct']['min_radius'] ?? 0,
-            'phys_radius' => $item['self_destruct']['phys_radius'] ?? 0,
-            'min_phys_radius' => $item['self_destruct']['min_phys_radius'] ?? 0,
-            'time' => $item['self_destruct']['time'] ?? 0,
+            'damage' => $item['self_destruct']['damage'] ?? null,
+            'radius' => $item['self_destruct']['radius'] ?? null,
+            'min_radius' => $item['self_destruct']['min_radius'] ?? null,
+            'phys_radius' => $item['self_destruct']['phys_radius'] ?? null,
+            'min_phys_radius' => $item['self_destruct']['min_phys_radius'] ?? null,
+            'time' => $item['self_destruct']['time'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }
@@ -508,8 +495,8 @@ class ShipItems implements ShouldQueue
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'initial_ammo_count' => $item['counter_measure']['initial_ammo_count'] ?? 0,
-            'max_ammo_count' => $item['counter_measure']['max_ammo_count'] ?? 0,
+            'initial_ammo_count' => $item['counter_measure']['initial_ammo_count'] ?? null,
+            'max_ammo_count' => $item['counter_measure']['max_ammo_count'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }
@@ -521,45 +508,42 @@ class ShipItems implements ShouldQueue
         ], [
             'detection_lifetime' => $item['radar']['detection_lifetime'] ?? 0,
             'altitude_ceiling' => $item['radar']['altitude_ceiling'] ?? 0,
-            'enable_cross_section_occlusion' => $item['radar']['enable_cross_section_occlusion'] ?? false,
+            'enable_cross_section_occlusion' => $item['radar']['enable_cross_section_occlusion'] ?? 0,
             'ship_item_id' => $shipItem->id,
         ]);
     }
 
-    private function createMiningLaser(array $item, ShipItemModel $shipItem): Model
+    private function createMiningLaser(array $item, ShipItemModel $shipItem): ?Model
     {
+        if (!isset($item['mining_laser'])) {
+            return null;
+        }
+
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'hit_type' => $item['mining_laser']['hit_type'] ?? 0,
-            'energy_rate' => $item['mining_laser']['energy_rate'] ?? 0,
-            'full_damage_range' => $item['mining_laser']['full_damage_range'] ?? 0,
-            'zero_damage_range' => $item['mining_laser']['zero_damage_range'] ?? 0,
-            'heat_per_second' => $item['mining_laser']['heat_per_second'] ?? 0,
-            'damage' => $item['mining_laser']['damage'] ?? 0,
-            'modifier_resistance' => $item['mining_laser']['modifier_resistance'] ?? 0,
-            'modifier_instability' => $item['mining_laser']['modifier_instability'] ?? 0,
-            'modifier_charge_window_size' => $item['mining_laser']['modifier_charge_window_size'] ?? 0,
-            'modifier_charge_window_rate' => $item['mining_laser']['modifier_charge_window_rate'] ?? 0,
-            'modifier_shatter_damage' => $item['mining_laser']['modifier_shatter_damage'] ?? 0,
-            'modifier_catastrophic_window_rate' => $item['mining_laser']['modifier_catastrophic_window_rate'] ?? 0,
-            'consumable_slots' => $item['turret']['max_mounts'] ?? 0,
+            'modifier_resistance' => $item['mining_laser']['modifier_resistance'] ?? null,
+            'modifier_instability' => $item['mining_laser']['modifier_instability'] ?? null,
+            'modifier_charge_window_size' => $item['mining_laser']['modifier_charge_window_size'] ?? null,
+            'modifier_charge_window_rate' => $item['mining_laser']['modifier_charge_window_rate'] ?? null,
+            'modifier_shatter_damage' => $item['mining_laser']['modifier_shatter_damage'] ?? null,
+            'modifier_catastrophic_window_rate' => $item['mining_laser']['modifier_catastrophic_window_rate'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }
 
-    private function createCargoGrid(array $item, ShipItemModel $shipItem): Model
+    private function createCargoGrid(array $item, ShipItemModel $shipItem): ?Model
     {
+        if (!isset($item['cargo_grid'])) {
+            return null;
+        }
+
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'personal_inventory' => $item['cargo_grid']['personal_inventory'] ?? false,
-            'invisible' => $item['cargo_grid']['invisible'] ?? false,
-            'mining_only' => $item['cargo_grid']['mining_only'] ?? false,
-            'min_volatile_power_to_explode' => $item['cargo_grid']['min_volatile_power_to_explode'] ?? 0,
-            'x' => $item['cargo_grid']['x'] ?? 0,
-            'y' => $item['cargo_grid']['y'] ?? 0,
-            'z' => $item['cargo_grid']['z'] ?? 0,
+            'x' => $item['cargo_grid']['x'] ?? null,
+            'y' => $item['cargo_grid']['y'] ?? null,
+            'z' => $item['cargo_grid']['z'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }
@@ -569,7 +553,7 @@ class ShipItems implements ShouldQueue
         return $shipItem->specification()->updateOrCreate([
             'uuid' => $item['uuid'],
         ], [
-            'scu' => $item['personal_inventory']['scu'] ?? 0,
+            'scu' => $item['personal_inventory']['scu'] ?? null,
             'ship_item_id' => $shipItem->id,
         ]);
     }

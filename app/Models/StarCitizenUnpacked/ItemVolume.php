@@ -20,6 +20,7 @@ class ItemVolume extends Model
         'height',
         'length',
         'volume',
+        'override',
     ];
 
     protected $casts = [
@@ -27,5 +28,6 @@ class ItemVolume extends Model
         'height' => 'double',
         'length' => 'double',
         'volume' => 'double',
+        'override' => 'boolean',
     ];
 }

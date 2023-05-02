@@ -28,48 +28,33 @@ class Vehicle implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * These are item types that added as an item when found as loadout on a hardpoint
-     *
-     * @var array|string[]
-     */
-    private array $createItemTypes = [
-        'FuelTank',
-        'QuantumFuelTank',
-        'FuelIntake',
-        'Turret',
-        'TurretBase',
-        'MiningArm',
-        'MainThruster',
-        'ManneuverThruster',
-        'SelfDestruct',
-        'ToolArm',
-        'WeaponDefensive',
-        'WeaponMining',
-        'WeaponMount',
-        'Radar',
-        'Cargo',
-        'CargoGrid',
-    ];
-
-    /**
-     * Parses a json file to array
-     *
-     * @var \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem
-     */
-    private \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem $parser;
-
-    /**
-     * Creates a model from parser
-     *
-     * @var ShipItems
-     */
-    private ShipItems $creator;
-
-    public function __construct()
+    private function isNotIgnoredClass(string $class): bool
     {
-        $this->parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem();
-        $this->creator = new ShipItems();
+        $tests = [
+            'fw22nfz',
+            'modifiers',
+            'SM_TE',
+            'Bombless',
+            'BIS29',
+            'Indestructible',
+            'Prison',
+            'NoCrimesAgainst',
+            'Unmanned',
+            'F7A_Mk1',
+            'CINEMATIC_ONLY',
+            'NO_CUSTOM',
+            'Test',
+        ];
+
+        $isGood = true;
+
+        foreach ($tests as $toTest) {
+            $isGood = $isGood && stripos($class, $toTest) === false;
+        }
+
+        $isGood = $isGood && $class !== 'TEST_Boat';
+
+        return $isGood;
     }
 
     public function handle(): void
@@ -95,46 +80,7 @@ class Vehicle implements ShouldQueue
         collect($vehicles)->chunk(5)->each(function (Collection $chunk) {
             $chunk
                 ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'fw22nfz') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'modifiers') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'SM_TE') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'Bombless') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'BIS29') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'Indestructible') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'Prison') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'NoCrimesAgainst') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'Unmanned') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'F7A_Mk1') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'CINEMATIC_ONLY') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'NO_CUSTOM') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return stripos($vehicle['ClassName'], 'Test') === false;
-                })
-                ->filter(function (array $vehicle) {
-                    return $vehicle['ClassName'] !== 'TEST_Boat';
+                    return $this->isNotIgnoredClass($vehicle['ClassName']);
                 })
                 ->map(function (array $vehicle) {
                     try {
@@ -344,44 +290,11 @@ class Vehicle implements ShouldQueue
      * @param string $className
      * @return string|null
      */
-    private function createModel(string $className): ?string
+    private function getItemUUID(string $className): ?string
     {
-        try {
-            $item = File::get(
-                storage_path(
-                    sprintf(
-                        'app/api/scunpacked-data/v2/items/%s-raw.json',
-                        str_replace('-', '_', strtolower($className))
-                    )
-                )
-            );
-
-            $itemRaw = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
-
-            if (isset($itemRaw['__ref'])) {
-                $item = ShipItem::query()->firstWhere('uuid', $itemRaw['__ref']);
-
-                // phpcs:ignore
-                if (in_array(($itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'] ?? ''), $this->createItemTypes, true)) {
-                    // phpcs:ignore
-                    $itemRaw['Classification'] = 'Ship.' . $itemRaw['Components']['SAttachableComponentParams']['AttachDef']['Type'];
-                    $this->parser->setItems(collect([$itemRaw]));
-
-                    $data = $this->parser->getData()->first();
-
-                    if ($data !== null) {
-                        $this->creator->createModel($data);
-                    }
-
-                    $itemUuid = $itemRaw['__ref'];
-                } elseif ($item !== null) {
-                    $itemUuid = $item->uuid;
-                }
-            }
-        } catch (FileNotFoundException | JsonException $e) {
-        }
-
-        return $itemUuid ?? null;
+        return \App\Models\StarCitizenUnpacked\Item::query()
+            ->where('class_name', strtolower($className))
+            ->first(['uuid'])->uuid ?? null;
     }
 
     /**
@@ -412,7 +325,7 @@ class Vehicle implements ShouldQueue
                     ->each(function ($hardpoint) use ($hardpoints, $vehicle) {
                         $itemUuid = null;
                         if (isset($hardpoint['entityClassName']) && !empty($hardpoint['entityClassName'])) {
-                            $itemUuid = $this->createModel($hardpoint['entityClassName']);
+                            $itemUuid = $this->getItemUUID($hardpoint['entityClassName']);
                         }
 
                         $itemPortName = strtolower($hardpoint['itemPortName']);
@@ -496,44 +409,25 @@ class Vehicle implements ShouldQueue
                 continue;
             }
 
-            try {
-                $item = File::get(
-                    storage_path(
-                        sprintf(
-                            'app/api/scunpacked-data/v2/items/%s-raw.json',
-                            str_replace('-', '_', strtolower($subPoint['entityClassName']))
-                        )
-                    )
+            $point = $vehicle->hardpoints()->create(
+                [
+                    'hardpoint_name' => $subPoint['itemPortName'],
+                    'class_name' => $subPoint['entityClassName'],
+                    'parent_hardpoint_id' => $parent->id,
+                    'equipped_vehicle_item_uuid' => $this->getItemUUID($subPoint['entityClassName']),
+                ]
+            );
+
+            // phpcs:disable
+            if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) &&
+                !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
+                $this->createSubPoint(
+                    $subPoint['loadout']['SItemPortLoadoutManualParams']['entries'],
+                    $point,
+                    $vehicle
                 );
-
-                $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
-
-                if (isset($subPoint['entityClassName'])) {
-                    $this->createModel($subPoint['entityClassName']);
-                }
-
-                $point = $vehicle->hardpoints()->create(
-                    [
-                        'hardpoint_name' => $subPoint['itemPortName'],
-                        'class_name' => $subPoint['entityClassName'],
-                        'parent_hardpoint_id' => $parent->id,
-                        'equipped_vehicle_item_uuid' => $item['__ref'],
-                    ]
-                );
-
-                // phpcs:disable
-                if (isset($subPoint['loadout']['SItemPortLoadoutManualParams']['entries']) &&
-                    !empty($subPoint['loadout']['SItemPortLoadoutManualParams']['entries'])) {
-                    $this->createSubPoint(
-                        $subPoint['loadout']['SItemPortLoadoutManualParams']['entries'],
-                        $point,
-                        $vehicle
-                    );
-                }
-                // phpcs:enable
-            } catch (JsonException | FileNotFoundException $e) {
-                continue;
             }
+            // phpcs:enable
         }
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizenUnpacked;
 
-use App\Jobs\StarCitizenUnpacked\Import\ShipItems;
+use App\Jobs\StarCitizenUnpacked\Import\ShipItem;
 use Illuminate\Console\Command;
 
 class ImportShipItems extends Command
@@ -30,7 +30,7 @@ class ImportShipItems extends Command
      */
     public function handle()
     {
-        ShipItems::dispatch();
+        ShipItem::dispatch();
         return 0;
     }
 }

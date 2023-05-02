@@ -41,8 +41,8 @@ final class PersonalInventory extends AbstractItemSpecification
 
         $basePath = 'Components.SInventoryParams.capacity.';
 
-        $centi = ((double)$rawData->pull($basePath . 'SCentiCargoUnit.centiSCU', 0)) * (10 ** -2);
-        $micro = ((double)$rawData->pull($basePath . 'SCentiCargoUnit.microSCU', 0)) * (10 ** -6);
+        $centi = ((double)Arr::get($rawData, ($basePath . 'SCentiCargoUnit.centiSCU', 0)) * (10 ** -2);
+        $micro = ((double)Arr::get($rawData, ($basePath . 'SCentiCargoUnit.microSCU', 0)) * (10 ** -6);
 
         $out = max($centi, $micro);
 

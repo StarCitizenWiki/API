@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\ShipItems;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 final class FuelIntake extends AbstractItemSpecification
 {
-    public static function getData(array $item, Collection $rawData): ?array
+    public static function getData(Collection $item): ?array
     {
-        if (!isset($rawData['Components']['SCItemFuelIntakeParams'])) {
+        $data = self::get($item, 'SCItemFuelIntakeParams');
+
+        if ($data === null) {
             return null;
         }
 
-        $basePath = 'Components.SCItemFuelIntakeParams.';
-
         return array_filter([
-            'fuel_push_rate' => $rawData->pull($basePath . 'fuelPushRate'),
-            'minimum_rate' => $rawData->pull($basePath . 'minimumRate'),
+            'fuel_push_rate' => Arr::get($data, 'fuelPushRate'),
+            'minimum_rate' => Arr::get($data, 'minimumRate'),
         ], static function ($entry) {
-            return !empty($entry);
+            return $entry !== null;
         });
     }
 }

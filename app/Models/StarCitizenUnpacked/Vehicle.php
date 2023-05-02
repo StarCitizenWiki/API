@@ -170,10 +170,16 @@ class Vehicle extends CommodityItem
     public function getScuAttribute(): float
     {
         return $this->hardpoints()
-            ->whereRelation('item', 'type', 'Cargo')
             ->get()
             ->map(function (VehicleHardpoint $hardpoint) {
                 return $hardpoint->item;
+            })
+            ->filter()
+            ->filter(function (ShipItem $item) {
+                return $item->uuid !== null;
+            })
+            ->filter(function (ShipItem $item) {
+                return in_array($item->item->type, ['Cargo', 'CargoGrid'], true);
             })
             ->map(function (ShipItem $item) {
                 return $item->specification;

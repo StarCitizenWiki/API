@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\ShipItems;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 final class Radar extends AbstractItemSpecification
 {
-    public static function getData(array $item, Collection $rawData): ?array
+    public static function getData(Collection $item): ?array
     {
-        if (!isset($rawData['Components']['SCItemRadarComponentParams'])) {
+        $data = self::get($item, 'SCItemRadarComponentParams');
+
+        if ($data === null) {
             return null;
         }
 
-        $basePath = 'Components.SCItemRadarComponentParams.';
-
         return array_filter([
-            'detection_lifetime' => $rawData->pull($basePath . 'detectionLifetime'),
-            'altitude_ceiling' => $rawData->pull($basePath . 'altitudeCeiling'),
-            'enable_cross_section_occlusion' => $rawData->pull($basePath . 'enableCrossSectionOcclusion'),
+            'detection_lifetime' => Arr::get($data, 'detectionLifetime'),
+            'altitude_ceiling' => Arr::get($data, 'altitudeCeiling'),
+            'enable_cross_section_occlusion' => Arr::get($data, 'enableCrossSectionOcclusion'),
         ], static function ($entry) {
-            return !empty($entry);
+            return $entry !== null;
         });
     }
 }

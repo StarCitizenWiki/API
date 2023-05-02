@@ -5,57 +5,25 @@ declare(strict_types=1);
 namespace App\Services\Parser\StarCitizenUnpacked;
 
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use JsonException;
 
 final class Clothing extends AbstractCommodityItem
 {
-    private Collection $item;
-    private Collection $labels;
-    private Collection $manufacturers;
-
-    /**
-     * @param string $fileName
-     * @param Collection $labels
-     * @param Collection $manufacturers
-     * @throws FileNotFoundException
-     * @throws JsonException
-     */
-    public function __construct(string $fileName, Collection $labels, Collection $manufacturers)
-    {
-        $items = File::get(storage_path(sprintf('app/%s', $fileName)));
-        $this->item = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
-        $this->labels = $labels;
-        $this->manufacturers = $manufacturers;
-    }
-
     public function getData(): ?array
     {
-        $attachDef = $this->item->pull('Components.SAttachableComponentParams.AttachDef');
-        $tempResist = $this->item->pull('Components.SCItemClothingParams.TemperatureResistance');
+        $attachDef = $this->getAttachDef();
+        $tempResist = $this->get('SCItemClothingParams.TemperatureResistance');
 
-        if ($attachDef === null || strpos($attachDef['Type'], 'Clothing') === false) {
+        if ($attachDef === null) {
             return null;
         }
 
-        $name = $this->labels->get(substr($attachDef['Localization']['Name'], 1));
-        $name = str_replace(
-            [
-                '“',
-                '”',
-                '"',
-                '\'',
-            ],
-            '"',
-            trim($name ?? 'Unknown Clothing')
-        );
+        $name = $this->getName($attachDef, 'Unknown Clothing');
 
-        $description = $this->getDescription($this->item->get('ClassName')) ?? '';
-
-        if (empty($description)) {
-            $description = $this->labels->get(substr($attachDef['Localization']['Description'], 1)) ?? '';
-        }
+        $description = $this->getDescription($attachDef);
 
         $data = $this->tryExtractDataFromDescription($description, [
             'Manufacturer' => 'manufacturer',
@@ -65,18 +33,9 @@ final class Clothing extends AbstractCommodityItem
             'Temp\. Rating' => 'temp_rating',
         ]);
 
-        $manufacturer = $this->manufacturers->get($attachDef['Manufacturer'], 'Unknown Manufacturer');
-        if ($manufacturer === '@LOC_PLACEHOLDER') {
-            $manufacturer = 'Unknown Manufacturer';
-        }
-
-        $description = str_replace(['’', '`', '´'], '\'', trim($data['description'] ?? $description));
-
         return [
-            'uuid' => $this->item->get('__ref'),
-            'description' => $description,
-            'name' => $name,
-            'manufacturer' => $manufacturer,
+            'uuid' => $this->getUUID(),
+            'description' => $this->cleanString(trim($data['description'] ?? $description)),
             'temp_resistance_min' => $tempResist['MinResistance'] ?? null,
             'temp_resistance_max' => $tempResist['MaxResistance'] ?? null,
             'type' => $this->getType($attachDef['Type'], $name),
@@ -152,24 +111,5 @@ final class Clothing extends AbstractCommodityItem
         }
 
         return 'Unknown Type';
-    }
-
-    private function getDescription(?string $classname): ?string
-    {
-        if ($classname === null) {
-            return null;
-        }
-
-        try {
-            $item = File::get(storage_path(
-                sprintf('app/api/scunpacked-data/v2/items/%s.json', strtolower($classname))
-            ));
-
-            $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
-        } catch (FileNotFoundException | JsonException $exception) {
-            return null;
-        }
-
-        return $item['Description'] ?? null;
     }
 }

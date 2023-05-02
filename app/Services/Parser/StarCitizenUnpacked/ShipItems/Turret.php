@@ -11,7 +11,7 @@ final class Turret extends AbstractItemSpecification
     public static function getData(array $item, Collection $rawData): ?array
     {
         /** @var Collection|null $data */
-        $data = $rawData->pull('Components.SItemPortContainerComponentParams');
+        $data = Arr::get($rawData, ('Components.SItemPortContainerComponentParams');
         if ($data === null) {
             return null;
         }

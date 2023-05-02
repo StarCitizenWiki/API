@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizenUnpacked;
 
-use App\Jobs\StarCitizenUnpacked\Import\WeaponAttachments;
+use App\Jobs\StarCitizenUnpacked\Import\WeaponAttachment;
 use App\Models\StarCitizenUnpacked\Item;
 use Illuminate\Console\Command;
 
@@ -36,7 +36,7 @@ class ImportWeaponAttachments extends Command
             return 1;
         }
 
-        WeaponAttachments::dispatch();
+        WeaponAttachment::dispatch();
         return 0;
     }
 }

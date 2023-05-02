@@ -4,28 +4,37 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked\ShipItems;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 final class CargoGrid extends AbstractItemSpecification
 {
-    public static function getData(array $item, Collection $rawData): ?array
+    public static function getData(Collection $item): ?array
     {
-        if (!isset($rawData['Components']['SCItemCargoGridParams'])) {
-            return null;
+        $data = self::get($item, 'SCItemCargoGridParams');
+        $attachDef = self::getAttachDef($item);
+
+        if ($data === null) {
+            if ($attachDef['Type'] === 'CargoGrid' && isset($item['inventoryContainer'])) {
+                $data = collect([
+                    'dimensions' => [
+                        'x' => $item['inventoryContainer']['x'],
+                        'y' => $item['inventoryContainer']['y'],
+                        'z' => $item['inventoryContainer']['z'],
+                    ]
+                ]);
+            } else {
+                return null;
+            }
         }
 
-        $basePath = 'Components.SCItemCargoGridParams.';
-
         return array_filter([
-            'personal_inventory' => $rawData->pull($basePath . 'personalInventory'),
-            'invisible' => $rawData->pull($basePath . 'invisible'),
-            'mining_only' => $rawData->pull($basePath . 'miningOnly'),
-            'min_volatile_power_to_explode' => $rawData->pull($basePath . 'minVolatilePowerToExplode'),
-            'x' => $rawData->pull($basePath . 'dimensions.x'),
-            'y' => $rawData->pull($basePath . 'dimensions.y'),
-            'z' => $rawData->pull($basePath . 'dimensions.z'),
+            'x' => Arr::get($data, 'dimensions.x'),
+            'y' => Arr::get($data, 'dimensions.y'),
+            'z' => Arr::get($data, 'dimensions.z'),
         ], static function ($entry) {
             return !empty($entry);
         });
     }
+
 }

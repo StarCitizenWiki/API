@@ -8,12 +8,15 @@ use App\Models\StarCitizenUnpacked\Item;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal as WeaponPersonalModel;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAmmunition;
+use App\Services\Parser\StarCitizenUnpacked\Labels;
+use App\Services\Parser\StarCitizenUnpacked\Weapon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use JsonException;
 
 class WeaponPersonal implements ShouldQueue
 {
@@ -22,53 +25,59 @@ class WeaponPersonal implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    private string $filePath;
+
+    public function __construct(string $filePath)
+    {
+        $this->filePath = $filePath;
+    }
+
     /**
      * Execute the job.
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        try {
-            $weapons = new \App\Services\Parser\StarCitizenUnpacked\FpsItems\WeaponPersonal();
-        } catch (\JsonException | FileNotFoundException $e) {
-            $this->fail($e->getMessage());
+        $labels = (new Labels())->getData();
 
+        try {
+            $parser = new Weapon($this->filePath, $labels);
+        } catch (JsonException | FileNotFoundException $e) {
+            $this->fail($e->getMessage());
             return;
         }
 
-        $weapons->getData(true)
-            ->each(function ($weapon) {
-                if (!Item::query()->where('uuid', $weapon['uuid'])->exists()) {
-                    return;
-                }
+        $weapon = $parser->getData();
 
-                /** @var WeaponPersonalModel $model */
-                $model = WeaponPersonalModel::updateOrCreate([
-                    'uuid' => $weapon['uuid'],
-                ], [
-                    'weapon_type' => $weapon['weapon_type'] ?? null,
-                    'weapon_class' => $weapon['weapon_class'] ?? null,
-                    'effective_range' => $weapon['effective_range'],
-                    'rof' => $weapon['rof'],
-                    'version' => config('api.sc_data_version'),
-                ]);
+        $model = WeaponPersonalModel::updateOrCreate([
+            'uuid' => $weapon['uuid'],
+        ], [
+            'weapon_type' => $weapon['weapon_type'] ?? null,
+            'weapon_class' => $weapon['weapon_class'] ?? null,
+            'effective_range' => $weapon['effective_range'],
+            'rof' => $weapon['rof'],
+            'version' => config('api.sc_data_version'),
+        ]);
 
-                $model->translations()->updateOrCreate([
-                    'locale_code' => 'en_EN',
-                ], [
-                    'translation' => $weapon['description'] ?? '',
-                ]);
+        $model->translations()->updateOrCreate([
+            'locale_code' => 'en_EN',
+        ], [
+            'translation' => $weapon['description'] ?? '',
+        ]);
 
-                $this->addAmmunition($weapon, $model);
-                $this->addAttachments($weapon, $model);
-                $this->addAttachmentPorts($weapon, $model);
-                $this->addModes($weapon, $model);
-            });
+        $this->addAmmunition($weapon, $model);
+        $this->addAttachments($weapon, $model);
+        $this->addAttachmentPorts($weapon, $model);
+        $this->addModes($weapon, $model);
     }
 
     private function addAmmunition(array $data, WeaponPersonalModel $weapon): void
     {
+        if (empty($data['ammunition'])) {
+            return;
+        }
+
         /** @var WeaponPersonalAmmunition $ammunition */
         $ammunition = $weapon->ammunition()->updateOrCreate([
             'weapon_id' => $weapon->id,
@@ -93,6 +102,10 @@ class WeaponPersonal implements ShouldQueue
 
     private function addAttachments(array $data, WeaponPersonalModel $weapon): void
     {
+        if (empty($data['attachments'])) {
+            return;
+        }
+
         $ids = collect($data['attachments'])->map(function ($uuid) {
             $attachment = Attachment::query()->where('uuid', $uuid)->first();
             if ($attachment !== null) {
@@ -109,6 +122,10 @@ class WeaponPersonal implements ShouldQueue
 
     private function addAttachmentPorts(array $data, WeaponPersonalModel $weapon): void
     {
+        if (empty($data['attachment_ports'])) {
+            return;
+        }
+
         collect($data['attachment_ports'])->each(function (array $attachment) use ($weapon) {
             $weapon->attachmentPorts()->updateOrCreate([
                 'position' => $attachment['position'],
@@ -122,15 +139,19 @@ class WeaponPersonal implements ShouldQueue
 
     private function addModes(array $data, WeaponPersonalModel $weapon): void
     {
-        collect($data['modes'])->each(function (array $attachment) use ($weapon) {
+        if (empty($data['modes'])) {
+            return;
+        }
+
+        collect($data['modes'])->each(function (array $mode) use ($weapon) {
             $weapon->modes()->updateOrCreate([
-                'mode' => $attachment['mode'],
+                'mode' => $mode['mode'],
             ], [
-                'localised' => $attachment['localised'],
-                'type' => $attachment['type'],
-                'rounds_per_minute' => $attachment['rounds_per_minute'],
-                'ammo_per_shot' => $attachment['ammo_per_shot'],
-                'pellets_per_shot' => $attachment['pellets_per_shot'],
+                'localised' => $mode['localised'],
+                'type' => $mode['type'],
+                'rounds_per_minute' => $mode['rounds_per_minute'],
+                'ammo_per_shot' => $mode['ammo_per_shot'],
+                'pellets_per_shot' => $mode['pellets_per_shot'],
             ]);
         });
     }
