@@ -239,7 +239,7 @@ class VehicleTransformer extends TranslationTransformer
                 'weapon' => $vehicle->unpacked->weapon_crew ?? 0,
                 'operation' => $vehicle->unpacked->operation_crew ?? 0,
             ],
-            'health' => $vehicle->unpacked->health_body ?? 0,
+            'health' => $vehicle->unpacked->health ?? 0,
             'speed' => [
                 'scm' => $vehicle->unpacked->scm_speed ?? $vehicle->scm_speed,
                 'afterburner' => $vehicle->afterburner_speed,

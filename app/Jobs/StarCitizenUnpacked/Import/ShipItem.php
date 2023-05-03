@@ -59,6 +59,7 @@ class ShipItem implements ShouldQueue
             'grade' => $item['grade'],
             'class' => $item['class'],
             'type' => $item['type'],
+            'health' => $item['health'],
             'version' => config('api.sc_data_version'),
         ]);
 
@@ -89,8 +90,8 @@ class ShipItem implements ShouldQueue
         ], [
             'power_base' => $item['power']['power_base'] ?? null,
             'power_draw' => $item['power']['power_draw'] ?? null,
-            'throttleable' => $item['power']['throttleable'] ?? null,
-            'overclockable' => $item['power']['overclockable'] ?? null,
+            'throttleable' => $item['power']['throttleable'] ?? false,
+            'overclockable' => $item['power']['overclockable'] ?? false,
             'overclock_threshold_min' => $item['power']['overclock_threshold_min'] ?? null,
             'overclock_threshold_max' => $item['power']['overclock_threshold_max'] ?? null,
             'overclock_performance' => $item['power']['overclock_performance'] ?? null,

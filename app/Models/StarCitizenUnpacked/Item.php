@@ -50,6 +50,7 @@ class Item extends HasTranslations
         'manufacturer',
         'size',
         'class_name',
+        'health',
         'version',
     ];
 
@@ -233,6 +234,14 @@ class Item extends HasTranslations
             'item_uuid',
             'uuid'
         )->where('override', 0);
+    }
+    public function volumeOverride(): HasOne
+    {
+        return $this->hasOne(
+            ItemVolume::class,
+            'item_uuid',
+            'uuid'
+        )->where('override', 1)->withDefault();
     }
 
     public function container(): HasOne

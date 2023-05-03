@@ -14,7 +14,7 @@ class WeaponPersonalAttachmentPortsTransformer extends AbstractTranslationTransf
      *
      * @return array
      */
-    public function transform(WeaponPersonalAttachmentPort $port): array
+    public function transform($port): array
     {
         return [
             'name' => $port->name,

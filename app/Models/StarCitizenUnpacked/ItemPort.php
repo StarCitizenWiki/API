@@ -38,4 +38,13 @@ class ItemPort extends Model
             'uuid'
         );
     }
+
+    public function loadout(): HasOne
+    {
+        return $this->hasOne(
+            ItemPortLoadout::class,
+            'item_port_id',
+            'id'
+        )->withDefault();
+    }
 }

@@ -162,6 +162,22 @@ class Vehicle extends CommodityItem
             ->orderBy('hardpoint_name');
     }
 
+    public function getHealthAttribute(): float {
+        return $this->hardpoints()
+            ->get()
+            ->map(function (VehicleHardpoint $hardpoint) {
+                return $hardpoint->shipItem;
+            })
+            ->filter()
+            ->filter(function (ShipItem $item) {
+                return $item->uuid !== null;
+            })
+            ->map(function ($item) {
+                return $item->health ?? 0;
+            })
+            ->sum();
+    }
+
     /**
      * Sum the cargo capacities of all cargo grids
      *
@@ -172,16 +188,20 @@ class Vehicle extends CommodityItem
         return $this->hardpoints()
             ->get()
             ->map(function (VehicleHardpoint $hardpoint) {
-                return $hardpoint->item;
+                return $hardpoint->shipItem;
             })
             ->filter()
             ->filter(function (ShipItem $item) {
                 return $item->uuid !== null;
             })
             ->filter(function (ShipItem $item) {
-                return in_array($item->item->type, ['Cargo', 'CargoGrid'], true);
+                return in_array($item->item->type, ['Cargo', 'CargoGrid', 'Container'], true);
             })
-            ->map(function (ShipItem $item) {
+            ->map(function ($item) {
+                if ($item->item->type === 'Container') {
+                    return $item->item->container;
+                }
+
                 return $item->specification;
             })
             ->map(function ($item) {
@@ -197,11 +217,12 @@ class Vehicle extends CommodityItem
      */
     public function getPersonalInventoryScuAttribute(): float
     {
+        return 0;
         return $this->hardpoints()
             ->whereRelation('item', 'type', 'PersonalInventory')
             ->get()
             ->map(function (VehicleHardpoint $hardpoint) {
-                return $hardpoint->item;
+                return $hardpoint->shipItem;
             })
             ->map(function (ShipItem $item) {
                 return $item->specification;

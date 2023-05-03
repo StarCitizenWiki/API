@@ -15,7 +15,11 @@ return new class extends Migration
     {
         Schema::table('star_citizen_unpacked_ship_shields', function (Blueprint $table) {
             $table->dropColumn('shield_hardening_factor');
+        });
+        Schema::table('star_citizen_unpacked_ship_shields', function (Blueprint $table) {
             $table->dropColumn('shield_hardening_duration');
+        });
+        Schema::table('star_citizen_unpacked_ship_shields', function (Blueprint $table) {
             $table->dropColumn('shield_hardening_cooldown');
         });
     }

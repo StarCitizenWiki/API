@@ -6,6 +6,7 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal;
 
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ItemTransformer;
 use League\Fractal\Resource\Collection;
 
 class WeaponPersonalTransformer extends AbstractCommodityTransformer
@@ -47,12 +48,6 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
                 'speed' => $weapon->ammunition->speed ?? 0,
                 'range' => $weapon->ammunition->range ?? 0,
             ],
-            'volume' => [
-                'width' => $weapon->item->volume->width,
-                'height' => $weapon->item->volume->height,
-                'length' => $weapon->item->volume->length,
-                'volume' => $weapon->item->volume->volume,
-            ],
         ];
 
         $baseModel = $weapon->baseModel;
@@ -86,11 +81,11 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
 
     public function includeAttachments(WeaponPersonal $weapon): Collection
     {
-        return $this->collection($weapon->attachments, new WeaponPersonalAttachmentsTransformer());
+        return $this->collection($weapon->attachments, new ItemTransformer());
     }
 
     public function includeAttachmentPorts(WeaponPersonal $weapon): Collection
     {
-        return $this->collection($weapon->attachmentPorts, new WeaponPersonalAttachmentPortsTransformer());
+        return $this->collection($weapon->item->ports, new WeaponPersonalAttachmentPortsTransformer());
     }
 }

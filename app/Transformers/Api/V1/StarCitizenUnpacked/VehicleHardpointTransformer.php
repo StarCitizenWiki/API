@@ -15,6 +15,15 @@ use League\Fractal\Resource\Collection;
  */
 class VehicleHardpointTransformer extends AbstractCommodityTransformer
 {
+    private array $manualTypes = [
+        'Turret',
+        'TurretBase',
+        'ToolArm',
+        'MiningArm',
+        'WeaponMount',
+        'Container',
+    ];
+
     public function transform(VehicleHardpoint $hardpoint): array
     {
         $this->defaultIncludes = [];
@@ -24,12 +33,16 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
             'min_size' => $hardpoint->min_size,
             'max_size' => $hardpoint->max_size,
             'class_name' => $hardpoint->class_name,
+            'health' => optional($hardpoint->shipItem)->health,
         ];
 
-        if ($hardpoint->item->uuid !== null && $hardpoint->item->hasSpecification()) {
+        if (
+            $hardpoint->shipItem->hasSpecification() ||
+            ($hardpoint->shipItem->item !== null && in_array($hardpoint->shipItem->item->type, $this->manualTypes, true))
+        ) {
             $data += [
-                'type' => $hardpoint->item->item->type,
-                'sub_type' => $hardpoint->item->item->sub_type,
+                'type' => $hardpoint->shipItem->item->type,
+                'sub_type' => $hardpoint->shipItem->item->sub_type,
             ];
 
             $this->defaultIncludes[] = 'item';
@@ -42,9 +55,44 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
         return $data;
     }
 
-    public function includeItem(VehicleHardpoint $item)
+    public function includeItem(VehicleHardpoint $hardpoint)
     {
-        if ($item->item->uuid === null || !$item->item->hasSpecification()) {
+        if ($hardpoint->shipItem->item->type === 'Container') {
+            return $this->item($hardpoint->shipItem, function ($shipItem) {
+                return [
+                    'uuid' => $shipItem->uuid,
+                    'name' => $shipItem->item->name,
+                    'size' => $shipItem->item->size,
+                    'manufacturer' => $shipItem->item->manufacturer,
+                    'type' => $shipItem->type,
+                    'sub_type' => $shipItem->item->sub_type,
+                    'cargo_grid' => [
+                        'scu' => $shipItem->item->container->scu,
+                    ]
+                ];
+            });
+        } elseif (in_array($hardpoint->shipItem->item->type, $this->manualTypes, true)) {
+            /** @var \Illuminate\Support\Collection $ports */
+            $ports = $hardpoint->shipItem->ports;
+
+            return $this->item($ports, function (\Illuminate\Support\Collection $ports) use ($hardpoint) {
+                return [
+                    'uuid' => $hardpoint->shipItem->uuid,
+                    'name' => $hardpoint->shipItem->item->name,
+                    'size' => $hardpoint->shipItem->item->size,
+                    'manufacturer' => $hardpoint->shipItem->item->manufacturer,
+                    'type' => $hardpoint->shipItem->type,
+                    'sub_type' => $hardpoint->shipItem->item->sub_type,
+                    'turret' => [
+                        'max_mounts' => count($ports),
+                        'min_size' => $ports->min('min_size'),
+                        'max_size' => $ports->max('max_size'),
+                    ],
+                ];
+            });
+        }
+
+        if (!$hardpoint->shipItem->hasSpecification()) {
             return $this->null();
         }
 
@@ -52,7 +100,7 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
         $transformer->excludeDefaults();
 
         try {
-            return $this->item($item->item->specification, $transformer);
+            return $this->item($hardpoint->shipItem->specification, $transformer);
         } catch (ModelNotFoundException $e) {
             return $this->null();
         }

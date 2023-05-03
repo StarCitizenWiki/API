@@ -55,6 +55,7 @@ final class Weapon extends AbstractCommodityItem
             $out['capacity'] = floor($out['regen_consumption']['requested_ammo_load'] / $out['regen_consumption']['cost_per_bullet']);
         }
 
+
         return $out;
     }
 
@@ -213,7 +214,7 @@ final class Weapon extends AbstractCommodityItem
                         storage_path(
                             sprintf(
                                 'app/api/scunpacked-data/items/%s.json',
-                                $component['entityClassName']
+                                strtolower($component['entityClassName'])
                             )
                         )
                     );
@@ -227,7 +228,7 @@ final class Weapon extends AbstractCommodityItem
                     'uuid' => Arr::get($item, 'Raw.Entity.__ref'),
                 ];
             });
-
+        //dd($mapped);
         return array_filter($mapped->toArray());
     }
 

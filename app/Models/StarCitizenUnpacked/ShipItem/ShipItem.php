@@ -17,6 +17,7 @@ use App\Models\StarCitizenUnpacked\Thruster;
 use App\Models\StarCitizenUnpacked\Turret;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ShipItem extends CommodityItem
@@ -31,23 +32,7 @@ class ShipItem extends CommodityItem
         'class',
         'type',
         'health',
-        'lifetime',
-        'power_base',
-        'power_draw',
-        'thermal_energy_base',
-        'thermal_energy_draw',
-        'cooling_rate',
         'version',
-    ];
-
-    protected $casts = [
-        'health' => 'double',
-        'lifetime' => 'double',
-        'power_base' => 'double',
-        'power_draw' => 'double',
-        'thermal_energy_base' => 'double',
-        'thermal_energy_draw' => 'double',
-        'cooling_rate' => 'double',
     ];
 
     protected $with = [
@@ -78,15 +63,28 @@ class ShipItem extends CommodityItem
     }
 
     public function hasSpecification(): bool {
-        try {
-            $this->specification();
-        } catch (ModelNotFoundException $e) {
-            return false;
-        } catch (\Exception $e) {
-          //  dd($e->getTraceAsString());
-        }
+        $supportedTypes = [
+            'Cargo',
+            'CargoGrid',
+            'Cooler',
+            'PowerPlant',
+            'QuantumDrive',
+            'QuantumFuelTank',
+            'FuelIntake',
+            'Shield',
+            'WeaponGun',
+            'WeaponMining',
+            'WeaponDefensive',
+            'MissileLauncher',
+            'Missile',
+            'Torpedo',
+            'MainThruster',
+            'ManneuverThruster',
+            'SelfDestruct',
+            'Radar',
+        ];
 
-        return true;
+        return $this->item !== null && $this->item->uuid !== null && in_array($this->item->type, $supportedTypes, true);
     }
 
     /**
@@ -114,7 +112,6 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
 //            case 'Turret':
 //            case 'TurretBase':
-//            // Todo: Separate to Model?
 //            case 'ToolArm':
 //            case 'MiningArm':
 //            case 'WeaponMount':
@@ -142,5 +139,12 @@ class ShipItem extends CommodityItem
             default:
                 throw new ModelNotFoundException();
         }
+    }
+
+    public function ports():HasMany
+    {
+        return $this->item->ports()
+            ->where('name', 'NOT LIKE', '%access%')
+            ->where('name', 'NOT LIKE', '%hud%');
     }
 }

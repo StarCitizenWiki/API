@@ -283,13 +283,7 @@ class Vehicle implements ShouldQueue
         return $negation * floor((abs((float)$num) * $coefficient)) / $coefficient;
     }
 
-    /**
-     * Creates a ShipItem model for a given className
-     * Loads the item definition from file and parses it
-     *
-     * @param string $className
-     * @return string|null
-     */
+
     private function getItemUUID(string $className): ?string
     {
         return \App\Models\StarCitizenUnpacked\Item::query()

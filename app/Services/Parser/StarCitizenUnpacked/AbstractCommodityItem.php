@@ -46,6 +46,7 @@ abstract class AbstractCommodityItem
      */
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
+
         $match = preg_match_all(
             '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%]*)(?:\\n|\n|\\\n|$)/m',
             $description,
@@ -69,10 +70,14 @@ abstract class AbstractCommodityItem
         $exploded = explode("\n\n", $description);
 
         if (count($exploded) === 1) {
-            $exploded = explode('\n\n', $exploded[0], 2);
+            $exploded = explode('\n\n', $exploded[0]);
         }
 
-        $exploded = array_pop($exploded);
+        $exploded = array_filter($exploded, function (string $part) {
+            return !str_contains($part, ':');
+        });
+
+        $exploded = join("\n\n", $exploded);
 
         $exploded = str_replace(['’', '`', '´', ' '], ['\'', '\'', '\'', ' '], trim($exploded ?? ''));
 

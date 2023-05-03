@@ -23,7 +23,7 @@ final class BaseData extends AbstractItemSpecification
         $out['distortion'] = self::addDistortionData($item);
         $out['durability'] = self::addDurability($item);
 
-        return array_filter($out);
+        return $out;
     }
 
     private static function addPowerData(Collection $item): array

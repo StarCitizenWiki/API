@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizenUnpacked\Import;
 
 use App\Models\StarCitizenUnpacked\Item;
+use App\Models\StarCitizenUnpacked\ItemPort;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal as WeaponPersonalModel;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAmmunition;
@@ -107,7 +108,7 @@ class WeaponPersonal implements ShouldQueue
         }
 
         $ids = collect($data['attachments'])->map(function ($uuid) {
-            $attachment = Attachment::query()->where('uuid', $uuid)->first();
+            $attachment = Item::query()->where('uuid', $uuid['uuid'])->first();
             if ($attachment !== null) {
                 $attachment = $attachment->id;
             }

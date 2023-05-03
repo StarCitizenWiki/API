@@ -15,8 +15,14 @@ return new class extends Migration
     {
         Schema::table('star_citizen_unpacked_vehicle_cargo_grids', static function (Blueprint $table) {
             $table->dropColumn('personal_inventory');
+        });
+        Schema::table('star_citizen_unpacked_vehicle_cargo_grids', static function (Blueprint $table) {
             $table->dropColumn('invisible');
+        });
+        Schema::table('star_citizen_unpacked_vehicle_cargo_grids', static function (Blueprint $table) {
             $table->dropColumn('mining_only');
+        });
+        Schema::table('star_citizen_unpacked_vehicle_cargo_grids', static function (Blueprint $table) {
             $table->dropColumn('min_volatile_power_to_explode');
         });
     }

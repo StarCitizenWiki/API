@@ -39,7 +39,7 @@ class VehicleHardpoint extends Model
     /**
      * @return HasOne
      */
-    public function item(): HasOne
+    public function shipItem(): HasOne
     {
         return $this->hasOne(
             ShipItem::class,

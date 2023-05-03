@@ -81,6 +81,12 @@ class ItemTransformer extends AbstractCommodityTransformer
                 'length' => $item->volume->length ?? 0,
                 'volume' => $item->volume->volume ?? 0,
             ],
+            'volume_override' => [
+                'width' => $item->volumeOverride->width ?? null,
+                'height' => $item->volumeOverride->height ?? null,
+                'length' => $item->volumeOverride->length ?? null,
+                'volume' => $item->volumeOverride->volume > 0 ? $item->volumeOverride->volume : $item->volume->volume,
+            ],
             'version' => $item->version,
         ];
     }

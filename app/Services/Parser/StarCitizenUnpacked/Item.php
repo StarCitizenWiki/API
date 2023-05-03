@@ -9,7 +9,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use JsonException;
-use phpDocumentor\Reflection\Utils;
 
 /**
  * An item can be any entity like a weapon, food, ship doors, paints, etc.
@@ -69,8 +68,6 @@ final class Item extends AbstractCommodityItem
         $sizes = $this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyDimensions', []);
         $sizeOverride = $this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyDimensionsUIOverride.Vec3', []);
 
-        $volume = $this->convertToSCU($this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyVolume', []));
-
         return [
             'uuid' => $this->getUUID(),
             'name' => $name,
@@ -93,16 +90,12 @@ final class Item extends AbstractCommodityItem
                 'length' => $sizeOverride['y'] ?? null,
             ],
 
-            'volume' => $volume,
+            'volume' => $this->convertToSCU($this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyVolume', [])),
 
-            'inventory_container' => [
-                'width' => Arr::get($this->item, 'inventoryContainer.x'),
-                'height' => Arr::get($this->item, 'inventoryContainer.z'),
-                'length' => Arr::get($this->item, 'inventoryContainer.y'),
-                'scu' => Arr::get($this->item, 'inventoryContainer.SCU'),
-            ],
+            'inventory_container' => $this->getInventoryContainer(),
 
             'ports' => $this->mapPorts(),
+            'port_loadout' => $this->mapPortLoadouts(),
         ];
     }
 
@@ -151,5 +144,56 @@ final class Item extends AbstractCommodityItem
         }
 
         return $out;
+    }
+
+    private function getInventoryContainer(): array
+    {
+        $container = $this->get('ResourceContainer.capacity');
+
+        if ($container !== null) {
+            return [
+                'width' => 0,
+                'height' => 0,
+                'length' => 0,
+                'scu' => $this->convertToSCU($container),
+            ];
+        }
+
+        return [
+            'width' => Arr::get($this->item, 'inventoryContainer.x'),
+            'height' => Arr::get($this->item, 'inventoryContainer.z'),
+            'length' => Arr::get($this->item, 'inventoryContainer.y'),
+            'scu' => Arr::get($this->item, 'inventoryContainer.SCU'),
+        ];
+    }
+
+    private function getItemUUID(string $className): ?string
+    {
+        return \App\Models\StarCitizenUnpacked\Item::query()
+            ->where('class_name', strtolower($className))
+            ->first(['uuid'])->uuid ?? null;
+    }
+
+    private function mapPortLoadouts()
+    {
+        // phpcs:ignore
+        return collect($this->get('SEntityComponentDefaultLoadoutParams.loadout.SItemPortLoadoutManualParams.entries', []))
+            ->mapWithKeys(function ($loadout) {
+                $itemUuid = null;
+
+                if (!empty($loadout['entityClassName'])) {
+                    $itemUuid = $this->getItemUUID($loadout['entityClassName']);
+                }
+
+                if ($itemUuid === null) {
+                    return [null => null];
+                }
+
+                $itemPortName = strtolower($loadout['itemPortName']);
+
+                return [
+                    $itemPortName => $itemUuid
+                ];
+            })->filter();
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizenUnpacked\Import;
 
+use App\Models\StarCitizenUnpacked\ItemPort;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -79,7 +80,8 @@ class Item implements ShouldQueue
 
         if (!empty($this->data['ports'])) {
             collect($this->data['ports'])->each(function (array $port) use ($itemModel) {
-                $itemModel->ports()->updateOrCreate([
+                /** @var ItemPort $port */
+                $port = $itemModel->ports()->updateOrCreate([
                     'name' => $port['name'],
                 ], [
                     'display_name' => $port['display_name'],
@@ -87,6 +89,12 @@ class Item implements ShouldQueue
                     'max_size' => $port['max_size'],
                     'position' => $port['position'],
                 ]);
+
+                if (isset($this->data['port_loadout'][strtolower($port['name'])])) {
+                    $port->loadout()->updateOrCreate([
+                        'equipped_item_uuid' =>$this->data['port_loadout'][strtolower($port['name'])],
+                    ]);
+                }
             });
         }
     }
