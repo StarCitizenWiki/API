@@ -93,9 +93,14 @@ abstract class AbstractCommodityItem
         return empty($name) ? $default : $name;
     }
 
+    protected function getDescriptionKey(array $attachDef): string
+    {
+        return substr($attachDef['Localization']['Description'], 1);
+    }
+
     protected function getDescription(array $attachDef): string
     {
-        return $this->cleanString($this->labels->get(substr($attachDef['Localization']['Description'], 1), ''));
+        return $this->cleanString($this->labels->get($this->getDescriptionKey($attachDef), ''));
     }
 
     protected function getManufacturer(array $attachDef, Collection $manufacturers): string

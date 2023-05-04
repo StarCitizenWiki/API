@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs\StarCitizenUnpacked\Import;
+namespace App\Jobs\SC\Import;
 
 use App\Models\StarCitizenUnpacked\Food\FoodEffect;
 use App\Models\StarCitizenUnpacked\Item;
@@ -48,14 +48,13 @@ class Grenade implements ShouldQueue
         }
         $item = $parser->getData();
 
-        /** @var \App\Models\StarCitizenUnpacked\Grenade $model */
-        $model = \App\Models\StarCitizenUnpacked\Grenade::updateOrCreate([
-            'uuid' => $item['uuid'],
+        /** @var \App\Models\SC\Char\Grenade $model */
+        $model = \App\Models\SC\Char\Grenade::updateOrCreate([
+            'item_uuid' => $item['uuid'],
         ], [
             'aoe' => $item['aoe'] ?? null,
             'damage_type' => $item['damage_type'] ?? null,
             'damage' => $item['damage'] ?? null,
-            'version' => config('api.sc_data_version'),
         ]);
 
         $model->translations()->updateOrCreate([

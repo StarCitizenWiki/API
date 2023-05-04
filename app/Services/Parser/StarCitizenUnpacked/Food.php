@@ -40,6 +40,7 @@ final class Food extends AbstractCommodityItem
 
         return [
             'uuid' => $this->getUUID(),
+            'description_key' => $this->getDescriptionKey($attachDef),
             'description' => $this->cleanString(trim($data['description'] ?? $description)),
 
             'nutritional_density_rating' => $data['nutritional_density_rating'] ?? null,

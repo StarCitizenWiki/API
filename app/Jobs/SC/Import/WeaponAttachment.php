@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs\StarCitizenUnpacked\Import;
+namespace App\Jobs\SC\Import;
 
+use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
+use App\Models\SC\Char\PersonalWeapon\PersonalWeaponOptics;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use Illuminate\Bus\Queueable;
@@ -50,32 +52,26 @@ class WeaponAttachment implements ShouldQueue
             return;
         }
 
-        /** @var Attachment $model */
-        $model = Attachment::updateOrCreate([
-            'uuid' => $item['uuid'],
-        ], [
-            'attachment_name' => $item['name'],
-            'position' => $item['attachment_point'],
-            'size' => $item['size'],
-            'grade' => $item['grade'],
-            'type' => $item['item_type'] ?? $item['type'],
-            'version' => config('api.sc_data_version'),
-        ]);
-
+        $model = null;
         if ($item['magnification'] !== null) {
-            $model->optics()->updateOrCreate([
+            $model = PersonalWeaponOptics::updateOrCreate([
+                'item_uuid' => $item['uuid'],
+            ], [
                 'magnification' => $item['magnification'],
                 'type' => $item['type'] ?? '',
             ]);
         }
 
-        if ($item['capacity'] !== null) {
-            $model->magazine()->updateOrCreate([
-                'capacity' => $item['capacity'],
+        if (!empty($item['ammo'])) {
+            $model = PersonalWeaponMagazine::updateOrCreate([
+                'item_uuid' => $item['uuid'],
+            ], [
+                'initial_ammo_count' => $item['initial_ammo_count'] ?? null,
+                'max_ammo_count' => $item['max_ammo_count'] ?? null,
             ]);
         }
 
-        $model->translations()->updateOrCreate([
+        $model?->translations()->updateOrCreate([
             'locale_code' => 'en_EN',
         ], [
             'translation' => $item['description'] ?? '',

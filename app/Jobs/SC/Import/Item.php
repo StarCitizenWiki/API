@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs\StarCitizenUnpacked\Import;
+namespace App\Jobs\SC\Import;
 
-use App\Models\StarCitizenUnpacked\ItemPort;
+use App\Models\SC\Item\ItemPort;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,7 +32,8 @@ class Item implements ShouldQueue
      */
     public function handle(): void
     {
-        $itemModel = \App\Models\StarCitizenUnpacked\Item::updateOrCreate([
+        /** @var \App\Models\SC\Item\Item $itemModel */
+        $itemModel = \App\Models\SC\Item\Item::updateOrCreate([
             'uuid' => $this->data['uuid'],
         ], [
             'name' => $this->data['name'],
@@ -44,7 +45,7 @@ class Item implements ShouldQueue
             'version' => config('api.sc_data_version'),
         ]);
 
-        $itemModel->volume()->updateOrCreate([
+        $itemModel->dimensions()->updateOrCreate([
             'item_uuid' => $this->data['uuid'],
             'override' => 0,
         ], [
@@ -56,14 +57,13 @@ class Item implements ShouldQueue
         ]);
 
         if ($this->data['dimension_override']['width'] !== null) {
-            $itemModel->volume()->updateOrCreate([
+            $itemModel->dimensions()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
                 'override' => 1,
             ], [
                 'width' => $this->data['dimension_override']['width'],
                 'height' => $this->data['dimension_override']['height'],
                 'length' => $this->data['dimension_override']['length'],
-                'volume' => 0,
             ]);
         }
 
@@ -75,6 +75,7 @@ class Item implements ShouldQueue
                 'height' => $this->data['inventory_container']['height'],
                 'length' => $this->data['inventory_container']['length'],
                 'scu' => $this->data['inventory_container']['scu'],
+                'unit' => $this->data['inventory_container']['unit'],
             ]);
         }
 
@@ -85,16 +86,17 @@ class Item implements ShouldQueue
                     'name' => $port['name'],
                 ], [
                     'display_name' => $port['display_name'],
+                    'equipped_item_uuid' => $port['equipped_item_uuid'],
                     'min_size' => $port['min_size'],
                     'max_size' => $port['max_size'],
                     'position' => $port['position'],
                 ]);
 
-                if (isset($this->data['port_loadout'][strtolower($port['name'])])) {
-                    $port->loadout()->updateOrCreate([
-                        'equipped_item_uuid' =>$this->data['port_loadout'][strtolower($port['name'])],
-                    ]);
-                }
+//                if (isset($this->data['port_loadout'][strtolower($port['name'])])) {
+//                    $port->loadout()->updateOrCreate([
+//                        'equipped_item_uuid' =>$this->data['port_loadout'][strtolower($port['name'])],
+//                    ]);
+//                }
             });
         }
     }

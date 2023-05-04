@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\CharArmor;
+namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
+use App\Models\SC\Char\Clothing\Armor;
 use App\Transformers\Api\V1\StarCitizenUnpacked\CharArmor\CharArmorTransformer;
+use App\Transformers\Api\V1\StarCitizenUnpacked\ClothingTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,10 +19,10 @@ class CharArmorController extends ApiController
     /**
      * ShipController constructor.
      *
-     * @param CharArmorTransformer $transformer
+     * @param ClothingTransformer $transformer
      * @param Request $request
      */
-    public function __construct(CharArmorTransformer $transformer, Request $request)
+    public function __construct(ClothingTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
 
@@ -30,7 +31,7 @@ class CharArmorController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(CharArmor::query());
+        return $this->getResponse(Armor::query());
     }
 
     public function show(Request $request): Response
@@ -47,7 +48,7 @@ class CharArmorController extends ApiController
         $armor = $this->cleanQueryName($armor);
 
         try {
-            $armor = CharArmor::query()
+            $armor = Armor::query()
                 ->whereHas('item', function (Builder $query) use ($armor) {
                     return $query->where('name', $armor)->orWhere('uuid', $armor);
                 })

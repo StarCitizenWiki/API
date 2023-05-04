@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
-use JsonException;
-
 final class WeaponAttachment extends AbstractCommodityItem
 {
     public function getData(): ?array
@@ -68,11 +63,25 @@ final class WeaponAttachment extends AbstractCommodityItem
             'size' => $attachDef['Size'],
             'grade' => $attachDef['Grade'],
             'type' => $data['type'] ?? null,
-            'item_type' => $data['item_type']  ?? null,
+            'item_type' => $data['item_type'] ?? null,
             'attachment_point' => $data['attachment_point'] ?? null,
             'magnification' => $data['magnification'] ?? null,
             'capacity' => $data['capacity'] ?? null,
             'utility_class' => $data['utility_class'] ?? null,
+            'ammo' => $this->loadAmmoData(),
+        ];
+    }
+
+    private function loadAmmoData(): array
+    {
+        $ammo = $this->get('SAmmoContainerComponentParams', []);
+        if (empty($ammo)) {
+            return [];
+        }
+
+        return [
+            'initial_ammo_count' => $ammo['initialAmmoCount'],
+            'max_ammo_count' => $ammo['maxAmmoCount'],
         ];
     }
 }

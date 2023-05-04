@@ -90,7 +90,7 @@ final class Item extends AbstractCommodityItem
                 'length' => $sizeOverride['y'] ?? null,
             ],
 
-            'volume' => $this->convertToSCU($this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyVolume', [])),
+            'volume' => $this->convertToSCU($this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyVolume', []))[1],
 
             'inventory_container' => $this->getInventoryContainer(),
 
@@ -99,19 +99,23 @@ final class Item extends AbstractCommodityItem
         ];
     }
 
-    private function convertToSCU(array $volume): float
+    private function convertToSCU(array $volume): array
     {
+        $unit = null;
         if (isset($volume['SStandardCargoUnit']['standardCargoUnits'])) {
+            $unit = 0;
             $volume = $volume['SStandardCargoUnit']['standardCargoUnits'];
         } elseif (isset($volume['SCentiCargoUnit']['centiSCU'])) {
-            $volume = (float)($volume['SCentiCargoUnit']['centiSCU']) * (10 ** -2);
+            $unit = 2;
+            $volume = (float)($volume['SCentiCargoUnit']['centiSCU']) * (10 ** -$unit);
         } elseif (isset($volume['SMicroCargoUnit']['microSCU'])) {
-            $volume = (float)($volume['SMicroCargoUnit']['microSCU']) * (10 ** -6);
+            $unit = 6;
+            $volume = (float)($volume['SMicroCargoUnit']['microSCU']) * (10 ** -$unit);
         } else {
             $volume = 0;
         }
 
-        return $volume;
+        return [$unit, $volume];
     }
 
     private function mapPorts(): array
@@ -119,6 +123,7 @@ final class Item extends AbstractCommodityItem
         if ($this->get('SItemPortContainerComponentParams.Ports') === null) {
             return [];
         }
+        $loadout = $this->mapPortLoadouts();
 
         $out = [];
 
@@ -140,6 +145,7 @@ final class Item extends AbstractCommodityItem
                 'min_size' => $port['MinSize'] ?? null,
                 'max_size' => $port['MaxSize'] ?? null,
                 'position' => $position,
+                'equipped_item_uuid' => $loadout[strtolower($port['Name'])] ?? null,
             ];
         }
 
@@ -151,11 +157,14 @@ final class Item extends AbstractCommodityItem
         $container = $this->get('ResourceContainer.capacity');
 
         if ($container !== null) {
+            [$unit, $scu] = $this->convertToSCU($container);
+
             return [
                 'width' => 0,
                 'height' => 0,
                 'length' => 0,
-                'scu' => $this->convertToSCU($container),
+                'scu' => $scu,
+                'unit' => $unit,
             ];
         }
 
@@ -164,6 +173,7 @@ final class Item extends AbstractCommodityItem
             'height' => Arr::get($this->item, 'inventoryContainer.z'),
             'length' => Arr::get($this->item, 'inventoryContainer.y'),
             'scu' => Arr::get($this->item, 'inventoryContainer.SCU'),
+            'unit' => 0,
         ];
     }
 
