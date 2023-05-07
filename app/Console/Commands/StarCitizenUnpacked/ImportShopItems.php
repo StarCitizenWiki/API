@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace App\Console\Commands\StarCitizenUnpacked;
 
 use App\Console\Commands\AbstractQueueCommand;
-use App\Jobs\StarCitizenUnpacked\Import\Items;
-use App\Jobs\StarCitizenUnpacked\Import\ItemSpecificationCreator;
-use App\Jobs\StarCitizenUnpacked\Import\ShopItems;
+use App\Jobs\SC\Import\ItemSpecificationCreator;
+use App\Jobs\SC\Import\ShopItems;
 use App\Services\Parser\StarCitizenUnpacked\Item;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
-use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
@@ -36,22 +34,6 @@ class ImportShopItems extends AbstractQueueCommand
         'TEST STRING NAME',
     ];
 
-    private array $ignoredTypes = [
-        'TargetSelector',
-        'Door',
-        'Ping',
-        'FlightController',
-        'CommsController',
-        'CoolerController',
-        'DoorController',
-        'EnergyController',
-        'LightController',
-        'ShieldController',
-        'TargetSelector',
-        'WeaponController',
-        'WheeledController',
-    ];
-
     /**
      * Execute the console command.
      *
@@ -62,12 +44,12 @@ class ImportShopItems extends AbstractQueueCommand
         $labels = (new Labels())->getData();
         $manufacturers = (new Manufacturers())->getData();
 
-        $files = Storage::allFiles('api/scunpacked-data/items');
+        $files = Storage::allFiles('api/scunpacked-data/items') + Storage::allFiles('api/scunpacked-data/ships');
 
         $this->info('Importing Items');
         collect($files)
             ->filter(function (string $file) {
-                return strpos($file, '-raw.json') === false;
+                return !str_contains($file, '-raw.json');
             })
             ->chunk(25)
             ->tap(function (Collection $chunks) {
@@ -89,12 +71,8 @@ class ImportShopItems extends AbstractQueueCommand
                         $item = $data['item'];
                         return isset($item['name']) && !in_array($item['name'], $this->ignoredNames, true);
                     })
-//                    ->filter(function (array $data) {
-//                        $item = $data['item'];
-//                        return isset($item['type']) && !in_array($item['type'], $this->ignoredTypes, true);
-//                    })
                     ->map(function (array $data) {
-                        \App\Jobs\StarCitizenUnpacked\Import\Item::dispatch($data['item']);
+                        \App\Jobs\SC\Import\Item::dispatch($data['item']);
 
                         return [
                             'item' =>  $data['item'],

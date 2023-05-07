@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
-use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
+use App\Models\SC\Char\PersonalWeapon\PersonalWeapon as PersonalWeaponModel;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponAmmunition;
-use App\Models\StarCitizenUnpacked\Item;
-use App\Models\StarCitizenUnpacked\ItemPort;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal as WeaponPersonalModel;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalAmmunition;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use App\Services\Parser\StarCitizenUnpacked\Weapon;
 use Illuminate\Bus\Queueable;
@@ -46,33 +41,35 @@ class PersonalWeapon implements ShouldQueue
 
         try {
             $parser = new Weapon($this->filePath, $labels);
-        } catch (JsonException | FileNotFoundException $e) {
+        } catch (JsonException|FileNotFoundException $e) {
             $this->fail($e->getMessage());
             return;
         }
 
-        $weapon = $parser->getData();
+        $item = $parser->getData();
 
-        $model = PersonalWeapon::updateOrCreate([
-            'item_uuid' => $weapon['uuid'],
+        $model = PersonalWeaponModel::updateOrCreate([
+            'item_uuid' => $item['uuid'],
         ], [
-            'weapon_type' => $weapon['weapon_type'] ?? null,
-            'weapon_class' => $weapon['weapon_class'] ?? null,
-            'effective_range' => $weapon['effective_range'],
-            'rof' => $weapon['rof'],
+            'weapon_type' => $item['weapon_type'] ?? null,
+            'weapon_class' => $item['weapon_class'] ?? null,
+            'effective_range' => $item['effective_range'],
+            'rof' => $item['rof'],
         ]);
 
-        $model->translations()->updateOrCreate([
-            'locale_code' => 'en_EN',
-        ], [
-            'translation' => $weapon['description'] ?? '',
-        ]);
+        if (!empty($item['description'])) {
+            $model->translations()->updateOrCreate([
+                'locale_code' => 'en_EN',
+            ], [
+                'translation' => $item['description'],
+            ]);
+        }
 
-        $this->addAmmunition($weapon, $model);
-        $this->addModes($weapon, $model);
+        $this->addAmmunition($item, $model);
+        $this->addModes($item, $model);
     }
 
-    private function addAmmunition(array $data, WeaponPersonalModel $weapon): void
+    private function addAmmunition(array $data, PersonalWeaponModel $weapon): void
     {
         if (empty($data['ammunition'])) {
             return;
@@ -100,7 +97,7 @@ class PersonalWeapon implements ShouldQueue
         });
     }
 
-    private function addModes(array $data, PersonalWeapon $weapon): void
+    private function addModes(array $data, PersonalWeaponModel $weapon): void
     {
         if (empty($data['modes'])) {
             return;

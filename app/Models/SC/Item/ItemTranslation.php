@@ -21,7 +21,7 @@ class ItemTranslation extends AbstractTranslation
         'translation',
     ];
 
-    public function items(): BelongsTo
+    public function item(): BelongsTo
     {
         return $this->belongsTo(
             Item::class,

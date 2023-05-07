@@ -30,7 +30,23 @@ class ItemContainer extends Model
         'unit' => 'int',
     ];
 
-    public function getOriginalConvertedSCUAttribute(): float {
+    public function getOriginalConvertedSCUAttribute(): float
+    {
         return $this->scu * (10 ** $this->unit);
+    }
+
+
+    public function getDimensionAttribute(): float
+    {
+        return $this->width * $this->height * $this->length;
+    }
+
+    public function getCalculatedScuAttribute(): float
+    {
+        if ($this->scu == 0 && $this->width > 0) {
+            return $this->dimension / 1.953125;
+        }
+
+        return $this->getOriginalConvertedSCUAttribute();
     }
 }

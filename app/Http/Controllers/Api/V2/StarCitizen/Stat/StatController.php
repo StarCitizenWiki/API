@@ -56,6 +56,12 @@ class StatController extends AbstractApiV2Controller
     )]
     public function index(): AnonymousResourceCollection
     {
-        return StatResource::collection(QueryBuilder::for(Stat::class)->orderByDesc('created_at'));
+        $query = QueryBuilder::for(Stat::class)
+            ->limit($this->limit)
+            ->orderByDesc('created_at')
+            ->paginate()
+            ->appends(request()->query());
+
+        return StatResource::collection($query);
     }
 }

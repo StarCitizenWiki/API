@@ -66,9 +66,9 @@ class Food implements ShouldQueue
         }
 
         $ids = collect($item['effects'])->map(function (string $effect) {
-            return FoodEffect::query()->firstOrCreate([
+            return (FoodEffect::firstOrCreate([
                 'name' => $effect,
-            ])->id;
+            ]))->id;
         });
 
         $model->effects()->sync($ids);

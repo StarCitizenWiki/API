@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\SC\Char;
 
-use App\Models\StarCitizenUnpacked\CommodityItem;
+use App\Models\SC\CommodityItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Grenade extends CommodityItem

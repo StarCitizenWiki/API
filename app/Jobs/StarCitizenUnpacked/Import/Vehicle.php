@@ -55,9 +55,9 @@ class Vehicle implements ShouldQueue
     /**
      * Parses a json file to array
      *
-     * @var \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem
+     * @var \App\Services\Parser\StarCitizenUnpacked\VehicleItems\VehicleItem
      */
-    private \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem $parser;
+    private \App\Services\Parser\StarCitizenUnpacked\VehicleItems\VehicleItem $parser;
 
     /**
      * Creates a model from parser
@@ -68,7 +68,7 @@ class Vehicle implements ShouldQueue
 
     public function __construct()
     {
-        $this->parser = new \App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem();
+        $this->parser = new \App\Services\Parser\StarCitizenUnpacked\VehicleItems\VehicleItem();
         $this->creator = new ShipItems();
     }
 

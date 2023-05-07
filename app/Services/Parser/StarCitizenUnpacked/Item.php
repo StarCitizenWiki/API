@@ -96,7 +96,7 @@ final class Item extends AbstractCommodityItem
 
             'ports' => $this->mapPorts(),
             'port_loadout' => $this->mapPortLoadouts(),
-        ];
+        ] + ItemBaseData::getData($this->item);
     }
 
     private function convertToSCU(array $volume): array
@@ -173,18 +173,38 @@ final class Item extends AbstractCommodityItem
             'height' => Arr::get($this->item, 'inventoryContainer.z'),
             'length' => Arr::get($this->item, 'inventoryContainer.y'),
             'scu' => Arr::get($this->item, 'inventoryContainer.SCU'),
-            'unit' => 0,
+            'unit' => Arr::get($this->item, 'inventoryContainer.unit', 0),
         ];
     }
 
     private function getItemUUID(string $className): ?string
     {
-        return \App\Models\StarCitizenUnpacked\Item::query()
+        $uuid = \App\Models\StarCitizenUnpacked\Item::query()
             ->where('class_name', strtolower($className))
             ->first(['uuid'])->uuid ?? null;
+
+        if ($uuid === null) {
+            try {
+                $item = File::get(
+                    storage_path(
+                        sprintf(
+                            'app/api/scunpacked-data/items/%s.json',
+                            strtolower($className)
+                        )
+                    )
+                );
+
+                $item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+                return Arr::get($item, 'Raw.Entity.__ref');
+            } catch (FileNotFoundException|JsonException $e) {
+                return null;
+            }
+        }
+
+        return null;
     }
 
-    private function mapPortLoadouts()
+    private function mapPortLoadouts(): Collection
     {
         // phpcs:ignore
         return collect($this->get('SEntityComponentDefaultLoadoutParams.loadout.SItemPortLoadoutManualParams.entries', []))
@@ -204,6 +224,7 @@ final class Item extends AbstractCommodityItem
                 return [
                     $itemPortName => $itemUuid
                 ];
-            })->filter();
+            })
+            ->filter();
     }
 }

@@ -57,10 +57,12 @@ class Grenade implements ShouldQueue
             'damage' => $item['damage'] ?? null,
         ]);
 
-        $model->translations()->updateOrCreate([
-            'locale_code' => 'en_EN',
-        ], [
-            'translation' => $item['description'] ?? '',
-        ]);
+        if (!empty($item['description'])) {
+            $model->translations()->updateOrCreate([
+                'locale_code' => 'en_EN',
+            ], [
+                'translation' => $item['description'],
+            ]);
+        }
     }
 }

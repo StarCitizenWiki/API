@@ -120,13 +120,6 @@ final class Shops
                 return isset($inventory['item_reference']);
             })
             ->map(function (array $inventory) {
-                // Fix MedPen (Hemozal)
-                if ($inventory['item_reference'] === '7d50411f-088c-4c99-b85a-a6eaf95504c3') {
-                    $inventory['name'] = 'crlf_consumable_healing_01';
-                    $inventory['displayName'] = $this->labels->get(sprintf('item_Name%s', $inventory['name']));
-                    $inventory['type'] = 'FPS_Consumable';
-                    $inventory['subType'] = 'MedPack';
-                }
 
                 if (!isset($inventory['displayName'])) {
                     $key = $this->labels->first(function ($value, $key) use ($inventory) {

@@ -63,11 +63,12 @@ class WeaponAttachment implements ShouldQueue
         }
 
         if (!empty($item['ammo'])) {
+
             $model = PersonalWeaponMagazine::updateOrCreate([
                 'item_uuid' => $item['uuid'],
             ], [
-                'initial_ammo_count' => $item['initial_ammo_count'] ?? null,
-                'max_ammo_count' => $item['max_ammo_count'] ?? null,
+                'initial_ammo_count' => $item['ammo']['initial_ammo_count'] ?? null,
+                'max_ammo_count' => $item['ammo']['max_ammo_count'] ?? null,
             ]);
         }
 

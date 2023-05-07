@@ -2,9 +2,8 @@
 
 namespace App\Models\SC\Char\PersonalWeapon;
 
-use App\Models\StarCitizenUnpacked\CommodityItem;
-use App\Models\StarCitizenUnpacked\ItemPort;
-use App\Models\StarCitizenUnpacked\ItemPortLoadout;
+use App\Models\SC\CommodityItem;
+use App\Models\SC\Item\ItemPort;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -45,7 +44,7 @@ class PersonalWeapon extends CommodityItem
         $magazineAttach = str_replace(
             $this->name,
             '',
-            optional($this->attachments->where('position', 'Magazine Well')->first())->name
+            optional($this->magazine)->name ?? ''
         );
 
         $exploded = explode('(', $magazineAttach);
@@ -66,7 +65,12 @@ class PersonalWeapon extends CommodityItem
      */
     public function getMagazineAttribute(): Optional
     {
-        return optional($this->item->ports()->where('position', 'magazine_well')->first());
+        $magazine = $this->item->ports()->where('name', 'LIKE', '%magazine%')->first();
+        if ($magazine !== null) {
+            return \optional($magazine->item);
+        }
+
+        return \optional();
     }
 
     /**
@@ -78,18 +82,27 @@ class PersonalWeapon extends CommodityItem
     }
 
 
+//    /**
+//     * @return BelongsToMany
+//     */
+//    public function getAttachmentsLoadoutAttribute()
+//    {
+//        return $this->item->ports
+//            ->map(function (ItemPort $port) {
+//                return $port->item;
+//            })
+//            ->filter(function ($loadout) {
+//                return $loadout !== null;
+//            })
+//            ->filter();
+//    }
+
     /**
      * @return BelongsToMany
      */
-    public function getAttachmentsAttribute()
+    public function attachments()
     {
-        return $this->item->ports->map(function (ItemPort $port) {
-            return $port->loadout;
-        })->filter(function ($loadout) {
-            return $loadout !== null;
-        })->map(function (ItemPortLoadout $loadout) {
-            return $loadout->item;
-        })->filter();
+        return $this->item->ports();
     }
 
     /**
@@ -107,7 +120,7 @@ class PersonalWeapon extends CommodityItem
 
     public function getBaseModelAttribute(): ?self
     {
-        $baseName = preg_replace('/"[\w\s\']+"\s/', '', $this->item->name);
+        $baseName = preg_replace('/"[\w\s\']+"\s/', '', $this->name);
         return self::query()
             ->whereHas('item', function (Builder $query) use ($baseName) {
                 $query->where('name', $baseName);

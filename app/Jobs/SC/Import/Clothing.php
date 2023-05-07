@@ -46,33 +46,33 @@ class Clothing implements ShouldQueue
             return;
         }
 
-        $clothing = $parser->getData();
+        $item = $parser->getData();
 
         /** @var \App\Models\SC\Char\Clothing\Clothing $model */
         $model = \App\Models\SC\Char\Clothing\Clothing::updateOrCreate([
-            'item_uuid' => $clothing['uuid'],
+            'item_uuid' => $item['uuid'],
         ], [
-            'type' => $clothing['type'],
+            'type' => $item['type'],
         ]);
 
-        if (!empty($clothing['description'])) {
+        if (!empty($item['description'])) {
             $model->translations()->updateOrCreate([
                 'locale_code' => 'en_EN',
             ], [
-                'translation' => $clothing['description'],
+                'translation' => $item['description'],
             ]);
         }
 
-        if (isset($clothing['resistances'])) {
-            if (!empty($clothing['damage_reduction'])) {
+        if (isset($item['resistances'])) {
+            if (!empty($item['damage_reduction'])) {
                 $model->resistances()->updateOrCreate([
                     'type' => 'damage_reduction',
                 ], [
-                    'multiplier' => str_replace('%', '', $clothing['damage_reduction']) / 100,
+                    'multiplier' => str_replace('%', '', $item['damage_reduction']) / 100,
                 ]);
             }
 
-            foreach ($clothing['resistances'] as $type => $resistance) {
+            foreach ($item['resistances'] as $type => $resistance) {
                 $model->resistances()->updateOrCreate([
                     'type' => $type,
                 ], [

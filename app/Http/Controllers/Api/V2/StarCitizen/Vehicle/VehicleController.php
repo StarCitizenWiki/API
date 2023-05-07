@@ -4,23 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V2\StarCitizen\Vehicle;
 
-use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Requests\StarCitizen\Vehicle\VehicleSearchRequest;
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\StarCitizen\Galactapedia\ArticleResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Models\StarCitizenUnpacked\Vehicle as UnpackedVehicle;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer;
-use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleTransformer;
-use App\Transformers\Api\V1\StarCitizenUnpacked\VehicleTransformer as UnpackedVehicleTransformer;
+use App\Models\SC\Vehicle\Vehicle as UnpackedVehicle;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -128,15 +122,15 @@ class VehicleController extends AbstractApiV2Controller
                 ->allowedIncludes(VehicleResource::validIncludes())
                 ->where('name', $vehicle)
                 ->orWhere('slug', $vehicle)
-                ->first();
+                ->firstOrFail();
 
-            if ($vehicleModel === null) {
-                $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
-                    ->allowedIncludes(VehicleResource::validIncludes())
-                    ->where('name', 'like', '%' . $vehicle . '%')
-                    ->orWhere('class_name', 'like', '%' . $vehicle . '%')
-                    ->firstOrFail();
-            }
+//            if ($vehicleModel === null) {
+//                $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
+//                    ->allowedIncludes(VehicleResource::validIncludes())
+//                    ->where('name', 'like', '%' . $vehicle . '%')
+//                    ->orWhere('class_name', 'like', '%' . $vehicle . '%')
+//                    ->firstOrFail();
+//            }
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Vehicle with specified name found.');
         }

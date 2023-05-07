@@ -14,6 +14,10 @@ class Food extends CommodityItem
 
     protected $table = 'sc_foods';
 
+    protected $with = [
+        'effects'
+    ];
+
     protected $fillable = [
         'item_uuid',
         'nutritional_density_rating',

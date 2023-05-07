@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizenUnpacked;
 
-use App\Jobs\StarCitizenUnpacked\Import\Vehicle;
+use App\Jobs\SC\Import\Vehicle;
 use Illuminate\Console\Command;
 
 class ImportVehicles extends Command

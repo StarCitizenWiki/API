@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Route;
+
 Route::group(
     [
         'namespace' => 'Rsi\CommLink',
@@ -56,5 +58,31 @@ Route::group(
                 Route::post('galactapedia/search', 'GalactapediaController@search')->name('search');
             }
         );
+    }
+);
+
+Route::group(
+    [
+        'namespace' => 'SC',
+    ],
+    static function () {
+        Route::group([
+            'namespace' => 'Char',
+        ], static function () {
+            Route::get('personal-weapons', 'PersonalWeaponController@index')->name('index');
+            Route::get('personal-weapons/{weapon}', 'PersonalWeaponController@show')->name('show');
+
+            Route::get('clothes', 'ClothesController@index')->name('index');
+            Route::get('clothes/{clothing}', 'ClothesController@show')->name('show');
+
+            Route::get('armor', 'ArmorController@index')->name('index');
+            Route::get('armor/{clothing}', 'ArmorController@show')->name('show');
+        });
+
+        Route::get('items', 'ItemController@index')->name('index');
+        Route::get('items/{item}', 'ItemController@show')->name('show');
+
+        Route::get('food', 'FoodController@index')->name('index');
+        Route::get('food/{food}', 'FoodController@show')->name('show');
     }
 );

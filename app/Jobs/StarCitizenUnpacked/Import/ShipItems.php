@@ -10,7 +10,7 @@ use App\Models\StarCitizenUnpacked\ShipItem\Shield\Shield;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem as ShipItemModel;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\Weapon;
 use App\Models\StarCitizenUnpacked\ShipItem\Weapon\WeaponMode;
-use App\Services\Parser\StarCitizenUnpacked\ShipItems\ShipItem;
+use App\Services\Parser\StarCitizenUnpacked\VehicleItems\VehicleItem;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -56,7 +56,7 @@ class ShipItems implements ShouldQueue
      */
     public function handle()
     {
-        $items = new ShipItem();
+        $items = new VehicleItem();
         try {
             $items->loadFromShipItems();
         } catch (\JsonException | FileNotFoundException $e) {

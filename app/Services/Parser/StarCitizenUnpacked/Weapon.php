@@ -228,7 +228,7 @@ final class Weapon extends AbstractCommodityItem
                     'uuid' => Arr::get($item, 'Raw.Entity.__ref'),
                 ];
             });
-        //dd($mapped);
+
         return array_filter($mapped->toArray());
     }
 

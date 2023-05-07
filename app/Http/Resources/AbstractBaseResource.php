@@ -8,23 +8,25 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 abstract class AbstractBaseResource extends JsonResource
 {
-    public const COMM_LINKS_SHOW = '/api/comm-links/%d';
-    public const COMM_LINKS_SERIES_SHOW = '/api/comm-links/series/%s';
-    public const COMM_LINKS_CHANNELS_SHOW = '/api/comm-links/channels/%s';
-    public const COMM_LINKS_CATEGORIES_SHOW = '/api/comm-links/categories/%s';
+    public const COMM_LINKS_SHOW = 'comm-links/%d';
+    public const COMM_LINKS_SERIES_SHOW = 'comm-links/series';
+    public const COMM_LINKS_CHANNELS_SHOW = 'comm-links/channels';
+    public const COMM_LINKS_CATEGORIES_SHOW = 'comm-links/categories';
 
-    public const VEHICLES_SHOW = '/api/vehicles/%s';
+    public const VEHICLES_SHOW = 'vehicles';
 
-    public const STARMAP_STARSYSTEM_SHOW = '/api/starmap/starsystems/%s';
-    public const STARMAP_CELESTIAL_OBJECTS_SHOW = '/api/starmap/celestial-objects/%s';
+    public const STARMAP_STARSYSTEM_SHOW = 'starmap/starsystems';
+    public const STARMAP_CELESTIAL_OBJECTS_SHOW = 'starmap/celestial-objects';
 
-    public const GALACTAPEDIA_ARTICLE_SHOW = '/api/galactapedia/%s';
+    public const GALACTAPEDIA_ARTICLE_SHOW = 'galactapedia';
 
-    public const UNPACKED_CHAR_ARMOR_SHOW = '/api/char/armor/%s';
-    public const UNPACKED_WEAPON_PERSONAL_SHOW = '/api/weapons/personal/%s';
-    public const UNPACKED_CLOTHING_SHOW = '/api/char/clothing/%s';
 
-    public const UNPACKED_FOOD_SHOW = '/api/food/%s';
+
+    public const UNPACKED_FOOD_SHOW = 'food';
+
+    public const UNPACKED_PERSONAL_WEAPONS_SHOW = 'personal-weapons/';
+    public const UNPACKED_ARMOR_SHOW = 'armor/';
+    public const UNPACKED_CLOTHES_SHOW = 'clothes/';
 
     public function __construct($resource)
     {
@@ -46,7 +48,7 @@ abstract class AbstractBaseResource extends JsonResource
      */
     protected function makeApiUrl(string $fragment, ...$routeKey): string
     {
-        return sprintf('%s' . $fragment, config('app.url'), ...$routeKey);
+        return sprintf('%s/api/v2/%s%s', config('app.url'), $fragment, ...$routeKey);
     }
 
     abstract public static function validIncludes(): array;

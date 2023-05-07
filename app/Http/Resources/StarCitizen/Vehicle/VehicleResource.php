@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Resources\StarCitizen\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\SC\HardpointResource;
 use App\Http\Resources\TranslationResourceFactory;
+use App\Models\SC\Vehicle\Hardpoint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
@@ -168,6 +170,10 @@ class VehicleResource extends AbstractBaseResource
             'shops',
             'shops.items',
             'hardpoints',
+            'hardpoints.item.heatData',
+            'hardpoints.item.powerData',
+            'hardpoints.item.distortionData',
+            'hardpoints.item.durabilityData',
         ];
     }
 
@@ -179,14 +185,13 @@ class VehicleResource extends AbstractBaseResource
      */
     public function toArray($request): array
     {
-        $cargo = $this->unpacked->cargo_capacity ?? $this->cargo_capacity;
-        if ($this->unpacked->SCU > 0) {
-            $cargo = $this->unpacked->scu;
+        $cargo = $this->sc->cargo_capacity ?? $this->cargo_capacity;
+        if ($this->sc->SCU > 0) {
+            $cargo = $this->sc->scu;
         }
-
         $data = [
             'id' => $this->cig_id,
-            'uuid' => $this->unpacked->uuid,
+            'uuid' => $this->sc->item_uuid,
             'chassis_id' => $this->chassis_id,
             'name' => $this->name,
             'slug' => $this->slug,
@@ -195,59 +200,52 @@ class VehicleResource extends AbstractBaseResource
                 'beam' => (double)$this->width,
                 'height' => (double)$this->height,
             ],
-            'mass' => $this->unpacked->mass ?? $this->mass,
+            'mass' => $this->sc->mass ?? $this->mass,
             'cargo_capacity' => $cargo,
-            'personal_inventory_capacity' => optional($this->unpacked)->personal_inventory_scu,
+            'personal_inventory' => $this->sc->personal_inventory_scu,
+
             'crew' => [
-                'min' => $this->unpacked->crew ?? $this->min_crew,
+                'min' => $this->sc->crew ?? $this->min_crew,
                 'max' => $this->max_crew,
-                'weapon' => optional($this->unpacked)->weapon_crew,
-                'operation' => optional($this->unpacked)->operation_crew,
+                'weapon' => optional($this->sc)->weapon_crew,
+                'operation' => optional($this->sc)->operation_crew,
             ],
-            'health' => optional($this->unpacked)->health_body,
+            'health' => optional($this->sc)->health,
             'speed' => [
-                'scm' => $this->unpacked->scm_speed ?? $this->scm_speed,
-                'afterburner' => $this->afterburner_speed,
-                'max' => optional($this->unpacked)->max_speed,
-                'zero_to_scm' => optional($this->unpacked)->zero_to_scm,
-                'zero_to_max' => optional($this->unpacked)->zero_to_max,
-                'scm_to_zero' => optional($this->unpacked)->scm_to_zero,
-                'max_to_zero' => optional($this->unpacked)->max_to_zero,
+                'scm' => $this->sc->scm_speed ?? $this->scm_speed,
+                'max' => optional($this->sc)->max_speed,
+                'zero_to_scm' => optional($this->sc)->zero_to_scm,
+                'zero_to_max' => optional($this->sc)->zero_to_max,
+                'scm_to_zero' => optional($this->sc)->scm_to_zero,
+                'max_to_zero' => optional($this->sc)->max_to_zero,
             ],
             'fuel' => [
-                'capacity' => optional($this->unpacked)->fuel_capacity,
-                'intake_rate' => optional($this->unpacked)->fuel_intake_rate,
+                'capacity' => optional($this->sc)->fuel_capacity,
+                'intake_rate' => optional($this->sc)->fuel_intake_rate,
                 'usage' => [
-                    'main' => optional($this->unpacked)->fuel_usage_main,
-                    'retro' => optional($this->unpacked)->fuel_usage_retro,
-                    'vtol' => optional($this->unpacked)->fuel_usage_vtol,
-                    'maneuvering' => optional($this->unpacked)->fuel_usage_maneuvering,
+                    'main' => optional($this->sc)->getFuelUsage(),
+                    'maneuvering' => optional($this->sc)->getFuelUsage('ManneuverThruster'),
                 ],
             ],
-            'quantum' => [
-                'quantum_speed' => optional($this->unpacked)->quantum_speed,
-                'quantum_spool_time' => optional($this->unpacked)->quantum_spool_time,
-                'quantum_fuel_capacity' => optional($this->unpacked)->quantum_fuel_capacity,
-                'quantum_range' => optional($this->unpacked)->quantum_range,
-            ],
+            'quantum' => $this->getQuantumDriveData(),
             'agility' => [
-                'pitch' => $this->unpacked->pitch ?? $this->pitch_max,
-                'yaw' => $this->unpacked->yaw ?? $this->yaw_max,
-                'roll' => $this->unpacked->roll ?? $this->roll_max,
+                'pitch' => $this->sc->flightController()->pitch ?? $this->pitch_max,
+                'yaw' => $this->sc->flightController()->yaw ?? $this->yaw_max,
+                'roll' => $this->sc->flightController()->roll ?? $this->roll_max,
                 'acceleration' => [
                     'x_axis' => $this->x_axis_acceleration,
                     'y_axis' => $this->y_axis_acceleration,
                     'z_axis' => $this->z_axis_acceleration,
 
-                    'main' => optional($this->unpacked)->acceleration_main,
-                    'retro' => optional($this->unpacked)->acceleration_retro,
-                    'vtol' => optional($this->unpacked)->acceleration_vtol,
-                    'maneuvering' => optional($this->unpacked)->acceleration_maneuvering,
+                    'main' => optional($this->sc)->acceleration_main,
+                    'retro' => optional($this->sc)->acceleration_retro,
+                    'vtol' => optional($this->sc)->acceleration_vtol,
+                    'maneuvering' => optional($this->sc)->acceleration_maneuvering,
 
-                    'main_g' => optional($this->unpacked)->acceleration_g_main,
-                    'retro_g' => optional($this->unpacked)->acceleration_g_retro,
-                    'vtol_g' => optional($this->unpacked)->acceleration_g_vtol,
-                    'maneuvering_g' => optional($this->unpacked)->acceleration_g_maneuvering,
+                    'main_g' => optional($this->sc)->acceleration_g_main,
+                    'retro_g' => optional($this->sc)->acceleration_g_retro,
+                    'vtol_g' => optional($this->sc)->acceleration_g_vtol,
+                    'maneuvering_g' => optional($this->sc)->acceleration_g_maneuvering,
                 ],
             ],
             'foci' => $this->getFociTranslations($request),
@@ -262,15 +260,16 @@ class VehicleResource extends AbstractBaseResource
                 'name' => $this->manufacturer->name,
             ],
             'insurance' => [
-                'claim_time' => optional($this->unpacked)->claim_time,
-                'expedite_time' => optional($this->unpacked)->expedite_time,
-                'expedite_cost' => optional($this->unpacked)->expedite_cost,
+                'claim_time' => optional($this->sc)->claim_time,
+                'expedite_time' => optional($this->sc)->expedite_time,
+                'expedite_cost' => optional($this->sc)->expedite_cost,
             ],
             'components' => ComponentResource::collection($this->whenLoaded('components')),
+            'hardpoints' => HardpointResource::collection($this->whenLoaded('hardpoints')),
             'updated_at' => $this->updated_at,
         ];
 
-        if (optional($this->unpacked)->quantum_speed !== null) {
+        if (optional($this->sc)->quantum_speed !== null) {
             $data['version'] = config('api.sc_data_version');
         }
 
@@ -290,5 +289,27 @@ class VehicleResource extends AbstractBaseResource
         );
 
         return $fociTranslations;
+    }
+
+    private function getQuantumDriveData(): array {
+        $drives = optional($this->sc)->quantumDrives
+            ->map(function (Hardpoint $hardpoint) {
+            return $hardpoint->item->specification;
+        });
+
+        if ($drives->isEmpty()) {
+
+            return [];
+        }
+
+        $modes = $drives[0]->modes->keyBy('type');
+        $normal = $modes['normal'];
+
+        return [
+            'quantum_speed' => $normal->drive_speed,
+            'quantum_spool_time' => $normal->spool_up_time,
+            'quantum_fuel_capacity' => optional($this->sc)->quantum_fuel_capacity,
+            'quantum_range' => optional($this->sc)->quantum_fuel_capacity * $drives[0]->jump_range,
+        ];
     }
 }

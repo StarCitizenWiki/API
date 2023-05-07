@@ -13,33 +13,45 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sc_vehicles', function (Blueprint $table) {
+        Schema::create('sc_vehicles', static function (Blueprint $table) {
             $table->id();
+            $table->uuid('item_uuid');
             $table->unsignedInteger('shipmatrix_id');
-            $table->uuid()->unique();
-            $table->string('class_name');
+            $table->string('class_name')->unique();
             $table->string('name');
             $table->string('career');
             $table->string('role');
-
             $table->boolean('is_ship')->default(true);
+            $table->unsignedInteger('size');
 
-            $table->unsignedInteger('size')->nullable();
-            $table->unsignedInteger('crew')->nullable();
-            $table->unsignedBigInteger('mass')->nullable();
+            $table->unsignedDouble('width');
+            $table->unsignedDouble('height');
+            $table->unsignedDouble('length');
 
-            $table->unsignedDouble('scm_speed')->nullable();
-            $table->unsignedDouble('max_speed')->nullable();
+            $table->unsignedInteger('crew');
+            $table->unsignedInteger('weapon_crew');
+            $table->unsignedInteger('operations_crew');
+            $table->unsignedBigInteger('mass');
 
-            $table->unsignedDouble('zero_to_scm')->nullable();
-            $table->unsignedDouble('zero_to_max')->nullable();
+            $table->unsignedDouble('zero_to_scm');
+            $table->unsignedDouble('zero_to_max');
 
-            $table->unsignedDouble('scm_to_zero')->nullable();
-            $table->unsignedDouble('max_to_zero')->nullable();
+            $table->unsignedDouble('scm_to_zero');
+            $table->unsignedDouble('max_to_zero');
 
-            $table->unsignedDouble('claim_time')->nullable();
-            $table->unsignedDouble('expedite_time')->nullable();
-            $table->unsignedDouble('expedite_cost')->nullable();
+            $table->unsignedDouble('acceleration_main');
+            $table->unsignedDouble('acceleration_retro');
+            $table->unsignedDouble('acceleration_vtol');
+            $table->unsignedDouble('acceleration_maneuvering');
+
+            $table->unsignedDouble('acceleration_g_main');
+            $table->unsignedDouble('acceleration_g_retro');
+            $table->unsignedDouble('acceleration_g_vtol');
+            $table->unsignedDouble('acceleration_g_maneuvering');
+
+            $table->unsignedDouble('claim_time');
+            $table->unsignedDouble('expedite_time');
+            $table->unsignedDouble('expedite_cost');
             $table->timestamps();
         });
     }

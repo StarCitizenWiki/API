@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->foreign('food_id', 'fk_sc_f_eff_food_id')
                 ->references('id')
-                ->on('sc_food')
+                ->on('sc_foods')
                 ->onDelete('cascade');
 
             $table->foreign('food_effect_id', 'fk_sc_f_eff_food_effect_id')

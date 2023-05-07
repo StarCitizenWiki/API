@@ -15,21 +15,21 @@ return new class extends Migration
     {
         Schema::create('sc_item_translations', function (Blueprint $table) {
             $table->id();
+            $table->uuid('item_uuid');
             $table->char('locale_code', 5);
-            $table->string('key');
             $table->text('translation');
             $table->timestamps();
 
-            $table->unique(['locale_code', 'key'], 'u_sc_i_tra_locale_code_key');
+            $table->unique(['locale_code', 'item_uuid'], 'u_sc_i_tra_locale_code_item_uuid');
 
             $table->foreign('locale_code', 'fk_sc_i_tra_locale')
                 ->references('locale_code')
                 ->on('languages');
-//
-//            $table->foreign('item_uuid', 'fk_sc_i_tra_item_uuid')
-//                ->references('uuid')
-//                ->on('sc_items')
-//                ->onDelete('cascade');
+
+            $table->foreign('item_uuid', 'fk_sc_i_tra_item_uuid')
+                ->references('uuid')
+                ->on('sc_items')
+                ->onDelete('cascade');
         });
     }
 

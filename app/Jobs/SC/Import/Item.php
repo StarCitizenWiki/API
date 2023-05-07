@@ -82,7 +82,7 @@ class Item implements ShouldQueue
         if (!empty($this->data['ports'])) {
             collect($this->data['ports'])->each(function (array $port) use ($itemModel) {
                 /** @var ItemPort $port */
-                $port = $itemModel->ports()->updateOrCreate([
+                $itemModel->ports()->updateOrCreate([
                     'name' => $port['name'],
                 ], [
                     'display_name' => $port['display_name'],
@@ -91,13 +91,70 @@ class Item implements ShouldQueue
                     'max_size' => $port['max_size'],
                     'position' => $port['position'],
                 ]);
-
-//                if (isset($this->data['port_loadout'][strtolower($port['name'])])) {
-//                    $port->loadout()->updateOrCreate([
-//                        'equipped_item_uuid' =>$this->data['port_loadout'][strtolower($port['name'])],
-//                    ]);
-//                }
             });
+        }
+
+        if (!empty($this->data['power'])) {
+            $itemModel->powerData()->updateOrCreate([
+                'item_uuid' => $this->data['uuid'],
+            ], [
+                'power_base' => $this->data['power']['power_base'] ?? null,
+                'power_draw' => $this->data['power']['power_draw'] ?? null,
+                'throttleable' => $this->data['power']['throttleable'] ?? null,
+                'overclockable' => $this->data['power']['overclockable'] ?? null,
+                'overclock_threshold_min' => $this->data['power']['overclock_threshold_min'] ?? null,
+                'overclock_threshold_max' => $this->data['power']['overclock_threshold_max'] ?? null,
+                'overclock_performance' => $this->data['power']['overclock_performance'] ?? null,
+                'overpower_performance' => $this->data['power']['overpower_performance'] ?? null,
+                'power_to_em' => $this->data['power']['power_to_em'] ?? null,
+                'decay_rate_em' => $this->data['power']['decay_rate_em'] ?? null,
+            ]);
+        }
+
+        if (!empty($this->data['heat'])) {
+            $itemModel->heatData()->updateOrCreate([
+                'item_uuid' => $this->data['uuid'],
+            ], [
+                'temperature_to_ir' => $this->data['heat']['temperature_to_ir'] ?? null,
+                'overpower_heat' => $this->data['heat']['overpower_heat'] ?? null,
+                'overclock_threshold_min' => $this->data['heat']['overclock_threshold_min'] ?? null,
+                'overclock_threshold_max' => $this->data['heat']['overclock_threshold_max'] ?? null,
+                'thermal_energy_base' => $this->data['heat']['thermal_energy_base'] ?? null,
+                'thermal_energy_draw' => $this->data['heat']['thermal_energy_draw'] ?? null,
+                'thermal_conductivity' => $this->data['heat']['thermal_conductivity'] ?? null,
+                'specific_heat_capacity' => $this->data['heat']['specific_heat_capacity'] ?? null,
+                'mass' => $this->data['heat']['mass'] ?? null,
+                'surface_area' => $this->data['heat']['surface_area'] ?? null,
+                'start_cooling_temperature' => $this->data['heat']['start_cooling_temperature'] ?? null,
+                'max_cooling_rate' => $this->data['heat']['max_cooling_rate'] ?? null,
+                'max_temperature' => $this->data['heat']['max_temperature'] ?? null,
+                'min_temperature' => $this->data['heat']['min_temperature'] ?? null,
+                'overheat_temperature' => $this->data['heat']['overheat_temperature'] ?? null,
+                'recovery_temperature' => $this->data['heat']['recovery_temperature'] ?? null,
+                'misfire_min_temperature' => $this->data['heat']['misfire_min_temperature'] ?? null,
+                'misfire_max_temperature' => $this->data['heat']['misfire_max_temperature'] ?? null,
+            ]);
+        }
+
+        if (!empty($this->data['distortion'])) {
+            $itemModel->distortionData()->updateOrCreate([
+                'item_uuid' => $this->data['uuid'],
+            ], [
+                'decay_rate' => $this->data['distortion']['decay_rate'] ?? null,
+                'maximum' => $this->data['distortion']['maximum'] ?? null,
+                'overload_ratio' => $this->data['distortion']['overload_ratio'] ?? null,
+                'recovery_ratio' => $this->data['distortion']['recovery_ratio'] ?? null,
+                'recovery_time' => $this->data['distortion']['recovery_time'] ?? null,
+            ]);
+        }
+
+        if (!empty($this->data['durability'])) {
+            $itemModel->durabilityData()->updateOrCreate([
+                'item_uuid' => $this->data['uuid'],
+            ], [
+                'health' => $this->data['durability']['health'] ?? null,
+                'max_lifetime' => $this->data['durability']['max_lifetime'] ?? null,
+            ]);
         }
     }
 }

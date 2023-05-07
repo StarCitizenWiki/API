@@ -6,6 +6,9 @@ namespace App\Models\StarCitizen\Vehicle\Vehicle;
 
 use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
+use App\Models\SC\Shop\Shop;
+use App\Models\SC\Shop\ShopItem;
+use App\Models\SC\Vehicle\Hardpoint;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
@@ -15,6 +18,7 @@ use App\Models\StarCitizen\Vehicle\Size\Size;
 use App\Models\StarCitizen\Vehicle\Type\Type;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -268,6 +272,36 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
         return $length;
     }
 
+    public function getScWidthAttribute()
+    {
+        $unpacked = $this->sc->width;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $this->beam;
+    }
+
+    public function getScHeightAttribute($height)
+    {
+        $unpacked = $this->sc->height;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $height;
+    }
+
+    public function getScLengthAttribute($length)
+    {
+        $unpacked = $this->sc->length;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $length;
+    }
+
     /**
      * Unpacked Data
      *
@@ -277,6 +311,42 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
     {
         return $this->hasOne(\App\Models\StarCitizenUnpacked\Vehicle::class, 'shipmatrix_id', 'id')
             ->withDefault();
+    }
+
+    /**
+     * Unpacked Data
+     *
+     * @return HasOne
+     */
+    public function sc(): HasOne
+    {
+        return $this->hasOne(
+            \App\Models\SC\Vehicle\Vehicle::class,
+            'shipmatrix_id',
+            'id'
+        )
+            ->withDefault();
+    }
+
+    /**
+     * @return HasManyThrough
+     */
+    public function hardpoints(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Hardpoint::class,
+            \App\Models\SC\Vehicle\Vehicle::class,
+            'shipmatrix_id',
+            'vehicle_id',
+            'id',
+            'id',
+        )->orderBy('hardpoint_name');
+//            ->with(['items' => function ($query) {
+//                return $query->where('uuid', $this->item_uuid);
+//            }])
+//            ->whereHas('items', function (Builder $query) {
+//                return $query->where('uuid', $this->item_uuid);
+//            });
     }
 
     /**

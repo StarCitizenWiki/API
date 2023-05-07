@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
-use App\Models\StarCitizenUnpacked\Item;
-use App\Models\StarCitizenUnpacked\Shop\Shop;
-use App\Models\StarCitizenUnpacked\Shop\ShopItemRental;
+use App\Models\SC\Item\Item;
+use App\Models\SC\Shop\Shop;
+use App\Models\SC\Shop\ShopItemRental;
 use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
 use App\Services\Parser\StarCitizenUnpacked\Shops\Shops;
 use Illuminate\Bus\Queueable;
@@ -52,7 +52,7 @@ class ShopItems implements ShouldQueue
                 ]);
 
                 $toSync = $shop['inventory']
-                    ->unique('uuid')
+                    //->unique('uuid')
                     ->mapWithKeys(function ($inventory) use ($shopModel) {
                         if (in_array($inventory['type'], Inventory::EXTRA_TYPES, true)) {
                             $itemModel = $this->createModel($inventory);
@@ -65,18 +65,19 @@ class ShopItems implements ShouldQueue
                             return ['unknown' => null];
                         }
 
-                        // TODO: Extract
-                        if ($inventory['rentable'] === true && isset($inventory['rental']) && !empty($inventory['rental'])) {
-                            ShopItemRental::updateOrCreate([
-                                'item_uuid' => $itemModel->uuid,
-                                'shop_uuid' => $shopModel->uuid,
-                            ], $inventory['rental'] + ['version' => config('api.sc_data_version'),]);
-                        }
+//                        // TODO: Extract
+//                        if ($inventory['rentable'] === true && isset($inventory['rental']) && !empty($inventory['rental'])) {
+//                            ShopItemRental::updateOrCreate([
+//                                'item_uuid' => $itemModel->uuid,
+//                                'shop_uuid' => $shopModel->uuid,
+//                            ], $inventory['rental'] + ['version' => config('api.sc_data_version'),]);
+//                        }
 
                         return [
                             $itemModel->id => [
                                 'item_uuid' => $itemModel->uuid,
                                 'shop_uuid' => $shopModel->uuid,
+                                'node_uuid' => $inventory['node_uuid'],
                                 'base_price' => round($inventory['base_price'], 10),
                                 'base_price_offset' => $inventory['base_price_offset'],
                                 'max_discount' => $inventory['max_discount'],

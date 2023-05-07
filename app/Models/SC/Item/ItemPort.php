@@ -13,6 +13,10 @@ class ItemPort extends Model
 {
     use HasFactory;
 
+    protected $with = [
+        'item'
+    ];
+
     protected $table = 'sc_item_ports';
 
     protected $fillable = [

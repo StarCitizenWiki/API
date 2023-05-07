@@ -14,7 +14,7 @@ class PersonalWeaponMagazine extends CommodityItem
     protected $table = 'sc_personal_weapon_magazines';
 
     protected $fillable = [
-        'weapon_id',
+        'item_uuid',
         'initial_ammo_count',
         'max_ammo_count',
     ];
