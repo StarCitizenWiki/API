@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizenUnpacked;
 
-use App\Models\StarCitizenUnpacked\ShipItem\AbstractShipItemSpecification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,7 +19,6 @@ class ItemVolume extends Model
         'height',
         'length',
         'volume',
-        'override',
     ];
 
     protected $casts = [
@@ -28,6 +26,5 @@ class ItemVolume extends Model
         'height' => 'double',
         'length' => 'double',
         'volume' => 'double',
-        'override' => 'boolean',
     ];
 }

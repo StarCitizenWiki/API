@@ -4,19 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V2\SC\Char;
 
-use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Char\ClothingResource;
-use App\Http\Resources\SC\Char\PersonalWeaponResource;
-use App\Http\Resources\StarCitizen\Stat\StatResource;
-use App\Models\SC\Char\Clothing\Armor;
-use App\Models\SC\Char\Clothing\Clothes;
-use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
-use App\Models\StarCitizen\Stat\Stat;
-use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
+use App\Http\Resources\SC\Item\ItemResource;
+use App\Models\SC\Item\Item;
 use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
@@ -47,16 +41,18 @@ class ArmorController extends AbstractApiV2Controller
     )]
     public function index(): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Armor::class)
+        $query = QueryBuilder::for(Item::class)
+            ->where('type', 'LIKE', 'Char_Armor%')
             ->limit($this->limit)
             ->allowedIncludes(ClothingResource::validIncludes())
+            ->allowedFilters(['type'])
             ->paginate()
             ->appends(request()->query());
 
-        return ClothingResource::collection($query);
+        return ItemResource::collection($query);
     }
 
-    public function show($id, Request $request): AbstractBaseResource
+    public function show(Request $request): AbstractBaseResource
     {
         ['clothing' => $clothing] = Validator::validate(
             [
@@ -68,15 +64,18 @@ class ArmorController extends AbstractApiV2Controller
         );
 
         try {
-            $clothing = QueryBuilder::for(Armor::class)
-                ->where('item_uuid', $clothing)
-                ->orWhereRelation('item', 'name', 'LIKE', sprintf('%%%s%%', $clothing))
+            $clothing = QueryBuilder::for(Item::class)
+                ->where('type', 'LIKE', 'Char_Armor%')
+                ->where(function (Builder $query) use ($clothing) {
+                    $query->where('uuid', $clothing)
+                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $clothing));
+                })
                 ->allowedIncludes(ClothingResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Armor with specified UUID or Name found.');
         }
 
-        return new ClothingResource($clothing);
+        return new ItemResource($clothing);
     }
 }

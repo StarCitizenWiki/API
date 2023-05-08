@@ -2,14 +2,9 @@
 
 namespace App\Http\Resources;
 
-use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Models\SC\Item\ItemTranslation;
 use App\Models\System\Language;
-use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Collection;
 
 abstract class AbstractTranslationResource extends AbstractBaseResource
 {
@@ -18,7 +13,8 @@ abstract class AbstractTranslationResource extends AbstractBaseResource
         parent::__construct($resource);
     }
 
-    protected function getTranslation($model, Request $request, $translationKey = 'translation') {
+    protected function getTranslation($model, Request $request, $translationKey = 'translation')
+    {
         $translations = $model->translationsCollection();
 
         $locale = $request->get('locale');
@@ -41,7 +37,8 @@ abstract class AbstractTranslationResource extends AbstractBaseResource
         );
     }
 
-    private function getSingleTranslation($translations, string $locale, $translationKey = 'translation'): ?string {
+    private function getSingleTranslation($translations, string $locale, $translationKey = 'translation'): ?string
+    {
         $translation = null;
 
         if ($translations instanceof ItemTranslation) {

@@ -7,7 +7,6 @@ namespace App\Models\StarCitizenUnpacked\ShipItem\Weapon;
 use App\Models\StarCitizenUnpacked\ShipItem\AbstractShipItemSpecification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Weapon extends AbstractShipItemSpecification
 {
@@ -44,11 +43,6 @@ class Weapon extends AbstractShipItemSpecification
     public function damages(): HasMany
     {
         return $this->hasMany(WeaponDamage::class, 'ship_weapon_id');
-    }
-
-    public function regen(): HasOne
-    {
-        return $this->hasOne(WeaponRegen::class, 'ship_weapon_id');
     }
 
     public function getDamageAttribute(): float

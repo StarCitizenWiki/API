@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\SC\Char\Clothing\Clothes;
-use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
-use App\Models\SC\Char\Clothing\Clothing;
+use App\Models\StarCitizenUnpacked\Clothing;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ClothingTransformer;
 use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
@@ -32,7 +30,7 @@ class ClothingController extends ApiController
 
     public function index(): Response
     {
-        return $this->getResponse(Clothes::query());
+        return $this->getResponse(Clothing::query());
     }
 
     public function show(Request $request): Response
@@ -49,7 +47,7 @@ class ClothingController extends ApiController
         $clothing = $this->cleanQueryName($clothing);
 
         try {
-            $clothing = Clothes::query()
+            $clothing = Clothing::query()
                 ->whereHas('item', function (Builder $query) use ($clothing) {
                     return $query->where('name', $clothing)->orWhere('uuid', $clothing);
                 })

@@ -23,7 +23,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->foreign('item_uuid', 'fk_s_i_f_tan_item_uuid')
+            $table->foreign('item_uuid', 'fk_sc_i_f_tan_item_uuid')
                 ->references('uuid')
                 ->on('sc_items')
                 ->onDelete('cascade');

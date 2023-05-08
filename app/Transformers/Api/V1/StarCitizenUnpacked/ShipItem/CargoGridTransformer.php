@@ -12,6 +12,10 @@ class CargoGridTransformer extends AbstractCommodityTransformer
     public function transform(CargoGrid $item): array
     {
         return [
+            'personal_inventory' => $item->personal_inventory,
+            'invisible' => $item->invisible,
+            'mining_only' => $item->mining_only,
+            'min_volatile_power_to_explode' => $item->min_volatile_power_to_explode,
             'scu' => $item->scu,
             'dimension' => $item->dimension,
             'dimensions' => [

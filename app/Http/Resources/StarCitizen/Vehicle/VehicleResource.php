@@ -167,8 +167,8 @@ class VehicleResource extends AbstractBaseResource
     {
         return [
             'components',
-            'shops',
-            'shops.items',
+            'sc.item.shops',
+            'sc.item.shops.items',
             'hardpoints',
             'hardpoints.item.heatData',
             'hardpoints.item.powerData',
@@ -229,9 +229,9 @@ class VehicleResource extends AbstractBaseResource
             ],
             'quantum' => $this->getQuantumDriveData(),
             'agility' => [
-                'pitch' => $this->sc->flightController()->pitch ?? $this->pitch_max,
-                'yaw' => $this->sc->flightController()->yaw ?? $this->yaw_max,
-                'roll' => $this->sc->flightController()->roll ?? $this->roll_max,
+                'pitch' => $this->sc->flightController()?->pitch ?? $this->pitch_max,
+                'yaw' => $this->sc->flightController()?->yaw ?? $this->yaw_max,
+                'roll' => $this->sc->flightController()?->roll ?? $this->roll_max,
                 'acceleration' => [
                     'x_axis' => $this->x_axis_acceleration,
                     'y_axis' => $this->y_axis_acceleration,

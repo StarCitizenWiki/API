@@ -23,7 +23,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->foreign('ammunition_id', 'fK_sc_p_w_a_dam_ammunition_id')
+            $table->foreign('ammunition_id', 'fk_sc_p_w_a_dam_ammunition_id')
                 ->references('id')
                 ->on('sc_personal_weapon_ammunitions')
                 ->onDelete('cascade');

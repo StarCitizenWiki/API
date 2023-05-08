@@ -154,6 +154,8 @@ class Item implements ShouldQueue
             ], [
                 'health' => $this->data['durability']['health'] ?? null,
                 'max_lifetime' => $this->data['durability']['max_lifetime'] ?? null,
+                'salvageable' => $this->data['durability']['salvageable'] ?? null,
+                'repairable' => $this->data['durability']['repairable'] ?? null,
             ]);
         }
     }

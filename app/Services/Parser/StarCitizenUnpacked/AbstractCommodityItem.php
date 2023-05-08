@@ -46,10 +46,19 @@ abstract class AbstractCommodityItem
      */
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
+        $parts = explode("\n", $description);
+
+        if (count($parts) === 1) {
+            $parts = explode('\n', $parts[0]);
+        }
+
+        $withColon = collect($parts)->filter(function (string $part) {
+            return preg_match('/\w:[\s| ]/u', $part) === 1;
+        })->implode("\n");
 
         $match = preg_match_all(
-            '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%]*)(?:\\n|\n|\\\n|$)/m',
-            $description,
+            '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%+-]*)(?:\\n|\n|\\\n|$)/m',
+            $withColon,
             $matches
         );
 
@@ -74,7 +83,7 @@ abstract class AbstractCommodityItem
         }
 
         $exploded = array_filter($exploded, function (string $part) {
-            return !str_contains($part, ':');
+            return preg_match('/\w:[\s| ]/u', $part) !== 1;
         });
 
         $exploded = join("\n\n", $exploded);

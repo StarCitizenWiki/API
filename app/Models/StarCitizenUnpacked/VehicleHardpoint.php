@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class VehicleHardpoint extends Model
 {
@@ -39,13 +38,13 @@ class VehicleHardpoint extends Model
     /**
      * @return HasOne
      */
-    public function shipItem(): HasOne
+    public function item(): HasOne
     {
         return $this->hasOne(
             ShipItem::class,
             'uuid',
             'equipped_vehicle_item_uuid',
-        )->withDefault();
+        );
     }
 
     /**

@@ -15,6 +15,8 @@ final class ItemBaseData extends AbstractItemSpecification
         $out['durability'] = [
             'health' => Arr::get($item, 'Raw.Entity.Components.SHealthComponentParams.Health'),
             'lifetime' => Arr::get($item, 'Raw.Entity.Components.SDegradationParams.MaxLifetimeHours'),
+            'salvageable' => Arr::get($item, 'Raw.Entity.Components.SHealthComponentParams.IsSalvagable'),
+            'repairable' => Arr::get($item, 'Raw.Entity.Components.SHealthComponentParams.IsRepairable'),
         ];
 
         $item = collect(Arr::get($item, 'Raw.Entity', []));

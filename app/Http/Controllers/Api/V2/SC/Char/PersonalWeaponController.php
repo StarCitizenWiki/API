@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V2\SC\Char;
 
-use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Char\PersonalWeaponResource;
-use App\Http\Resources\StarCitizen\Stat\StatResource;
-use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
-use App\Models\StarCitizen\Stat\Stat;
-use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
+use App\Http\Resources\SC\Item\ItemResource;
+use App\Models\SC\Item\Item;
 use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -45,16 +41,17 @@ class PersonalWeaponController extends AbstractApiV2Controller
     )]
     public function index(): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(PersonalWeapon::class)
+        $query = QueryBuilder::for(Item::class)
             ->limit($this->limit)
+            ->where('type', 'WeaponPersonal')
             ->allowedIncludes(PersonalWeaponResource::validIncludes())
             ->paginate()
             ->appends(request()->query());
 
-        return PersonalWeaponResource::collection($query);
+        return ItemResource::collection($query);
     }
 
-    public function show($id, Request $request): AbstractBaseResource
+    public function show(Request $request): AbstractBaseResource
     {
         ['weapon' => $weapon] = Validator::validate(
             [
@@ -66,16 +63,18 @@ class PersonalWeaponController extends AbstractApiV2Controller
         );
 
         try {
-            $weapon = QueryBuilder::for(PersonalWeapon::class, $request)
-                ->where('item_uuid', $weapon)
-                ->orWhereRelation('item', 'name', 'LIKE', sprintf('%%%s%%', $weapon))
-                //->allowedIncludes($this->getAllowedIncludes(PersonalWeaponResource::validIncludes()))
+            $weapon = QueryBuilder::for(Item::class, $request)
+                ->where('type', 'WeaponPersonal')
+                ->where(function (Builder $query) use ($weapon) {
+                    $query->where('uuid', $weapon)
+                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $weapon));
+                })
                 ->allowedIncludes(PersonalWeaponResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Weapon with specified UUID or Name found.');
         }
 
-        return new PersonalWeaponResource($weapon);
+        return new ItemResource($weapon);
     }
 }

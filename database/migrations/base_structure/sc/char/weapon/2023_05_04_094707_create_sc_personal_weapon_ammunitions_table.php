@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sc_personal_weapon_ammunitions', function (Blueprint $table) {
+        Schema::create('sc_personal_weapon_ammunitions', static function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('weapon_id');
             $table->unsignedInteger('size');

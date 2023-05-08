@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,11 +21,12 @@ abstract class AbstractBaseResource extends JsonResource
 
 
 
-    public const UNPACKED_FOOD_SHOW = 'food';
+    public const UNPACKED_FOOD_SHOW = 'food/';
 
     public const UNPACKED_PERSONAL_WEAPONS_SHOW = 'personal-weapons/';
     public const UNPACKED_ARMOR_SHOW = 'armor/';
     public const UNPACKED_CLOTHES_SHOW = 'clothes/';
+    public const UNPACKED_SHOPS_SHOW = 'shops/';
 
     public function __construct($resource)
     {
@@ -42,7 +42,7 @@ abstract class AbstractBaseResource extends JsonResource
      * Formats the fragment and returns an absolute api url
      *
      * @param string $fragment
-     * @param mixed  ...$routeKey
+     * @param mixed ...$routeKey
      *
      * @return string
      */
@@ -51,7 +51,10 @@ abstract class AbstractBaseResource extends JsonResource
         return sprintf('%s/api/v2/%s%s', config('app.url'), $fragment, ...$routeKey);
     }
 
-    abstract public static function validIncludes(): array;
+    public static function validIncludes(): array
+    {
+        return [];
+    }
 
     public function addMetadata(mixed $key, mixed $value = null): void
     {

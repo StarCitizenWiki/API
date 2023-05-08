@@ -28,6 +28,9 @@ class Shield extends AbstractShipItemSpecification
         'damage_regen_delay',
         'max_reallocation',
         'reallocation_rate',
+        'shield_hardening_factor',
+        'shield_hardening_duration',
+        'shield_hardening_cooldown',
     ];
 
     protected $casts = [
@@ -38,6 +41,9 @@ class Shield extends AbstractShipItemSpecification
         'damage_regen_delay' => 'double',
         'max_reallocation' => 'double',
         'reallocation_rate' => 'double',
+        'shield_hardening_factor' => 'double',
+        'shield_hardening_duration' => 'double',
+        'shield_hardening_cooldown' => 'double',
     ];
 
     public function absorptions(): HasMany

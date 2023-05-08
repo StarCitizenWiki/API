@@ -151,8 +151,8 @@ final class Shops
             })
             ->filter(function ($item) {
                 return !empty($item['name']) &&
-                    strpos($item['name'], '[PH]') === false &&
-                    strpos($item['name'], 'igp_') === false;
+                    !str_contains($item['name'], '[PH]') &&
+                    !str_contains($item['name'], 'igp_');
             })
             ->filter(function ($item) {
                 return ($item['base_price'] ?? null) !== null;

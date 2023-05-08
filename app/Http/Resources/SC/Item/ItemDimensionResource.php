@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\SC\Item;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
 
-class ItemDimensionResource extends AbstractTranslationResource
+class ItemDimensionResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [];
-    }
 
     /**
      * Transform the resource collection into an array.

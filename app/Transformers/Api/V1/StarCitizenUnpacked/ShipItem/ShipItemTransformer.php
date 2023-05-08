@@ -51,7 +51,10 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $item->shipItem->item->type :
                 $item->shipItem->type,
             'sub_type' => $item->shipItem->item->sub_type,
-            'health' => $item->shipItem->health,
+            'durability' => [
+                'health' => $item->shipItem->health,
+                'lifetime' => $item->shipItem->lifetime,
+            ],
             'volume' => [
                 'width' => $item->shipItem->item->volume->width,
                 'height' => $item->shipItem->item->volume->height,
@@ -84,6 +87,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     {
         switch ($this->fixItem($item)->shipItem->item->type) {
             case 'CargoGrid':
+            case 'Cargo':
                 $this->defaultIncludes[] = 'cargoGrid';
                 break;
 
@@ -91,9 +95,9 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'cooler';
                 break;
 
-//            case 'PersonalInventory':
-//                $this->defaultIncludes[] = 'personalInventory';
-//                break;
+            case 'PersonalInventory':
+                $this->defaultIncludes[] = 'personalInventory';
+                break;
 
             case 'PowerPlant':
                 $this->defaultIncludes[] = 'powerPlant';
@@ -145,12 +149,12 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'selfDestruct';
                 break;
 
-//            case 'ToolArm':
-//            case 'Turret':
-//            case 'TurretBase':
-//            case 'MiningArm':
-//                $this->defaultIncludes[] = 'turret';
-//                break;
+            case 'ToolArm':
+            case 'Turret':
+            case 'TurretBase':
+            case 'MiningArm':
+                $this->defaultIncludes[] = 'turret';
+                break;
 
             case 'Radar':
                 $this->defaultIncludes[] = 'radar';

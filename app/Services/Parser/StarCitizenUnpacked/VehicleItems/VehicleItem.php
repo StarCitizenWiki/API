@@ -6,7 +6,6 @@ namespace App\Services\Parser\StarCitizenUnpacked\VehicleItems;
 
 use App\Services\Parser\StarCitizenUnpacked\AbstractCommodityItem;
 use App\Services\Parser\StarCitizenUnpacked\ItemBaseData;
-use App\Services\Parser\StarCitizenUnpacked\PersonalInventory;
 use App\Services\Parser\StarCitizenUnpacked\Weapon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -65,7 +64,6 @@ final class VehicleItem extends AbstractCommodityItem
         $mappedItem['counter_measure'] = CounterMeasure::getData($item);
         $mappedItem['fuel_intake'] = FuelIntake::getData($item);
         $mappedItem['fuel_tank'] = FuelTank::getData($item);
-        $mappedItem['mining_laser'] = MiningLaser::getData($item);
         $mappedItem['missile'] = Missile::getData($item);
         $mappedItem['missile_rack'] = MissileRack::getData($item);
         $mappedItem['power_plant'] = PowerPlant::getData($item);

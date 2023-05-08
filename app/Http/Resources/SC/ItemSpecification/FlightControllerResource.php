@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\SC\ItemSpecification;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
 
-class FlightControllerResource extends AbstractTranslationResource
+class FlightControllerResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [];
-    }
 
     /**
      * Transform the resource collection into an array.
@@ -20,7 +16,7 @@ class FlightControllerResource extends AbstractTranslationResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         return [
             'scm_speed' => $this->scm_speed,

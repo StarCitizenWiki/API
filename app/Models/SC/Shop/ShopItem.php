@@ -8,7 +8,6 @@ use App\Events\ModelUpdating;
 use App\Models\SC\Item\Item;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ShopItem extends Pivot
@@ -69,7 +68,7 @@ class ShopItem extends Pivot
     ];
 
     protected $with = [
-        'rental'
+        ///  'rental'
     ];
 
     public function getOffsettedPriceAttribute()
@@ -111,7 +110,7 @@ class ShopItem extends Pivot
 
     public function item(): BelongsTo
     {
-        return $this->belongsTo(Item::class, 'item_uuid', 'uuid');
+        return $this->belongsTo(Item::class);
     }
 
     public function shop(): BelongsTo

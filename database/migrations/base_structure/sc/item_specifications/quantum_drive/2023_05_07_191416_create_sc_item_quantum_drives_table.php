@@ -30,7 +30,7 @@ return new class extends Migration
             $table->unsignedDouble('post_ramp_down_thermal_energy_draw');
             $table->timestamps();
 
-            $table->foreign('item_uuid', 'fk_s_i_q_dri_item_uuid')
+            $table->foreign('item_uuid', 'fk_sc_i_q_dri_item_uuid')
                 ->references('uuid')
                 ->on('sc_items')
                 ->onDelete('cascade');

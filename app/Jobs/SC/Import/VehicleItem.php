@@ -8,14 +8,14 @@ use App\Models\SC\ItemSpecification\Cooler;
 use App\Models\SC\ItemSpecification\FlightController;
 use App\Models\SC\ItemSpecification\FuelIntake;
 use App\Models\SC\ItemSpecification\FuelTank;
+use App\Models\SC\ItemSpecification\Missile\Missile;
 use App\Models\SC\ItemSpecification\PowerPlant;
 use App\Models\SC\ItemSpecification\QuantumDrive\QuantumDrive;
 use App\Models\SC\ItemSpecification\SelfDestruct;
 use App\Models\SC\ItemSpecification\Shield;
 use App\Models\SC\ItemSpecification\Thruster;
-use App\Models\SC\ItemSpecification\Weapon\Weapon;
-use App\Models\SC\ItemSpecification\Weapon\WeaponMode;
 use App\Models\SC\Vehicle\VehicleItem as VehicleItemModel;
+use App\Models\SC\Vehicle\Weapon\VehicleWeapon;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -46,7 +46,7 @@ class VehicleItem implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $labels = (new Labels())->getData();
 
@@ -74,8 +74,6 @@ class VehicleItem implements ShouldQueue
         ], [
             'translation' => $item['description'] ?? '',
         ]);
-
-        return $shipItem;
     }
 
 
@@ -85,10 +83,7 @@ class VehicleItem implements ShouldQueue
             case 'FlightController':
                 $this->createFlightController($item);
                 break;
-//            case 'CargoGrid':
-//            case 'Cargo':
-//                return $this->createCargoGrid($item, $shipItem);
-//
+
             case 'Cooler':
                 $this->createCooler($item);
                 break;
@@ -115,9 +110,11 @@ class VehicleItem implements ShouldQueue
                 $this->createFuelIntake($item);
                 break;
 
-//            case 'WeaponGun':
-//                return $this->createWeapon($item, $shipItem);
-//
+            case 'WeaponDefensive':
+            case 'WeaponGun':
+                $this->createWeapon($item);
+                break;
+
 //            case 'WeaponMining':
 //                return $this->createMiningLaser($item, $shipItem);
 //
@@ -126,10 +123,11 @@ class VehicleItem implements ShouldQueue
 //
 //            case 'MissileLauncher':
 //                return $this->createMissileRack($item, $shipItem);
-//
-//            case 'Missile':
-//                return $this->createMissile($item, $shipItem);
-//
+
+            case 'Missile':
+                $this->createMissile($item);
+                break;
+
 //            case 'Ship.Turret':
 //            case 'Ship.TurretBase':
 //            case 'Ship.MiningArm':
@@ -270,43 +268,44 @@ class VehicleItem implements ShouldQueue
         ]);
     }
 
-    private function createWeapon(array $item, VehicleItemModel $shipItem): ?Model
+    private function createWeapon(array $item): void
     {
-        if (!isset($item['weapon']) && $shipItem->item->type !== 'Tractor Beam') {
-            return null;
+        if (empty($item['weapon'])) {
+            return;
         }
 
-
-        /** @var Weapon $weapon */
-        $weapon = $shipItem->specification()->updateOrCreate([
-            'uuid' => $item['uuid'],
+        /** @var VehicleWeapon $weapon */
+        $weapon = VehicleWeapon::updateOrCreate([
+            'item_uuid' => $item['uuid'],
         ], [
-            'speed' => Arr::get($item, 'weapon.ammunition.speed'),
-            'range' => Arr::get($item, 'weapon.ammunition.range'),
-            'size' => Arr::get($item, 'weapon.size'),
+            'weapon_type' => Arr::get($item, 'weapon.weapon_type'),
+            'weapon_class' => Arr::get($item, 'weapon.weapon_class'),
             'capacity' => Arr::get($item, 'weapon.capacity'),
-
-            'ship_item_id' => $shipItem->id,
         ]);
 
-        foreach (($item['weapon']['ammunition']['damages'] ?? []) as $type => $damage) {
-            if (empty($damage)) {
-                continue;
-            }
+        if (!empty($item['weapon']['ammunition'])) {
+            $ammunition = $weapon->ammunition()->updateOrCreate([
+                'weapon_id' => $weapon->id,
+            ], [
+                'size' => Arr::get($item, 'weapon.ammunition.size'),
+                'lifetime' => Arr::get($item, 'weapon.ammunition.lifetime'),
+                'speed' => Arr::get($item, 'weapon.ammunition.speed'),
+                'range' => Arr::get($item, 'weapon.ammunition.range'),
+            ]);
 
-            foreach ($damage as $value) {
-                $weapon->damages()->updateOrCreate([
-                    'ship_weapon_id' => $weapon->id,
-                    'type' => $value['type'],
-                    'name' => $value['name'],
-                ], [
-                    'damage' => $value['damage'],
-                ]);
-            }
+            collect($item['weapon']['ammunition']['damages'])->each(function ($damageClass) use ($ammunition) {
+                collect($damageClass)->each(function ($damage) use ($ammunition) {
+                    $ammunition->damages()->updateOrCreate([
+                        'type' => $damage['type'],
+                        'name' => $damage['name'],
+                    ], [
+                        'damage' => $damage['damage'],
+                    ]);
+                });
+            });
         }
 
-        foreach (($item['weapon']['modes'] ?? []) as $mode) {
-            /** @var WeaponMode $mode */
+        collect($item['weapon']['modes'])->each(function (array $mode) use ($weapon) {
             $weapon->modes()->updateOrCreate([
                 'mode' => $mode['mode'],
             ], [
@@ -316,11 +315,11 @@ class VehicleItem implements ShouldQueue
                 'ammo_per_shot' => $mode['ammo_per_shot'] ?? null,
                 'pellets_per_shot' => $mode['pellets_per_shot'] ?? null,
             ]);
-        }
+        });
 
         if (!empty($item['weapon']['regen_consumption'])) {
             $weapon->regen()->updateOrCreate([
-                'ship_weapon_id' => $weapon->id,
+                'weapon_id' => $weapon->id,
             ], [
                 'requested_regen_per_sec' => $item['weapon']['regen_consumption']['requested_regen_per_sec'],
                 'requested_ammo_load' => $item['weapon']['regen_consumption']['requested_ammo_load'],
@@ -328,8 +327,6 @@ class VehicleItem implements ShouldQueue
                 'cost_per_bullet' => $item['weapon']['regen_consumption']['cost_per_bullet'],
             ]);
         }
-
-        return $weapon;
     }
 
     private function createMissileRack(array $item, VehicleItemModel $shipItem): ?Model
@@ -347,32 +344,29 @@ class VehicleItem implements ShouldQueue
         ]);
     }
 
-    private function createMissile(array $item, VehicleItemModel $shipItem): ?Model
+    private function createMissile(array $item): void
     {
         if (!isset($item['missile']['signal_type'])) {
-            return null;
+            return;
         }
 
-        $missile = $shipItem->specification()->updateOrCreate([
-            'uuid' => $item['uuid'],
+        $missile = Missile::updateOrCreate([
+            'item_uuid' => $item['uuid'],
         ], [
             'signal_type' => $item['missile']['signal_type'],
             'lock_time' => $item['missile']['lock_time'] ?? null,
-            'ship_item_id' => $shipItem->id,
         ]);
 
         if (isset($item['missile']['damages'])) {
             foreach ($item['missile']['damages'] as $name => $damage) {
                 $missile->damages()->updateOrCreate([
-                    'ship_missile_id' => $missile->id,
+                    'missile_id' => $missile->id,
                     'name' => $name,
                 ], [
                     'damage' => $damage,
                 ]);
             }
         }
-
-        return $missile;
     }
 
     private function createTurret(array $item, VehicleItemModel $shipItem): Model

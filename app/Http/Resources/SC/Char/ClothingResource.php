@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\SC\Char;
 
-use App\Http\Resources\AbstractTranslationResource;
-use App\Http\Resources\SC\Item\ItemResource;
+use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
 
-class ClothingResource extends AbstractTranslationResource
+class ClothingResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
         return [
-            'item.ports',
             'resistances',
-            'item.ports',
-            'item.shops',
-            'item.shops.items',
+            'ports',
+            'shops',
+            'shops.items',
         ];
     }
 
@@ -27,7 +25,7 @@ class ClothingResource extends AbstractTranslationResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         $typeKey = 'armor_type';
         $route = self::UNPACKED_ARMOR_SHOW;
@@ -36,23 +34,18 @@ class ClothingResource extends AbstractTranslationResource
             $typeKey = 'clothing_type';
         }
 
-        $data = (new ItemResource($this->item))->toArray($request) + [
-                $typeKey => $this->type,
-                'damage_reduction' => $this->damage_reduction,
-                'temp_resistance_min' => $this->temp_resistance_min,
-                'temp_resistance_max' => $this->temp_resistance_max,
-                'resistances' => ClothingResistanceResource::collection($this->whenLoaded('resistances')),
-            ];
+        $data = [
+            $typeKey => $this->type,
+            'damage_reduction' => $this->damage_reduction,
+            'temp_resistance_min' => $this->temp_resistance_min,
+            'temp_resistance_max' => $this->temp_resistance_max,
+            'resistances' => ClothingResistanceResource::collection($this->whenLoaded('resistances')),
+        ];
 
         $baseModel = $this->baseModel;
         if ($baseModel !== null && $baseModel->item->name !== $this->item->name) {
             $data['base_model'] = $this->makeApiUrl($route, $baseModel->item_uuid);
         }
-
-        $data += [
-            'updated_at' => $this->updated_at,
-            'version' => $this->version,
-        ];
 
         return $data;
     }

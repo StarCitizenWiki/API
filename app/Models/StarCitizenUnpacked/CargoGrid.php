@@ -16,12 +16,20 @@ class CargoGrid extends AbstractShipItemSpecification
     protected $fillable = [
         'ship_item_id',
         'uuid',
+        'personal_inventory',
+        'invisible',
+        'mining_only',
+        'min_volatile_power_to_explode',
         'x',
         'y',
         'z',
     ];
 
     protected $casts = [
+        'personal_inventory' => 'boolean',
+        'invisible' => 'boolean',
+        'mining_only' => 'boolean',
+        'min_volatile_power_to_explode' => 'double',
         'x' => 'double',
         'y' => 'double',
         'z' => 'double',

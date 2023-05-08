@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
+use App\Models\SC\Char\PersonalWeapon\IronSight;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
-use App\Models\SC\Char\PersonalWeapon\PersonalWeaponOptics;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -54,7 +53,7 @@ class WeaponAttachment implements ShouldQueue
 
         $model = null;
         if ($item['magnification'] !== null) {
-            $model = PersonalWeaponOptics::updateOrCreate([
+            $model = IronSight::updateOrCreate([
                 'item_uuid' => $item['uuid'],
             ], [
                 'magnification' => $item['magnification'],

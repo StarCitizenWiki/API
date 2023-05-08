@@ -26,7 +26,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
 use Illuminate\Support\Str;
 
 class Item extends HasTranslations
@@ -49,8 +48,6 @@ class Item extends HasTranslations
         'sub_type',
         'manufacturer',
         'size',
-        'class_name',
-        'health',
         'version',
     ];
 
@@ -231,32 +228,6 @@ class Item extends HasTranslations
     {
         return $this->hasOne(
             ItemVolume::class,
-            'item_uuid',
-            'uuid'
-        )->where('override', 0);
-    }
-    public function volumeOverride(): HasOne
-    {
-        return $this->hasOne(
-            ItemVolume::class,
-            'item_uuid',
-            'uuid'
-        )->where('override', 1)->withDefault();
-    }
-
-    public function container(): HasOne
-    {
-        return $this->hasOne(
-            Container::class,
-            'item_uuid',
-            'uuid'
-        )->withDefault();
-    }
-
-    public function ports(): HasMany
-    {
-        return $this->hasMany(
-            ItemPort::class,
             'item_uuid',
             'uuid'
         );

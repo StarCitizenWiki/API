@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
+use App\Console\Commands\CopyTranslationData;
 use App\Console\Commands\FixChangelogNamespaces;
 use App\Console\Commands\PopulateData;
 use App\Console\Commands\Rsi\CommLink\CommLinkSchedule;
@@ -135,6 +136,8 @@ class Kernel extends ConsoleKernel
 
 
         PopulateData::class,
+
+        CopyTranslationData::class,
     ];
 
     /**

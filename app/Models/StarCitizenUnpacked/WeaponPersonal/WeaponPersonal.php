@@ -3,9 +3,6 @@
 namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 
 use App\Models\StarCitizenUnpacked\CommodityItem;
-use App\Models\StarCitizenUnpacked\Item;
-use App\Models\StarCitizenUnpacked\ItemPort;
-use App\Models\StarCitizenUnpacked\ItemPortLoadout;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -35,9 +32,11 @@ class WeaponPersonal extends CommodityItem
     ];
 
     protected $with = [
-//        'modes',
+        'modes',
         'item',
-       'ammunition',
+        'ammunition',
+        'attachmentPorts',
+        'attachments',
     ];
 
     public function getRouteKey()
@@ -50,7 +49,7 @@ class WeaponPersonal extends CommodityItem
         $magazineAttach = str_replace(
             $this->name,
             '',
-            optional($this->attachments->where('position', 'Magazine Well')->first())->name
+            optional($this->attachments()->where('position', 'Magazine Well')->first())->name
         );
 
         $exploded = explode('(', $magazineAttach);
@@ -71,7 +70,7 @@ class WeaponPersonal extends CommodityItem
      */
     public function getMagazineAttribute(): Optional
     {
-        return optional($this->item->ports()->where('position', 'magazine_well')->first());
+        return optional($this->attachments()->where('position', 'Magazine Well')->first());
     }
 
     /**
@@ -82,19 +81,25 @@ class WeaponPersonal extends CommodityItem
         return $this->hasOne(WeaponPersonalAmmunition::class, 'weapon_id', 'id');
     }
 
+    /**
+     * @return HasMany
+     */
+    public function attachmentPorts(): HasMany
+    {
+        return $this->hasMany(WeaponPersonalAttachmentPort::class, 'weapon_id', 'id');
+    }
 
     /**
      * @return BelongsToMany
      */
-    public function getAttachmentsAttribute()
+    public function attachments(): BelongsToMany
     {
-        return $this->item->ports->map(function(ItemPort $port) {
-            return $port->loadout;
-        })->filter(function($loadout) {
-            return $loadout !== null;
-        })->map(function (ItemPortLoadout $loadout) {
-            return $loadout->item;
-        })->filter();
+        return $this->belongsToMany(
+            Attachment::class,
+            'star_citizen_unpacked_personal_weapon_attachment',
+            'weapon_id',
+            'attachment_id'
+        );
     }
 
     /**

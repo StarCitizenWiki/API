@@ -6,8 +6,6 @@ namespace App\Models\StarCitizen\Vehicle\Vehicle;
 
 use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
-use App\Models\SC\Shop\Shop;
-use App\Models\SC\Shop\ShopItem;
 use App\Models\SC\Vehicle\Hardpoint;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
@@ -18,7 +16,6 @@ use App\Models\StarCitizen\Vehicle\Size\Size;
 use App\Models\StarCitizen\Vehicle\Type\Type;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -309,7 +306,11 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
      */
     public function unpacked(): HasOne
     {
-        return $this->hasOne(\App\Models\StarCitizenUnpacked\Vehicle::class, 'shipmatrix_id', 'id')
+        return $this->hasOne(
+            \App\Models\StarCitizenUnpacked\Vehicle::class,
+            'shipmatrix_id',
+            'id'
+        )
             ->withDefault();
     }
 

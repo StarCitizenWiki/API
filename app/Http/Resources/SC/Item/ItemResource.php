@@ -5,12 +5,24 @@ declare(strict_types=1);
 namespace App\Http\Resources\SC\Item;
 
 use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\SC\Char\ClothingResource;
+use App\Http\Resources\SC\Char\GrenadeResource;
+use App\Http\Resources\SC\Char\IronSightResource;
+use App\Http\Resources\SC\Char\PersonalWeaponMagazineResource;
+use App\Http\Resources\SC\Char\PersonalWeaponResource;
+use App\Http\Resources\SC\FoodResource;
 use App\Http\Resources\SC\ItemSpecification\CoolerResource;
 use App\Http\Resources\SC\ItemSpecification\FlightControllerResource;
+use App\Http\Resources\SC\ItemSpecification\MiningLaser\MiningLaserResource;
+use App\Http\Resources\SC\ItemSpecification\MiningModuleResource;
+use App\Http\Resources\SC\ItemSpecification\MissileResource;
 use App\Http\Resources\SC\ItemSpecification\PowerPlantResource;
+use App\Http\Resources\SC\ItemSpecification\QuantumDrive\QuantumDriveResource;
 use App\Http\Resources\SC\ItemSpecification\SelfDestructResource;
+use App\Http\Resources\SC\ItemSpecification\ShieldResource;
 use App\Http\Resources\SC\ItemSpecification\ThrusterResource;
 use App\Http\Resources\SC\Shop\ShopResource;
+use App\Http\Resources\SC\Vehicle\VehicleWeaponResource;
 use Illuminate\Http\Request;
 
 class ItemResource extends AbstractTranslationResource
@@ -40,12 +52,18 @@ class ItemResource extends AbstractTranslationResource
             'name' => $this->name,
             'description' => $this->getTranslation($this, $request),
             'size' => $this->size,
+            $this->mergeWhen($this->vehicleItem->exists, [
+                'grade' => $this->vehicleItem->grade,
+                'class' => $this->vehicleItem->class,
+            ]),
             'manufacturer' => $this->manufacturer,
             'type' => $this->type,
             'sub_type' => $this->sub_type,
+            $this->mergeWhen($this->isTurret(), $this->addTurretData()),
+            $this->mergeWhen(...$this->addSpecification()),
             'dimension' => new ItemDimensionResource($this),
             $this->mergeWhen($this->container->exists, [
-                'container' => new ItemContainerResource($this->container),
+                'inventory' => new ItemContainerResource($this->container),
             ]),
             'ports' => ItemPortResource::collection($this->whenLoaded('ports')),
             $this->mergeWhen($this->relationLoaded('heatData'), [
@@ -57,60 +75,107 @@ class ItemResource extends AbstractTranslationResource
             $this->mergeWhen($this->relationLoaded('distortionData'), [
                 'distortion' => new ItemDistortionDataResource($this->distortionData),
             ]),
-//            $this->mergeWhen($this->relationLoaded('durabilityData'), [
-//                'durability' => new ItemDurabilityDataResource($this->durabilityData),
-//            ]),
-            $this->mergeWhen(...$this->addSpecification()),
+            $this->mergeWhen($this->relationLoaded('durabilityData'), [
+                'durability' => new ItemDurabilityDataResource($this->durabilityData),
+            ]),
             'shops' => ShopResource::collection($this->whenLoaded('shops')),
+            'updated_at' => $this->updated_at,
             'version' => $this->version,
         ];
     }
 
     private function addSpecification(): array
     {
-        switch ($this->type) {
-            case 'Cooler':
-                return [
-                    $this->specification->exists,
-                    [
-                        'cooler' => new CoolerResource($this->specification),
-                    ]
-                ];
-
-            case 'MainThruster':
-            case 'ManneuverThruster':
-                return [
-                    $this->specification->exists,
-                    [
-                        'thruster' => new ThrusterResource($this->specification),
-                    ]
-                ];
-
-            case 'PowerPlant':
-                return [
-                    $this->specification->exists,
-                    [
-                        'power_plant' => new PowerPlantResource($this->specification),
-                    ]
-                ];
-
-            case 'SelfDestruct':
-                return [
-                    $this->specification->exists,
-                    [
-                        'self_destruct' => new SelfDestructResource($this->specification),
-                    ]
-                ];
-
-            case 'FlightController':
-                return [
-                    $this->specification->exists,
-                    [
-                        'flight_controller' => new FlightControllerResource($this->specification),
-                    ]
-                ];
-            default:
-                return [false, []];
+        if ($this->specification === null) {
+            return [false, []];
         }
+
+        return match (true) {
+            $this->type === 'Cooler' => [
+                $this->specification->exists,
+                new CoolerResource($this->specification),
+            ],
+            str_contains($this->type, 'Char_Clothing'), str_contains($this->type, 'Char_Armor') => [
+                $this->specification->exists,
+                new ClothingResource($this->specification),
+            ],
+            $this->type === 'Food' => [
+                $this->specification->exists,
+                new FoodResource($this->specification),
+            ],
+            $this->type === 'MainThruster', $this->type === 'ManneuverThruster' => [
+                $this->specification->exists,
+                new ThrusterResource($this->specification),
+            ],
+            $this->type === 'PowerPlant' => [
+                $this->specification->exists,
+                new PowerPlantResource($this->specification),
+            ],
+            $this->type === 'Shield' => [
+                $this->specification->exists,
+                new ShieldResource($this->specification),
+            ],
+            $this->type === 'SelfDestruct' => [
+                $this->specification->exists,
+                new SelfDestructResource($this->specification),
+            ],
+            $this->type === 'FlightController' => [
+                $this->specification->exists,
+                new FlightControllerResource($this->specification),
+            ],
+            $this->type === 'QuantumDrive' => [
+                $this->specification->exists,
+                new QuantumDriveResource($this->specification),
+            ],
+            $this->type === 'WeaponPersonal' && $this->sub_type === 'Grenade' => [
+                $this->specification->exists,
+                new GrenadeResource($this->specification),
+            ],
+            $this->type === 'WeaponPersonal' => [
+                $this->specification->exists,
+                new PersonalWeaponResource($this->specification),
+            ],
+            $this->sub_type === 'IronSight' => [
+                $this->specification->exists,
+                new IronSightResource($this->specification),
+            ],
+            $this->sub_type === 'Magazine' => [
+                $this->specification->exists,
+                new PersonalWeaponMagazineResource($this->specification),
+            ],
+            $this->type === 'Missile' => [
+                $this->specification->exists,
+                new MissileResource($this->specification),
+            ],
+            $this->type === 'MiningModifier' => [
+                $this->specification->exists,
+                new MiningModuleResource($this->specification),
+            ],
+            $this->type === 'WeaponGun', $this->type === 'WeaponDefensive' => [
+                $this->specification->exists,
+                new VehicleWeaponResource($this->specification),
+            ],
+            $this->type === 'WeaponMining' => [
+                $this->specification->exists,
+                new MiningLaserResource($this->specification),
+            ],
+            default => [false, []],
+        };
+    }
+
+    private function addTurretData(): array
+    {
+        $mountName = 'max_mounts';
+        if ($this->type === 'MissileLauncher') {
+            $mountName = 'max_missiles';
+        } elseif ($this->type === 'BombLauncher') {
+            $mountName = 'max_bombs';
+        }
+
+        return [
+            $mountName => $this->ports->count(),
+            'min_size' => $this->ports->min('min_size'),
+            'max_size' => $this->ports->max('max_size'),
+        ];
     }
 }

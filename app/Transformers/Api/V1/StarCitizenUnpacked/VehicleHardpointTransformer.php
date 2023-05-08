@@ -6,7 +6,6 @@ namespace App\Transformers\Api\V1\StarCitizenUnpacked;
 
 use App\Models\StarCitizenUnpacked\VehicleHardpoint;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\ShipItemTransformer;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use League\Fractal\Resource\Collection;
 
 /**
@@ -15,15 +14,6 @@ use League\Fractal\Resource\Collection;
  */
 class VehicleHardpointTransformer extends AbstractCommodityTransformer
 {
-    private array $manualTypes = [
-        'Turret',
-        'TurretBase',
-        'ToolArm',
-        'MiningArm',
-        'WeaponMount',
-        'Container',
-    ];
-
     public function transform(VehicleHardpoint $hardpoint): array
     {
         $this->defaultIncludes = [];
@@ -33,16 +23,12 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
             'min_size' => $hardpoint->min_size,
             'max_size' => $hardpoint->max_size,
             'class_name' => $hardpoint->class_name,
-            'health' => optional($hardpoint->shipItem)->health,
         ];
 
-        if (
-            $hardpoint->shipItem->hasSpecification() ||
-            ($hardpoint->shipItem->item !== null && in_array($hardpoint->shipItem->item->type, $this->manualTypes, true))
-        ) {
+        if ($hardpoint->item !== null && $hardpoint->item->specification !== null) {
             $data += [
-                'type' => $hardpoint->shipItem->item->type,
-                'sub_type' => $hardpoint->shipItem->item->sub_type,
+                'type' => $hardpoint->item->item->type,
+                'sub_type' => $hardpoint->item->item->sub_type,
             ];
 
             $this->defaultIncludes[] = 'item';
@@ -55,55 +41,16 @@ class VehicleHardpointTransformer extends AbstractCommodityTransformer
         return $data;
     }
 
-    public function includeItem(VehicleHardpoint $hardpoint)
+    public function includeItem(VehicleHardpoint $item)
     {
-        if ($hardpoint->shipItem->item->type === 'Container') {
-            return $this->item($hardpoint->shipItem, function ($shipItem) {
-                return [
-                    'uuid' => $shipItem->uuid,
-                    'name' => $shipItem->item->name,
-                    'size' => $shipItem->item->size,
-                    'manufacturer' => $shipItem->item->manufacturer,
-                    'type' => $shipItem->type,
-                    'sub_type' => $shipItem->item->sub_type,
-                    'cargo_grid' => [
-                        'scu' => $shipItem->item->container->scu,
-                    ]
-                ];
-            });
-        } elseif (in_array($hardpoint->shipItem->item->type, $this->manualTypes, true)) {
-            /** @var \Illuminate\Support\Collection $ports */
-            $ports = $hardpoint->shipItem->ports;
-
-            return $this->item($ports, function (\Illuminate\Support\Collection $ports) use ($hardpoint) {
-                return [
-                    'uuid' => $hardpoint->shipItem->uuid,
-                    'name' => $hardpoint->shipItem->item->name,
-                    'size' => $hardpoint->shipItem->item->size,
-                    'manufacturer' => $hardpoint->shipItem->item->manufacturer,
-                    'type' => $hardpoint->shipItem->type,
-                    'sub_type' => $hardpoint->shipItem->item->sub_type,
-                    'turret' => [
-                        'max_mounts' => count($ports),
-                        'min_size' => $ports->min('min_size'),
-                        'max_size' => $ports->max('max_size'),
-                    ],
-                ];
-            });
-        }
-
-        if (!$hardpoint->shipItem->hasSpecification()) {
+        if ($item->item === null) {
             return $this->null();
         }
 
         $transformer = new ShipItemTransformer();
         $transformer->excludeDefaults();
 
-        try {
-            return $this->item($hardpoint->shipItem->specification, $transformer);
-        } catch (ModelNotFoundException $e) {
-            return $this->null();
-        }
+        return $this->item($item->item->specification, $transformer);
     }
 
     public function includeChildren(VehicleHardpoint $hardpoint): Collection

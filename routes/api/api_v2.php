@@ -81,8 +81,15 @@ Route::group(
 
         Route::get('items', 'ItemController@index')->name('index');
         Route::get('items/{item}', 'ItemController@show')->name('show');
+        Route::post('items/search', 'ItemController@search')->name('search');
+
+        Route::get('shops', 'ShopController@index')->name('index');
+        Route::get('shops/{shop}', 'ShopController@show')->name('show');
 
         Route::get('food', 'FoodController@index')->name('index');
         Route::get('food/{food}', 'FoodController@show')->name('show');
+
+        Route::get('vehicle-weapons', 'VehicleWeaponController@index')->name('index');
+        Route::get('vehicle-weapons/{weapon}', 'VehicleWeaponController@show')->name('show');
     }
 );

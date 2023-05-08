@@ -34,7 +34,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->foreign('quantum_drive_id', 'fk_s_i_q_d_mod_quantum_drive_id')
+            $table->foreign('quantum_drive_id', 'fk_sc_i_q_d_mod_quantum_drive_id')
                 ->references('id')
                 ->on('sc_item_quantum_drives')
                 ->onDelete('cascade');

@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Vehicle extends CommodityItem
 {
@@ -141,7 +140,7 @@ class Vehicle extends CommodityItem
         );
     }
 
-    public function flightController(): FlightController
+    public function flightController(): ?FlightController
     {
         $controller = $this->hasOne(
             Hardpoint::class,
@@ -151,7 +150,7 @@ class Vehicle extends CommodityItem
             $query->where('type', 'FlightController');
         })->first();
 
-        return  $controller->item->specification;
+        return $controller?->item?->specification;
     }
 
     public function quantumDrives(): HasMany

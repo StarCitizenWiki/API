@@ -17,7 +17,6 @@ use App\Models\StarCitizenUnpacked\Thruster;
 use App\Models\StarCitizenUnpacked\Turret;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ShipItem extends CommodityItem
@@ -32,7 +31,23 @@ class ShipItem extends CommodityItem
         'class',
         'type',
         'health',
+        'lifetime',
+        'power_base',
+        'power_draw',
+        'thermal_energy_base',
+        'thermal_energy_draw',
+        'cooling_rate',
         'version',
+    ];
+
+    protected $casts = [
+        'health' => 'double',
+        'lifetime' => 'double',
+        'power_base' => 'double',
+        'power_draw' => 'double',
+        'thermal_energy_base' => 'double',
+        'thermal_energy_draw' => 'double',
+        'cooling_rate' => 'double',
     ];
 
     protected $with = [
@@ -62,40 +77,14 @@ class ShipItem extends CommodityItem
         return $this->hasOne(ShipItemDurabilityData::class, 'ship_item_id')->withDefault();
     }
 
-    public function hasSpecification(): bool {
-        $supportedTypes = [
-            'Cargo',
-            'CargoGrid',
-            'Cooler',
-            'PowerPlant',
-            'QuantumDrive',
-            'QuantumFuelTank',
-            'FuelIntake',
-            'Shield',
-            'WeaponGun',
-            'WeaponMining',
-            'WeaponDefensive',
-            'MissileLauncher',
-            'Missile',
-            'Torpedo',
-            'MainThruster',
-            'ManneuverThruster',
-            'SelfDestruct',
-            'Radar',
-        ];
-
-        return $this->item !== null && $this->item->uuid !== null && in_array($this->item->type, $supportedTypes, true);
-    }
-
     /**
      * @return HasOne
      */
-    public function specification(): ?HasOne
+    public function specification(): HasOne
     {
         switch ($this->item->type) {
-//            case 'Container':
-            case 'Cargo':
             case 'CargoGrid':
+            case 'Cargo':
                 return $this->hasOne(CargoGrid::class, 'uuid', 'uuid');
             case 'Cooler':
                 return $this->hasOne(Cooler::class, 'uuid', 'uuid');
@@ -110,12 +99,13 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(FuelIntake::class, 'uuid', 'uuid');
             case 'Shield':
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
-//            case 'Turret':
-//            case 'TurretBase':
-//            case 'ToolArm':
-//            case 'MiningArm':
-//            case 'WeaponMount':
-//                return $this->hasOne(Turret::class, 'uuid', 'uuid');
+            case 'Turret':
+            case 'TurretBase':
+                // Todo: Separate to Model?
+            case 'ToolArm':
+            case 'MiningArm':
+            case 'WeaponMount':
+                return $this->hasOne(Turret::class, 'uuid', 'uuid');
             case 'WeaponGun':
                 return $this->hasOne(Weapon\Weapon::class, 'uuid', 'uuid');
             case 'WeaponMining':
@@ -134,17 +124,10 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(SelfDestruct::class, 'uuid', 'uuid');
             case 'Radar':
                 return $this->hasOne(Radar::class, 'uuid', 'uuid');
-//            case 'PersonalInventory':
-//                return $this->hasOne(PersonalInventory::class, 'uuid', 'uuid');
+            case 'PersonalInventory':
+                return $this->hasOne(PersonalInventory::class, 'uuid', 'uuid');
             default:
                 throw new ModelNotFoundException();
         }
-    }
-
-    public function ports():HasMany
-    {
-        return $this->item->ports()
-            ->where('name', 'NOT LIKE', '%access%')
-            ->where('name', 'NOT LIKE', '%hud%');
     }
 }

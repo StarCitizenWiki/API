@@ -179,7 +179,7 @@ final class Item extends AbstractCommodityItem
 
     private function getItemUUID(string $className): ?string
     {
-        $uuid = \App\Models\StarCitizenUnpacked\Item::query()
+        $uuid = \App\Models\SC\Item\Item::query()
             ->where('class_name', strtolower($className))
             ->first(['uuid'])->uuid ?? null;
 

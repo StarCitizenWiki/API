@@ -47,6 +47,6 @@ class ItemContainer extends Model
             return $this->dimension / 1.953125;
         }
 
-        return $this->getOriginalConvertedSCUAttribute();
+        return $this->scu;
     }
 }

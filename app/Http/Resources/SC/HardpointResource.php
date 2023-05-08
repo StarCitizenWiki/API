@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\SC;
 
-use App\Http\Resources\AbstractTranslationResource;
+use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Item\ItemResource;
+use App\Http\Resources\SC\Vehicle\VehicleItemResource;
 use Illuminate\Http\Request;
 
-class HardpointResource extends AbstractTranslationResource
+class HardpointResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {

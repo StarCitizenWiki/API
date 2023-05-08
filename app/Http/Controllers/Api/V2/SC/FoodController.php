@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Api\V2\SC;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\FoodResource;
-use App\Models\SC\Food\Food;
+use App\Http\Resources\SC\Item\ItemResource;
+use App\Models\SC\Item\Item;
 use Dingo\Api\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
@@ -39,16 +41,17 @@ class FoodController extends AbstractApiV2Controller
     )]
     public function index(): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Food::class)
+        $query = QueryBuilder::for(Item::class)
+            ->where('type', 'Food')
             ->limit($this->limit)
             ->allowedIncludes(FoodResource::validIncludes())
             ->paginate()
             ->appends(request()->query());
 
-        return FoodResource::collection($query);
+        return ItemResource::collection($query);
     }
 
-    public function show($id, Request $request): AbstractBaseResource
+    public function show(Request $request): AbstractBaseResource
     {
         ['food' => $food] = Validator::validate(
             [
@@ -60,15 +63,18 @@ class FoodController extends AbstractApiV2Controller
         );
 
         try {
-            $food = QueryBuilder::for(Food::class)
-                ->where('item_uuid', $food)
-                ->orWhereRelation('item', 'name', 'LIKE', sprintf('%%%s%%', $food))
+            $food = QueryBuilder::for(Item::class)
+                ->where('type', 'Food')
+                ->where(function (Builder $query) use ($food) {
+                    $query->where('uuid', $food)
+                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $clothing));
+                })
                 ->allowedIncludes(FoodResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Weapon with specified UUID or Name found.');
         }
 
-        return new FoodResource($food);
+        return new ItemResource($food);
     }
 }

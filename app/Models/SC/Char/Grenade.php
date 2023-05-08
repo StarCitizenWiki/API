@@ -11,7 +11,7 @@ class Grenade extends CommodityItem
 {
     use HasFactory;
 
-    protected $table = 'sc_grenades';
+    protected $table = 'sc_item_grenades';
 
     protected $fillable = [
         'item_uuid',

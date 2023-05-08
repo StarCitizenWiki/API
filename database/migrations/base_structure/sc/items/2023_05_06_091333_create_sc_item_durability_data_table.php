@@ -19,6 +19,8 @@ return new class extends Migration
 
             $table->unsignedDouble('health')->nullable();
             $table->unsignedDouble('max_lifetime')->nullable();
+            $table->boolean('salvageable')->nullable();
+            $table->boolean('repairable')->nullable();
 
             $table->timestamps();
 

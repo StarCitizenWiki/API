@@ -11,7 +11,7 @@ class PersonalWeaponMagazine extends CommodityItem
 {
     use HasFactory;
 
-    protected $table = 'sc_personal_weapon_magazines';
+    protected $table = 'sc_item_personal_weapon_magazines';
 
     protected $fillable = [
         'item_uuid',
