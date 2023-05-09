@@ -17,7 +17,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\File;
 use JsonException;
 
@@ -169,18 +168,11 @@ class Vehicle implements ShouldQueue
             'operations_crew' => $vehicle['OperationsCrew'],
             'mass' => $vehicle['Mass'],
 
-//            'scm_speed' => $this->numFormat($vehicle['FlightCharacteristics']['ScmSpeed']),
-//            'max_speed' => $this->numFormat($vehicle['FlightCharacteristics']['MaxSpeed']),
-
             'zero_to_scm' => $this->numFormat($vehicle['FlightCharacteristics']['ZeroToScm']),
             'zero_to_max' => $this->numFormat($vehicle['FlightCharacteristics']['ZeroToMax']),
 
             'scm_to_zero' => $this->numFormat($vehicle['FlightCharacteristics']['ScmToZero']),
             'max_to_zero' => $this->numFormat($vehicle['FlightCharacteristics']['MaxToZero']),
-
-//            'pitch' => $this->numFormat($vehicle['FlightCharacteristics']['Pitch']),
-//            'yaw' => $this->numFormat($vehicle['FlightCharacteristics']['Yaw']),
-//            'roll' => $this->numFormat($vehicle['FlightCharacteristics']['Roll']),
 
             'acceleration_main' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.Acceleration.Main', 0)),
             'acceleration_retro' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.Acceleration.Retro', 0)),
@@ -216,6 +208,10 @@ class Vehicle implements ShouldQueue
         array_shift($className);
 
         switch ($vehicle['Name']) {
+            case 'Anvil C8R Pisces Rescue':
+                $name = 'C8R Pisces';
+                break;
+
             case 'Anvil F7C-M Hornet Heartseeker':
                 $name = 'F7C-M Super Hornet Heartseeker';
                 break;
@@ -253,7 +249,7 @@ class Vehicle implements ShouldQueue
                 break;
 
             case 'Kruger P-72 Archimedes':
-                $name = 'P72 Archimedes';
+                $name = 'P-72 Archimedes';
                 break;
 
             case 'Origin M50 Interceptor':
@@ -332,9 +328,9 @@ class Vehicle implements ShouldQueue
         $this->mapHardpoints($rawData['Vehicle']['Parts'], $hardpoints);
 
         collect($entries)
-            ->filter(function ($entry) use ($hardpoints) {
-                return isset($hardpoints[strtolower($entry['itemPortName'] ?? '')]);
-            })
+//            ->filter(function ($entry) use ($hardpoints) {
+//                return isset($hardpoints[strtolower($entry['itemPortName'] ?? '')]);
+//            })
             ->chunk(5)
             ->each(function (Collection $entries) use ($hardpoints, $vehicle) {
                 $entries
@@ -408,10 +404,9 @@ class Vehicle implements ShouldQueue
                 'hardpoint_name' => $subPoint['itemPortName'],
                 'parent_hardpoint_id' => $parent->id,
             ], [
-                    'class_name' => $subPoint['entityClassName'],
-                    'equipped_item_uuid' => $this->getItemUUID($subPoint['entityClassName']),
-                ]
-            );
+                'class_name' => $subPoint['entityClassName'],
+                'equipped_item_uuid' => $this->getItemUUID($subPoint['entityClassName']),
+            ]);
 
             $subEntries = Arr::get($subPoint, 'loadout.SItemPortLoadoutManualParams.entries');
 

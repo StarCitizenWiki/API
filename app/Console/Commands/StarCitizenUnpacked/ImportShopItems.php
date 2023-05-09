@@ -5,13 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands\StarCitizenUnpacked;
 
 use App\Console\Commands\AbstractQueueCommand;
-use App\Jobs\SC\Import\ItemSpecificationCreator;
 use App\Jobs\SC\Import\ShopItems;
-use App\Services\Parser\StarCitizenUnpacked\Item;
-use App\Services\Parser\StarCitizenUnpacked\Labels;
-use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Console\Command;
 
 class ImportShopItems extends AbstractQueueCommand
 {
@@ -27,12 +22,7 @@ class ImportShopItems extends AbstractQueueCommand
      *
      * @var string
      */
-    protected $description = 'Import Shops and Items';
-
-    private array $ignoredNames = [
-        'TRGT. STATUS',
-        'TEST STRING NAME',
-    ];
+    protected $description = 'Import Shops and their Items';
 
     /**
      * Execute the console command.
@@ -41,52 +31,9 @@ class ImportShopItems extends AbstractQueueCommand
      */
     public function handle(): int
     {
-        $labels = (new Labels())->getData();
-        $manufacturers = (new Manufacturers())->getData();
-
-        $files = Storage::allFiles('api/scunpacked-data/items') + Storage::allFiles('api/scunpacked-data/ships');
-
-        $this->info('Importing Items');
-        collect($files)
-            ->filter(function (string $file) {
-                return !str_contains($file, '-raw.json');
-            })
-            ->chunk(25)
-            ->tap(function (Collection $chunks) {
-                $this->createProgressBar($chunks->count());
-            })
-            ->each(function (Collection $chunk) use ($labels, $manufacturers) {
-                $this->bar->advance();
-
-                $chunk->map(function (string $file) use ($labels, $manufacturers) {
-                    return [
-                        'file' => $file,
-                        'item' => (new Item($file, $labels, $manufacturers))->getData()
-                    ];
-                })
-                    ->filter(function (array $data) {
-                        return $data['item'] !== null;
-                    })
-                    ->filter(function (array $data) {
-                        $item = $data['item'];
-                        return isset($item['name']) && !in_array($item['name'], $this->ignoredNames, true);
-                    })
-                    ->map(function (array $data) {
-                        \App\Jobs\SC\Import\Item::dispatch($data['item']);
-
-                        return [
-                            'item' =>  $data['item'],
-                            'file' => $data['file'],
-                        ];
-                    })
-                    ->each(function (array $data) {
-                        ['item' => $item, 'file' => $path] = $data;
-                        ItemSpecificationCreator::createSpecification($item, $path);
-                    });
-            });
-
         $this->info('Importing Shops');
         ShopItems::dispatch();
-        return 0;
+        $this->info('Done');
+        return Command::SUCCESS;
     }
 }

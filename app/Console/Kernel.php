@@ -35,14 +35,9 @@ use App\Console\Commands\StarCitizen\Starmap\Translate\TranslateSystems;
 use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
-use App\Console\Commands\StarCitizenUnpacked\ImportCharArmor;
-use App\Console\Commands\StarCitizenUnpacked\ImportClothing;
-use App\Console\Commands\StarCitizenUnpacked\ImportFood;
-use App\Console\Commands\StarCitizenUnpacked\ImportShipItems;
+use App\Console\Commands\StarCitizenUnpacked\ImportItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
 use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
-use App\Console\Commands\StarCitizenUnpacked\ImportWeaponAttachments;
-use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
 use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
 use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateClothingWikiPages;
@@ -114,14 +109,9 @@ class Kernel extends ConsoleKernel
 
         FixChangelogNamespaces::class,
 
+        ImportItems::class,
         ImportVehicles::class,
-        ImportWeaponPersonal::class,
-        ImportWeaponAttachments::class,
-        ImportCharArmor::class,
-        ImportClothing::class,
         ImportShopItems::class,
-        ImportShipItems::class,
-        ImportFood::class,
 
         TranslateItems::class,
 

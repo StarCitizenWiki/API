@@ -21,6 +21,7 @@ use App\Http\Resources\SC\ItemSpecification\QuantumDrive\QuantumDriveResource;
 use App\Http\Resources\SC\ItemSpecification\SelfDestructResource;
 use App\Http\Resources\SC\ItemSpecification\ShieldResource;
 use App\Http\Resources\SC\ItemSpecification\ThrusterResource;
+use App\Http\Resources\SC\ManufacturerResource;
 use App\Http\Resources\SC\Shop\ShopResource;
 use App\Http\Resources\SC\Vehicle\VehicleWeaponResource;
 use Illuminate\Http\Request;
@@ -56,7 +57,8 @@ class ItemResource extends AbstractTranslationResource
                 'grade' => $this->vehicleItem->grade,
                 'class' => $this->vehicleItem->class,
             ]),
-            'manufacturer' => $this->manufacturer,
+            'manufacturer_description' => $this->manufacturer_description,
+            'manufacturer' => new ManufacturerResource($this->manufacturer),
             'type' => $this->type,
             'sub_type' => $this->sub_type,
             $this->mergeWhen($this->isTurret(), $this->addTurretData()),

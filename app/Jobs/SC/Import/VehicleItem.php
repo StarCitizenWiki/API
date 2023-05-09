@@ -69,11 +69,13 @@ class VehicleItem implements ShouldQueue
 
         $this->createModelSpecification($item, $shipItem);
 
-        $shipItem->translations()->updateOrCreate([
-            'locale_code' => 'en_EN',
-        ], [
-            'translation' => $item['description'] ?? '',
-        ]);
+        if (!empty($item['description'])) {
+            $shipItem->translations()->updateOrCreate([
+                'locale_code' => 'en_EN',
+            ], [
+                'translation' => $item['description'],
+            ]);
+        }
     }
 
 

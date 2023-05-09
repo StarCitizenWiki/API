@@ -46,6 +46,7 @@ abstract class AbstractCommodityItem
      */
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
+        $description = trim(str_replace('\n', "\n", $description));
         $parts = explode("\n", $description);
 
         if (count($parts) === 1) {
@@ -91,7 +92,7 @@ abstract class AbstractCommodityItem
         $exploded = str_replace(['’', '`', '´', ' '], ['\'', '\'', '\'', ' '], trim($exploded ?? ''));
 
         return $out + [
-                'description' => trim(str_replace(["\n", '\n'], "\n", $exploded)),
+                'description' => $exploded,
             ];
     }
 
@@ -112,11 +113,17 @@ abstract class AbstractCommodityItem
         return $this->cleanString($this->labels->get($this->getDescriptionKey($attachDef), ''));
     }
 
-    protected function getManufacturer(array $attachDef, Collection $manufacturers): string
+    protected function getManufacturer(array $attachDef, Collection $manufacturers): array
     {
-        $manufacturer = $manufacturers->get($attachDef['Manufacturer'], ['name' => 'Unknown Manufacturer'])['name'];
-        if ($manufacturer === '@LOC_PLACEHOLDER') {
-            $manufacturer = 'Unknown Manufacturer';
+        $default = [
+            'name' => 'Unknown Manufacturer',
+            'code' => 'UNKN',
+            'uuid' => '00000000-0000-0000-0000-000000000000',
+        ];
+        $manufacturer = $manufacturers->get($attachDef['Manufacturer'], $default);
+
+        if ($manufacturer['name'] === '@LOC_PLACEHOLDER') {
+            $manufacturer = $default;
         }
 
         return $manufacturer;

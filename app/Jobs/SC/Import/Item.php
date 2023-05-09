@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\SC\Import;
 
 use App\Models\SC\Item\ItemPort;
+use App\Models\SC\Manufacturer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,6 +33,13 @@ class Item implements ShouldQueue
      */
     public function handle(): void
     {
+        $manufacturer = Manufacturer::updateOrCreate([
+            'uuid' => $this->data['manufacturer']['uuid'],
+        ], [
+            'name' => $this->data['manufacturer']['name'],
+            'code' => $this->data['manufacturer']['code'],
+        ]);
+
         /** @var \App\Models\SC\Item\Item $itemModel */
         $itemModel = \App\Models\SC\Item\Item::updateOrCreate([
             'uuid' => $this->data['uuid'],
@@ -39,10 +47,11 @@ class Item implements ShouldQueue
             'name' => $this->data['name'],
             'type' => $this->data['type'],
             'sub_type' => $this->data['sub_type'],
-            'manufacturer' => $this->data['manufacturer'],
+            'manufacturer_description' => $this->data['manufacturer_description'],
             'size' => $this->data['size'],
             'class_name' => $this->data['class_name'],
             'version' => config('api.sc_data_version'),
+            'manufacturer_id' => $manufacturer->id,
         ]);
 
         $itemModel->dimensions()->updateOrCreate([

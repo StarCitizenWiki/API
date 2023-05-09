@@ -17,7 +17,8 @@ class Hardpoint extends Model
     protected $table = 'sc_vehicle_hardpoints';
 
     protected $with = [
-        'children'
+        'children',
+        'item'
     ];
 
     protected $fillable = [

@@ -12,7 +12,7 @@ abstract class AbstractBaseResource extends JsonResource
     public const COMM_LINKS_CHANNELS_SHOW = 'comm-links/channels';
     public const COMM_LINKS_CATEGORIES_SHOW = 'comm-links/categories';
 
-    public const VEHICLES_SHOW = 'vehicles';
+    public const VEHICLES_SHOW = 'vehicles/';
 
     public const STARMAP_STARSYSTEM_SHOW = 'starmap/starsystems';
     public const STARMAP_CELESTIAL_OBJECTS_SHOW = 'starmap/celestial-objects';
@@ -20,7 +20,7 @@ abstract class AbstractBaseResource extends JsonResource
     public const GALACTAPEDIA_ARTICLE_SHOW = 'galactapedia';
 
 
-
+    public const UNPACKED_ITEMS_SHOW = 'items/';
     public const UNPACKED_FOOD_SHOW = 'food/';
 
     public const UNPACKED_PERSONAL_WEAPONS_SHOW = 'personal-weapons/';

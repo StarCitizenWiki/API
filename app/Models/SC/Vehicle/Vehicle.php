@@ -7,11 +7,13 @@ namespace App\Models\SC\Vehicle;
 use App\Models\SC\CommodityItem;
 use App\Models\SC\Item\Item;
 use App\Models\SC\ItemSpecification\FlightController;
+use App\Models\SC\Manufacturer;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Vehicle extends CommodityItem
 {
@@ -39,16 +41,11 @@ class Vehicle extends CommodityItem
         'operations_crew',
         'mass',
 
-//        'scm_speed',
-//        'max_speed',
         'zero_to_scm',
         'zero_to_max',
         'scm_to_zero',
         'max_to_zero',
 
-        'pitch',
-        'yaw',
-        'roll',
 
         'acceleration_main',
         'acceleration_retro',
@@ -112,9 +109,9 @@ class Vehicle extends CommodityItem
 
     protected $perPage = 5;
 
-    public function getNameAttribute()
+    public function getCleanNameAttribute()
     {
-        return $this->name;
+        return trim(str_replace($this->manufacturer->code, '', $this->name));
     }
 
     /**
@@ -175,6 +172,18 @@ class Vehicle extends CommodityItem
             ->orderBy('hardpoint_name');
     }
 
+    public function manufacturer(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Manufacturer::class,
+            Item::class,
+            'uuid',
+            'id',
+            'item_uuid',
+            'manufacturer_id',
+        );
+    }
+
     public function getHealthAttribute(): float
     {
         return $this->hardpoints()
@@ -222,9 +231,7 @@ class Vehicle extends CommodityItem
     {
         $scu = $this->hardpoints()
             ->whereHas('item.container')
-            ->whereHas('item', function (Builder $query) {
-                $query->whereNotIn('type', ['Cargo', 'CargoGrid', 'Container']);
-            })
+            ->where('hardpoint_name', 'LIKE', '%storage%')
             ->get()
             ->map(function (Hardpoint $hardpoint) {
                 return $hardpoint->item;
@@ -237,11 +244,12 @@ class Vehicle extends CommodityItem
             })
             ->sum();
 
-        if ($scu === 0) {
-            return $this->item->container->scu ?? 0;
-        }
-
         return $scu;
+    }
+
+    public function getVehicleInventoryScuAttribute(): float
+    {
+        return $this->item->container->scu ?? 0;
     }
 
     public function getFuelCapacityAttribute(): float
@@ -292,10 +300,25 @@ class Vehicle extends CommodityItem
             ->sum();
     }
 
-    public function getFuelUsage(string $type = 'MainThruster'): float {
-        return $this->hardpoints()->whereRelation('item', function (Builder $query) use ($type) {
-            $query->where('type', $type);
-        })
+    public function getFuelUsage(string $type = 'MainThruster'): float
+    {
+        $query = $this->hardpoints()->whereRelation('item', function (Builder $query) use ($type) {
+            if ($type === 'RetroThruster' || $type === 'VtolThruster') {
+                $query->where('type', 'ManneuverThruster');
+            } else {
+                $query->where('type', $type);
+            }
+        });
+
+        if ($type === 'RetroThruster') {
+            $query->where('class_name', 'LIKE', '%retro%');
+        } elseif ($type === 'VtolThruster') {
+            $query->where('class_name', 'LIKE', '%vtol%');
+        } elseif ($type === 'ManneuverThruster') {
+            $query->where('class_name', 'NOT LIKE', '%vtol%')->where('class_name', 'NOT LIKE', '%retro%');
+        }
+
+        return $query
             ->get()
             ->map(function (Hardpoint $hardpoint) {
                 return $hardpoint->item;

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Support\Facades\Request;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedInclude;
@@ -183,13 +182,14 @@ abstract class AbstractApiV2Controller extends Controller
 
     protected function getAllowedIncludes(array $includes)
     {
-        return collect($includes)->map(function($include) {
+        return collect($includes)->map(function ($include) {
             if (is_array($include)) {
                 [$to, $from] = $include;
+
                 return AllowedInclude::relationship($to, $from);
             }
 
             return AllowedInclude::relationship($include);
-        })->toArray();
+        })->flatten()->toArray();
     }
 }

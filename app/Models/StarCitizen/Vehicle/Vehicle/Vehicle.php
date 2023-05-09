@@ -6,7 +6,6 @@ namespace App\Models\StarCitizen\Vehicle\Vehicle;
 
 use App\Contracts\HasChangelogsInterface;
 use App\Events\ModelUpdating;
-use App\Models\SC\Vehicle\Hardpoint;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
 use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
@@ -329,26 +328,6 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
             ->withDefault();
     }
 
-    /**
-     * @return HasManyThrough
-     */
-    public function hardpoints(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Hardpoint::class,
-            \App\Models\SC\Vehicle\Vehicle::class,
-            'shipmatrix_id',
-            'vehicle_id',
-            'id',
-            'id',
-        )->orderBy('hardpoint_name');
-//            ->with(['items' => function ($query) {
-//                return $query->where('uuid', $this->item_uuid);
-//            }])
-//            ->whereHas('items', function (Builder $query) {
-//                return $query->where('uuid', $this->item_uuid);
-//            });
-    }
 
     /**
      * Ground Vehicles

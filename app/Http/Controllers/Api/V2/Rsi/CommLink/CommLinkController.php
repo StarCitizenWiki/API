@@ -92,11 +92,11 @@ class CommLinkController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function show($id, Request $request): AbstractBaseResource
+    public function show(Request $request): AbstractBaseResource
     {
         ['comm_link' => $commLink] = Validator::validate(
             [
-                'comm_link' => $id,
+                'comm_link' => $request->id,
             ],
             [
                 'comm_link' => 'required|int|min:12663',

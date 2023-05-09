@@ -25,6 +25,7 @@ use App\Models\SC\ItemSpecification\QuantumDrive\QuantumDrive;
 use App\Models\SC\ItemSpecification\SelfDestruct;
 use App\Models\SC\ItemSpecification\Shield;
 use App\Models\SC\ItemSpecification\Thruster;
+use App\Models\SC\Manufacturer;
 use App\Models\SC\Shop\Shop;
 use App\Models\SC\Shop\ShopItem;
 use App\Models\SC\Vehicle\VehicleItem;
@@ -54,7 +55,8 @@ class Item extends HasTranslations
         'name',
         'type',
         'sub_type',
-        'manufacturer',
+        'manufacturer_id',
+        'manufacturer_description',
         'size',
         'class_name',
         'version',
@@ -299,5 +301,10 @@ class Item extends HasTranslations
             'item_uuid',
             'uuid'
         )->withDefault();
+    }
+
+    public function manufacturer(): HasOne
+    {
+        return $this->hasOne(Manufacturer::class, 'id', 'manufacturer_id');
     }
 }

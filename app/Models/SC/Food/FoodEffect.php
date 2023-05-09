@@ -6,7 +6,6 @@ namespace App\Models\SC\Food;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class FoodEffect extends Model
 {

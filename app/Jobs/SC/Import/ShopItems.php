@@ -7,7 +7,7 @@ namespace App\Jobs\SC\Import;
 use App\Models\SC\Item\Item;
 use App\Models\SC\Shop\Shop;
 use App\Models\SC\Shop\ShopItemRental;
-use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
+use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
 use App\Services\Parser\StarCitizenUnpacked\Shops\Shops;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -30,9 +30,11 @@ class ShopItems implements ShouldQueue
      */
     public function handle()
     {
+        $this->manufacturers = (new Manufacturers())->getData();
+
         try {
             $shops = new Shops();
-        } catch (\JsonException | FileNotFoundException $e) {
+        } catch (\JsonException|FileNotFoundException $e) {
             $this->fail($e->getMessage());
 
             return;
@@ -54,24 +56,21 @@ class ShopItems implements ShouldQueue
                 $toSync = $shop['inventory']
                     //->unique('uuid')
                     ->mapWithKeys(function ($inventory) use ($shopModel) {
-                        if (in_array($inventory['type'], Inventory::EXTRA_TYPES, true)) {
-                            $itemModel = $this->createModel($inventory);
-                        } else {
-                            /** @var Item $itemModel */
-                            $itemModel = Item::query()->where('uuid', $inventory['uuid'])->first();
-                        }
+                        /** @var Item $itemModel */
+                        $itemModel = Item::query()->where('uuid', $inventory['uuid'])->first();
 
                         if ($itemModel === null) {
                             return ['unknown' => null];
                         }
 
-//                        // TODO: Extract
-//                        if ($inventory['rentable'] === true && isset($inventory['rental']) && !empty($inventory['rental'])) {
-//                            ShopItemRental::updateOrCreate([
-//                                'item_uuid' => $itemModel->uuid,
-//                                'shop_uuid' => $shopModel->uuid,
-//                            ], $inventory['rental'] + ['version' => config('api.sc_data_version'),]);
-//                        }
+                        // TODO: Extract
+                        if ($inventory['rentable'] === true && isset($inventory['rental']) && !empty($inventory['rental'])) {
+                            ShopItemRental::updateOrCreate([
+                                'item_uuid' => $itemModel->uuid,
+                                'shop_uuid' => $shopModel->uuid,
+                                'node_uuid' => $inventory['node_uuid'],
+                            ], $inventory['rental'] + ['version' => config('api.sc_data_version'),]);
+                        }
 
                         return [
                             $itemModel->id => [

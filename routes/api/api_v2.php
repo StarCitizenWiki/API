@@ -79,6 +79,10 @@ Route::group(
             Route::get('armor/{clothing}', 'ArmorController@show')->name('show');
         });
 
+        Route::get('manufacturers', 'ManufacturerController@index')->name('index');
+        Route::get('manufacturers/{manufacturer}', 'ManufacturerController@show')->name('show');
+        Route::post('manufacturers/search', 'ManufacturerController@search')->name('search');
+
         Route::get('items', 'ItemController@index')->name('index');
         Route::get('items/{item}', 'ItemController@show')->name('show');
         Route::post('items/search', 'ItemController@search')->name('search');

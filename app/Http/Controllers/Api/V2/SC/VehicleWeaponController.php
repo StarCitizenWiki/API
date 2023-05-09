@@ -4,25 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V2\SC;
 
-use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\SC\Char\PersonalWeaponResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Http\Resources\SC\Vehicle\VehicleWeaponResource;
-use App\Http\Resources\StarCitizen\Stat\StatResource;
-use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use App\Models\SC\Item\Item;
-use App\Models\StarCitizen\Stat\Stat;
-use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
 use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

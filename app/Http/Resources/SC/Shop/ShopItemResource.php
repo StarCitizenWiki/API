@@ -17,7 +17,7 @@ class ShopItemResource extends AbstractBaseResource
      */
     public function toArray($request): array
     {
-        return [
+        $data = [
             'uuid' => $this->uuid,
             'name' => $this->name,
             'type' => $this->type,
@@ -39,5 +39,16 @@ class ShopItemResource extends AbstractBaseResource
             'rentable' => $this->shop_data->rentable,
             'version' => $this->shop_data->version,
         ];
+
+        if (isset($this->shop_data->rental)) {
+            $data['rental_price_days'] = [
+                'duration_1' => $this->shop_data->price1,
+                'duration_3' => $this->shop_data->price3,
+                'duration_7' => $this->shop_data->price7,
+                'duration_30' => $this->shop_data->price30,
+            ];
+        }
+
+        return $data;
     }
 }

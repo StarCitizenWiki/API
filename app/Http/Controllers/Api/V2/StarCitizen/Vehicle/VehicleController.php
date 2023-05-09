@@ -8,10 +8,9 @@ use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Requests\StarCitizen\Vehicle\VehicleSearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
-use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use App\Models\SC\Vehicle\Vehicle as UnpackedVehicle;
+use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
@@ -104,11 +103,11 @@ class VehicleController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function show($vehicle, Request $request): AbstractBaseResource
+    public function show(Request $request): AbstractBaseResource
     {
         ['vehicle' => $vehicle] = Validator::validate(
             [
-                'vehicle' => $vehicle,
+                'vehicle' => $request->vehicle,
             ],
             [
                 'vehicle' => 'required|string|min:1|max:255',
@@ -117,20 +116,22 @@ class VehicleController extends AbstractApiV2Controller
 
         $vehicle = urldecode($vehicle);
 
+
         try {
             $vehicleModel = QueryBuilder::for(Vehicle::class)
-                ->allowedIncludes(VehicleResource::validIncludes())
                 ->where('name', $vehicle)
                 ->orWhere('slug', $vehicle)
-                ->firstOrFail();
+                ->first();
 
-//            if ($vehicleModel === null) {
-//                $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
-//                    ->allowedIncludes(VehicleResource::validIncludes())
-//                    ->where('name', 'like', '%' . $vehicle . '%')
-//                    ->orWhere('class_name', 'like', '%' . $vehicle . '%')
-//                    ->firstOrFail();
-//            }
+            if ($vehicleModel === null) {
+                $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
+                    // ->allowedIncludes(VehicleResource::validIncludes())
+                    ->where('name', 'like', '%' . $vehicle . '%')
+                    ->orWhere('class_name', 'like', '%' . $vehicle . '%')
+                    ->firstOrFail();
+
+                return new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
+            }
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Vehicle with specified name found.');
         }
@@ -174,21 +175,23 @@ class VehicleController extends AbstractApiV2Controller
             )
         ],
     )]
-    public function search(Request $request): Response
+    public function search(Request $request): AnonymousResourceCollection
     {
         $rules = (new VehicleSearchRequest())->rules();
 
         $request->validate($rules);
 
         $query = urldecode($request->get('query'));
-        $queryBuilder = Vehicle::query()
+
+        $queryBuilder = QueryBuilder::for(Vehicle::class)
+            ->allowedIncludes(VehicleResource::validIncludes())
             ->where('name', 'like', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            throw new NotFoundHttpException('No Vehicle(s) for specified query found.');
         }
 
-        return $this->getResponse($queryBuilder);
+        return VehicleResource::collection($queryBuilder);
     }
 }

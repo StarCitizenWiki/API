@@ -34,6 +34,8 @@ class HardpointResource extends AbstractBaseResource
             'max_size' => $this->max_size,
             'class_name' => $this->class_name,
             'health' => optional($this->item->durabilityData)->health,
+            'type' => $this->item?->type,
+            'sub_type' => $this->item?->sub_type,
             $this->mergeWhen($this->children->count() > 0, [
                 'children' => self::collection($this->children),
             ]),
@@ -56,10 +58,10 @@ class HardpointResource extends AbstractBaseResource
         if ($this->vehicleItem->exists) {
             return [true, ['item' => new VehicleItemResource($this->vehicleItem)]];
         }
-
-        if ($this->item !== null && $this->item->exists) {
-            return [true, ['item' => new ItemResource($this->item)]];
-        }
+//
+//        if ($this->item !== null && $this->item->exists) {
+//            return [true, ['item' => new ItemResource($this->item)]];
+//        }
 
         return [false, []];
     }

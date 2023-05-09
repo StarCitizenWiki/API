@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Resources\StarCitizen\Vehicle;
+namespace App\Http\Resources\SC\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\HardpointResource;
-use App\Http\Resources\SC\Shop\ShopResource;
+use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\TranslationResourceFactory;
 use App\Models\SC\Vehicle\Hardpoint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -162,14 +163,12 @@ use OpenApi\Attributes as OA;
     ],
     type: 'json'
 )]
-class VehicleResource extends AbstractBaseResource
+class VehicleLinkResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
         return [
-            'components',
-            'shops',
-            'hardpoints'
+            'sc.item.shops',
         ];
     }
 
@@ -181,146 +180,13 @@ class VehicleResource extends AbstractBaseResource
      */
     public function toArray($request): array
     {
-        $includes = collect(explode(',', $request->get('include', '')))
-            ->map('trim')
-            ->map('strtolower')
-            ->toArray();
-
-        $cargo = $this->sc->cargo_capacity ?? $this->cargo_capacity;
-        if ($this->sc->SCU > 0) {
-            $cargo = $this->sc->scu;
-        }
-        $data = [
-            'id' => $this->cig_id,
-            'uuid' => $this->sc->item_uuid,
-            'chassis_id' => $this->chassis_id,
-            'name' => $this->name,
-            'slug' => $this->slug,
-            'sizes' => [
-                'length' => (double)$this->length,
-                'beam' => (double)$this->width,
-                'height' => (double)$this->height,
-            ],
-            'mass' => $this->sc->mass ?? $this->mass,
-            'cargo_capacity' => $cargo,
-            'vehicle_inventory' => $this->sc->vehicle_inventory_scu,
-            'personal_inventory' => $this->sc->personal_inventory_scu,
-
-            'crew' => [
-                'min' => $this->sc->crew ?? $this->min_crew,
-                'max' => $this->max_crew,
-                'weapon' => $this->sc?->weapon_crew,
-                'operation' => $this->sc?->operation_crew,
-            ],
-            'health' => $this->sc?->health,
-            'speed' => [
-                'scm' => $this->sc?->flightController()?->scm_speed ?? $this->scm_speed,
-                'max' => $this->sc?->flightController()?->max_speed,
-                'zero_to_scm' => $this->sc?->zero_to_scm,
-                'zero_to_max' => $this->sc?->zero_to_max,
-                'scm_to_zero' => $this->sc?->scm_to_zero,
-                'max_to_zero' => $this->sc?->max_to_zero,
-            ],
-            'fuel' => [
-                'capacity' => $this->sc?->fuel_capacity,
-                'intake_rate' => $this->sc?->fuel_intake_rate,
-                'usage' => [
-                    'main' => $this->sc?->getFuelUsage(),
-                    'maneuvering' => $this->sc?->getFuelUsage('ManneuverThruster'),
-                    'retro' => $this->sc?->getFuelUsage('RetroThruster'),
-                    'vtol' => $this->sc?->getFuelUsage('VtolThruster'),
-                ],
-            ],
-            'quantum' => $this->getQuantumDriveData(),
-            'agility' => [
-                'pitch' => $this->sc->flightController()?->pitch ?? $this->pitch_max,
-                'yaw' => $this->sc->flightController()?->yaw ?? $this->yaw_max,
-                'roll' => $this->sc->flightController()?->roll ?? $this->roll_max,
-                'acceleration' => [
-                    'x_axis' => $this->x_axis_acceleration,
-                    'y_axis' => $this->y_axis_acceleration,
-                    'z_axis' => $this->z_axis_acceleration,
-
-                    'main' => $this->sc?->acceleration_main,
-                    'retro' => $this->sc?->acceleration_retro,
-                    'vtol' => $this->sc?->acceleration_vtol,
-                    'maneuvering' => $this->sc?->acceleration_maneuvering,
-
-                    'main_g' => $this->sc?->acceleration_g_main,
-                    'retro_g' => $this->sc?->acceleration_g_retro,
-                    'vtol_g' => $this->sc?->acceleration_g_vtol,
-                    'maneuvering_g' => $this->sc?->acceleration_g_maneuvering,
-                ],
-            ],
-            'foci' => $this->getFociTranslations($request),
-            'production_status' => TranslationResourceFactory::getTranslationResource($request, $this->productionStatus),
-            'production_note' => TranslationResourceFactory::getTranslationResource($request, $this->productionNote),
-            'type' => TranslationResourceFactory::getTranslationResource($request, $this->type),
-            'description' => TranslationResourceFactory::getTranslationResource($request, $this),
-            'size' => TranslationResourceFactory::getTranslationResource($request, $this->size),
-            'msrp' => $this->msrp,
-            'manufacturer' => [
-                'code' => $this->manufacturer->name_short,
-                'name' => $this->manufacturer->name,
-            ],
-            'insurance' => [
-                'claim_time' => $this->sc?->claim_time,
-                'expedite_time' => $this->sc?->expedite_time,
-                'expedite_cost' => $this->sc?->expedite_cost,
-            ],
-            $this->mergeWhen(in_array('components', $includes, true), [
-                'components' => ComponentResource::collection($this->components),
-            ]),
-            $this->mergeWhen(in_array('hardpoints', $includes, true), [
-                'hardpoints' => HardpointResource::collection($this->sc->hardpointsWithoutParent),
-            ]),
-            $this->mergeWhen(in_array('shops', $includes, true), [
-                'shops' => ShopResource::collection($this->sc->item->shops),
-            ]),
-            'updated_at' => $this->updated_at,
-        ];
-
-        if ($this->sc->crew !== null) {
-            $data['version'] = config('api.sc_data_version');
-        }
-
-        return $data;
-    }
-
-    private function getFociTranslations(Request $request): array
-    {
-        /** @var Collection $foci */
-        $foci = $this->foci;
-        $fociTranslations = [];
-
-        $foci->each(
-            function ($vehicleFocus) use (&$fociTranslations, $request) {
-                $fociTranslations[] = TranslationResourceFactory::getTranslationResource($request, $vehicleFocus);
-            }
-        );
-
-        return $fociTranslations;
-    }
-
-    private function getQuantumDriveData(): array {
-        $drives = $this->sc?->quantumDrives
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item->specification;
-            });
-
-        if ($drives->isEmpty()) {
-
-            return [];
-        }
-
-        $modes = $drives[0]->modes->keyBy('type');
-        $normal = $modes['normal'];
-
         return [
-            'quantum_speed' => $normal->drive_speed,
-            'quantum_spool_time' => $normal->spool_up_time,
-            'quantum_fuel_capacity' => $this->sc?->quantum_fuel_capacity,
-            'quantum_range' => $this->sc?->quantum_fuel_capacity * $drives[0]->jump_range,
+            'uuid' => $this->item_uuid,
+            'name' => $this->name,
+            'link' => $this->makeApiUrl(self::VEHICLES_SHOW, $this->item_uuid),
+
+            'updated_at' => $this->updated_at,
+            'version' => config('api.sc_data_version'),
         ];
     }
 }

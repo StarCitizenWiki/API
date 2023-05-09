@@ -61,42 +61,42 @@ final class Item extends AbstractCommodityItem
         );
 
         if (!empty($descriptionData['manufacturer'])) {
-            $manufacturer = $descriptionData['manufacturer'];
-            $manufacturer = $this->manufacturerFixes[$manufacturer] ?? $manufacturer;
+            $descriptionData['manufacturer'] = $this->manufacturerFixes[$descriptionData['manufacturer']] ?? $descriptionData['manufacturer'];
         }
 
         $sizes = $this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyDimensions', []);
         $sizeOverride = $this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyDimensionsUIOverride.Vec3', []);
 
         return [
-            'uuid' => $this->getUUID(),
-            'name' => $name,
-            'type' => $attachDef['Type'],
-            'tags' => $attachDef['Tags'],
-            'sub_type' => $attachDef['SubType'],
-            'manufacturer' => $manufacturer,
-            'size' => $attachDef['Size'],
-            'class_name' => strtolower(Arr::get($this->item, 'Raw.Entity.ClassName')),
+                'uuid' => $this->getUUID(),
+                'name' => $name,
+                'type' => $attachDef['Type'],
+                'tags' => $attachDef['Tags'],
+                'sub_type' => $attachDef['SubType'],
+                'manufacturer_description' => $descriptionData['manufacturer'] ?? null,
+                'manufacturer' => $manufacturer,
+                'size' => $attachDef['Size'],
+                'class_name' => strtolower(Arr::get($this->item, 'Raw.Entity.ClassName')),
 
-            'dimension' => [
-                'width' => $sizes['x'] ?? 0,
-                'height' => $sizes['z'] ?? 0,
-                'length' => $sizes['y'] ?? 0,
-            ],
+                'dimension' => [
+                    'width' => $sizes['x'] ?? 0,
+                    'height' => $sizes['z'] ?? 0,
+                    'length' => $sizes['y'] ?? 0,
+                ],
 
-            'dimension_override' => [
-                'width' => $sizeOverride['x'] ?? null,
-                'height' => $sizeOverride['z'] ?? null,
-                'length' => $sizeOverride['y'] ?? null,
-            ],
+                'dimension_override' => [
+                    'width' => $sizeOverride['x'] ?? null,
+                    'height' => $sizeOverride['z'] ?? null,
+                    'length' => $sizeOverride['y'] ?? null,
+                ],
 
-            'volume' => $this->convertToSCU($this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyVolume', []))[1],
+                'volume' => $this->convertToSCU($this->get('SAttachableComponentParams.AttachDef.inventoryOccupancyVolume', []))[1],
 
-            'inventory_container' => $this->getInventoryContainer(),
+                'inventory_container' => $this->getInventoryContainer(),
 
-            'ports' => $this->mapPorts(),
-            'port_loadout' => $this->mapPortLoadouts(),
-        ] + ItemBaseData::getData($this->item);
+                'ports' => $this->mapPorts(),
+                'port_loadout' => $this->mapPortLoadouts(),
+            ] + ItemBaseData::getData($this->item);
     }
 
     private function convertToSCU(array $volume): array

@@ -8,6 +8,7 @@ use App\Events\ModelUpdating;
 use App\Models\SC\Item\Item;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ShopItem extends Pivot
@@ -68,7 +69,7 @@ class ShopItem extends Pivot
     ];
 
     protected $with = [
-        ///  'rental'
+        'rental'
     ];
 
     public function getOffsettedPriceAttribute()
@@ -118,13 +119,13 @@ class ShopItem extends Pivot
         return $this->belongsTo(Shop::class, 'shop_uuid', 'uuid');
     }
 
-//    public function rental(): HasOne
-//    {
-//        return $this->hasOne(ShopItemRental::class, 'item_uuid', 'item_uuid')->withDefault([
-//            'percentage_1' => 1,
-//            'percentage_3' => 1,
-//            'percentage_7' => 1,
-//            'percentage_30' => 1,
-//        ]);
-//    }
+    public function rental(): HasOne
+    {
+        return $this->hasOne(ShopItemRental::class, 'node_uuid', 'node_uuid')->withDefault([
+            'percentage_1' => 1,
+            'percentage_3' => 1,
+            'percentage_7' => 1,
+            'percentage_30' => 1,
+        ]);
+    }
 }

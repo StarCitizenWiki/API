@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Models\StarCitizenUnpacked\Shop;
+namespace App\Models\SC\Shop;
 
 use App\Events\ModelUpdating;
-use App\Models\StarCitizenUnpacked\Item;
+use App\Models\SC\Item\Item;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +14,8 @@ class ShopItemRental extends Model
 {
     use ModelChangelog;
 
+    protected $primaryKey = 'node_uuid';
+
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
         'created' => ModelUpdating::class,
@@ -21,14 +23,16 @@ class ShopItemRental extends Model
     ];
 
     public $timestamps = false;
+    public $incrementing = false;
 
-    protected $table = 'star_citizen_unpacked_shop_item_rental';
+    protected $table = 'sc_shop_item_rentals';
 
     protected $fillable = [
         'item_id',
         'shop_id',
         'item_uuid',
         'shop_uuid',
+        'node_uuid',
         'percentage_1',
         'percentage_3',
         'percentage_7',
