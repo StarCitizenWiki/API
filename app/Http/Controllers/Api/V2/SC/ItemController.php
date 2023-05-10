@@ -7,10 +7,11 @@ namespace App\Http\Controllers\Api\V2\SC;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Models\SC\Item\Item;
-use Dingo\Api\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
@@ -20,10 +21,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ItemController extends AbstractApiV2Controller
 {
-
     #[OA\Get(
-        path: '/api/v2/item',
-        tags: ['Stats', 'RSI-Website'],
+        path: '/api/v2/items',
+        tags: ['In-Game', 'Item'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
@@ -31,10 +31,10 @@ class ItemController extends AbstractApiV2Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of stats',
+                description: 'List of Items',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/stat_v2')
+                    items: new OA\Items(ref: '#/components/schemas/item_link_v2')
                 )
             )
         ]
@@ -42,15 +42,31 @@ class ItemController extends AbstractApiV2Controller
     public function index(): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Item::class)
-            ->limit($this->limit)
-            ->allowedIncludes(ItemResource::validIncludes())
             ->allowedFilters(['type', 'sub_type'])
-            ->paginate()
+            ->paginate($this->limit)
             ->appends(request()->query());
 
-        return ItemResource::collection($query);
+        return ItemLinkResource::collection($query);
     }
 
+    #[OA\Get(
+        path: '/api/v2/items/{item}',
+        tags: ['In-Game', 'Item'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'An Item',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/item_v2')
+                )
+            )
+        ]
+    )]
     public function show(Request $request): AbstractBaseResource
     {
         ['item' => $identifier] = Validator::validate(
@@ -61,6 +77,8 @@ class ItemController extends AbstractApiV2Controller
                 'item' => 'required|string|min:1|max:255',
             ]
         );
+
+        $identifier = $this->cleanQueryName($identifier);
 
         try {
             $item = QueryBuilder::for(Item::class)
@@ -75,24 +93,71 @@ class ItemController extends AbstractApiV2Controller
         return new ItemResource($item);
     }
 
+    #[OA\Post(
+        path: '/api/v2/items/search',
+        requestBody: new OA\RequestBody(
+            description: 'Item Name or (sub)type',
+            required: true,
+            content: [
+                new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        schema: 'query',
+                        type: 'json',
+                    ),
+                    example: '{"query": "Arrow"}',
+                )
+            ]
+        ),
+        tags: ['In-Game', 'Item'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'A List of matching Items',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/item_link_v2')
+                )
+            )
+        ]
+    )]
     public function search(ItemSearchRequest $request): JsonResource
     {
-        $rules = (new ItemSearchRequest())->rules();
-        $request->validate($rules);
+        $request->validate([
+            'query' => 'required|string|min:1|max:255',
+            'shop' => 'nullable|uuid',
+        ]);
 
         $query = $this->cleanQueryName($request->get('query'));
 
-        try {
-            $item = Item::query();
+        $items = QueryBuilder::for(Item::class)
+            ->allowedIncludes(['shops.items']);
 
-            $item->where('name', 'like', "%{$query}%")
-                ->orWhere('uuid', $query)
-                ->orWhere('type', $query)
-                ->orWhere('sub_type', $query);
-        } catch (ModelNotFoundException $e) {
+        if ($request->has('shop') && $request->get('shop') !== null) {
+            $items->whereRelation('shops', 'uuid', $request->get('shop'));
+        }
+
+        $items
+            ->where('name', 'like', "%{$query}%")
+            ->orWhere('uuid', $query)
+            ->orWhere('type', $query)
+            ->orWhere('sub_type', $query);
+
+
+        $items
+            ->paginate($this->limit)
+            ->appends(request()->query());
+
+        if ($items->count() === 0) {
             throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $query));
         }
 
-        return ItemResource::collection($item);
+        return ItemLinkResource::collection($items->get());
     }
 }

@@ -4,27 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Galactapedia;
 
-use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'galactpedia_tag_v2',
+    schema: 'galactapedia_tag_v2',
     title: 'Galctapedia article tag',
     description: 'Tag of an article',
     properties: [
         new OA\Property(property: 'id', type: 'string'),
         new OA\Property(property: 'name', type: 'string'),
     ],
-    type: 'json'
+    type: 'object'
 )]
-class TagResource extends AbstractBaseResource
+class TagResource extends JsonResource
 {
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     /**
      * Transform the resource into an array.
      *

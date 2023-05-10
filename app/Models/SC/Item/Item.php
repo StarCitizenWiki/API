@@ -14,6 +14,7 @@ use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
 use App\Models\SC\Food\Food;
 use App\Models\SC\ItemSpecification\Cooler;
+use App\Models\SC\ItemSpecification\Emp;
 use App\Models\SC\ItemSpecification\FlightController;
 use App\Models\SC\ItemSpecification\FuelIntake;
 use App\Models\SC\ItemSpecification\FuelTank;
@@ -22,12 +23,14 @@ use App\Models\SC\ItemSpecification\MiningModule\MiningModule;
 use App\Models\SC\ItemSpecification\Missile\Missile;
 use App\Models\SC\ItemSpecification\PowerPlant;
 use App\Models\SC\ItemSpecification\QuantumDrive\QuantumDrive;
+use App\Models\SC\ItemSpecification\QuantumInterdictionGenerator;
 use App\Models\SC\ItemSpecification\SelfDestruct;
 use App\Models\SC\ItemSpecification\Shield;
 use App\Models\SC\ItemSpecification\Thruster;
 use App\Models\SC\Manufacturer;
 use App\Models\SC\Shop\Shop;
 use App\Models\SC\Shop\ShopItem;
+use App\Models\SC\Vehicle\Vehicle;
 use App\Models\SC\Vehicle\VehicleItem;
 use App\Models\SC\Vehicle\Weapon\VehicleWeapon;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
@@ -65,6 +68,7 @@ class Item extends HasTranslations
     protected $with = [
         'dimensions',
         'container',
+        'manufacturer',
 //        'heatData',
 //        'distortionData',
 //        'powerData',
@@ -124,7 +128,7 @@ class Item extends HasTranslations
         ]);
     }
 
-    public function specification()
+    public function specification(): ?HasOne
     {
         switch (true) {
             case $this->type === 'Food':
@@ -147,9 +151,9 @@ class Item extends HasTranslations
             case str_contains($this->type, 'WeaponPersonal'):
                 if ($this->sub_type === 'Grenade') {
                     return $this->hasOne(Grenade::class, 'item_uuid', 'uuid')->withDefault();
-                } else {
-                    return $this->hasOne(PersonalWeapon::class, 'item_uuid', 'uuid')->withDefault();
                 }
+
+                return $this->hasOne(PersonalWeapon::class, 'item_uuid', 'uuid')->withDefault();
 
             case $this->type === 'WeaponAttachment' && $this->sub_type === 'IronSight':
                 return $this->hasOne(IronSight::class, 'item_uuid', 'uuid')->withDefault();
@@ -157,12 +161,12 @@ class Item extends HasTranslations
             case $this->type === 'WeaponAttachment' && $this->sub_type === 'Magazine':
                 return $this->hasOne(PersonalWeaponMagazine::class, 'item_uuid', 'uuid')->withDefault();
 
-//            /**
-//             * Vehicles
-//             */
-//            case str_contains($this->type, 'Vehicle'):
-//                return $this->hasOne(Vehicle::class, 'uuid', 'uuid')->withDefault();
-//
+            /**
+             * Vehicles
+             */
+            case str_contains($this->type, 'Vehicle'):
+                return $this->hasOne(Vehicle::class, 'item_uuid', 'uuid')->withDefault();
+
             /**
              * Ship Items
              */
@@ -174,6 +178,9 @@ class Item extends HasTranslations
             case $this->type === 'Missile':
             case $this->type === 'Torpedo':
                 return $this->hasOne(Missile::class, 'item_uuid', 'uuid')->withDefault();
+
+            case $this->type === 'EMP':
+                return $this->hasOne(Emp::class, 'item_uuid', 'uuid')->withDefault();
 
             case $this->type === 'Cooler':
                 return $this->hasOne(Cooler::class, 'item_uuid', 'uuid')->withDefault();
@@ -192,6 +199,9 @@ class Item extends HasTranslations
             case $this->type === 'FuelTank':
             case $this->type === 'QuantumFuelTank':
                 return $this->hasOne(FuelTank::class, 'item_uuid', 'uuid')->withDefault();
+
+            case $this->type === 'QuantumInterdictionGenerator':
+                return $this->hasOne(QuantumInterdictionGenerator::class, 'item_uuid', 'uuid')->withDefault();
 
             case $this->type === 'FuelIntake':
                 return $this->hasOne(FuelIntake::class, 'item_uuid', 'uuid')->withDefault();

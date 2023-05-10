@@ -15,7 +15,6 @@ use Dingo\Api\Http\Request;
 use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class VehicleController extends ApiController
@@ -137,8 +136,8 @@ class VehicleController extends ApiController
 
         try {
             $vehicleModel = Vehicle::query()
-                ->where('name', $vehicle)
-                ->orWhere('slug', $vehicle)
+                ->where('name', 'LIKE', "%{$vehicle}%")
+                ->orWhere('slug', 'LIKE', "%{$vehicle}%")
                 ->first();
 
             if ($vehicleModel === null) {

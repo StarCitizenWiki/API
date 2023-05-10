@@ -2,16 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V2\StarCitizen\Stat;
+namespace App\Http\Controllers\Api\V2\StarCitizen;
 
-use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
-use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Stat\StatResource;
 use App\Models\StarCitizen\Stat\Stat;
-use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -29,7 +24,7 @@ class StatController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function latest(): AbstractBaseResource
+    public function latest(): StatResource
     {
         $stat = QueryBuilder::for(Stat::class)->orderByDesc('created_at')->first();
 
@@ -57,9 +52,8 @@ class StatController extends AbstractApiV2Controller
     public function index(): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Stat::class)
-            ->limit($this->limit)
             ->orderByDesc('created_at')
-            ->paginate()
+            ->paginate($this->limit)
             ->appends(request()->query());
 
         return StatResource::collection($query);

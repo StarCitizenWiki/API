@@ -6,7 +6,33 @@ namespace App\Http\Resources\SC\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'item_heat_data_v2',
+    title: 'Item Heat Data',
+    properties: [
+        new OA\Property(property: 'temperature_to_ir', type: 'double', nullable: true),
+        new OA\Property(property: 'overpower_heat', type: 'double', nullable: true),
+        new OA\Property(property: 'overclock_threshold_min', type: 'double', nullable: true),
+        new OA\Property(property: 'overclock_threshold_max', type: 'double', nullable: true),
+        new OA\Property(property: 'thermal_energy_base', type: 'double', nullable: true),
+        new OA\Property(property: 'thermal_energy_draw', type: 'double', nullable: true),
+        new OA\Property(property: 'thermal_conductivity', type: 'double', nullable: true),
+        new OA\Property(property: 'specific_heat_capacity', type: 'double', nullable: true),
+        new OA\Property(property: 'mass', type: 'double', nullable: true),
+        new OA\Property(property: 'surface_area', type: 'double', nullable: true),
+        new OA\Property(property: 'start_cooling_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'max_cooling_rate', type: 'double', nullable: true),
+        new OA\Property(property: 'max_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'min_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'overheat_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'recovery_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'misfire_min_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'misfire_max_temperature', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
 class ItemHeatDataResource extends AbstractBaseResource
 {
     /**

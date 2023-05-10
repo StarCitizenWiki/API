@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'alt', type: 'string'),
         new OA\Property(property: 'size', type: 'integer'),
         new OA\Property(property: 'mime_type', type: 'string'),
-        new OA\Property(property: 'last_modified', type: 'timestamp'),
+        new OA\Property(property: 'last_modified', type: 'string'),
         new OA\Property(
             property: 'hashes',
             properties: [
@@ -28,7 +28,7 @@ use OpenApi\Attributes as OA;
             nullable: true
         )
     ],
-    type: 'json'
+    type: 'object'
 )]
 class ImageResource extends JsonResource
 {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Resources\StarCitizen\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\SC\HardpointResource;
 use App\Http\Resources\SC\Shop\ShopResource;
+use App\Http\Resources\SC\Vehicle\HardpointResource;
 use App\Http\Resources\TranslationResourceFactory;
 use App\Models\SC\Vehicle\Hardpoint;
 use Illuminate\Http\Request;
@@ -33,8 +33,9 @@ use OpenApi\Attributes as OA;
             type: 'object'
         ),
         new OA\Property(property: 'mass', type: 'float'),
-        new OA\Property(property: 'cargo_capacity', type: 'float'),
-        new OA\Property(property: 'personal_inventory_capacity', type: 'float'),
+        new OA\Property(property: 'cargo_capacity', type: 'float', nullable: true),
+        new OA\Property(property: 'vehicle_inventory', type: 'float', nullable: true),
+        new OA\Property(property: 'personal_inventory', type: 'float', nullable: true),
         new OA\Property(
             property: 'crew',
             properties: [
@@ -49,13 +50,12 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'speed',
             properties: [
-                new OA\Property(property: 'scm', type: 'float'),
-                new OA\Property(property: 'afterburner', type: 'float'),
-                new OA\Property(property: 'max', type: 'float'),
-                new OA\Property(property: 'zero_to_scm', type: 'float'),
-                new OA\Property(property: 'zero_to_max', type: 'float'),
-                new OA\Property(property: 'scm_to_zero', type: 'float'),
-                new OA\Property(property: 'max_to_zero', type: 'float'),
+                new OA\Property(property: 'scm', type: 'float', nullable: true),
+                new OA\Property(property: 'max', type: 'float', nullable: true),
+                new OA\Property(property: 'zero_to_scm', type: 'float', nullable: true),
+                new OA\Property(property: 'zero_to_max', type: 'float', nullable: true),
+                new OA\Property(property: 'scm_to_zero', type: 'float', nullable: true),
+                new OA\Property(property: 'max_to_zero', type: 'float', nullable: true),
             ],
             type: 'object'
         ),
@@ -141,7 +141,7 @@ use OpenApi\Attributes as OA;
             ],
             type: 'object'
         ),
-        new OA\Property(property: 'updated_at', type: 'timestamp'),
+        new OA\Property(property: 'updated_at', type: 'string'),
         new OA\Property(
             property: 'components',
             type: 'array',
@@ -150,7 +150,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'hardpoints',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/vehicle_hardpoint_v2'),
+            items: new OA\Items(ref: '#/components/schemas/hardpoint_v2'),
             nullable: true
         ),
         new OA\Property(
@@ -160,7 +160,7 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
     ],
-    type: 'json'
+    type: 'object'
 )]
 class VehicleResource extends AbstractBaseResource
 {
@@ -186,13 +186,13 @@ class VehicleResource extends AbstractBaseResource
             ->map('strtolower')
             ->toArray();
 
-        $cargo = $this->sc->cargo_capacity ?? $this->cargo_capacity;
-        if ($this->sc->SCU > 0) {
-            $cargo = $this->sc->scu;
+        $cargo = $this->sc?->cargo_capacity ?? $this->cargo_capacity;
+        if ($this->sc?->SCU > 0) {
+            $cargo = $this->sc?->scu;
         }
         $data = [
             'id' => $this->cig_id,
-            'uuid' => $this->sc->item_uuid,
+            'uuid' => $this->sc?->item_uuid,
             'chassis_id' => $this->chassis_id,
             'name' => $this->name,
             'slug' => $this->slug,
@@ -201,13 +201,13 @@ class VehicleResource extends AbstractBaseResource
                 'beam' => (double)$this->width,
                 'height' => (double)$this->height,
             ],
-            'mass' => $this->sc->mass ?? $this->mass,
+            'mass' => $this->sc?->mass ?? $this->mass,
             'cargo_capacity' => $cargo,
-            'vehicle_inventory' => $this->sc->vehicle_inventory_scu,
-            'personal_inventory' => $this->sc->personal_inventory_scu,
+            'vehicle_inventory' => $this->sc?->vehicle_inventory_scu,
+            'personal_inventory' => $this->sc?->personal_inventory_scu,
 
             'crew' => [
-                'min' => $this->sc->crew ?? $this->min_crew,
+                'min' => $this->sc?->crew ?? $this->min_crew,
                 'max' => $this->max_crew,
                 'weapon' => $this->sc?->weapon_crew,
                 'operation' => $this->sc?->operation_crew,
@@ -233,9 +233,9 @@ class VehicleResource extends AbstractBaseResource
             ],
             'quantum' => $this->getQuantumDriveData(),
             'agility' => [
-                'pitch' => $this->sc->flightController()?->pitch ?? $this->pitch_max,
-                'yaw' => $this->sc->flightController()?->yaw ?? $this->yaw_max,
-                'roll' => $this->sc->flightController()?->roll ?? $this->roll_max,
+                'pitch' => $this->sc?->flightController()?->pitch ?? $this->pitch_max,
+                'yaw' => $this->sc?->flightController()?->yaw ?? $this->yaw_max,
+                'roll' => $this->sc?->flightController()?->roll ?? $this->roll_max,
                 'acceleration' => [
                     'x_axis' => $this->x_axis_acceleration,
                     'y_axis' => $this->y_axis_acceleration,
@@ -272,15 +272,15 @@ class VehicleResource extends AbstractBaseResource
                 'components' => ComponentResource::collection($this->components),
             ]),
             $this->mergeWhen(in_array('hardpoints', $includes, true), [
-                'hardpoints' => HardpointResource::collection($this->sc->hardpointsWithoutParent),
+                'hardpoints' => HardpointResource::collection($this->sc?->hardpointsWithoutParent),
             ]),
-            $this->mergeWhen(in_array('shops', $includes, true), [
-                'shops' => ShopResource::collection($this->sc->item->shops),
+            $this->mergeWhen(in_array('shops', $includes, true) && $this->sc?->item?->shops !== null, [
+                'shops' => ShopResource::collection($this->sc?->item?->shops ?? []),
             ]),
             'updated_at' => $this->updated_at,
         ];
 
-        if ($this->sc->crew !== null) {
+        if ($this->sc?->crew !== null) {
             $data['version'] = config('api.sc_data_version');
         }
 
@@ -302,14 +302,14 @@ class VehicleResource extends AbstractBaseResource
         return $fociTranslations;
     }
 
-    private function getQuantumDriveData(): array {
+    private function getQuantumDriveData(): array
+    {
         $drives = $this->sc?->quantumDrives
             ->map(function (Hardpoint $hardpoint) {
                 return $hardpoint->item->specification;
             });
 
         if ($drives->isEmpty()) {
-
             return [];
         }
 
@@ -320,7 +320,7 @@ class VehicleResource extends AbstractBaseResource
             'quantum_speed' => $normal->drive_speed,
             'quantum_spool_time' => $normal->spool_up_time,
             'quantum_fuel_capacity' => $this->sc?->quantum_fuel_capacity,
-            'quantum_range' => $this->sc?->quantum_fuel_capacity * $drives[0]->jump_range,
+            'quantum_range' => $this->sc?->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
         ];
     }
 }

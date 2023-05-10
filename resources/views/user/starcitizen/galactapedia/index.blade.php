@@ -75,7 +75,7 @@
                             {{ $article->properties->count() }}
                         </td>
                         <td>
-                            {{ $article->related->count() }}
+                            {{ $article->relatedArticles->count() }}
                         </td>
                         <td>
                             {{ optional($article->english())->translation ? 'Ja' : 'Nein' }}

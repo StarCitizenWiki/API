@@ -2,13 +2,39 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Resources\SC;
+namespace App\Http\Resources\SC\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Item\ItemResource;
-use App\Http\Resources\SC\Vehicle\VehicleItemResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'hardpoint_v2',
+    title: 'Hardpoints',
+    properties: [
+        new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(property: 'min_size', type: 'string', nullable: true),
+        new OA\Property(property: 'max_size', type: 'string', nullable: true),
+        new OA\Property(property: 'class_name', type: 'string', nullable: true),
+        new OA\Property(property: 'health', type: 'double', nullable: true),
+        new OA\Property(property: 'type', type: 'string', nullable: true),
+        new OA\Property(property: 'sub_type', type: 'double', nullable: true),
+        new OA\Property(
+            property: 'children',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/hardpoint_v2'),
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'item',
+            ref: '#/components/schemas/item_v2',
+            type: 'double',
+            nullable: true
+        ),
+    ],
+    type: 'object'
+)]
 class HardpointResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
@@ -56,7 +82,7 @@ class HardpointResource extends AbstractBaseResource
     private function addItem(): array
     {
         if ($this->vehicleItem->exists) {
-            return [true, ['item' => new VehicleItemResource($this->vehicleItem)]];
+            return [true, ['item' => new ItemResource($this->item)]];
         }
 //
 //        if ($this->item !== null && $this->item->exists) {

@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'en_EN', type: 'string'),
         new OA\Property(property: 'de_DE', type: 'string'),
     ],
-    type: 'json'
+    type: 'object'
 )]
 class TranslationCollection extends ResourceCollection
 {

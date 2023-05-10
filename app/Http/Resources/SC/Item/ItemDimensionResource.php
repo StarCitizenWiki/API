@@ -6,10 +6,33 @@ namespace App\Http\Resources\SC\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'item_dimension_v2',
+    title: 'Item Dimension',
+    description: 'Dimensions of an item as shown in the ui',
+    properties: [
+        new OA\Property(property: 'width', type: 'double'),
+        new OA\Property(property: 'height', type: 'double'),
+        new OA\Property(property: 'length', type: 'double'),
+        new OA\Property(property: 'volume', type: 'double'),
+        new OA\Property(
+            property: 'true_dimension',
+            description: 'These are the "true" dimensions of the item',
+            properties: [
+                new OA\Property(property: 'width', type: 'double'),
+                new OA\Property(property: 'height', type: 'double'),
+                new OA\Property(property: 'length', type: 'double'),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+    ],
+    type: 'object'
+)]
 class ItemDimensionResource extends AbstractBaseResource
 {
-
     /**
      * Transform the resource collection into an array.
      *

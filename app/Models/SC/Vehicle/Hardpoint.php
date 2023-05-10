@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Models\SC\Vehicle;
 
 use App\Models\SC\Item\Item;
-use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Hardpoint extends Model
 {
@@ -75,22 +73,6 @@ class Hardpoint extends Model
             'id',
         );
 //            ->where('vehicle_id', $this->vehicle_id);
-    }
-
-    /**
-     * This is needed because fractal re-uses relations?
-     * While this is exactly the same as above this truly retrieves the children from the DB
-     *
-     * @return HasMany
-     */
-    public function children2(): HasMany
-    {
-        return $this->hasMany(
-            __CLASS__,
-            'parent_hardpoint_id',
-            'id',
-        )
-            ->where('vehicle_id', $this->vehicle_id);
     }
 
     public function parent(): BelongsTo

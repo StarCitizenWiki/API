@@ -12,20 +12,83 @@ use App\Http\Resources\SC\Char\PersonalWeaponMagazineResource;
 use App\Http\Resources\SC\Char\PersonalWeaponResource;
 use App\Http\Resources\SC\FoodResource;
 use App\Http\Resources\SC\ItemSpecification\CoolerResource;
+use App\Http\Resources\SC\ItemSpecification\EmpResource;
 use App\Http\Resources\SC\ItemSpecification\FlightControllerResource;
 use App\Http\Resources\SC\ItemSpecification\MiningLaser\MiningLaserResource;
 use App\Http\Resources\SC\ItemSpecification\MiningModuleResource;
 use App\Http\Resources\SC\ItemSpecification\MissileResource;
 use App\Http\Resources\SC\ItemSpecification\PowerPlantResource;
 use App\Http\Resources\SC\ItemSpecification\QuantumDrive\QuantumDriveResource;
+use App\Http\Resources\SC\ItemSpecification\QuantumInterdictionGeneratorResource;
 use App\Http\Resources\SC\ItemSpecification\SelfDestructResource;
 use App\Http\Resources\SC\ItemSpecification\ShieldResource;
 use App\Http\Resources\SC\ItemSpecification\ThrusterResource;
-use App\Http\Resources\SC\ManufacturerResource;
+use App\Http\Resources\SC\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\SC\Shop\ShopResource;
 use App\Http\Resources\SC\Vehicle\VehicleWeaponResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'item_v2',
+    title: 'Item',
+    properties: [
+        new OA\Property(property: 'uuid', type: 'string', nullable: true),
+        new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'description',
+            oneOf: [
+                new OA\Schema(type: 'string'),
+                new OA\Schema(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/translation_v2'),
+                ),
+            ],
+        ),
+        new OA\Property(property: 'size', type: 'integer', nullable: true),
+        new OA\Property(property: 'grade', type: 'string', nullable: true),
+        new OA\Property(property: 'class', type: 'string', nullable: true),
+        new OA\Property(property: 'manufacturer_description', type: 'string', nullable: true),
+        new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link_v2'),
+        new OA\Property(property: 'type', type: 'string', nullable: true),
+        new OA\Property(property: 'sub_type', type: 'string', nullable: true),
+        new OA\Property(property: 'min_size', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_size', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_mounts', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_missiles', type: 'integer', nullable: true),
+        new OA\Property(property: 'max_bombs', type: 'integer', nullable: true),
+        new OA\Property(property: 'clothing', ref: '#/components/schemas/clothing_v2', nullable: true),
+        new OA\Property(property: 'cooler', ref: '#/components/schemas/cooler_v2', nullable: true),
+        new OA\Property(property: 'emp', ref: '#/components/schemas/emp_v2', nullable: true),
+        new OA\Property(property: 'flight_controller', ref: '#/components/schemas/flight_controller_v2', nullable: true),
+        new OA\Property(property: 'food', ref: '#/components/schemas/food_v2', nullable: true),
+        new OA\Property(property: 'grenade', ref: '#/components/schemas/grenade_v2', nullable: true),
+        new OA\Property(property: 'iron_sight', ref: '#/components/schemas/iron_sight_v2', nullable: true),
+        new OA\Property(property: 'mining_laser', ref: '#/components/schemas/mining_laser_v2', nullable: true),
+        new OA\Property(property: 'mining_module', ref: '#/components/schemas/mining_module_v2', nullable: true),
+        new OA\Property(property: 'missile', ref: '#/components/schemas/missile_v2', nullable: true),
+        new OA\Property(property: 'personal_weapon', ref: '#/components/schemas/personal_weapon_v2', nullable: true),
+        new OA\Property(property: 'personal_weapon_magazine', ref: '#/components/schemas/personal_weapon_magazine_v2', nullable: true),
+        new OA\Property(property: 'power_plant', ref: '#/components/schemas/power_plant_v2', nullable: true),
+        new OA\Property(property: 'quantum_drive', ref: '#/components/schemas/quantum_drive_v2', nullable: true),
+        new OA\Property(property: 'quantum_interdiction_generator', ref: '#/components/schemas/qig_v2', nullable: true),
+        new OA\Property(property: 'self_destruct', ref: '#/components/schemas/self_destruct_v2', nullable: true),
+        new OA\Property(property: 'shield', ref: '#/components/schemas/shield_v2', nullable: true),
+        new OA\Property(property: 'thruster', ref: '#/components/schemas/thruster_v2', nullable: true),
+        new OA\Property(property: 'vehicle_weapon', ref: '#/components/schemas/vehicle_weapon_v2', nullable: true),
+        new OA\Property(property: 'dimension', ref: '#/components/schemas/item_dimension_v2'),
+        new OA\Property(property: 'inventory', ref: '#/components/schemas/item_container_v2', nullable: true),
+        new OA\Property(property: 'ports', ref: '#/components/schemas/item_port_data_v2', nullable: true),
+        new OA\Property(property: 'heat', ref: '#/components/schemas/item_heat_data_v2', nullable: true),
+        new OA\Property(property: 'power', ref: '#/components/schemas/item_power_data_v2', nullable: true),
+        new OA\Property(property: 'distortion', ref: '#/components/schemas/item_distortion_data_v2', nullable: true),
+        new OA\Property(property: 'durability', ref: '#/components/schemas/item_durability_data_v2', nullable: true),
+        new OA\Property(property: 'shops', ref: '#/components/schemas/shop_v2', nullable: true),
+        new OA\Property(property: 'updated_at', type: 'double', nullable: true),
+        new OA\Property(property: 'version', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
 class ItemResource extends AbstractTranslationResource
 {
     public static function validIncludes(): array
@@ -58,7 +121,7 @@ class ItemResource extends AbstractTranslationResource
                 'class' => $this->vehicleItem->class,
             ]),
             'manufacturer_description' => $this->manufacturer_description,
-            'manufacturer' => new ManufacturerResource($this->manufacturer),
+            'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
             'type' => $this->type,
             'sub_type' => $this->sub_type,
             $this->mergeWhen($this->isTurret(), $this->addTurretData()),
@@ -93,73 +156,83 @@ class ItemResource extends AbstractTranslationResource
         }
 
         return match (true) {
+            $this->type === 'EMP' => [
+                $this->specification->exists,
+                ['emp' => new EmpResource($this->specification),],
+            ],
             $this->type === 'Cooler' => [
                 $this->specification->exists,
-                new CoolerResource($this->specification),
+                ['cooler' => new CoolerResource($this->specification),],
             ],
             str_contains($this->type, 'Char_Clothing'), str_contains($this->type, 'Char_Armor') => [
                 $this->specification->exists,
-                new ClothingResource($this->specification),
+                ['clothing' => new ClothingResource($this->specification),],
             ],
             $this->type === 'Food' => [
                 $this->specification->exists,
-                new FoodResource($this->specification),
+                ['food' => new FoodResource($this->specification),],
             ],
             $this->type === 'MainThruster', $this->type === 'ManneuverThruster' => [
                 $this->specification->exists,
-                new ThrusterResource($this->specification),
+                ['thruster' => new ThrusterResource($this->specification),],
             ],
             $this->type === 'PowerPlant' => [
                 $this->specification->exists,
-                new PowerPlantResource($this->specification),
+                ['power_plant' => new PowerPlantResource($this->specification),],
             ],
             $this->type === 'Shield' => [
                 $this->specification->exists,
-                new ShieldResource($this->specification),
+                ['shield' => new ShieldResource($this->specification),],
             ],
             $this->type === 'SelfDestruct' => [
                 $this->specification->exists,
-                new SelfDestructResource($this->specification),
+                ['self_destruct' => new SelfDestructResource($this->specification),],
             ],
             $this->type === 'FlightController' => [
                 $this->specification->exists,
-                new FlightControllerResource($this->specification),
+                ['flight_controller' => new FlightControllerResource($this->specification),],
+            ],
+            $this->type === 'quantum_interdiction_generator' => [
+                $this->specification->exists,
+                ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($this->specification),],
             ],
             $this->type === 'QuantumDrive' => [
                 $this->specification->exists,
-                new QuantumDriveResource($this->specification),
+                ['quantum_drive' => new QuantumDriveResource($this->specification),],
             ],
             $this->type === 'WeaponPersonal' && $this->sub_type === 'Grenade' => [
                 $this->specification->exists,
-                new GrenadeResource($this->specification),
+                ['grenade' => new GrenadeResource($this->specification),],
             ],
             $this->type === 'WeaponPersonal' => [
                 $this->specification->exists,
-                new PersonalWeaponResource($this->specification),
+                ['personal_weapon' => new PersonalWeaponResource($this->specification),],
             ],
             $this->sub_type === 'IronSight' => [
                 $this->specification->exists,
-                new IronSightResource($this->specification),
+                ['iron_sight' => new IronSightResource($this->specification),],
             ],
             $this->sub_type === 'Magazine' => [
                 $this->specification->exists,
-                new PersonalWeaponMagazineResource($this->specification),
+                ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($this->specification),],
             ],
             $this->type === 'Missile' => [
                 $this->specification->exists,
-                new MissileResource($this->specification),
+                ['missile' => new MissileResource($this->specification),],
             ],
             $this->type === 'MiningModifier' => [
                 $this->specification->exists,
-                new MiningModuleResource($this->specification),
+                ['mining_module' => new MiningModuleResource($this->specification),],
             ],
             $this->type === 'WeaponGun', $this->type === 'WeaponDefensive' => [
                 $this->specification->exists,
-                new VehicleWeaponResource($this->specification),
+                [($this->type === 'WeaponGun' ?
+                    'vehicle_weapon' :
+                    'counter_measure') => new VehicleWeaponResource($this->specification),],
             ],
             $this->type === 'WeaponMining' => [
                 $this->specification->exists,
-                new MiningLaserResource($this->specification),
+                ['mining_laser' => new MiningLaserResource($this->specification),],
             ],
             default => [false, []],
         };

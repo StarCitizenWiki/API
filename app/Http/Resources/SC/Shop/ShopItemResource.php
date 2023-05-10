@@ -6,7 +6,41 @@ namespace App\Http\Resources\SC\Shop;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'shop_item_v2',
+    title: 'Ship Item',
+    properties: [
+        new OA\Property(property: 'uuid', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'type', type: 'string'),
+        new OA\Property(property: 'sub_type', type: 'string'),
+        new OA\Property(property: 'base_price', type: 'double'),
+        new OA\Property(property: 'price_calculated', type: 'double'),
+        new OA\Property(property: 'price_range', type: 'double'),
+        new OA\Property(property: 'base_price_offset', type: 'double'),
+        new OA\Property(property: 'max_discount', type: 'double'),
+        new OA\Property(property: 'max_premium', type: 'double'),
+        new OA\Property(property: 'inventory', type: 'double'),
+        new OA\Property(property: 'optimal_inventory', type: 'double'),
+        new OA\Property(property: 'max_inventory', type: 'double'),
+        new OA\Property(property: 'auto_restock', type: 'boolean'),
+        new OA\Property(property: 'auto_consume', type: 'boolean'),
+        new OA\Property(property: 'refresh_rate', type: 'double'),
+        new OA\Property(property: 'buyable', type: 'boolean'),
+        new OA\Property(property: 'sellable', type: 'boolean'),
+        new OA\Property(property: 'rentable', type: 'boolean'),
+        new OA\Property(property: 'version', type: 'string'),
+        new OA\Property(property: 'rental_price_days', properties: [
+            new OA\Property(property: 'duration_1', type: 'double'),
+            new OA\Property(property: 'duration_3', type: 'double'),
+            new OA\Property(property: 'duration_7', type: 'double'),
+            new OA\Property(property: 'duration_30', type: 'double'),
+        ], type: 'object', nullable: true),
+    ],
+    type: 'object'
+)]
 class ShopItemResource extends AbstractBaseResource
 {
     /**

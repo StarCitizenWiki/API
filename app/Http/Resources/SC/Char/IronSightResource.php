@@ -6,7 +6,18 @@ namespace App\Http\Resources\SC\Char;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'iron_sight_v2',
+    title: 'Iron Sight',
+    description: 'FPS Iron Sight',
+    properties: [
+        new OA\Property(property: 'magnification', type: 'string', nullable: true),
+        new OA\Property(property: 'optic_type', type: 'string', nullable: true),
+    ],
+    type: 'object'
+)]
 class IronSightResource extends AbstractBaseResource
 {
     /**

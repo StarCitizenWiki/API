@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Resources\StarCitizen\Galactapedia;
 
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\TranslationCollection;
 use App\Http\Resources\TranslationResourceFactory;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -22,7 +21,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'template', type: 'string', nullable: true),
         new OA\Property(property: 'rsi_url', type: 'string'),
         new OA\Property(property: 'api_url', type: 'string'),
-        new OA\Property(property: 'created_at', type: 'timestamp'),
+        new OA\Property(property: 'created_at', type: 'string'),
         new OA\Property(
             property: 'categories',
             type: 'array',
@@ -45,11 +44,16 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'translations',
-            ref: '#/components/schemas/translation_v2',
-            nullable: true
+            oneOf: [
+                new OA\Schema(type: 'string'),
+                new OA\Schema(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/translation_v2'),
+                ),
+            ],
         ),
     ],
-    type: 'json'
+    type: 'object'
 )]
 class ArticleResource extends AbstractBaseResource
 {

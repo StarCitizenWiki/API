@@ -7,14 +7,11 @@ namespace App\Http\Controllers\Api\V2\SC;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\SC\Item\ItemResource;
-use App\Http\Resources\SC\ManufacturerResource;
-use App\Http\Resources\SC\Shop\ShopResource;
-use App\Models\SC\Item\Item;
+use App\Http\Resources\SC\Manufacturer\ManufacturerLinkResource;
+use App\Http\Resources\SC\Manufacturer\ManufacturerResource;
 use App\Models\SC\Manufacturer;
-use App\Models\SC\Shop\Shop;
-use Dingo\Api\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
@@ -24,10 +21,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ManufacturerController extends AbstractApiV2Controller
 {
-
     #[OA\Get(
         path: '/api/v2/manufacturers',
-        tags: ['Stats', 'RSI-Website'],
+        tags: ['In-Game', 'Manufacturer'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
@@ -35,10 +31,10 @@ class ManufacturerController extends AbstractApiV2Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of stats',
+                description: 'List of Manufacturers',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/stat_v2')
+                    items: new OA\Items(ref: '#/components/schemas/manufacturer_link_v2')
                 )
             )
         ]
@@ -46,14 +42,27 @@ class ManufacturerController extends AbstractApiV2Controller
     public function index(): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Manufacturer::class)
-            ->limit($this->limit)
-            ->allowedIncludes(ManufacturerResource::validIncludes())
-            ->paginate()
+            ->paginate($this->limit)
             ->appends(request()->query());
 
-        return ManufacturerResource::collection($query);
+        return ManufacturerLinkResource::collection($query);
     }
 
+    #[OA\Get(
+        path: '/api/v2/manufacturers/{manufacturers}',
+        tags: ['In-Game', 'Item'],
+        parameters: [],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'A Manufacturer and its products',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/manufacturer_v2')
+                )
+            )
+        ]
+    )]
     public function show(Request $request): AbstractBaseResource
     {
         ['manufacturer' => $identifier] = Validator::validate(
@@ -64,6 +73,8 @@ class ManufacturerController extends AbstractApiV2Controller
                 'manufacturer' => 'required|string|min:1|max:255',
             ]
         );
+
+        $identifier = $this->cleanQueryName($identifier);
 
         try {
             $shop = QueryBuilder::for(Manufacturer::class)
@@ -76,12 +87,27 @@ class ManufacturerController extends AbstractApiV2Controller
             throw new NotFoundHttpException('No Manufacturer with specified UUID or Name found.');
         }
 
-        $resource = new ManufacturerResource($shop);
-        $resource->setIsShow(true);
-
-        return $resource;
+        return new ManufacturerResource($shop);
     }
 
+    #[OA\Post(
+        path: '/api/v2/manufactureres/search',
+        tags: ['In-Game', 'Manufacturer'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'A List of matching Manufactureres',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/manufacturer_link_v2')
+                )
+            )
+        ]
+    )]
     public function search(ItemSearchRequest $request): JsonResource
     {
         $rules = (new ItemSearchRequest())->rules();
@@ -89,17 +115,19 @@ class ManufacturerController extends AbstractApiV2Controller
 
         $query = $this->cleanQueryName($request->get('query'));
 
-        try {
-            $item = Manufacturer::query();
+        $manufacturers = QueryBuilder::for(Manufacturer::class)
+            ->where('name', 'like', "%{$query}%")
+            ->orWhere('uuid', $query)
+            ->orWhere('name', 'LIKE', sprintf('%%%s%%', $query))
+            ->orWhere('code', 'LIKE', sprintf('%%%s%%', $query))
+            ->groupBy('name')
+            ->paginate($this->limit)
+            ->appends(request()->query());
 
-            $item->where('name', 'like', "%{$query}%")
-                ->orWhere('uuid', $query)
-                ->orWhere('name', 'LIKE', sprintf('%%%s%%', $query))
-                ->orWhere('code', 'LIKE', sprintf('%%%s%%', $query));
-        } catch (ModelNotFoundException $e) {
+        if ($manufacturers->count() === 0) {
             throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $query));
         }
 
-        return ManufacturerResource::collection($item);
+        return ManufacturerLinkResource::collection($manufacturers);
     }
 }

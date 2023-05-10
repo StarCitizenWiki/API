@@ -5,24 +5,19 @@ declare(strict_types=1);
 namespace App\Http\Resources\SC\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\SC\HardpointResource;
 use App\Http\Resources\SC\Shop\ShopResource;
-use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\TranslationResourceFactory;
 use App\Models\SC\Vehicle\Hardpoint;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'vehicle_v2',
+    schema: 'sc_vehicle_v2',
     title: 'Vehicle',
     description: 'In-game or Ship-Matrix vehicles',
     properties: [
-        new OA\Property(property: 'id', type: 'integer'),
         new OA\Property(property: 'uuid', type: 'string'),
-        new OA\Property(property: 'chassis_id', type: 'integer'),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'slug', type: 'string'),
         new OA\Property(
@@ -35,15 +30,16 @@ use OpenApi\Attributes as OA;
             type: 'object'
         ),
         new OA\Property(property: 'mass', type: 'float'),
-        new OA\Property(property: 'cargo_capacity', type: 'float'),
-        new OA\Property(property: 'personal_inventory_capacity', type: 'float'),
+        new OA\Property(property: 'cargo_capacity', type: 'float', nullable: true),
+        new OA\Property(property: 'vehicle_inventory', type: 'float', nullable: true),
+        new OA\Property(property: 'personal_inventory', type: 'float', nullable: true),
         new OA\Property(
             property: 'crew',
             properties: [
-                new OA\Property(property: 'min', type: 'integer'),
-                new OA\Property(property: 'max', type: 'integer'),
-                new OA\Property(property: 'weapon', type: 'integer'),
-                new OA\Property(property: 'operation', type: 'integer'),
+                new OA\Property(property: 'min', type: 'integer', nullable: true),
+                new OA\Property(property: 'max', type: 'integer', nullable: true),
+                new OA\Property(property: 'weapon', type: 'integer', nullable: true),
+                new OA\Property(property: 'operation', type: 'integer', nullable: true),
             ],
             type: 'object'
         ),
@@ -51,13 +47,12 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'speed',
             properties: [
-                new OA\Property(property: 'scm', type: 'float'),
-                new OA\Property(property: 'afterburner', type: 'float'),
-                new OA\Property(property: 'max', type: 'float'),
-                new OA\Property(property: 'zero_to_scm', type: 'float'),
-                new OA\Property(property: 'zero_to_max', type: 'float'),
-                new OA\Property(property: 'scm_to_zero', type: 'float'),
-                new OA\Property(property: 'max_to_zero', type: 'float'),
+                new OA\Property(property: 'scm', type: 'float', nullable: true),
+                new OA\Property(property: 'max', type: 'float', nullable: true),
+                new OA\Property(property: 'zero_to_scm', type: 'float', nullable: true),
+                new OA\Property(property: 'zero_to_max', type: 'float', nullable: true),
+                new OA\Property(property: 'scm_to_zero', type: 'float', nullable: true),
+                new OA\Property(property: 'max_to_zero', type: 'float', nullable: true),
             ],
             type: 'object'
         ),
@@ -65,15 +60,14 @@ use OpenApi\Attributes as OA;
             property: 'fuel',
             properties: [
                 new OA\Property(property: 'capacity', type: 'float'),
-                new OA\Property(property: 'afterburner', type: 'float'),
                 new OA\Property(property: 'intake_rate', type: 'float'),
                 new OA\Property(
                     property: 'usage',
                     properties: [
-                        new OA\Property(property: 'main', type: 'float'),
-                        new OA\Property(property: 'retro', type: 'float'),
-                        new OA\Property(property: 'vtol', type: 'float'),
-                        new OA\Property(property: 'maneuvering', type: 'float'),
+                        new OA\Property(property: 'main', type: 'float', nullable: true),
+                        new OA\Property(property: 'retro', type: 'float', nullable: true),
+                        new OA\Property(property: 'vtol', type: 'float', nullable: true),
+                        new OA\Property(property: 'maneuvering', type: 'float', nullable: true),
                     ],
                     type: 'object'
                 ),
@@ -88,14 +82,15 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'quantum_fuel_capacity', type: 'float'),
                 new OA\Property(property: 'quantum_range', type: 'float'),
             ],
-            type: 'object'
+            type: 'object',
+            nullable: true
         ),
         new OA\Property(
             property: 'agility',
             properties: [
-                new OA\Property(property: 'pitch', type: 'float'),
-                new OA\Property(property: 'yaw', type: 'float'),
-                new OA\Property(property: 'roll', type: 'float'),
+                new OA\Property(property: 'pitch', type: 'float', nullable: true),
+                new OA\Property(property: 'yaw', type: 'float', nullable: true),
+                new OA\Property(property: 'roll', type: 'float', nullable: true),
                 new OA\Property(
                     property: 'acceleration',
                     properties: [
@@ -143,16 +138,11 @@ use OpenApi\Attributes as OA;
             ],
             type: 'object'
         ),
-        new OA\Property(property: 'updated_at', type: 'timestamp'),
-        new OA\Property(
-            property: 'components',
-            type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/vehicle_component_v2'),
-        ),
+        new OA\Property(property: 'updated_at', type: 'string'),
         new OA\Property(
             property: 'hardpoints',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/vehicle_hardpoint_v2'),
+            items: new OA\Items(ref: '#/components/schemas/hardpoint_v2'),
             nullable: true
         ),
         new OA\Property(
@@ -162,7 +152,7 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
     ],
-    type: 'json'
+    type: 'object'
 )]
 class VehicleResource extends AbstractBaseResource
 {
@@ -267,14 +257,14 @@ class VehicleResource extends AbstractBaseResource
         ];
     }
 
-    private function getQuantumDriveData(): array {
+    private function getQuantumDriveData(): array
+    {
         $drives = $this->quantumDrives
             ->map(function (Hardpoint $hardpoint) {
-            return $hardpoint->item->specification;
-        });
+                return $hardpoint->item->specification;
+            });
 
         if ($drives->isEmpty()) {
-
             return [];
         }
 
@@ -285,7 +275,7 @@ class VehicleResource extends AbstractBaseResource
             'quantum_speed' => $normal->drive_speed,
             'quantum_spool_time' => $normal->spool_up_time,
             'quantum_fuel_capacity' => $this->quantum_fuel_capacity,
-            'quantum_range' => $this->quantum_fuel_capacity * $drives[0]->jump_range,
+            'quantum_range' => $this->sc?->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
         ];
     }
 }

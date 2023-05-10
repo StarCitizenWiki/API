@@ -16,29 +16,29 @@ export default {
   },
   methods: {
     getPrice: function (shop) {
-      if (typeof shop.items.data !== 'undefined') {
-        if (shop.items.data[0].rentable === true) {
-          return `Miete:<br>
-1 Tag ${shop.items.data[0].rental_price_days[1]} aUEC<br>
-3 Tag ${shop.items.data[0].rental_price_days[3]} aUEC<br>
-7 Tag ${shop.items.data[0].rental_price_days[7]} aUEC<br>
-30 Tage ${shop.items.data[0].rental_price_days[30]} aUEC`
-        }
+        if (typeof shop.items !== 'undefined') {
+            if (shop.items[0].rentable === true) {
+                return `Miete:<br>
+1 Tag ${shop.items[0].rental_price_days.duration_1} aUEC<br>
+3 Tag ${shop.items[0].rental_price_days.duration_3} aUEC<br>
+7 Tag ${shop.items[0].rental_price_days.duration_7} aUEC<br>
+30 Tage ${shop.items[0].rental_price_days.duration_30} aUEC`
+            }
 
-        let prefix = ''
-        if (shop.items.data[0].buyable === true) {
-          prefix = 'Kauf: '
-        }
+            let prefix = ''
+            if (shop.items[0].buyable === true) {
+                prefix = 'Kauf: '
+            }
 
-        if (shop.items.data[0].sellable === true) {
-          prefix = 'Verkauf: '
-        }
+            if (shop.items[0].sellable === true) {
+                prefix = 'Verkauf: '
+            }
 
-        if (shop.items.data[0].sellable === true && shop.items.data[0].buyable === true) {
-          prefix = 'Kauf / Verkauf: '
-        }
+            if (shop.items[0].sellable === true && shop.items[0].buyable === true) {
+                prefix = 'Kauf / Verkauf: '
+            }
 
-        return `${prefix}${Math.floor(shop.items.data[0].price_calculated)} aUEC`;
+            return `${prefix}${Math.floor(shop.items[0].price_calculated)} aUEC`;
       }
 
       return '-';

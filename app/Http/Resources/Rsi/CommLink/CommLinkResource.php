@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Rsi\CommLink;
 
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\TranslationCollection;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
-use App\Http\Resources\Rsi\CommLink\Link\LinkResource;
 use App\Http\Resources\TranslationResourceFactory;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -34,18 +32,23 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'links',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/comm_link_content_link_v2'),
+            items: new OA\Items(ref: '#/components/schemas/comm_link_link_v2'),
         ),
         new OA\Property(property: 'links_count', type: 'integer'),
         new OA\Property(property: 'comment_count', type: 'integer'),
-        new OA\Property(property: 'created_at', type: 'timestamp'),
+        new OA\Property(property: 'created_at', type: 'string'),
         new OA\Property(
             property: 'translations',
-            ref: '#/components/schemas/translation_v2',
-            nullable: true
+            oneOf: [
+                new OA\Schema(type: 'string'),
+                new OA\Schema(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/translation_v2')
+                ),
+            ],
         ),
     ],
-    type: 'json'
+    type: 'object'
 )]
 class CommLinkResource extends AbstractBaseResource
 {
@@ -64,9 +67,8 @@ class CommLinkResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
-
         return [
             'id' => $this->cig_id,
             'title' => $this->title,
@@ -79,13 +81,12 @@ class CommLinkResource extends AbstractBaseResource
             'images' => ImageResource::collection($this->whenLoaded('images')),
             'images_count' => $this->images_count,
             'translations' => TranslationResourceFactory::getTranslationResource($request, $this->whenLoaded('translations')),
-            'links' => LinkResource::collection($this->whenLoaded('links')),
+            'links' => CommLinkLinkResource::collection($this->whenLoaded('links')),
             'links_count' => $this->links_count,
             'comment_count' => $this->comment_count,
             'created_at' => $this->created_at,
         ];
     }
-
 
     /**
      * If no URL is set a default url will be returned

@@ -15,9 +15,9 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageHash as ImageHashModel;
 use App\Services\ImageHash\Implementations\PerceptualHash2;
 use App\Services\Parser\CommLink\Image as ImageParser;
-use Dingo\Api\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +72,8 @@ class CommLinkSearchController extends AbstractApiV2Controller
             ->where('title', 'LIKE', sprintf('%%%s%%', $query))
             ->orWhere('cig_id', 'LIKE', "%{$query}%")
             ->limit(100)
-            ->allowedIncludes(CommLinkResource::validIncludes());
+            ->allowedIncludes(CommLinkResource::validIncludes())
+            ->get();
 
         return CommLinkResource::collection($commLinks);
     }

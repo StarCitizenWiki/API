@@ -6,7 +6,17 @@ namespace App\Http\Resources\SC\ItemSpecification\MiningLaser;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'mining_laser_modifiers_v2',
+    title: 'Mining Laser Modifiers',
+    properties: [
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'value'),
+    ],
+    type: 'object'
+)]
 class MiningLaserModifierResource extends AbstractBaseResource
 {
 
@@ -19,7 +29,8 @@ class MiningLaserModifierResource extends AbstractBaseResource
     public function toArray($request): array
     {
         return [
-            $this->name => $this->modifier,
+            'name' => $this->name,
+            'value' => $this->modifier,
         ];
     }
 }

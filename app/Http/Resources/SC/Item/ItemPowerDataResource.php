@@ -6,7 +6,25 @@ namespace App\Http\Resources\SC\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'item_power_data_v2',
+    title: 'Item Power Data',
+    properties: [
+        new OA\Property(property: 'power_base', type: 'double', nullable: true),
+        new OA\Property(property: 'power_draw', type: 'double', nullable: true),
+        new OA\Property(property: 'throttleable', type: 'boolean', nullable: true),
+        new OA\Property(property: 'overclockable', type: 'boolean', nullable: true),
+        new OA\Property(property: 'overclock_threshold_min', type: 'double', nullable: true),
+        new OA\Property(property: 'overclock_threshold_max', type: 'double', nullable: true),
+        new OA\Property(property: 'overclock_performance', type: 'double', nullable: true),
+        new OA\Property(property: 'overpower_performance', type: 'double', nullable: true),
+        new OA\Property(property: 'power_to_em', type: 'double', nullable: true),
+        new OA\Property(property: 'decay_rate_em', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
 class ItemPowerDataResource extends AbstractBaseResource
 {
     /**

@@ -6,7 +6,29 @@ namespace App\Http\Resources\SC;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'food_v2',
+    title: 'Food',
+    properties: [
+        new OA\Property(property: 'nutritional_density_rating', type: 'integer', nullable: true),
+        new OA\Property(property: 'hydration_efficacy_index', type: 'integer', nullable: true),
+        new OA\Property(property: 'container_type', type: 'string', nullable: true),
+        new OA\Property(property: 'one_shot_consume', type: 'boolean', nullable: true),
+        new OA\Property(property: 'can_be_reclosed', type: 'boolean', nullable: true),
+        new OA\Property(property: 'discard_when_consumed', type: 'boolean', nullable: true),
+        new OA\Property(
+            property: 'effects',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true,
+        ),
+        new OA\Property(property: 'updated_at', type: 'double', nullable: true),
+        new OA\Property(property: 'version', type: 'string', nullable: true),
+    ],
+    type: 'object'
+)]
 class FoodResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
@@ -24,7 +46,7 @@ class FoodResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         return [
             'nutritional_density_rating' => $this->nutritional_density_rating,

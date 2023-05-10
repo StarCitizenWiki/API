@@ -39,16 +39,10 @@ final class ItemSpecificationCreator
                 WeaponAttachment::dispatch($filePath);
                 break;
 
-//
-//            /// Vehicles Stuff
-//            case stripos($type, 'GroundVehicle') !== false:
-//            case stripos($type, 'Vehicle') !== false:
-//                break;
-//
             // Vehicle Items
-//            case stripos($type, 'Battery') !== false:
+            case stripos($type, 'Battery') !== false:
             case stripos($type, 'Cooler') !== false:
-//            case stripos($type, 'EMP') !== false:
+            case stripos($type, 'EMP') !== false:
             case stripos($type, 'ExternalFuelTank') !== false:
             case stripos($type, 'FuelIntake') !== false:
             case stripos($type, 'FuelTank') !== false:
@@ -59,8 +53,8 @@ final class ItemSpecificationCreator
             case stripos($type, 'PowerPlant') !== false:
             case stripos($type, 'QuantumDrive') !== false:
             case stripos($type, 'QuantumFuelTank') !== false:
-//            case stripos($type, 'QuantumInterdictionGenerator') !== false:
-//            case stripos($type, 'Radar') !== false:
+            case stripos($type, 'QuantumInterdictionGenerator') !== false:
+            case stripos($type, 'Radar') !== false:
             case stripos($type, 'SelfDestruct') !== false:
             case stripos($type, 'Shield') !== false:
             case stripos($type, 'WeaponDefensive') !== false:

@@ -6,7 +6,23 @@ namespace App\Http\Resources\SC\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'item_container_v2',
+    title: 'Item Container',
+    description: 'Container (Inventory) of an item',
+    properties: [
+        new OA\Property(property: 'width', type: 'double'),
+        new OA\Property(property: 'height', type: 'double'),
+        new OA\Property(property: 'length', type: 'double'),
+        new OA\Property(property: 'dimension', type: 'double'),
+        new OA\Property(property: 'scu', type: 'double'),
+        new OA\Property(property: 'scu_converted', type: 'double'),
+        new OA\Property(property: 'unit', type: 'string'),
+    ],
+    type: 'object'
+)]
 class ItemContainerResource extends AbstractBaseResource
 {
     /**

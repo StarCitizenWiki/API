@@ -56,7 +56,46 @@
                                     {{ $manufacturer->getRouteKey() }}
                                 @endcomponent
                             </td>
-                        @endcan
+                            @endcan
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7">@lang('Keine Hersteller vorhanden')</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+
+            <h4 class="card-header">@lang('Hersteller') In-Game</h4>
+            <table class="table table-striped mb-0">
+                <thead>
+                <tr>
+                    <th>@lang('Name')</th>
+                    <th>@lang('Code')</th>
+                    <th>@lang('Raumschiffe')</th>
+                    <th>@lang('Fahrzeuge')</th>
+                    <th>@lang('Items')</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                @forelse($manufacturers_ingame as $manufacturer)
+                    <tr>
+                        <td>
+                            {{ $manufacturer->name }}
+                        </td>
+                        <td>
+                            {{ $manufacturer->code }}
+                        </td>
+                        <td>
+                            {{ $manufacturer->shipsCount() }}
+                        </td>
+                        <td>
+                            {{ $manufacturer->groundVehiclesCount() }}
+                        </td>
+                        <td>
+                            {{ $manufacturer->itemsCount() }}
+                        </td>
                     </tr>
                 @empty
                     <tr>

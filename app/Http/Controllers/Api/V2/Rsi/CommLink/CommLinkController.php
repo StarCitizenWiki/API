@@ -10,11 +10,28 @@ use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+#[OA\Parameter(
+    parameter: 'comm_link_includes_v2',
+    name: 'include',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'comm_link_includes_v2',
+        description: 'Available Comm-Link includes',
+        collectionFormat: 'csv',
+        enum: [
+            'translations',
+            'images',
+            'links',
+        ]
+    ),
+    allowReserved: true
+)]
 class CommLinkController extends AbstractApiV2Controller
 {
     #[OA\Get(
@@ -23,21 +40,7 @@ class CommLinkController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
-            new OA\Parameter(
-                name: 'include',
-                in: 'query',
-                schema: new OA\Schema(
-                    schema: 'comm_link_includes_v2',
-                    description: 'Available Comm-Link includes',
-                    collectionFormat: 'csv',
-                    enum: [
-                        'translations',
-                        'images',
-                        'links',
-                    ]
-                ),
-                allowReserved: true
-            ),
+            new OA\Parameter(ref: '#/components/parameters/comm_link_includes_v2'),
         ],
         responses: [
             new OA\Response(
@@ -50,13 +53,12 @@ class CommLinkController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(CommLink::class)
-            ->limit($this->limit)
             ->allowedIncludes(CommLinkResource::validIncludes())
             ->orderByDesc('cig_id')
-            ->paginate()
+            ->paginate($this->limit)
             ->appends(request()->query());
 
         return CommLinkResource::collection($query);
@@ -66,7 +68,7 @@ class CommLinkController extends AbstractApiV2Controller
         path: '/api/v2/comm-links/{id}',
         tags: ['Comm-Links', 'RSI-Website'],
         parameters: [
-            new OA\Parameter(ref: '#/components/schemas/comm_link_includes_v2'),
+            new OA\Parameter(ref: '#/components/parameters/comm_link_includes_v2'),
             new OA\Parameter(
                 name: 'id',
                 in: 'path',

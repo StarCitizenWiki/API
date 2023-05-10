@@ -1,18 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources;
 
 use App\Models\SC\Item\ItemTranslation;
 use App\Models\System\Language;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'translations_v2',
+    title: 'Object Translations',
+    description: 'Translations of an Object',
+    properties: [
+        new OA\Property(property: 'locale', type: 'string'),
+        new OA\Property(property: 'translation', type: 'string'),
+    ],
+    type: 'object'
+)]
 abstract class AbstractTranslationResource extends AbstractBaseResource
 {
-    public function __construct($resource)
-    {
-        parent::__construct($resource);
-    }
-
     protected function getTranslation($model, Request $request, $translationKey = 'translation')
     {
         $translations = $model->translationsCollection();
@@ -23,7 +31,7 @@ abstract class AbstractTranslationResource extends AbstractBaseResource
         }
 
         return $translations->map(
-            function ($translation) use ($translationKey, $model, $translations) {
+            function ($translation) use ($translationKey, $translations) {
                 if ($translation instanceof Language) {
                     return $this->getSingleTranslation($translations, 'en_EN', $translationKey);
                 }

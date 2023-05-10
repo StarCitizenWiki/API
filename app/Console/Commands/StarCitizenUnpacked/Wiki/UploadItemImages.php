@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
-use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
-use App\Models\StarCitizenUnpacked\Clothing;
-use App\Models\StarCitizenUnpacked\CommodityItem;
-use App\Models\StarCitizenUnpacked\Food\Food;
-use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
+use App\Models\SC\Char\Clothing\Armor;
+use App\Models\SC\Char\Clothing\Clothes;
+use App\Models\SC\Char\Clothing\Clothing;
+use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
+use App\Models\SC\CommodityItem;
+use App\Models\SC\Food\Food;
+use App\Models\SC\Vehicle\VehicleItem;
 use App\Services\UploadWikiImage;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
@@ -106,24 +106,24 @@ class  UploadItemImages extends AbstractQueueCommand
         $this->upload = new UploadWikiImage(true);
 
         $this->info('Uploading Char Armor Images...');
-        CharArmor::chunk(100, function (Collection $items) {
+        Armor::chunk(100, function (Collection $items) {
             $this->work($items, true);
         });
 
         $this->info('Uploading Clothing Images...');
-        Clothing::chunk(100, function (Collection $items) {
+        Clothes::chunk(100, function (Collection $items) {
             $this->work($items, true);
         });
 
         $this->info('Uploading Weapon Personal Images...');
-        WeaponPersonal::chunk(100, function (Collection $items) {
+        PersonalWeapon::chunk(100, function (Collection $items) {
             $this->work($items);
         });
 
-        $this->info('Uploading Weapon Attachment Images...');
-        Attachment::chunk(100, function (Collection $items) {
-            $this->work($items);
-        });
+//        $this->info('Uploading Weapon Attachment Images...');
+//        Attachment::chunk(100, function (Collection $items) {
+//            $this->work($items);
+//        });
 
         $this->info('Uploading Food Images...');
         Food::chunk(100, function (Collection $items) {
@@ -131,7 +131,7 @@ class  UploadItemImages extends AbstractQueueCommand
         });
 
         $this->info('Uploading Ship Item Images...');
-        ShipItem::query()->whereIn('type', array_keys($this->typeTranslations))
+        VehicleItem::query()->whereIn('type', array_keys($this->typeTranslations))
             ->orWhereRelation('item', 'type', 'WeaponGun')
             ->orWhereRelation('item', 'type', 'Missile')
             ->orWhereRelation('item', 'type', 'Torpedo')
@@ -155,8 +155,8 @@ class  UploadItemImages extends AbstractQueueCommand
         $entries->each(function (CommodityItem $item) use ($normalizeCategory) {
             $url = sprintf('%s.jpg', $item->item->uuid);
 
-            if ($item->item->manufacturer === '@LOC_PLACEHOLDER') {
-                $item->Item->manufacturer = 'Unbekannter Hersteller';
+            if ($item->item->manufacturer->name === '@LOC_PLACEHOLDER') {
+                $item->Item->manufacturer->name = 'Unbekannter Hersteller';
             }
 
             $this->headResponse = $this->http->head($url);
@@ -233,7 +233,7 @@ class  UploadItemImages extends AbstractQueueCommand
      */
     private function normalizeCategory(CommodityItem $item, string $name, array &$metadata, array &$categories): void
     {
-        foreach (CharArmor::$splits as $split) {
+        foreach (Clothing::$splits as $split) {
             if (!Str::contains($name, $split)) {
                 continue;
             }

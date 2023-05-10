@@ -21,6 +21,10 @@ class Clothing extends CommodityItem
         'type',
     ];
 
+    protected $with = [
+        'resistances'
+    ];
+
     public function getRouteKey()
     {
         return $this->item_uuid;

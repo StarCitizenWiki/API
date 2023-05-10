@@ -6,14 +6,34 @@ namespace App\Http\Resources\SC\Char;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'clothing_v2',
+    title: 'Clothing',
+    description: 'Clothes or Armors',
+    properties: [
+        new OA\Property(property: 'armor_type', type: 'string', nullable: true),
+        new OA\Property(property: 'clothing_type', type: 'string', nullable: true),
+        new OA\Property(property: 'damage_reduction', type: 'double', nullable: true),
+        new OA\Property(property: 'temp_resistance_min', type: 'double', nullable: true),
+        new OA\Property(property: 'temp_resistance_max', type: 'double', nullable: true),
+        new OA\Property(
+            property: 'resistances',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/clothing_resistance_v2'),
+            nullable: true,
+        ),
+        new OA\Property(property: 'base_model', type: 'string', nullable: true),
+    ],
+    type: 'object'
+)]
 class ClothingResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
         return [
             'resistances',
-            'ports',
             'shops',
             'shops.items',
         ];
@@ -28,9 +48,9 @@ class ClothingResource extends AbstractBaseResource
     public function toArray($request): array
     {
         $typeKey = 'armor_type';
-        $route = self::UNPACKED_ARMOR_SHOW;
+        $route = self::ARMOR_SHOW;
         if (str_contains($this->item->type, 'Char_Clothing')) {
-            $route = self::UNPACKED_CLOTHES_SHOW;
+            $route = self::CLOTHES_SHOW;
             $typeKey = 'clothing_type';
         }
 

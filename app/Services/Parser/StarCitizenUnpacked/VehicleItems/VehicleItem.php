@@ -62,17 +62,19 @@ final class VehicleItem extends AbstractCommodityItem
         $mappedItem['cargo_grid'] = CargoGrid::getData($item);
         $mappedItem['cooler'] = Cooler::getData($item);
         $mappedItem['counter_measure'] = CounterMeasure::getData($item);
+        $mappedItem['emp'] = Emp::getData($item);
+        $mappedItem['flight_controller'] = FlightController::getData($item);
         $mappedItem['fuel_intake'] = FuelIntake::getData($item);
         $mappedItem['fuel_tank'] = FuelTank::getData($item);
         $mappedItem['missile'] = Missile::getData($item);
         $mappedItem['missile_rack'] = MissileRack::getData($item);
         $mappedItem['power_plant'] = PowerPlant::getData($item);
+        $mappedItem['qig'] = QuantumInterdictionGenerator::getData($item);
         $mappedItem['quantum_drive'] = QuantumDrive::getData($item);
         $mappedItem['radar'] = Radar::getData($item);
         $mappedItem['self_destruct'] = SelfDestruct::getData($item);
         $mappedItem['shield'] = Shield::getData($item);
         $mappedItem['thruster'] = Thruster::getData($item);
-        $mappedItem['flight_controller'] = FlightController::getData($item);
         if (Arr::has($item, 'Raw.Entity.Components.SCItemWeaponComponentParams')) {
             $mappedItem['weapon'] = (new Weapon($this->filePath, $this->labels))->getData();
         }

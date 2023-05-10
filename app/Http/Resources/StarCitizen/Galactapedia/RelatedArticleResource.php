@@ -18,15 +18,10 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'url', type: 'string'),
         new OA\Property(property: 'api_url', type: 'string'),
     ],
-    type: 'json'
+    type: 'object'
 )]
 class RelatedArticleResource extends AbstractBaseResource
 {
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     /**
      * Transform the resource into an array.
      *

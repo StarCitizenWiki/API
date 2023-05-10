@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Vehicle;
 
-use App\Http\Resources\AbstractBaseResource;
-use App\Models\StarCitizen\Vehicle\Component\Component;
-use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -26,9 +24,9 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'manufacturer', type: 'string'),
         new OA\Property(property: 'component_class', type: 'string'),
     ],
-    type: 'json'
+    type: 'object'
 )]
-class ComponentResource extends AbstractBaseResource
+class ComponentResource extends JsonResource
 {
 
     /**
@@ -51,10 +49,5 @@ class ComponentResource extends AbstractBaseResource
             'manufacturer' => $this->manufacturer,
             'component_class' => $this->component_class,
         ];
-    }
-
-    public static function validIncludes(): array
-    {
-        return [];
     }
 }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\StarCitizen\Stat;
 
-use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -16,17 +16,12 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'funds', type: 'float'),
         new OA\Property(property: 'fans', type: 'float'),
         new OA\Property(property: 'fleet', type: 'float'),
-        new OA\Property(property: 'timestamp', type: 'timestamp'),
+        new OA\Property(property: 'timestamp', type: 'string'),
     ],
-    type: 'json'
+    type: 'object'
 )]
-class StatResource extends AbstractBaseResource
+class StatResource extends JsonResource
 {
-    public static function validIncludes(): array
-    {
-        return [];
-    }
-
     /**
      * Transform the resource into an array.
      *

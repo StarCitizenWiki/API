@@ -6,10 +6,23 @@ namespace App\Http\Resources\SC\ItemSpecification;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'self_destruct_v2',
+    title: 'Self Destruct',
+    properties: [
+        new OA\Property(property: 'damage', type: 'string', nullable: true),
+        new OA\Property(property: 'radius', type: 'double', nullable: true),
+        new OA\Property(property: 'min_radius', type: 'double', nullable: true),
+        new OA\Property(property: 'phys_radius', type: 'double', nullable: true),
+        new OA\Property(property: 'min_phys_radius', type: 'double', nullable: true),
+        new OA\Property(property: 'time', type: 'double', nullable: true),
+    ],
+    type: 'object'
+)]
 class SelfDestructResource extends AbstractBaseResource
 {
-
     /**
      * Transform the resource collection into an array.
      *

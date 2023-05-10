@@ -6,7 +6,30 @@ namespace App\Http\Resources\SC\ItemSpecification\QuantumDrive;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'quantum_drive_v2',
+    title: 'Quantum Drive',
+    properties: [
+        new OA\Property(property: 'quantum_fuel_requirement', type: 'double', nullable: true),
+        new OA\Property(property: 'jump_range', type: 'double', nullable: true),
+        new OA\Property(property: 'disconnect_range', type: 'double', nullable: true),
+        new OA\Property(property: 'thermal_energy_draw', properties: [
+            new OA\Property(property: 'pre_ramp_up', type: 'double', nullable: true),
+            new OA\Property(property: 'ramp_up', type: 'double', nullable: true),
+            new OA\Property(property: 'in_flight', type: 'double', nullable: true),
+            new OA\Property(property: 'ramp_down', type: 'double', nullable: true),
+            new OA\Property(property: 'post_ramp_down', type: 'double', nullable: true),
+        ], type: 'object'),
+        new OA\Property(
+            property: 'modes',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/quantum_drive_modes_v2')
+        ),
+    ],
+    type: 'object'
+)]
 class QuantumDriveResource extends AbstractBaseResource
 {
     /**

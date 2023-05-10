@@ -2,23 +2,39 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V2\StarCitizen\Galactapedia;
+namespace App\Http\Controllers\Api\V2\StarCitizen;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Requests\StarCitizen\Galactapedia\GalactapediaSearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Galactapedia\ArticleResource;
 use App\Models\StarCitizen\Galactapedia\Article;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+#[OA\Parameter(
+    name: 'galactapedia_includes_v2',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'include',
+        description: 'Available Galactapedia includes',
+        collectionFormat: 'csv',
+        enum: [
+            'translations',
+            'tags',
+            'categories',
+            'related_articles',
+            'properties',
+        ]
+    ),
+    allowReserved: true
+)]
 class GalactapediaController extends AbstractApiV2Controller
 {
     #[OA\Get(
@@ -27,23 +43,7 @@ class GalactapediaController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
-            new OA\Parameter(
-                name: 'include',
-                in: 'query',
-                schema: new OA\Schema(
-                    schema: 'galacapedia_includes_v2',
-                    description: 'Available Galactapedia includes',
-                    collectionFormat: 'csv',
-                    enum: [
-                        'translations',
-                        'tags',
-                        'categories',
-                        'related_articles',
-                        'properties',
-                    ]
-                ),
-                allowReserved: true
-            ),
+            new OA\Parameter(ref: '#/components/parameters/galactapedia_includes_v2'),
         ],
         responses: [
             new OA\Response(
@@ -59,10 +59,9 @@ class GalactapediaController extends AbstractApiV2Controller
     public function index(): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Article::class)
-            ->limit($this->limit)
             ->allowedIncludes(ArticleResource::validIncludes())
             ->orderByDesc('id')
-            ->paginate()
+            ->paginate($this->limit)
             ->appends(request()->query());
 
         return ArticleResource::collection($query);
@@ -72,9 +71,8 @@ class GalactapediaController extends AbstractApiV2Controller
         path: '/api/v2/galactapedia/{id}',
         tags: ['Galactapedia', 'RSI-Website'],
         parameters: [
-            new OA\Parameter(ref: '#/components/parameters/page'),
-            new OA\Parameter(ref: '#/components/parameters/limit'),
-            new OA\Parameter(ref: '#/components/schemas/galacapedia_includes_v2'),
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/galactapedia_includes_v2'),
             new OA\Parameter(
                 name: 'id',
                 in: 'path',
@@ -98,22 +96,22 @@ class GalactapediaController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function show($article, Request $request): AbstractBaseResource
+    public function show(Request $request): AbstractBaseResource
     {
-        ['article' => $article] = Validator::validate(
+        ['article' => $identifier] = Validator::validate(
             [
-                'article' => $article,
+                'article' => $request->article,
             ],
             [
                 'article' => 'required|string|min:10|max:12',
             ]
         );
 
-        $article = urldecode($article);
+        $identifier = $this->cleanQueryName($identifier);
 
         try {
             $model = QueryBuilder::for(Article::class)
-                ->where('cig_id', $article)
+                ->where('cig_id', $identifier)
                 ->with(ArticleResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -160,7 +158,8 @@ class GalactapediaController extends AbstractApiV2Controller
         $rules = (new GalactapediaSearchRequest())->rules();
         $request->validate($rules);
 
-        $query = urldecode($request->get('query'));
+        $query = $this->cleanQueryName($request->get('query'));
+
         $queryBuilder = QueryBuilder::for(Article::class)
             ->where('title', 'like', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%")
@@ -173,6 +172,6 @@ class GalactapediaController extends AbstractApiV2Controller
             throw new NotFoundHttpException('No Article(s) for specified query found.');
         }
 
-        return ArticleResource::collection($query);
+        return ArticleResource::collection($queryBuilder->get());
     }
 }

@@ -20,9 +20,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use JsonException;
 
-/**
- * TODO: Refactor this behemoth :(
- */
 class Vehicle implements ShouldQueue
 {
     use Dispatchable;
@@ -78,9 +75,6 @@ class Vehicle implements ShouldQueue
 
         $labels = (new Labels())->getData();
         $manufacturers = (new Manufacturers())->getData();
-
-        // TODO: Yeah this needs to go
-        //VehicleHardpoint::query()->truncate();
 
         collect($vehicles)->chunk(5)->each(function (Collection $chunk) use ($labels, $manufacturers) {
             $chunk
@@ -328,9 +322,6 @@ class Vehicle implements ShouldQueue
         $this->mapHardpoints($rawData['Vehicle']['Parts'], $hardpoints);
 
         collect($entries)
-//            ->filter(function ($entry) use ($hardpoints) {
-//                return isset($hardpoints[strtolower($entry['itemPortName'] ?? '')]);
-//            })
             ->chunk(5)
             ->each(function (Collection $entries) use ($hardpoints, $vehicle) {
                 $entries

@@ -19,7 +19,7 @@ use Spatie\QueryBuilder\AllowedInclude;
     type: 'http',
     scheme: 'bearer',
 )]
-#[OA\Server(url: 'https://api.star-citizen.wiki/api/v2/')]
+#[OA\Server(url: 'http://localhost:8000/')]
 #[OA\Parameter(
     name: 'page',
     in: 'query',
@@ -40,7 +40,7 @@ use Spatie\QueryBuilder\AllowedInclude;
         type: 'integer',
         format: 'int64',
         maximum: 1000,
-        minimum: 0,
+        minimum: 1,
     ),
 )]
 #[OA\Parameter(
@@ -62,13 +62,7 @@ use Spatie\QueryBuilder\AllowedInclude;
 )]
 abstract class AbstractApiV2Controller extends Controller
 {
-    public const SC_DATA_KEY = 'api.sc_data_version';
-
-    public const INVALID_LIMIT_STRING = 'Limit has to be greater than 0';
-
     public const INVALID_LOCALE_STRING = 'Locale Code \'%s\' is not valid';
-
-    public const INVALID_RELATION_STRING = '\'%s\' does not exist';
 
     /**
      * Sprintf String which is used if no model was found

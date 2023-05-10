@@ -8,25 +8,23 @@ use Illuminate\Http\Resources\Json\JsonResource;
 abstract class AbstractBaseResource extends JsonResource
 {
     public const COMM_LINKS_SHOW = 'comm-links/%d';
-    public const COMM_LINKS_SERIES_SHOW = 'comm-links/series';
-    public const COMM_LINKS_CHANNELS_SHOW = 'comm-links/channels';
-    public const COMM_LINKS_CATEGORIES_SHOW = 'comm-links/categories';
 
     public const VEHICLES_SHOW = 'vehicles/';
 
-    public const STARMAP_STARSYSTEM_SHOW = 'starmap/starsystems';
-    public const STARMAP_CELESTIAL_OBJECTS_SHOW = 'starmap/celestial-objects';
+    public const STARMAP_STARSYSTEM_SHOW = 'starsystems/';
+    public const STARMAP_CELESTIAL_OBJECTS_SHOW = 'celestial-objects/';
 
     public const GALACTAPEDIA_ARTICLE_SHOW = 'galactapedia';
 
 
-    public const UNPACKED_ITEMS_SHOW = 'items/';
-    public const UNPACKED_FOOD_SHOW = 'food/';
+    public const ITEMS_SHOW = 'items/';
+    public const FOOD_SHOW = 'food/';
 
-    public const UNPACKED_PERSONAL_WEAPONS_SHOW = 'personal-weapons/';
-    public const UNPACKED_ARMOR_SHOW = 'armor/';
-    public const UNPACKED_CLOTHES_SHOW = 'clothes/';
-    public const UNPACKED_SHOPS_SHOW = 'shops/';
+    public const PERSONAL_WEAPONS_SHOW = 'personal-weapons/';
+    public const ARMOR_SHOW = 'armor/';
+    public const CLOTHES_SHOW = 'clothes/';
+    public const SHOPS_SHOW = 'shops/';
+    public const MANUFACTURERS_SHOW = 'manufacturers/';
 
     public function __construct($resource)
     {

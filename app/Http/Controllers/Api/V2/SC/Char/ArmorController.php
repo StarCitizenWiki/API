@@ -7,34 +7,78 @@ namespace App\Http\Controllers\Api\V2\SC\Char;
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Char\ClothingResource;
+use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Models\SC\Item\Item;
-use Dingo\Api\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+#[OA\Parameter(
+    parameter: 'clothing_includes_v2',
+    name: 'include',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'include',
+        description: 'Available Armor Item includes',
+        collectionFormat: 'csv',
+        enum: [
+            'shops',
+            'shops.items',
+            'ports',
+            'resistances',
+        ]
+    ),
+    allowReserved: true
+)]
+#[OA\Parameter(
+    parameter: 'clothing_filter_v2',
+    name: 'filter',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'filter[type]',
+        description: 'Filter list based on type',
+        type: 'string',
+    ),
+    allowReserved: true
+)]
+#[OA\Parameter(
+    parameter: 'commodity_includes_v2',
+    name: 'include',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'include',
+        description: 'Available Commodity Item includes',
+        collectionFormat: 'csv',
+        enum: [
+            'shops',
+            'shops.items',
+        ]
+    ),
+    allowReserved: true
+)]
 class ArmorController extends AbstractApiV2Controller
 {
-
     #[OA\Get(
-        path: '/api/v2/personal-clothings',
-        tags: ['Stats', 'RSI-Website'],
+        path: '/api/v2/armor',
+        tags: ['Armor', 'In-Game'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(ref: '#/components/parameters/clothing_filter_v2'),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of stats',
+                description: 'List of Armors',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/stat_v2')
+                    items: new OA\Items(ref: '#/components/schemas/item_link_v2')
                 )
             )
         ]
@@ -43,18 +87,34 @@ class ArmorController extends AbstractApiV2Controller
     {
         $query = QueryBuilder::for(Item::class)
             ->where('type', 'LIKE', 'Char_Armor%')
-            ->limit($this->limit)
-            ->allowedIncludes(ClothingResource::validIncludes())
             ->allowedFilters(['type'])
-            ->paginate()
+            ->paginate($this->limit)
             ->appends(request()->query());
 
-        return ItemResource::collection($query);
+        return ItemLinkResource::collection($query);
     }
 
+    #[OA\Get(
+        path: '/api/v2/armor/{armor}',
+        tags: ['Armor', 'In-Game'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(ref: '#/components/parameters/clothing_includes_v2'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'An Armor Item',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/item_v2')
+                )
+            )
+        ]
+    )]
     public function show(Request $request): AbstractBaseResource
     {
-        ['clothing' => $clothing] = Validator::validate(
+        ['clothing' => $identifier] = Validator::validate(
             [
                 'clothing' => $request->clothing,
             ],
@@ -63,12 +123,14 @@ class ArmorController extends AbstractApiV2Controller
             ]
         );
 
+        $identifier = $this->cleanQueryName($identifier);
+
         try {
-            $clothing = QueryBuilder::for(Item::class)
+            $identifier = QueryBuilder::for(Item::class)
                 ->where('type', 'LIKE', 'Char_Armor%')
-                ->where(function (Builder $query) use ($clothing) {
-                    $query->where('uuid', $clothing)
-                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $clothing));
+                ->where(function (Builder $query) use ($identifier) {
+                    $query->where('uuid', $identifier)
+                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
                 })
                 ->allowedIncludes(ClothingResource::validIncludes())
                 ->firstOrFail();
@@ -76,6 +138,6 @@ class ArmorController extends AbstractApiV2Controller
             throw new NotFoundHttpException('No Armor with specified UUID or Name found.');
         }
 
-        return new ItemResource($clothing);
+        return new ItemResource($identifier);
     }
 }

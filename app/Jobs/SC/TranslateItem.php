@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC;
 
-use App\Models\StarCitizenUnpacked\Item;
+use App\Models\SC\Item\Item;
 use App\Services\TranslateText;
 use Exception;
 use GuzzleHttp\Exception\ConnectException;

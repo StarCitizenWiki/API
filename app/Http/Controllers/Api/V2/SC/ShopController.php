@@ -6,12 +6,11 @@ namespace App\Http\Controllers\Api\V2\SC;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\SC\Item\ItemResource;
+use App\Http\Resources\SC\Shop\ShopLinkResource;
 use App\Http\Resources\SC\Shop\ShopResource;
-use App\Models\SC\Item\Item;
 use App\Models\SC\Shop\Shop;
-use Dingo\Api\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
@@ -20,10 +19,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ShopController extends AbstractApiV2Controller
 {
-
     #[OA\Get(
-        path: '/api/v2/item',
-        tags: ['Stats', 'RSI-Website'],
+        path: '/api/v2/shops',
+        tags: ['In-Game', 'Shops'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
@@ -31,10 +29,10 @@ class ShopController extends AbstractApiV2Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of stats',
+                description: 'List of Shops',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/stat_v2')
+                    items: new OA\Items(ref: '#/components/schemas/shop_link_v2')
                 )
             )
         ]
@@ -42,15 +40,43 @@ class ShopController extends AbstractApiV2Controller
     public function index(): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Shop::class)
-            ->limit($this->limit)
-            ->allowedIncludes(ShopResource::validIncludes())
-            ->paginate()
+            ->withCount('items')
+            ->paginate($this->limit)
             ->appends(request()->query());
 
-        return ShopResource::collection($query);
+        return ShopLinkResource::collection($query);
     }
 
-    public function show($id, Request $request): AbstractBaseResource
+    #[OA\Get(
+        path: '/api/v2/shops/{shop}',
+        tags: ['In-Game', 'Shops'],
+        parameters: [
+            new OA\Parameter(
+                name: 'include',
+                in: 'query',
+                schema: new OA\Schema(
+                    schema: 'shop_includes_v2',
+                    description: 'Available Commodity Item includes',
+                    collectionFormat: 'csv',
+                    enum: [
+                        'items',
+                    ]
+                ),
+                allowReserved: true
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'An Item',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/shop_v2')
+                )
+            )
+        ]
+    )]
+    public function show(Request $request): AbstractBaseResource
     {
         ['shop' => $identifier] = Validator::validate(
             [
@@ -60,6 +86,8 @@ class ShopController extends AbstractApiV2Controller
                 'shop' => 'required|string|min:1|max:255',
             ]
         );
+
+        $identifier = $this->cleanQueryName($identifier);
 
         try {
             $shop = QueryBuilder::for(Shop::class)
