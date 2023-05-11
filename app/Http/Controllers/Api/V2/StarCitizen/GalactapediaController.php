@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -44,6 +45,12 @@ class GalactapediaController extends AbstractApiV2Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
             new OA\Parameter(ref: '#/components/parameters/galactapedia_includes_v2'),
+            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[categoryId]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[tag]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[tagId]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[property]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[template]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -56,10 +63,20 @@ class GalactapediaController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Article::class)
+        $query = QueryBuilder::for(Article::class, $request)
             ->allowedIncludes(ArticleResource::validIncludes())
+            ->allowedFilters([
+                AllowedFilter::exact('category', 'category.name'),
+                AllowedFilter::exact('categoryId', 'category.cig_id'),
+
+                AllowedFilter::exact('tag', 'tag.name'),
+                AllowedFilter::exact('tagId', 'tag.cig_id'),
+
+                AllowedFilter::exact('property', 'property.name'),
+                AllowedFilter::exact('template', 'template.template'),
+            ])
             ->orderByDesc('id')
             ->paginate($this->limit)
             ->appends(request()->query());
@@ -110,7 +127,7 @@ class GalactapediaController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $model = QueryBuilder::for(Article::class)
+            $model = QueryBuilder::for(Article::class, $request)
                 ->where('cig_id', $identifier)
                 ->with(ArticleResource::validIncludes())
                 ->firstOrFail();
@@ -160,7 +177,7 @@ class GalactapediaController extends AbstractApiV2Controller
 
         $query = $this->cleanQueryName($request->get('query'));
 
-        $queryBuilder = QueryBuilder::for(Article::class)
+        $queryBuilder = QueryBuilder::for(Article::class, $request)
             ->where('title', 'like', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%")
             ->orWhere('cig_id', 'like', "%{$query}%")

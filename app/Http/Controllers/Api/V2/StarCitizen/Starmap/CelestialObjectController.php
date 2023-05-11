@@ -18,9 +18,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CelestialObjectController extends AbstractApiV2Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(CelestialObject::class)
+        $query = QueryBuilder::for(CelestialObject::class, $request)
             ->allowedIncludes([])
             ->paginate($this->limit)
             ->appends(request()->query());
@@ -44,7 +44,7 @@ class CelestialObjectController extends AbstractApiV2Controller
 
         try {
             /** @var CelestialObject $starsystem */
-            $starsystem = QueryBuilder::for(CelestialObject::class)
+            $starsystem = QueryBuilder::for(CelestialObject::class, $request)
                 ->where('code', $code)
                 ->orWhere('cig_id', $code)
                 ->orWhere('name', 'LIKE', "%$code%")

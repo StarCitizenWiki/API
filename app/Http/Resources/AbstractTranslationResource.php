@@ -10,15 +10,31 @@ use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'translations_v2',
-    title: 'Object Translations',
-    description: 'Translations of an Object',
+    schema: 'translation_v2',
+    title: 'Grouped Translations',
+    description: 'Translations of an entity',
     properties: [
-        new OA\Property(property: 'locale', type: 'string'),
-        new OA\Property(property: 'translation', type: 'string'),
+        new OA\Property(property: 'en_EN', type: 'string'),
+        new OA\Property(property: 'de_DE', type: 'string'),
     ],
     type: 'object'
 )]
+#[OA\Schema(
+    schema: 'translation_single_v2',
+    title: 'Single Translation',
+    description: 'Translation of an entity',
+    type: 'string'
+)]
+//#[OA\Schema(
+//    schema: 'translation_v2',
+//    title: 'Translations',
+//    description: 'Translations of an entity',
+//    type: 'object',
+//    anyOf: [
+//        new OA\Property(ref: '#/components/schemas/translation_single_v2'),
+//        new OA\Property(ref: '#/components/schemas/translation_group_v2'),
+//    ]
+//)]
 abstract class AbstractTranslationResource extends AbstractBaseResource
 {
     protected function getTranslation($model, Request $request, $translationKey = 'translation')

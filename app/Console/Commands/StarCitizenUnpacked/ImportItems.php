@@ -6,7 +6,6 @@ namespace App\Console\Commands\StarCitizenUnpacked;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\SC\Import\ItemSpecificationCreator;
-use App\Jobs\SC\Import\ShopItems;
 use App\Jobs\SC\Import\Vehicle;
 use App\Services\Parser\StarCitizenUnpacked\Item;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
@@ -22,7 +21,7 @@ class ImportItems extends AbstractQueueCommand
      *
      * @var string
      */
-    protected $signature = 'unpacked:import-items';
+    protected $signature = 'unpacked:import-items {--type=} {--skipVehicles} {--skipItems}';
 
     /**
      * The console command description.
@@ -48,47 +47,63 @@ class ImportItems extends AbstractQueueCommand
 
         $files = Storage::allFiles('api/scunpacked-data/items') + Storage::allFiles('api/scunpacked-data/ships');
 
-        $this->info('Importing Items');
-        collect($files)
-            ->filter(function (string $file) {
-                return !str_contains($file, '-raw.json');
-            })
-            ->chunk(25)
-            ->tap(function (Collection $chunks) {
-                $this->createProgressBar($chunks->count());
-            })
-            ->each(function (Collection $chunk) use ($labels, $manufacturers) {
-                $this->bar->advance();
-
-                $chunk->map(function (string $file) use ($labels, $manufacturers) {
-                    return [
-                        'file' => $file,
-                        'item' => (new Item($file, $labels, $manufacturers))->getData()
-                    ];
+        if ($this->option('skipItems') === false) {
+            $this->info('Importing Items');
+            collect($files)
+                ->filter(function (string $file) {
+                    return !str_contains($file, '-raw.json');
                 })
-                    ->filter(function (array $data) {
-                        return $data['item'] !== null;
-                    })
-                    ->filter(function (array $data) {
-                        $item = $data['item'];
-                        return isset($item['name']) && !in_array($item['name'], $this->ignoredNames, true);
-                    })
-                    ->map(function (array $data) {
-                        \App\Jobs\SC\Import\Item::dispatch($data['item']);
+                ->chunk(25)
+                ->tap(function (Collection $chunks) {
+                    $this->createProgressBar($chunks->count());
+                })
+                ->each(function (Collection $chunk) use ($labels, $manufacturers) {
+                    $this->bar->advance();
 
+                    $chunk->map(function (string $file) use ($labels, $manufacturers) {
                         return [
-                            'item' =>  $data['item'],
-                            'file' => $data['file'],
+                            'file' => $file,
+                            'item' => (new Item($file, $labels, $manufacturers))->getData()
                         ];
                     })
-                    ->each(function (array $data) {
-                        ['item' => $item, 'file' => $path] = $data;
-                        ItemSpecificationCreator::createSpecification($item, $path);
-                    });
-            });
+                        ->filter(function (array $data) {
+                            return $data['item'] !== null;
+                        })
+                        ->filter(function (array $data) {
+                            $item = $data['item'];
+                            return isset($item['name']) && !in_array($item['name'], $this->ignoredNames, true);
+                        })
+                        ->filter(function (array $data) {
+                            if (!$this->option('type') !== null) {
+                                return true;
+                            }
 
-        $this->info("\n\nImporting Vehicles");
-        Vehicle::dispatch();
+                            $types = array_map(
+                                'strtolower',
+                                array_map('trim', explode(',', $this->option('type')))
+                            );
+
+                            return in_array(strtolower($data['item']['type']), $types, true);
+                        })
+                        ->map(function (array $data) {
+                            \App\Jobs\SC\Import\Item::dispatch($data['item']);
+
+                            return [
+                                'item' =>  $data['item'],
+                                'file' => $data['file'],
+                            ];
+                        })
+                        ->each(function (array $data) {
+                            ['item' => $item, 'file' => $path] = $data;
+                            ItemSpecificationCreator::createSpecification($item, $path);
+                        });
+                });
+        }
+
+        if ($this->option('skipVehicles') === false) {
+            $this->info("\n\nImporting Vehicles");
+            Vehicle::dispatch();
+        }
 
         $this->info('Done. You can import shop items by running unpacked:import-shop-items');
         return Command::SUCCESS;

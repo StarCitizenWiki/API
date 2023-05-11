@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -41,6 +42,9 @@ class CommLinkController extends AbstractApiV2Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
             new OA\Parameter(ref: '#/components/parameters/comm_link_includes_v2'),
+            new OA\Parameter(name: 'filter[channel]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[series]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -57,6 +61,11 @@ class CommLinkController extends AbstractApiV2Controller
     {
         $query = QueryBuilder::for(CommLink::class)
             ->allowedIncludes(CommLinkResource::validIncludes())
+            ->allowedFilters([
+                AllowedFilter::exact('category', 'category.name'),
+                AllowedFilter::exact('series', 'series.name'),
+                AllowedFilter::exact('channel', 'channel.name'),
+            ])
             ->orderByDesc('cig_id')
             ->paginate($this->limit)
             ->appends(request()->query());

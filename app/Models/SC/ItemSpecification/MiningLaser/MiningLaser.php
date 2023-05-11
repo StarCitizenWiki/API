@@ -33,6 +33,10 @@ class MiningLaser extends CommodityItem
         'module_slots' => 'int',
     ];
 
+    protected $with = [
+        'modifiers'
+    ];
+
     public function item(): BelongsTo
     {
         return $this->belongsTo(

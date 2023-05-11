@@ -23,7 +23,7 @@ class FoodController extends AbstractApiV2Controller
 {
     #[OA\Get(
         path: '/api/v2/food',
-        tags: ['In-Game', 'Item'],
+        tags: ['In-Game', 'Item', 'Consumable'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
@@ -39,9 +39,9 @@ class FoodController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Item::class)
+        $query = QueryBuilder::for(Item::class, $request)
             ->where('type', 'Food')
             ->paginate($this->limit)
             ->appends(request()->query());
@@ -51,7 +51,7 @@ class FoodController extends AbstractApiV2Controller
 
     #[OA\Get(
         path: '/api/v2/food/{food}',
-        tags: ['In-Game', 'Item'],
+        tags: ['In-Game', 'Item', 'Consumable'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
@@ -81,12 +81,13 @@ class FoodController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $identifier = QueryBuilder::for(Item::class)
+            $identifier = QueryBuilder::for(Item::class, $request)
                 ->where('type', 'Food')
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
                         ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
                 })
+                ->orderByDesc('version')
                 ->allowedIncludes(FoodResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {

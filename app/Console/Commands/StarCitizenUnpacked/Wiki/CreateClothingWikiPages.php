@@ -6,7 +6,7 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\StarCitizenUnpacked\Clothing;
+use App\Models\SC\Char\Clothing\Clothes;
 use App\Traits\GetWikiCsrfTokenTrait;
 use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
@@ -38,18 +38,18 @@ class CreateClothingWikiPages extends AbstractQueueCommand
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        $clothing = Clothing::all();
+        $clothing = Clothes::all();
 
         $this->createProgressBar($clothing->count());
 
-        $clothing->each(function (Clothing $armor) {
-            if (str_contains($armor->item->name, 'PLACEHOLDER') || str_contains($armor->item->name, '[PH]')) {
+        $clothing->each(function (Clothes $clothing) {
+            if (str_contains($clothing->item->name, 'PLACEHOLDER') || str_contains($clothing->item->name, '[PH]')) {
                 return;
             }
 
-            $this->uploadWiki($armor);
+            $this->uploadWiki($clothing);
 
             $this->advanceBar();
         });
@@ -61,7 +61,7 @@ class CreateClothingWikiPages extends AbstractQueueCommand
         return 0;
     }
 
-    public function uploadWiki(Clothing $clothing)
+    public function uploadWiki(Clothes $clothing): void
     {
         // phpcs:disable
         $text = <<<FORMAT

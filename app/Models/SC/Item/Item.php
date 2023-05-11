@@ -69,9 +69,6 @@ class Item extends HasTranslations
         'dimensions',
         'container',
         'manufacturer',
-//        'heatData',
-//        'distortionData',
-//        'powerData',
         'durabilityData',
     ];
 
@@ -283,7 +280,7 @@ class Item extends HasTranslations
             ItemHeatData::class,
             'item_uuid',
             'uuid'
-        )->withDefault();
+        );
     }
 
     public function distortionData(): HasOne
@@ -292,7 +289,7 @@ class Item extends HasTranslations
             ItemDistortionData::class,
             'item_uuid',
             'uuid'
-        )->withDefault();
+        );
     }
 
     public function powerData(): HasOne
@@ -301,7 +298,7 @@ class Item extends HasTranslations
             ItemPowerData::class,
             'item_uuid',
             'uuid'
-        )->withDefault();
+        );
     }
 
     public function durabilityData(): HasOne
@@ -310,7 +307,7 @@ class Item extends HasTranslations
             ItemDurabilityData::class,
             'item_uuid',
             'uuid'
-        )->withDefault();
+        );
     }
 
     public function manufacturer(): HasOne

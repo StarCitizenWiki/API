@@ -52,24 +52,23 @@ class HardpointResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request)
+    public function toArray($request): array
     {
         $data = [
             'name' => $this->hardpoint_name,
             'min_size' => $this->min_size,
             'max_size' => $this->max_size,
             'class_name' => $this->class_name,
-            'health' => optional($this->item->durabilityData)->health,
+            'health' => $this->item?->durabilityData?->health,
             'type' => $this->item?->type,
             'sub_type' => $this->item?->sub_type,
+            $this->mergeWhen(...$this->addItem()),
             $this->mergeWhen($this->children->count() > 0, [
                 'children' => self::collection($this->children),
             ]),
-            $this->mergeWhen(...$this->addItem()),
         ];
 
-
-        if ($this->item->uuid !== null) {
+        if ($this->item?->uuid !== null) {
             $data += [
                 'type' => $this->item->type,
                 'sub_type' => $this->item->sub_type,
@@ -82,7 +81,12 @@ class HardpointResource extends AbstractBaseResource
     private function addItem(): array
     {
         if ($this->vehicleItem->exists) {
-            return [true, ['item' => new ItemResource($this->item)]];
+            return [true, ['item' => new ItemResource($this->item, true)]];
+        }
+
+        if ($this->item !== null && $this->item->isTurret()) {
+            return [true, ['item' => new ItemResource($this->item, true)]];
+
         }
 //
 //        if ($this->item !== null && $this->item->exists) {

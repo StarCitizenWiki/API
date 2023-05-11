@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Resources\SC\Char;
+namespace App\Http\Resources\SC\Char\PersonalWeapon;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;

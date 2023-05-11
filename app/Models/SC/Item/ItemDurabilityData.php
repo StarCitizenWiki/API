@@ -13,8 +13,6 @@ class ItemDurabilityData extends CommodityItem
 
     protected $table = 'sc_item_durability_data';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'health',
         'max_lifetime',

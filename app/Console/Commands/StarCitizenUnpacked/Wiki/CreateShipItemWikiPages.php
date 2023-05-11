@@ -6,7 +6,7 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
+use App\Models\SC\Vehicle\VehicleItem;
 use App\Traits\GetWikiCsrfTokenTrait;
 use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
@@ -38,17 +38,17 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        $items = ShipItem::all();
+        $items = VehicleItem::all();
 
-        $items = $items->filter(function (ShipItem $item) {
-            return strpos(strtolower($item->item->name), 'placeholder') === false;
+        $items = $items->filter(function (VehicleItem $item) {
+            return !str_contains(strtolower($item->item->name), 'placeholder');
         });
 
         $this->createProgressBar($items->count());
 
-        $items->each(function (ShipItem $item) {
+        $items->each(function (VehicleItem $item) {
             $this->uploadWiki($item);
 
             $this->advanceBar();
@@ -61,7 +61,7 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
         return 0;
     }
 
-    public function uploadWiki(ShipItem $item)
+    public function uploadWiki(VehicleItem $item): void
     {
         $template = $this->getTemplateType($item);
         if ($template === null) {
@@ -99,7 +99,7 @@ FORMAT;
                 ->createOnly()
                 ->summary('Creating Ship Item page')
                 ->request();
-        } catch (ErrorException | GuzzleException $e) {
+        } catch (ErrorException|GuzzleException $e) {
             $this->error($e->getMessage());
 
             return;
@@ -112,7 +112,7 @@ FORMAT;
         }
     }
 
-    private function getTemplateType(ShipItem $item): ?string
+    private function getTemplateType(VehicleItem $item): ?string
     {
         if ($item->item !== null && $item->item->name !== '<= PLACEHOLDER =>') {
             switch ($item->item->type) {

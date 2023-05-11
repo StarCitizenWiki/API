@@ -39,9 +39,9 @@ class ManufacturerController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Manufacturer::class)
+        $query = QueryBuilder::for(Manufacturer::class, $request)
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -50,7 +50,7 @@ class ManufacturerController extends AbstractApiV2Controller
 
     #[OA\Get(
         path: '/api/v2/manufacturers/{manufacturers}',
-        tags: ['In-Game', 'Item'],
+        tags: ['In-Game', 'Manufacturer'],
         parameters: [],
         responses: [
             new OA\Response(
@@ -77,11 +77,10 @@ class ManufacturerController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $shop = QueryBuilder::for(Manufacturer::class)
+            $shop = QueryBuilder::for(Manufacturer::class, $request)
                 ->where('uuid', $identifier)
                 ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier))
                 ->orWhere('code', 'LIKE', sprintf('%%%s%%', $identifier))
-                //->allowedIncludes(ManufacturerResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Manufacturer with specified UUID or Name found.');

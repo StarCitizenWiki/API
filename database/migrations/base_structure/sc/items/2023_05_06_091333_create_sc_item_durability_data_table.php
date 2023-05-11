@@ -21,7 +21,6 @@ return new class extends Migration
             $table->unsignedDouble('max_lifetime')->nullable();
             $table->boolean('salvageable')->nullable();
             $table->boolean('repairable')->nullable();
-
             $table->timestamps();
 
             $table->foreign('item_uuid', 'sc_i_dur_dat_item_uuid')

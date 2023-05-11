@@ -153,9 +153,9 @@ class Vehicle implements ShouldQueue
             'role' => $vehicle['Role'],
             'is_ship' => (bool)$vehicle['IsSpaceship'],
             'size' => $vehicle['Size'],
-            'width' => $vehicle['Width'],
-            'height' => $vehicle['Height'],
-            'length' => $vehicle['Length'],
+            'width' => $vehicle['Width'] ?? 0,
+            'height' => $vehicle['Height'] ?? 0,
+            'length' => $vehicle['Length'] ?? 0,
 
             'crew' => $vehicle['Crew'],
             'weapon_crew' => $vehicle['WeaponCrew'],
@@ -319,7 +319,7 @@ class Vehicle implements ShouldQueue
         }
 
         $hardpoints = [];
-        $this->mapHardpoints($rawData['Vehicle']['Parts'], $hardpoints);
+        $this->mapHardpoints(Arr::get($rawData, 'Vehicle.Parts', []), $hardpoints);
 
         collect($entries)
             ->chunk(5)

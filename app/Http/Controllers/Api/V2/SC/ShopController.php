@@ -37,9 +37,9 @@ class ShopController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Shop::class)
+        $query = QueryBuilder::for(Shop::class, $request)
             ->withCount('items')
             ->paginate($this->limit)
             ->appends(request()->query());
@@ -90,7 +90,7 @@ class ShopController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $shop = QueryBuilder::for(Shop::class)
+            $shop = QueryBuilder::for(Shop::class, $request)
                 ->where('uuid', $identifier)
                 ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier))
                 ->orWhere('name_raw', 'LIKE', sprintf('%%%s%%', $identifier))

@@ -6,8 +6,8 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\StarCitizenUnpacked\Item;
-use App\Models\StarCitizenUnpacked\Shop\Shop;
+use App\Models\SC\Item\Item;
+use App\Models\SC\Shop\Shop;
 use App\Services\Mapper\SmwSubObjectMapper;
 use App\Traits\GetWikiCsrfTokenTrait;
 use ErrorException;
@@ -120,13 +120,13 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
         $items = $shop
             ->items
             ->filter(function (Item $item) {
-                return strpos($item->name, '[PLACEHOLDER]') === false;
+                return !str_contains($item->name, '[PLACEHOLDER]');
             })
             ->filter(function (Item $item) {
                 return !in_array($item->type, $this->ignoredTypes, true);
             })
             ->filter(function (Item $item) {
-                return strpos($item->type, 'Char_Clothing') === false;
+                return !str_contains($item->type, 'Char_Clothing');
             })
             ->sortBy('name')
             ->map(function (Item $item) use ($shop) {

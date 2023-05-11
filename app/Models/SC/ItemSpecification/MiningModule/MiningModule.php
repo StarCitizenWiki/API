@@ -21,6 +21,10 @@ class MiningModule extends CommodityItem
         'type',
     ];
 
+    protected $with = [
+        'modifiers'
+    ];
+
     public function item(): BelongsTo
     {
         return $this->belongsTo(

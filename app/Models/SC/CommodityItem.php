@@ -8,10 +8,8 @@ use App\Models\SC\Item\Item;
 use App\Models\SC\Shop\Shop;
 use App\Models\SC\Shop\ShopItem;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
@@ -61,12 +59,6 @@ abstract class CommodityItem extends HasTranslations
             'uuid',
             'uuid',
             'shop_uuid'
-        )
-            ->with(['items' => function ($query) {
-                return $query->where('uuid', $this->item_uuid);
-            }])
-            ->whereHas('items', function (Builder $query) {
-                return $query->where('uuid', $this->item_uuid);
-            });
+        );
     }
 }

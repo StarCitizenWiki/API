@@ -47,26 +47,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
     ),
     allowReserved: true
 )]
-#[OA\Parameter(
-    parameter: 'commodity_includes_v2',
-    name: 'include',
-    in: 'query',
-    schema: new OA\Schema(
-        schema: 'include',
-        description: 'Available Commodity Item includes',
-        collectionFormat: 'csv',
-        enum: [
-            'shops',
-            'shops.items',
-        ]
-    ),
-    allowReserved: true
-)]
 class ArmorController extends AbstractApiV2Controller
 {
     #[OA\Get(
         path: '/api/v2/armor',
-        tags: ['Armor', 'In-Game'],
+        tags: ['Armor', 'In-Game', 'Item'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
@@ -83,9 +68,9 @@ class ArmorController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Item::class)
+        $query = QueryBuilder::for(Item::class, $request)
             ->where('type', 'LIKE', 'Char_Armor%')
             ->allowedFilters(['type'])
             ->paginate($this->limit)
@@ -96,7 +81,7 @@ class ArmorController extends AbstractApiV2Controller
 
     #[OA\Get(
         path: '/api/v2/armor/{armor}',
-        tags: ['Armor', 'In-Game'],
+        tags: ['Armor', 'In-Game', 'Item'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/clothing_includes_v2'),
@@ -126,12 +111,13 @@ class ArmorController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $identifier = QueryBuilder::for(Item::class)
+            $identifier = QueryBuilder::for(Item::class, $request)
                 ->where('type', 'LIKE', 'Char_Armor%')
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
                         ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
                 })
+                ->orderByDesc('version')
                 ->allowedIncludes(ClothingResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {

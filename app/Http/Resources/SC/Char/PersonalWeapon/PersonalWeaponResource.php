@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Resources\SC\Char;
+namespace App\Http\Resources\SC\Char\PersonalWeapon;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Weapon\WeaponDamageResource;
@@ -37,7 +37,12 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'lifetime', type: 'double', nullable: true),
         new OA\Property(property: 'speed', type: 'double', nullable: true),
         new OA\Property(property: 'range', type: 'double', nullable: true),
-        new OA\Property(property: 'base_model', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'base_model',
+            description: 'Link to the base model version',
+            type: 'string',
+            nullable: true
+        ),
     ],
     type: 'object'
 )]

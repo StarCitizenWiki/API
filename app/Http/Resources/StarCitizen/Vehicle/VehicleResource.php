@@ -33,9 +33,24 @@ use OpenApi\Attributes as OA;
             type: 'object'
         ),
         new OA\Property(property: 'mass', type: 'float'),
-        new OA\Property(property: 'cargo_capacity', type: 'float', nullable: true),
-        new OA\Property(property: 'vehicle_inventory', type: 'float', nullable: true),
-        new OA\Property(property: 'personal_inventory', type: 'float', nullable: true),
+        new OA\Property(
+            property: 'cargo_capacity',
+            description: 'Cargo Capacity in SCU',
+            type: 'float',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'vehicle_inventory',
+            description: 'Vehicle Inventory (accessed via "I") in SCU',
+            type: 'float',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'personal_inventory',
+            description: 'Inventories found in the ship, e.g. boxes of containers, in SCU',
+            type: 'float',
+            nullable: true
+        ),
         new OA\Property(
             property: 'crew',
             properties: [
@@ -84,7 +99,11 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'quantum_speed', type: 'float'),
                 new OA\Property(property: 'quantum_spool_time', type: 'float'),
                 new OA\Property(property: 'quantum_fuel_capacity', type: 'float'),
-                new OA\Property(property: 'quantum_range', type: 'float'),
+                new OA\Property(
+                    property: 'quantum_range',
+                    description: 'Quantum Fuel Capacity * Quantum Fuel Requirement of the equipped Quantum Drive.',
+                    type: 'float'
+                ),
             ],
             type: 'object'
         ),
@@ -117,13 +136,22 @@ use OpenApi\Attributes as OA;
             type: 'object'
         ),
 
-        new OA\Property(property: 'foci', type: 'object'),
-        new OA\Property(property: 'production_status', type: 'object'),
-        new OA\Property(property: 'production_note', type: 'object'),
-        new OA\Property(property: 'type', type: 'object'),
-        new OA\Property(property: 'description', type: 'object'),
-        new OA\Property(property: 'size', type: 'object'),
-        new OA\Property(property: 'msrp', type: 'float', nullable: true),
+        new OA\Property(
+            property: 'foci',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/translation_v2')
+        ),
+        new OA\Property(property: 'production_status', ref: '#/components/schemas/translation_v2'),
+        new OA\Property(property: 'production_note', ref: '#/components/schemas/translation_v2'),
+        new OA\Property(property: 'type', ref: '#/components/schemas/translation_v2'),
+        new OA\Property(property: 'description', ref: '#/components/schemas/translation_v2'),
+        new OA\Property(property: 'size', ref: '#/components/schemas/translation_v2'),
+        new OA\Property(
+            property: 'msrp',
+            description: 'MSRP imported from the Ship Upgrade tool.',
+            type: 'float',
+            nullable: true
+        ),
         new OA\Property(
             property: 'manufacturer',
             properties: [
@@ -144,11 +172,13 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'updated_at', type: 'string'),
         new OA\Property(
             property: 'components',
+            description: 'Components imported from the Ship-Matrix',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/vehicle_component_v2'),
         ),
         new OA\Property(
             property: 'hardpoints',
+            description: 'Hardpoints imported from In-Game data',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/hardpoint_v2'),
             nullable: true

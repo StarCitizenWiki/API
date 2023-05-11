@@ -17,8 +17,16 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'height', type: 'double'),
         new OA\Property(property: 'length', type: 'double'),
         new OA\Property(property: 'dimension', type: 'double'),
-        new OA\Property(property: 'scu', type: 'double'),
-        new OA\Property(property: 'scu_converted', type: 'double'),
+        new OA\Property(
+            property: 'scu',
+            description: 'Amount of SCU this container can hold.',
+            type: 'double'
+        ),
+        new OA\Property(
+            property: 'scu_converted',
+            description: 'SCU converted as shown in the UI, e.g. 2000 µSCU (scu_converted + unit)',
+            type: 'double'
+        ),
         new OA\Property(property: 'unit', type: 'string'),
     ],
     type: 'object'

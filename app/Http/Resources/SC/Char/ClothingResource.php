@@ -13,13 +13,39 @@ use OpenApi\Attributes as OA;
     title: 'Clothing',
     description: 'Clothes or Armors',
     properties: [
-        new OA\Property(property: 'armor_type', type: 'string', nullable: true),
-        new OA\Property(property: 'clothing_type', type: 'string', nullable: true),
-        new OA\Property(property: 'damage_reduction', type: 'double', nullable: true),
-        new OA\Property(property: 'temp_resistance_min', type: 'double', nullable: true),
-        new OA\Property(property: 'temp_resistance_max', type: 'double', nullable: true),
+        new OA\Property(
+            property: 'armor_type',
+            description: 'Property is set if resource is of type "armor".',
+            type: 'string',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'clothing_type',
+            description: 'Property is set if resource is of type "clothing".',
+            type: 'string',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'damage_reduction',
+            description: 'Damage reduction in % this resource provides',
+            type: 'double',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'temp_resistance_min',
+            description: 'The minimum temperature this resource protects against',
+            type: 'double',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'temp_resistance_max',
+            description: 'The maximum temperature this resource protects against',
+            type: 'double',
+            nullable: true
+        ),
         new OA\Property(
             property: 'resistances',
+            description: 'List of resistances this resource has',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/clothing_resistance_v2'),
             nullable: true,

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V2\SC;
+namespace App\Http\Controllers\Api\V2\SC\Char\PersonalWeapon;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponResource;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
-use App\Http\Resources\SC\Vehicle\VehicleWeaponResource;
 use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,11 +19,11 @@ use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class VehicleWeaponController extends AbstractApiV2Controller
+class PersonalWeaponController extends AbstractApiV2Controller
 {
     #[OA\Get(
-        path: '/api/v2/vehicle-weapons',
-        tags: ['Vehicles', 'In-Game'],
+        path: '/api/v2/weapons',
+        tags: ['In-Game', 'Item', 'Weapon'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
@@ -31,7 +31,7 @@ class VehicleWeaponController extends AbstractApiV2Controller
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'List of Vehicle Weapons',
+                description: 'List of Personal Weapons',
                 content: new OA\JsonContent(
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/item_link_v2')
@@ -39,11 +39,10 @@ class VehicleWeaponController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Item::class)
-            ->where('type', 'WeaponGun')
-            ->allowedIncludes(VehicleWeaponResource::validIncludes())
+        $query = QueryBuilder::for(Item::class, $request)
+            ->where('type', 'WeaponPersonal')
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -51,19 +50,34 @@ class VehicleWeaponController extends AbstractApiV2Controller
     }
 
     #[OA\Get(
-        path: '/api/v2/vehicle-weapons/{weapon}',
-        tags: ['Vehicles', 'In-Game'],
+        path: '/api/v2/weapons/{weapon}',
+        tags: ['In-Game', 'Item', 'Weapon'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
-            new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(
+                name: 'include',
+                in: 'query',
+                schema: new OA\Schema(
+                    schema: 'personal_weapon_includes_v2',
+                    collectionFormat: 'csv',
+                    enum: [
+                        'modes',
+                        'damages',
+                        'ports',
+                        'shops',
+                        'shops.items',
+                    ]
+                ),
+                allowReserved: true
+            ),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'A Vehicle Weapon',
+                description: 'A Personal Weapon',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/vehicle_weapon_v2')
+                    items: new OA\Items(ref: '#/components/schemas/personal_weapon_v2')
                 )
             )
         ]
@@ -83,12 +97,13 @@ class VehicleWeaponController extends AbstractApiV2Controller
 
         try {
             $identifier = QueryBuilder::for(Item::class, $request)
-                ->where('type', 'WeaponGun')
+                ->where('type', 'WeaponPersonal')
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
                         ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
                 })
-                ->allowedIncludes(VehicleWeaponResource::validIncludes())
+                ->orderByDesc('version')
+                ->allowedIncludes(PersonalWeaponResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Weapon with specified UUID or Name found.');

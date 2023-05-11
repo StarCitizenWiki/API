@@ -19,7 +19,7 @@ use Spatie\QueryBuilder\AllowedInclude;
     type: 'http',
     scheme: 'bearer',
 )]
-#[OA\Server(url: 'http://localhost:8000/')]
+#[OA\Server(url: 'https://api.star-citizen.wiki/')]
 #[OA\Parameter(
     name: 'page',
     in: 'query',
@@ -56,14 +56,45 @@ use Spatie\QueryBuilder\AllowedInclude;
         ]
     ),
 )]
+#[OA\Parameter(
+    name: 'version',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'version',
+        description: 'Game Version',
+        collectionFormat: 'csv',
+        enum: [
+            '3.12.11',
+            '3.13.1',
+            '3.14.1',
+            '3.15.1',
+            '3.17.5',
+            '3.18.2',
+        ]
+    ),
+    allowReserved: true
+)]
+#[OA\Parameter(
+    parameter: 'commodity_includes_v2',
+    name: 'include',
+    in: 'query',
+    schema: new OA\Schema(
+        schema: 'include',
+        description: 'Available Commodity Item includes',
+        collectionFormat: 'csv',
+        enum: [
+            'shops',
+            'shops.items',
+        ]
+    ),
+    allowReserved: true
+)]
 #[OA\Schema(
     schema: 'query',
     type: 'string',
 )]
 abstract class AbstractApiV2Controller extends Controller
 {
-    public const INVALID_LOCALE_STRING = 'Locale Code \'%s\' is not valid';
-
     /**
      * Sprintf String which is used if no model was found
      */
@@ -146,21 +177,7 @@ abstract class AbstractApiV2Controller extends Controller
     {
         if (in_array($localeCode, config('language.codes'), true)) {
             $this->localeCode = $localeCode;
-        } else {
-            $this->errors[self::LOCALE] = sprintf(static::INVALID_LOCALE_STRING, $localeCode);
         }
-    }
-
-    /**
-     * Disables the pagination by setting the limit to 0
-     *
-     * @return $this
-     */
-    protected function disablePagination(): self
-    {
-        $this->limit = 0;
-
-        return $this;
     }
 
     /**

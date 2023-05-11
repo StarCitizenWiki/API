@@ -13,8 +13,6 @@ class ItemDistortionData extends CommodityItem
 
     protected $table = 'sc_item_distortion_data';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'decay_rate',
         'maximum',

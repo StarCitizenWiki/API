@@ -6,7 +6,7 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
+use App\Models\SC\Item\Item;
 use App\Traits\GetWikiCsrfTokenTrait;
 use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
@@ -38,26 +38,29 @@ class CreateWeaponAttachmentWikiPages extends AbstractQueueCommand
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        $charArmor = Attachment::all();
+        $attachments = Item::query()
+            ->where('type', 'WeaponAttachment')
+            ->where('name', 'NOT LIKE', 'PLACEHOLDER')
+            ->get();
 
-        $this->createProgressBar($charArmor->count());
+        $this->createProgressBar($attachments->count());
 
-        $charArmor->each(function (Attachment $armor) {
-            $this->uploadWiki($armor);
+        $attachments->each(function (Item $attachment) {
+            $this->uploadWiki($attachment);
 
             $this->advanceBar();
         });
 
         if (config('services.wiki_approve_revs.access_secret') !== null) {
-            $this->approvePages($charArmor->pluck('item.name'));
+            $this->approvePages($attachments->pluck('item.name'));
         }
 
         return 0;
     }
 
-    public function uploadWiki(Attachment $attachment)
+    public function uploadWiki(Item $attachment): void
     {
         // phpcs:disable
         $text = <<<FORMAT

@@ -121,9 +121,12 @@ class  UploadItemImages extends AbstractQueueCommand
         });
 
 //        $this->info('Uploading Weapon Attachment Images...');
-//        Attachment::chunk(100, function (Collection $items) {
-//            $this->work($items);
-//        });
+//        Item::query()
+//            ->where('type', 'WeaponAttachment')
+//            ->where('name', 'NOT LIKE', 'PLACEHOLDER')
+//            ->chunk(100, function (Collection $items) {
+//                $this->work($items);
+//            });
 
         $this->info('Uploading Food Images...');
         Food::chunk(100, function (Collection $items) {

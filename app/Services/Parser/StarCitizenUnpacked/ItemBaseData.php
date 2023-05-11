@@ -12,12 +12,14 @@ final class ItemBaseData extends AbstractItemSpecification
 {
     public static function getData(Collection $item): ?array
     {
-        $out['durability'] = [
+        $out['durability'] = array_filter([
             'health' => Arr::get($item, 'Raw.Entity.Components.SHealthComponentParams.Health'),
             'lifetime' => Arr::get($item, 'Raw.Entity.Components.SDegradationParams.MaxLifetimeHours'),
             'salvageable' => Arr::get($item, 'Raw.Entity.Components.SHealthComponentParams.IsSalvagable'),
             'repairable' => Arr::get($item, 'Raw.Entity.Components.SHealthComponentParams.IsRepairable'),
-        ];
+        ], function ($entry) {
+            return $entry !== null;
+        });
 
         $item = collect(Arr::get($item, 'Raw.Entity', []));
 

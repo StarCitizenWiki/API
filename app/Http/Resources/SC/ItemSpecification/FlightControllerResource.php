@@ -10,7 +10,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'flight_controller_v2',
-    title: 'flight_controller',
+    title: 'Flight Controller',
     properties: [
         new OA\Property(property: 'scm_speed', type: 'double', nullable: true),
         new OA\Property(property: 'max_speed', type: 'double', nullable: true),

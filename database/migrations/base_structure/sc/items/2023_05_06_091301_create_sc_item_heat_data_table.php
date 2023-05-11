@@ -35,6 +35,7 @@ return new class extends Migration
             $table->unsignedDouble('recovery_temperature')->nullable();
             $table->unsignedDouble('misfire_min_temperature')->nullable();
             $table->unsignedDouble('misfire_max_temperature')->nullable();
+            $table->timestamps();
 
             $table->foreign('item_uuid', 'sc_i_h_dat_item_uuid')
                 ->references('uuid')

@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -27,6 +28,10 @@ class ItemController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -39,10 +44,16 @@ class ItemController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Item::class)
-            ->allowedFilters(['type', 'sub_type'])
+        $query = QueryBuilder::for(Item::class, $request)
+            ->where('version', $request->get('version', config('api.sc_data_version')))
+            ->allowedFilters([
+                'type',
+                'sub_type',
+                AllowedFilter::exact('manufacturer', 'manufacturer.name')
+            ])
+            ->allowedIncludes(ItemResource::validIncludes())
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -81,9 +92,10 @@ class ItemController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $item = QueryBuilder::for(Item::class)
+            $item = QueryBuilder::for(Item::class, $request)
                 ->where('uuid', $identifier)
                 ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier))
+                ->orderByDesc('version')
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -115,6 +127,9 @@ class ItemController extends AbstractApiV2Controller
             new OA\Parameter(ref: '#/components/parameters/limit'),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -137,6 +152,11 @@ class ItemController extends AbstractApiV2Controller
         $query = $this->cleanQueryName($request->get('query'));
 
         $items = QueryBuilder::for(Item::class)
+            ->allowedFilters([
+                'type',
+                'sub_type',
+                AllowedFilter::exact('manufacturer', 'manufacturer.name')
+            ])
             ->allowedIncludes(['shops.items']);
 
         if ($request->has('shop') && $request->get('shop') !== null) {
@@ -147,10 +167,7 @@ class ItemController extends AbstractApiV2Controller
             ->where('name', 'like', "%{$query}%")
             ->orWhere('uuid', $query)
             ->orWhere('type', $query)
-            ->orWhere('sub_type', $query);
-
-
-        $items
+            ->orWhere('sub_type', $query)
             ->paginate($this->limit)
             ->appends(request()->query());
 

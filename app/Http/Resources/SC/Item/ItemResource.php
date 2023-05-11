@@ -6,14 +6,16 @@ namespace App\Http\Resources\SC\Item;
 
 use App\Http\Resources\AbstractTranslationResource;
 use App\Http\Resources\SC\Char\ClothingResource;
-use App\Http\Resources\SC\Char\GrenadeResource;
-use App\Http\Resources\SC\Char\IronSightResource;
-use App\Http\Resources\SC\Char\PersonalWeaponMagazineResource;
-use App\Http\Resources\SC\Char\PersonalWeaponResource;
+use App\Http\Resources\SC\Char\PersonalWeapon\GrenadeResource;
+use App\Http\Resources\SC\Char\PersonalWeapon\IronSightResource;
+use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponMagazineResource;
+use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponResource;
 use App\Http\Resources\SC\FoodResource;
 use App\Http\Resources\SC\ItemSpecification\CoolerResource;
 use App\Http\Resources\SC\ItemSpecification\EmpResource;
 use App\Http\Resources\SC\ItemSpecification\FlightControllerResource;
+use App\Http\Resources\SC\ItemSpecification\FuelIntakeResource;
+use App\Http\Resources\SC\ItemSpecification\FuelTankResource;
 use App\Http\Resources\SC\ItemSpecification\MiningLaser\MiningLaserResource;
 use App\Http\Resources\SC\ItemSpecification\MiningModuleResource;
 use App\Http\Resources\SC\ItemSpecification\MissileResource;
@@ -62,6 +64,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'emp', ref: '#/components/schemas/emp_v2', nullable: true),
         new OA\Property(property: 'flight_controller', ref: '#/components/schemas/flight_controller_v2', nullable: true),
         new OA\Property(property: 'food', ref: '#/components/schemas/food_v2', nullable: true),
+        new OA\Property(property: 'fuel_intake', ref: '#/components/schemas/fuel_intake_v2', nullable: true),
+        new OA\Property(property: 'fuel_tank', ref: '#/components/schemas/fuel_tank_v2', nullable: true),
         new OA\Property(property: 'grenade', ref: '#/components/schemas/grenade_v2', nullable: true),
         new OA\Property(property: 'iron_sight', ref: '#/components/schemas/iron_sight_v2', nullable: true),
         new OA\Property(property: 'mining_laser', ref: '#/components/schemas/mining_laser_v2', nullable: true),
@@ -85,12 +89,25 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'durability', ref: '#/components/schemas/item_durability_data_v2', nullable: true),
         new OA\Property(property: 'shops', ref: '#/components/schemas/shop_v2', nullable: true),
         new OA\Property(property: 'updated_at', type: 'double', nullable: true),
-        new OA\Property(property: 'version', type: 'double', nullable: true),
+        new OA\Property(
+            property: 'version',
+            description: 'The Game Version this item exists in.',
+            type: 'double',
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
 class ItemResource extends AbstractTranslationResource
 {
+    private bool $isVehicleItem;
+
+    public function __construct($resource, bool $isVehicleItem = false)
+    {
+        parent::__construct($resource);
+        $this->isVehicleItem = $isVehicleItem;
+    }
+
     public static function validIncludes(): array
     {
         return [
@@ -116,7 +133,7 @@ class ItemResource extends AbstractTranslationResource
             'name' => $this->name,
             'description' => $this->getTranslation($this, $request),
             'size' => $this->size,
-            $this->mergeWhen($this->vehicleItem->exists, [
+            $this->mergeWhen($this->isVehicleItem || $this->vehicleItem->exists, [
                 'grade' => $this->vehicleItem->grade,
                 'class' => $this->vehicleItem->class,
             ]),
@@ -192,7 +209,15 @@ class ItemResource extends AbstractTranslationResource
                 $this->specification->exists,
                 ['flight_controller' => new FlightControllerResource($this->specification),],
             ],
-            $this->type === 'quantum_interdiction_generator' => [
+            $this->type === 'FuelTank', $this->type === 'QuantumFuelTank' => [
+                $this->specification->exists,
+                ['fuel_tank' => new FuelTankResource($this->specification),],
+            ],
+            $this->type === 'FuelIntake' => [
+                $this->specification->exists,
+                ['fuel_intake' => new FuelIntakeResource($this->specification),],
+            ],
+            $this->type === 'QuantumInterdictionGenerator' => [
                 $this->specification->exists,
                 ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($this->specification),],
             ],
@@ -216,7 +241,7 @@ class ItemResource extends AbstractTranslationResource
                 $this->specification->exists,
                 ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($this->specification),],
             ],
-            $this->type === 'Missile' => [
+            $this->type === 'Missile', $this->type === 'Torpedo' => [
                 $this->specification->exists,
                 ['missile' => new MissileResource($this->specification),],
             ],

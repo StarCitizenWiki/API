@@ -6,8 +6,7 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\StarCitizenUnpacked\Food\Food;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\Attachment;
+use App\Models\SC\Food\Food;
 use App\Traits\GetWikiCsrfTokenTrait;
 use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
@@ -62,7 +61,7 @@ class CreateFoodWikiPages extends AbstractQueueCommand
         return 0;
     }
 
-    public function uploadWiki(Food $food)
+    public function uploadWiki(Food $food): void
     {
         // phpcs:disable
         $text = <<<FORMAT

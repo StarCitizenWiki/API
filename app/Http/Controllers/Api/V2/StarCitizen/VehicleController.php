@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -28,6 +29,7 @@ class VehicleController extends AbstractApiV2Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
             new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -42,8 +44,11 @@ class VehicleController extends AbstractApiV2Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Vehicle::class)
+        $query = QueryBuilder::for(Vehicle::class, $request)
             ->orderByDesc('name')
+            ->allowedFilters([
+                AllowedFilter::partial('manufacturer', 'manufacturer.name'),
+            ])
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -104,7 +109,7 @@ class VehicleController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $vehicleModel = QueryBuilder::for(Vehicle::class)
+            $vehicleModel = QueryBuilder::for(Vehicle::class, $request)
                 ->where('name', 'LIKE', "%{$identifier}%")
                 ->orWhere('slug', 'LIKE', "%{$identifier}%")
                 ->first();
@@ -146,6 +151,7 @@ class VehicleController extends AbstractApiV2Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
             new OA\Parameter(ref: '#/components/parameters/locale'),
+            new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -170,7 +176,10 @@ class VehicleController extends AbstractApiV2Controller
 
         $query = $this->cleanQueryName($request->get('query'));
 
-        $queryBuilder = QueryBuilder::for(Vehicle::class)
+        $queryBuilder = QueryBuilder::for(Vehicle::class, $request)
+            ->allowedFilters([
+                AllowedFilter::partial('manufacturer', 'manufacturer.name'),
+            ])
             ->where('name', 'like', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%")
             ->paginate($this->limit)

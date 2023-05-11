@@ -6,15 +6,12 @@ namespace App\Models\SC\Item;
 
 use App\Models\StarCitizenUnpacked\CommodityItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ItemPowerData extends CommodityItem
 {
     use HasFactory;
 
     protected $table = 'sc_item_power_data';
-
-    public $timestamps = false;
 
     protected $fillable = [
         'power_base',

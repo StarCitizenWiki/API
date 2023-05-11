@@ -23,6 +23,8 @@ return new class extends Migration
             $table->unsignedDouble('recovery_ratio')->nullable();
             $table->unsignedDouble('recovery_time')->nullable();
 
+            $table->timestamps();
+
             $table->foreign('item_uuid', 'sc_i_d_dat_item_uuid')
                 ->references('uuid')
                 ->on('sc_items')

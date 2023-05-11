@@ -148,10 +148,10 @@ class VehicleItem implements ShouldQueue
             'item_uuid' => $item['uuid'],
         ], [
             'scm_speed' => $item['flight_controller']['scm_speed'] ?? null,
-            'max_speed' => $item['flight_controller']['max_speed'],
-            'pitch' => $item['flight_controller']['pitch'],
-            'yaw' => $item['flight_controller']['yaw'],
-            'roll' => $item['flight_controller']['roll'],
+            'max_speed' => $item['flight_controller']['max_speed'] ?? null,
+            'pitch' => $item['flight_controller']['pitch'] ?? null,
+            'yaw' => $item['flight_controller']['yaw'] ?? null,
+            'roll' => $item['flight_controller']['roll'] ?? null,
         ]);
     }
 

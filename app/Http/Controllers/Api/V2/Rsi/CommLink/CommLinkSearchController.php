@@ -25,6 +25,7 @@ use Jenssegers\ImageHash\ImageHash;
 use Jenssegers\ImageHash\Implementations\AverageHash;
 use Jenssegers\ImageHash\Implementations\DifferenceHash;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -73,6 +74,11 @@ class CommLinkSearchController extends AbstractApiV2Controller
             ->orWhere('cig_id', 'LIKE', "%{$query}%")
             ->limit(100)
             ->allowedIncludes(CommLinkResource::validIncludes())
+            ->allowedFilters([
+                AllowedFilter::exact('category', 'category.name'),
+                AllowedFilter::exact('series', 'series.name'),
+                AllowedFilter::exact('channel', 'channel.name'),
+            ])
             ->get();
 
         return CommLinkResource::collection($commLinks);

@@ -17,8 +17,8 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'id', type: 'integer'),
         new OA\Property(property: 'title', type: 'string'),
-        new OA\Property(property: 'rsi_url', type: 'string'),
-        new OA\Property(property: 'api_url', type: 'string'),
+        new OA\Property(property: 'rsi_url', description: 'Link to Comm-Link on RSI Website.', type: 'string'),
+        new OA\Property(property: 'api_url', description: 'API Link to this resource', type: 'string'),
         new OA\Property(property: 'api_public_url', type: 'string'),
         new OA\Property(property: 'channel', type: 'string'),
         new OA\Property(property: 'category', type: 'string'),
@@ -37,16 +37,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'links_count', type: 'integer'),
         new OA\Property(property: 'comment_count', type: 'integer'),
         new OA\Property(property: 'created_at', type: 'string'),
-        new OA\Property(
-            property: 'translations',
-            oneOf: [
-                new OA\Schema(type: 'string'),
-                new OA\Schema(
-                    type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/translation_v2')
-                ),
-            ],
-        ),
+        new OA\Property(property: 'translations', ref: '#/components/schemas/translation_v2'),
     ],
     type: 'object'
 )]

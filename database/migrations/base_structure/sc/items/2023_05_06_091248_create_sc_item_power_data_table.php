@@ -27,6 +27,7 @@ return new class extends Migration
             $table->unsignedDouble('overpower_performance')->nullable();
             $table->unsignedDouble('power_to_em')->nullable();
             $table->unsignedDouble('decay_rate_em')->nullable();
+            $table->timestamps();
 
             $table->foreign('item_uuid', 'sc_i_p_dat_item_uuid')
                 ->references('uuid')

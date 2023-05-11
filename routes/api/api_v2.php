@@ -69,14 +69,31 @@ Route::group(
         Route::group([
             'namespace' => 'Char',
         ], static function () {
-            Route::get('personal-weapons', 'PersonalWeaponController@index')->name('index');
-            Route::get('personal-weapons/{weapon}', 'PersonalWeaponController@show')->name('show');
+            Route::group([
+                'namespace' => 'PersonalWeapon',
+            ], static function () {
+                Route::get('weapons', 'PersonalWeaponController@index')->name('index');
+                Route::get('weapons/{weapon}', 'PersonalWeaponController@show')->name('show');
+
+                Route::get('weapon-attachments', 'WeaponAttachmentController@index')->name('index');
+                Route::get('weapon-attachments/{attachment}', 'WeaponAttachmentController@show')->name('show');
+            });
 
             Route::get('clothes', 'ClothesController@index')->name('index');
             Route::get('clothes/{clothing}', 'ClothesController@show')->name('show');
 
             Route::get('armor', 'ArmorController@index')->name('index');
             Route::get('armor/{clothing}', 'ArmorController@show')->name('show');
+        });
+
+        Route::group([
+            'namespace' => 'Vehicle',
+        ], static function () {
+            Route::get('vehicle-weapons', 'VehicleWeaponController@index')->name('index');
+            Route::get('vehicle-weapons/{weapon}', 'VehicleWeaponController@show')->name('show');
+
+            Route::get('vehicle-items', 'VehicleItemController@index')->name('index');
+            Route::get('vehicle-items/{item}', 'VehicleItemController@show')->name('show');
         });
 
         Route::get('manufacturers', 'ManufacturerController@index')->name('index');
@@ -92,8 +109,5 @@ Route::group(
 
         Route::get('food', 'FoodController@index')->name('index');
         Route::get('food/{food}', 'FoodController@show')->name('show');
-
-        Route::get('vehicle-weapons', 'VehicleWeaponController@index')->name('index');
-        Route::get('vehicle-weapons/{weapon}', 'VehicleWeaponController@show')->name('show');
     }
 );

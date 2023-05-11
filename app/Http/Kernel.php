@@ -21,6 +21,7 @@ use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -88,5 +89,6 @@ class Kernel extends HttpKernel
         'can' => Authorize::class,
         'check_user_state' => CheckUserState::class,
         'guest' => RedirectIfAuthenticated::class,
+        'throttle' => ThrottleRequests::class,
     ];
 }

@@ -13,9 +13,19 @@ use OpenApi\Attributes as OA;
     title: 'Clothing Resistance',
     description: 'Resistance of Clothes or Armors',
     properties: [
-        new OA\Property(property: 'type', type: 'string'),
-        new OA\Property(property: 'threshold', type: 'double', nullable: true),
-        new OA\Property(property: 'multiplier', type: 'double', nullable: true),
+        new OA\Property(property: 'type', description: 'Resistance type, e.g. min temperature', type: 'string'),
+        new OA\Property(
+            property: 'threshold',
+            description: 'Threshold for this resistance. For temperatures this is the minimum and maximum temperature.',
+            type: 'double',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'multiplier',
+            description: 'Multiplier, if resistance is not thresholded.',
+            type: 'double',
+            nullable: true
+        ),
     ],
     type: 'object'
 )]

@@ -89,7 +89,7 @@ abstract class AbstractCommodityItem
 
         $exploded = join("\n\n", $exploded);
 
-        $exploded = str_replace(['’', '`', '´', ' '], ['\'', '\'', '\'', ' '], trim($exploded ?? ''));
+        $exploded = str_replace(['‘', '’', '`', '´', ' '], ['\'', '\'', '\'', '\'', ' '], trim($exploded ?? ''));
 
         return $out + [
                 'description' => $exploded,
@@ -131,7 +131,7 @@ abstract class AbstractCommodityItem
 
     protected function cleanString(string $string): string
     {
-        $string = str_replace(['’', '`', '´'], "'", $string);
+        $string = str_replace(['‘', '’', '`', '´'], "'", $string);
         $string = str_replace(['“', '”', '"'], '"', $string);
         $string = trim(str_replace(' ', ' ', $string));
         return preg_replace('/\s+/', ' ', $string);

@@ -19,9 +19,9 @@ class StarsystemController extends AbstractApiV2Controller
 {
 
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Starsystem::class)
+        $query = QueryBuilder::for(Starsystem::class, $request)
             ->allowedIncludes([])
             ->paginate($this->limit)
             ->appends(request()->query());
@@ -45,7 +45,7 @@ class StarsystemController extends AbstractApiV2Controller
 
         try {
             /** @var Starsystem $starsystem */
-            $starsystem = QueryBuilder::for(Starsystem::class)
+            $starsystem = QueryBuilder::for(Starsystem::class, $request)
                 ->where('code', $code)
                 ->orWhere('cig_id', $code)
                 ->orWhere('name', 'LIKE', "%$code%")

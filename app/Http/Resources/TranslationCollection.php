@@ -6,18 +6,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use OpenApi\Attributes as OA;
 
-#[OA\Schema(
-    schema: 'translation_v2',
-    title: 'Translations',
-    description: 'Translations of an entity',
-    properties: [
-        new OA\Property(property: 'en_EN', type: 'string'),
-        new OA\Property(property: 'de_DE', type: 'string'),
-    ],
-    type: 'object'
-)]
 class TranslationCollection extends ResourceCollection
 {
     /**
