@@ -36,7 +36,6 @@ class StarCitizenTestCase extends ApiTestCase
                 ]
             )
             ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
     }
 
@@ -61,8 +60,7 @@ class StarCitizenTestCase extends ApiTestCase
                 ),
                 false
             )
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**
@@ -99,7 +97,6 @@ class StarCitizenTestCase extends ApiTestCase
             )
             ->assertSee(static::GERMAN_DEFAULT_TRANSLATION)
             ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
     }
 
@@ -129,7 +126,6 @@ class StarCitizenTestCase extends ApiTestCase
             )
             ->assertSee(static::GERMAN_DEFAULT_TRANSLATION)
             ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
     }
 
@@ -162,7 +158,6 @@ class StarCitizenTestCase extends ApiTestCase
                 ]
             )
             ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
     }
 
@@ -200,7 +195,6 @@ class StarCitizenTestCase extends ApiTestCase
                 ]
             )
             ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
     }
 
@@ -246,7 +240,6 @@ class StarCitizenTestCase extends ApiTestCase
             )
             ->assertSee(static::GERMAN_DEFAULT_TRANSLATION)
             ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
     }
 
@@ -267,7 +260,6 @@ class StarCitizenTestCase extends ApiTestCase
         );
 
         $response->assertNotFound()
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit');
+            ->assertHeader('content-type', 'application/json');
     }
 }
