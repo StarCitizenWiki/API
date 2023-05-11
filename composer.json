@@ -28,6 +28,7 @@
         "mediawiki/oauthclient": "^1.1.0",
         "octfx/deeply": "^3.1",
         "sebastian/diff": "^4.0.4",
+        "spatie/laravel-query-builder": "^5.1",
         "starcitizenwiki/mediawikiapi": "^1.0",
         "zircote/swagger-php": "^4.4"
     },

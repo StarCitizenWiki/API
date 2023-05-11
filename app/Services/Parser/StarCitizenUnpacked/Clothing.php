@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked;
 
+use App\Services\Parser\StarCitizenUnpacked\AbstractCommodityItem;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -11,51 +12,14 @@ use JsonException;
 
 final class Clothing extends AbstractCommodityItem
 {
-    private Collection $item;
-    private Collection $labels;
-    private Collection $manufacturers;
-
-    /**
-     * @param string $fileName
-     * @param Collection $labels
-     * @param Collection $manufacturers
-     * @throws FileNotFoundException
-     * @throws JsonException
-     */
-    public function __construct(string $fileName, Collection $labels, Collection $manufacturers)
-    {
-        $items = File::get(storage_path(sprintf('app/%s', $fileName)));
-        $this->item = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
-        $this->labels = $labels;
-        $this->manufacturers = $manufacturers;
-    }
-
     public function getData(): ?array
     {
-        $attachDef = $this->item->pull('Components.SAttachableComponentParams.AttachDef');
-        $tempResist = $this->item->pull('Components.SCItemClothingParams.TemperatureResistance');
-
-        if ($attachDef === null || strpos($attachDef['Type'], 'Clothing') === false) {
+        $attachDef = $this->getAttachDef();
+        if ($attachDef === null) {
             return null;
         }
 
-        $name = $this->labels->get(substr($attachDef['Localization']['Name'], 1));
-        $name = str_replace(
-            [
-                '“',
-                '”',
-                '"',
-                '\'',
-            ],
-            '"',
-            trim($name ?? 'Unknown Clothing')
-        );
-
-        $description = $this->getDescription($this->item->get('ClassName')) ?? '';
-
-        if (empty($description)) {
-            $description = $this->labels->get(substr($attachDef['Localization']['Description'], 1)) ?? '';
-        }
+        $description = $this->getDescription($attachDef);
 
         $data = $this->tryExtractDataFromDescription($description, [
             'Manufacturer' => 'manufacturer',
@@ -63,24 +27,68 @@ final class Clothing extends AbstractCommodityItem
             'Damage Reduction' => 'damage_reduction',
             'Carrying Capacity' => 'carrying_capacity',
             'Temp\. Rating' => 'temp_rating',
+            'Core Compatibility' => 'core_compatibility',
         ]);
 
-        $manufacturer = $this->manufacturers->get($attachDef['Manufacturer'], 'Unknown Manufacturer');
-        if ($manufacturer === '@LOC_PLACEHOLDER') {
-            $manufacturer = 'Unknown Manufacturer';
+        if (str_contains($attachDef['Type'], 'Clothing')) {
+            $name = $this->getName($attachDef, 'Unknown Clothing');
+            $type = $this->getType($attachDef['Type'], $name);
+        } else {
+            $type = $data['type'] ?? 'Unknown Type';
         }
 
-        $description = str_replace(['’', '`', '´'], '\'', trim($data['description'] ?? $description));
+        return [
+                'uuid' => $this->item->pull('Raw.Entity.__ref'),
+                'description_key' => $this->getDescriptionKey($attachDef),
+                'description' => $this->cleanString(trim($data['description'] ?? $description)),
+                'type' => trim($type),
+                'damage_reduction' => $data['damage_reduction'] ?? null,
+                'carrying_capacity' => $data['carrying_capacity'] ?? null
+            ] + $this->loadResistances();
+    }
+
+
+    private function loadResistances(): array
+    {
+        $tempResist = $this->get('SCItemClothingParams.TemperatureResistance', []);
 
         return [
-            'uuid' => $this->item->get('__ref'),
-            'description' => $description,
-            'name' => $name,
-            'manufacturer' => $manufacturer,
-            'temp_resistance_min' => $tempResist['MinResistance'] ?? null,
-            'temp_resistance_max' => $tempResist['MaxResistance'] ?? null,
-            'type' => $this->getType($attachDef['Type'], $name),
-            'carrying_capacity' => $data['carrying_capacity'] ?? null
+            'resistances' => array_filter([
+                'temp_min' => [
+                    'threshold' => $tempResist['MinResistance'] ?? null,
+                ],
+                'temp_max' => [
+                    'threshold' => $tempResist['MaxResistance'] ?? null,
+                ],
+                'physical' => array_filter([
+                    'multiplier' => $this->item['damageResistances']['PhysicalResistance']['Multiplier'] ?? null,
+                    'threshold' => $this->item['damageResistances']['PhysicalResistance']['Threshold'] ?? null,
+                ]),
+                'energy' => array_filter([
+                    'multiplier' => $this->item['damageResistances']['EnergyResistance']['Multiplier'] ?? null,
+                    'threshold' => $this->item['damageResistances']['EnergyResistance']['Threshold'] ?? null,
+
+                ]),
+                'distortion' => array_filter([
+                    'multiplier' => $this->item['damageResistances']['DistortionResistance']['Multiplier'] ?? null,
+                    'threshold' => $this->item['damageResistances']['DistortionResistance']['Threshold'] ?? null,
+
+                ]),
+                'thermal' => array_filter([
+                    'multiplier' => $this->item['damageResistances']['ThermalResistance']['Multiplier'] ?? null,
+                    'threshold' => $this->item['damageResistances']['ThermalResistance']['Threshold'] ?? null,
+
+                ]),
+                'biochemical' => array_filter([
+                    'multiplier' => $this->item['damageResistances']['BiochemicalResistance']['Multiplier'] ?? null,
+                    'threshold' => $this->item['damageResistances']['BiochemicalResistance']['Threshold'] ?? null,
+
+                ]),
+                'stun' => array_filter([
+                    'multiplier' => $this->item['damageResistances']['StunResistance']['Multiplier'] ?? null,
+                    'threshold' => $this->item['damageResistances']['StunResistance']['Threshold'] ?? null,
+                ]),
+            ]),
         ];
     }
 
@@ -152,24 +160,5 @@ final class Clothing extends AbstractCommodityItem
         }
 
         return 'Unknown Type';
-    }
-
-    private function getDescription(?string $classname): ?string
-    {
-        if ($classname === null) {
-            return null;
-        }
-
-        try {
-            $item = File::get(storage_path(
-                sprintf('app/api/scunpacked-data/v2/items/%s.json', strtolower($classname))
-            ));
-
-            $item = json_decode($item, true, 512, JSON_THROW_ON_ERROR);
-        } catch (FileNotFoundException | JsonException $exception) {
-            return null;
-        }
-
-        return $item['Description'] ?? null;
     }
 }

@@ -32,8 +32,9 @@ final class Manufacturers
             ->mapWithKeys(function (array $manufacturer) {
                 return [
                     $manufacturer['reference'] => [
-                        'name' => $manufacturer['name'] ?? '',
-                        'code' => $manufacturer['code'] ?? '',
+                        'name' => $manufacturer['name'] ?? 'Unknown Manufacturer',
+                        'code' => $manufacturer['code'] ?? 'UNKN',
+                        'uuid' => $manufacturer['reference'] ?? '00000000-0000-0000-0000-000000000000',
                     ]
                 ];
             });

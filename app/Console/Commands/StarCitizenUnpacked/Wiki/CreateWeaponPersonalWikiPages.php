@@ -6,7 +6,7 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
+use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use App\Traits\GetWikiCsrfTokenTrait;
 use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
@@ -38,13 +38,13 @@ class CreateWeaponPersonalWikiPages extends AbstractQueueCommand
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        $weaponPersonals = WeaponPersonal::all();
+        $weaponPersonals = PersonalWeapon::all();
 
         $this->createProgressBar($weaponPersonals->count());
 
-        $weaponPersonals->each(function (WeaponPersonal $weaponPersonal) {
+        $weaponPersonals->each(function (PersonalWeapon $weaponPersonal) {
             $this->uploadWiki($weaponPersonal);
 
             $this->advanceBar();
@@ -57,7 +57,7 @@ class CreateWeaponPersonalWikiPages extends AbstractQueueCommand
         return 0;
     }
 
-    public function uploadWiki(WeaponPersonal $weaponPersonal)
+    public function uploadWiki(PersonalWeapon $weaponPersonal): void
     {
         // phpcs:disable
         $text = <<<FORMAT

@@ -3,8 +3,8 @@
 namespace App\Console\Commands\StarCitizenUnpacked;
 
 use App\Console\Commands\AbstractQueueCommand;
-use App\Jobs\StarCitizenUnpacked\TranslateItem;
-use App\Models\StarCitizenUnpacked\Item;
+use App\Jobs\SC\TranslateItem;
+use App\Models\SC\Item\Item;
 
 class TranslateItems extends AbstractQueueCommand
 {

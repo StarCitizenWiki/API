@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizenUnpacked;
 
-use App\Jobs\StarCitizenUnpacked\Import\Items;
-use App\Jobs\StarCitizenUnpacked\Import\ShopItems;
+use App\Console\Commands\AbstractQueueCommand;
+use App\Jobs\SC\Import\ShopItems;
 use Illuminate\Console\Command;
 
-class ImportShopItems extends Command
+class ImportShopItems extends AbstractQueueCommand
 {
     /**
      * The name and signature of the console command.
@@ -22,17 +22,18 @@ class ImportShopItems extends Command
      *
      * @var string
      */
-    protected $description = 'Import Shops and Items';
+    protected $description = 'Import Shops and their Items';
 
     /**
      * Execute the console command.
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        Items::dispatch();
+        $this->info('Importing Shops');
         ShopItems::dispatch();
-        return 0;
+        $this->info('Done');
+        return Command::SUCCESS;
     }
 }

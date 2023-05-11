@@ -101,7 +101,7 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
             case 'Turret':
             case 'TurretBase':
-            // Todo: Separate to Model?
+                // Todo: Separate to Model?
             case 'ToolArm':
             case 'MiningArm':
             case 'WeaponMount':

@@ -4,53 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
-use JsonException;
-
 final class WeaponAttachment extends AbstractCommodityItem
 {
-    private Collection $item;
-    private Collection $labels;
-    private Collection $manufacturers;
-
-    /**
-     * @param string $fileName
-     * @param Collection $labels
-     * @param Collection $manufacturers
-     * @throws FileNotFoundException
-     * @throws JsonException
-     */
-    public function __construct(string $fileName, Collection $labels, Collection $manufacturers)
-    {
-        $items = File::get(storage_path(sprintf('app/%s', $fileName)));
-        $this->item = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
-        $this->labels = $labels;
-        $this->manufacturers = $manufacturers;
-    }
-
     public function getData(): ?array
     {
-        $attachDef = $this->item->pull('Components.SAttachableComponentParams.AttachDef');
+        $attachDef = $this->getAttachDef();
 
-        if ($attachDef === null || strpos($attachDef['Type'], 'WeaponAttachment') === false) {
+        if ($attachDef === null) {
             return null;
         }
 
-        $name = $this->labels->get(substr($attachDef['Localization']['Name'], 1));
-        $name = str_replace(
-            [
-                '“',
-                '”',
-                '"',
-                '\'',
-            ],
-            '"',
-            trim($name ?? 'Unknown Weapon Attachment')
-        );
+        $name = $this->getName($attachDef, 'Unknown Weapon Attachment');
 
-        $description = $this->labels->get(substr($attachDef['Localization']['Description'], 1)) ?? '';
+        $description = $this->getDescription($attachDef);
 
         $data = $this->tryExtractDataFromDescription($description, [
             'Manufacturer' => 'manufacturer',
@@ -62,12 +28,8 @@ final class WeaponAttachment extends AbstractCommodityItem
             'Class' => 'utility_class',
         ]);
 
-        $manufacturer = $this->manufacturers->get($attachDef['Manufacturer'], 'Unknown Manufacturer');
-        if ($manufacturer === '@LOC_PLACEHOLDER') {
-            $manufacturer = 'Unknown Manufacturer';
-        }
-
-        $description = str_replace(['’', '`', '´'], '\'', trim($data['description'] ?? $description));
+        $data['attachment_point'] = $data['attachment_point'] ?? null;
+        $data['item_type'] = $data['item_type'] ?? null;
 
         if ($attachDef['SubType'] === 'IronSight' && empty($data['attachment_point'])) {
             $data['attachment_point'] = 'Optic';
@@ -82,19 +44,44 @@ final class WeaponAttachment extends AbstractCommodityItem
             $data['attachment_point'] = 'Magazine Well';
         }
 
+        if ($data['attachment_point'] === null && $data['type'] === 'Utility') {
+            $data['attachment_point'] = 'Utility';
+        }
+
+        if ($data['attachment_point'] === 'Optic') {
+            $data['item_type'] = 'Scope';
+        }
+
+        if ($data['attachment_point'] === null && $data['item_type'] === 'Ammo' && $data['type'] === 'Missile') {
+            $data['attachment_point'] = 'Barrel';
+        }
+
         return [
-            'uuid' => $this->item->get('__ref'),
-            'description' => trim($description),
+            'uuid' => $this->getUUID(),
+            'description' => $this->cleanString(trim($data['description'] ?? $description)),
             'name' => $name,
             'size' => $attachDef['Size'],
             'grade' => $attachDef['Grade'],
-            'manufacturer' => $manufacturer,
             'type' => $data['type'] ?? null,
-            'item_type' => $data['item_type']  ?? null,
+            'item_type' => $data['item_type'] ?? null,
             'attachment_point' => $data['attachment_point'] ?? null,
             'magnification' => $data['magnification'] ?? null,
             'capacity' => $data['capacity'] ?? null,
             'utility_class' => $data['utility_class'] ?? null,
+            'ammo' => $this->loadAmmoData(),
+        ];
+    }
+
+    private function loadAmmoData(): array
+    {
+        $ammo = $this->get('SAmmoContainerComponentParams', []);
+        if (empty($ammo)) {
+            return [];
+        }
+
+        return [
+            'initial_ammo_count' => $ammo['initialAmmoCount'],
+            'max_ammo_count' => $ammo['maxAmmoCount'],
         ];
     }
 }

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Http\Throttle\ApiThrottle;
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
-use Dingo\Api\Http\RateLimit\Handler;
 use Dingo\Api\Routing\Router as ApiRouter;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -33,14 +34,9 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        app(Handler::class)->extend(
-            new ApiThrottle(
-                [
-                    'limit' => config('api.throttle.limit_unauthenticated'),
-                    'expires' => config('api.throttle.period_unauthenticated'),
-                ]
-            )
-        );
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(240)->by($request->user()?->id ?: $request->ip());
+        });
 
         /**
          * Star Citizen
@@ -91,6 +87,13 @@ class RouteServiceProvider extends ServiceProvider
                 );
             }
         );
+
+        Route::middleware('api.v2')
+            ->name('api.v2.')
+            ->namespace($this->namespace . '\Api\V2')
+            ->prefix('api/v2')
+            ->middleware(['throttle:api'])
+            ->group(base_path('routes/api/api_v2.php'));
     }
 
     /**

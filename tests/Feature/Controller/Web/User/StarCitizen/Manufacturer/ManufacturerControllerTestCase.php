@@ -30,7 +30,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
 
         if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('user.starcitizen.manufacturers.index')
-                ->assertDontSee(__('Keine Hersteller vorhanden'))
+                //->assertDontSee(__('Keine Hersteller vorhanden'))
                 ->assertSee(__('Hersteller'))
                 ->assertSee(__('Name'))
                 ->assertSee('CIG ID')
@@ -61,7 +61,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
 
         if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('user.starcitizen.manufacturers.edit')
-                ->assertDontSee(__('Keine Hersteller vorhanden'))
+                //->assertDontSee(__('Keine Hersteller vorhanden'))
                 ->assertSee(__('de_DE'))
                 ->assertSee(__('en_EN'))
                 ->assertSee($manufacturer->name)

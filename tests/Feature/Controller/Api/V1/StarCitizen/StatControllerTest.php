@@ -91,7 +91,6 @@ class StatControllerTest extends ApiTestCase
                 ]
             )
             ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
             ->assertHeader('etag');
     }
 

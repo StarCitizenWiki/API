@@ -56,13 +56,8 @@ class PopulateData extends AbstractQueueCommand
         $this->bar->advance();
 
         if (!$this->option('skipScUnpacked')) {
+            Artisan::call('unpacked:import-items');
             Artisan::call('unpacked:import-shop-items');
-            Artisan::call('unpacked:import-char-armor');
-            Artisan::call('unpacked:import-weapon-attachments');
-            Artisan::call('unpacked:import-weapon-personal');
-            Artisan::call('unpacked:import-ship-items');
-            Artisan::call('unpacked:import-vehicles');
-            Artisan::call('unpacked:import-clothing');
         }
         $this->bar->finish();
 

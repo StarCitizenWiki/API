@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\StarCitizenUnpacked;
 
-use App\Jobs\StarCitizenUnpacked\Import\Clothing;
-use App\Models\StarCitizenUnpacked\Item;
-use Illuminate\Console\Command;
+use App\Console\Commands\AbstractQueueCommand;
 
-class ImportClothing extends Command
+class ImportClothing extends AbstractQueueCommand
 {
     /**
      * The name and signature of the console command.
@@ -22,21 +20,21 @@ class ImportClothing extends Command
      *
      * @var string
      */
-    protected $description = 'Import character clothiing from scunpacked';
+    protected $description = 'Import Clothes and Armor';
 
     /**
      * Execute the console command.
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        if (Item::count() === 0) {
-            $this->error('You need to run "unpacked:import-shop-items" first');
-            return 1;
-        }
-
-        Clothing::dispatch();
-        return 0;
+        return $this->call(
+    'unpacked:import-items',
+            [
+                '--skipVehicles',
+                '--type' => 'Char_Clothing_Torso_1,Char_Clothing_Legs,Char_Clothing_Torso_0,Char_Clothing_Feet,Char_Clothing_Hat,Char_Armor_Backpack,Char_Clothing_Hands,Char_Armor_Helmet,Char_Armor_Arms,Char_Armor_Torso,Char_Armor_Legs,Char_Armor_Undersuit,Char_Clothing_Torso_2,Char_Clothing_Backpack'
+            ]
+        );
     }
 }

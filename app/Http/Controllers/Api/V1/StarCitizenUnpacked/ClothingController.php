@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked;
 
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
-use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
 use App\Models\StarCitizenUnpacked\Clothing;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ClothingTransformer;
 use Dingo\Api\Http\Request;

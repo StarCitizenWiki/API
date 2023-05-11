@@ -4,8 +4,33 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\StarCitizenUnpacked;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
+use JsonException;
+
 abstract class AbstractCommodityItem
 {
+    protected string $filePath;
+    protected Collection $item;
+
+    protected Collection $labels;
+
+    /**
+     * @param string $filePath
+     * @param Collection $labels
+     * @throws FileNotFoundException
+     * @throws JsonException
+     */
+    public function __construct(string $filePath, Collection $labels)
+    {
+        $this->filePath = $filePath;
+        $item = File::get($filePath);
+        $this->item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+        $this->labels = $labels;
+    }
+
     abstract public function getData();
 
     /**
@@ -21,9 +46,20 @@ abstract class AbstractCommodityItem
      */
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
+        $description = trim(str_replace('\n', "\n", $description));
+        $parts = explode("\n", $description);
+
+        if (count($parts) === 1) {
+            $parts = explode('\n', $parts[0]);
+        }
+
+        $withColon = collect($parts)->filter(function (string $part) {
+            return preg_match('/\w:[\s| ]/u', $part) === 1;
+        })->implode("\n");
+
         $match = preg_match_all(
-            '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%]*)(?:\\n|\n|\\\n|$)/m',
-            $description,
+            '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%+-]*)(?:\\n|\n|\\\n|$)/m',
+            $withColon,
             $matches
         );
 
@@ -44,25 +80,72 @@ abstract class AbstractCommodityItem
         $exploded = explode("\n\n", $description);
 
         if (count($exploded) === 1) {
-            $exploded = explode('\n\n', $exploded[0], 2);
+            $exploded = explode('\n\n', $exploded[0]);
         }
 
-        $exploded = array_pop($exploded);
+        $exploded = array_filter($exploded, function (string $part) {
+            return preg_match('/\w:[\s| ]/u', $part) !== 1;
+        });
 
-        $exploded = str_replace(['’', '`', '´', ' '], ['\'', '\'', '\'', ' '], trim($exploded ?? ''));
+        $exploded = join("\n\n", $exploded);
+
+        $exploded = str_replace(['‘', '’', '`', '´', ' '], ['\'', '\'', '\'', '\'', ' '], trim($exploded ?? ''));
 
         return $out + [
-                'description' => trim($exploded),
+                'description' => $exploded,
             ];
     }
 
-    protected function getManufacturer(array $item): string
+    protected function getName(array $attachDef, string $default): string
     {
-        $manufacturer = trim($item['Manufacturer']['Name'] ?? 'Unknown Manufacturer');
-        if ($manufacturer === '@LOC_PLACEHOLDER') {
-            $manufacturer = 'Unknown Manufacturer';
+        $name = $this->labels->get(substr($attachDef['Localization']['Name'], 1));
+        $name = $this->cleanString(trim($name ?? $default));
+        return empty($name) ? $default : $name;
+    }
+
+    protected function getDescriptionKey(array $attachDef): string
+    {
+        return substr($attachDef['Localization']['Description'], 1);
+    }
+
+    protected function getDescription(array $attachDef): string
+    {
+        return $this->cleanString($this->labels->get($this->getDescriptionKey($attachDef), ''));
+    }
+
+    protected function getManufacturer(array $attachDef, Collection $manufacturers): array
+    {
+        $default = [
+            'name' => 'Unknown Manufacturer',
+            'code' => 'UNKN',
+            'uuid' => '00000000-0000-0000-0000-000000000000',
+        ];
+        $manufacturer = $manufacturers->get($attachDef['Manufacturer'], $default);
+
+        if ($manufacturer['name'] === '@LOC_PLACEHOLDER') {
+            $manufacturer = $default;
         }
 
         return $manufacturer;
+    }
+
+    protected function cleanString(string $string): string
+    {
+        $string = str_replace(['‘', '’', '`', '´'], "'", $string);
+        $string = str_replace(['“', '”', '"'], '"', $string);
+        $string = trim(str_replace(' ', ' ', $string));
+        return preg_replace('/\s+/', ' ', $string);
+    }
+
+    protected function getUUID(): ?string {
+        return Arr::get($this->item, 'Raw.Entity.__ref');
+    }
+
+    protected function getAttachDef(): ?array {
+        return $this->get('SAttachableComponentParams.AttachDef');
+    }
+
+    protected function get(string $key, $default = null): mixed {
+        return Arr::get($this->item, 'Raw.Entity.Components.' . $key, $default);
     }
 }

@@ -89,13 +89,13 @@ export default {
         return;
       }
 
-      axios.post('/api/comm-links/search', {
-        query: this.term
+      axios.post('/api/v2/comm-links/search', {
+          query: this.term
       }, {
-        mode: 'no-cors',
-        headers: this.apiToken !== null ? {
-          'Authorization': 'Bearer ' + this.apiToken
-        } : {}
+          mode: 'no-cors',
+          headers: this.apiToken !== null ? {
+              'Authorization': 'Bearer ' + this.apiToken
+          } : {}
       })
       .then((result) => {
         if (result.data.data.length > 0) {
