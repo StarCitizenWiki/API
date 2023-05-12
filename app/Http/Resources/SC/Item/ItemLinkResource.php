@@ -39,12 +39,12 @@ class ItemLinkResource extends AbstractBaseResource
     public function toArray($request): array
     {
         return [
-            'uuid' => $this->uuid,
+            'uuid' => $this->uuid ?? $this->item_uuid,
             'name' => $this->name,
             'type' => $this->type,
-            'sub_type' => $this->sub_type,
-            'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
-            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid),
+            'sub_type' => $this->sub_type ?? $this->item->sub_type,
+            'manufacturer' => new ManufacturerLinkResource($this->manufacturer ?? $this->item->manufacturer),
+            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid ?? $this->item_uuid),
             'shops' => ShopResource::collection($this->whenLoaded('shops')),
 
             'updated_at' => $this->updated_at,

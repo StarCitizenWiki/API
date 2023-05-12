@@ -161,6 +161,7 @@ class ItemResource extends AbstractTranslationResource
                 'durability' => new ItemDurabilityDataResource($this->durabilityData),
             ]),
             'shops' => ShopResource::collection($this->whenLoaded('shops')),
+            $this->mergeWhen(...$this->addBaseVersion()),
             'updated_at' => $this->updated_at,
             'version' => $this->version,
         ];
@@ -276,6 +277,19 @@ class ItemResource extends AbstractTranslationResource
             $mountName => $this->ports->count(),
             'min_size' => $this->ports->min('min_size'),
             'max_size' => $this->ports->max('max_size'),
+        ];
+    }
+
+    private function addBaseVersion(): array {
+        if ($this->specification === null || !is_callable([$this->specification, 'getBaseModelAttribute'])) {
+            return [false, []];
+        }
+
+        return [
+            true,
+            [
+                'base_version' => new ItemLinkResource($this->specification->base_model),
+            ]
         ];
     }
 }
