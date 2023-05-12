@@ -85,7 +85,7 @@ class FoodController extends AbstractApiV2Controller
                 ->where('type', 'Food')
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
-                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
+                        ->orWhere('name', $identifier);
                 })
                 ->orderByDesc('version')
                 ->allowedIncludes(FoodResource::validIncludes())

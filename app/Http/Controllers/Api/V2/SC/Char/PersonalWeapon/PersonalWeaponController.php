@@ -100,7 +100,7 @@ class PersonalWeaponController extends AbstractApiV2Controller
                 ->where('type', 'WeaponPersonal')
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
-                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
+                        ->orWhere('name', $identifier);
                 })
                 ->orderByDesc('version')
                 ->allowedIncludes(PersonalWeaponResource::validIncludes())

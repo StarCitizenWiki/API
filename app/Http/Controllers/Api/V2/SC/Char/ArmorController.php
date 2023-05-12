@@ -115,7 +115,7 @@ class ArmorController extends AbstractApiV2Controller
                 ->where('type', 'LIKE', 'Char_Armor%')
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
-                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
+                        ->orWhere('name', $identifier);
                 })
                 ->orderByDesc('version')
                 ->allowedIncludes(ClothingResource::validIncludes())
