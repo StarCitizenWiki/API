@@ -233,8 +233,12 @@ class VehicleResource extends AbstractBaseResource
                     'maneuvering_g' => $this->acceleration_g_maneuvering,
                 ],
             ],
-            'foci' => $this->career,
-            'type' => $this->role,
+            'foci' => [
+                'en_EN' => $this->career,
+            ],
+            'type' => [
+                'en_EN' => $this->role,
+            ],
             'description' => TranslationResourceFactory::getTranslationResource($request, $this),
             'size' => $this->size,
             'manufacturer' => [
