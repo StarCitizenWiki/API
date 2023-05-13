@@ -80,10 +80,12 @@ Route::group(
             });
 
             Route::get('clothes', 'ClothesController@index')->name('index');
-            Route::get('clothes/{clothing}', 'ClothesController@show')->name('show');
+            Route::get('clothes/{clothing}', 'ClothesController@show')->name('show')
+                ->where('clothing', '.*');
 
             Route::get('armor', 'ArmorController@index')->name('index');
-            Route::get('armor/{clothing}', 'ArmorController@show')->name('show');
+            Route::get('armor/{clothing}', 'ArmorController@show')->name('show')
+                ->where('clothing', '.*');
         });
 
         Route::group([
@@ -93,7 +95,8 @@ Route::group(
             Route::get('vehicle-weapons/{weapon}', 'VehicleWeaponController@show')->name('show');
 
             Route::get('vehicle-items', 'VehicleItemController@index')->name('index');
-            Route::get('vehicle-items/{item}', 'VehicleItemController@show')->name('show');
+            Route::get('vehicle-items/{item}', 'VehicleItemController@show')->name('show')
+                ->where('item', '.*');
         });
 
         Route::get('manufacturers', 'ManufacturerController@index')->name('index');
@@ -101,13 +104,15 @@ Route::group(
         Route::post('manufacturers/search', 'ManufacturerController@search')->name('search');
 
         Route::get('items', 'ItemController@index')->name('index');
-        Route::get('items/{item}', 'ItemController@show')->name('show');
+        Route::get('items/{item}', 'ItemController@show')->name('show')
+            ->where('item', '.*');
         Route::post('items/search', 'ItemController@search')->name('search');
 
         Route::get('shops', 'ShopController@index')->name('index');
         Route::get('shops/{shop}', 'ShopController@show')->name('show');
 
         Route::get('food', 'FoodController@index')->name('index');
-        Route::get('food/{food}', 'FoodController@show')->name('show');
+        Route::get('food/{food}', 'FoodController@show')->name('show')
+            ->where('food', '.*');
     }
 );
