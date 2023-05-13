@@ -30,7 +30,7 @@ class PersonalWeapon extends CommodityItem
 
     protected $with = [
         'modes',
-        'item',
+        'damages',
         'ammunition',
     ];
 
