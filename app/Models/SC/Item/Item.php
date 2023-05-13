@@ -129,6 +129,8 @@ class Item extends HasTranslations
     {
         switch (true) {
             case $this->type === 'Food':
+            case $this->type === 'Drink':
+            case $this->type === 'Bottle':
                 return $this->hasOne(Food::class, 'item_uuid', 'uuid')->withDefault();
 
             /**

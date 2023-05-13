@@ -186,7 +186,7 @@ class ItemResource extends AbstractTranslationResource
                 $this->specification->exists,
                 ['clothing' => new ClothingResource($this->specification),],
             ],
-            $this->type === 'Food' => [
+            $this->type === 'Food', $this->type === 'Bottle', $this->type === 'Drink' => [
                 $this->specification->exists,
                 ['food' => new FoodResource($this->specification),],
             ],
