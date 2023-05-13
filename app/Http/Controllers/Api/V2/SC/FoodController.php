@@ -42,7 +42,7 @@ class FoodController extends AbstractApiV2Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Item::class, $request)
-            ->where('type', 'Food')
+            ->whereIn('type', ['Bottle', 'Food', 'Drink'])
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -82,7 +82,7 @@ class FoodController extends AbstractApiV2Controller
 
         try {
             $identifier = QueryBuilder::for(Item::class, $request)
-                ->where('type', 'Food')
+                ->whereIn('type', ['Bottle', 'Food', 'Drink'])
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
                         ->orWhere('name', $identifier);
@@ -91,7 +91,7 @@ class FoodController extends AbstractApiV2Controller
                 ->allowedIncludes(FoodResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            throw new NotFoundHttpException('No Weapon with specified UUID or Name found.');
+            throw new NotFoundHttpException('No Food with specified UUID or Name found.');
         }
 
         return new ItemResource($identifier);
