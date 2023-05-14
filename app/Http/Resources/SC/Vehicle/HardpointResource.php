@@ -73,6 +73,11 @@ class HardpointResource extends AbstractBaseResource
                 'type' => $this->item->type,
                 'sub_type' => $this->item->sub_type,
             ];
+
+            if ($this->min_size ===  0) {
+                $data['min_size'] = $this->item->size;
+                $data['max_size'] = $this->item->size;
+            }
         }
 
         return $data;
