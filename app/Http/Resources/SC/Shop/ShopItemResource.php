@@ -51,10 +51,10 @@ class ShopItemResource extends AbstractBaseResource
      */
     public function toArray($request): array
     {
-        $data = [
+        return [
             'uuid' => $this->uuid,
             'name' => $this->name,
-            'type' => $this->type,
+            'type' => $this->cleanType(),
             'sub_type' => $this->sub_type,
             'base_price' => $this->shop_data->base_price,
             'price_calculated' => $this->shop_data->offsetted_price,
@@ -71,18 +71,15 @@ class ShopItemResource extends AbstractBaseResource
             'buyable' => $this->shop_data->buyable,
             'sellable' => $this->shop_data->sellable,
             'rentable' => $this->shop_data->rentable,
+            $this->mergeWhen(isset($this->shop_data->rental) && $this->shop_data->rentable === true, [
+                'rental_price_days' => [
+                    'duration_1' => $this->shop_data->price1,
+                    'duration_3' => $this->shop_data->price3,
+                    'duration_7' => $this->shop_data->price7,
+                    'duration_30' => $this->shop_data->price30,
+                ],
+            ]),
             'version' => $this->shop_data->version,
         ];
-
-        if (isset($this->shop_data->rental)) {
-            $data['rental_price_days'] = [
-                'duration_1' => $this->shop_data->price1,
-                'duration_3' => $this->shop_data->price3,
-                'duration_7' => $this->shop_data->price7,
-                'duration_30' => $this->shop_data->price30,
-            ];
-        }
-
-        return $data;
     }
 }

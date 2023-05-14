@@ -139,7 +139,7 @@ class ItemResource extends AbstractTranslationResource
             ]),
             'manufacturer_description' => $this->manufacturer_description,
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
-            'type' => $this->type,
+            'type' => $this->cleanType(),
             'sub_type' => $this->sub_type,
             $this->mergeWhen($this->isTurret(), $this->addTurretData()),
             $this->mergeWhen(...$this->addSpecification()),

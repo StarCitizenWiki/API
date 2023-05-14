@@ -62,4 +62,9 @@ abstract class AbstractBaseResource extends JsonResource
             $this->additional['meta'][$key] = $value;
         }
     }
+
+    protected function cleanType(): string
+    {
+        return str_replace('NOITEM_', '', ($this->type ?? ''));
+    }
 }
