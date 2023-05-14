@@ -14,6 +14,10 @@ class QuantumDrive extends Model
 
     protected $table = 'sc_item_quantum_drives';
 
+    protected $with = [
+        'modes'
+    ];
+
     protected $fillable = [
         'item_uuid',
         'quantum_fuel_requirement',

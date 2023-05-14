@@ -51,7 +51,7 @@ class QuantumDriveResource extends AbstractBaseResource
                 'ramp_down' => $this->ramp_down_thermal_energy_draw,
                 'post_ramp_down' => $this->post_ramp_down_thermal_energy_draw,
             ],
-            'modes' => QuantumDriveModeResource::collection($this->whenLoaded('modes')),
+            'modes' => QuantumDriveModeResource::collection($this->modes),
         ];
     }
 }
