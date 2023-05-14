@@ -94,7 +94,7 @@ class ItemController extends AbstractApiV2Controller
         try {
             $item = QueryBuilder::for(Item::class, $request)
                 ->where('uuid', $identifier)
-                ->orWhere('name', 'LIKE', $identifier)
+                ->orWhere('name', $identifier)
                 ->orderByDesc('version')
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();

@@ -92,15 +92,15 @@ class VehicleItemController extends AbstractApiV2Controller
                 ->whereHas('vehicleItem')
                 ->whereRelation('vehicleItem', function (Builder $query) use ($identifier) {
                     $query->where('item_uuid', $identifier)
-                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
+                        ->orWhere('name', $identifier);
                 })
-                ->orderByDesc('item.version')
+                ->orderByDesc('version')
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
         }
 
-        return new ItemResource($identifier->item);
+        return new ItemResource($identifier);
     }
 }
