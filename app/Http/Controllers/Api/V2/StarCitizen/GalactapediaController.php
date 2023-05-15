@@ -189,6 +189,6 @@ class GalactapediaController extends AbstractApiV2Controller
             throw new NotFoundHttpException('No Article(s) for specified query found.');
         }
 
-        return ArticleResource::collection($queryBuilder->get());
+        return ArticleResource::collection($queryBuilder);
     }
 }

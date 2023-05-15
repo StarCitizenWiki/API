@@ -188,6 +188,6 @@ class ItemController extends AbstractApiV2Controller
             throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $query));
         }
 
-        return ItemLinkResource::collection($items->get());
+        return ItemLinkResource::collection($items);
     }
 }

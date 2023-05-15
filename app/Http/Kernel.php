@@ -65,7 +65,6 @@ class Kernel extends HttpKernel
         'api' => [
             'bindings',
             'check_user_state',
-            'api.throttle',
         ],
 
         'api.v2' => [
