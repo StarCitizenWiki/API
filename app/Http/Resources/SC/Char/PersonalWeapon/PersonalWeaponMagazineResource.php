@@ -15,6 +15,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'initial_ammo_count', type: 'integer', nullable: true),
         new OA\Property(property: 'max_ammo_count', type: 'integer', nullable: true),
+        new OA\Property(property: 'type', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
@@ -31,6 +32,7 @@ class PersonalWeaponMagazineResource extends AbstractBaseResource
         return [
             'initial_ammo_count' => $this->initial_ammo_count ?? null,
             'max_ammo_count' => $this->max_ammo_count ?? null,
+            'type' => $this->type ?? null,
         ];
     }
 }

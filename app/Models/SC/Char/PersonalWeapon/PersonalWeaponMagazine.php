@@ -17,6 +17,7 @@ class PersonalWeaponMagazine extends CommodityItem
         'item_uuid',
         'initial_ammo_count',
         'max_ammo_count',
+        'type',
     ];
 
     protected $casts = [

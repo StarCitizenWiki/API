@@ -68,6 +68,7 @@ class WeaponAttachment implements ShouldQueue
             ], [
                 'initial_ammo_count' => $item['ammo']['initial_ammo_count'] ?? null,
                 'max_ammo_count' => $item['ammo']['max_ammo_count'] ?? null,
+                'type' => $item['item_type'] ?? null,
             ]);
         }
 
