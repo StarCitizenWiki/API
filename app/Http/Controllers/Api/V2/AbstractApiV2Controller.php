@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V2;
 
+use App\Events\ApiRouteCalled;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Request;
 use OpenApi\Attributes as OA;
@@ -128,6 +129,12 @@ abstract class AbstractApiV2Controller extends Controller
         $this->request = $request;
 
         $this->processRequestParams();
+
+        ApiRouteCalled::dispatch([
+            'url' => $request::fullUrl(),
+            'user-agent' => $request::userAgent() ?? 'Star Citizen Wiki API',
+            'forwarded-for' => $request::header('X-Forwarded-For', '127.0.0.1'),
+        ]);
     }
 
     /**
