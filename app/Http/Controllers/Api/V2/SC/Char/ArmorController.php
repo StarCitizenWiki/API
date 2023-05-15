@@ -31,8 +31,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
             enum: [
                 'shops',
                 'shops.items',
-                'ports',
-                'resistances',
             ]
         ),
     ),

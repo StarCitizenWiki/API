@@ -59,7 +59,6 @@ class ClothingResource extends AbstractBaseResource
     public static function validIncludes(): array
     {
         return [
-            'resistances',
             'shops',
             'shops.items',
         ];

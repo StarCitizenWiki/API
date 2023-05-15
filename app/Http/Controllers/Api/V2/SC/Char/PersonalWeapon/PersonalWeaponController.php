@@ -71,8 +71,6 @@ class PersonalWeaponController extends AbstractApiV2Controller
                     items: new OA\Items(
                         type: 'string',
                         enum: [
-                            'modes',
-                            'damages',
                             'ports',
                             'shops',
                             'shops.items',
