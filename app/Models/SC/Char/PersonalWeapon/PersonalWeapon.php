@@ -67,10 +67,10 @@ class PersonalWeapon extends CommodityItem
     {
         $magazine = $this->item->ports()->where('name', 'LIKE', '%magazine%')->first();
         if ($magazine !== null) {
-            return \optional($magazine->item);
+            return optional($magazine->item->specification);
         }
 
-        return \optional();
+        return optional();
     }
 
     /**

@@ -69,6 +69,7 @@ class PersonalWeaponResource extends AbstractBaseResource
     {
         $data = [
             'class' => $this->weapon_class,
+            'type' => $this->weapon_type,
             'magazine_type' => $this->magazineType,
             'magazine_size' => $this->magazine->max_ammo_count ?? null,
             'effective_range' => $this->effective_range ?? null,
