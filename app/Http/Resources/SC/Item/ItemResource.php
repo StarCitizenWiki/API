@@ -6,6 +6,7 @@ namespace App\Http\Resources\SC\Item;
 
 use App\Http\Resources\AbstractTranslationResource;
 use App\Http\Resources\SC\Char\ClothingResource;
+use App\Http\Resources\SC\Char\PersonalWeapon\BarrelAttachResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\GrenadeResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\IronSightResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponMagazineResource;
@@ -59,6 +60,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'max_mounts', type: 'integer', nullable: true),
         new OA\Property(property: 'max_missiles', type: 'integer', nullable: true),
         new OA\Property(property: 'max_bombs', type: 'integer', nullable: true),
+        new OA\Property(property: 'barrel_attach', ref: '#/components/schemas/barrel_attach_v2', nullable: true),
         new OA\Property(property: 'clothing', ref: '#/components/schemas/clothing_v2', nullable: true),
         new OA\Property(property: 'cooler', ref: '#/components/schemas/cooler_v2', nullable: true),
         new OA\Property(property: 'emp', ref: '#/components/schemas/emp_v2', nullable: true),
@@ -141,6 +143,7 @@ class ItemResource extends AbstractTranslationResource
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
             'type' => $this->cleanType(),
             'sub_type' => $this->sub_type,
+            $this->mergeWhen(...$this->addAttachmentPosition()),
             $this->mergeWhen($this->isTurret(), $this->addTurretData()),
             $this->mergeWhen(...$this->addSpecification()),
             'dimension' => new ItemDimensionResource($this),
@@ -238,6 +241,10 @@ class ItemResource extends AbstractTranslationResource
                 $this->specification->exists,
                 ['iron_sight' => new IronSightResource($this->specification),],
             ],
+            $this->type === 'WeaponAttachment' && in_array($this->sub_type, ['Barrel', 'BottomAttachment'], true) => [
+                $this->specification->exists,
+                ['barrel_attach' => new BarrelAttachResource($this->specification),],
+            ],
             $this->sub_type === 'Magazine' => [
                 $this->specification->exists,
                 ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($this->specification),],
@@ -290,6 +297,27 @@ class ItemResource extends AbstractTranslationResource
             true,
             [
                 'base_version' => new ItemLinkResource($this->specification->base_model),
+            ]
+        ];
+    }
+
+    private function addAttachmentPosition(): array
+    {
+        if ($this->type !== 'WeaponAttachment' || $this->name === '<= PLACEHOLDER =>') {
+            return [false, []];
+        }
+
+        return [
+            true,
+            [
+                'position' => match ($this->sub_type) {
+                    'Magazine' => 'Magazine Well',
+                    'Barrel' => 'Barrel',
+                    'IronSight' => 'Optic',
+                    'Utility' => 'Utility',
+                    'BottomAttachment' => 'Underbarrel',
+                    default => $this->sub_type,
+                },
             ]
         ];
     }

@@ -12,6 +12,7 @@ use App\Models\SC\Char\Grenade;
 use App\Models\SC\Char\PersonalWeapon\IronSight;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
+use App\Models\SC\Char\PersonalWeapon\BarrelAttach;
 use App\Models\SC\Food\Food;
 use App\Models\SC\ItemSpecification\Cooler;
 use App\Models\SC\ItemSpecification\Emp;
@@ -155,11 +156,19 @@ class Item extends HasTranslations
 
                 return $this->hasOne(PersonalWeapon::class, 'item_uuid', 'uuid')->withDefault();
 
-            case $this->type === 'WeaponAttachment' && $this->sub_type === 'IronSight':
-                return $this->hasOne(IronSight::class, 'item_uuid', 'uuid')->withDefault();
+            case $this->type === 'WeaponAttachment':
+                switch ($this->sub_type) {
+                    case 'IronSight':
+                        return $this->hasOne(IronSight::class, 'item_uuid', 'uuid')->withDefault();
 
-            case $this->type === 'WeaponAttachment' && $this->sub_type === 'Magazine':
-                return $this->hasOne(PersonalWeaponMagazine::class, 'item_uuid', 'uuid')->withDefault();
+                    case 'Magazine':
+                        return $this->hasOne(PersonalWeaponMagazine::class, 'item_uuid', 'uuid')->withDefault();
+
+                    case 'Barrel':
+                    case 'BottomAttachment':
+                        return $this->hasOne(BarrelAttach::class, 'item_uuid', 'uuid')->withDefault();
+                }
+                break;
 
             /**
              * Vehicles

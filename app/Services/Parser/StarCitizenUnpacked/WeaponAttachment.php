@@ -63,6 +63,7 @@ final class WeaponAttachment extends AbstractCommodityItem
             'size' => $attachDef['Size'],
             'grade' => $attachDef['Grade'],
             'type' => $data['type'] ?? null,
+            'sub_type' =>  $attachDef['SubType'],
             'item_type' => $data['item_type'] ?? null,
             'attachment_point' => $data['attachment_point'] ?? null,
             'magnification' => $data['magnification'] ?? null,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
+use App\Models\SC\Char\PersonalWeapon\BarrelAttach;
 use App\Models\SC\Char\PersonalWeapon\IronSight;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
@@ -62,7 +63,6 @@ class WeaponAttachment implements ShouldQueue
         }
 
         if (!empty($item['ammo'])) {
-
             $model = PersonalWeaponMagazine::updateOrCreate([
                 'item_uuid' => $item['uuid'],
             ], [
@@ -76,5 +76,13 @@ class WeaponAttachment implements ShouldQueue
         ], [
             'translation' => $item['description'] ?? '',
         ]);
+
+        if (in_array($item['sub_type'], ['Barrel', 'BottomAttachment'], true)) {
+            BarrelAttach::updateOrCreate([
+                'item_uuid' => $item['uuid'],
+            ], [
+                'type' => $item['type'],
+            ]);
+        }
     }
 }
