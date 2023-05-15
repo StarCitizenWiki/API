@@ -90,7 +90,7 @@ class ArticleResource extends AbstractBaseResource
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'properties' => PropertyResource::collection($this->whenLoaded('properties')),
-            'related_articles' => RelatedArticleResource::collection($this->whenLoaded('related_articles')),
+            'related_articles' => RelatedArticleResource::collection($this->whenLoaded('relatedArticles')),
             'translations' => TranslationResourceFactory::getTranslationResource($request, $this->whenLoaded('translations')),
             'created_at' => $this->created_at,
         ];

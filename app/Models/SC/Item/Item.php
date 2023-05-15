@@ -164,6 +164,7 @@ class Item extends HasTranslations
                     case 'Magazine':
                         return $this->hasOne(PersonalWeaponMagazine::class, 'item_uuid', 'uuid')->withDefault();
 
+                    case 'Utility':
                     case 'Barrel':
                     case 'BottomAttachment':
                         return $this->hasOne(BarrelAttach::class, 'item_uuid', 'uuid')->withDefault();

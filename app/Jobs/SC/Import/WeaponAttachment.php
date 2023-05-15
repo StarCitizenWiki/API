@@ -78,11 +78,16 @@ class WeaponAttachment implements ShouldQueue
             'translation' => $item['description'] ?? '',
         ]);
 
-        if (in_array($item['sub_type'], ['Barrel', 'BottomAttachment'], true)) {
+        if (in_array($item['sub_type'], ['Barrel', 'BottomAttachment', 'Utility'], true)) {
+            $type = $item['type'];
+            if ($item['sub_type'] === 'Utility') {
+                $type = $item['sub_type'];
+            }
+
             BarrelAttach::updateOrCreate([
                 'item_uuid' => $item['uuid'],
             ], [
-                'type' => $item['type'],
+                'type' => $type,
             ]);
         }
     }

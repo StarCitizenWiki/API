@@ -241,7 +241,7 @@ class ItemResource extends AbstractTranslationResource
                 $this->specification->exists,
                 ['iron_sight' => new IronSightResource($this->specification),],
             ],
-            $this->type === 'WeaponAttachment' && in_array($this->sub_type, ['Barrel', 'BottomAttachment'], true) => [
+            $this->type === 'WeaponAttachment' && in_array($this->sub_type, ['Barrel', 'BottomAttachment', 'Utility'], true) => [
                 $this->specification->exists,
                 ['barrel_attach' => new BarrelAttachResource($this->specification),],
             ],
