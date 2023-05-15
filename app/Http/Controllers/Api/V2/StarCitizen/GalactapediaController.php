@@ -181,7 +181,9 @@ class GalactapediaController extends AbstractApiV2Controller
             ->orWhere('cig_id', 'like', "%{$query}%")
             ->orWhereHas('templates', function (Builder $builder) use ($query) {
                 return $builder->where('template', 'like', "%{$query}%");
-            });
+            })
+            ->paginate($this->limit)
+            ->appends(request()->query());
 
         if ($queryBuilder->count() === 0) {
             throw new NotFoundHttpException('No Article(s) for specified query found.');
