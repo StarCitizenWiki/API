@@ -39,11 +39,12 @@ Route::group(
         Route::get('stats/latest', 'StatController@latest')->name('latest');
 
         Route::get('vehicles', 'VehicleController@index')->name('index');
+        Route::post('vehicles/search', 'VehicleController@search')->name('search');
         Route::get('vehicles/{vehicle}', 'VehicleController@show')->name('show');
 
         Route::get('galactapedia', 'GalactapediaController@index')->name('index');
-        Route::get('galactapedia/{article}', 'GalactapediaController@show')->name('show');
         Route::post('galactapedia/search', 'GalactapediaController@search')->name('search');
+        Route::get('galactapedia/{article}', 'GalactapediaController@show')->name('show');
 
         Route::group(
             [
@@ -100,13 +101,13 @@ Route::group(
         });
 
         Route::get('manufacturers', 'ManufacturerController@index')->name('index');
-        Route::get('manufacturers/{manufacturer}', 'ManufacturerController@show')->name('show');
         Route::post('manufacturers/search', 'ManufacturerController@search')->name('search');
+        Route::get('manufacturers/{manufacturer}', 'ManufacturerController@show')->name('show');
 
         Route::get('items', 'ItemController@index')->name('index');
+        Route::post('items/search', 'ItemController@search')->name('search');
         Route::get('items/{item}', 'ItemController@show')->name('show')
             ->where('item', '.*');
-        Route::post('items/search', 'ItemController@search')->name('search');
 
         Route::get('shops', 'ShopController@index')->name('index');
         Route::get('shops/{shop}', 'ShopController@show')->name('show');

@@ -189,6 +189,6 @@ class VehicleController extends AbstractApiV2Controller
             throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $query));
         }
 
-        return VehicleResource::collection($queryBuilder);
+        return VehicleLinkResource::collection($queryBuilder);
     }
 }
