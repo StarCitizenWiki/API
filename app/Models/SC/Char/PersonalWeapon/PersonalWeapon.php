@@ -123,7 +123,7 @@ class PersonalWeapon extends CommodityItem
         $baseName = preg_replace('/"[\w\s\']+"\s/', '', $this->name);
         return self::query()
             ->whereHas('item', function (Builder $query) use ($baseName) {
-                $query->where('name', $baseName);
+                $query->where('name', $baseName)->whereNot('name', $this->name);
             })
             ->first();
     }

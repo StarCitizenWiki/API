@@ -41,7 +41,7 @@ class ItemLinkResource extends AbstractBaseResource
         return [
             'uuid' => $this->uuid ?? $this->item_uuid,
             'name' => $this->name,
-            'type' => $this->type,
+            'type' => $this->type ?? $this->item->type,
             'sub_type' => $this->sub_type ?? $this->item->sub_type,
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer ?? $this->item->manufacturer),
             'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid ?? $this->item_uuid),
