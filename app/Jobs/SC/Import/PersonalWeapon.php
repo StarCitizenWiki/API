@@ -14,6 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use JsonException;
 
 class PersonalWeapon implements ShouldQueue
@@ -48,6 +49,7 @@ class PersonalWeapon implements ShouldQueue
 
         $item = $parser->getData();
 
+        /** @var \App\Models\SC\Char\PersonalWeapon\PersonalWeapon $model */
         $model = PersonalWeaponModel::updateOrCreate([
             'item_uuid' => $item['uuid'],
         ], [
@@ -67,6 +69,7 @@ class PersonalWeapon implements ShouldQueue
 
         $this->addAmmunition($item, $model);
         $this->addModes($item, $model);
+        $this->addLoadout($item, $model);
     }
 
     private function addAmmunition(array $data, PersonalWeaponModel $weapon): void
@@ -112,6 +115,22 @@ class PersonalWeapon implements ShouldQueue
                 'rounds_per_minute' => $mode['rounds_per_minute'],
                 'ammo_per_shot' => $mode['ammo_per_shot'],
                 'pellets_per_shot' => $mode['pellets_per_shot'],
+            ]);
+        });
+    }
+
+    private function addLoadout(array $data, PersonalWeaponModel $weapon): void
+    {
+        /** @var Collection $ports */
+        $ports = $weapon->item->ports;
+        if ($ports === null || $ports->isEmpty()) {
+            return;
+        }
+
+        collect($data['attachments'])->each(function (array $attachment) use ($ports) {
+            $port = $ports->where('name', $attachment['port'])->first();
+            $port?->update([
+                'equipped_item_uuid' => $attachment['uuid'],
             ]);
         });
     }

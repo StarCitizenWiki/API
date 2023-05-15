@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
+use App\Models\SC\Vehicle\VehicleItem as VehicleItemModel;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -11,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use JsonException;
 
 class MiningLaser implements ShouldQueue
@@ -35,10 +37,15 @@ class MiningLaser implements ShouldQueue
     public function handle(): void
     {
         $labels = (new Labels())->getData();
+        $this->createMiningLaserModel($labels);
+        $this->createVehicleItemModel($labels);
+    }
 
+    private function createMiningLaserModel(Collection $labels): void
+    {
         try {
             $parser = new \App\Services\Parser\StarCitizenUnpacked\MiningLaser($this->filePath, $labels);
-        } catch (FileNotFoundException|JsonException $e) {
+        } catch (FileNotFoundException | JsonException $e) {
             $this->fail($e);
             return;
         }
@@ -75,5 +82,25 @@ class MiningLaser implements ShouldQueue
                     'modifier' => $item,
                 ]);
             });
+    }
+
+    private function createVehicleItemModel(Collection $labels): void
+    {
+        try {
+            $parser = new \App\Services\Parser\StarCitizenUnpacked\VehicleItems\VehicleItem($this->filePath, $labels);
+        } catch (FileNotFoundException | JsonException $e) {
+            $this->fail($e);
+            return;
+        }
+
+        $item = $parser->getData();
+
+        VehicleItemModel::updateOrCreate([
+            'item_uuid' => $item['uuid'],
+        ], [
+            'grade' => $item['grade'],
+            'class' => $item['class'],
+            'type' => $item['type'],
+        ]);
     }
 }

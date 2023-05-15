@@ -226,6 +226,7 @@ final class Weapon extends AbstractCommodityItem
 
                 return [
                     'uuid' => Arr::get($item, 'Raw.Entity.__ref'),
+                    'port' => $component['itemPortName'],
                 ];
             });
 

@@ -40,4 +40,16 @@ class ItemPort extends Model
             'uuid'
         );
     }
+
+    public function getPositionAttribute(): ?string
+    {
+        return match ($this->name) {
+            'magazine_attach' => 'Magazine',
+            'optics_attach' => 'Optics',
+            'underbarrel_attach' => 'Underbarrel',
+            'barrel_attach' => 'Barrel',
+            'missile_attach_01' => 'Missile',
+            default => null,
+        };
+    }
 }
