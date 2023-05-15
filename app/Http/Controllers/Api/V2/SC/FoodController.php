@@ -55,6 +55,15 @@ class FoodController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(
+                name: 'food',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Food name or UUID',
+                    type: 'string',
+                ),
+            ),
         ],
         responses: [
             new OA\Response(

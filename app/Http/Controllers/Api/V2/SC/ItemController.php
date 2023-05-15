@@ -66,6 +66,15 @@ class ItemController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(
+                name: 'item',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Item name or UUID',
+                    type: 'string',
+                ),
+            ),
         ],
         responses: [
             new OA\Response(
@@ -96,6 +105,11 @@ class ItemController extends AbstractApiV2Controller
                 ->where('uuid', $identifier)
                 ->orWhere('name', $identifier)
                 ->orderByDesc('version')
+                ->with([
+                    'powerData',
+                    'distortionData',
+                    'heatData',
+                ])
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
@@ -114,8 +128,7 @@ class ItemController extends AbstractApiV2Controller
                 new OA\MediaType(
                     mediaType: 'application/json',
                     schema: new OA\Schema(
-                        schema: 'query',
-                        type: 'json',
+                        type: 'object',
                     ),
                     example: '{"query": "Arrow"}',
                 )

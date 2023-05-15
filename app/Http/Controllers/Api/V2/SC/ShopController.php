@@ -55,14 +55,21 @@ class ShopController extends AbstractApiV2Controller
                 name: 'include',
                 in: 'query',
                 schema: new OA\Schema(
-                    schema: 'shop_includes_v2',
                     description: 'Available Commodity Item includes',
-                    collectionFormat: 'csv',
                     enum: [
                         'items',
                     ]
                 ),
                 allowReserved: true
+            ),
+            new OA\Parameter(
+                name: 'shop',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Shop name or UUID',
+                    type: 'string',
+                ),
             ),
         ],
         responses: [

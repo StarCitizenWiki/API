@@ -40,8 +40,7 @@ class CommLinkSearchController extends AbstractApiV2Controller
                 new OA\MediaType(
                     mediaType: 'application/json',
                     schema: new OA\Schema(
-                        schema: 'query',
-                        type: 'json',
+                        type: 'object',
                     ),
                     example: '{"query": "Banu Merchantman"}',
                 )
@@ -93,8 +92,7 @@ class CommLinkSearchController extends AbstractApiV2Controller
                 'url' => new OA\MediaType(
                     mediaType: 'application/json',
                     schema: new OA\Schema(
-                        schema: 'url',
-                        type: 'json',
+                        type: 'object',
                     ),
                     example: '{"url": "https://robertsspaceindustries.com/i/cc75a45005a236c6e015dfc2782a2f55ed1e84a2/ADdPNihJzmPbNuTnFsH1DqUeqBRpXdSXVVtgJTyDDgscGKrzJuoFjResiiucPBBDeyrBscqRyZz4qxNsSbWvqUwdG/alien-week-2022-front.webp"}',
                 )
@@ -144,7 +142,6 @@ class CommLinkSearchController extends AbstractApiV2Controller
                 'image' => new OA\MediaType(
                     mediaType: 'application/octet-stream',
                     schema: new OA\Schema(
-                        schema: 'image',
                         description: 'The image to reverse-search',
                         type: 'string',
                         format: 'binary',
@@ -159,7 +156,6 @@ class CommLinkSearchController extends AbstractApiV2Controller
                 in: 'query',
                 required: true,
                 schema: new OA\Schema(
-                    schema: 'image_similarity',
                     type: 'integer',
                     maximum: 100,
                     minimum: 1,
@@ -170,15 +166,19 @@ class CommLinkSearchController extends AbstractApiV2Controller
                 in: 'query',
                 required: true,
                 schema: new OA\Schema(
-                    schema: 'image_search_method',
-                    collectionFormat: 'csv',
-                    default: 'perceptual',
-                    enum: [
-                        'perceptual',
-                        'difference',
-                        'average',
-                    ]
-                )
+                    description: 'Available Comm-Link includes',
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'string',
+                        default: 'perceptual',
+                        enum: [
+                            'perceptual',
+                            'difference',
+                            'average',
+                        ]
+                    ),
+                ),
+                explode: false,
             )
         ],
         responses: [

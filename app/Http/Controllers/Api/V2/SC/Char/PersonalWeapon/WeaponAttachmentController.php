@@ -58,6 +58,15 @@ class WeaponAttachmentController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(
+                name: 'attachment',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Attachment name of UUID',
+                    type: 'string',
+                ),
+            ),
         ],
         responses: [
             new OA\Response(

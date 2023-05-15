@@ -19,23 +19,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-#[OA\Parameter(
-    name: 'galactapedia_includes_v2',
-    in: 'query',
-    schema: new OA\Schema(
-        schema: 'include',
-        description: 'Available Galactapedia includes',
-        collectionFormat: 'csv',
-        enum: [
-            'translations',
-            'tags',
-            'categories',
-            'related_articles',
-            'properties',
-        ]
-    ),
-    allowReserved: true
-)]
 class GalactapediaController extends AbstractApiV2Controller
 {
     #[OA\Get(
@@ -44,7 +27,6 @@ class GalactapediaController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
-            new OA\Parameter(ref: '#/components/parameters/galactapedia_includes_v2'),
             new OA\Parameter(name: 'filter[category]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[categoryId]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[tag]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -66,7 +48,6 @@ class GalactapediaController extends AbstractApiV2Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Article::class, $request)
-            ->allowedIncludes(ArticleResource::validIncludes())
             ->allowedFilters([
                 AllowedFilter::exact('category', 'category.name'),
                 AllowedFilter::exact('categoryId', 'category.cig_id'),
@@ -89,16 +70,34 @@ class GalactapediaController extends AbstractApiV2Controller
         tags: ['Galactapedia', 'RSI-Website'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
-            new OA\Parameter(ref: '#/components/parameters/galactapedia_includes_v2'),
             new OA\Parameter(
                 name: 'id',
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    schema: 'galactapedia_id_v2',
                     description: 'Galactapedia Article ID',
                     type: 'string',
                 ),
+            ),
+            new OA\Parameter(
+                name: 'include',
+                in: 'query',
+                schema: new OA\Schema(
+                    description: 'Available Galactapedia includes',
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'string',
+                        enum: [
+                            'translations',
+                            'tags',
+                            'categories',
+                            'related_articles',
+                            'properties',
+                        ]
+                    ),
+                ),
+                explode: false,
+                allowReserved: true
             ),
         ],
         responses: [
@@ -147,8 +146,7 @@ class GalactapediaController extends AbstractApiV2Controller
                 new OA\MediaType(
                     mediaType: 'application/json',
                     schema: new OA\Schema(
-                        schema: 'query',
-                        type: 'json',
+                        type: 'object',
                     ),
                     example: '{"query": "Banu"}',
                 )

@@ -280,7 +280,8 @@ class ItemResource extends AbstractTranslationResource
         ];
     }
 
-    private function addBaseVersion(): array {
+    private function addBaseVersion(): array
+    {
         if ($this->specification === null || !is_callable([$this->specification, 'getBaseModelAttribute'])) {
             return [false, []];
         }

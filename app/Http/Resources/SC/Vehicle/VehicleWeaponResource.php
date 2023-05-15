@@ -35,7 +35,7 @@ use OpenApi\Attributes as OA;
             new OA\Property(property: 'lifetime', type: 'double', nullable: true),
             new OA\Property(property: 'speed', type: 'double', nullable: true),
             new OA\Property(property: 'range', type: 'double', nullable: true),
-        ], type: 'obejct', nullable: true),
+        ], type: 'object', nullable: true),
         new OA\Property(property: 'updated_at', type: 'string', nullable: true),
         new OA\Property(property: 'version', type: 'string', nullable: true),
     ],

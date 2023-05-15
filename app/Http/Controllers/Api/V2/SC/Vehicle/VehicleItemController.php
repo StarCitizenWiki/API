@@ -62,6 +62,15 @@ class VehicleItemController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(
+                name: 'item',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Item name or UUID',
+                    type: 'string',
+                ),
+            ),
         ],
         responses: [
             new OA\Response(
@@ -90,7 +99,12 @@ class VehicleItemController extends AbstractApiV2Controller
         try {
             $identifier = QueryBuilder::for(Item::class, $request)
                 ->whereHas('vehicleItem')
-                ->with(['powerData'])
+                ->with([
+                    'powerData',
+                    'distortionData',
+                    'heatData',
+                    'specification',
+                ])
                 ->whereRelation('vehicleItem', function (Builder $query) use ($identifier) {
                     $query->where('item_uuid', $identifier)
                         ->orWhere('name', $identifier);

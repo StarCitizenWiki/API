@@ -24,7 +24,6 @@ use Spatie\QueryBuilder\AllowedInclude;
     name: 'page',
     in: 'query',
     schema: new OA\Schema(
-        schema: 'page',
         description: 'Page of pagination if any',
         type: 'integer',
         format: 'int64',
@@ -35,7 +34,6 @@ use Spatie\QueryBuilder\AllowedInclude;
     name: 'limit',
     in: 'query',
     schema: new OA\Schema(
-        schema: 'limit',
         description: 'Items per page, set to 0, to return all items',
         type: 'integer',
         format: 'int64',
@@ -47,9 +45,7 @@ use Spatie\QueryBuilder\AllowedInclude;
     name: 'locale',
     in: 'query',
     schema: new OA\Schema(
-        schema: 'locale',
         description: 'Localization to use.',
-        collectionFormat: 'csv',
         enum: [
             'de_DE',
             'en_EN',
@@ -60,9 +56,7 @@ use Spatie\QueryBuilder\AllowedInclude;
     name: 'version',
     in: 'query',
     schema: new OA\Schema(
-        schema: 'version',
         description: 'Game Version',
-        collectionFormat: 'csv',
         enum: [
             '3.12.11',
             '3.13.1',
@@ -79,14 +73,17 @@ use Spatie\QueryBuilder\AllowedInclude;
     name: 'include',
     in: 'query',
     schema: new OA\Schema(
-        schema: 'include',
         description: 'Available Commodity Item includes',
-        collectionFormat: 'csv',
-        enum: [
-            'shops',
-            'shops.items',
-        ]
+        type: 'array',
+        items: new OA\Items(
+            type: 'string',
+            enum: [
+                'shops',
+                'shops.items',
+            ]
+        ),
     ),
+    explode: false,
     allowReserved: true
 )]
 #[OA\Schema(

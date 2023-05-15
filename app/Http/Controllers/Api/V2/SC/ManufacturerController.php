@@ -49,9 +49,19 @@ class ManufacturerController extends AbstractApiV2Controller
     }
 
     #[OA\Get(
-        path: '/api/v2/manufacturers/{manufacturers}',
+        path: '/api/v2/manufacturers/{manufacturer}',
         tags: ['In-Game', 'Manufacturer'],
-        parameters: [],
+        parameters: [
+            new OA\Parameter(
+                name: 'manufacturer',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Manufacturer name, uuid, or code',
+                    type: 'string',
+                ),
+            ),
+        ],
         responses: [
             new OA\Response(
                 response: 200,

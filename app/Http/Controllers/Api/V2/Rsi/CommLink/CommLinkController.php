@@ -22,15 +22,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
     name: 'include',
     in: 'query',
     schema: new OA\Schema(
-        schema: 'comm_link_includes_v2',
         description: 'Available Comm-Link includes',
-        collectionFormat: 'csv',
-        enum: [
-            'translations',
-            'images',
-            'links',
-        ]
+        type: 'array',
+        items: new OA\Items(
+            type: 'string',
+            enum: [
+                'translations',
+                'images',
+                'links',
+            ]
+        ),
     ),
+    explode: false,
     allowReserved: true
 )]
 class CommLinkController extends AbstractApiV2Controller
@@ -83,7 +86,6 @@ class CommLinkController extends AbstractApiV2Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    schema: 'comm_link_id_v2',
                     description: 'Comm-Link ID, starting from 12663',
                     type: 'integer',
                     format: 'int64',

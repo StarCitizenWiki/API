@@ -6,9 +6,11 @@ namespace App\Http\Controllers\Api\V2\SC\Char\PersonalWeapon;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponLinkResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponResource;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
+use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -16,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -27,6 +30,8 @@ class PersonalWeaponController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[class]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -34,19 +39,22 @@ class PersonalWeaponController extends AbstractApiV2Controller
                 description: 'List of Personal Weapons',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/item_link_v2')
+                    items: new OA\Items(ref: '#/components/schemas/personal_weapon_link_v2')
                 )
             )
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Item::class, $request)
-            ->where('type', 'WeaponPersonal')
+        $query = QueryBuilder::for(PersonalWeapon::class, $request)
+            ->allowedFilters([
+                AllowedFilter::exact('type', 'weapon_type'),
+                AllowedFilter::exact('class', 'weapon_class'),
+            ])
             ->paginate($this->limit)
             ->appends(request()->query());
 
-        return ItemLinkResource::collection($query);
+        return PersonalWeaponLinkResource::collection($query);
     }
 
     #[OA\Get(
@@ -58,17 +66,30 @@ class PersonalWeaponController extends AbstractApiV2Controller
                 name: 'include',
                 in: 'query',
                 schema: new OA\Schema(
-                    schema: 'personal_weapon_includes_v2',
-                    collectionFormat: 'csv',
-                    enum: [
-                        'modes',
-                        'damages',
-                        'ports',
-                        'shops',
-                        'shops.items',
-                    ]
+                    description: 'Available Weapon includes',
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'string',
+                        enum: [
+                            'modes',
+                            'damages',
+                            'ports',
+                            'shops',
+                            'shops.items',
+                        ]
+                    ),
                 ),
+                explode: false,
                 allowReserved: true
+            ),
+            new OA\Parameter(
+                name: 'weapon',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Weapon name of UUID',
+                    type: 'string',
+                ),
             ),
         ],
         responses: [

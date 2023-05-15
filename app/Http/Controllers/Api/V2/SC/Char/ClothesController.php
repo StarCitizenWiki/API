@@ -57,6 +57,15 @@ class ClothesController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/clothing_includes_v2'),
+            new OA\Parameter(
+                name: 'clothing',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Clothing name or UUID',
+                    type: 'string',
+                ),
+            ),
         ],
         responses: [
             new OA\Response(

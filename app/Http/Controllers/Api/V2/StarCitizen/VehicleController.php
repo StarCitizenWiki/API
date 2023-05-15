@@ -64,16 +64,18 @@ class VehicleController extends AbstractApiV2Controller
                 name: 'include',
                 in: 'query',
                 schema: new OA\Schema(
-                    schema: 'vehicle_includes_v2',
                     description: 'Available Vehicle includes',
-                    collectionFormat: 'csv',
-                    enum: [
-                        'components',
-                        'hardpoints',
-                        'shops',
-                        'shops.items',
-                    ]
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'string',
+                        enum: [
+                            'components',
+                            'hardpoints',
+                            'shops',
+                        ]
+                    ),
                 ),
+                explode: false,
                 allowReserved: true
             ),
             new OA\Parameter(
@@ -81,7 +83,6 @@ class VehicleController extends AbstractApiV2Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    schema: 'vehicle_name',
                     description: '(Partial) Vehicle name',
                     type: 'string',
                 ),
@@ -139,8 +140,7 @@ class VehicleController extends AbstractApiV2Controller
                 new OA\MediaType(
                     mediaType: 'application/json',
                     schema: new OA\Schema(
-                        schema: 'query',
-                        type: 'json',
+                        type: 'object',
                     ),
                     example: '{"query": "Merchant"}',
                 )

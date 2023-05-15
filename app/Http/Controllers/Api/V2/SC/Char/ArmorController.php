@@ -24,24 +24,26 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
     name: 'include',
     in: 'query',
     schema: new OA\Schema(
-        schema: 'include',
-        description: 'Available Armor Item includes',
-        collectionFormat: 'csv',
-        enum: [
-            'shops',
-            'shops.items',
-            'ports',
-            'resistances',
-        ]
+        description: 'Available Clothing/Armor Item includes',
+        type: 'array',
+        items: new OA\Items(
+            type: 'string',
+            enum: [
+                'shops',
+                'shops.items',
+                'ports',
+                'resistances',
+            ]
+        ),
     ),
+    explode: false,
     allowReserved: true
 )]
 #[OA\Parameter(
     parameter: 'clothing_filter_v2',
-    name: 'filter',
+    name: 'filter[type]',
     in: 'query',
     schema: new OA\Schema(
-        schema: 'filter[type]',
         description: 'Filter list based on type',
         type: 'string',
     ),
@@ -85,6 +87,15 @@ class ArmorController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/clothing_includes_v2'),
+            new OA\Parameter(
+                name: 'armor',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Armor name of UUID',
+                    type: 'string',
+                ),
+            ),
         ],
         responses: [
             new OA\Response(
