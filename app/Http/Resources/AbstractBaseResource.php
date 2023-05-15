@@ -14,7 +14,7 @@ abstract class AbstractBaseResource extends JsonResource
     public const STARMAP_STARSYSTEM_SHOW = 'starsystems/';
     public const STARMAP_CELESTIAL_OBJECTS_SHOW = 'celestial-objects/';
 
-    public const GALACTAPEDIA_ARTICLE_SHOW = 'galactapedia';
+    public const GALACTAPEDIA_ARTICLE_SHOW = 'galactapedia/';
 
 
     public const ITEMS_SHOW = 'items/';
