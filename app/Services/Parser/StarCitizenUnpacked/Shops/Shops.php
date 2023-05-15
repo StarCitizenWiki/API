@@ -26,20 +26,6 @@ final class Shops
         'stanton_4_shubin_002' => 'Shubin Mining Facility SM0-22, Microtech',
         //'stanton_4_shubin_005' => 'Shubin Mining Facility SM0-22, Microtech',
         'Skutters_GrimHex' => 'Skutters, GrimHEX',
-
-
-        // Ore Sales
-        'MiningKiosks_RS_Stanton1_L1' => 'Ore Sales, HUR-L1',
-        'MiningKiosks_RS_Stanton1_L2' => 'Ore Sales, HUR-L2',
-        'MiningKiosks_RS_Stanton2_L1' => 'Ore Sales, CRU-L1',
-        'MiningKiosks_RS_Stanton3_L1' => 'Ore Sales, ARC-L1',
-        'MiningKiosks_RS_Stanton4_L1' => 'Ore Sales, MIC-L1',
-
-        'RS_RefineryStore_Stanton1_L1' => 'Supply Shop, HUR-L1',
-        'RS_RefineryStore_Stanton1_L2' => 'Supply Shop, HUR-L2',
-        'RS_RefineryStore_Stanton2_L1' => 'Supply Shop, CRU-L1',
-        'RS_RefineryStore_Stanton3_L1' => 'Supply Shop, ARC-L1',
-        'RS_RefineryStore_Stanton4_L1' => 'Supply Shop, MIC-L1',
     ];
 
     /**
@@ -72,7 +58,7 @@ final class Shops
         $this->shops
             ->filter(function (array $shop) {
                 return isset($shop['name']) &&
-                    (strpos($shop['name'], ',') !== false || isset($this->shopNames[$shop['name']]));
+                    (str_contains($shop['name'], ',') || isset($this->shopNames[$shop['name']]));
             })
             ->filter(function (array $shop) {
                 return strpos($shop['name'], 'IAE Expo') === false;
@@ -120,7 +106,6 @@ final class Shops
                 return isset($inventory['item_reference']);
             })
             ->map(function (array $inventory) {
-
                 if (!isset($inventory['displayName'])) {
                     $key = $this->labels->first(function ($value, $key) use ($inventory) {
                         return sprintf('item_name_%s', $inventory['name']) === strtolower($key);
@@ -131,11 +116,6 @@ final class Shops
                     }
 
                     $inventory['displayName'] = $key;
-                }
-
-                // Fix MedPens
-                if (isset($inventory['subType']) && $inventory['subType'] === 'MedPack') {
-                    $inventory['displayName'] = $this->labels->get(sprintf('item_Name%s', $inventory['name']));
                 }
 
                 return $inventory;
