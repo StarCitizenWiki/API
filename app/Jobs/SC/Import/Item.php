@@ -54,6 +54,14 @@ class Item implements ShouldQueue
             'manufacturer_id' => $manufacturer->id,
         ]);
 
+        if (!empty($this->data['description'])) {
+            $itemModel->translations()->updateOrCreate([
+                'locale_code' => 'en_EN',
+            ], [
+                'translation' => $this->data['description'],
+            ]);
+        }
+
         $itemModel->dimensions()->updateOrCreate([
             'item_uuid' => $this->data['uuid'],
             'override' => 0,

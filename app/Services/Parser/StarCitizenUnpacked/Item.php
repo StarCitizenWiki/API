@@ -73,6 +73,7 @@ final class Item extends AbstractCommodityItem
                 'type' => $attachDef['Type'],
                 'tags' => $attachDef['Tags'],
                 'sub_type' => $attachDef['SubType'],
+                'description' => $descriptionData['description'] ?? null,
                 'manufacturer_description' => $descriptionData['manufacturer'] ?? null,
                 'manufacturer' => $manufacturer,
                 'size' => $attachDef['Size'],
