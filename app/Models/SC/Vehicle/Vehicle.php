@@ -40,6 +40,7 @@ class Vehicle extends CommodityItem
         'weapon_crew',
         'operations_crew',
         'mass',
+        'health',
 
         'zero_to_scm',
         'zero_to_max',
@@ -184,7 +185,7 @@ class Vehicle extends CommodityItem
         );
     }
 
-    public function getHealthAttribute(): float
+    public function getComputedHealthAttribute(): float
     {
         return $this->hardpoints()
             ->get()

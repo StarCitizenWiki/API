@@ -109,6 +109,7 @@ class ItemController extends AbstractApiV2Controller
                     'powerData',
                     'distortionData',
                     'heatData',
+                    'durabilityData',
                 ])
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();

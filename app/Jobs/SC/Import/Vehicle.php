@@ -161,6 +161,7 @@ class Vehicle implements ShouldQueue
             'weapon_crew' => $vehicle['WeaponCrew'],
             'operations_crew' => $vehicle['OperationsCrew'],
             'mass' => $vehicle['Mass'],
+            'health' => $vehicle['Health'] ?? null,
 
             'zero_to_scm' => $this->numFormat($vehicle['FlightCharacteristics']['ZeroToScm']),
             'zero_to_max' => $this->numFormat($vehicle['FlightCharacteristics']['ZeroToMax']),
