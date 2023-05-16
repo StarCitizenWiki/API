@@ -144,11 +144,6 @@ class Vehicle implements ShouldQueue
 
     public function getVehicleModelArray(array $vehicle): array
     {
-        $mass = $vehicle['Mass'];
-        if (str_contains($vehicle['ClassName'], 'Carrack')) {
-            $mass = 4397858;
-        }
-
         return [
             'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
 
@@ -165,7 +160,7 @@ class Vehicle implements ShouldQueue
             'crew' => $vehicle['Crew'],
             'weapon_crew' => $vehicle['WeaponCrew'],
             'operations_crew' => $vehicle['OperationsCrew'],
-            'mass' => $mass,
+            'mass' => $vehicle['Mass'],
 
             'zero_to_scm' => $this->numFormat($vehicle['FlightCharacteristics']['ZeroToScm']),
             'zero_to_max' => $this->numFormat($vehicle['FlightCharacteristics']['ZeroToMax']),
