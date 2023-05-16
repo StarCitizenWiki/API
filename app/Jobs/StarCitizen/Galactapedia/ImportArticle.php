@@ -244,7 +244,7 @@ QUERY,
             })
             ->collect();
 
-        return $this->article->relatedArticles()->sync($ids);
+        return $this->article->related()->sync($ids);
     }
 
     /**
