@@ -20,6 +20,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'uuid', type: 'string'),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'slug', type: 'string'),
+        new OA\Property(property: 'class_name', type: 'string', nullable: true),
         new OA\Property(
             property: 'sizes',
             properties: [
@@ -181,6 +182,7 @@ class VehicleResource extends AbstractBaseResource
             'uuid' => $this->item_uuid,
             'name' => $this->name,
             'slug' => Str::slug($this->name),
+            'class_name' => $this->class_name,
             'sizes' => [
                 'length' => (double)$this->length,
                 'beam' => (double)$this->width,

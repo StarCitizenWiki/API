@@ -23,6 +23,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'chassis_id', type: 'integer'),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'slug', type: 'string'),
+        new OA\Property(property: 'class_name', type: 'string', nullable: true),
         new OA\Property(
             property: 'sizes',
             properties: [
@@ -226,6 +227,9 @@ class VehicleResource extends AbstractBaseResource
             'chassis_id' => $this->chassis_id,
             'name' => $this->name,
             'slug' => $this->slug,
+            $this->mergeWhen($this->sc?->class_name !== null, [
+                'class_name' => $this->sc->class_name,
+            ]),
             'sizes' => [
                 'length' => (double)$this->length,
                 'beam' => (double)$this->width,
