@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\SC\Vehicle;
 
+use App\Events\ModelUpdating;
 use App\Models\SC\CommodityItem;
 use App\Models\SC\Item\Item;
 use App\Models\SC\ItemSpecification\FlightController;
@@ -19,6 +20,12 @@ class Vehicle extends CommodityItem
 {
     use HasFactory;
     use ModelChangelog;
+
+    protected $dispatchesEvents = [
+        'updating' => ModelUpdating::class,
+        'created' => ModelUpdating::class,
+        'deleting' => ModelUpdating::class,
+    ];
 
     protected $table = 'sc_vehicles';
 
