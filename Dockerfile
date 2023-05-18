@@ -118,7 +118,8 @@ RUN chown -R www-data:www-data /var/www/html; \
     chmod -R g+w /var/www/html/storage; \
     chown www-data:www-data /usr/local/bin/schedule; \
     chmod +x /usr/local/bin/schedule; \
-    a2enmod rewrite
+    a2enmod rewrite; \
+    php artisan storage:link
 
 USER root
 
