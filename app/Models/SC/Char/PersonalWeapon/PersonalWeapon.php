@@ -56,13 +56,13 @@ class PersonalWeapon extends Item
     }
 
     /**
-     * @return Optional
+     * @return Optional|null
      */
-    public function getMagazineAttribute(): Optional
+    public function getMagazineAttribute()
     {
         $magazine = $this->ports()->where('name', 'LIKE', '%magazine%')->first();
         if ($magazine !== null) {
-            return optional($magazine->item->specification);
+            return optional($magazine->item)->specification;
         }
 
         return optional();
