@@ -6,7 +6,7 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\StarCitizenUnpacked\CharArmor\CharArmor;
+use App\Models\SC\Char\Clothing\Armor;
 use App\Traits\GetWikiCsrfTokenTrait;
 use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
@@ -40,12 +40,12 @@ class CreateCharArmorWikiPages extends AbstractQueueCommand
      */
     public function handle()
     {
-        $charArmor = CharArmor::all();
+        $charArmor = Armor::all();
 
         $this->createProgressBar($charArmor->count());
 
-        $charArmor->each(function (CharArmor $armor) {
-            if (str_contains($armor->item->name, 'PLACEHOLDER') || str_contains($armor->item->name, '[PH]')) {
+        $charArmor->each(function (Armor $armor) {
+            if (str_contains($armor->name, 'PLACEHOLDER') || str_contains($armor->name, '[PH]')) {
                 return;
             }
 
@@ -61,7 +61,7 @@ class CreateCharArmorWikiPages extends AbstractQueueCommand
         return 0;
     }
 
-    public function uploadWiki(CharArmor $armor)
+    public function uploadWiki(Armor $armor)
     {
         // phpcs:disable
         $text = <<<FORMAT
@@ -86,7 +86,7 @@ FORMAT;
 
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
-            $response = MediaWikiApi::edit($armor->item->name)
+            $response = MediaWikiApi::edit($armor->name)
                 ->withAuthentication()
                 ->text($text)
                 ->csrfToken($token)
@@ -99,7 +99,7 @@ FORMAT;
             return;
         }
 
-        $this->createEnglishSubpage($armor->item->name, $token);
+        $this->createEnglishSubpage($armor->name, $token);
 
         if ($response->hasErrors() && $response->getErrors()['code'] !== 'articleexists') {
             $this->error(implode(', ', $response->getErrors()));

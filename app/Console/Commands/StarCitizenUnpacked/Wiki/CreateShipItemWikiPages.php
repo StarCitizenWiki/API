@@ -43,7 +43,7 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
         $items = VehicleItem::all();
 
         $items = $items->filter(function (VehicleItem $item) {
-            return !str_contains(strtolower($item->item->name), 'placeholder');
+            return !str_contains(strtolower($item->name), 'placeholder');
         });
 
         $this->createProgressBar($items->count());
@@ -55,7 +55,7 @@ class CreateShipItemWikiPages extends AbstractQueueCommand
         });
 
         if (config('services.wiki_approve_revs.access_secret') !== null) {
-            $this->approvePages($items->pluck('item.name'));
+            $this->approvePages($items->pluck('name'));
         }
 
         return 0;
@@ -92,7 +92,7 @@ FORMAT;
 
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
-            $response = MediaWikiApi::edit($item->item->name)
+            $response = MediaWikiApi::edit($item->name)
                 ->withAuthentication()
                 ->text($text)
                 ->csrfToken($token)
@@ -105,7 +105,7 @@ FORMAT;
             return;
         }
 
-        $this->createEnglishSubpage($item->item->name, $token);
+        $this->createEnglishSubpage($item->name, $token);
 
         if ($response->hasErrors() && $response->getErrors()['code'] !== 'articleexists') {
             $this->error(implode(', ', $response->getErrors()));
@@ -114,8 +114,8 @@ FORMAT;
 
     private function getTemplateType(VehicleItem $item): ?string
     {
-        if ($item->item !== null && $item->item->name !== '<= PLACEHOLDER =>') {
-            switch ($item->item->type) {
+        if ($item->name !== '<= PLACEHOLDER =>') {
+            switch ($item->type) {
                 case 'WeaponGun':
                     return 'Fahrzeugwaffe';
                 case 'MissileLauncher':
@@ -129,18 +129,13 @@ FORMAT;
             }
         }
 
-        switch ($item->type) {
-            case 'Cooler':
-                return 'Kühler';
-            case 'Power Plant':
-                return 'Generator';
-            case 'Shield Generator':
-                return 'Schildgenerator';
-            case 'Quantum Drive':
-                return 'Quantenantrieb';
-            default:
-                return null;
-        }
+        return match ($item->type) {
+            'Cooler' => 'Kühler',
+            'PowerPlant' => 'Generator',
+            'ShieldGenerator' => 'Schildgenerator',
+            'QuantumDrive' => 'Quantenantrieb',
+            default => null,
+        };
     }
 
     private function approvePages(Collection $data): void

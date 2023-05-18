@@ -6,7 +6,7 @@ namespace App\Console\Commands\StarCitizenUnpacked\Wiki;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\Wiki\ApproveRevisions;
-use App\Models\SC\Item\Item;
+use App\Models\SC\Char\PersonalWeapon\Attachment;
 use App\Traits\GetWikiCsrfTokenTrait;
 use App\Traits\Jobs\CreateEnglishSubpageTrait;
 use ErrorException;
@@ -40,27 +40,24 @@ class CreateWeaponAttachmentWikiPages extends AbstractQueueCommand
      */
     public function handle(): int
     {
-        $attachments = Item::query()
-            ->where('type', 'WeaponAttachment')
-            ->where('name', 'NOT LIKE', 'PLACEHOLDER')
-            ->get();
+        $attachments = Attachment::all();
 
         $this->createProgressBar($attachments->count());
 
-        $attachments->each(function (Item $attachment) {
+        $attachments->each(function (Attachment $attachment) {
             $this->uploadWiki($attachment);
 
             $this->advanceBar();
         });
 
         if (config('services.wiki_approve_revs.access_secret') !== null) {
-            $this->approvePages($attachments->pluck('item.name'));
+            $this->approvePages($attachments->pluck('name'));
         }
 
         return 0;
     }
 
-    public function uploadWiki(Item $attachment): void
+    public function uploadWiki(Attachment $attachment): void
     {
         // phpcs:disable
         $text = <<<FORMAT
@@ -86,7 +83,7 @@ FORMAT;
 
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
-            $response = MediaWikiApi::edit($attachment->item->name)
+            $response = MediaWikiApi::edit($attachment->name)
                 ->withAuthentication()
                 ->text($text)
                 ->csrfToken($token)
@@ -99,7 +96,7 @@ FORMAT;
             return;
         }
 
-        $this->createEnglishSubpage($attachment->item->name, $token);
+        $this->createEnglishSubpage($attachment->name, $token);
 
         if ($response->hasErrors() && $response->getErrors()['code'] !== 'articleexists') {
             $this->error(implode(', ', $response->getErrors()));

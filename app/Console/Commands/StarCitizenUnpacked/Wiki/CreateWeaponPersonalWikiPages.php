@@ -51,7 +51,7 @@ class CreateWeaponPersonalWikiPages extends AbstractQueueCommand
         });
 
         if (config('services.wiki_approve_revs.access_secret') !== null) {
-            $this->approvePages($weaponPersonals->pluck('item.name'));
+            $this->approvePages($weaponPersonals->pluck('name'));
         }
 
         return 0;
@@ -83,7 +83,7 @@ FORMAT;
 
         try {
             $token = $this->getCsrfToken('services.wiki_translations');
-            $response = MediaWikiApi::edit($weaponPersonal->item->name)
+            $response = MediaWikiApi::edit($weaponPersonal->name)
                 ->withAuthentication()
                 ->text($text)
                 ->csrfToken($token)
@@ -96,7 +96,7 @@ FORMAT;
             return;
         }
 
-        $this->createEnglishSubpage($weaponPersonal->item->name, $token);
+        $this->createEnglishSubpage($weaponPersonal->name, $token);
 
         if ($response->hasErrors() && $response->getErrors()['code'] !== 'articleexists') {
             $this->error(implode(', ', $response->getErrors()));

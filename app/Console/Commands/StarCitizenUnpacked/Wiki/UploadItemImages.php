@@ -8,6 +8,7 @@ use App\Console\Commands\AbstractQueueCommand;
 use App\Models\SC\Char\Clothing\Armor;
 use App\Models\SC\Char\Clothing\Clothes;
 use App\Models\SC\Char\Clothing\Clothing;
+use App\Models\SC\Char\PersonalWeapon\Attachment;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use App\Models\SC\CommodityItem;
 use App\Models\SC\Food\Food;
@@ -20,7 +21,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
-class  UploadItemImages extends AbstractQueueCommand
+class UploadItemImages extends AbstractQueueCommand
 {
     /**
      * The name and signature of the console command.
@@ -120,13 +121,10 @@ class  UploadItemImages extends AbstractQueueCommand
             $this->work($items);
         });
 
-//        $this->info('Uploading Weapon Attachment Images...');
-//        Item::query()
-//            ->where('type', 'WeaponAttachment')
-//            ->where('name', 'NOT LIKE', 'PLACEHOLDER')
-//            ->chunk(100, function (Collection $items) {
-//                $this->work($items);
-//            });
+        $this->info('Uploading Weapon Attachment Images...');
+        Attachment::chunk(100, function (Collection $items) {
+            $this->work($items);
+        });
 
         $this->info('Uploading Food Images...');
         Food::chunk(100, function (Collection $items) {
@@ -134,15 +132,9 @@ class  UploadItemImages extends AbstractQueueCommand
         });
 
         $this->info('Uploading Ship Item Images...');
-        VehicleItem::query()->whereIn('type', array_keys($this->typeTranslations))
-            ->orWhereRelation('item', 'type', 'WeaponGun')
-            ->orWhereRelation('item', 'type', 'Missile')
-            ->orWhereRelation('item', 'type', 'Torpedo')
-            ->orWhereRelation('item', 'type', 'WeaponMining')
-            ->orWhereRelation('item', 'type', 'MissileLauncher')
-            ->chunk(100, function (Collection $items) {
+        VehicleItem::chunk(100, function (Collection $items) {
                 $this->work($items);
-            });
+        });
 
         $this->info('Done');
 
@@ -155,11 +147,15 @@ class  UploadItemImages extends AbstractQueueCommand
      */
     private function work(Collection $entries, bool $normalizeCategory = false): void
     {
-        $entries->each(function (CommodityItem $item) use ($normalizeCategory) {
-            $url = sprintf('%s.jpg', $item->item->uuid);
+        $entries->each(function ($item) use ($normalizeCategory) {
+            if ($item instanceof CommodityItem) {
+                $item = $item->item;
+            }
 
-            if ($item->item->manufacturer->name === '@LOC_PLACEHOLDER') {
-                $item->Item->manufacturer->name = 'Unbekannter Hersteller';
+            $url = sprintf('%s.jpg', $item->uuid);
+
+            if ($item->manufacturer->name === '@LOC_PLACEHOLDER') {
+                $item->manufacturer->name = 'Unbekannter Hersteller';
             }
 
             $this->headResponse = $this->http->head($url);
@@ -176,22 +172,22 @@ class  UploadItemImages extends AbstractQueueCommand
             ];
 
             $categories = [
-                str_replace('[PH] ', '', $item->item->manufacturer),
+                str_replace('[PH] ', '', $item->manufacturer->name),
             ];
 
-            $name = preg_replace('/[^\w-]/', ' ', $item->item->name);
+            $name = preg_replace('/[^\w-]/', ' ', $item->name);
 
             if ($normalizeCategory) {
                 $this->normalizeCategory($item, $name, $metadata, $categories);
             } else {
-                $categories[] = $item->item->name;
+                $categories[] = $item->name;
             }
 
             if (!isset($metadata['description'])) {
                 $metadata['description'] = sprintf(
                     '[[%s]] vom Hersteller [[%s]]',
-                    $item->item->name,
-                    str_replace('[PH] ', '', $item->item->manufacturer),
+                    $item->name,
+                    str_replace('[PH] ', '', $item->manufacturer->name),
                 );
             }
 
@@ -199,15 +195,15 @@ class  UploadItemImages extends AbstractQueueCommand
                 $categories[] = $this->typeTranslations[$item->type];
 
                 $type = $this->typeTranslations[$item->type];
-                if ($item->item->type === 'WeaponGun') {
+                if ($item->type === 'WeaponGun') {
                     $type = 'Fahrzeugwaffe';
                 }
 
                 $metadata['description'] = sprintf(
                     '%s [[%s]] vom Hersteller [[%s]]',
                     $type,
-                    $item->item->name,
-                    str_replace('[PH] ', '', $item->item->manufacturer),
+                    $item->name,
+                    str_replace('[PH] ', '', $item->manufacturer->name),
                 );
             }
 
@@ -234,7 +230,7 @@ class  UploadItemImages extends AbstractQueueCommand
      * @param array $metadata
      * @param array $categories
      */
-    private function normalizeCategory(CommodityItem $item, string $name, array &$metadata, array &$categories): void
+    private function normalizeCategory($item, string $name, array &$metadata, array &$categories): void
     {
         foreach (Clothing::$splits as $split) {
             if (!Str::contains($name, $split)) {
@@ -245,7 +241,7 @@ class  UploadItemImages extends AbstractQueueCommand
             if (count($splitted) === 2) {
                 $categories[] = $splitted[0];
             } else {
-                $categories[] = $item->item->name;
+                $categories[] = $item->name;
             }
 
             if (isset($this->typeTranslations[$split])) {
@@ -254,8 +250,8 @@ class  UploadItemImages extends AbstractQueueCommand
                 $metadata['description'] = sprintf(
                     '%s [[%s]] vom Hersteller [[%s]]',
                     $this->typeTranslations[$split],
-                    $item->item->name,
-                    $item->item->manufacturer,
+                    $item->name,
+                    $item->manufacturer->name,
                 );
             }
         }
