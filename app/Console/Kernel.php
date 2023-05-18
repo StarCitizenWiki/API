@@ -199,7 +199,7 @@ class Kernel extends ConsoleKernel
         /* Check for new Comm-Links */
         $this->schedule
             ->command(CommLinkSchedule::class)
-            ->hourlyAt(5);
+            ->everyFifteenMinutes();
 
         /* Run CommLink Notification only once each day */
         $this->schedule->call(function () {
