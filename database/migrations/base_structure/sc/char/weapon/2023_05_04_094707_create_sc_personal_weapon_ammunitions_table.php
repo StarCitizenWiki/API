@@ -15,16 +15,16 @@ return new class extends Migration
     {
         Schema::create('sc_personal_weapon_ammunitions', static function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('weapon_id');
+            $table->uuid('item_uuid');
             $table->unsignedInteger('size');
             $table->unsignedDouble('lifetime');
             $table->unsignedDouble('speed');
             $table->unsignedDouble('range');
             $table->timestamps();
 
-            $table->foreign('weapon_id', 'fk_sc_p_w_amm_weapon_id')
-                ->references('id')
-                ->on('sc_personal_weapons')
+            $table->foreign('item_uuid', 'fk_sc_p_w_amm_item_uuid')
+                ->references('uuid')
+                ->on('sc_items')
                 ->onDelete('cascade');
         });
     }

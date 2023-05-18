@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('type')->nullable();
             $table->string('sub_type')->nullable();
-            $table->string('manufacturer_description')->nullable();
             $table->unsignedBigInteger('manufacturer_id');
             $table->unsignedInteger('size')->nullable();
             $table->string('class_name')->nullable();

@@ -9,13 +9,13 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Char\ClothingResource;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
-use App\Models\SC\Item\Item;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\SC\Char\Clothing\Clothes;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -42,9 +42,11 @@ class ClothesController extends AbstractApiV2Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Item::class, $request)
+        $query = QueryBuilder::for(Clothes::class, $request)
             ->where('type', 'LIKE', 'Char_Clothing%')
-            ->allowedFilters(['type'])
+            ->allowedFilters([
+                AllowedFilter::partial('type'),
+            ])
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -92,12 +94,10 @@ class ClothesController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $identifier = QueryBuilder::for(Item::class, $request)
+            $identifier = QueryBuilder::for(Clothes::class, $request)
                 ->where('type', 'LIKE', 'Char_Clothing%')
-                ->where(function (Builder $query) use ($identifier) {
-                    $query->where('uuid', $identifier)
-                        ->orWhere('name', $identifier);
-                })
+                ->where('uuid', $identifier)
+                ->orWhere('name', $identifier)
                 ->orderByDesc('version')
                 ->allowedIncludes(ClothingResource::validIncludes())
                 ->firstOrFail();

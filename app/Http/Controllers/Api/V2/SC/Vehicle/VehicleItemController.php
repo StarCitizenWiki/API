@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -46,10 +47,20 @@ class VehicleItemController extends AbstractApiV2Controller
     {
         $query = QueryBuilder::for(VehicleItem::class, $request)
             ->allowedFilters([
-                'type',
-                'grade',
-                'class',
+                AllowedFilter::callback('type', static function (Builder $query, $value) {
+                    $query->whereRelation('descriptionData', 'name', 'Item Type')
+                        ->whereRelation('descriptionData', 'value', $value);
+                }),
+                AllowedFilter::callback('type', static function (Builder $query, $value) {
+                    $query->whereRelation('descriptionData', 'name', 'Grade')
+                        ->whereRelation('descriptionData', 'value', $value);
+                }),
+                AllowedFilter::callback('type', static function (Builder $query, $value) {
+                    $query->whereRelation('descriptionData', 'name', 'Class')
+                        ->whereRelation('descriptionData', 'value', $value);
+                }),
             ])
+            ->allowedIncludes(['shops', 'shops.items'])
             ->paginate($this->limit)
             ->appends(request()->query());
 

@@ -43,7 +43,7 @@ class Hardpoint extends Model
     {
         return $this->hasOne(
             VehicleItem::class,
-            'item_uuid',
+            'uuid',
             'equipped_item_uuid',
         )->withDefault();
     }

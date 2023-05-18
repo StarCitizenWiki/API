@@ -44,11 +44,6 @@ final class ItemSpecificationCreator
                 MiningLaser::dispatch($filePath);
                 break;
 
-            // Mining Modifier
-            case stripos($type, 'MiningModifier') !== false:
-                MiningModule::dispatch($filePath);
-                break;
-
             // Vehicle Items
             case stripos($type, 'Battery') !== false:
             case stripos($type, 'Cooler') !== false:

@@ -16,8 +16,6 @@ return new class extends Migration
         Schema::create('sc_vehicle_weapons', static function (Blueprint $table) {
             $table->id();
             $table->uuid('item_uuid')->unique();
-            $table->string('weapon_type')->nullable();
-            $table->string('weapon_class')->nullable();
             $table->unsignedDouble('capacity')->nullable();
 
             $table->timestamps();

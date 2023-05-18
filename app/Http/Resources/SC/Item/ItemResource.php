@@ -146,7 +146,7 @@ class ItemResource extends AbstractTranslationResource
                 'class' => $this->vehicleItem->class,
             ]),
             'description_data' => ItemDescriptionDataResource::collection($this->whenLoaded('descriptionData')),
-            'manufacturer_description' => $this->manufacturer_description,
+            'manufacturer_description' => $this->getDescriptionDatum('Manufacturer'),
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
             'type' => $this->cleanType(),
             'sub_type' => $this->sub_type,

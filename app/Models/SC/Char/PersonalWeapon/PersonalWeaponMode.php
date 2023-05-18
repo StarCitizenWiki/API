@@ -15,7 +15,7 @@ class PersonalWeaponMode extends Model
     protected $table = 'sc_personal_weapon_modes';
 
     protected $fillable = [
-        'weapon_id',
+        'item_uuid',
         'mode',
         'localised',
         'type',
@@ -35,7 +35,7 @@ class PersonalWeaponMode extends Model
      */
     public function weapon(): BelongsTo
     {
-        return $this->belongsTo(PersonalWeapon::class, 'weapon_id');
+        return $this->belongsTo(PersonalWeapon::class, 'item_uuid', 'uuid');
     }
 
     public function getDamagePerSecondAttribute(): float

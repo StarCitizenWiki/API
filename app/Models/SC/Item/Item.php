@@ -9,18 +9,18 @@ use App\Models\SC\Char\Clothing\Armor;
 use App\Models\SC\Char\Clothing\Clothes;
 use App\Models\SC\Char\Clothing\Clothing;
 use App\Models\SC\Char\Grenade;
+use App\Models\SC\Char\PersonalWeapon\BarrelAttach;
 use App\Models\SC\Char\PersonalWeapon\IronSight;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
-use App\Models\SC\Char\PersonalWeapon\BarrelAttach;
 use App\Models\SC\Food\Food;
 use App\Models\SC\ItemSpecification\Cooler;
 use App\Models\SC\ItemSpecification\Emp;
 use App\Models\SC\ItemSpecification\FlightController;
 use App\Models\SC\ItemSpecification\FuelIntake;
 use App\Models\SC\ItemSpecification\FuelTank;
-use App\Models\SC\ItemSpecification\MiningLaser\MiningLaser;
-use App\Models\SC\ItemSpecification\MiningModule\MiningModule;
+use App\Models\SC\ItemSpecification\MiningLaser;
+use App\Models\SC\ItemSpecification\MiningModule;
 use App\Models\SC\ItemSpecification\Missile\Missile;
 use App\Models\SC\ItemSpecification\PowerPlant;
 use App\Models\SC\ItemSpecification\QuantumDrive\QuantumDrive;
@@ -35,6 +35,7 @@ use App\Models\SC\Vehicle\Vehicle;
 use App\Models\SC\Vehicle\VehicleItem;
 use App\Models\SC\Vehicle\Weapon\VehicleWeapon;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
+use App\Traits\HasDescriptionDataTrait;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -45,6 +46,7 @@ class Item extends HasTranslations
 {
     use ModelChangelog;
     use HasFactory;
+    use HasDescriptionDataTrait;
 
     protected $table = 'sc_items';
 
@@ -60,7 +62,6 @@ class Item extends HasTranslations
         'type',
         'sub_type',
         'manufacturer_id',
-        'manufacturer_description',
         'size',
         'class_name',
         'version',
@@ -88,7 +89,8 @@ class Item extends HasTranslations
     {
         return $this->belongsToMany(
             Shop::class,
-            'sc_shop_item'
+            'sc_shop_item',
+            'item_id'
         )
             ->using(ShopItem::class)
             ->as('shop_data')
@@ -140,12 +142,12 @@ class Item extends HasTranslations
              * Armor
              */
             case str_contains($this->type, 'Char_Armor'):
-                return $this->hasOne(Armor::class, 'item_uuid', 'uuid')->withDefault();
+                return $this->hasOne(Armor::class, 'uuid', 'uuid')->withDefault();
             /**
              * Char Clothing
              */
             case str_contains($this->type, 'Char_Clothing'):
-                return $this->hasOne(Clothes::class, 'item_uuid', 'uuid')->withDefault();
+                return $this->hasOne(Clothes::class, 'uuid', 'uuid')->withDefault();
 
             /**
              * Personal Weapons
@@ -155,12 +157,12 @@ class Item extends HasTranslations
                     return $this->hasOne(Grenade::class, 'item_uuid', 'uuid')->withDefault();
                 }
 
-                return $this->hasOne(PersonalWeapon::class, 'item_uuid', 'uuid')->withDefault();
+                return $this->hasOne(PersonalWeapon::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'WeaponAttachment':
                 switch ($this->sub_type) {
                     case 'IronSight':
-                        return $this->hasOne(IronSight::class, 'item_uuid', 'uuid')->withDefault();
+                        return $this->hasOne(IronSight::class, 'uuid', 'uuid')->withDefault();
 
                     case 'Magazine':
                         return $this->hasOne(PersonalWeaponMagazine::class, 'item_uuid', 'uuid')->withDefault();
@@ -168,7 +170,7 @@ class Item extends HasTranslations
                     case 'Utility':
                     case 'Barrel':
                     case 'BottomAttachment':
-                        return $this->hasOne(BarrelAttach::class, 'item_uuid', 'uuid')->withDefault();
+                        return $this->hasOne(BarrelAttach::class, 'uuid', 'uuid')->withDefault();
                 }
                 break;
 
@@ -235,7 +237,7 @@ class Item extends HasTranslations
                 return $this->hasOne(MiningLaser::class, 'item_uuid', 'uuid')->withDefault();
 
             case $this->type === 'MiningModifier':
-                return $this->hasOne(MiningModule::class, 'item_uuid', 'uuid')->withDefault();
+                return $this->hasOne(MiningModule::class, 'uuid', 'uuid')->withDefault();
 
             default:
                 return $this->hasOne(Clothing::class, 'created_at', 'uuid'); //NULL
@@ -274,7 +276,7 @@ class Item extends HasTranslations
     {
         return $this->hasOne(
             VehicleItem::class,
-            'item_uuid',
+            'uuid',
             'uuid'
         )->withDefault();
     }

@@ -44,14 +44,14 @@ class PersonalWeaponLinkResource extends AbstractBaseResource
         }
 
         return [
-            'uuid' => $this->item_uuid,
+            'uuid' => $this->uuid,
             'name' => $this->name,
             'type' => $this->weapon_type,
             'class' => $this->weapon_class,
-            'manufacturer' => new ManufacturerLinkResource($this->item->manufacturer),
-            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->item_uuid),
+            'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
+            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid),
             $this->mergeWhen(str_contains($include, 'shops'), [
-                'shops' => ShopResource::collection($this->item->shops),
+                'shops' => ShopResource::collection($this->shops),
             ]),
 
             'updated_at' => $this->updated_at,

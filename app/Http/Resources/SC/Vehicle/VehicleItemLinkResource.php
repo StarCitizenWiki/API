@@ -39,22 +39,15 @@ class VehicleItemLinkResource extends AbstractBaseResource
      */
     public function toArray($request): array
     {
-        $include = $request->get('include', '');
-        if (empty($include)) {
-            $include = '';
-        }
-
         return [
-            'uuid' => $this->item_uuid,
+            'uuid' => $this->uuid,
             'name' => $this->name,
             'type' => $this->type,
             'grade' => $this->grade,
             'class' => $this->class,
-            'manufacturer' => new ManufacturerLinkResource($this->item->manufacturer),
-            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->item_uuid),
-            $this->mergeWhen(str_contains($include, 'shops'), [
-                'shops' => ShopResource::collection($this->item->shops),
-            ]),
+            'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
+            'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid),
+            'shops' => ShopResource::collection($this->whenLoaded('shops')),
 
             'updated_at' => $this->updated_at,
             'version' => config('api.sc_data_version'),

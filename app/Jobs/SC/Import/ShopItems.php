@@ -34,7 +34,7 @@ class ShopItems implements ShouldQueue
 
         try {
             $shops = new Shops();
-        } catch (\JsonException|FileNotFoundException $e) {
+        } catch (\JsonException | FileNotFoundException $e) {
             $this->fail($e->getMessage());
 
             return;
@@ -100,23 +100,5 @@ class ShopItems implements ShouldQueue
 
                 $shopModel->items()->sync($toSync);
             });
-    }
-
-    /**
-     * Creates a model for minerals
-     *
-     * @param array $item
-     * @return mixed
-     */
-    private function createModel(array $item)
-    {
-        return Item::updateOrCreate([
-            'uuid' => $item['uuid'],
-        ], [
-            'name' => $item['name'],
-            'type' => $item['type'],
-            'sub_type' => $item['sub_type'],
-            'version' => config('api.sc_data_version'),
-        ]);
     }
 }

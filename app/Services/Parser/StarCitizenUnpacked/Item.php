@@ -87,6 +87,7 @@ final class Item extends AbstractCommodityItem
                 'Magnification' => 'Magnification',
                 'Manufacturer' => 'Manufacturer',
                 'Maximum Range' => 'Maximum Range',
+                'Missiles' => 'Missiles',
                 'Model' => 'Model',
                 'Module Slots' => 'Module Slots',
                 'Module' => 'Module',
@@ -109,6 +110,7 @@ final class Item extends AbstractCommodityItem
                 'Throttle Responsiveness Delay' => 'Throttle Responsiveness Delay',
                 'Throttle Speed' => 'Throttle Speed',
                 'Trophy' => 'Trophy',
+                'Tracking Signal' => 'Tracking Signal',
                 'Type' => 'Type',
             ]
         );

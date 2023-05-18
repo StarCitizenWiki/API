@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Models\SC\ItemSpecification\MiningLaser;
+namespace App\Models\SC\ItemSpecification;
 
 use App\Models\SC\CommodityItem;
 use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class MiningLaser extends CommodityItem
 {
@@ -46,8 +46,19 @@ class MiningLaser extends CommodityItem
         );
     }
 
-    public function modifiers(): HasMany
+    public function modifiers(): HasManyThrough
     {
-        return $this->hasMany(MiningLaserModifier::class);
+        return $this->descriptionData()->whereNotIn(
+            'sc_item_description_data.name',
+            [
+                'Collection Point Radius',
+                'Collection Throughput',
+                'Item Type',
+                'Manufacturer',
+                'Size',
+                'Optimal Range',
+                'Maximum Range',
+            ]
+        );
     }
 }

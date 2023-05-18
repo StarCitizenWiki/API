@@ -8,10 +8,8 @@ use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponLinkResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponResource;
-use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
-use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -48,8 +46,14 @@ class PersonalWeaponController extends AbstractApiV2Controller
     {
         $query = QueryBuilder::for(PersonalWeapon::class, $request)
             ->allowedFilters([
-                AllowedFilter::exact('type', 'weapon_type'),
-                AllowedFilter::exact('class', 'weapon_class'),
+                AllowedFilter::callback('type', static function (Builder $query, $value) {
+                    $query->whereRelation('descriptionData', 'name', 'Item Type')
+                    ->whereRelation('descriptionData', 'value', $value);
+                }),
+                AllowedFilter::callback('class', static function (Builder $query, $value) {
+                    $query->whereRelation('descriptionData', 'name', 'Class')
+                    ->whereRelation('descriptionData', 'value', $value);
+                }),
             ])
             ->paginate($this->limit)
             ->appends(request()->query());
@@ -115,12 +119,9 @@ class PersonalWeaponController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $identifier = QueryBuilder::for(Item::class, $request)
-                ->where('type', 'WeaponPersonal')
-                ->where(function (Builder $query) use ($identifier) {
-                    $query->where('uuid', $identifier)
-                        ->orWhere('name', $identifier);
-                })
+            $identifier = QueryBuilder::for(PersonalWeapon::class, $request)
+                ->where('uuid', $identifier)
+                ->orWhere('name', $identifier)
                 ->orderByDesc('version')
                 ->allowedIncludes(PersonalWeaponResource::validIncludes())
                 ->firstOrFail();

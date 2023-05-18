@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
-use App\Models\StarCitizenUnpacked\Food\FoodEffect;
-use App\Models\StarCitizenUnpacked\Item;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
-use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
 use JsonException;
 
 class Grenade implements ShouldQueue
@@ -49,20 +45,12 @@ class Grenade implements ShouldQueue
         $item = $parser->getData();
 
         /** @var \App\Models\SC\Char\Grenade $model */
-        $model = \App\Models\SC\Char\Grenade::updateOrCreate([
+        \App\Models\SC\Char\Grenade::updateOrCreate([
             'item_uuid' => $item['uuid'],
         ], [
             'aoe' => $item['aoe'] ?? null,
             'damage_type' => $item['damage_type'] ?? null,
             'damage' => $item['damage'] ?? null,
         ]);
-
-        if (!empty($item['description'])) {
-            $model->translations()->updateOrCreate([
-                'locale_code' => 'en_EN',
-            ], [
-                'translation' => $item['description'],
-            ]);
-        }
     }
 }

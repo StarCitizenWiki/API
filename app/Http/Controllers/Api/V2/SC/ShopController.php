@@ -98,6 +98,7 @@ class ShopController extends AbstractApiV2Controller
 
         try {
             $shop = QueryBuilder::for(Shop::class, $request)
+                ->with('items')
                 ->where('uuid', $identifier)
                 ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier))
                 ->orWhere('name_raw', 'LIKE', sprintf('%%%s%%', $identifier))

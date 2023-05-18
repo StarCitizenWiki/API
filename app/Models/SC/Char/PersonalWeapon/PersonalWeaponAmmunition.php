@@ -16,7 +16,7 @@ class PersonalWeaponAmmunition extends Model
     protected $table = 'sc_personal_weapon_ammunitions';
 
     protected $fillable = [
-        'weapon_id',
+        'item_uuid',
         'size',
         'lifetime',
         'speed',
@@ -35,7 +35,7 @@ class PersonalWeaponAmmunition extends Model
      */
     public function weapon(): BelongsTo
     {
-        return $this->belongsTo(PersonalWeapon::class, 'weapon_id');
+        return $this->belongsTo(PersonalWeapon::class, 'item_uuid', 'uuid');
     }
 
     public function damages(): HasMany

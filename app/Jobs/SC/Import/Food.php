@@ -57,14 +57,6 @@ class Food implements ShouldQueue
             'discard_when_consumed' => $item['discard_when_consumed'] ?? null,
         ]);
 
-        if (!empty($item['description'])) {
-            $model->translations()->updateOrCreate([
-                'locale_code' => 'en_EN',
-            ], [
-                'translation' => $item['description'],
-            ]);
-        }
-
         $ids = collect($item['effects'])->map(function (string $effect) {
             return (FoodEffect::firstOrCreate([
                 'name' => $effect,

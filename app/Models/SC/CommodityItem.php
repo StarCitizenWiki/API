@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\SC;
 
 use App\Models\SC\Item\Item;
+use App\Models\SC\Item\ItemDescriptionData;
 use App\Models\SC\Shop\Shop;
 use App\Models\SC\Shop\ShopItem;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
@@ -59,6 +60,21 @@ abstract class CommodityItem extends HasTranslations
             'uuid',
             'uuid',
             'shop_uuid'
+        );
+    }
+
+    /**
+     * @return HasManyThrough
+     */
+    public function descriptionData(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ItemDescriptionData::class,
+            Item::class,
+            'uuid',
+            'item_uuid',
+            'item_uuid',
+            'uuid'
         );
     }
 }

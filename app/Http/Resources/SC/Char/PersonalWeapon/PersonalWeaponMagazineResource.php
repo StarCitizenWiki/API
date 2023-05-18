@@ -32,7 +32,7 @@ class PersonalWeaponMagazineResource extends AbstractBaseResource
         return [
             'initial_ammo_count' => $this->initial_ammo_count ?? null,
             'max_ammo_count' => $this->max_ammo_count ?? null,
-            'type' => $this->type ?? null,
+            'type' => $this->getDescriptionDatum('Item Type'),
         ];
     }
 }

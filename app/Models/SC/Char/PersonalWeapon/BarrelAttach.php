@@ -4,22 +4,25 @@ declare(strict_types=1);
 
 namespace App\Models\SC\Char\PersonalWeapon;
 
-use App\Models\SC\CommodityItem;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 
-class BarrelAttach extends CommodityItem
+class BarrelAttach extends Attachment
 {
-    use HasFactory;
-
-    protected $table = 'sc_item_barrel_attachs';
-
-    protected $fillable = [
-        'item_uuid',
-        'type',
-    ];
-
-    public function getRouteKey()
+    protected static function boot(): void
     {
-        return $this->item_uuid;
+        parent::boot();
+
+        static::addGlobalScope(
+            'type',
+            static function (Builder $builder) {
+                $builder->where('type', 'WeaponAttachment')
+                    ->where('sub_type', 'Barrel');
+            }
+        );
+    }
+
+    public function getTypeAttribute()
+    {
+        return $this->getDescriptionDatum('Type');
     }
 }

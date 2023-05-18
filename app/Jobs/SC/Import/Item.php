@@ -209,7 +209,7 @@ class Item implements ShouldQueue
                 'item_uuid' => $this->data['uuid'],
             ], [
                 'health' => $this->data['durability']['health'] ?? null,
-                'max_lifetime' => $this->data['durability']['max_lifetime'] ?? null,
+                'max_lifetime' => $this->data['durability']['lifetime'] ?? null,
                 'salvageable' => $this->data['durability']['salvageable'] ?? null,
                 'repairable' => $this->data['durability']['repairable'] ?? null,
             ]);

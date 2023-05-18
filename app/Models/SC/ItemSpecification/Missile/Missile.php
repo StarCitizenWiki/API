@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models\SC\ItemSpecification\Missile;
 
+use App\Models\SC\CommodityItem;
+use App\Traits\HasDescriptionDataTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Missile extends Model
+class Missile extends CommodityItem
 {
     use HasFactory;
+    use HasDescriptionDataTrait;
 
     protected $table = 'sc_item_missiles';
 

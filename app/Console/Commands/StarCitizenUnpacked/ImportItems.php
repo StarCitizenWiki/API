@@ -48,10 +48,16 @@ class ImportItems extends AbstractQueueCommand
         $files = Storage::allFiles('api/scunpacked-data/items') + Storage::allFiles('api/scunpacked-data/ships');
 
         if ($this->option('skipItems') === false) {
-            $this->info('Importing Items');
             collect($files)
                 ->filter(function (string $file) {
                     return !str_contains($file, '-raw.json');
+                })
+                ->tap(function (Collection $chunks) {
+                    $this->info(sprintf(
+                        'Importing %d items in chunks of 25 (%d).',
+                        $chunks->count(),
+                        (int)($chunks->count() / 25)
+                    ));
                 })
                 ->chunk(25)
                 ->tap(function (Collection $chunks) {

@@ -33,8 +33,8 @@ class MiningModuleResource extends AbstractBaseResource
     public function toArray($request): array
     {
         return [
-            'type' => $this->type,
-            'modifiers' => MiningLaserModifierResource::collection($this->whenLoaded('modifiers')),
+            'type' => $this->getDescriptionDatum('Item Type'),
+            'modifiers' => MiningLaserModifierResource::collection($this->modifiers),
         ];
     }
 }

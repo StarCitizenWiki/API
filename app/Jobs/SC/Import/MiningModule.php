@@ -38,38 +38,17 @@ class MiningModule implements ShouldQueue
 
         try {
             $parser = new \App\Services\Parser\StarCitizenUnpacked\MiningModule($this->filePath, $labels);
-        } catch (FileNotFoundException|JsonException $e) {
+        } catch (FileNotFoundException | JsonException $e) {
             $this->fail($e);
             return;
         }
         $item = $parser->getData();
 
-        /** @var \App\Models\SC\ItemSpecification\MiningModule\MiningModule $model */
-        $model = \App\Models\SC\ItemSpecification\MiningModule\MiningModule::updateOrCreate([
+        /** @var \App\Models\SC\ItemSpecification\MiningModule $model */
+        \App\Models\SC\ItemSpecification\MiningModule::updateOrCreate([
             'item_uuid' => $item['uuid'],
         ], [
             'type' => $item['type'] ?? null,
         ]);
-
-        if (!empty($item['description'])) {
-            $model->translations()->updateOrCreate([
-                'locale_code' => 'en_EN',
-            ], [
-                'translation' => $item['description'],
-            ]);
-        }
-
-        collect($item['modifiers'])
-            ->filter()
-            ->each(function ($item, $key) use ($model) {
-                if ($item === null) {
-                    return;
-                }
-                $model->modifiers()->updateOrCreate([
-                    'name' => $key,
-                ], [
-                    'modifier' => $item,
-                ]);
-            });
     }
 }

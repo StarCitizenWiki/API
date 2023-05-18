@@ -35,7 +35,7 @@ class MissileResource extends AbstractBaseResource
     public function toArray($request): array
     {
         return [
-            'signal_type' => $this->signal_type,
+            'signal_type' => $this->getDescriptionDatum('Tracking Signal'),
             'lock_time' => $this->lock_time,
             'damage_total' => $this->damage ?? 0,
             'damages' => WeaponDamageResource::collection($this->whenLoaded('damages')),

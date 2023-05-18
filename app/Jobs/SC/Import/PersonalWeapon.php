@@ -11,6 +11,7 @@ use App\Services\Parser\StarCitizenUnpacked\Weapon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -42,34 +43,22 @@ class PersonalWeapon implements ShouldQueue
 
         try {
             $parser = new Weapon($this->filePath, $labels);
-        } catch (JsonException|FileNotFoundException $e) {
+        } catch (JsonException | FileNotFoundException $e) {
             $this->fail($e->getMessage());
             return;
         }
 
         $item = $parser->getData();
 
-        /** @var \App\Models\SC\Char\PersonalWeapon\PersonalWeapon $model */
-        $model = PersonalWeaponModel::updateOrCreate([
-            'item_uuid' => $item['uuid'],
-        ], [
-            'weapon_type' => $item['weapon_type'] ?? null,
-            'weapon_class' => $item['weapon_class'] ?? null,
-            'effective_range' => $item['effective_range'],
-            'rof' => $item['rof'],
-        ]);
-
-        if (!empty($item['description'])) {
-            $model->translations()->updateOrCreate([
-                'locale_code' => 'en_EN',
-            ], [
-                'translation' => $item['description'],
-            ]);
+        try {
+            $itemModel = PersonalWeaponModel::where('uuid', $item['uuid'])->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return;
         }
 
-        $this->addAmmunition($item, $model);
-        $this->addModes($item, $model);
-        $this->addLoadout($item, $model);
+        $this->addAmmunition($item, $itemModel);
+        $this->addModes($item, $itemModel);
+        $this->addLoadout($item, $itemModel);
     }
 
     private function addAmmunition(array $data, PersonalWeaponModel $weapon): void
@@ -80,7 +69,7 @@ class PersonalWeapon implements ShouldQueue
 
         /** @var PersonalWeaponAmmunition $ammunition */
         $ammunition = $weapon->ammunition()->updateOrCreate([
-            'weapon_id' => $weapon->id,
+            'item_uuid' => $weapon->uuid,
         ], [
             'size' => $data['ammunition']['size'],
             'lifetime' => $data['ammunition']['lifetime'],
@@ -122,7 +111,7 @@ class PersonalWeapon implements ShouldQueue
     private function addLoadout(array $data, PersonalWeaponModel $weapon): void
     {
         /** @var Collection $ports */
-        $ports = $weapon->item->ports;
+        $ports = $weapon->ports;
         if ($ports === null || $ports->isEmpty()) {
             return;
         }

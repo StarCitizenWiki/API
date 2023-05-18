@@ -20,7 +20,7 @@ use Spatie\QueryBuilder\AllowedInclude;
     type: 'http',
     scheme: 'bearer',
 )]
-#[OA\Server(url: 'https://api.star-citizen.wiki/')]
+#[OA\Server(url: 'http://127.0.0.1:8000')]
 #[OA\Parameter(
     name: 'page',
     in: 'query',

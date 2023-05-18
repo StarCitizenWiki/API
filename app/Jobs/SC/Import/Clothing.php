@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
-use App\Models\SC\Item\ItemTranslation;
-use App\Models\StarCitizenUnpacked\CharArmor\CharArmorAttachment;
-use App\Models\StarCitizenUnpacked\Item;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -48,19 +46,10 @@ class Clothing implements ShouldQueue
 
         $item = $parser->getData();
 
-        /** @var \App\Models\SC\Char\Clothing\Clothing $model */
-        $model = \App\Models\SC\Char\Clothing\Clothing::updateOrCreate([
-            'item_uuid' => $item['uuid'],
-        ], [
-            'type' => $item['type'],
-        ]);
-
-        if (!empty($item['description'])) {
-            $model->translations()->updateOrCreate([
-                'locale_code' => 'en_EN',
-            ], [
-                'translation' => $item['description'],
-            ]);
+        try {
+            $model = \App\Models\SC\Char\Clothing\Clothing::where('uuid', $item['uuid'])->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return;
         }
 
         if (isset($item['resistances'])) {

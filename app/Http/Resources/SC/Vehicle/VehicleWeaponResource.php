@@ -64,6 +64,7 @@ class VehicleWeaponResource extends AbstractBaseResource
     {
         return [
             'class' => $this->weapon_class,
+            'type' => $this->weapon_type,
             'capacity' => $this->capacity ?? null,
             'range' => $this->ammunition->range ?? null,
             'damage_per_shot' => $this->ammunition->damage ?? null,

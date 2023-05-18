@@ -6,11 +6,9 @@ namespace App\Http\Controllers\Api\V2\SC\Char\PersonalWeapon;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponResource;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
-use App\Models\SC\Item\Item;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\SC\Char\PersonalWeapon\Attachment;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -42,9 +40,7 @@ class WeaponAttachmentController extends AbstractApiV2Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Item::class, $request)
-            ->where('type', 'WeaponAttachment')
-            ->where('name', 'NOT LIKE', '%PLACEHOLDER%')
+        $query = QueryBuilder::for(Attachment::class, $request)
             ->allowedIncludes(ItemResource::validIncludes())
             ->paginate($this->limit)
             ->appends(request()->query());
@@ -93,15 +89,10 @@ class WeaponAttachmentController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $identifier = QueryBuilder::for(Item::class, $request)
-                ->where('type', 'WeaponAttachment')
-                ->where('name', 'NOT LIKE', '%PLACEHOLDER%')
-                ->where(function (Builder $query) use ($identifier) {
-                    $query->where('uuid', $identifier)
-                        ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier));
-                })
+            $identifier = QueryBuilder::for(Attachment::class, $request)
+                ->where('uuid', $identifier)
+                ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier))
                 ->orderByDesc('version')
-                ->allowedIncludes(PersonalWeaponResource::validIncludes())
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {

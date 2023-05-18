@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models\SC\Char\PersonalWeapon;
 
+use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\Builder;
 
-class IronSight extends Attachment
+class Attachment extends Item
 {
     protected static function boot(): void
     {
@@ -16,18 +17,18 @@ class IronSight extends Attachment
             'type',
             static function (Builder $builder) {
                 $builder->where('type', 'WeaponAttachment')
-                ->where('sub_type', 'IronSight');
+                    ->where('name', 'NOT LIKE', '%PLACEHOLDER%');
             }
         );
     }
 
-    public function getMagnificationAttribute()
+    public function getAttachmentPointAttribute()
     {
-        return $this->getDescriptionDatum('Magnification');
+        return $this->getDescriptionDatum('Attachment Point');
     }
 
-    public function getOpticTypeAttribute()
+    public function getSizeAttribute()
     {
-        return $this->getDescriptionDatum('Type');
+        return $this->getDescriptionDatum('Size');
     }
 }

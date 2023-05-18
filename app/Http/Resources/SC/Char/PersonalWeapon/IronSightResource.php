@@ -30,7 +30,7 @@ class IronSightResource extends AbstractBaseResource
     {
         return [
             'magnification' => $this->magnification ?? null,
-            'optic_type' => $this->type ?? null,
+            'optic_type' => $this->optic_type ?? null,
         ];
     }
 }

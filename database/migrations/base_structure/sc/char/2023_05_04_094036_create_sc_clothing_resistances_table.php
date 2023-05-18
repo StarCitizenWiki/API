@@ -15,15 +15,15 @@ return new class extends Migration
     {
         Schema::create('sc_clothing_resistances', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('clothing_id');
+            $table->uuid('item_uuid');
             $table->string('type');
             $table->double('multiplier')->nullable();
             $table->double('threshold')->nullable();
             $table->timestamps();
 
-            $table->foreign('clothing_id', 'fK_sc_c_res_clothing_id')
-                ->references('id')
-                ->on('sc_clothes')
+            $table->foreign('item_uuid', 'fK_sc_c_res_item_uuid')
+                ->references('uuid')
+                ->on('sc_items')
                 ->onDelete('cascade');
         });
     }

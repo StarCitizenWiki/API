@@ -87,8 +87,8 @@ class PersonalWeaponResource extends AbstractBaseResource
         }
 
         $baseModel = $this->baseModel;
-        if ($baseModel !== null && $baseModel->item->name !== $this->item->name) {
-            $data['base_model'] = $this->makeApiUrl(self::PERSONAL_WEAPONS_SHOW, $baseModel->item_uuid);
+        if ($baseModel !== null && $baseModel->name !== $this->name) {
+            $data['base_model'] = $this->makeApiUrl(self::PERSONAL_WEAPONS_SHOW, $baseModel->uuid);
         }
 
         return $data;

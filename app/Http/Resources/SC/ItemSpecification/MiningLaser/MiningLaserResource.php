@@ -62,7 +62,7 @@ class MiningLaserResource extends AbstractBaseResource
             'maximum_range' => $this->maximum_range,
             'extraction_throughput' => $this->extraction_throughput,
             'module_slots' => $this->module_slots,
-            'modifiers' => MiningLaserModifierResource::collection($this->whenLoaded('modifiers')),
+            'modifiers' => MiningLaserModifierResource::collection($this->modifiers),
         ];
     }
 }

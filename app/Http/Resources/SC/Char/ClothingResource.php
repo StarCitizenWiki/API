@@ -73,25 +73,16 @@ class ClothingResource extends AbstractBaseResource
     public function toArray($request): array
     {
         $typeKey = 'armor_type';
-        $route = self::ARMOR_SHOW;
-        if (str_contains($this->item->type, 'Char_Clothing')) {
-            $route = self::CLOTHES_SHOW;
+        if (str_contains($this->type, 'Char_Clothing')) {
             $typeKey = 'clothing_type';
         }
 
-        $data = [
-            $typeKey => $this->type,
+        return [
+            $typeKey => $this->clothing_type,
             'damage_reduction' => $this->damage_reduction,
             'temp_resistance_min' => $this->temp_resistance_min,
             'temp_resistance_max' => $this->temp_resistance_max,
-            'resistances' => ClothingResistanceResource::collection($this->whenLoaded('resistances')),
+            'resistances' => ClothingResistanceResource::collection($this->damageResistances),
         ];
-
-        $baseModel = $this->baseModel;
-        if ($baseModel !== null && $baseModel->item->name !== $this->item->name) {
-            $data['base_model'] = $this->makeApiUrl($route, $baseModel->item_uuid);
-        }
-
-        return $data;
     }
 }

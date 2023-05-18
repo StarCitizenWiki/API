@@ -2,8 +2,8 @@
 
 namespace App\Models\SC\Char\PersonalWeapon;
 
-use App\Models\SC\CommodityItem;
-use App\Models\SC\Item\ItemPort;
+use App\Models\SC\Item\Item;
+use App\Traits\HasDescriptionDataTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,33 +11,28 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Optional;
 
-class PersonalWeapon extends CommodityItem
+class PersonalWeapon extends Item
 {
-    protected $table = 'sc_personal_weapons';
+    use HasDescriptionDataTrait;
 
-    protected $fillable = [
-        'item_uuid',
-        'weapon_type',
-        'weapon_class',
-        'effective_range',
-        'rof',
-    ];
+    protected static function boot(): void
+    {
+        parent::boot();
 
-    protected $casts = [
-        'effective_range' => 'double',
-        'rof' => 'double',
-    ];
+        static::addGlobalScope(
+            'type',
+            static function (Builder $builder) {
+                $builder->where('type', 'WeaponPersonal');
+            }
+        );
+    }
 
     protected $with = [
         'modes',
+        'ports',
         'damages',
         'ammunition',
     ];
-
-    public function getRouteKey()
-    {
-        return $this->item_uuid;
-    }
 
     public function getMagazineTypeAttribute(): string
     {
@@ -57,7 +52,7 @@ class PersonalWeapon extends CommodityItem
      */
     public function modes(): HasMany
     {
-        return $this->hasMany(PersonalWeaponMode::class, 'weapon_id', 'id');
+        return $this->hasMany(PersonalWeaponMode::class, 'item_uuid', 'uuid');
     }
 
     /**
@@ -65,7 +60,7 @@ class PersonalWeapon extends CommodityItem
      */
     public function getMagazineAttribute(): Optional
     {
-        $magazine = $this->item->ports()->where('name', 'LIKE', '%magazine%')->first();
+        $magazine = $this->ports()->where('name', 'LIKE', '%magazine%')->first();
         if ($magazine !== null) {
             return optional($magazine->item->specification);
         }
@@ -78,31 +73,15 @@ class PersonalWeapon extends CommodityItem
      */
     public function ammunition(): HasOne
     {
-        return $this->hasOne(PersonalWeaponAmmunition::class, 'weapon_id', 'id');
+        return $this->hasOne(PersonalWeaponAmmunition::class, 'item_uuid', 'uuid');
     }
-
-
-//    /**
-//     * @return BelongsToMany
-//     */
-//    public function getAttachmentsLoadoutAttribute()
-//    {
-//        return $this->item->ports
-//            ->map(function (ItemPort $port) {
-//                return $port->item;
-//            })
-//            ->filter(function ($loadout) {
-//                return $loadout !== null;
-//            })
-//            ->filter();
-//    }
 
     /**
      * @return BelongsToMany
      */
     public function attachments()
     {
-        return $this->item->ports();
+        return $this->ports();
     }
 
     /**
@@ -113,8 +92,10 @@ class PersonalWeapon extends CommodityItem
         return $this->hasManyThrough(
             PersonalWeaponAmmunitionDamage::class,
             PersonalWeaponAmmunition::class,
-            'weapon_id',
-            'id'
+            'item_uuid',
+            'id',
+            'uuid',
+            'id',
         );
     }
 
@@ -122,9 +103,28 @@ class PersonalWeapon extends CommodityItem
     {
         $baseName = preg_replace('/"[\w\s\']+"\s/', '', $this->name);
         return self::query()
-            ->whereHas('item', function (Builder $query) use ($baseName) {
-                $query->where('name', $baseName)->whereNot('name', $this->name);
-            })
+            ->where('name', $baseName)
+            ->whereNot('name', $this->name)
             ->first();
+    }
+
+    public function getRofAttribute()
+    {
+        return $this->getDescriptionDatum('Rate Of Fire');
+    }
+
+    public function getWeaponClassAttribute()
+    {
+        return $this->getDescriptionDatum('Class');
+    }
+
+    public function getEffectiveRangeAttribute()
+    {
+        return $this->getDescriptionDatum('Effective Range');
+    }
+
+    public function getWeaponTypeAttribute()
+    {
+        return $this->getDescriptionDatum('Item Type');
     }
 }

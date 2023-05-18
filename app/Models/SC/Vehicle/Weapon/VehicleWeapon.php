@@ -3,22 +3,19 @@
 namespace App\Models\SC\Vehicle\Weapon;
 
 use App\Models\SC\CommodityItem;
-use App\Models\SC\Item\ItemPort;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Traits\HasDescriptionDataTrait;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Optional;
 
 class VehicleWeapon extends CommodityItem
 {
+    use HasDescriptionDataTrait;
+
     protected $table = 'sc_vehicle_weapons';
 
     protected $fillable = [
         'item_uuid',
-        'weapon_type',
-        'weapon_class',
         'capacity',
     ];
 
@@ -70,5 +67,16 @@ class VehicleWeapon extends CommodityItem
         return $this->damages->reduce(function ($carry, $item) {
             return $carry + $item->damage;
         }, 0);
+    }
+
+
+    public function getWeaponClassAttribute()
+    {
+        return $this->getDescriptionDatum('Class');
+    }
+
+    public function getWeaponTypeAttribute()
+    {
+        return $this->getDescriptionDatum('Item Type');
     }
 }

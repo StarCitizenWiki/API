@@ -23,6 +23,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -54,36 +55,26 @@ class VehicleItem implements ShouldQueue
 
         try {
             $parser = new \App\Services\Parser\StarCitizenUnpacked\VehicleItems\VehicleItem($this->filePath, $labels);
-        } catch (FileNotFoundException|JsonException $e) {
+        } catch (FileNotFoundException | JsonException $e) {
             $this->fail($e);
             return;
         }
 
         $item = $parser->getData();
 
-        $shipItem = VehicleItemModel::updateOrCreate([
-            'item_uuid' => $item['uuid'],
-        ], [
-            'grade' => $item['grade'],
-            'class' => $item['class'],
-            'type' => $item['type'],
-        ]);
-
-        $this->createModelSpecification($item, $shipItem);
-
-        if (!empty($item['description'])) {
-            $shipItem->translations()->updateOrCreate([
-                'locale_code' => 'en_EN',
-            ], [
-                'translation' => $item['description'],
-            ]);
+        try {
+            $itemModel = \App\Models\SC\Item\Item::where('uuid', $item['uuid'])->firstOrFail();
+        } catch (ModelNotFoundException $e) {
+            return;
         }
+
+        $this->createModelSpecification($item, $itemModel);
     }
 
 
-    private function createModelSpecification(array $item, VehicleItemModel $vehicleItem): void
+    private function createModelSpecification(array $item, \App\Models\SC\Item\Item $itemModel): void
     {
-        switch ($vehicleItem->item->type) {
+        switch ($itemModel->type) {
             case 'FlightController':
                 $this->createFlightController($item);
                 break;
@@ -415,5 +406,4 @@ class VehicleItem implements ShouldQueue
             'ship_item_id' => $shipItem->id,
         ]);
     }
-
 }

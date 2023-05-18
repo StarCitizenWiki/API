@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('sc_personal_weapon_modes', static function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('weapon_id');
+            $table->uuid('item_uuid');
             $table->string('mode');
             $table->string('localised');
             $table->string('type');
@@ -24,9 +24,9 @@ return new class extends Migration
             $table->unsignedDouble('pellets_per_shot');
             $table->timestamps();
 
-            $table->foreign('weapon_id', 'fk_sc_p_w_mod_weapon_id')
-                ->references('id')
-                ->on('sc_personal_weapons')
+            $table->foreign('item_uuid', 'fk_sc_p_w_mod_item_uuid')
+                ->references('uuid')
+                ->on('sc_items')
                 ->onDelete('cascade');
         });
     }

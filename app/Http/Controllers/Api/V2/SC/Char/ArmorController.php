@@ -9,13 +9,13 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Char\ClothingResource;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
-use App\Models\SC\Item\Item;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\SC\Char\Clothing\Armor;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -70,9 +70,10 @@ class ArmorController extends AbstractApiV2Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Item::class, $request)
-            ->where('type', 'LIKE', 'Char_Armor%')
-            ->allowedFilters(['type'])
+        $query = QueryBuilder::for(Armor::class, $request)
+            ->allowedFilters([
+                AllowedFilter::partial('type'),
+            ])
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -120,12 +121,9 @@ class ArmorController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $identifier = QueryBuilder::for(Item::class, $request)
-                ->where('type', 'LIKE', 'Char_Armor%')
-                ->where(function (Builder $query) use ($identifier) {
-                    $query->where('uuid', $identifier)
-                        ->orWhere('name', $identifier);
-                })
+            $identifier = QueryBuilder::for(Armor::class, $request)
+                ->where('uuid', $identifier)
+                ->orWhere('name', $identifier)
                 ->orderByDesc('version')
                 ->allowedIncludes(ClothingResource::validIncludes())
                 ->firstOrFail();

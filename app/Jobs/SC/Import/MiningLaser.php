@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
-use App\Models\SC\Vehicle\VehicleItem as VehicleItemModel;
 use App\Services\Parser\StarCitizenUnpacked\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -38,7 +37,6 @@ class MiningLaser implements ShouldQueue
     {
         $labels = (new Labels())->getData();
         $this->createMiningLaserModel($labels);
-        $this->createVehicleItemModel($labels);
     }
 
     private function createMiningLaserModel(Collection $labels): void
@@ -51,8 +49,8 @@ class MiningLaser implements ShouldQueue
         }
         $item = $parser->getData();
 
-        /** @var \App\Models\SC\ItemSpecification\MiningLaser\MiningLaser $model */
-        $model = \App\Models\SC\ItemSpecification\MiningLaser\MiningLaser::updateOrCreate([
+        /** @var \App\Models\SC\ItemSpecification\MiningLaser $model */
+        \App\Models\SC\ItemSpecification\MiningLaser::updateOrCreate([
             'item_uuid' => $item['uuid'],
         ], [
             'power_transfer' => $item['power_transfer'] ?? null,
@@ -60,47 +58,6 @@ class MiningLaser implements ShouldQueue
             'maximum_range' => $item['maximum_range'] ?? null,
             'extraction_throughput' => $item['extraction_throughput'] ?? null,
             'module_slots' => $item['module_slots'] ?? null,
-        ]);
-
-        if (!empty($item['description'])) {
-            $model->translations()->updateOrCreate([
-                'locale_code' => 'en_EN',
-            ], [
-                'translation' => $item['description'],
-            ]);
-        }
-
-        collect($item['modifiers'])
-            ->filter()
-            ->each(function ($item, $key) use ($model) {
-                if ($item === null) {
-                    return;
-                }
-                $model->modifiers()->updateOrCreate([
-                    'name' => $key,
-                ], [
-                    'modifier' => $item,
-                ]);
-            });
-    }
-
-    private function createVehicleItemModel(Collection $labels): void
-    {
-        try {
-            $parser = new \App\Services\Parser\StarCitizenUnpacked\VehicleItems\VehicleItem($this->filePath, $labels);
-        } catch (FileNotFoundException | JsonException $e) {
-            $this->fail($e);
-            return;
-        }
-
-        $item = $parser->getData();
-
-        VehicleItemModel::updateOrCreate([
-            'item_uuid' => $item['uuid'],
-        ], [
-            'grade' => $item['grade'],
-            'class' => $item['class'],
-            'type' => $item['type'],
         ]);
     }
 }
