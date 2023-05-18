@@ -154,7 +154,7 @@ class UploadItemImages extends AbstractQueueCommand
 
             $url = sprintf('%s.jpg', $item->uuid);
 
-            if ($item->manufacturer->name === '@LOC_PLACEHOLDER') {
+            if (in_array($item->manufacturer->name, ['@LOC_PLACEHOLDER', 'Unknown Manufacturer'], true)) {
                 $item->manufacturer->name = 'Unbekannter Hersteller';
             }
 

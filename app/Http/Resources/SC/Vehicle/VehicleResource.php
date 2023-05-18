@@ -178,6 +178,11 @@ class VehicleResource extends AbstractBaseResource
             ->map('strtolower')
             ->toArray();
 
+        $manufacturer = $this->item->manufacturer->name;
+        if ($manufacturer === 'Unknown Manufacturer') {
+            $manufacturer = $this->description_manufacturer;
+        }
+
         return [
             'uuid' => $this->item_uuid,
             'name' => $this->name,
@@ -244,7 +249,7 @@ class VehicleResource extends AbstractBaseResource
             'description' => TranslationResourceFactory::getTranslationResource($request, $this),
             'size' => $this->size,
             'manufacturer' => [
-                'name' => $this->item->manufacturer->name,
+                'name' => $manufacturer,
                 'code' => $this->item->manufacturer->code,
             ],
             'insurance' => [

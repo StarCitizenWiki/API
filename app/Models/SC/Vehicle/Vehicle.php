@@ -9,6 +9,7 @@ use App\Models\SC\CommodityItem;
 use App\Models\SC\Item\Item;
 use App\Models\SC\ItemSpecification\FlightController;
 use App\Models\SC\Manufacturer;
+use App\Traits\HasDescriptionDataTrait;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,6 +21,7 @@ class Vehicle extends CommodityItem
 {
     use HasFactory;
     use ModelChangelog;
+    use HasDescriptionDataTrait;
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
