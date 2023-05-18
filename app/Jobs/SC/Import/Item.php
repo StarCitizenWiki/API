@@ -66,9 +66,9 @@ class Item implements ShouldQueue
             return $key !== 'description';
         })->each(function ($value, $key) use ($itemModel) {
             $itemModel->descriptionData()->updateOrCreate([
-                'name' => $key,
+                'name' => trim($key),
             ], [
-                'value' => $value,
+                'value' => trim($value),
             ]);
         });
 
