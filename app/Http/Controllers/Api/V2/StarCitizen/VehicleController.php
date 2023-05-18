@@ -120,6 +120,7 @@ class VehicleController extends AbstractApiV2Controller
                 $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
                     ->where('name', 'like', '%' . $identifier . '%')
                     ->orWhere('class_name', 'like', '%' . $identifier . '%')
+                    ->orWhere('item_uuid', $identifier)
                     ->firstOrFail();
 
                 return new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
