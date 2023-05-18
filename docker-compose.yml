@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  api.star-citizen.wiki:
+    image: scwiki/api:dev
+    container_name: api.star-citizen.wiki
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - db
+    links:
+      - db
+    expose:
+      - 80
+    environment:
+      APP_ENV: production
+      CONTAINER_ROLE: app
+    volumes:
+      - ./var/lib/api.star-citizen.wiki/storage:/var/www/html/storage/app
+      - ./var/lib/api.star-citizen.wiki/logs:/var/www/html/storage/logs
+      - ./.env:/var/www/html/.env
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      api.star-citizen.wiki:
+      internal:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=api.star-citizen.wiki"
+      - "traefik.http.routers.api-star-citizen.rule=Host(`api.star-citizen.wiki`)"
+      - "traefik.http.routers.api-star-citizen.entryPoints=https"
+      - "traefik.http.routers.api-star-citizen.tls=true"
+
+
+  db:
+    image: mariadb:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./var/lib/api.star-citizen.wiki/db:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      MYSQL_DATABASE:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+    networks:
+      - internal
+
+
+  ofelia:
+    image:
+      mcuadros/ofelia:latest
+    networks:
+      - internal
+    depends_on:
+      - api.star-citizen.wiki
+      - db
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./docker/ofelia.ini:/etc/ofelia/config.ini:ro
+
+
+networks:
+  api.star-citizen.wiki:
+    external: true
+  internal:
