@@ -108,18 +108,14 @@ class VehicleItemController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $identifier = QueryBuilder::for(Item::class, $request)
-                ->whereHas('vehicleItem')
+            $identifier = QueryBuilder::for(VehicleItem::class, $request)
                 ->with([
                     'powerData',
                     'distortionData',
                     'heatData',
-                    'specification',
                 ])
-                ->whereRelation('vehicleItem', function (Builder $query) use ($identifier) {
-                    $query->where('item_uuid', $identifier)
-                        ->orWhere('name', $identifier);
-                })
+                ->where('uuid', $identifier)
+                ->orWhere('name', $identifier)
                 ->orderByDesc('version')
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();
