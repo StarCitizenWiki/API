@@ -118,7 +118,7 @@ class ImportVehicle implements ShouldQueue
     {
         return [
             'id' => (int)$this->rawData->get(self::VEHICLE_ID),
-            'name' => $this->rawData->get(self::VEHICLE_NAME),
+            'name' => trim($this->rawData->get(self::VEHICLE_NAME)),
             'slug' => Str::slug($this->rawData->get(self::VEHICLE_NAME)),
             'manufacturer_id' => $this->getManufacturerId(),
             'production_status_id' => $this->getProductionStatusId(),
