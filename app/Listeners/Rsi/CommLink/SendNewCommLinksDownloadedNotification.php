@@ -22,21 +22,21 @@ class SendNewCommLinksDownloadedNotification
      *
      * @return void
      */
-    public function handle(NewCommLinksDownloaded $event)
+    public function handle(NewCommLinksDownloaded $event): void
     {
         if ($event->commLinks->count() > 0) {
-            $admins = User::query()
+            $users = User::query()
                 ->whereNotNull('email')
-                ->whereHas(
-                    'settings',
-                    static function (Builder $query) {
-                        $query->where('receive_comm_link_notifications', true);
-                    }
-                )
-                ->orWhereHas('adminGroup')
+                ->whereNot('email', '')
+                ->where(function (Builder $query) {
+                    $query->whereRelation('settings', 'receive_comm_link_notifications', true)
+                        ->orWhereHas('adminGroup');
+                })
                 ->get();
 
-            Notification::send($admins, new NewCommLinksDownloadedNotification($event->commLinks));
+            app('Log')::info(sprintf('Sending Comm-Link Notification to %d users', $users->count()));
+
+            Notification::send($users, new NewCommLinksDownloadedNotification($event->commLinks));
         }
     }
 }
