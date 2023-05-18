@@ -88,7 +88,7 @@ class ItemController extends AbstractApiV2Controller
             )
         ]
     )]
-    public function show(Request $request): AbstractBaseResource
+    public function show(Request $request)
     {
         ['item' => $identifier] = Validator::validate(
             [
@@ -112,14 +112,14 @@ class ItemController extends AbstractApiV2Controller
                     'heatData',
                     'durabilityData',
                 ])
-                //->allowedIncludes(ItemResource::validIncludes())
+                ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
         }
 
         if ($item->type === 'NOITEM_Vehicle') {
-            return new VehicleResource($item->vehicle);
+            return redirect(sprintf('/api/v2/vehicles/%s', $item->uuid));
         }
 
         return new ItemResource($item);
