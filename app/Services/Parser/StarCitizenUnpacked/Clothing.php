@@ -26,7 +26,7 @@ final class Clothing extends AbstractCommodityItem
             'Item Type' => 'type',
             'Damage Reduction' => 'damage_reduction',
             'Carrying Capacity' => 'carrying_capacity',
-            'Temp\. Rating' => 'temp_rating',
+            'Temp. Rating' => 'temp_rating',
             'Core Compatibility' => 'core_compatibility',
         ]);
 

@@ -51,6 +51,12 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'size', type: 'integer', nullable: true),
         new OA\Property(property: 'grade', type: 'string', nullable: true),
         new OA\Property(property: 'class', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'description_data',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/item_description_data_v2'),
+            nullable: true
+        ),
         new OA\Property(property: 'manufacturer_description', type: 'string', nullable: true),
         new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link_v2'),
         new OA\Property(property: 'type', type: 'string', nullable: true),
@@ -139,6 +145,7 @@ class ItemResource extends AbstractTranslationResource
                 'grade' => $this->vehicleItem->grade,
                 'class' => $this->vehicleItem->class,
             ]),
+            'description_data' => ItemDescriptionDataResource::collection($this->whenLoaded('descriptionData')),
             'manufacturer_description' => $this->manufacturer_description,
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
             'type' => $this->cleanType(),

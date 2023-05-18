@@ -62,6 +62,27 @@ class Item implements ShouldQueue
             ]);
         }
 
+        collect($this->data['description_data'] ?? [])->filter(function ($value, $key) {
+            return $key !== 'description';
+        })->each(function ($value, $key) use ($itemModel) {
+            $itemModel->descriptionData()->updateOrCreate([
+                'name' => $key,
+            ], [
+                'value' => $value,
+            ]);
+        });
+
+        $this->createDimensionModel($itemModel);
+        $this->createContainerModel($itemModel);
+        $this->createPorts($itemModel);
+        $this->createPowerModel($itemModel);
+        $this->createHeatModel($itemModel);
+        $this->createDistortionModel($itemModel);
+        $this->createDurabilityModel($itemModel);
+    }
+
+    private function createDimensionModel(\App\Models\SC\Item\Item $itemModel): void
+    {
         $itemModel->dimensions()->updateOrCreate([
             'item_uuid' => $this->data['uuid'],
             'override' => 0,
@@ -83,7 +104,10 @@ class Item implements ShouldQueue
                 'length' => $this->data['dimension_override']['length'],
             ]);
         }
+    }
 
+    private function createContainerModel(\App\Models\SC\Item\Item $itemModel): void
+    {
         if ($this->data['inventory_container']['scu'] !== null) {
             $itemModel->container()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
@@ -95,7 +119,10 @@ class Item implements ShouldQueue
                 'unit' => $this->data['inventory_container']['unit'],
             ]);
         }
+    }
 
+    private function createPorts(\App\Models\SC\Item\Item $itemModel): void
+    {
         if (!empty($this->data['ports'])) {
             collect($this->data['ports'])->each(function (array $port) use ($itemModel) {
                 /** @var ItemPort $port */
@@ -110,7 +137,10 @@ class Item implements ShouldQueue
                 ]);
             });
         }
+    }
 
+    private function createPowerModel(\App\Models\SC\Item\Item $itemModel): void
+    {
         if (!empty($this->data['power'])) {
             $itemModel->powerData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
@@ -127,7 +157,10 @@ class Item implements ShouldQueue
                 'decay_rate_em' => $this->data['power']['decay_rate_em'] ?? null,
             ]);
         }
+    }
 
+    private function createHeatModel(\App\Models\SC\Item\Item $itemModel): void
+    {
         if (!empty($this->data['heat'])) {
             $itemModel->heatData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
@@ -152,7 +185,10 @@ class Item implements ShouldQueue
                 'misfire_max_temperature' => $this->data['heat']['misfire_max_temperature'] ?? null,
             ]);
         }
+    }
 
+    private function createDistortionModel(\App\Models\SC\Item\Item $itemModel): void
+    {
         if (!empty($this->data['distortion'])) {
             $itemModel->distortionData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
@@ -164,7 +200,10 @@ class Item implements ShouldQueue
                 'recovery_time' => $this->data['distortion']['recovery_time'] ?? null,
             ]);
         }
+    }
 
+    private function createDurabilityModel(\App\Models\SC\Item\Item $itemModel): void
+    {
         if (!empty($this->data['durability'])) {
             $itemModel->durabilityData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],

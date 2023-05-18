@@ -72,6 +72,7 @@ class Item extends HasTranslations
         'ports',
         'manufacturer',
         'durabilityData',
+        'descriptionData',
     ];
 
     public function translations(): HasMany
@@ -260,6 +261,15 @@ class Item extends HasTranslations
         return $this->dimensions()->where('override', 0)->first() ?? null;
     }
 
+    public function vehicle(): HasOne
+    {
+        return $this->hasOne(
+            Vehicle::class,
+            'item_uuid',
+            'uuid'
+        )->withDefault();
+    }
+
     public function vehicleItem(): HasOne
     {
         return $this->hasOne(
@@ -318,6 +328,15 @@ class Item extends HasTranslations
     {
         return $this->hasOne(
             ItemDurabilityData::class,
+            'item_uuid',
+            'uuid'
+        );
+    }
+
+    public function descriptionData(): HasMany
+    {
+        return $this->hasMany(
+            ItemDescriptionData::class,
             'item_uuid',
             'uuid'
         );

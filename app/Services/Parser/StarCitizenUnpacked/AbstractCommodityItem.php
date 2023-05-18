@@ -58,7 +58,7 @@ abstract class AbstractCommodityItem
         })->implode("\n");
 
         $match = preg_match_all(
-            '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%+-]*)(?:\\n|\n|\\\n|$)/m',
+            '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%+-]*)(?:\\n|\n||\\\n|$)/m',
             $withColon,
             $matches
         );
