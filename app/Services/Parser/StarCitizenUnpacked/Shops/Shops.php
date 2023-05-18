@@ -178,52 +178,80 @@ final class Shops
      */
     private function addShops(): void
     {
-        $refineryShops = [
-            'CRU-L1',
-            'ARC-L1',
-            'HUR-L1',
-            'HUR-L2',
-            'MIC-L2',
-        ];
+        // Vantage Rentals
+        $this->concatShopData(
+            ['CRU-L1', 'ARC-L1', 'HUR-L1', 'HUR-L2', 'MIC-L2'],
+            'Vantage Rentals',
+            'Refinery_Rentals'
+        );
 
-        $cargoShops = [
-            'Port Tressler',
-            'Everus Harbor',
-            'Baijini Point',
-        ];
+        // Traveler Rentals
+        $this->concatShopData(
+            ['Port Tressler', 'Everus Harbor', 'Baijini Point'],
+            'Traveler Rentals',
+            'CargoOffice_Rentals'
+        );
 
-        $refineryRentals = $this->shops->first(function ($value) {
-            return isset($value['name']) && $value['name'] === 'Refinery_Rentals';
+        // Ellroy's
+        $this->concatShopData(
+            ['CRU-L1', 'Cloudview Center', 'August Dunlow Spaceport'],
+            "Ellroy's",
+            'Ellroys'
+        );
+
+        // Burrito Bar
+        $this->concatShopData(
+            ['CRU-L1', 'Cloudview Center', 'August Dunlow Spaceport'],
+            'Burrito Bar',
+            'BurritoBar'
+        );
+
+        // Noodle Bar
+        $this->concatShopData(
+            ['CRU-L1'],
+            'Noodle Bar',
+            'NoodleBar'
+        );
+
+        // Pizza Bar
+        $this->concatShopData(
+            ['CRU-L1'],
+            'Pizza Bar',
+            'PizzaBar'
+        );
+
+        // Juice Bar
+        $this->concatShopData(
+            ['CRU-L1'],
+            'Juice Bar',
+            'JuiceBar'
+        );
+
+        // Juice Bar
+        $this->concatShopData(
+            ['Vision Center'],
+            'Coffee Stand',
+            'CoffeeStand'
+        );
+    }
+
+    private function concatShopData(array $toAdd, string $shopName, string $internalShopName): void
+    {
+        $shop = $this->shops->first(function ($value) use ($internalShopName) {
+            return isset($value['name']) && $value['name'] === $internalShopName;
         });
 
-        if ($refineryRentals !== null) {
-            $refinery = collect($refineryShops)->map(function (string $name) use ($refineryRentals) {
-                $refineryRentals['name'] = sprintf('Vantage Rentals, %s', $name);
+        if ($shop !== null) {
+            $newShops = collect($toAdd)->map(function (string $name) use ($shop, $shopName) {
+                $shop['name'] = sprintf('%s, %s', $shopName, $name);
 
                 $hex = bin2hex($name);
-                $refineryRentals['reference'] = substr($refineryRentals['reference'], 0, -12) . substr($hex, 0, 12);
+                $shop['reference'] = substr($shop['reference'], 0, -12) . substr($hex, 0, 12);
 
-                return $refineryRentals;
+                return $shop;
             });
 
-            $this->shops = $this->shops->concat($refinery);
-        }
-
-        $cargoRentals = $this->shops->first(function ($value) {
-            return isset($value['name']) && $value['name'] === 'CargoOffice_Rentals';
-        });
-
-        if ($cargoRentals !== null) {
-            $cargo = collect($cargoShops)->map(function (string $name) use ($cargoRentals) {
-                $cargoRentals['name'] = sprintf('Traveler Rentals, %s', $name);
-
-                $hex = bin2hex($name);
-                $cargoRentals['reference'] = substr($cargoRentals['reference'], 0, -12) . substr($hex, 0, 12);
-
-                return $cargoRentals;
-            });
-
-            $this->shops = $this->shops->concat($cargo);
+            $this->shops = $this->shops->concat($newShops);
         }
     }
 }
