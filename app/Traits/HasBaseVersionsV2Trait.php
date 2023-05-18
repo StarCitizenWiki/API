@@ -24,14 +24,15 @@ trait HasBaseVersionsV2Trait
 
         'Boots',
         'Jacket',
-        'Shirt',
         'Pants',
         'Beanie',
         'Hat',
         'Head Cover',
         'Gloves',
         'T-Shirt',
+        'Shirt',
         'Shoes',
+        'Harness',
         'Vest',
 
         'Scrub Top',
@@ -83,15 +84,14 @@ trait HasBaseVersionsV2Trait
                 // Ignore Versions with " in their name
                 ->where('name', 'NOT LIKE', '%"%')
                 ->orderBy('name')
-                ->get()
-                ->sortBy('item.name');
+                ->get();
 
             $base = $result->first(function ($value) use ($baseName) {
                 return Str::contains($value->name, 'Base') || $value->name === $baseName;
             });
 
             $base = $base ?? $result->first();
-            if ($base->name === $this->name) {
+            if (optional($base)->name === $this->name) {
                 return null;
             }
 
