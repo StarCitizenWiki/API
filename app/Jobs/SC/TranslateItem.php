@@ -45,7 +45,7 @@ class TranslateItem implements ShouldQueue
         app('Log')::info("Translating Item {$this->item->name}");
         $targetLocale = config('services.deepl.target_locale');
 
-        $english = $this->item->english()->translation;
+        $english = optional($this->item->english())->translation;
         $german = optional($this->item->german())->translation;
 
         // Delete job german and english translation length don't differ in length by <= 20%
