@@ -9,6 +9,7 @@ use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
+use App\Http\Resources\SC\Vehicle\VehicleResource;
 use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -111,10 +112,14 @@ class ItemController extends AbstractApiV2Controller
                     'heatData',
                     'durabilityData',
                 ])
-                ->allowedIncludes(ItemResource::validIncludes())
+                //->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
+        }
+
+        if ($item->type === 'NOITEM_Vehicle') {
+            return new VehicleResource($item->vehicle);
         }
 
         return new ItemResource($item);
