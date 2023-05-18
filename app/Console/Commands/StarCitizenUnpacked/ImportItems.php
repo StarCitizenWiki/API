@@ -12,6 +12,7 @@ use App\Services\Parser\StarCitizenUnpacked\Labels;
 use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 
 class ImportItems extends AbstractQueueCommand
@@ -108,7 +109,7 @@ class ImportItems extends AbstractQueueCommand
 
         if ($this->option('skipVehicles') === false) {
             $this->info("\n\nImporting Vehicles");
-            Vehicle::dispatch();
+            Artisan::call('unpacked:import-vehicles');
         }
 
         $this->info('Done. You can import shop items by running unpacked:import-shop-items');
