@@ -27,119 +27,65 @@ class Vehicle implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private function isNotIgnoredClass(string $class): bool
+    private array $shipData;
+
+    public function __construct(array $shipData)
     {
-        $tests = [
-            'fw22nfz',
-            'modifiers',
-            'SM_TE',
-            'Bombless',
-            'BIS29',
-            'Indestructible',
-            'Prison',
-            'NoCrimesAgainst',
-            'Unmanned',
-            'F7A_Mk1',
-            'CINEMATIC_ONLY',
-            'NO_CUSTOM',
-            'Test',
-        ];
-
-        $isGood = true;
-
-        foreach ($tests as $toTest) {
-            $isGood = $isGood && stripos($class, $toTest) === false;
-        }
-
-        $isGood = $isGood && $class !== 'TEST_Boat';
-
-        return $isGood;
+        $this->shipData = $shipData;
     }
 
     public function handle(): void
     {
-        try {
-            $vehicles = File::get(storage_path('app/api/scunpacked-data/v2/ships.json'));
-        } catch (FileNotFoundException $e) {
-            $this->fail('ships.json not found. Did you clone scunpacked?');
-            return;
-        }
-
-        try {
-            $vehicles = json_decode($vehicles, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
-            $this->fail($e->getMessage());
-
-            return;
-        }
-
         $labels = (new Labels())->getData();
         $manufacturers = (new Manufacturers())->getData();
 
-        collect($vehicles)->chunk(5)->each(function (Collection $chunk) use ($labels, $manufacturers) {
-            $chunk
-                ->filter(function (array $vehicle) {
-                    return $this->isNotIgnoredClass($vehicle['ClassName']);
-                })
-                ->map(function (array $vehicle) {
-                    $fileV2 = sprintf(
-                        'api/scunpacked-data/v2/ships/%s-raw.json',
-                        strtolower($vehicle['ClassName'])
-                    );
+        $vehicle = $this->shipData;
 
-                    try {
-                        $rawData = File::get(storage_path(sprintf('app/%s', $fileV2)));
+        try {
+            $rawData = File::get(storage_path(sprintf('app/%s', $vehicle['filePathV2'])));
 
-                        $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
-                    } catch (FileNotFoundException|JsonException $e) {
-                    }
+            $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
+        } catch (FileNotFoundException | JsonException $e) {
+            $this->fail($e->getMessage());
+        }
 
-                    $vehicle['filePath'] = sprintf(
-                        'api/scunpacked-data/ships/%s.json',
-                        strtolower($vehicle['ClassName'])
-                    );
+        if (!isset($vehicle['rawData']['Entity']['__ref'])) {
+            return;
+        }
 
-                    return $vehicle;
-                })->each(function (array $vehicle) use ($labels, $manufacturers) {
-                    if (!isset($vehicle['rawData']['Entity']['__ref'])) {
-                        return;
-                    }
+        /** @var \App\Models\SC\Vehicle\Vehicle $vehicleModel */
+        $vehicleModel = \App\Models\SC\Vehicle\Vehicle::updateOrCreate([
+            'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
+        ], $this->getVehicleModelArray($vehicle) + ['class_name' => $vehicle['ClassName']]);
 
-                    /** @var \App\Models\SC\Vehicle\Vehicle $vehicleModel */
-                    $vehicleModel = \App\Models\SC\Vehicle\Vehicle::updateOrCreate([
-                        'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
-                    ], $this->getVehicleModelArray($vehicle) + ['class_name' => $vehicle['ClassName']]);
+        if (!$vehicleModel->item === null || !optional($vehicleModel->item)->exists) {
+            $itemParser = new \App\Services\Parser\StarCitizenUnpacked\Item(
+                $vehicle['filePath'],
+                $labels,
+                $manufacturers
+            );
 
-                    if (!$vehicleModel->item === null || !optional($vehicleModel->item)->exists) {
-                        $itemParser = new \App\Services\Parser\StarCitizenUnpacked\Item(
-                            $vehicle['filePath'],
-                            $labels,
-                            $manufacturers
-                        );
+            $data = $itemParser->getData();
+            if ($data !== null) {
+                (new Item($data))->handle();
+            }
+        }
 
-                        $data = $itemParser->getData();
-                        if ($data !== null) {
-                            (new Item($data))->handle();
-                        }
-                    }
+        $vehicleModel->refresh();
 
-                    $vehicleModel->refresh();
+        if (Arr::get($vehicle, 'Inventory') !== null) {
+            $vehicleModel->item->container()->updateOrCreate([
+                'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
+            ], [
+                'width' => Arr::get($vehicle, 'Inventory.x'),
+                'height' => Arr::get($vehicle, 'Inventory.y'),
+                'length' => Arr::get($vehicle, 'Inventory.z'),
+                'scu' => Arr::get($vehicle, 'Inventory.SCU'),
+                'unit' => Arr::get($vehicle, 'Inventory.unit'),
+            ]);
+        }
 
-                    if (Arr::get($vehicle, 'Inventory') !== null) {
-                        $vehicleModel->item->container()->updateOrCreate([
-                            'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
-                        ], [
-                            'width' => Arr::get($vehicle, 'Inventory.x'),
-                            'height' => Arr::get($vehicle, 'Inventory.y'),
-                            'length' => Arr::get($vehicle, 'Inventory.z'),
-                            'scu' => Arr::get($vehicle, 'Inventory.SCU'),
-                            'unit' => Arr::get($vehicle, 'Inventory.unit'),
-                        ]);
-                    }
-
-                    $this->createHardpoints($vehicleModel, $vehicle['rawData']);
-                });
-        });
+        $this->createHardpoints($vehicleModel, $vehicle['rawData']);
     }
 
     public function getVehicleModelArray(array $vehicle): array
