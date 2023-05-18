@@ -27,11 +27,14 @@ class Vehicle implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    private Collection $hardpoints;
+
     private array $shipData;
 
     public function __construct(array $shipData)
     {
         $this->shipData = $shipData;
+        $this->hardpoints = new Collection();
     }
 
     public function handle(): void
@@ -86,6 +89,8 @@ class Vehicle implements ShouldQueue
         }
 
         $this->createHardpoints($vehicleModel, $vehicle['rawData']);
+
+        $vehicleModel->hardpoints()->whereNotIn('hardpoint_name', $this->hardpoints)->delete();
     }
 
     public function getVehicleModelArray(array $vehicle): array
@@ -279,6 +284,7 @@ class Vehicle implements ShouldQueue
                         }
 
                         $itemPortName = strtolower($hardpoint['itemPortName']);
+                        $this->hardpoints->push($hardpoint['itemPortName']);
 
                         $point = $vehicle->hardpoints()->updateOrCreate([
                             'hardpoint_name' => $hardpoint['itemPortName'],
@@ -338,6 +344,7 @@ class Vehicle implements ShouldQueue
                 continue;
             }
 
+            $this->hardpoints->push($subPoint['itemPortName']);
             $point = $vehicle->hardpoints()->updateOrCreate([
                 'hardpoint_name' => $subPoint['itemPortName'],
                 'parent_hardpoint_id' => $parent->id,
