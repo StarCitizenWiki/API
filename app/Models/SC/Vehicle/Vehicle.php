@@ -241,7 +241,10 @@ class Vehicle extends CommodityItem
     {
         $scu = $this->hardpoints()
             ->whereHas('item.container')
-            ->where('hardpoint_name', 'LIKE', '%storage%')
+            ->where(function (Builder $query) {
+                $query->where('hardpoint_name', 'LIKE', '%storage%')
+                    ->orWhere('hardpoint_name', 'LIKE', '%personal_inventory%');
+            })
             ->get()
             ->map(function (Hardpoint $hardpoint) {
                 return $hardpoint->item;
