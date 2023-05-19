@@ -14,6 +14,8 @@ use OpenApi\Attributes as OA;
     title: 'Mining Module',
     properties: [
         new OA\Property(property: 'type', type: 'string', nullable: true),
+        new OA\Property(property: 'uses', type: 'integer', nullable: true),
+        new OA\Property(property: 'duration', type: 'string', nullable: true),
         new OA\Property(
             property: 'modifiers',
             type: 'array',
@@ -34,6 +36,8 @@ class MiningModuleResource extends AbstractBaseResource
     {
         return [
             'type' => $this->getDescriptionDatum('Item Type'),
+            'uses' => (int)$this->uses,
+            'duration' => $this->duration,
             'modifiers' => MiningLaserModifierResource::collection($this->modifiers),
         ];
     }

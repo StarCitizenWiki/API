@@ -10,9 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MiningModule extends Item
 {
-    /**
-     * Limits Clothes to Armors
-     */
     protected static function boot(): void
     {
         parent::boot();
@@ -38,7 +35,19 @@ class MiningModule extends Item
             [
                 'Manufacturer',
                 'Item Type',
+                'Uses',
+                'Duration',
             ]
         );
+    }
+
+    public function getDurationAttribute()
+    {
+        return $this->getDescriptionDatum('Duration');
+    }
+
+    public function getUsesAttribute()
+    {
+        return $this->getDescriptionDatum('Uses');
     }
 }

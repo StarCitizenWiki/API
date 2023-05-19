@@ -43,6 +43,16 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/mining_laser_modifiers_v2')
         ),
+        new OA\Property(
+            property: 'extraction_laser_power',
+            type: 'string',
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'mining_laser_power',
+            type: 'string',
+            nullable: true,
+        ),
     ],
     type: 'object'
 )]
@@ -62,6 +72,8 @@ class MiningLaserResource extends AbstractBaseResource
             'maximum_range' => $this->maximum_range,
             'extraction_throughput' => $this->extraction_throughput,
             'module_slots' => $this->module_slots,
+            'extraction_laser_power' => $this->extraction_laser_power,
+            'mining_laser_power' => $this->mining_laser_power,
             'modifiers' => MiningLaserModifierResource::collection($this->modifiers),
         ];
     }
