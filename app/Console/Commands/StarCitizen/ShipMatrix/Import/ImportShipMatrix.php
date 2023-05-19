@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands\StarCitizen\ShipMatrix\Import;
 
 use App\Jobs\StarCitizen\Vehicle\Import\ImportShipMatrix as ImportShipMatrixJob;
-use Illuminate\Bus\Dispatcher;
 use Illuminate\Console\Command;
 
 /**
@@ -18,7 +17,7 @@ class ImportShipMatrix extends Command
      *
      * @var string
      */
-    protected $signature = 'ship-matrix:import';
+    protected $signature = 'ship-matrix:import {--file=}';
 
     /**
      * The console command description.
@@ -27,22 +26,6 @@ class ImportShipMatrix extends Command
      */
     protected $description = 'Import the newest downloaded ship matrix file into the database';
 
-    /**
-     * @var Dispatcher
-     */
-    private Dispatcher $dispatcher;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param Dispatcher $dispatcher
-     */
-    public function __construct(Dispatcher $dispatcher)
-    {
-        parent::__construct();
-
-        $this->dispatcher = $dispatcher;
-    }
 
     /**
      * Execute the console command.
@@ -52,7 +35,13 @@ class ImportShipMatrix extends Command
     public function handle(): int
     {
         $this->info('Dispatching Ship Matrix Parsing Job');
-        $this->dispatcher->dispatch(new ImportShipMatrixJob());
+
+        $file = $this->option('file');
+        if ($file !== null) {
+            $file = explode('vehicles', $this->option('file'))[1] ?? null;
+        }
+
+        ImportShipMatrixJob::dispatch($file);
 
         return 0;
     }
