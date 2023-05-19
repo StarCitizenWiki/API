@@ -62,7 +62,7 @@ class Item implements ShouldQueue
             ]);
         }
 
-        collect($this->data['description_data'] ?? [])->filter(function ($value, $key) {
+        $data = collect($this->data['description_data'] ?? [])->filter(function ($value, $key) {
             return $key !== 'description';
         })->each(function ($value, $key) use ($itemModel) {
             $itemModel->descriptionData()->updateOrCreate([
@@ -70,7 +70,8 @@ class Item implements ShouldQueue
             ], [
                 'value' => trim($value),
             ]);
-        });
+        })->keys();
+        $itemModel->descriptionData()->whereNotIn('name', $data)->delete();
 
         $this->createDimensionModel($itemModel);
         $this->createContainerModel($itemModel);
