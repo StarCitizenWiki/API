@@ -91,6 +91,7 @@ class ImportVehicles extends AbstractQueueCommand
     private function isNotIgnoredClass(string $class): bool
     {
         $tests = [
+            '_Hangar',
             'Active1',
             'BIS29',
             'Bombless',
@@ -99,6 +100,7 @@ class ImportVehicles extends AbstractQueueCommand
             'Fleetweek',
             'fw22nfz',
             'Indestructible',
+            'Krugeri',
             'modifiers',
             'NO_CUSTOM',
             'NoCrimesAgainst',
