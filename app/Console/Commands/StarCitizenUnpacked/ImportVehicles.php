@@ -91,19 +91,23 @@ class ImportVehicles extends AbstractQueueCommand
     private function isNotIgnoredClass(string $class): bool
     {
         $tests = [
-            'fw22nfz',
-            'modifiers',
-            'SM_TE',
-            'Bombless',
+            'Active1',
             'BIS29',
-            'Indestructible',
-            'Prison',
-            'NoCrimesAgainst',
-            'Unmanned',
-            'F7A_Mk1',
+            'Bombless',
             'CINEMATIC_ONLY',
+            'F7A_Mk1',
+            'Fleetweek',
+            'fw22nfz',
+            'Indestructible',
+            'modifiers',
             'NO_CUSTOM',
+            'NoCrimesAgainst',
+            'Prison',
+            'Showdown',
+            'SM_TE',
             'Test',
+            'Tutorial',
+            'Unmanned',
         ];
 
         $isGood = true;
