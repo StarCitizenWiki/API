@@ -31,9 +31,24 @@ use OpenApi\Attributes as OA;
             type: 'object'
         ),
         new OA\Property(property: 'mass', type: 'float'),
-        new OA\Property(property: 'cargo_capacity', type: 'float', nullable: true),
-        new OA\Property(property: 'vehicle_inventory', type: 'float', nullable: true),
-        new OA\Property(property: 'personal_inventory', type: 'float', nullable: true),
+        new OA\Property(
+            property: 'cargo_capacity',
+            description: 'Cargo Capacity in SCU',
+            type: 'float',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'vehicle_inventory',
+            description: '(Personal) Vehicle Inventory (accessed via "I"), in SCU',
+            type: 'float',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'personal_inventory',
+            description: '(Shared) Inventories found in the ship, e.g. boxes or containers, in SCU',
+            type: 'float',
+            nullable: true
+        ),
         new OA\Property(
             property: 'crew',
             properties: [

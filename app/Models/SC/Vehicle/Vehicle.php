@@ -262,7 +262,22 @@ class Vehicle extends CommodityItem
 
     public function getVehicleInventoryScuAttribute(): float
     {
-        return $this->item->container->scu ?? 0;
+        return $this->item->container->scu + $this->hardpoints()
+            ->whereHas('item.container')
+            ->where(function (Builder $query) {
+                $query->where('hardpoint_name', 'LIKE', '%access%');
+            })
+            ->get()
+            ->map(function (Hardpoint $hardpoint) {
+                return $hardpoint->item;
+            })
+            ->map(function ($item) {
+                return $item->container;
+            })
+            ->map(function ($item) {
+                return $item->calculated_scu ?? 0;
+            })
+            ->sum();
     }
 
     public function getFuelCapacityAttribute(): float

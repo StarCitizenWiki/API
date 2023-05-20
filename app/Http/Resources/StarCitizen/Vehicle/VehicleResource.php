@@ -42,13 +42,13 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'vehicle_inventory',
-            description: 'Vehicle Inventory (accessed via "I") in SCU',
+            description: '(Personal) Vehicle Inventory (accessed via "I"), in SCU',
             type: 'float',
             nullable: true
         ),
         new OA\Property(
             property: 'personal_inventory',
-            description: 'Inventories found in the ship, e.g. boxes of containers, in SCU',
+            description: '(Shared) Inventories found in the ship, e.g. boxes or containers, in SCU',
             type: 'float',
             nullable: true
         ),
