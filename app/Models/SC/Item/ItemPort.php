@@ -43,13 +43,19 @@ class ItemPort extends Model
 
     public function getPositionAttribute(): ?string
     {
+        $default = strtoupper(explode($this->name, '_attach')[0] ?? '');
+        $default = empty($default) ? null : $default;
+
         return match ($this->name) {
+            'barrel_attach' => 'Barrel',
+            'canister_attach' => 'Canister',
             'magazine_attach' => 'Magazine',
+            'missile_attach_01' => 'Missile',
+            'module_attach' => 'Module',
             'optics_attach' => 'Optics',
             'underbarrel_attach' => 'Underbarrel',
-            'barrel_attach' => 'Barrel',
-            'missile_attach_01' => 'Missile',
-            default => null,
+            'weapon_action_attachment' => 'Weapon Action',
+            default => $default,
         };
     }
 }
