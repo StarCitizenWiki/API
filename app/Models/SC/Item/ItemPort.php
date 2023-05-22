@@ -43,6 +43,10 @@ class ItemPort extends Model
 
     public function getPositionAttribute(): ?string
     {
+        if (empty($this->name)) {
+            return null;
+        }
+
         $default = strtoupper(explode($this->name, '_attach')[0] ?? '');
         $default = empty($default) ? null : $default;
 

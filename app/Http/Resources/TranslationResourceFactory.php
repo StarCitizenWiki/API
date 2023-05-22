@@ -33,7 +33,7 @@ class TranslationResourceFactory
         $transformed = $collection->toArray($request);
 
         if ($request->has('locale')) {
-            return $transformed[$request->get('locale')] ?? $transformed['en_EN'];
+            return $transformed[$request->get('locale')] ?? $transformed['en_EN'] ?? new MissingValue();
         }
 
         return $collection;
