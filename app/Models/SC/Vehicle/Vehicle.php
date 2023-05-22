@@ -262,7 +262,7 @@ class Vehicle extends CommodityItem
 
     public function getVehicleInventoryScuAttribute(): float
     {
-        return $this->item->container->scu + $this->hardpoints()
+        return ($this->item?->container?->scu ?? 0) + $this->hardpoints()
             ->whereHas('item.container')
             ->where(function (Builder $query) {
                 $query->where('hardpoint_name', 'LIKE', '%access%');
