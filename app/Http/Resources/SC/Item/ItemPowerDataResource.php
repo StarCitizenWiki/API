@@ -22,6 +22,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'overpower_performance', type: 'double', nullable: true),
         new OA\Property(property: 'power_to_em', type: 'double', nullable: true),
         new OA\Property(property: 'decay_rate_em', type: 'double', nullable: true),
+        new OA\Property(property: 'em_min', type: 'double', nullable: true),
+        new OA\Property(property: 'em_max', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
@@ -46,6 +48,8 @@ class ItemPowerDataResource extends AbstractBaseResource
             'overpower_performance' => $this->overpower_performance,
             'power_to_em' => $this->power_to_em,
             'decay_rate_em' => $this->decay_rate_em,
+            'em_min' => $this->min_electromagnetic_emission,
+            'em_max' => $this->max_electromagnetic_emission,
         ];
     }
 }

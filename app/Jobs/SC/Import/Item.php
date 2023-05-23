@@ -167,6 +167,7 @@ class Item implements ShouldQueue
                 'item_uuid' => $this->data['uuid'],
             ], [
                 'temperature_to_ir' => $this->data['heat']['temperature_to_ir'] ?? null,
+                'ir_temperature_threshold' => $this->data['heat']['ir_temperature_threshold'] ?? null,
                 'overpower_heat' => $this->data['heat']['overpower_heat'] ?? null,
                 'overclock_threshold_min' => $this->data['heat']['overclock_threshold_min'] ?? null,
                 'overclock_threshold_max' => $this->data['heat']['overclock_threshold_max'] ?? null,

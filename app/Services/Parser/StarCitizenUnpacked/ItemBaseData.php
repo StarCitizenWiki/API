@@ -68,6 +68,7 @@ final class ItemBaseData extends AbstractItemSpecification
 
         return array_filter([
             'temperature_to_ir' => Arr::get($item, $basePath . 'TemperatureToIR'),
+            'ir_temperature_threshold' => Arr::get($item, $basePath . 'StartIRTemperature'),
             'overpower_heat' => Arr::get($item, $basePath . 'OverpowerHeat'),
             'overclock_threshold_min' => Arr::get($item, $basePath . 'OverclockThresholdMinHeat'),
             'overclock_threshold_max' => Arr::get($item, $basePath . 'OverclockThresholdMaxHeat'),

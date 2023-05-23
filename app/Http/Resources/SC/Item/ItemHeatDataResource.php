@@ -13,6 +13,7 @@ use OpenApi\Attributes as OA;
     title: 'Item Heat Data',
     properties: [
         new OA\Property(property: 'temperature_to_ir', type: 'double', nullable: true),
+        new OA\Property(property: 'ir_temperature_threshold', type: 'double', nullable: true),
         new OA\Property(property: 'overpower_heat', type: 'double', nullable: true),
         new OA\Property(property: 'overclock_threshold_min', type: 'double', nullable: true),
         new OA\Property(property: 'overclock_threshold_max', type: 'double', nullable: true),
@@ -30,6 +31,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'recovery_temperature', type: 'double', nullable: true),
         new OA\Property(property: 'misfire_min_temperature', type: 'double', nullable: true),
         new OA\Property(property: 'misfire_max_temperature', type: 'double', nullable: true),
+        new OA\Property(property: 'ir_emission', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
@@ -45,6 +47,7 @@ class ItemHeatDataResource extends AbstractBaseResource
     {
         return [
             'temperature_to_ir' => $this->temperature_to_ir,
+            'ir_temperature_threshold' => $this->ir_temperature_threshold,
             'overpower_heat' => $this->overpower_heat,
             'overclock_threshold_min' => $this->overclock_threshold_min,
             'overclock_threshold_max' => $this->overclock_threshold_max,
@@ -62,6 +65,7 @@ class ItemHeatDataResource extends AbstractBaseResource
             'recovery_temperature' => $this->recovery_temperature,
             'misfire_min_temperature' => $this->misfire_min_temperature,
             'misfire_max_temperature' => $this->misfire_max_temperature,
+            'ir_emission' => $this->infrared_emission,
         ];
     }
 }

@@ -15,6 +15,7 @@ class ItemHeatData extends CommodityItem
 
     protected $fillable = [
         'temperature_to_ir',
+        'ir_temperature_threshold',
         'overpower_heat',
         'overclock_threshold_min',
         'overclock_threshold_max',
@@ -36,6 +37,7 @@ class ItemHeatData extends CommodityItem
 
     protected $casts = [
         'temperature_to_ir' => 'double',
+        'ir_temperature_threshold' => 'double',
         'overpower_heat' => 'double',
         'overclock_threshold_min' => 'double',
         'overclock_threshold_max' => 'double',
@@ -54,4 +56,9 @@ class ItemHeatData extends CommodityItem
         'misfire_min_temperature' => 'double',
         'misfire_max_temperature' => 'double',
     ];
+
+    public function getInfraredEmissionAttribute(): float
+    {
+        return ($this->start_cooling_temperature - $this->ir_temperature_threshold) * $this->temperature_to_ir;
+    }
 }

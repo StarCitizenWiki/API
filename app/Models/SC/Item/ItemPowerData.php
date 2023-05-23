@@ -38,4 +38,14 @@ class ItemPowerData extends CommodityItem
         'power_to_em' => 'double',
         'decay_rate_em' => 'double',
     ];
+
+    public function getMinElectromagneticEmissionAttribute(): float
+    {
+        return $this->power_base * $this->power_to_em;
+    }
+
+    public function getMaxElectromagneticEmissionAttribute(): float
+    {
+        return $this->power_draw * $this->power_to_em;
+    }
 }
