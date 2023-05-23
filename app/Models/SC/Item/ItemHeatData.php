@@ -59,6 +59,8 @@ class ItemHeatData extends CommodityItem
 
     public function getInfraredEmissionAttribute(): float
     {
-        return ($this->start_cooling_temperature - $this->ir_temperature_threshold) * $this->temperature_to_ir;
+        $ir = ($this->start_cooling_temperature - $this->ir_temperature_threshold) * $this->temperature_to_ir;
+
+        return max(0, $ir);
     }
 }
