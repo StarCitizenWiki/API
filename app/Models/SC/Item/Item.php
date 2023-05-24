@@ -184,7 +184,7 @@ class Item extends HasTranslations
              * Ship Items
              */
             case $this->type === 'Armor':
-                return $this->hasOne(Armor::class, 'item_uuid', 'uuid')->withDefault();
+                return $this->hasOne(\App\Models\SC\ItemSpecification\Armor::class, 'item_uuid', 'uuid')->withDefault();
 
             case $this->type === 'WeaponDefensive':
             case $this->type === 'WeaponGun':
