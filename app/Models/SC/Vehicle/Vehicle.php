@@ -7,9 +7,13 @@ namespace App\Models\SC\Vehicle;
 use App\Events\ModelUpdating;
 use App\Models\SC\CommodityItem;
 use App\Models\SC\Item\Item;
+use App\Models\SC\Item\ItemHeatData;
+use App\Models\SC\Item\ItemPowerData;
 use App\Models\SC\ItemSpecification\Armor;
 use App\Models\SC\ItemSpecification\FlightController;
 use App\Models\SC\ItemSpecification\QuantumDrive\QuantumDrive;
+use App\Models\SC\ItemSpecification\Shield;
+use App\Models\SC\ItemSpecification\Thruster;
 use App\Models\SC\Manufacturer;
 use App\Traits\HasDescriptionDataTrait;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
@@ -154,6 +158,30 @@ class Vehicle extends CommodityItem
     {
         return $this->hasManyThrough(
             QuantumDrive::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'item_uuid',
+            'id',
+            'equipped_item_uuid',
+        );
+    }
+
+    public function shields(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Shield::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'item_uuid',
+            'id',
+            'equipped_item_uuid',
+        );
+    }
+
+    public function thrusters(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Thruster::class,
             Hardpoint::class,
             'vehicle_id',
             'item_uuid',
@@ -356,7 +384,7 @@ class Vehicle extends CommodityItem
             $query->where('class_name', 'NOT LIKE', '%vtol%')->where('class_name', 'NOT LIKE', '%retro%');
         }
 
-        return $query
+        $usage = $query
             ->get()
             ->map(function (Hardpoint $hardpoint) {
                 return $hardpoint->item;
@@ -368,6 +396,45 @@ class Vehicle extends CommodityItem
                 return (($item->fuel_burn_per_10k_newton / 1e4) * $item->thrust_capacity) ?? 0;
             })
             ->sum();
+
+        return round($usage);
+    }
+
+    public function irData(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ItemHeatData::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'item_uuid',
+            'id',
+            'equipped_item_uuid',
+        );
+    }
+
+    public function getIrEmissionAttribute()
+    {
+        return round($this->irData->sum('infrared_emission'));
+    }
+
+    public function emData(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ItemPowerData::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'item_uuid',
+            'id',
+            'equipped_item_uuid',
+        );
+    }
+
+    public function getEmEmissionAttribute(): array
+    {
+        return [
+            'min' => round($this->emData->sum('min_electromagnetic_emission')),
+            'max' => round($this->emData->sum('max_electromagnetic_emission')),
+        ];
     }
 
     private function fuelTanks(mixed $types = ['FuelTank', 'ExternalFuelTank']): HasMany

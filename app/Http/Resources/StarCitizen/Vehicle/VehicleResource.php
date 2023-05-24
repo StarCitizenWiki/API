@@ -34,6 +34,31 @@ use OpenApi\Attributes as OA;
             ],
             type: 'object'
         ),
+
+        new OA\Property(
+            property: 'emission',
+            properties: [
+                new OA\Property(
+                    property: 'ir',
+                    description: 'Infrared Emission',
+                    type: 'float',
+                    nullable: true
+                ),
+                new OA\Property(
+                    property: 'em_idle',
+                    description: 'Idle Elegromagnetic Emission',
+                    type: 'float',
+                    nullable: true
+                ),
+                new OA\Property(
+                    property: 'em_max',
+                    description: 'Maxmium possible Elegromagnetic Emission',
+                    type: 'float',
+                    nullable: true
+                ),
+            ],
+            type: 'object'
+        ),
         new OA\Property(property: 'mass', type: 'float'),
         new OA\Property(
             property: 'cargo_capacity',
@@ -64,6 +89,7 @@ use OpenApi\Attributes as OA;
             type: 'object'
         ),
         new OA\Property(property: 'health', type: 'float'),
+        new OA\Property(property: 'shield_hp', type: 'float', nullable: true),
         new OA\Property(
             property: 'speed',
             properties: [
@@ -237,6 +263,11 @@ class VehicleResource extends AbstractBaseResource
                 'beam' => (double)$this->width,
                 'height' => (double)$this->height,
             ],
+            'emission' => [
+                'ir' => $this->sc?->ir_emission,
+                'em_idle' => $this->sc?->em_emission['min'] ?? null,
+                'em_max' => $this->sc?->em_emission['max'] ?? null,
+            ],
             'mass' => $this->sc?->mass ?? $this->mass,
             'cargo_capacity' => $cargo,
             'vehicle_inventory' => $this->sc?->vehicle_inventory_scu,
@@ -249,6 +280,7 @@ class VehicleResource extends AbstractBaseResource
                 'operation' => $this->sc?->operation_crew,
             ],
             'health' => $this->sc?->health,
+            'shield_hp' => $this->sc?->shields?->sum('max_shield_health'),
             'speed' => [
                 'scm' => $this->sc?->flightController?->scm_speed ?? $this->scm_speed,
                 'max' => $this->sc?->flightController?->max_speed,
