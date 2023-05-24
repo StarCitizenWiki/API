@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
+use App\Models\SC\ItemSpecification\Armor;
 use App\Models\SC\ItemSpecification\Cooler;
 use App\Models\SC\ItemSpecification\Emp;
 use App\Models\SC\ItemSpecification\FlightController;
@@ -75,6 +76,10 @@ class VehicleItem implements ShouldQueue
     private function createModelSpecification(array $item, \App\Models\SC\Item\Item $itemModel): void
     {
         switch ($itemModel->type) {
+            case 'Armor':
+                $this->createArmor($item);
+                break;
+
             case 'FlightController':
                 $this->createFlightController($item);
                 break;
@@ -131,6 +136,23 @@ class VehicleItem implements ShouldQueue
                 $this->createSelfDestruct($item);
                 break;
         }
+    }
+
+    private function createArmor(array $item): void
+    {
+        Armor::updateOrCreate([
+            'item_uuid' => $item['uuid'],
+        ], [
+            'signal_infrared' => $item['armor']['signal_infrared'] ?? null,
+            'signal_electromagnetic' => $item['armor']['signal_electromagnetic'] ?? null,
+            'signal_cross_section' => $item['armor']['signal_cross_section'] ?? null,
+            'damage_physical' => $item['armor']['damage_physical'] ?? null,
+            'damage_energy' => $item['armor']['damage_energy'] ?? null,
+            'damage_distortion' => $item['armor']['damage_distortion'] ?? null,
+            'damage_thermal' => $item['armor']['damage_thermal'] ?? null,
+            'damage_biochemical' => $item['armor']['damage_biochemical'] ?? null,
+            'damage_stun' => $item['armor']['damage_stun'] ?? null,
+        ]);
     }
 
     private function createFlightController(array $item): void

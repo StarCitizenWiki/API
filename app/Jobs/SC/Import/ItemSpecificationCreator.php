@@ -45,6 +45,7 @@ final class ItemSpecificationCreator
                 break;
 
             // Vehicle Items
+            case stripos($type, 'Armor') !== false:
             case stripos($type, 'Battery') !== false:
             case stripos($type, 'Cooler') !== false:
             case stripos($type, 'EMP') !== false:

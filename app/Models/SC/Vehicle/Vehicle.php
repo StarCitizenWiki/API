@@ -7,7 +7,9 @@ namespace App\Models\SC\Vehicle;
 use App\Events\ModelUpdating;
 use App\Models\SC\CommodityItem;
 use App\Models\SC\Item\Item;
+use App\Models\SC\ItemSpecification\Armor;
 use App\Models\SC\ItemSpecification\FlightController;
+use App\Models\SC\ItemSpecification\QuantumDrive\QuantumDrive;
 use App\Models\SC\Manufacturer;
 use App\Traits\HasDescriptionDataTrait;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
@@ -15,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Vehicle extends CommodityItem
@@ -56,7 +59,6 @@ class Vehicle extends CommodityItem
         'scm_to_zero',
         'max_to_zero',
 
-
         'acceleration_main',
         'acceleration_retro',
         'acceleration_vtol',
@@ -85,33 +87,22 @@ class Vehicle extends CommodityItem
         'operations_crew' => 'int',
         'mass' => 'float',
         'health' => 'float',
-        'scm_speed' => 'float',
-        'max_speed' => 'float',
+
         'zero_to_scm' => 'float',
         'zero_to_max' => 'float',
         'scm_to_zero' => 'float',
         'max_to_zero' => 'float',
-        'pitch' => 'float',
-        'yaw' => 'float',
-        'roll' => 'float',
+
         'acceleration_main' => 'float',
         'acceleration_retro' => 'float',
         'acceleration_vtol' => 'float',
         'acceleration_maneuvering' => 'float',
+
         'acceleration_g_main' => 'float',
         'acceleration_g_retro' => 'float',
         'acceleration_g_vtol' => 'float',
         'acceleration_g_maneuvering' => 'float',
-        'fuel_capacity' => 'float',
-        'fuel_intake_rate' => 'float',
-        'fuel_usage_main' => 'float',
-        'fuel_usage_retro' => 'float',
-        'fuel_usage_vtol' => 'float',
-        'fuel_usage_maneuvering' => 'float',
-        'quantum_speed' => 'float',
-        'quantum_spool_time' => 'float',
-        'quantum_fuel_capacity' => 'float',
-        'quantum_range' => 'float',
+
         'claim_time' => 'float',
         'expedite_time' => 'float',
         'expedite_cost' => 'float',
@@ -147,28 +138,40 @@ class Vehicle extends CommodityItem
         );
     }
 
-    public function flightController(): ?FlightController
+    public function flightController(): HasOneThrough
     {
-        $controller = $this->hasOne(
+        return $this->hasOneThrough(
+            FlightController::class,
             Hardpoint::class,
             'vehicle_id',
+            'item_uuid',
             'id',
-        )->whereRelation('item', function (Builder $query) {
-            $query->where('type', 'FlightController');
-        })->first();
-
-        return $controller?->item?->specification;
+            'equipped_item_uuid',
+        );
     }
 
-    public function quantumDrives(): HasMany
+    public function quantumDrives(): HasManyThrough
     {
-        return $this->hasMany(
+        return $this->hasManyThrough(
+            QuantumDrive::class,
             Hardpoint::class,
             'vehicle_id',
+            'item_uuid',
             'id',
-        )->whereRelation('item', function (Builder $query) {
-            $query->where('type', 'QuantumDrive');
-        });
+            'equipped_item_uuid',
+        );
+    }
+
+    public function armor(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Armor::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'item_uuid',
+            'id',
+            'equipped_item_uuid',
+        );
     }
 
     public function hardpointsWithoutParent(): HasMany
@@ -196,14 +199,15 @@ class Vehicle extends CommodityItem
 
     public function getComputedHealthAttribute(): float
     {
-        return $this->hardpoints()
-            ->get()
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item;
-            })
-            ->filter(function (Item $item) {
-                return $item->exists;
-            })
+        return $this->hasManyThrough(
+            Item::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'uuid',
+            'id',
+            'equipped_item_uuid',
+        )
+            ->whereHas('durabilityData')->get()
             ->map(function ($item) {
                 return $item->durabilityData->health ?? 0;
             })
@@ -217,15 +221,17 @@ class Vehicle extends CommodityItem
      */
     public function getScuAttribute(): float
     {
-        return $this->hardpoints()
-            ->whereHas('item.container')
-            ->whereHas('item', function (Builder $query) {
-                $query->whereIn('type', ['Cargo', 'CargoGrid', 'Container']);
-            })
+        return $this->hasManyThrough(
+            Item::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'uuid',
+            'id',
+            'equipped_item_uuid',
+        )
+            ->whereHas('container')
+            ->whereIn('type', ['Cargo', 'CargoGrid', 'Container'])
             ->get()
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item;
-            })
             ->map(function ($item) {
                 return $item->calculated_scu ?? 0;
             })
@@ -239,16 +245,20 @@ class Vehicle extends CommodityItem
      */
     public function getPersonalInventoryScuAttribute(): float
     {
-        $scu = $this->hardpoints()
-            ->whereHas('item.container')
+        $scu = $this->hasManyThrough(
+            Item::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'uuid',
+            'id',
+            'equipped_item_uuid',
+        )
+            ->whereHas('container')
             ->where(function (Builder $query) {
                 $query->where('hardpoint_name', 'LIKE', '%storage%')
                     ->orWhere('hardpoint_name', 'LIKE', '%personal_inventory%');
             })
             ->get()
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item;
-            })
             ->map(function ($item) {
                 return $item->container;
             })

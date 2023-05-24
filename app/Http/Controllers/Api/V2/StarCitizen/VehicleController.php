@@ -118,7 +118,7 @@ class VehicleController extends AbstractApiV2Controller
 
             if ($vehicleModel === null) {
                 $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
-                    ->where('name', $identifier)
+                    ->where('name', 'LIKE', "%{$identifier}")
                     ->orWhere('class_name', $identifier)
                     ->orWhere('item_uuid', $identifier)
                     ->firstOrFail();

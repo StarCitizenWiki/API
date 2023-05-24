@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\SC\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\SC\ItemSpecification\ArmorResource;
 use App\Http\Resources\SC\Shop\ShopResource;
 use App\Http\Resources\TranslationResourceFactory;
 use App\Models\SC\Vehicle\Hardpoint;
@@ -130,6 +131,7 @@ use OpenApi\Attributes as OA;
             type: 'object'
         ),
 
+        new OA\Property(property: 'armor', ref: '#/components/schemas/armor_v2', nullable: true),
         new OA\Property(property: 'foci', type: 'object'),
         new OA\Property(property: 'production_status', type: 'object'),
         new OA\Property(property: 'production_note', type: 'object'),
@@ -221,8 +223,8 @@ class VehicleResource extends AbstractBaseResource
             ],
             'health' => $this->health,
             'speed' => [
-                'scm' => $this->flightController()?->scm_speed,
-                'max' => $this->flightController()?->max_speed,
+                'scm' => $this->flightController?->scm_speed,
+                'max' => $this->flightController?->max_speed,
                 'zero_to_scm' => $this->zero_to_scm,
                 'zero_to_max' => $this->zero_to_max,
                 'scm_to_zero' => $this->scm_to_zero,
@@ -240,9 +242,9 @@ class VehicleResource extends AbstractBaseResource
             ],
             'quantum' => $this->getQuantumDriveData(),
             'agility' => [
-                'pitch' => $this->flightController()?->pitch,
-                'yaw' => $this->flightController()?->yaw,
-                'roll' => $this->flightController()?->roll,
+                'pitch' => $this->flightController?->pitch,
+                'yaw' => $this->flightController?->yaw,
+                'roll' => $this->flightController?->roll,
                 'acceleration' => [
                     'main' => $this->acceleration_main,
                     'retro' => $this->acceleration_retro,
@@ -255,6 +257,9 @@ class VehicleResource extends AbstractBaseResource
                     'maneuvering_g' => $this->acceleration_g_maneuvering,
                 ],
             ],
+            $this->mergeWhen($this->armor?->exists, [
+                'armor' => new ArmorResource($this->armor),
+            ]),
             'foci' => [
                 'en_EN' => $this->career,
             ],
@@ -285,10 +290,7 @@ class VehicleResource extends AbstractBaseResource
 
     private function getQuantumDriveData(): array
     {
-        $drives = $this->quantumDrives
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item->specification;
-            });
+        $drives = $this->quantumDrives;
 
         if ($drives->isEmpty()) {
             return [];

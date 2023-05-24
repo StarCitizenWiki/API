@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\StarCitizen\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\SC\ItemSpecification\ArmorResource;
 use App\Http\Resources\SC\Shop\ShopResource;
 use App\Http\Resources\SC\Vehicle\HardpointResource;
 use App\Http\Resources\TranslationResourceFactory;
@@ -137,6 +138,7 @@ use OpenApi\Attributes as OA;
             type: 'object'
         ),
 
+        new OA\Property(property: 'armor', ref: '#/components/schemas/armor_v2', nullable: true),
         new OA\Property(
             property: 'foci',
             type: 'array',
@@ -248,8 +250,8 @@ class VehicleResource extends AbstractBaseResource
             ],
             'health' => $this->sc?->health,
             'speed' => [
-                'scm' => $this->sc?->flightController()?->scm_speed ?? $this->scm_speed,
-                'max' => $this->sc?->flightController()?->max_speed,
+                'scm' => $this->sc?->flightController?->scm_speed ?? $this->scm_speed,
+                'max' => $this->sc?->flightController?->max_speed,
                 'zero_to_scm' => $this->sc?->zero_to_scm,
                 'zero_to_max' => $this->sc?->zero_to_max,
                 'scm_to_zero' => $this->sc?->scm_to_zero,
@@ -267,9 +269,9 @@ class VehicleResource extends AbstractBaseResource
             ],
             'quantum' => $this->getQuantumDriveData(),
             'agility' => [
-                'pitch' => $this->sc?->flightController()?->pitch ?? $this->pitch_max,
-                'yaw' => $this->sc?->flightController()?->yaw ?? $this->yaw_max,
-                'roll' => $this->sc?->flightController()?->roll ?? $this->roll_max,
+                'pitch' => $this->sc?->flightController?->pitch ?? $this->pitch_max,
+                'yaw' => $this->sc?->flightController?->yaw ?? $this->yaw_max,
+                'roll' => $this->sc?->flightController?->roll ?? $this->roll_max,
                 'acceleration' => [
                     'x_axis' => $this->x_axis_acceleration,
                     'y_axis' => $this->y_axis_acceleration,
@@ -286,6 +288,7 @@ class VehicleResource extends AbstractBaseResource
                     'maneuvering_g' => $this->sc?->acceleration_g_maneuvering,
                 ],
             ],
+            'armor' => new ArmorResource($this->sc?->armor),
             'foci' => $this->getFociTranslations($request),
             'production_status' => TranslationResourceFactory::getTranslationResource($request, $this->productionStatus),
             'production_note' => TranslationResourceFactory::getTranslationResource($request, $this->productionNote),
@@ -338,10 +341,7 @@ class VehicleResource extends AbstractBaseResource
 
     private function getQuantumDriveData(): array
     {
-        $drives = $this->sc?->quantumDrives
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item->specification;
-            });
+        $drives = $this->sc?->quantumDrives;
 
         if ($drives->isEmpty()) {
             return [];

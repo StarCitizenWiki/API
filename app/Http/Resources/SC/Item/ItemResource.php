@@ -12,6 +12,7 @@ use App\Http\Resources\SC\Char\PersonalWeapon\IronSightResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponMagazineResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponResource;
 use App\Http\Resources\SC\FoodResource;
+use App\Http\Resources\SC\ItemSpecification\ArmorResource;
 use App\Http\Resources\SC\ItemSpecification\CoolerResource;
 use App\Http\Resources\SC\ItemSpecification\EmpResource;
 use App\Http\Resources\SC\ItemSpecification\FlightControllerResource;
@@ -66,6 +67,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'max_mounts', type: 'integer', nullable: true),
         new OA\Property(property: 'max_missiles', type: 'integer', nullable: true),
         new OA\Property(property: 'max_bombs', type: 'integer', nullable: true),
+        new OA\Property(property: 'armor', ref: '#/components/schemas/armor_v2', nullable: true),
         new OA\Property(property: 'barrel_attach', ref: '#/components/schemas/barrel_attach_v2', nullable: true),
         new OA\Property(property: 'clothing', ref: '#/components/schemas/clothing_v2', nullable: true),
         new OA\Property(property: 'cooler', ref: '#/components/schemas/cooler_v2', nullable: true),
@@ -184,6 +186,10 @@ class ItemResource extends AbstractTranslationResource
         }
 
         return match (true) {
+            $this->type === 'Armor' => [
+                $this->specification->exists,
+                ['emp' => new ArmorResource($this->specification),],
+            ],
             $this->type === 'EMP' => [
                 $this->specification->exists,
                 ['emp' => new EmpResource($this->specification),],
