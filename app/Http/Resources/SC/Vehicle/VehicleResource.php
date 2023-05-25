@@ -336,6 +336,12 @@ class VehicleResource extends AbstractBaseResource
             $this->mergeWhen(in_array('shops', $includes, true), [
                 'shops' => ShopResource::collection($this->item->shops),
             ]),
+            new OA\Property(
+                property: 'loaner',
+                type: 'array',
+                items: new OA\Items(ref: '#/components/schemas/vehicle_loaner_v2'),
+                nullable: true,
+            ),
             'updated_at' => $this->updated_at,
             'version' => config('api.sc_data_version'),
         ];
@@ -398,6 +404,7 @@ class VehicleResource extends AbstractBaseResource
             'acceleration.x_axis',
             'acceleration.y_axis',
             'acceleration.z_axis',
+            'loaner',
         ];
 
         foreach ($toAdd as $key) {

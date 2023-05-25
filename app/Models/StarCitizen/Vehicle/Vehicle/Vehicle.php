@@ -366,4 +366,15 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
     {
         return 'slug';
     }
+
+    public function loaner(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            __CLASS__,
+            'vehicle_loaners',
+            'vehicle_id',
+            'loaner_id',
+            'id',
+        )->withPivot('version');
+    }
 }

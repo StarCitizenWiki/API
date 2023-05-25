@@ -113,10 +113,12 @@ class VehicleController extends AbstractApiV2Controller
         );
 
         $identifier = $this->cleanQueryName($identifier);
+        $underscored = str_replace(' ', '_', $identifier);
 
         try {
             $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
                 ->where('name', 'LIKE', "%{$identifier}")
+                ->orWhere('class_name', 'LIKE', "%{$underscored}")
                 ->orWhere('class_name', $identifier)
                 ->orWhere('item_uuid', $identifier)
                 ->first();

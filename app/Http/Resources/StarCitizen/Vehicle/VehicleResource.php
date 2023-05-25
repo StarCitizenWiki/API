@@ -104,6 +104,11 @@ use OpenApi\Attributes as OA;
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/vehicle_component_v2'),
         ),
+        new OA\Property(
+            property: 'loaner',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/vehicle_loaner_v2'),
+        ),
     ],
     type: 'object'
 )]
@@ -176,6 +181,8 @@ class VehicleResource extends AbstractBaseResource
             $this->mergeWhen(in_array('components', $includes, true), [
                 'components' => ComponentResource::collection($this->components),
             ]),
+
+            'loaner' => VehicleLoanerResource::collection($this->loaner),
 
             'updated_at' => $this->updated_at,
         ];

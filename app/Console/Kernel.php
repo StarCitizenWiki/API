@@ -34,6 +34,7 @@ use App\Console\Commands\StarCitizen\Starmap\Import\ImportStarmap;
 use App\Console\Commands\StarCitizen\Starmap\Translate\TranslateSystems;
 use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
+use App\Console\Commands\StarCitizen\Vehicle\ImportLoaner;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Console\Commands\StarCitizenUnpacked\ImportClothing;
 use App\Console\Commands\StarCitizenUnpacked\ImportItems;
@@ -73,6 +74,7 @@ class Kernel extends ConsoleKernel
         ImportShipMatrix::class,
 
         ImportMsrp::class,
+        ImportLoaner::class,
 
         DownloadStats::class,
         ImportStats::class,
