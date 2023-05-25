@@ -112,6 +112,14 @@ class Vehicle extends CommodityItem
         'expedite_cost' => 'float',
     ];
 
+    protected $with = [
+        'armor',
+        'flightController',
+        'quantumDrives',
+        'shields',
+        'thrusters',
+    ];
+
     protected $perPage = 5;
 
     public function getCleanNameAttribute()
@@ -130,7 +138,7 @@ class Vehicle extends CommodityItem
             \App\Models\StarCitizen\Vehicle\Vehicle\Vehicle::class,
             'shipmatrix_id',
             'id'
-        );
+        )->withDefault();
     }
 
     public function hardpoints(): HasMany
@@ -318,9 +326,9 @@ class Vehicle extends CommodityItem
             ->sum();
     }
 
-    public function getFuelCapacityAttribute(): float
+    public function getFuelCapacityAttribute(): ?float
     {
-        return $this->fuelTanks()
+        $capacity = $this->fuelTanks()
             ->get()
             ->map(function (Hardpoint $hardpoint) {
                 return $hardpoint->item;
@@ -332,11 +340,13 @@ class Vehicle extends CommodityItem
                 return $item->capacity ?? 0;
             })
             ->sum();
+
+        return empty($capacity) ? null : $capacity;
     }
 
-    public function getQuantumFuelCapacityAttribute(): float
+    public function getQuantumFuelCapacityAttribute(): ?float
     {
-        return $this->fuelTanks('QuantumFuelTank')
+        $capacity = $this->fuelTanks('QuantumFuelTank')
             ->get()
             ->map(function (Hardpoint $hardpoint) {
                 return $hardpoint->item;
@@ -348,11 +358,13 @@ class Vehicle extends CommodityItem
                 return $item->capacity ?? 0;
             })
             ->sum();
+
+        return empty($capacity) ? null : $capacity;
     }
 
-    public function getFuelIntakeRateAttribute(): float
+    public function getFuelIntakeRateAttribute(): ?float
     {
-        return $this->fuelIntakes()
+        $rate = $this->fuelIntakes()
             ->get()
             ->map(function (Hardpoint $hardpoint) {
                 return $hardpoint->item;
@@ -364,9 +376,11 @@ class Vehicle extends CommodityItem
                 return $item->fuel_push_rate ?? 0;
             })
             ->sum();
+
+        return empty($rate) ? null : $rate;
     }
 
-    public function getFuelUsage(string $type = 'MainThruster'): float
+    public function getFuelUsage(string $type = 'MainThruster'): ?float
     {
         $query = $this->hardpoints()->whereRelation('item', function (Builder $query) use ($type) {
             if ($type === 'RetroThruster' || $type === 'VtolThruster') {
@@ -397,7 +411,9 @@ class Vehicle extends CommodityItem
             })
             ->sum();
 
-        return round($usage);
+        $usage = round($usage);
+
+        return empty($usage) ? null : $usage;
     }
 
     public function irData(): HasManyThrough
@@ -412,9 +428,18 @@ class Vehicle extends CommodityItem
         );
     }
 
-    public function getIrEmissionAttribute()
+    public function getIrEmissionAttribute(): ?float
     {
-        return round($this->irData->sum('infrared_emission'));
+        $emission = round($this->irData->sum('infrared_emission'));
+
+        return empty($emission) ? null : $emission;
+    }
+
+    public function getShieldHpAttribute(): ?float
+    {
+        $hp = round($this->shields->sum('max_shield_health'));
+
+        return empty($hp) ? null : $hp;
     }
 
     public function emData(): HasManyThrough
@@ -431,9 +456,12 @@ class Vehicle extends CommodityItem
 
     public function getEmEmissionAttribute(): array
     {
+        $min = round($this->emData->sum('min_electromagnetic_emission'));
+        $max = round($this->emData->sum('max_electromagnetic_emission'));
+
         return [
-            'min' => round($this->emData->sum('min_electromagnetic_emission')),
-            'max' => round($this->emData->sum('max_electromagnetic_emission')),
+            'min' => empty($min) ? null : $min,
+            'max' => empty($max) ? null : $max,
         ];
     }
 

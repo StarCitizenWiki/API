@@ -8,7 +8,6 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\ItemSpecification\ArmorResource;
 use App\Http\Resources\SC\Shop\ShopResource;
 use App\Http\Resources\TranslationResourceFactory;
-use App\Models\SC\Vehicle\Hardpoint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -16,12 +15,12 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'sc_vehicle_v2',
     title: 'Vehicle',
-    description: 'In-game or Ship-Matrix vehicles',
+    description: 'In-Game vehicles (with Ship-Matrix information if available)',
     properties: [
         new OA\Property(property: 'uuid', type: 'string'),
         new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'slug', type: 'string'),
-        new OA\Property(property: 'class_name', type: 'string', nullable: true),
+        new OA\Property(property: 'class_name', type: 'string'),
         new OA\Property(
             property: 'sizes',
             properties: [
@@ -157,13 +156,28 @@ use OpenApi\Attributes as OA;
         ),
 
         new OA\Property(property: 'armor', ref: '#/components/schemas/armor_v2', nullable: true),
-        new OA\Property(property: 'foci', type: 'object'),
-        new OA\Property(property: 'production_status', type: 'object'),
-        new OA\Property(property: 'production_note', type: 'object'),
-        new OA\Property(property: 'type', type: 'object'),
-        new OA\Property(property: 'description', type: 'object'),
-        new OA\Property(property: 'size', type: 'object'),
-        new OA\Property(property: 'msrp', type: 'float', nullable: true),
+        new OA\Property(
+            property: 'foci',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/translation_v2')
+        ),
+        new OA\Property(property: 'production_status', ref: '#/components/schemas/translation_v2', nullable: true),
+        new OA\Property(property: 'production_note', ref: '#/components/schemas/translation_v2', nullable: true),
+        new OA\Property(property: 'type', ref: '#/components/schemas/translation_v2'),
+        new OA\Property(property: 'description', ref: '#/components/schemas/translation_v2'),
+        new OA\Property(
+            property: 'size',
+            oneOf: [
+                new OA\Schema(type: 'integer'),
+                new OA\Schema(ref: '#/components/schemas/translation_v2')
+            ],
+        ),
+        new OA\Property(
+            property: 'msrp',
+            description: 'MSRP imported from the Ship Upgrade tool.',
+            type: 'float',
+            nullable: true
+        ),
         new OA\Property(
             property: 'manufacturer',
             properties: [
@@ -194,6 +208,13 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/shop_v2'),
             nullable: true
         ),
+        new OA\Property(
+            property: 'components',
+            description: 'Components imported from the Ship-Matrix',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/vehicle_component_v2'),
+            nullable: true
+        ),
     ],
     type: 'object'
 )]
@@ -203,7 +224,8 @@ class VehicleResource extends AbstractBaseResource
     {
         return [
             'shops',
-            'hardpoints'
+            'hardpoints',
+            'components',
         ];
     }
 
@@ -225,7 +247,7 @@ class VehicleResource extends AbstractBaseResource
             $manufacturer = $this->description_manufacturer;
         }
 
-        return [
+        $data = [
             'uuid' => $this->item_uuid,
             'name' => $this->name,
             'slug' => Str::slug($this->name),
@@ -252,7 +274,7 @@ class VehicleResource extends AbstractBaseResource
                 'operation' => $this->operation_crew,
             ],
             'health' => $this->health,
-            'shield_hp' => $this->shields?->sum('max_shield_health'),
+            'shield_hp' => $this->shield_hp,
             'speed' => [
                 'scm' => $this->flightController?->scm_speed,
                 'max' => $this->flightController?->max_speed,
@@ -271,7 +293,7 @@ class VehicleResource extends AbstractBaseResource
                     'vtol' => $this->getFuelUsage('VtolThruster'),
                 ],
             ],
-            'quantum' => $this->getQuantumDriveData(),
+            'quantum' => $this->mergeWhen(...$this->getQuantumDriveData()),
             'agility' => [
                 'pitch' => $this->flightController?->pitch,
                 'yaw' => $this->flightController?->yaw,
@@ -317,6 +339,10 @@ class VehicleResource extends AbstractBaseResource
             'updated_at' => $this->updated_at,
             'version' => config('api.sc_data_version'),
         ];
+
+        $this->loadShipMatrixData($data, $request);
+
+        return $data;
     }
 
     private function getQuantumDriveData(): array
@@ -324,17 +350,65 @@ class VehicleResource extends AbstractBaseResource
         $drives = $this->quantumDrives;
 
         if ($drives->isEmpty()) {
-            return [];
+            return [false, []];
         }
 
         $modes = $drives[0]->modes->keyBy('type');
         $normal = $modes['normal'];
 
         return [
-            'quantum_speed' => $normal->drive_speed,
-            'quantum_spool_time' => $normal->spool_up_time,
-            'quantum_fuel_capacity' => $this->quantum_fuel_capacity,
-            'quantum_range' => $this->sc?->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
+            true, [
+                'quantum_speed' => $normal->drive_speed,
+                'quantum_spool_time' => $normal->spool_up_time,
+                'quantum_fuel_capacity' => $this->quantum_fuel_capacity,
+                'quantum_range' => $this->sc?->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
+            ]
         ];
+    }
+
+    /**
+     * Adds ship-matrix information to the output
+     *
+     * @param array $data
+     * @param Request $request
+     * @return void
+     */
+    private function loadShipMatrixData(array &$data, Request $request): void
+    {
+        if (!$this->vehicle->exists) {
+            return;
+        }
+
+        $matrixVehicle = (new \App\Http\Resources\StarCitizen\Vehicle\VehicleResource($this->vehicle))
+            ->resolve($request);
+
+        $toAdd = [
+            'id',
+            'chassis_id',
+            'name',
+            'slug',
+            'foci',
+            'production_status',
+            'production_note',
+            'type',
+            'description',
+            'size',
+            'msrp',
+            'components',
+            'acceleration.x_axis',
+            'acceleration.y_axis',
+            'acceleration.z_axis',
+        ];
+
+        foreach ($toAdd as $key) {
+            if (!empty($matrixVehicle[$key])) {
+                if (str_contains($key, 'acceleration')) {
+                    $key = explode('.', $key)[1];
+                    $data['acceleration'][$key] = $matrixVehicle['acceleration'][$key];
+                } else {
+                    $data[$key] = $matrixVehicle[$key];
+                }
+            }
+        }
     }
 }

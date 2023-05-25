@@ -90,9 +90,14 @@ class VehicleController extends AbstractApiV2Controller
         ],
         responses: [
             new OA\Response(
-                ref: '#/components/schemas/vehicle_v2',
                 response: 200,
-                description: 'A singular vehicle'
+                description: 'A singular vehicle',
+                content: new OA\JsonContent(
+                    oneOf: [
+                        new OA\Schema(ref: '#/components/schemas/sc_vehicle_v2'),
+                        new OA\Schema(ref: '#/components/schemas/vehicle_v2'),
+                    ],
+                )
             )
         ]
     )]
@@ -110,26 +115,26 @@ class VehicleController extends AbstractApiV2Controller
         $identifier = $this->cleanQueryName($identifier);
 
         try {
-            $vehicleModel = QueryBuilder::for(Vehicle::class, $request)
-                ->where('name', $identifier)
-                ->orWhere('slug', $identifier)
-                ->orWhereRelation('sc', 'item_uuid', $identifier)
+            $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
+                ->where('name', 'LIKE', "%{$identifier}")
+                ->orWhere('class_name', $identifier)
+                ->orWhere('item_uuid', $identifier)
                 ->first();
 
             if ($vehicleModel === null) {
-                $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
-                    ->where('name', 'LIKE', "%{$identifier}")
-                    ->orWhere('class_name', $identifier)
-                    ->orWhere('item_uuid', $identifier)
+                $vehicleModel = QueryBuilder::for(Vehicle::class, $request)
+                    ->where('name', $identifier)
+                    ->orWhere('slug', $identifier)
+                    ->orWhereRelation('sc', 'item_uuid', $identifier)
                     ->firstOrFail();
 
-                return new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
+                return new VehicleResource($vehicleModel);
             }
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Vehicle with specified name found.');
         }
 
-        return new VehicleResource($vehicleModel);
+        return new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
     }
 
     #[OA\Post(
