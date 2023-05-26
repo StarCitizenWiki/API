@@ -6,7 +6,6 @@ namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Type;
 
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Type\TypeController;
 use App\Models\StarCitizen\Vehicle\Type\Type;
-use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -136,10 +135,6 @@ class TypeControllerTestCase extends StarCitizenTestCase
     {
         $controller = $this->getMockBuilder(TypeController::class)->disableOriginalConstructor()->getMock();
         $controller->expects(self::once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(TypeController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

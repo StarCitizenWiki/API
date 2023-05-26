@@ -5,8 +5,6 @@ namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\Ship;
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController;
 use App\Models\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
-use App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation;
-use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -24,7 +22,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      * Test Index
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController::index
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::index
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      */
     public function testIndex()
     {
@@ -49,7 +47,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      * Test Edit
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController::edit
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      */
     public function testEdit()
     {
@@ -77,7 +75,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      * Test Edit
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController::edit
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      *
      * @covers \App\Exceptions\Handler
      */
@@ -98,7 +96,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController::update
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      *
      * @covers \App\Http\Requests\System\TranslationRequest
      *
@@ -127,7 +125,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Ship\ShipController::update
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      *
      * @covers \App\Exceptions\Handler
      */

@@ -6,7 +6,6 @@ namespace Tests\Feature\Controller\Web\User\StarCitizen\ProductionStatus;
 
 use App\Http\Controllers\Web\User\StarCitizen\ProductionStatus\ProductionStatusController;
 use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
-use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -137,10 +136,6 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
     {
         $controller = $this->getMockBuilder(ProductionStatusController::class)->disableOriginalConstructor()->getMock();
         $controller->expects(self::once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(ProductionStatusController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

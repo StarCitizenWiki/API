@@ -5,7 +5,7 @@ namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Search;
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
 use App\Models\Rsi\CommLink\CommLink;
-use Dingo\Api\Http\Response;
+use Illuminate\Http\Response;
 
 /**
  * Class Comm-Link Controller Test

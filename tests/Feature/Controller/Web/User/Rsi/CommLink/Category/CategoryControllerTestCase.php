@@ -5,9 +5,7 @@ namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Category;
 use App\Http\Controllers\Web\User\Rsi\CommLink\Category\CategoryController;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinkTranslation;
-use Dingo\Api\Dispatcher;
-use Dingo\Api\Http\Response;
+use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
 /**
@@ -63,10 +61,6 @@ class CategoryControllerTestCase extends UserTestCase
     {
         $controller = $this->getMockBuilder(CategoryController::class)->disableOriginalConstructor()->getMock();
         $controller->expects(self::once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(CategoryController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

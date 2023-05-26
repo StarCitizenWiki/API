@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Controller\Web\User\Dashboard;
 
 use App\Http\Controllers\Web\User\DashboardController;
-use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Octfx\DeepLy\DeepLy;
 use Octfx\DeepLy\ResponseBag\UsageBag;

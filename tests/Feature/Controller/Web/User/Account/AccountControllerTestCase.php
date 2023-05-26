@@ -4,7 +4,6 @@ namespace Tests\Feature\Controller\Web\User\Account;
 
 use App\Http\Controllers\Web\User\Account\AccountController;
 use App\Models\Account\User\User;
-use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -69,9 +68,5 @@ class AccountControllerTestCase extends UserTestCase
     {
         $controller = $this->getMockBuilder(AccountController::class)->disableOriginalConstructor()->getMock();
         $controller->expects($this->once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(AccountController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
     }
 }
