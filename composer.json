@@ -18,7 +18,6 @@
         "ext-pdo": "*",
         "ext-simplexml": "*",
         "doctrine/dbal": "^3.6.0",
-        "fabpot/goutte": "^4.0.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "jenssegers/imagehash": "^v0.8.0",
         "laravel/framework": "^v10.0",
@@ -29,6 +28,7 @@
         "sebastian/diff": "^4.0.4",
         "spatie/laravel-query-builder": "^5.1",
         "starcitizenwiki/mediawikiapi": "dev-develop",
+        "symfony/browser-kit": "^5.4",
         "zircote/swagger-php": "^4.4"
     },
     "require-dev": {
