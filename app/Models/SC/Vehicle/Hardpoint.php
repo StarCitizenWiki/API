@@ -16,7 +16,7 @@ class Hardpoint extends Model
 
     protected $with = [
         'children',
-        'item'
+        'item',
     ];
 
     protected $fillable = [
@@ -72,7 +72,6 @@ class Hardpoint extends Model
             'parent_hardpoint_id',
             'id',
         );
-//            ->where('vehicle_id', $this->vehicle_id);
     }
 
     public function parent(): BelongsTo

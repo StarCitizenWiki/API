@@ -74,6 +74,8 @@ class Item extends HasTranslations
         'manufacturer',
         'durabilityData',
         'descriptionData',
+        'translations',
+        'specification',
     ];
 
     public function translations(): HasMany
@@ -132,6 +134,10 @@ class Item extends HasTranslations
 
     public function specification(): ?HasOne
     {
+        if ($this->type === null) {
+            return $this->hasOne(Food::class, 'id', 'uuid')->withDefault();
+        }
+
         switch (true) {
             case $this->type === 'Food':
             case $this->type === 'Drink':
