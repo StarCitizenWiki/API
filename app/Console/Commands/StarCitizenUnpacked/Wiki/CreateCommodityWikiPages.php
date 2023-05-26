@@ -232,7 +232,7 @@ FORMAT;
             'Mietbar' => $item->shop_data->rentable,
             'Händler' => $shop->name,
             'Ort' => $shop->position,
-            'Spielversion' => config('api.sc_data_version'),
+            'Spielversion' => $item->version,
         ];
     }
 }

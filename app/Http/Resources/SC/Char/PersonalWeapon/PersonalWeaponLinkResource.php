@@ -55,7 +55,7 @@ class PersonalWeaponLinkResource extends AbstractBaseResource
             ]),
 
             'updated_at' => $this->updated_at,
-            'version' => config('api.sc_data_version'),
+            'version' => $this->item->version,
         ];
     }
 }
