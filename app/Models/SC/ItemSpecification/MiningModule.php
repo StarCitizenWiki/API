@@ -23,10 +23,16 @@ class MiningModule extends Item
         );
     }
 
-    protected $with = [
-        'modifiers'
-    ];
+    public function __construct(array $attributes = [])
+    {
+        $this->with = collect($this->with)->merge([
+            'modifiers',
+        ])
+            ->unique()
+            ->toArray();
 
+        parent::__construct($attributes);
+    }
 
     public function modifiers(): HasMany
     {

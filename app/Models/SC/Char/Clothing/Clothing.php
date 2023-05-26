@@ -12,10 +12,17 @@ class Clothing extends Item
 {
     use HasBaseVersionsV2Trait;
 
-    protected $with = [
-        'resistances',
-        'ports',
-    ];
+    public function __construct(array $attributes = [])
+    {
+        $this->with = collect($this->with)->merge([
+            'resistances',
+            'ports',
+        ])
+            ->unique()
+            ->toArray();
+
+        parent::__construct($attributes);
+    }
 
     public function getRouteKey()
     {

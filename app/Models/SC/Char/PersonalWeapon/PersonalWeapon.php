@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\SC\Char\PersonalWeapon;
 
 use App\Models\SC\Item\Item;
 use App\Traits\HasDescriptionDataTrait;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -27,12 +28,18 @@ class PersonalWeapon extends Item
         );
     }
 
-    protected $with = [
-        'modes',
-        'ports',
-        'damages',
-        'ammunition',
-    ];
+    public function __construct(array $attributes = [])
+    {
+        $this->with = collect($this->with)->merge([
+            'modes',
+            'damages',
+            'ammunition',
+        ])
+            ->unique()
+            ->toArray();
+
+        parent::__construct($attributes);
+    }
 
     public function getMagazineTypeAttribute(): string
     {
@@ -61,8 +68,9 @@ class PersonalWeapon extends Item
     public function getMagazineAttribute()
     {
         $magazine = $this->ports()->where('name', 'LIKE', '%magazine%')->first();
+
         if ($magazine !== null) {
-            return optional($magazine->item)->specification;
+            return $magazine?->item?->specification;
         }
 
         return optional();
@@ -77,9 +85,9 @@ class PersonalWeapon extends Item
     }
 
     /**
-     * @return BelongsToMany
+     * @return HasMany
      */
-    public function attachments()
+    public function attachments(): HasMany
     {
         return $this->ports();
     }

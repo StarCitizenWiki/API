@@ -51,7 +51,6 @@ class PersonalWeaponResource extends AbstractBaseResource
     public static function validIncludes(): array
     {
         return [
-            'ports',
             'shops',
             'shops.items',
         ];

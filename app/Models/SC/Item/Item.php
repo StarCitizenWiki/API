@@ -75,7 +75,6 @@ class Item extends HasTranslations
         'durabilityData',
         'descriptionData',
         'translations',
-        'specification',
     ];
 
     public function translations(): HasMany
@@ -135,7 +134,8 @@ class Item extends HasTranslations
     public function specification(): ?HasOne
     {
         if ($this->type === null) {
-            return $this->hasOne(Food::class, 'id', 'uuid')->withDefault();
+            // Null ref
+            return $this->hasOne(__CLASS__, 'id', 'uuid')->withDefault();
         }
 
         switch (true) {
@@ -249,7 +249,7 @@ class Item extends HasTranslations
                 return $this->hasOne(MiningModule::class, 'uuid', 'uuid')->withDefault();
 
             default:
-                return $this->hasOne(Clothing::class, 'created_at', 'uuid'); //NULL
+                return $this->hasOne(__CLASS__, 'id', 'uuid'); //NULL
         }
     }
 
