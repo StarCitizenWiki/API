@@ -12,9 +12,11 @@ use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\VehicleTransformer as UnpackedVehicleTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class VehicleController extends ApiController
@@ -121,16 +123,23 @@ class VehicleController extends ApiController
             )
         ]
     )]
-    public function show(Request $request): Response
+    public function show(Request $request)
     {
-        ['vehicle' => $vehicle] = Validator::validate(
-            [
-                'vehicle' => $request->vehicle,
-            ],
-            [
-                'vehicle' => 'required|string|min:1|max:255',
-            ]
-        );
+        try {
+            ['vehicle' => $vehicle] = Validator::validate(
+                [
+                    'vehicle' => $request->vehicle,
+                ],
+                [
+                    'vehicle' => 'required|string|min:1|max:255',
+                ]
+            );
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $vehicle = urldecode($vehicle);
 
@@ -191,11 +200,17 @@ class VehicleController extends ApiController
             )
         ],
     )]
-    public function search(Request $request): Response
+    public function search(Request $request)
     {
         $rules = (new VehicleSearchRequest())->rules();
-
-        $request->validate($rules);
+        try {
+            $request->validate($rules);
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $query = urldecode($request->get('query'));
         $queryBuilder = Vehicle::query()

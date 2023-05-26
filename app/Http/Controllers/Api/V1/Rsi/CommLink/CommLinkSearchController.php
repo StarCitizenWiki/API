@@ -17,10 +17,11 @@ use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Image\ImageHashTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Jenssegers\ImageHash\ImageHash;
 use Jenssegers\ImageHash\Implementations\AverageHash;
 use Jenssegers\ImageHash\Implementations\DifferenceHash;
@@ -74,9 +75,16 @@ class CommLinkSearchController extends ApiController
             )
         ],
     )]
-    public function searchByTitle(Request $request): Response
+    public function searchByTitle(Request $request)
     {
-        $request->validate((new CommLinkSearchRequest())->rules());
+        try {
+            $request->validate((new CommLinkSearchRequest())->rules());
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $query = $request->get('keyword') ?? $request->get('query');
 
@@ -123,7 +131,14 @@ class CommLinkSearchController extends ApiController
     )]
     public function reverseImageLinkSearch(Request $request)
     {
-        $request->validate((new ReverseImageLinkSearchRequest())->rules());
+        try {
+            $request->validate((new ReverseImageLinkSearchRequest())->rules());
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         /** @var Image $image */
         $image = Image::query()
@@ -202,11 +217,17 @@ class CommLinkSearchController extends ApiController
             )
         ],
     )]
-    public function reverseImageSearch(Request $request): Response
+    public function reverseImageSearch(Request $request)
     {
         $this->checkExtensionsLoaded();
-
-        $request->validate((new ReverseImageSearchRequest())->rules());
+        try {
+            $request->validate((new ReverseImageSearchRequest())->rules());
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $this->transformer = new ImageHashTransformer();
         $this->transformer->includeAllAvailableIncludes();

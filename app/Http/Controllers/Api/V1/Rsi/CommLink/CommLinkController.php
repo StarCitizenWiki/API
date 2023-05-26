@@ -8,9 +8,11 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class CommLinkController extends ApiController
@@ -117,16 +119,23 @@ class CommLinkController extends ApiController
             )
         ]
     )]
-    public function show(Request $request): Response
+    public function show(Request $request)
     {
-        ['comm_link' => $commLink] = Validator::validate(
-            [
-                'comm_link' => $request->comm_link,
-            ],
-            [
-                'comm_link' => 'required|int|min:12663',
-            ]
-        );
+        try {
+            ['comm_link' => $commLink] = Validator::validate(
+                [
+                    'comm_link' => $request->comm_link,
+                ],
+                [
+                    'comm_link' => 'required|int|min:12663',
+                ]
+            );
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         try {
             $commLink = CommLink::query()->where('cig_id', $commLink)->firstOrFail();

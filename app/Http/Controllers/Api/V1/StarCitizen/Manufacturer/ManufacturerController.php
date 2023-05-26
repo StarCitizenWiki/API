@@ -9,9 +9,11 @@ use App\Http\Requests\StarCitizen\Manufacturer\ManufacturerSearchRequest;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class ManufacturerController extends ApiController
@@ -106,16 +108,23 @@ class ManufacturerController extends ApiController
             )
         ]
     )]
-    public function show(Request $request): Response
+    public function show(Request $request)
     {
-        ['manufacturer' => $manufacturer] = Validator::validate(
-            [
-                'manufacturer' => $request->manufacturer,
-            ],
-            [
-                'manufacturer' => 'required|string|min:1|max:255',
-            ]
-        );
+        try {
+            ['manufacturer' => $manufacturer] = Validator::validate(
+                [
+                    'manufacturer' => $request->manufacturer,
+                ],
+                [
+                    'manufacturer' => 'required|string|min:1|max:255',
+                ]
+            );
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $manufacturer = urldecode($manufacturer);
 
@@ -179,10 +188,18 @@ class ManufacturerController extends ApiController
             )
         ],
     )]
-    public function search(Request $request): Response
+    public function search(Request $request)
     {
         $rules = (new ManufacturerSearchRequest())->rules();
-        $request->validate($rules);
+
+        try {
+            $request->validate($rules);
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $query = urldecode($request->get('query'));
         $queryBuilder = Manufacturer::query()

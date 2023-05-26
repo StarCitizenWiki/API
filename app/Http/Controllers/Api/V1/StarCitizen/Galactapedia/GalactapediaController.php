@@ -10,9 +10,11 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Transformers\Api\V1\StarCitizen\Galactapedia\ArticleTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class GalactapediaController extends ApiController
@@ -113,16 +115,23 @@ class GalactapediaController extends ApiController
             )
         ]
     )]
-    public function show(Request $request): Response
+    public function show(Request $request)
     {
-        ['article' => $article] = Validator::validate(
-            [
-                'article' => $request->article,
-            ],
-            [
-                'article' => 'required|string|min:10|max:12',
-            ]
-        );
+        try {
+            ['article' => $article] = Validator::validate(
+                [
+                    'article' => $request->article,
+                ],
+                [
+                    'article' => 'required|string|min:10|max:12',
+                ]
+            );
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $article = urldecode($article);
 
@@ -171,10 +180,17 @@ class GalactapediaController extends ApiController
             )
         ],
     )]
-    public function search(Request $request): Response
+    public function search(Request $request)
     {
         $rules = (new GalactapediaSearchRequest())->rules();
-        $request->validate($rules);
+        try {
+            $request->validate($rules);
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $query = urldecode($request->get('query'));
         $queryBuilder = Article::query()
