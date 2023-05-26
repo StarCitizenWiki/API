@@ -42,7 +42,7 @@ class CommLinkSearchController extends Controller
         $data = $request->validated();
 
         $query = $data['keyword'];
-        $links = CommLink::query()->where('title', 'LIKE', "%{$query}%");
+        $links = CommLink::query()->where('title', 'LIKE', "%{$query}%")->get();
 
         if ($links->isEmpty()) {
             return redirect()->route('web.user.rsi.comm-links.search')->withMessages(

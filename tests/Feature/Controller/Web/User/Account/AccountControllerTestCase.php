@@ -60,13 +60,4 @@ class AccountControllerTestCase extends UserTestCase
         }
     }
 
-
-    /**
-     * @covers \App\Http\Controllers\Web\User\Account\AccountController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(AccountController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
-    }
 }

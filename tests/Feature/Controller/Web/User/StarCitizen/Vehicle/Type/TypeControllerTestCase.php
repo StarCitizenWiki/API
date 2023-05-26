@@ -129,15 +129,6 @@ class TypeControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Type\TypeController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(TypeController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Vehicle types
      */

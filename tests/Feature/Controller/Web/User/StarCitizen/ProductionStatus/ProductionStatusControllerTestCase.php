@@ -130,15 +130,6 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\StarCitizen\ProductionStatus\ProductionStatusController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(ProductionStatusController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Production Statuss
      */

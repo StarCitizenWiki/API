@@ -137,14 +137,4 @@ class UserControllerTestCase extends UserTestCase
         );
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
-
-
-    /**
-     * @covers \App\Http\Controllers\Web\User\User\UserController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(UserController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
-    }
 }

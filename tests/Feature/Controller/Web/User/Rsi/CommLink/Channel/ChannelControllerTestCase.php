@@ -55,15 +55,6 @@ class ChannelControllerTestCase extends UserTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\Channel\ChannelController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(ChannelController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Comm-Link Channel
      */

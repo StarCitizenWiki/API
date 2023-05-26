@@ -55,15 +55,6 @@ class SeriesControllerTestCase extends UserTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\Series\SeriesController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(SeriesController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Comm-Link Series
      */

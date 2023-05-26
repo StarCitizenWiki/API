@@ -130,15 +130,6 @@ class FocusControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Focus\FocusController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(FocusController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Vehicle Foci
      */

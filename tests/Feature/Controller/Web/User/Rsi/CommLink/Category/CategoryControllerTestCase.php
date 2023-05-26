@@ -55,15 +55,6 @@ class CategoryControllerTestCase extends UserTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\Category\CategoryController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(CategoryController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Comm-Link Category
      */

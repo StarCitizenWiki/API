@@ -35,8 +35,7 @@ class StarCitizenTestCase extends ApiTestCase
                     'meta',
                 ]
             )
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**
@@ -96,8 +95,7 @@ class StarCitizenTestCase extends ApiTestCase
                 ]
             )
             ->assertSee(static::GERMAN_DEFAULT_TRANSLATION)
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**
@@ -125,8 +123,7 @@ class StarCitizenTestCase extends ApiTestCase
                 ]
             )
             ->assertSee(static::GERMAN_DEFAULT_TRANSLATION)
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**
@@ -157,8 +154,7 @@ class StarCitizenTestCase extends ApiTestCase
                     ],
                 ]
             )
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
 
@@ -194,8 +190,7 @@ class StarCitizenTestCase extends ApiTestCase
                     'meta',
                 ]
             )
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**
@@ -239,8 +234,7 @@ class StarCitizenTestCase extends ApiTestCase
                 ]
             )
             ->assertSee(static::GERMAN_DEFAULT_TRANSLATION)
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**

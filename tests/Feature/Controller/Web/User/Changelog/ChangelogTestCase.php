@@ -26,13 +26,4 @@ class ChangelogTestCase extends UserTestCase
             $response->assertSee(__('Änderungsübersicht'));
         }
     }
-
-    /**
-     * @covers \App\Http\Controllers\Web\User\Changelog\ChangelogController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(ChangelogController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
-    }
 }

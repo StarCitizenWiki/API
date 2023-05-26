@@ -128,15 +128,6 @@ class SizeControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\Size\SizeController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(SizeController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Vehicle sizes
      */

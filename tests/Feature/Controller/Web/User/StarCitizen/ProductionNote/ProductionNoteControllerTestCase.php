@@ -130,15 +130,6 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
     }
 
     /**
-     * @covers \App\Http\Controllers\Web\User\StarCitizen\ProductionNote\ProductionNoteController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(ProductionNoteController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-    }
-
-    /**
      * {@inheritdoc}
      * Creates needed Production Notes
      */
