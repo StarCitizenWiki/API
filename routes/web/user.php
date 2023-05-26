@@ -222,6 +222,7 @@ Route::group(
                             Route::resources(
                                 [
                                     'items' => 'Item\ItemController',
+                                    'vehicles' => 'VehicleController',
                                 ]
                             );
                         }

@@ -12,6 +12,7 @@ use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
 use App\Models\SC\Vehicle\Vehicle as UnpackedVehicle;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
@@ -117,10 +118,18 @@ class VehicleController extends AbstractApiV2Controller
 
         try {
             $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
-                ->where('name', 'LIKE', "%{$identifier}")
-                ->orWhere('class_name', 'LIKE', "%{$underscored}")
-                ->orWhere('class_name', $identifier)
-                ->orWhere('item_uuid', $identifier)
+                ->whereRelation(
+                    'item',
+                    'version',
+                    'LIKE',
+                    $request->get('version', config('api.sc_data_version')) . '%'
+                )
+                ->where(function (Builder $query) use ($identifier, $underscored) {
+                    $query->where('name', 'LIKE', "%{$identifier}")
+                        ->orWhere('class_name', 'LIKE', "%{$underscored}")
+                        ->orWhere('class_name', $identifier)
+                        ->orWhere('item_uuid', $identifier);
+                })
                 ->first();
 
             if ($vehicleModel === null) {
