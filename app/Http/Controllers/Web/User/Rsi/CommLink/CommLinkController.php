@@ -46,7 +46,7 @@ class CommLinkController extends Controller
      */
     public function index(): View
     {
-        $links = CommLink::query()->orderBy('cig_id')->paginate(250);
+        $links = CommLink::query()->orderByDesc('cig_id')->paginate(250);
 
         return view(
             'user.rsi.comm_links.index',
