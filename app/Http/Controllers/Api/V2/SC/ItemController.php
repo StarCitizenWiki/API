@@ -6,10 +6,8 @@ namespace App\Http\Controllers\Api\V2\SC;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
-use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
-use App\Http\Resources\SC\Vehicle\VehicleResource;
 use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -48,7 +46,11 @@ class ItemController extends AbstractApiV2Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Item::class, $request)
-            ->where('version', $request->get('version', config('api.sc_data_version')))
+            ->where(
+                'version',
+                'LIKE',
+                $request->get('version', config('api.sc_data_version')) . '%'
+            )
             ->allowedFilters([
                 'type',
                 'sub_type',

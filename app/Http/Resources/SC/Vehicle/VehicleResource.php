@@ -343,7 +343,7 @@ class VehicleResource extends AbstractBaseResource
                 'shops' => ShopResource::collection($this->item->shops),
             ]),
             'updated_at' => $this->updated_at,
-            'version' => $this->item_uuid,
+            'version' => $this->item->version,
         ];
 
         $this->loadShipMatrixData($data, $request);

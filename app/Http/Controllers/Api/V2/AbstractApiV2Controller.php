@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Events\ApiRouteCalled;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedInclude;
 
@@ -131,9 +131,9 @@ abstract class AbstractApiV2Controller extends Controller
         $this->processRequestParams();
 
         ApiRouteCalled::dispatch([
-            'url' => $request::fullUrl(),
-            'user-agent' => $request::userAgent() ?? 'Star Citizen Wiki API',
-            'forwarded-for' => $request::header('X-Forwarded-For', '127.0.0.1'),
+            'url' => $request->fullUrl(),
+            'user-agent' => $request->userAgent() ?? 'Star Citizen Wiki API',
+            'forwarded-for' => $request->header('X-Forwarded-For', '127.0.0.1'),
         ]);
     }
 
@@ -151,8 +151,8 @@ abstract class AbstractApiV2Controller extends Controller
      */
     private function processLimit(): void
     {
-        if ($this->request::has(self::LIMIT) && null !== $this->request::get(self::LIMIT)) {
-            $itemLimit = (int)$this->request::get(self::LIMIT);
+        if ($this->request->has(self::LIMIT) && null !== $this->request->get(self::LIMIT)) {
+            $itemLimit = (int)$this->request->get(self::LIMIT);
 
             if ($itemLimit > 0) {
                 $this->limit = $itemLimit;
@@ -167,8 +167,8 @@ abstract class AbstractApiV2Controller extends Controller
      */
     private function processLocale(): void
     {
-        if ($this->request::has(self::LOCALE) && null !== $this->request::get(self::LOCALE, null)) {
-            $this->setLocale($this->request::get(self::LOCALE));
+        if ($this->request->has(self::LOCALE) && null !== $this->request->get(self::LOCALE, null)) {
+            $this->setLocale($this->request->get(self::LOCALE));
         }
     }
 

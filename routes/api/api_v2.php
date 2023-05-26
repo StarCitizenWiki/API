@@ -16,15 +16,14 @@ Route::get('openapi', static function () {
 Route::group(
     [
         'namespace' => 'Rsi\CommLink',
-        'name' => 'comm-links'
     ],
     static function () {
-        Route::get('comm-links', 'CommLinkController@index')->name('index');
-        Route::get('comm-links/{id}', 'CommLinkController@show')->name('show');
+        Route::get('comm-links', 'CommLinkController@index')->name('cl.index');
+        Route::get('comm-links/{id}', 'CommLinkController@show')->name('cl.show');
 
-        Route::post('comm-links/search', 'CommLinkSearchController@searchByTitle')->name('search');
-        Route::post('comm-links/reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearch')->name('search-link');
-        Route::post('comm-links/reverse-image-search', 'CommLinkSearchController@reverseImageSearch')->name('search-image');
+        Route::post('comm-links/search', 'CommLinkSearchController@searchByTitle')->name('cl.search');
+        Route::post('comm-links/reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearch')->name('cl.search-link');
+        Route::post('comm-links/reverse-image-search', 'CommLinkSearchController@reverseImageSearch')->name('cl.search-image');
     }
 );
 
@@ -35,16 +34,16 @@ Route::group(
     ],
     static function () {
 
-        Route::get('stats', 'StatController@index')->name('index');
-        Route::get('stats/latest', 'StatController@latest')->name('latest');
+        Route::get('stats', 'StatController@index')->name('stats.index');
+        Route::get('stats/latest', 'StatController@latest')->name('stats.latest');
 
-        Route::get('vehicles', 'VehicleController@index')->name('index');
-        Route::post('vehicles/search', 'VehicleController@search')->name('search');
-        Route::get('vehicles/{vehicle}', 'VehicleController@show')->name('show');
+        Route::get('vehicles', 'VehicleController@index')->name('vehicles.index');
+        Route::post('vehicles/search', 'VehicleController@search')->name('vehicles.search');
+        Route::get('vehicles/{vehicle}', 'VehicleController@show')->name('vehicles.show');
 
-        Route::get('galactapedia', 'GalactapediaController@index')->name('index');
-        Route::post('galactapedia/search', 'GalactapediaController@search')->name('search');
-        Route::get('galactapedia/{article}', 'GalactapediaController@show')->name('show');
+        Route::get('galactapedia', 'GalactapediaController@index')->name('galactapedia.index');
+        Route::post('galactapedia/search', 'GalactapediaController@search')->name('galactapedia.search');
+        Route::get('galactapedia/{article}', 'GalactapediaController@show')->name('galactapedia.show');
 
         Route::group(
             [
@@ -52,11 +51,11 @@ Route::group(
                 'name' => 'starmap'
             ],
             static function () {
-                Route::get('starsystems', 'StarsystemController@index')->name('index');
-                Route::get('starsystems/{code}', 'StarsystemController@show')->name('show');
+                Route::get('starsystems', 'StarsystemController@index')->name('starsystem.index');
+                Route::get('starsystems/{code}', 'StarsystemController@show')->name('starsystem.show');
 
-                Route::get('celestial-objects', 'CelestialObjectController@index')->name('index');
-                Route::get('celestial-objects/{code}', 'CelestialObjectController@show')->name('show');
+                Route::get('celestial-objects', 'CelestialObjectController@index')->name('co.index');
+                Route::get('celestial-objects/{code}', 'CelestialObjectController@show')->name('co.show');
             }
         );
     }
@@ -73,47 +72,47 @@ Route::group(
             Route::group([
                 'namespace' => 'PersonalWeapon',
             ], static function () {
-                Route::get('weapons', 'PersonalWeaponController@index')->name('index');
-                Route::get('weapons/{weapon}', 'PersonalWeaponController@show')->name('show');
+                Route::get('weapons', 'PersonalWeaponController@index')->name('weapons.index');
+                Route::get('weapons/{weapon}', 'PersonalWeaponController@show')->name('weapons.show');
 
-                Route::get('weapon-attachments', 'WeaponAttachmentController@index')->name('index');
-                Route::get('weapon-attachments/{attachment}', 'WeaponAttachmentController@show')->name('show');
+                Route::get('weapon-attachments', 'WeaponAttachmentController@index')->name('attachments.index');
+                Route::get('weapon-attachments/{attachment}', 'WeaponAttachmentController@show')->name('attachments.show');
             });
 
-            Route::get('clothes', 'ClothesController@index')->name('index');
-            Route::get('clothes/{clothing}', 'ClothesController@show')->name('show')
+            Route::get('clothes', 'ClothesController@index')->name('clothes.index');
+            Route::get('clothes/{clothing}', 'ClothesController@show')->name('clothes.show')
                 ->where('clothing', '.*');
 
-            Route::get('armor', 'ArmorController@index')->name('index');
-            Route::get('armor/{clothing}', 'ArmorController@show')->name('show')
+            Route::get('armor', 'ArmorController@index')->name('armor.index');
+            Route::get('armor/{clothing}', 'ArmorController@show')->name('armor.show')
                 ->where('clothing', '.*');
         });
 
         Route::group([
             'namespace' => 'Vehicle',
         ], static function () {
-            Route::get('vehicle-weapons', 'VehicleWeaponController@index')->name('index');
-            Route::get('vehicle-weapons/{weapon}', 'VehicleWeaponController@show')->name('show');
+            Route::get('vehicle-weapons', 'VehicleWeaponController@index')->name('sc.vehicles.index');
+            Route::get('vehicle-weapons/{weapon}', 'VehicleWeaponController@show')->name('sc.vehicles.show');
 
-            Route::get('vehicle-items', 'VehicleItemController@index')->name('index');
-            Route::get('vehicle-items/{item}', 'VehicleItemController@show')->name('show')
+            Route::get('vehicle-items', 'VehicleItemController@index')->name('vehicle-items.index');
+            Route::get('vehicle-items/{item}', 'VehicleItemController@show')->name('vehicle-items.show')
                 ->where('item', '.*');
         });
 
-        Route::get('manufacturers', 'ManufacturerController@index')->name('index');
-        Route::post('manufacturers/search', 'ManufacturerController@search')->name('search');
-        Route::get('manufacturers/{manufacturer}', 'ManufacturerController@show')->name('show');
+        Route::get('manufacturers', 'ManufacturerController@index')->name('manufacturers.index');
+        Route::post('manufacturers/search', 'ManufacturerController@search')->name('manufacturers.search');
+        Route::get('manufacturers/{manufacturer}', 'ManufacturerController@show')->name('manufacturers.show');
 
-        Route::get('items', 'ItemController@index')->name('index');
-        Route::post('items/search', 'ItemController@search')->name('search');
-        Route::get('items/{item}', 'ItemController@show')->name('show')
+        Route::get('items', 'ItemController@index')->name('items.index');
+        Route::post('items/search', 'ItemController@search')->name('items.search');
+        Route::get('items/{item}', 'ItemController@show')->name('items.show')
             ->where('item', '.*');
 
-        Route::get('shops', 'ShopController@index')->name('index');
-        Route::get('shops/{shop}', 'ShopController@show')->name('show');
+        Route::get('shops', 'ShopController@index')->name('shops.index');
+        Route::get('shops/{shop}', 'ShopController@show')->name('shops.show');
 
-        Route::get('food', 'FoodController@index')->name('index');
-        Route::get('food/{food}', 'FoodController@show')->name('show')
+        Route::get('food', 'FoodController@index')->name('food.index');
+        Route::get('food/{food}', 'FoodController@show')->name('food.show')
             ->where('food', '.*');
     }
 );
