@@ -72,10 +72,13 @@ class Vehicle implements ShouldQueue
             if ($data !== null) {
                 (new Item($data))->handle();
             }
+        } else {
+            $vehicleModel->item->update([
+                'version' => config('api.sc_data_version'),
+            ]);
         }
 
         $vehicleModel->refresh();
-
         if (Arr::get($vehicle, 'Inventory') !== null) {
             $vehicleModel->item->container()->updateOrCreate([
                 'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
