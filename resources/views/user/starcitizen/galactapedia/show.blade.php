@@ -46,7 +46,7 @@
                                 </a>
                             @endunless
 
-                            <a class="nav-item nav-link" id="nav-api-tab" href="{{ app('api.url')->version('v1')->route('api.v1.starcitizen.galactapedia.show', $article->cig_id) }}" aria-selected="false" target="_blank">
+                            <a class="nav-item nav-link" id="nav-api-tab" href="{{ route('api.v2.galactapedia.show', $article->cig_id) }}" aria-selected="false" target="_blank">
                                 @lang('API') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
                             </a>
 

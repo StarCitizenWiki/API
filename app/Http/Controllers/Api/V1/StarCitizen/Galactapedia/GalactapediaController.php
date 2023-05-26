@@ -8,10 +8,10 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Galactapedia\GalactapediaSearchRequest;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Transformers\Api\V1\StarCitizen\Galactapedia\ArticleTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 
@@ -131,7 +131,7 @@ class GalactapediaController extends ApiController
                 ->where('cig_id', $article)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $article));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $article)], 404);
         }
 
         $this->transformer->includeAllAvailableIncludes();
@@ -186,7 +186,7 @@ class GalactapediaController extends ApiController
             });
 
         if ($queryBuilder->count() === 0) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $query)], 404);
         }
 
         return $this->getResponse($queryBuilder);

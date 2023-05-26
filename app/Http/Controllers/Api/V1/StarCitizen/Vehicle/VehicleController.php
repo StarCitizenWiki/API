@@ -11,9 +11,9 @@ use App\Models\StarCitizenUnpacked\Vehicle as UnpackedVehicle;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleTransformer;
 use App\Transformers\Api\V1\StarCitizenUnpacked\VehicleTransformer as UnpackedVehicleTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 
@@ -153,7 +153,7 @@ class VehicleController extends ApiController
                 }
             }
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $vehicle));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $vehicle)], 404);
         }
 
         return $this->getResponse($vehicleModel);
@@ -203,7 +203,7 @@ class VehicleController extends ApiController
             ->orWhere('slug', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $query)], 404);
         }
 
         return $this->getResponse($queryBuilder);

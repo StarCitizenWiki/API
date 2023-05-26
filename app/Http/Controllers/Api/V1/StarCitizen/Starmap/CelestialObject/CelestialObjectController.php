@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Starmap\CelestialObject;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObject;
 use App\Transformers\Api\V1\StarCitizen\Starmap\CelestialObjectTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class CelestialObjectController
@@ -52,7 +52,7 @@ class CelestialObjectController extends ApiController
                 ->orWhere('cig_id', $code)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $code));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $code)], 404);
         }
 
         return $this->getResponse($celestialObject);
@@ -70,7 +70,7 @@ class CelestialObjectController extends ApiController
         $queryBuilder = CelestialObject::query()->where('name', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $query)], 404);
         }
 
         return $this->getResponse($queryBuilder);

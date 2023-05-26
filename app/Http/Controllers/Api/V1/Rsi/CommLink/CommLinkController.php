@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Api\V1\Rsi\CommLink;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 
@@ -132,7 +132,7 @@ class CommLinkController extends ApiController
             $commLink = CommLink::query()->where('cig_id', $commLink)->firstOrFail();
             $commLink->append(['prev', 'next']);
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $commLink));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $commLink)], 404);
         }
 
         $this->extraMeta = [

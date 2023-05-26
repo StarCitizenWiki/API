@@ -6,12 +6,7 @@ use App\Http\Controllers\Api\AbstractApiController;
 use Tests\TestCase;
 
 /**
- * @covers \App\Providers\DingoTokenAuthProvider
- *
  * @covers \App\Http\Middleware\CheckUserState
- * @covers \App\Http\Middleware\PiwikTracking
- *
- * @covers \App\Http\Throttle\ApiThrottle
  */
 class ApiTestCase extends TestCase
 {

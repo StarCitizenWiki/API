@@ -96,7 +96,7 @@ return [
     |
     */
 
-    'conditionalRequest' => env('API_CONDITIONAL_REQUEST', true),
+    'conditionalRequest' => env('API_CONDITIONAL_REQUEST', false),
 
     /*
     |--------------------------------------------------------------------------

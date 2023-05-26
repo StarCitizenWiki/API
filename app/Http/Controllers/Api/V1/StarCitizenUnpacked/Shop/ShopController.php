@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\Shop;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\StarCitizenUnpacked\Shop\Shop;
 use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 
@@ -123,7 +123,7 @@ class ShopController extends ApiController
                 ->where('name_raw', 'LIKE', sprintf('%%%s%%%%', $shop))
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $shop));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $shop)], 404);
         }
 
         return $this->getResponse($shop);
@@ -191,7 +191,7 @@ class ShopController extends ApiController
             ->get();
 
         if ($positions->isEmpty()) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $position));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $position)], 404);
         }
 
         return $this->getResponse($positions);
@@ -256,7 +256,7 @@ class ShopController extends ApiController
             ->get();
 
         if ($positions->isEmpty()) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $name));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $name)], 404);
         }
 
         return $this->getResponse($positions);
@@ -336,7 +336,7 @@ class ShopController extends ApiController
                 ->where('name', $name)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $position));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $position)], 404);
         }
 
         return $this->getResponse($shop);

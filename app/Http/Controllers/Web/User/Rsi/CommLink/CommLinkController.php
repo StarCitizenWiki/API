@@ -13,14 +13,11 @@ use App\Models\Rsi\CommLink\Series\Series;
 use App\Services\Parser\CommLink\Content;
 use App\Traits\DiffTranslationChangelogTrait;
 use Carbon\Carbon;
-use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -34,42 +31,22 @@ class CommLinkController extends Controller
     private const COMM_LINK_PERMISSION = 'web.user.rsi.comm-links.update';
 
     /**
-     * @var Dispatcher
-     */
-    private Dispatcher $api;
-
-    /**
      * CommLinkController constructor.
-     *
-     * @param Dispatcher $dispatcher
      */
-    public function __construct(Dispatcher $dispatcher)
+    public function __construct()
     {
         parent::__construct();
         $this->middleware('auth')->except(['index', 'show']);
-        $this->api = $dispatcher;
-        $this->api->be(Auth::user());
     }
 
     /**
      * Display a listing of the resource.
      *
-     * @param Request $request
-     *
      * @return View
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $options = [
-            'limit' => 250,
-        ];
-
-        if ($request->has('page')) {
-            $options['page'] = $request->get('page');
-        }
-
-        $links = $this->api->get('api/comm-links', $options);
-        $links->withPath('/rsi/comm-links');
+        $links = CommLink::query()->orderBy('cig_id')->paginate(250);
 
         return view(
             'user.rsi.comm_links.index',

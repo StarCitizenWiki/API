@@ -9,7 +9,6 @@ use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
 use App\Models\Rsi\CommLink\CommLink;
-use Dingo\Api\Dispatcher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -22,22 +21,6 @@ use Illuminate\Support\Facades\Auth;
  */
 class CommLinkSearchController extends Controller
 {
-    /**
-     * @var Dispatcher
-     */
-    private Dispatcher $api;
-
-    /**
-     * CommLinkController constructor.
-     *
-     * @param Dispatcher $dispatcher
-     */
-    public function __construct(Dispatcher $dispatcher)
-    {
-        parent::__construct();
-        $this->api = $dispatcher;
-        $this->api->be(Auth::user());
-    }
 
     /**
      * Reverse search view
@@ -58,11 +41,8 @@ class CommLinkSearchController extends Controller
     {
         $data = $request->validated();
 
-        $links = $this->api->with(
-            [
-                'keyword' => $data['keyword'],
-            ]
-        )->post('api/comm-links/search');
+        $query = $data['keyword'];
+        $links = CommLink::query()->where('title', 'LIKE', "%{$query}%");
 
         if ($links->isEmpty()) {
             return redirect()->route('web.user.rsi.comm-links.search')->withMessages(
@@ -91,25 +71,10 @@ class CommLinkSearchController extends Controller
      */
     public function reverseImageLinkSearchPost(ReverseImageLinkSearchRequest $request)
     {
-        $options = [
-            'limit' => 250,
-        ];
-
-        if ($request->has('page')) {
-            $options['page'] = $request->get('page');
-        }
+        $controller = new \App\Http\Controllers\Api\V2\Rsi\CommLink\CommLinkSearchController($request);
 
         return $this->handleSearchResult(
-            $this->api
-                ->with(
-                    array_merge(
-                        [
-                            'url' => $request->get('url'),
-                        ],
-                        $options
-                    )
-                )
-                ->post('api/comm-links/reverse-image-link-search'),
+            $controller->reverseImageLinkSearch($request),
             'user.rsi.comm_links.index',
             'commLinks'
         );
@@ -124,22 +89,10 @@ class CommLinkSearchController extends Controller
      */
     public function reverseImageSearchPost(ReverseImageSearchRequest $request)
     {
-        $data = $request->validated();
+        $controller = new \App\Http\Controllers\Api\V2\Rsi\CommLink\CommLinkSearchController($request);
 
         return $this->handleSearchResult(
-            $this->api
-                ->with(
-                    [
-                        'method' => $data['method'],
-                        'similarity' => $data['similarity'],
-                    ]
-                )
-                ->attach(
-                    [
-                        'image' => $data['image'],
-                    ]
-                )
-                ->post('api/comm-links/reverse-image-search'),
+            $controller->reverseImageSearch($request),
             'user.rsi.comm_links.images.index'
         );
     }

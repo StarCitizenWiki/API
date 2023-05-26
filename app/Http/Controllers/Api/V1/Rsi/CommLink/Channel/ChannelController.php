@@ -8,9 +8,9 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Transformers\Api\V1\Rsi\CommLink\Channel\ChannelTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use OpenApi\Attributes as OA;
 
 /**
@@ -88,7 +88,7 @@ class ChannelController extends ApiController
                 ->orWhere('slug', $channel)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $channel));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $channel)], 404);
         }
 
         $this->transformer = new CommLinkTransformer();

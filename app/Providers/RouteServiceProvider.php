@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
-use Dingo\Api\Routing\Router as ApiRouter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -69,30 +68,16 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes(): void
     {
-        /** @var ApiRouter $api */
-        $api = app(ApiRouter::class);
-
-        $api->version(
-            'v1',
-            [
-                'namespace' => $this->namespace . '\Api\V1',
-                'middleware' => 'api',
-            ],
-            static function (ApiRouter $api) {
-                $api->group(
-                    [],
-                    static function (ApiRouter $api) {
-                        require base_path('routes/api/api_v1.php');
-                    }
-                );
-            }
-        );
+        Route::namespace($this->namespace . '\Api\V1')
+            ->prefix('api/')
+            ->middleware(['api'])
+            ->group(base_path('routes/api/api_v1.php'));
 
         Route::middleware('api.v2')
             ->name('api.v2.')
             ->namespace($this->namespace . '\Api\V2')
             ->prefix('api/v2')
-            ->middleware(['throttle:api'])
+            ->middleware(['api.v2', 'throttle:api'])
             ->group(base_path('routes/api/api_v2.php'));
     }
 

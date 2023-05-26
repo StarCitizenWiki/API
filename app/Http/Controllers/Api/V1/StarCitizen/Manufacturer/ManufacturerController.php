@@ -8,11 +8,10 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizen\Manufacturer\ManufacturerSearchRequest;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Transformers\Api\V1\StarCitizen\Manufacturer\ManufacturerTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class ManufacturerController extends ApiController
@@ -126,7 +125,7 @@ class ManufacturerController extends ApiController
                 ->orWhere('name', $manufacturer)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $manufacturer));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $manufacturer)], 404);
         }
 
         return $this->getResponse($model);
@@ -191,7 +190,7 @@ class ManufacturerController extends ApiController
             ->orWhere('name', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $query)], 404);
         }
 
         return $this->getResponse($queryBuilder);

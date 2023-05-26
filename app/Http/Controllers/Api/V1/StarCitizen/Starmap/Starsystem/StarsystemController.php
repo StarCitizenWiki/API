@@ -9,11 +9,10 @@ use App\Http\Requests\StarCitizen\Starmap\StarsystemRequest;
 use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class StarsystemController extends ApiController
@@ -133,7 +132,7 @@ class StarsystemController extends ApiController
                 ->orWhere('name', 'LIKE', "%$code%")
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $code));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $code)], 404);
         }
 
         return $this->getResponse($starsystem);
@@ -181,7 +180,7 @@ class StarsystemController extends ApiController
         $queryBuilder = Starsystem::query()->where('name', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $query)], 404);
         }
 
         return $this->getResponse($queryBuilder);

@@ -7,10 +7,10 @@ namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\StarCitizenUnpacked\Food\Food;
 use App\Transformers\Api\V1\StarCitizenUnpacked\Food\FoodTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
 class FoodController extends ApiController
@@ -53,7 +53,7 @@ class FoodController extends ApiController
                 })
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $food));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $food)], 404);
         }
 
         return $this->getResponse($food);
