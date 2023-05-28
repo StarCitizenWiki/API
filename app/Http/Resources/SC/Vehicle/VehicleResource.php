@@ -90,6 +90,7 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'scm', type: 'float', nullable: true),
                 new OA\Property(property: 'max', type: 'float', nullable: true),
+                new OA\Property(property: 'reverse', description: 'Ground Vehicles', type: 'float', nullable: true),
                 new OA\Property(property: 'zero_to_scm', type: 'float', nullable: true),
                 new OA\Property(property: 'zero_to_max', type: 'float', nullable: true),
                 new OA\Property(property: 'scm_to_zero', type: 'float', nullable: true),
@@ -132,6 +133,9 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'pitch', type: 'float', nullable: true),
                 new OA\Property(property: 'yaw', type: 'float', nullable: true),
                 new OA\Property(property: 'roll', type: 'float', nullable: true),
+                new OA\Property(property: 'v0_steer_max', description: 'Ground Vehicles', type: 'float', nullable: true),
+                new OA\Property(property: 'kv_steer_max', description: 'Ground Vehicles', type: 'float', nullable: true),
+                new OA\Property(property: 'vmax_steer_max', description: 'Ground Vehicles', type: 'float', nullable: true),
                 new OA\Property(
                     property: 'acceleration',
                     properties: [
@@ -150,6 +154,15 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: 'maneuvering_g', type: 'float'),
                     ],
                     type: 'object'
+                ),
+                new OA\Property(
+                    property: 'deceleration',
+                    description: 'Ground Vehicles',
+                    properties: [
+                        new OA\Property(property: 'main', type: 'float'),
+                    ],
+                    type: 'object',
+                    nullable: true
                 ),
             ],
             type: 'object'
@@ -283,11 +296,15 @@ class VehicleResource extends AbstractBaseResource
             'shield_hp' => $this->shield_hp,
             'speed' => [
                 'scm' => $this->flightController?->scm_speed,
-                'max' => $this->flightController?->max_speed,
+                'max' => $this->flightController?->max_speed ?? $this->handling?->max_speed,
                 'zero_to_scm' => $this->zero_to_scm,
-                'zero_to_max' => $this->zero_to_max,
+                'zero_to_max' => $this->handling?->zero_to_max ?? $this->zero_to_max,
                 'scm_to_zero' => $this->scm_to_zero,
-                'max_to_zero' => $this->max_to_zero,
+                'max_to_zero' => $this->handling?->max_to_zero ?? $this->max_to_zero,
+                // Ground Vehicles
+                $this->mergeWhen($this->handling->exists, [
+                    'reverse' => $this->handling->reverse_speed,
+                ]),
             ],
             'fuel' => [
                 'capacity' => $this->fuel_capacity,
@@ -304,8 +321,17 @@ class VehicleResource extends AbstractBaseResource
                 'pitch' => $this->flightController?->pitch,
                 'yaw' => $this->flightController?->yaw,
                 'roll' => $this->flightController?->roll,
+                // Ground Vehicles
+                $this->mergeWhen($this->handling->exists, [
+                    'v0_steer_max' => $this->handling->v0_steer_max,
+                    'kv_steer_max' => $this->handling->kv_steer_max,
+                    'vmax_steer_max' => $this->handling->vmax_steer_max,
+                    'deceleration' => [
+                        'main' => $this->handling->deceleration,
+                    ],
+                ]),
                 'acceleration' => [
-                    'main' => $this->acceleration_main,
+                    'main' => $this->handling?->acceleration ?? $this->acceleration_main,
                     'retro' => $this->acceleration_retro,
                     'vtol' => $this->acceleration_vtol,
                     'maneuvering' => $this->acceleration_maneuvering,

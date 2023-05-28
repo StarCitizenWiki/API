@@ -94,6 +94,7 @@ class Vehicle implements ShouldQueue
         $this->createHardpoints($vehicleModel, $vehicle['rawData']);
 
         $vehicleModel->hardpoints()->whereNotIn('hardpoint_name', $this->hardpoints)->delete();
+        $this->createHandlingModel($vehicleModel, $vehicle['rawData']);
     }
 
     public function getVehicleModelArray(array $vehicle): array
@@ -366,5 +367,23 @@ class Vehicle implements ShouldQueue
                 $this->createSubPoint($subEntries, $point, $vehicle);
             }
         }
+    }
+
+    private function createHandlingModel(\App\Models\SC\Vehicle\Vehicle $vehicle, array $rawData): void
+    {
+        $handlingData = Arr::get($rawData, 'Vehicle.MovementParams.ArcadeWheeled');
+        if ($handlingData === null) {
+            return;
+        }
+
+        $vehicle->handling()->updateOrCreate([
+            'max_speed' => Arr::get($handlingData, 'Handling.Power.topSpeed'),
+            'reverse_speed' => Arr::get($handlingData, 'Handling.Power.reverseSpeed'),
+            'acceleration' => Arr::get($handlingData, 'Handling.Power.acceleration'),
+            'deceleration' => Arr::get($handlingData, 'Handling.Power.decceleration'),
+            'v0_steer_max' => Arr::get($handlingData, 'v0SteerMax'),
+            'kv_steer_max' => Arr::get($handlingData, 'kvSteerMax'),
+            'vmax_steer_max' => Arr::get($handlingData, 'vMaxSteerMax'),
+        ]);
     }
 }

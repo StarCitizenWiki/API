@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Vehicle extends CommodityItem
@@ -139,6 +140,17 @@ class Vehicle extends CommodityItem
             'shipmatrix_id',
             'id'
         )->withDefault();
+    }
+
+    /**
+     * Vehicle handling params found on ground vehicles
+     * Sadly those are not set on the WheeledController
+     *
+     * @return HasOne
+     */
+    public function handling(): HasOne
+    {
+        return $this->hasOne(VehicleHandling::class, 'vehicle_id', 'id')->withDefault();
     }
 
     public function hardpoints(): HasMany
