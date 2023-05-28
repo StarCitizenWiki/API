@@ -150,7 +150,7 @@ class Vehicle extends CommodityItem
      */
     public function handling(): HasOne
     {
-        return $this->hasOne(VehicleHandling::class, 'vehicle_id', 'id')->withDefault();
+        return $this->hasOne(VehicleHandling::class, 'vehicle_id', 'id');
     }
 
     public function hardpoints(): HasMany

@@ -302,8 +302,8 @@ class VehicleResource extends AbstractBaseResource
                 'scm_to_zero' => $this->scm_to_zero,
                 'max_to_zero' => $this->handling?->max_to_zero ?? $this->max_to_zero,
                 // Ground Vehicles
-                $this->mergeWhen($this->handling->exists, [
-                    'reverse' => $this->handling->reverse_speed,
+                $this->mergeWhen($this->handling !== null, [
+                    'reverse' => $this->handling?->reverse_speed,
                 ]),
             ],
             'fuel' => [
@@ -322,12 +322,12 @@ class VehicleResource extends AbstractBaseResource
                 'yaw' => $this->flightController?->yaw,
                 'roll' => $this->flightController?->roll,
                 // Ground Vehicles
-                $this->mergeWhen($this->handling->exists, [
-                    'v0_steer_max' => $this->handling->v0_steer_max,
-                    'kv_steer_max' => $this->handling->kv_steer_max,
-                    'vmax_steer_max' => $this->handling->vmax_steer_max,
+                $this->mergeWhen($this->handling !== null, [
+                    'v0_steer_max' => $this->handling?->v0_steer_max,
+                    'kv_steer_max' => $this->handling?->kv_steer_max,
+                    'vmax_steer_max' => $this->handling?->vmax_steer_max,
                     'deceleration' => [
-                        'main' => $this->handling->deceleration,
+                        'main' => $this->handling?->deceleration,
                     ],
                 ]),
                 'acceleration' => [
