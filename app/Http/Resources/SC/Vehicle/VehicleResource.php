@@ -395,7 +395,7 @@ class VehicleResource extends AbstractBaseResource
                     'quantum_speed' => $normal->drive_speed,
                     'quantum_spool_time' => $normal->spool_up_time,
                     'quantum_fuel_capacity' => $this->quantum_fuel_capacity,
-                    'quantum_range' => $this->sc?->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
+                    'quantum_range' => $this->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
                 ]
             ]
         ];
