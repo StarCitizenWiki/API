@@ -316,7 +316,7 @@ class VehicleResource extends AbstractBaseResource
                     'vtol' => $this->getFuelUsage('VtolThruster'),
                 ],
             ],
-            'quantum' => $this->mergeWhen(...$this->getQuantumDriveData()),
+            $this->mergeWhen(...$this->getQuantumDriveData()),
             'agility' => [
                 'pitch' => $this->flightController?->pitch,
                 'yaw' => $this->flightController?->yaw,
@@ -389,11 +389,14 @@ class VehicleResource extends AbstractBaseResource
         $normal = $modes['normal'];
 
         return [
-            true, [
-                'quantum_speed' => $normal->drive_speed,
-                'quantum_spool_time' => $normal->spool_up_time,
-                'quantum_fuel_capacity' => $this->quantum_fuel_capacity,
-                'quantum_range' => $this->sc?->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
+            true,
+            [
+                'quantum' => [
+                    'quantum_speed' => $normal->drive_speed,
+                    'quantum_spool_time' => $normal->spool_up_time,
+                    'quantum_fuel_capacity' => $this->quantum_fuel_capacity,
+                    'quantum_range' => $this->sc?->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
+                ]
             ]
         ];
     }
