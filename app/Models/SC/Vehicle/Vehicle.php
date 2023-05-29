@@ -274,7 +274,7 @@ class Vehicle extends CommodityItem
      */
     public function getScuAttribute(): float
     {
-        return $this->hardpointItems()
+        $scu = $this->hardpointItems()
             ->whereHas('container')
             ->whereIn('type', ['Cargo', 'CargoGrid', 'Container'])
             ->where('sc_items.class_name', 'NOT LIKE', '%storage%')
@@ -284,6 +284,8 @@ class Vehicle extends CommodityItem
                 return $item->container->calculated_scu ?? 0;
             })
             ->sum();
+
+        return empty($scu) ? $this->item?->container?->scu : $scu;
     }
 
     /**
