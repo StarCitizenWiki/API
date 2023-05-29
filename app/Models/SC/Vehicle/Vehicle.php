@@ -162,6 +162,18 @@ class Vehicle extends CommodityItem
         );
     }
 
+    public function hardpointItems(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Item::class,
+            Hardpoint::class,
+            'vehicle_id',
+            'uuid',
+            'id',
+            'equipped_item_uuid',
+        );
+    }
+
     public function flightController(): HasOneThrough
     {
         return $this->hasOneThrough(
@@ -247,14 +259,7 @@ class Vehicle extends CommodityItem
 
     public function getComputedHealthAttribute(): float
     {
-        return $this->hasManyThrough(
-            Item::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'uuid',
-            'id',
-            'equipped_item_uuid',
-        )
+        return $this->hardpointItems()
             ->whereHas('durabilityData')->get()
             ->map(function ($item) {
                 return $item->durabilityData->health ?? 0;
@@ -269,19 +274,14 @@ class Vehicle extends CommodityItem
      */
     public function getScuAttribute(): float
     {
-        return $this->hasManyThrough(
-            Item::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'uuid',
-            'id',
-            'equipped_item_uuid',
-        )
+        return $this->hardpointItems()
             ->whereHas('container')
             ->whereIn('type', ['Cargo', 'CargoGrid', 'Container'])
+            ->where('sc_items.class_name', 'NOT LIKE', '%storage%')
+            ->where('sc_items.class_name', 'NOT LIKE', '%personal%')
             ->get()
             ->map(function ($item) {
-                return $item->calculated_scu ?? 0;
+                return $item->container->calculated_scu ?? 0;
             })
             ->sum();
     }
@@ -293,47 +293,30 @@ class Vehicle extends CommodityItem
      */
     public function getPersonalInventoryScuAttribute(): float
     {
-        $scu = $this->hasManyThrough(
-            Item::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'uuid',
-            'id',
-            'equipped_item_uuid',
-        )
+        return $this->hardpointItems()
             ->whereHas('container')
             ->where(function (Builder $query) {
                 $query->where('hardpoint_name', 'LIKE', '%storage%')
-                    ->orWhere('hardpoint_name', 'LIKE', '%personal_inventory%');
+                    ->orWhere('hardpoint_name', 'LIKE', '%personal%');
             })
             ->get()
             ->map(function ($item) {
-                return $item->container;
-            })
-            ->map(function ($item) {
-                return $item->calculated_scu ?? 0;
+                return $item->container->calculated_scu ?? 0;
             })
             ->sum();
-
-        return $scu;
     }
 
     public function getVehicleInventoryScuAttribute(): float
     {
         return ($this->item?->container?->scu ?? 0) + $this->hardpoints()
             ->whereHas('item.container')
+            ->with(['item.container'])
             ->where(function (Builder $query) {
                 $query->where('hardpoint_name', 'LIKE', '%access%');
             })
             ->get()
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item;
-            })
             ->map(function ($item) {
-                return $item->container;
-            })
-            ->map(function ($item) {
-                return $item->calculated_scu ?? 0;
+                return $item->item->container->calculated_scu ?? 0;
             })
             ->sum();
     }
