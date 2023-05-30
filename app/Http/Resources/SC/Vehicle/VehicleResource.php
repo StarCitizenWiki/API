@@ -178,13 +178,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'production_note', ref: '#/components/schemas/translation_v2', nullable: true),
         new OA\Property(property: 'type', ref: '#/components/schemas/translation_v2'),
         new OA\Property(property: 'description', ref: '#/components/schemas/translation_v2'),
-        new OA\Property(
-            property: 'size',
-            oneOf: [
-                new OA\Schema(type: 'integer'),
-                new OA\Schema(ref: '#/components/schemas/translation_v2')
-            ],
-        ),
+        new OA\Property(property: 'size_class', type: 'integer'),
+        new OA\Property(property: 'size', ref: '#/components/schemas/translation_v2', nullable: true),
         new OA\Property(
             property: 'msrp',
             description: 'MSRP imported from the Ship Upgrade tool.',
@@ -352,7 +347,7 @@ class VehicleResource extends AbstractBaseResource
                 'en_EN' => $this->role,
             ],
             'description' => TranslationResourceFactory::getTranslationResource($request, $this),
-            'size' => $this->size,
+            'size_class' => $this->size,
             'manufacturer' => [
                 'name' => $manufacturer,
                 'code' => $this->item->manufacturer->code,
