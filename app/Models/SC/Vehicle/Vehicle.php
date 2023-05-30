@@ -285,7 +285,7 @@ class Vehicle extends CommodityItem
             })
             ->sum();
 
-        return empty($scu) ? $this->item?->container?->scu : $scu;
+        return empty($scu) ? $this->item?->container?->scu ?? 0 : $scu;
     }
 
     /**
@@ -312,7 +312,6 @@ class Vehicle extends CommodityItem
     {
         return ($this->item?->container?->scu ?? 0) + $this->hardpoints()
             ->whereHas('item.container')
-            ->with(['item.container'])
             ->where(function (Builder $query) {
                 $query->where('hardpoint_name', 'LIKE', '%access%');
             })
