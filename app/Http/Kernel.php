@@ -7,6 +7,7 @@ namespace App\Http;
 use App\Http\Middleware\CheckUserState;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\FormatApiResponse;
 use App\Http\Middleware\SetPreferredLocale;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
@@ -72,6 +73,7 @@ class Kernel extends HttpKernel
             ForceJsonResponse::class,
             'bindings',
             'check_user_state',
+            FormatApiResponse::class,
         ],
     ];
 
