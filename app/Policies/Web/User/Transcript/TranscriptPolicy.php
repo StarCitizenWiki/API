@@ -34,7 +34,7 @@ class TranscriptPolicy extends BaseAdminPolicy
      */
     public function view(User $user): bool
     {
-        return $user->getHighestPermissionLevel() >= UserGroup::SYSOP;
+        return $user->getHighestPermissionLevel() >= UserGroup::MITARBEITER;
     }
 
     /**

@@ -64,7 +64,7 @@ class User extends Authenticatable
      */
     public function getHighestPermissionLevel(): int
     {
-        return $this->groups->first()->permission_level;
+        return $this->groups()->orderBy('permission_level')->first()->permission_level;
     }
 
     /**

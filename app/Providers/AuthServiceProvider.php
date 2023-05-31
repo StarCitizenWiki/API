@@ -99,6 +99,14 @@ class AuthServiceProvider extends ServiceProvider
         /*
          * Transcripts
          */
-        Gate::resource('web.user.transcripts', TranscriptPolicy::class);
+        Gate::resource(
+            'web.user.transcripts',
+            TranscriptPolicy::class,
+            [
+                'index' => 'index',
+                'view' => 'view',
+                'update' => 'update',
+            ]
+        );
     }
 }
