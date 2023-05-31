@@ -34,7 +34,7 @@ class TranscriptController extends Controller
      */
     public function index(): View
     {
-        $this->authorize('web.user.transcripts.index');
+        $this->authorize('web.user.transcripts.view');
 
         $transcripts = Transcript::query()->orderBy('id')->paginate(500);
 
