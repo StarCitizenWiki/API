@@ -153,6 +153,11 @@ class Vehicle extends CommodityItem
         return $this->hasOne(VehicleHandling::class, 'vehicle_id', 'id');
     }
 
+    /**
+     * Hardpoints and sub-hardpoints found on a vehicle
+     *
+     * @return HasMany
+     */
     public function hardpoints(): HasMany
     {
         return $this->hasMany(
@@ -162,105 +167,63 @@ class Vehicle extends CommodityItem
         );
     }
 
-    public function hardpointItems(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Item::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'uuid',
-            'id',
-            'equipped_item_uuid',
-        );
-    }
-
-    public function flightController(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            FlightController::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'item_uuid',
-            'id',
-            'equipped_item_uuid',
-        );
-    }
-
-    public function quantumDrives(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            QuantumDrive::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'item_uuid',
-            'id',
-            'equipped_item_uuid',
-        );
-    }
-
-    public function shields(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Shield::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'item_uuid',
-            'id',
-            'equipped_item_uuid',
-        );
-    }
-
-    public function thrusters(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Thruster::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'item_uuid',
-            'id',
-            'equipped_item_uuid',
-        );
-    }
-
-    public function armor(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            Armor::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'item_uuid',
-            'id',
-            'equipped_item_uuid',
-        );
-    }
-
+    /**
+     * Only root hardpoints i.e. no hardpoints found on other hardpoints
+     *
+     * @return HasMany
+     */
     public function hardpointsWithoutParent(): HasMany
     {
-        return $this->hasMany(
-            Hardpoint::class,
-            'vehicle_id',
-            'id',
-        )
+        return $this->hardpoints()
             ->whereNull('parent_hardpoint_id')
             ->orderBy('hardpoint_name');
     }
 
+    /**
+     * Items equipped on hardpoints
+     *
+     * @return HasManyThrough
+     */
+    public function hardpointItems(): HasManyThrough
+    {
+        return $this->itemSpec(Item::class);
+    }
+
+    public function flightController(): HasOneThrough
+    {
+        return $this->itemSpec(FlightController::class, true);
+    }
+
+    public function quantumDrives(): HasManyThrough
+    {
+        return $this->itemSpec(QuantumDrive::class);
+    }
+
+    public function shields(): HasManyThrough
+    {
+        return $this->itemSpec(Shield::class);
+    }
+
+    public function thrusters(): HasManyThrough
+    {
+        return $this->itemSpec(Thruster::class);
+    }
+
+    public function armor(): HasOneThrough
+    {
+        return $this->itemSpec(Armor::class, true);
+    }
+
     public function manufacturer(): HasOneThrough
     {
-        return $this->hasOneThrough(
-            Manufacturer::class,
-            Item::class,
-            'uuid',
-            'id',
-            'item_uuid',
-            'manufacturer_id',
-        );
+        return $this->itemSpec(Manufacturer::class, true, 'manufacturer_id');
     }
 
     public function getComputedHealthAttribute(): float
     {
         return $this->hardpointItems()
-            ->whereHas('durabilityData')->get()
+            ->whereHas('durabilityData')
+            ->get()
             ->map(function ($item) {
                 return $item->durabilityData->health ?? 0;
             })
@@ -295,6 +258,7 @@ class Vehicle extends CommodityItem
 
     /**
      * Sum the cargo capacities of all personal inventories
+     * These are boxes, lockers, or other storage means
      *
      * @return float Total capacity in SCU
      */
@@ -313,6 +277,11 @@ class Vehicle extends CommodityItem
             ->sum();
     }
 
+    /**
+     * Size of the vehicle inventory accessible through the 'I' key, or through the pilot set access
+     *
+     * @return float
+     */
     public function getVehicleInventoryScuAttribute(): float
     {
         return ($this->item?->container?->scu ?? 0) + $this->hardpoints()
@@ -331,14 +300,8 @@ class Vehicle extends CommodityItem
     {
         $capacity = $this->fuelTanks()
             ->get()
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item;
-            })
             ->map(function ($item) {
-                return $item->specification;
-            })
-            ->map(function ($item) {
-                return $item->capacity ?? 0;
+                return $item?->specification?->capacity ?? 0;
             })
             ->sum();
 
@@ -349,14 +312,8 @@ class Vehicle extends CommodityItem
     {
         $capacity = $this->fuelTanks('QuantumFuelTank')
             ->get()
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item;
-            })
             ->map(function ($item) {
-                return $item->specification;
-            })
-            ->map(function ($item) {
-                return $item->capacity ?? 0;
+                return $item?->specification?->capacity ?? 0;
             })
             ->sum();
 
@@ -367,14 +324,8 @@ class Vehicle extends CommodityItem
     {
         $rate = $this->fuelIntakes()
             ->get()
-            ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item;
-            })
             ->map(function ($item) {
-                return $item->specification;
-            })
-            ->map(function ($item) {
-                return $item->fuel_push_rate ?? 0;
+                return $item?->specification?->fuel_push_rate ?? 0;
             })
             ->sum();
 
@@ -399,14 +350,11 @@ class Vehicle extends CommodityItem
             $query->where('class_name', 'NOT LIKE', '%vtol%')->where('class_name', 'NOT LIKE', '%retro%');
         }
 
-        $usage = $query
-            ->get()
+        $usage = $query->get()
             ->map(function (Hardpoint $hardpoint) {
-                return $hardpoint->item;
+                return $hardpoint->item?->specification;
             })
-            ->map(function ($item) {
-                return $item->specification;
-            })
+            ->filter()
             ->map(function ($item) {
                 return (($item->fuel_burn_per_10k_newton / 1e4) * $item->thrust_capacity) ?? 0;
             })
@@ -419,14 +367,7 @@ class Vehicle extends CommodityItem
 
     public function irData(): HasManyThrough
     {
-        return $this->hasManyThrough(
-            ItemHeatData::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'item_uuid',
-            'id',
-            'equipped_item_uuid',
-        );
+        return $this->itemSpec(ItemHeatData::class);
     }
 
     public function getIrEmissionAttribute(): ?float
@@ -445,14 +386,7 @@ class Vehicle extends CommodityItem
 
     public function emData(): HasManyThrough
     {
-        return $this->hasManyThrough(
-            ItemPowerData::class,
-            Hardpoint::class,
-            'vehicle_id',
-            'item_uuid',
-            'id',
-            'equipped_item_uuid',
-        );
+        return $this->itemSpec(ItemPowerData::class);
     }
 
     public function getEmEmissionAttribute(): array
@@ -466,22 +400,40 @@ class Vehicle extends CommodityItem
         ];
     }
 
-    private function fuelTanks(mixed $types = ['FuelTank', 'ExternalFuelTank']): HasMany
+    private function fuelTanks(mixed $types = ['FuelTank', 'ExternalFuelTank']): HasManyThrough
     {
         if (is_string($types)) {
             $types = [$types];
         }
-        return $this->hardpoints()->whereRelation('item', function (Builder $query) use ($types) {
-            $query->whereIn('type', $types);
-        });
+
+        return $this->hardpointItems()->whereIn('type', $types);
     }
 
-    private function fuelIntakes(): HasMany
+    private function fuelIntakes(): HasManyThrough
     {
-        return $this->hardpoints()->whereRelation('item', function (Builder $query) {
-            $query->whereIn('type', [
-                'FuelIntake',
-            ]);
-        });
+        return $this->hardpointItems()->where('type', 'FuelIntake');
+    }
+
+    public function itemSpec(string $related, bool $one = false, string $key = 'equipped_item_uuid'): HasOneThrough|HasManyThrough
+    {
+        if ($one === true) {
+            return $this->hasOneThrough(
+                $related,
+                Hardpoint::class,
+                'vehicle_id',
+                $related === Item::class ? 'uuid' : 'item_uuid',
+                'id',
+                $key,
+            );
+        }
+
+        return $this->hasManyThrough(
+            $related,
+            Hardpoint::class,
+            'vehicle_id',
+            $related === Item::class ? 'uuid' : 'item_uuid',
+            'id',
+            $key,
+        );
     }
 }
