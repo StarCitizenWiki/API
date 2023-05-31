@@ -285,7 +285,12 @@ class Vehicle extends CommodityItem
             })
             ->sum();
 
-        return empty($scu) ? $this->item?->container?->scu ?? 0 : $scu;
+        // Vehicles having a cargo hardpoint that has no cargo grid, e.g. Constellation Aquila
+        if (empty($scu) && $this->hardpoints()->where('class_name', 'LIKE', '%cargo%')->exists()) {
+            return $this->item?->container?->scu ?? 0;
+        }
+
+        return empty($scu) ? 0 : $scu;
     }
 
     /**
