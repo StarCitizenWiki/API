@@ -45,7 +45,7 @@ class VehicleController extends AbstractApiV2Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Vehicle::class, $request)
+        $query = QueryBuilder::for(UnpackedVehicle::class, $request)
             ->orderByDesc('name')
             ->allowedFilters([
                 AllowedFilter::partial('manufacturer', 'manufacturer.name'),
@@ -191,19 +191,30 @@ class VehicleController extends AbstractApiV2Controller
 
         $request->validate($rules);
 
-        $query = $this->cleanQueryName($request->get('query'));
+        $identifier = $this->cleanQueryName($request->get('query'));
+        $underscored = str_replace(' ', '_', $identifier);
 
-        $queryBuilder = QueryBuilder::for(Vehicle::class, $request)
+        $queryBuilder = QueryBuilder::for(UnpackedVehicle::class)
+            ->whereRelation(
+                'item',
+                'version',
+                'LIKE',
+                $request->get('version', config('api.sc_data_version')) . '%'
+            )
+            ->where(function (Builder $query) use ($identifier, $underscored) {
+                $query->where('name', 'LIKE', "%{$identifier}")
+                    ->orWhere('class_name', 'LIKE', "%{$underscored}")
+                    ->orWhere('class_name', $identifier)
+                    ->orWhere('item_uuid', $identifier);
+            })
             ->allowedFilters([
                 AllowedFilter::partial('manufacturer', 'manufacturer.name'),
             ])
-            ->where('name', 'like', "%{$query}%")
-            ->orWhere('slug', 'like', "%{$query}%")
             ->paginate($this->limit)
             ->appends(request()->query());
 
         if ($queryBuilder->count() === 0) {
-            throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $query));
+            throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $identifier));
         }
 
         return VehicleLinkResource::collection($queryBuilder);
