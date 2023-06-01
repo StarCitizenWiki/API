@@ -314,6 +314,17 @@ class Vehicle implements ShouldQueue
 
         // Add Hardpoints only found on the Vehicle.Parts key
         collect($hardpoints)
+            // Create vehicle parts
+            ->each(function ($hardpoint) use ($vehicle) {
+                if (!empty($hardpoint['name']) && isset($hardpoint['damageMax']) && $hardpoint['damageMax'] > 0) {
+                    $vehicle->parts()->updateOrCreate([
+                        'name' => $hardpoint['name'],
+                    ], [
+                        'parent' => $hardpoint['parent'] ?? null,
+                        'damage_max' => $hardpoint['damageMax'],
+                    ]);
+                }
+            })
             ->whereNotIn('name', $this->hardpoints)
             ->filter(function (array $hardpoint) {
                 // Filter out some
@@ -334,8 +345,8 @@ class Vehicle implements ShouldQueue
                     'hardpoint_name' => $hardpoint['name'],
                 ];
 
-                if (str_starts_with($hardpoint['parent'], 'hardpoint')) {
-                    $parent = $vehicle->hardpoints()->where('hardpoint_name', $hardpoint['parent'])->first()->id;
+                if (str_starts_with($hardpoint['parent'] ?? '', 'hardpoint')) {
+                    $parent = $vehicle->hardpoints()->where('hardpoint_name', $hardpoint['parent'])->first()?->id;
                     $where['parent_hardpoint_id'] = $parent;
                 }
 
@@ -372,10 +383,8 @@ class Vehicle implements ShouldQueue
                 unset($part['Parts']);
             }
 
-            if (($part['class'] ?? '') === 'ItemPort') {
-                unset($part['ItemPort']['Connections'], $part['ItemPort']['ControllerDef'], $part['ItemPort']['Types']);
-                $out[strtolower($part['name'])] = $part;
-            }
+            unset($part['ItemPort']['Connections'], $part['ItemPort']['ControllerDef'], $part['ItemPort']['Types']);
+            $out[strtolower($part['name'])] = $part;
         }
     }
 
