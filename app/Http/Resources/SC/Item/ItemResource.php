@@ -181,7 +181,7 @@ class ItemResource extends AbstractTranslationResource
 
     private function addSpecification(): array
     {
-        if ($this->specification === null) {
+        if (!$this?->specification?->exists || $this->specification === null) {
             return [false, []];
         }
 

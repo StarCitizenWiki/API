@@ -247,10 +247,9 @@ class Item extends HasTranslations
 
             case $this->type === 'MiningModifier':
                 return $this->hasOne(MiningModule::class, 'uuid', 'uuid')->withDefault();
-
-            default:
-                return $this->hasOne(__CLASS__, 'id', 'uuid'); //NULL
         }
+
+        return $this->hasOne(__CLASS__, 'id', 'uuid'); //NULL
     }
 
     public function dimensions(): HasMany
