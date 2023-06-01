@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -44,6 +45,12 @@ class VehicleWeaponController extends AbstractApiV2Controller
         $query = QueryBuilder::for(Item::class, $request)
             ->where('type', 'WeaponGun')
             ->allowedIncludes(VehicleWeaponResource::validIncludes())
+            ->allowedFilters([
+                AllowedFilter::callback('type', static function (Builder $query, $value) {
+                    $query->whereRelation('descriptionData', 'name', 'Item Type')
+                        ->whereRelation('descriptionData', 'value', $value);
+                }),
+            ])
             ->paginate($this->limit)
             ->appends(request()->query());
 

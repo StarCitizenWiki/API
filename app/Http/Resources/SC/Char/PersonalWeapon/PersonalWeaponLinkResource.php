@@ -53,9 +53,8 @@ class PersonalWeaponLinkResource extends AbstractBaseResource
             $this->mergeWhen(str_contains($include, 'shops'), [
                 'shops' => ShopResource::collection($this->shops),
             ]),
-
             'updated_at' => $this->updated_at,
-            'version' => $this->item->version,
+            'version' => $this->version,
         ];
     }
 }

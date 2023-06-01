@@ -43,14 +43,13 @@ class VehicleItemLinkResource extends AbstractBaseResource
             'uuid' => $this->uuid,
             'name' => $this->name,
             'type' => $this->type,
-            'grade' => $this->grade,
-            'class' => $this->class,
+            'grade' => $this->vehicleItem->grade,
+            'class' => $this->vehicleItem->class,
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
             'link' => $this->makeApiUrl(self::ITEMS_SHOW, $this->uuid),
             'shops' => ShopResource::collection($this->whenLoaded('shops')),
-
             'updated_at' => $this->updated_at,
-            'version' => $this->item->version,
+            'version' => $this->version,
         ];
     }
 }

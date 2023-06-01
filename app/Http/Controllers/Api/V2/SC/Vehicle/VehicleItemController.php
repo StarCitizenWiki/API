@@ -8,7 +8,6 @@ use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Http\Resources\SC\Vehicle\VehicleItemLinkResource;
-use App\Models\SC\Item\Item;
 use App\Models\SC\Vehicle\VehicleItem;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -51,11 +50,11 @@ class VehicleItemController extends AbstractApiV2Controller
                     $query->whereRelation('descriptionData', 'name', 'Item Type')
                         ->whereRelation('descriptionData', 'value', $value);
                 }),
-                AllowedFilter::callback('type', static function (Builder $query, $value) {
+                AllowedFilter::callback('grade', static function (Builder $query, $value) {
                     $query->whereRelation('descriptionData', 'name', 'Grade')
                         ->whereRelation('descriptionData', 'value', $value);
                 }),
-                AllowedFilter::callback('type', static function (Builder $query, $value) {
+                AllowedFilter::callback('class', static function (Builder $query, $value) {
                     $query->whereRelation('descriptionData', 'name', 'Class')
                         ->whereRelation('descriptionData', 'value', $value);
                 }),
