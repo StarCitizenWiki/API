@@ -18,6 +18,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use JsonException;
 
 class Vehicle implements ShouldQueue
@@ -48,7 +49,7 @@ class Vehicle implements ShouldQueue
             $rawData = File::get(storage_path(sprintf('app/%s', $vehicle['filePathV2'])));
 
             $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
-        } catch (FileNotFoundException | JsonException $e) {
+        } catch (FileNotFoundException|JsonException $e) {
             $this->fail($e->getMessage());
         }
 
@@ -287,7 +288,7 @@ class Vehicle implements ShouldQueue
                 $entries
                     ->each(function ($hardpoint) use ($hardpoints, $vehicle) {
                         $itemUuid = null;
-                        if (isset($hardpoint['entityClassName']) && !empty($hardpoint['entityClassName'])) {
+                        if (!empty($hardpoint['entityClassName'])) {
                             $itemUuid = $this->getItemUUID($hardpoint['entityClassName']);
                         }
 
@@ -299,8 +300,8 @@ class Vehicle implements ShouldQueue
                         ], [
                             'class_name' => $hardpoint['entityClassName'],
                             'equipped_item_uuid' => $itemUuid,
-                            'min_size' => $hardpoints[$itemPortName]['ItemPort']['minsize'] ?? 0,
-                            'max_size' => $hardpoints[$itemPortName]['ItemPort']['maxsize'] ?? 0,
+                            'min_size' => $hardpoints[$itemPortName]['ItemPort']['minsize'] ?? null,
+                            'max_size' => $hardpoints[$itemPortName]['ItemPort']['maxsize'] ?? null,
                         ]);
 
                         $this->createSubPoint(
@@ -310,6 +311,41 @@ class Vehicle implements ShouldQueue
                         );
                     });
             });
+
+        // Add Hardpoints only found on the Vehicle.Parts key
+        collect($hardpoints)
+            ->whereNotIn('name', $this->hardpoints)
+            ->filter(function (array $hardpoint) {
+                // Filter out some
+                return !Str::contains($hardpoint['name'], [
+                    '$slot',
+                    '_trail_',
+                    '_SQUIB_',
+                    'audio',
+                    'animated',
+                    'Helper',
+                    'LandingGear',
+                    'gameplay',
+                    'ObjectContainer',
+                ], true);
+            })
+            ->each(function ($hardpoint) use ($vehicle) {
+                $where = [
+                    'hardpoint_name' => $hardpoint['name'],
+                ];
+
+                if (str_starts_with($hardpoint['parent'], 'hardpoint')) {
+                    $parent = $vehicle->hardpoints()->where('hardpoint_name', $hardpoint['parent'])->first()->id;
+                    $where['parent_hardpoint_id'] = $parent;
+                }
+
+                $vehicle->hardpoints()->updateOrCreate($where, [
+                    'min_size' => Arr::get($hardpoint, 'ItemPort.minsize'),
+                    'max_size' => Arr::get($hardpoint, 'ItemPort.maxsize'),
+                ]);
+
+                $this->hardpoints->push($hardpoint['name']);
+            });
     }
 
     /**
@@ -318,16 +354,21 @@ class Vehicle implements ShouldQueue
      *
      * @param array $parts
      * @param array $out
+     * @param string|null $parent
      */
-    private function mapHardpoints(array $parts, array &$out): void
+    private function mapHardpoints(array $parts, array &$out, ?string $parent = null): void
     {
         foreach ($parts as $part) {
             if (!isset($part['name'])) {
                 continue;
             }
 
+            if ($parent !== null) {
+                $part['parent'] = $parent;
+            }
+
             if (isset($part['Parts'])) {
-                $this->mapHardpoints($part['Parts'], $out);
+                $this->mapHardpoints($part['Parts'], $out, $part['name']);
                 unset($part['Parts']);
             }
 
