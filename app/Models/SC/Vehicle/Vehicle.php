@@ -216,7 +216,14 @@ class Vehicle extends CommodityItem
 
     public function manufacturer(): HasOneThrough
     {
-        return $this->itemSpec(Manufacturer::class, true, 'manufacturer_id');
+        return $this->hasOneThrough(
+            Manufacturer::class,
+            Item::class,
+            'uuid',
+            'id',
+            'item_uuid',
+            'manufacturer_id',
+        );
     }
 
     public function getComputedHealthAttribute(): float
