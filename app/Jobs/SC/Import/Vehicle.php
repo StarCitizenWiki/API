@@ -329,6 +329,9 @@ class Vehicle implements ShouldQueue
                     'ObjectContainer',
                 ], true);
             })
+            ->filter(function (array $hardpoint) {
+                return ($hardpoint['skipPart'] ?? false) === false;
+            })
             ->each(function ($hardpoint) use ($vehicle) {
                 $where = [
                     'hardpoint_name' => $hardpoint['name'],
