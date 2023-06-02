@@ -1,5 +1,5 @@
 ### Extensions
-FROM php:8.1-apache as extensions
+FROM php:8.2-apache as extensions
 
 LABEL stage=intermediate
 
@@ -54,12 +54,12 @@ opcache.fast_shutdown=0\n\
 ' >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
 ### Composer
-FROM php:8.1-apache as api
+FROM php:8.2-apache as api
 
 COPY --from=extensions /usr/local/etc/php/conf.d/docker-php-ext-bcmath.ini /usr/local/etc/php/conf.d/docker-php-ext-bcmath.ini
 COPY --from=extensions /usr/local/etc/php/conf.d/docker-php-ext-intl.ini /usr/local/etc/php/conf.d/docker-php-ext-intl.ini
-COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20210902/intl.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/intl.so
-COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20210902/bcmath.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/bcmath.so
+COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20220829/intl.so /usr/local/lib/php/extensions/no-debug-non-zts-20220829/intl.so
+COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20220829/bcmath.so /usr/local/lib/php/extensions/no-debug-non-zts-20220829/bcmath.so
 
 LABEL stage=intermediate
 
@@ -88,7 +88,7 @@ RUN git clone https://github.com/StarCitizenWiki/scunpacked-data --branch=master
 RUN /usr/bin/composer dump-autoload --optimize --classmap-authoritative
 
 ### Final Image
-FROM php:8.1-apache
+FROM php:8.2-apache
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -104,7 +104,7 @@ COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY ./docker/start.sh /usr/local/bin/start
 
 COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
-COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20210902/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/
+COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20220829/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20220829/
 
 RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
     echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
