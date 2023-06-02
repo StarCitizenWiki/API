@@ -61,9 +61,6 @@ final class Shops
                     (str_contains($shop['name'], ',') || isset($this->shopNames[$shop['name']]));
             })
             ->filter(function (array $shop) {
-                return strpos($shop['name'], 'IAE Expo') === false;
-            })
-            ->filter(function (array $shop) {
                 return !in_array($shop['name'], $this->ignoredShops, true);
             })
             ->filter(function (array $shop) {
