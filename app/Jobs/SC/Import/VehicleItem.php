@@ -19,7 +19,7 @@ use App\Models\SC\ItemSpecification\Shield;
 use App\Models\SC\ItemSpecification\Thruster;
 use App\Models\SC\Vehicle\VehicleItem as VehicleItemModel;
 use App\Models\SC\Vehicle\Weapon\VehicleWeapon;
-use App\Services\Parser\StarCitizenUnpacked\Labels;
+use App\Services\Parser\SC\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -55,7 +55,7 @@ class VehicleItem implements ShouldQueue
         $labels = (new Labels())->getData();
 
         try {
-            $parser = new \App\Services\Parser\StarCitizenUnpacked\VehicleItems\VehicleItem($this->filePath, $labels);
+            $parser = new \App\Services\Parser\SC\VehicleItems\VehicleItem($this->filePath, $labels);
         } catch (FileNotFoundException | JsonException $e) {
             $this->fail($e);
             return;

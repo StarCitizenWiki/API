@@ -36,21 +36,21 @@ use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
 use App\Console\Commands\StarCitizen\Vehicle\ImportLoaner;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
-use App\Console\Commands\StarCitizenUnpacked\ImportClothing;
-use App\Console\Commands\StarCitizenUnpacked\ImportItems;
-use App\Console\Commands\StarCitizenUnpacked\ImportPersonalWeapons;
-use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
-use App\Console\Commands\StarCitizenUnpacked\ImportVehicleItems;
-use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
-use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateClothingWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateFoodWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponAttachmentWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponPersonalWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
+use App\Console\Commands\SC\ImportClothing;
+use App\Console\Commands\SC\ImportItems;
+use App\Console\Commands\SC\ImportPersonalWeapons;
+use App\Console\Commands\SC\ImportShops;
+use App\Console\Commands\SC\ImportVehicleItems;
+use App\Console\Commands\SC\ImportVehicles;
+use App\Console\Commands\SC\TranslateItems;
+use App\Console\Commands\SC\Wiki\CreateCharArmorWikiPages;
+use App\Console\Commands\SC\Wiki\CreateClothingWikiPages;
+use App\Console\Commands\SC\Wiki\CreateCommodityWikiPages;
+use App\Console\Commands\SC\Wiki\CreateFoodWikiPages;
+use App\Console\Commands\SC\Wiki\CreateShipItemWikiPages;
+use App\Console\Commands\SC\Wiki\CreateWeaponAttachmentWikiPages;
+use App\Console\Commands\SC\Wiki\CreateWeaponWikiPages;
+use App\Console\Commands\SC\Wiki\UploadItemImages;
 use App\Console\Commands\Transcript\ImportMetadata;
 use App\Console\Commands\Transcript\TranslateTranscripts;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
@@ -116,7 +116,7 @@ class Kernel extends ConsoleKernel
 
         ImportItems::class,
         ImportVehicles::class,
-        ImportShopItems::class,
+        ImportShops::class,
         ImportClothing::class,
         ImportVehicleItems::class,
         ImportPersonalWeapons::class,
@@ -128,7 +128,7 @@ class Kernel extends ConsoleKernel
         CreateClothingWikiPages::class,
         CreateShipItemWikiPages::class,
         CreateWeaponAttachmentWikiPages::class,
-        CreateWeaponPersonalWikiPages::class,
+        CreateWeaponWikiPages::class,
         CreateFoodWikiPages::class,
         UploadItemImages::class,
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\SC\Import;
 
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
-use App\Services\Parser\StarCitizenUnpacked\Labels;
+use App\Services\Parser\SC\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,7 +38,7 @@ class WeaponAttachment implements ShouldQueue
         $labels = (new Labels())->getData();
 
         try {
-            $parser = new \App\Services\Parser\StarCitizenUnpacked\WeaponAttachment($this->filePath, $labels);
+            $parser = new \App\Services\Parser\SC\WeaponAttachment($this->filePath, $labels);
         } catch (FileNotFoundException | JsonException $e) {
             $this->fail($e);
             return;

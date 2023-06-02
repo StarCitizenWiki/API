@@ -6,8 +6,8 @@ namespace App\Jobs\SC\Import;
 
 use App\Models\SC\Char\PersonalWeapon\PersonalWeapon as PersonalWeaponModel;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponAmmunition;
-use App\Services\Parser\StarCitizenUnpacked\Labels;
-use App\Services\Parser\StarCitizenUnpacked\Weapon;
+use App\Services\Parser\SC\Labels;
+use App\Services\Parser\SC\Weapon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;

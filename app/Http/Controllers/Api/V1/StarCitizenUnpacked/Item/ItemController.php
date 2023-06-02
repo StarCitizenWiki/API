@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\Item;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Models\StarCitizenUnpacked\Item;
-use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
+use App\Services\Parser\SC\Shops\Inventory;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ItemTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;

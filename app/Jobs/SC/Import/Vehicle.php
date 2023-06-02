@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Jobs\SC\Import;
 
 use App\Models\SC\Vehicle\Hardpoint;
-use App\Services\Parser\StarCitizenUnpacked\Labels;
-use App\Services\Parser\StarCitizenUnpacked\Manufacturers;
+use App\Services\Parser\SC\Labels;
+use App\Services\Parser\SC\Manufacturers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -63,7 +63,7 @@ class Vehicle implements ShouldQueue
         ], $this->getVehicleModelArray($vehicle) + ['class_name' => $vehicle['ClassName']]);
 
         if (!$vehicleModel->item === null || !optional($vehicleModel->item)->exists) {
-            $itemParser = new \App\Services\Parser\StarCitizenUnpacked\Item(
+            $itemParser = new \App\Services\Parser\SC\Item(
                 $vehicle['filePath'],
                 $labels,
                 $manufacturers

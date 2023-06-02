@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\SC\Import;
 
 use App\Models\SC\Food\FoodEffect;
-use App\Services\Parser\StarCitizenUnpacked\Labels;
+use App\Services\Parser\SC\Labels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,7 +38,7 @@ class Food implements ShouldQueue
         $labels = (new Labels())->getData();
 
         try {
-            $parser = new \App\Services\Parser\StarCitizenUnpacked\Food($this->filePath, $labels);
+            $parser = new \App\Services\Parser\SC\Food($this->filePath, $labels);
         } catch (FileNotFoundException | JsonException $e) {
             $this->fail($e);
             return;
