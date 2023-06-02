@@ -13,7 +13,7 @@
 The star-citizen.wiki API. Automatically scrapes Comm-Links, Stats and the Ship-Matrix.
 
 ## Documentation
-The documentation can be found at https://docs.star-citizen.wiki or in the `/docs` folder.
+The documentation can be found at https://docs.star-citizen.wiki.
 
 ## Installation
 Using docker and docker-compose
