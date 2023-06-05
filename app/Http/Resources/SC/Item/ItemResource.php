@@ -29,7 +29,7 @@ use App\Http\Resources\SC\ItemSpecification\ShieldResource;
 use App\Http\Resources\SC\ItemSpecification\ThrusterResource;
 use App\Http\Resources\SC\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\SC\Shop\ShopResource;
-use App\Http\Resources\SC\Vehicle\VehicleWeaponResource;
+use App\Http\Resources\SC\Vehicle\Weapon\VehicleWeaponResource;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 

@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Http\Resources\SC\Vehicle\VehicleItemLinkResource;
-use App\Http\Resources\SC\Vehicle\VehicleWeaponResource;
+use App\Http\Resources\SC\Vehicle\Weapon\VehicleWeaponResource;
 use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

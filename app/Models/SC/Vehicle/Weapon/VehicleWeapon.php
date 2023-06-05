@@ -27,6 +27,7 @@ class VehicleWeapon extends CommodityItem
         'modes',
         'item',
         'ammunition',
+        'regen',
     ];
 
     public function getRouteKey()

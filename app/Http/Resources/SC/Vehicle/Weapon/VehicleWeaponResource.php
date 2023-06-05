@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Resources\SC\Vehicle;
+namespace App\Http\Resources\SC\Vehicle\Weapon;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\SC\Weapon\WeaponDamageResource;
@@ -28,6 +28,11 @@ use OpenApi\Attributes as OA;
             property: 'damages',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/weapon_damage_v2'),
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'regeneration',
+            ref: new OA\Items(ref: '#/components/schemas/weapon_regeneration_v2'),
             nullable: true
         ),
         new OA\Property(property: 'ammunition', properties: [
@@ -60,7 +65,7 @@ class VehicleWeaponResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'class' => $this->weapon_class,
@@ -70,6 +75,7 @@ class VehicleWeaponResource extends AbstractBaseResource
             'damage_per_shot' => $this->ammunition->damage ?? null,
             'modes' => WeaponModeResource::collection($this->whenLoaded('modes')),
             'damages' => WeaponDamageResource::collection($this->whenLoaded('damages')),
+            'regeneration' => new VehicleWeaponRegenResource($this->whenLoaded('regen')),
             'ammunition' => [
                 'size' => $this->ammunition->size ?? null,
                 'lifetime' => $this->ammunition->lifetime ?? null,

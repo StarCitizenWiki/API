@@ -47,7 +47,7 @@ class ItemPort extends Model
             return null;
         }
 
-        $default = strtoupper(explode($this->name, '_attach')[0] ?? '');
+        $default = strtoupper(explode('_attach', $this->name)[0] ?? '');
         $default = empty($default) ? null : $default;
 
         return match ($this->name) {
