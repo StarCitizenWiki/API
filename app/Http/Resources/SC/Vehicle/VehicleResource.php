@@ -249,9 +249,9 @@ class VehicleResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
-        $includes = collect(explode(',', $request->get('include', '')))
+        $includes = collect(explode(',', $request->get('include', '') ?? ''))
             ->map('trim')
             ->map('strtolower')
             ->toArray();

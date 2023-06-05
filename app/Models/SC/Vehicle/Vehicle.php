@@ -8,6 +8,7 @@ use App\Events\ModelUpdating;
 use App\Models\SC\CommodityItem;
 use App\Models\SC\Item\Item;
 use App\Models\SC\Item\ItemHeatData;
+use App\Models\SC\Item\ItemPort;
 use App\Models\SC\Item\ItemPowerData;
 use App\Models\SC\ItemSpecification\Armor;
 use App\Models\SC\ItemSpecification\FlightController;
@@ -189,6 +190,16 @@ class Vehicle extends CommodityItem
         return $this->itemSpec(Item::class);
     }
 
+    /**
+     * Items equipped on hardpoints
+     *
+     * @return HasManyThrough
+     */
+    public function hardpointItemPortItems(): HasManyThrough
+    {
+        return $this->itemSpec(ItemPort::class);
+    }
+
     public function flightController(): HasOneThrough
     {
         return $this->itemSpec(FlightController::class, true);
@@ -257,7 +268,13 @@ class Vehicle extends CommodityItem
 
         // Vehicles having a cargo hardpoint that has no cargo grid, e.g. Constellation Aquila
         if (empty($scu) && $this->hardpoints()->where('class_name', 'LIKE', '%cargo%')->exists()) {
-            return $this->item?->container?->scu ?? 0;
+            return $this->hardpointItemPortItems()
+                ->whereRelation('item', 'type', 'CargoGrid')
+                ->get()
+                ->map(function (ItemPort $item) {
+                    return $item->item?->container?->calculated_scu;
+                })
+                ->sum();
         }
 
         return empty($scu) ? 0 : $scu;
@@ -275,7 +292,8 @@ class Vehicle extends CommodityItem
             ->whereHas('container')
             ->where(function (Builder $query) {
                 $query->where('hardpoint_name', 'LIKE', '%storage%')
-                    ->orWhere('hardpoint_name', 'LIKE', '%personal%');
+                    ->orWhere('hardpoint_name', 'LIKE', '%personal%')
+                    ->orWhere('hardpoint_name', 'LIKE', '%general_cargo%');
             })
             ->get()
             ->map(function ($item) {

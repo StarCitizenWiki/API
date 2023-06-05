@@ -211,7 +211,7 @@ final class Item extends AbstractCommodityItem
                 'min_size' => $port['MinSize'] ?? null,
                 'max_size' => $port['MaxSize'] ?? null,
                 'position' => $position,
-                'equipped_item_uuid' => $loadout[strtolower($port['Name'])] ?? null,
+                'equipped_item_uuid' => $port['EquippedItemUuid'] ?? $loadout[strtolower($port['Name'])] ?? null,
             ];
         }
 

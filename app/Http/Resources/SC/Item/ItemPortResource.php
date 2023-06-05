@@ -41,9 +41,7 @@ class ItemPortResource extends AbstractBaseResource
                 'min' => $this->min_size,
                 'max' => $this->max_size,
             ],
-            $this->mergeWhen($this->item !== null, [
-                'equipped_item' => new ItemResource($this->item),
-            ]),
+            'equipped_item' => new ItemResource($this->whenLoaded('item'))
         ];
     }
 }
