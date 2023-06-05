@@ -49,7 +49,7 @@ class Vehicle implements ShouldQueue
             $rawData = File::get(storage_path(sprintf('app/%s', $vehicle['filePathV2'])));
 
             $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
-        } catch (FileNotFoundException|JsonException $e) {
+        } catch (FileNotFoundException | JsonException $e) {
             $this->fail($e->getMessage());
         }
 
@@ -331,6 +331,14 @@ class Vehicle implements ShouldQueue
             })
             ->filter(function (array $hardpoint) {
                 return ($hardpoint['skipPart'] ?? false) === false;
+            })
+            ->filter(function (array $hardpoint) use ($vehicle) {
+                $phoenixes = ['RSI Constellation Phoenix', 'RSI Constellation Phoenix Emerald' ];
+                if (str_contains($vehicle->name, 'Constellation') && !in_array($vehicle->name, $phoenixes, true)) {
+                    return str_contains($hardpoint['name'], 'bed') === false;
+                }
+
+                return true;
             })
             ->each(function ($hardpoint) use ($vehicle) {
                 $where = [
