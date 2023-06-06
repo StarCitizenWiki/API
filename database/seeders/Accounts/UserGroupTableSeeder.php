@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Accounts;
 
+use App\Models\Account\User\UserGroup;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -21,8 +22,12 @@ class UserGroupTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
+        if (UserGroup::query()->where(self::ATTR_NAME, 'user')->exists()) {
+            return;
+        }
+
         DB::table(self::TBL_GROUPS)->insert(
             [
                 self::ATTR_NAME => 'user',

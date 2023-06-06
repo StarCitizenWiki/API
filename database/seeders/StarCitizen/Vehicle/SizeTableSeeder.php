@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders\StarCitizen\Vehicle;
 
+use App\Models\StarCitizen\Vehicle\Size\Size;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,9 +16,13 @@ class SizeTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-        $now = \Carbon\Carbon::now();
+        if (Size::query()->count() > 0) {
+            return;
+        }
+
+        $now = Carbon::now();
 
         DB::table('vehicle_sizes')->insert(
             [

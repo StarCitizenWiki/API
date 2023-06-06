@@ -121,7 +121,7 @@ class ShopItem extends Pivot
 
     public function rental(): HasOne
     {
-        return $this->hasOne(ShopItemRental::class, 'node_uuid', 'node_uuid')->withDefault([
+        return $this->hasOne(ShopItemRental::class, 'item_uuid', 'item_uuid')->withDefault([
             'percentage_1' => 2,
             'percentage_3' => 2,
             'percentage_7' => 2,

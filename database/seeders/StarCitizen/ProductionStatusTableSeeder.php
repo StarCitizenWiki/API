@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders\StarCitizen;
 
+use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,9 +16,13 @@ class ProductionStatusTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-        $now = \Carbon\Carbon::now();
+        if (ProductionStatus::query()->where('id', 1)->exists()) {
+            return;
+        }
+
+        $now = Carbon::now();
 
         DB::table('production_statuses')->insert(
             [
