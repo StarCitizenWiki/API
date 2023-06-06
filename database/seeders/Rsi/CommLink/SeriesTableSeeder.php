@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Rsi\CommLink;
 
+use App\Models\Rsi\CommLink\Series\Series;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,8 +15,12 @@ class SeriesTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
+        if (Series::query()->count() > 0) {
+            return;
+        }
+
         DB::table('comm_link_series')->insert(
             [
                 'name' => 'None',
