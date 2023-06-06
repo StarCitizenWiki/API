@@ -9,6 +9,7 @@ use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 
 class ImportCommLink extends Command
@@ -39,9 +40,10 @@ class ImportCommLink extends Command
         try {
             $commLink = CommLink::query()->where('cig_id', $id)->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->error('Comm-Link does not exist in DB.');
-
-            return 1;
+            return Artisan::call('comm-links:download', [
+                'id' => $id,
+                '--import' => true
+            ]);
         }
 
         if (count(Storage::disk('comm_links')->files($id)) === 0) {
