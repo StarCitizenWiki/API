@@ -18,7 +18,7 @@ class ProductionStatusTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (ProductionStatus::query()->count() > 0) {
+        if (ProductionStatus::query()->where('id', 1)->exists()) {
             return;
         }
 

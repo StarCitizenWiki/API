@@ -17,7 +17,7 @@ class SeriesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Series::query()->count() > 0) {
+        if (Series::query()->where('name', 'None')->exists()) {
             return;
         }
 

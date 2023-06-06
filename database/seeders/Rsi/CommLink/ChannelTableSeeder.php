@@ -17,7 +17,7 @@ class ChannelTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Channel::query()->count() > 0) {
+        if (Channel::query()->where('name', 'Undefined')->exists()) {
             return;
         }
 

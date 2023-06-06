@@ -17,7 +17,7 @@ class CategoryTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Category::query()->count() > 0) {
+        if (Category::query()->where('name', 'Undefined')->exists()) {
             return;
         }
 
