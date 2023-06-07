@@ -267,8 +267,8 @@ class Vehicle extends CommodityItem
             ->sum();
 
         // Vehicles having a cargo hardpoint that has no cargo grid, e.g. Constellation Aquila
-        if (empty($scu) && $this->hardpoints()->where('class_name', 'LIKE', '%cargo%')->exists()) {
-            return $this->hardpointItemPortItems()
+        if ($this->hardpoints()->where('class_name', 'LIKE', '%cargo%')->exists()) {
+            $scu += $this->hardpointItemPortItems()
                 ->whereRelation('item', 'type', 'CargoGrid')
                 ->get()
                 ->map(function (ItemPort $item) {
