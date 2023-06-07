@@ -17,7 +17,7 @@ class SeriesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Series::query()->where('name', 'None')->exists()) {
+        if (DB::table('comm_link_series')->where('name', 'None')->exists()) {
             return;
         }
 

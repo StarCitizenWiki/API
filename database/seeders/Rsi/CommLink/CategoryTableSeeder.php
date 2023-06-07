@@ -17,7 +17,7 @@ class CategoryTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Category::query()->where('name', 'Undefined')->exists()) {
+        if (DB::table('comm_link_categories')->where('name', 'Undefined')->exists()) {
             return;
         }
 

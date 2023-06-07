@@ -18,7 +18,7 @@ class ProductionNoteTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (ProductionNote::query()->where('id', 1)->exists()) {
+        if (DB::table('production_notes')->where('id', 1)->exists()) {
             return;
         }
 

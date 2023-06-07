@@ -18,7 +18,7 @@ class LanguageTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Language::query()->where('locale_code', 'en_EN')->exists()) {
+        if (DB::table('languages')->where('locale_code', 'en_EN')->exists()) {
             return;
         }
 

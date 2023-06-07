@@ -24,7 +24,7 @@ class UserGroupTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (UserGroup::query()->where(self::ATTR_NAME, 'user')->exists()) {
+        if (DB::table(self::TBL_GROUPS)->where(self::ATTR_NAME, 'user')->exists()) {
             return;
         }
 

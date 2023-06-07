@@ -17,7 +17,7 @@ class ChannelTableSeeder extends Seeder
      */
     public function run(): void
     {
-        if (Channel::query()->where('name', 'Undefined')->exists()) {
+        if (DB::table('comm_link_channels')->where('name', 'Undefined')->exists()) {
             return;
         }
 
