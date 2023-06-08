@@ -29,6 +29,14 @@ class Vehicle implements ShouldQueue
     use SerializesModels;
 
     private Collection $hardpoints;
+    private Collection $parts;
+
+    /**
+     * Filter out parts that have a damage value lower than this
+     *
+     * @var int
+     */
+    private readonly int $minPartDamage;
 
     private array $shipData;
 
@@ -36,6 +44,9 @@ class Vehicle implements ShouldQueue
     {
         $this->shipData = $shipData;
         $this->hardpoints = new Collection();
+        $this->parts = new Collection();
+
+        $this->minPartDamage = 100;
     }
 
     public function handle(): void
@@ -95,6 +106,7 @@ class Vehicle implements ShouldQueue
         $this->createHardpoints($vehicleModel, $vehicle['rawData']);
 
         $vehicleModel->hardpoints()->whereNotIn('hardpoint_name', $this->hardpoints)->delete();
+        $vehicleModel->parts()->whereNotIn('name', $this->parts)->delete();
         $this->createHandlingModel($vehicleModel, $vehicle['rawData']);
     }
 
@@ -316,13 +328,22 @@ class Vehicle implements ShouldQueue
         collect($hardpoints)
             // Create vehicle parts
             ->each(function ($hardpoint) use ($vehicle) {
-                if (!empty($hardpoint['name']) && isset($hardpoint['damageMax']) && $hardpoint['damageMax'] > 0) {
+                $isBaseBody = $hardpoint['class'] === 'Animated' && $hardpoint['damagemax'] === 0;
+                $isPart = !empty($hardpoint['name']) && isset($hardpoint['damageMax']) && $hardpoint['damageMax'] > $this->minPartDamage;
+
+                if ($isBaseBody || $isPart) {
+                    if (!empty($hardpoint['parent'])) {
+                        $hardpoint['parent'] = $vehicle->parts()->where('name', $hardpoint['parent'])->first()->id ?? null;
+                    }
+
                     $vehicle->parts()->updateOrCreate([
                         'name' => $hardpoint['name'],
                     ], [
-                        'parent' => $hardpoint['parent'] ?? null,
+                        'parent_id' => $hardpoint['parent'] ?? null,
                         'damage_max' => $hardpoint['damageMax'],
                     ]);
+
+                    $this->parts->push($hardpoint['name']);
                 }
             })
             ->whereNotIn('name', $this->hardpoints)

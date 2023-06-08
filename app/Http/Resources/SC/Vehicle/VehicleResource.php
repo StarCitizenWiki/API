@@ -369,7 +369,7 @@ class VehicleResource extends AbstractBaseResource
             $this->mergeWhen(in_array('shops', $includes, true), [
                 'shops' => ShopResource::collection($this->item->shops),
             ]),
-            'parts' => VehiclePartResource::collection($this->whenLoaded('parts')),
+            'parts' => VehiclePartResource::collection($this->whenLoaded('partsWithoutParent')),
             'updated_at' => $this->updated_at,
             'version' => $this->item->version,
         ];

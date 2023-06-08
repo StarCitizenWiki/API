@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('sc_vehicle_parts', static function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('vehicle_id');
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('name');
-            $table->string('parent')->nullable();
             $table->unsignedDouble('damage_max');
 
             $table->timestamps();
@@ -23,6 +23,11 @@ return new class extends Migration
             $table->foreign('vehicle_id', 'fk_sc_v_parts_vehicle_id')
                 ->references('id')
                 ->on('sc_vehicles')
+                ->onDelete('cascade');
+
+            $table->foreign('parent_id', 'fk_sc_v_parts_parent_id')
+                ->references('id')
+                ->on('sc_vehicle_parts')
                 ->onDelete('cascade');
         });
     }

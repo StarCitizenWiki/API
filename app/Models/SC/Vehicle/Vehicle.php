@@ -121,6 +121,7 @@ class Vehicle extends CommodityItem
         'quantumDrives',
         'shields',
         'thrusters',
+        'partsWithoutParent',
     ];
 
     protected $perPage = 5;
@@ -167,6 +168,20 @@ class Vehicle extends CommodityItem
             'vehicle_id',
             'id',
         )->orderByDesc('damage_max');
+    }
+
+    /**
+     * Parts of a vehicle that can be destroyed / have max_damage
+     *
+     * @return HasMany
+     */
+    public function partsWithoutParent(): HasMany
+    {
+        return $this->hasMany(
+            VehiclePart::class,
+            'vehicle_id',
+            'id',
+        )->orderByDesc('damage_max')->where('parent_id', null);
     }
 
     /**
