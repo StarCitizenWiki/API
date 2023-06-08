@@ -348,6 +348,9 @@ class Vehicle implements ShouldQueue
             })
             ->whereNotIn('name', $this->hardpoints)
             ->filter(function (array $hardpoint) {
+                return $hardpoint['class'] === 'ItemPort';
+            })
+            ->filter(function (array $hardpoint) {
                 // Filter out some
                 return !Str::contains($hardpoint['name'], [
                     '$slot',
