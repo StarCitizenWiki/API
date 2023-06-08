@@ -11,9 +11,9 @@
     'titleClass' => 'pb-0',
     'contentClass' => 'pl-3 pl-md-2',
     'id' => 'm_admin',
-    'title' => __('Admin'),
+    'title' => __('Benutzer'),
 ])
-    @include('user.menu.admin')
+    @include('user.menu.user')
 @endcomponent
 
 @component('components.navs.sidebar_section', [
@@ -97,17 +97,5 @@
         'title' => __('Transkript'),
     ])
         @include('user.menu.transcripts')
-    @endcomponent
-@endcan
-
-@can('web.user.notifications.view')
-    @component('components.navs.sidebar_section', [
-        'class' => 'mb-5',
-        'titleClass' => 'pb-0',
-        'contentClass' => 'pl-3 pl-md-2',
-        'id' => 'm_notifications',
-        'title' => __('Benachrichtigungen'),
-    ])
-        @include('user.menu.notifications')
     @endcomponent
 @endcan
