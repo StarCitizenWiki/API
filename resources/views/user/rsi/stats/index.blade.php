@@ -7,22 +7,22 @@
         <h4 class="card-header">@lang('Statistiken')</h4>
         <div class="card-body text-center">
             <div>
-                <h6>Filter alle Daten:</h6>
-                <a class="btn @if($active === 100) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=100">Jeder 100te Datensatz</a>
-                <a class="btn @if($active === 50) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=50">Jeder 50te Datensatz</a>
-                <a class="btn @if($active === 25) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=25">Jeder 25te Datensatz</a>
-                <a class="btn @if($active === 10) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=10">Jeder 10te Datensatz</a>
-                <a class="btn @if($active === 5) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=5">Jeder 5 Datensatz</a>
-                <a class="btn @if($active === 0) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=0">Alle Daten</a>
+                <h6>@lang('Filter alle Daten'):</h6>
+                <a class="btn @if($active === 100) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=100">@lang('Jeder 100te Datensatz')</a>
+                <a class="btn @if($active === 50) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=50">@lang('Jeder 50te Datensatz')</a>
+                <a class="btn @if($active === 25) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=25">@lang('Jeder 25te Datensatz')</a>
+                <a class="btn @if($active === 10) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=10">@lang('Jeder 10te Datensatz')</a>
+                <a class="btn @if($active === 5) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=5">@lang('Jeder 5th Datensatz')</a>
+                <a class="btn @if($active === 0) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=0">@lang('Alle Daten')</a>
             </div>
             <div class="mt-3">
-                <h6>Filter Zeit:</h6>
-                <a class="btn @if($from === \Carbon\Carbon::now()->subWeek()->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subWeek()->format('Y-m-d')}}">Letzte Woche</a>
-                <a class="btn @if($from === \Carbon\Carbon::now()->subMonths(1)->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subMonths(1)->format('Y-m-d')}}">Letzter Monat</a>
-                <a class="btn @if($from === \Carbon\Carbon::now()->subMonths(3)->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subMonths(3)->format('Y-m-d')}}">Letzte 3 Monate</a>
-                <a class="btn @if($from === \Carbon\Carbon::now()->subMonths(6)->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subMonths(6)->format('Y-m-d')}}">Letzte 6 Monate</a>
-                <a class="btn @if($from === \Carbon\Carbon::now()->subYear()->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subYear()->format('Y-m-d')}}">Letztes Jahr</a>
-                <a class="btn @if($from === \Carbon\Carbon::now()->subYears(2)->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subYears(2)->format('Y-m-d')}}">Letzte 2 Jahre</a>
+                <h6>@lang('Filter Zeit'):</h6>
+                <a class="btn @if($from === \Carbon\Carbon::now()->subWeek()->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subWeek()->format('Y-m-d')}}">@lang('Letzte Woche')</a>
+                <a class="btn @if($from === \Carbon\Carbon::now()->subMonths(1)->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subMonths(1)->format('Y-m-d')}}">@lang('Letzter Monat')</a>
+                <a class="btn @if($from === \Carbon\Carbon::now()->subMonths(3)->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subMonths(3)->format('Y-m-d')}}">@lang('Letzte 3 Monate')</a>
+                <a class="btn @if($from === \Carbon\Carbon::now()->subMonths(6)->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subMonths(6)->format('Y-m-d')}}">@lang('Letzte 6 Monate')</a>
+                <a class="btn @if($from === \Carbon\Carbon::now()->subYear()->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subYear()->format('Y-m-d')}}">@lang('Letztes Jahr')</a>
+                <a class="btn @if($from === \Carbon\Carbon::now()->subYears(2)->format('Y-m-d')) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?from={{\Carbon\Carbon::now()->subYears(2)->format('Y-m-d')}}">@lang('Letzte 2 Jahre')</a>
             </div>
         </div>
     </div>
@@ -36,20 +36,9 @@
     </div>
     <div class="stats-card">
         <div class="card">
-            <h4 class="card-header">@lang('Fans')</h4>
+            <h4 class="card-header">@lang('Citizens')</h4>
             <div class="card-body">
-                <canvas id="fansChart" width="400" height="100"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="stats-card">
-        <div class="card">
-            <h4 class="card-header">@lang('Fleet')</h4>
-            <div class="card-body">
-                <canvas id="fleetChart" width="400" height="100"></canvas>
-                <p class="text-center mt-3">
-                    Seit dem 20.11.2019 entspricht Fleet = Fans.
-                </p>
+                <canvas id="citizensChart" width="400" height="100"></canvas>
             </div>
         </div>
     </div>
@@ -117,63 +106,22 @@
             }
         });
 
-        const fleetContext = document.getElementById('fleetChart').getContext('2d');
-        const fleetChart = new Chart(fleetContext, {
-            type: 'line',
-            data: {
-                labels: {!! $labels !!},
-                datasets: [{
-                    backgroundColor: '#12b87f',
-                    label: 'Fleet',
-                    data: {!! $fleet !!},
-                }]
-            },
-            options: {
-                tooltips: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return formatNumber(tooltipItem.value, 0) + ' Fleet';
-                        },
-                        title: function(tooltipItem) {
-                            return new Date(tooltipItem[0].label).toLocaleDateString()
-                        }
-                    }
-                },
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            callback: function(value, index) {
-                                return formatNumber(value, 0) + ' Fleet';
-                            }
-                        }
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            callback: function(value, index) {
-                                return new Date(value).toLocaleDateString();
-                            }
-                        }
-                    }]
-                }
-            }
-        });
-
-        const fansContext = document.getElementById('fansChart').getContext('2d');
-        const fansChart = new Chart(fansContext, {
+        const citizensContext = document.getElementById('citizensChart').getContext('2d');
+        const citizensChart = new Chart(citizensContext, {
             type: 'line',
             data: {
                 labels: {!! $labels !!},
                 datasets: [{
                     backgroundColor: '#d24418',
-                    label: 'Fans',
-                    data: {!! $fans !!},
+                    label: 'Citizens',
+                    data: {!! $citizens !!},
                 }]
             },
             options: {
                 tooltips: {
                     callbacks: {
                         label: function(tooltipItem) {
-                            return formatNumber(tooltipItem.value, 0) + ' Fans';
+                            return formatNumber(tooltipItem.value, 0) + ' Citizens';
                         },
                         title: function(tooltipItem) {
                             return new Date(tooltipItem[0].label).toLocaleDateString()
@@ -184,7 +132,7 @@
                     yAxes: [{
                         ticks: {
                             callback: function(value, index) {
-                                return formatNumber(value, 0) + ' Fans';
+                                return formatNumber(value, 0) + ' Citizens';
                             }
                         }
                     }],

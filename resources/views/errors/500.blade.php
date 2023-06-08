@@ -1,11 +1,11 @@
 @extends('errors.layouts.default')
 
-@section('title', '500 - Server Error')
+@section('title', '500 - ' . __('Server Error'))
 
 @section('top', 500)
 
 @section('content')
-    @lang('Das hätte nicht passieren dürfen')
+    @lang('Das hätte nicht passieren dürfen').
 @endsection
 
 @section('style')
@@ -15,9 +15,9 @@
 @endsection
 
 @section('debug')
-@if(isset($exception))
-Message: {{ $exception->getMessage() }}<br>
-Stack: <br>
-{!! $exception->getTraceAsString() !!}
-@endif
+    @if(isset($exception))
+        Message: {{ $exception->getMessage() }}<br>
+        Stack: <br>
+        {!! $exception->getTraceAsString() !!}
+    @endif
 @endsection

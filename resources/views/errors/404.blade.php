@@ -1,11 +1,11 @@
 @extends('errors.layouts.default')
 
-@section('title', '404 - Nicht gefunden')
+@section('title', '404 - ' . __('Nicht gefunden'))
 
 @section('top', 404)
 
 @section('content')
-    @lang('Du driftest in das endlose Nichts des Weltraums&hellip;')
+    @lang('Du driftest in das endlose Nichts des Weltraums...')
 @endsection
 
 @section('style')
@@ -15,9 +15,9 @@
 @endsection
 
 @section('debug')
-@if(isset($exception))
-Message: {{ $exception->getMessage() }}<br>
-Stack: <br>
-{!! $exception->getTraceAsString() !!}
-@endif
+    @if(isset($exception))
+        Message: {{ $exception->getMessage() }}<br>
+        Stack: <br>
+        {!! $exception->getTraceAsString() !!}
+    @endif
 @endsection

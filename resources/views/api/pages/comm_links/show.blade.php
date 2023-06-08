@@ -60,7 +60,7 @@
                         @lang('Metadaten')
                     </a>
 
-                    <a class="nav-item nav-link" id="nav-api-tab" href="{{ route('api.v2.cl.show', $commLink->cig_id) }}" aria-selected="false" target="_blank">
+                    <a class="nav-item nav-link" id="nav-api-tab" href="{{ app('api.url')->version('v1')->route('api.v1.rsi.comm-links.show', $commLink->cig_id) }}" aria-selected="false" target="_blank">
                         @lang('API') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
                     </a>
                 </div>
@@ -68,15 +68,15 @@
 
             <div class="tab-content" id="nav-tab-translations">
                 <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                    {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}
+                    {!! empty($commLink->english()->translation) ? '@lang('Nicht vorhanden')' : nl2br($commLink->english()->translation) !!}
                 </div>
 
                 <div class="tab-pane fade" id="links" role="tabpanel" aria-labelledby="nav-links-tab">
                     <ul>
                         @forelse($commLink->links as $link)
-                            <li><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> &mdash; {{ $link->href }}</li>
+                            <li><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> - {{ $link->href }}</li>
                         @empty
-                            <li>Keine Links vorhanden</li>
+                            <li>@lang('Keine Links vorhanden')</li>
                         @endforelse
                     </ul>
                 </div>
@@ -89,22 +89,22 @@
                         </a>
                         @endif
                     @empty
-                        Keine Bilder vorhanden
+                        @lang('Keine Bilder vorhanden')
                     @endforelse
                 </div>
 
                 <div class="tab-pane fade" id="meta" role="tabpanel" aria-labelledby="nav-meta-tab">
                     <table class="table mb-0">
                         <tr>
-                            <th class="border-top-0">ID</th>
+                            <th class="border-top-0">@lang('ID')</th>
                             <td class="border-top-0">{{ $commLink->cig_id }}</td>
                         </tr>
                         <tr>
-                            <th>Veröffentlichung</th>
+                            <th>@lang('Veröffentlichung')</th>
                             <td>{{ $commLink->created_at->format('d.m.Y') }}</td>
                         </tr>
                         <tr>
-                            <th>Kategorie</th>
+                            <th>@lang('Kategorie')</th>
                             <td>
                                 <a href="{{ route('web.user.rsi.comm-links.categories.show', $commLink->category->getRouteKey()) }}">
                                     {{ $commLink->category->name }}
@@ -112,7 +112,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Channel</th>
+                            <th>@lang('Channel')</th>
                             <td>
                                 <a href="{{ route('web.user.rsi.comm-links.channels.show', $commLink->channel->getRouteKey()) }}">
                                     {{ $commLink->channel->name }}
@@ -120,7 +120,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Serie</th>
+                            <th>@lang('Serie')</th>
                             <td>
                                 <a href="{{ route('web.user.rsi.comm-links.series.show', $commLink->series->getRouteKey()) }}">
                                     {{ $commLink->series->name }}
@@ -128,15 +128,15 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Url</th>
+                            <th>@lang('URL')</th>
                             <td>
                                 <a href="https://robertsspaceindustries.com{{ $commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">
-                                    {{ $commLink->url ?? 'Keine Original URL vorhanden' }}
+                                    {{ $commLink->url ?? '@lang('Keine Original URL vorhanden')' }}
                                 </a>
                             </td>
                         </tr>
                         <tr>
-                            <th>Kommentare</th>
+                            <th>@lang('Kommentare')</th>
                             <td>{{ $commLink->comment_count }}</td>
                         </tr>
                     </table>

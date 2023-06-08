@@ -11,17 +11,19 @@
             <h4 class="card-title">@lang('Das Projekt')</h4>
             <div class="card-text">
                 <p>
-                    @lang('Die Star Citizen Wiki API dient als Schnittstelle zwischen dem Wiki und diversen anderen Datenquellen.')
+                    @lang('Die Star Citizen Wiki API dient als Schnittstelle zwischen dem')
+                        <a href="https://star-citizen.wiki" class="font-italic">@lang('Wiki')</a>
+                    @lang('und diversen anderen Datenquellen.')
                 </p>
                 <p>
-                    @lang('Du hast Interesse an Programmierung und Webdesign?')
+                    @lang('Du hast Interesse an Programmierung?')
                     <br>
                     @lang('Wir suchen immer engagierte Leute für unser Projekt.')
                 </p>
                 <p>
                     <a href="mailto:info@star-citizen.wiki" class="font-italic">@lang('Schreib')</a>
-                    @lang('uns, oder besuch uns auf unserem')
-                    <a href="https://discord.gg/M9TT8kzXNe" class="font-italic">Discord-Server</a>!
+                        @lang('uns, oder besuch uns auf unserem')
+                    <a href="https://discord.gg/M9TT8kzXNe" class="font-italic">@lang('Discord-Server')</a>!
                 </p>
             </div>
         </div>

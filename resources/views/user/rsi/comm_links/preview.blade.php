@@ -1,6 +1,6 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Comm-Link').' - '.$commLink->title.' - Vorschau: '.$version)
+@section('title', __('Comm-Link').' - ' . $commLink->title . ' - ' . __('Vorschau') . ': ' . $version)
 
 @section('head__content')
     @parent
@@ -36,7 +36,7 @@
                     {!! empty($preview) ? __('Nicht vorhanden') : nl2br($preview) !!}
                 </div>
                 <div class="tab-pane fade" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                    {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}
+                    {!! empty($commLink->english()->translation) ? __('Nicht vorhanden') : nl2br($commLink->english()->translation) !!}
                 </div>
             </div>
         </div>

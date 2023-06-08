@@ -1,6 +1,6 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Star Citizen Items'))
+@section('title', __('Items'))
 
 @section('head__content')
     @parent

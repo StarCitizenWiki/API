@@ -1,6 +1,6 @@
 @extends('user.layouts.default_wide')
 
-@section('title', __('Comm-Link').' - '.$commLink->title.' bearbeiten')
+@section('title', __('Comm-Link').' - '.$commLink->title. ' ' . __('(bearbeiten)'))
 
 @section('content')
     @component('components.forms.form', [
@@ -58,7 +58,7 @@
                                 @foreach($channels as $channel)
                                     <option value="{{ $channel->id }}"
                                             @if($commLink->channel->name === $channel->name)
-                                            selected
+                                                selected
                                             @endif
                                     >{{ $channel->name }}</option>
                                 @endforeach
@@ -75,7 +75,7 @@
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}"
                                             @if($commLink->category->name === $category->name)
-                                            selected
+                                                selected
                                             @endif
                                     >{{ $category->name }}</option>
                                 @endforeach
@@ -92,7 +92,7 @@
                                 @foreach($series as $serie)
                                     <option value="{{ $serie->id }}"
                                             @if($commLink->series->name === $serie->name)
-                                            selected
+                                                selected
                                             @endif
                                     >{{ $serie->name }}</option>
                                 @endforeach
@@ -117,8 +117,8 @@
                 <div class="tab-content" id="nav-tab-translations">
                     <div class="tab-pane fade show active" id="nav-en_EN" role="tabpanel" aria-labelledby="nav-en_EN-tab">
                         <div class="form-group">
-                            <textarea class="form-control-plaintext d-none" id="en_EN" name="en_EN">Placeholder</textarea>
-                            {!! empty($commLink->english()->translation) ? 'Nicht vorhanden' : nl2br($commLink->english()->translation) !!}
+                            <textarea class="form-control-plaintext d-none" id="en_EN" name="en_EN">@lang('Platzhalter')</textarea>
+                            {!! empty($commLink->english()->translation) ? __('Nicht vorhanden') : nl2br($commLink->english()->translation) !!}
                         </div>
                     </div>
 
@@ -129,7 +129,7 @@
                         <div class="row">
                             <div class="col-12 col-lg-6 col-xl-3">
                                 <div class="form-group">
-                                    <label for="version">Importierte Version:</label>
+                                    <label for="version">@lang('Importierte Version'):</label>
                                     <select class="form-control" id="version" name="version" disabled>
                                         @foreach($versions as $version)
                                             <option value="{{ $version['file'] }}" @if($version['file'] === $commLink->file) selected @endif>{{ $version['output'] }}</option>
@@ -144,7 +144,7 @@
                                 </p>
                                 @foreach($versions as $version)
                                     @unless(\Illuminate\Support\Str::startsWith($version['output'], 'Aktuell'))
-                                        <a class="btn btn-block btn-outline-secondary" href="{{ route('web.user.rsi.comm-links.preview', [$commLink->getRouteKey(), $version['file_clean']]) }}">Vorschau Version vom {{ $version['output'] }}</a>
+                                        <a class="btn btn-block btn-outline-secondary" href="{{ route('web.user.rsi.comm-links.preview', [$commLink->getRouteKey(), $version['file_clean']]) }}">@lang('Vorschau Version vom') {{ $version['output'] }}</a>
                                     @endunless
                                 @endforeach
                             </div>

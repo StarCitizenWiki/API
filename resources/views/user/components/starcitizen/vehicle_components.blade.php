@@ -5,12 +5,12 @@
             @foreach($components as $component)
                 <li class="mb-4">{{ $component->name }}
                     <ul>
-                        <li>Type: {{ $component->type }}</li>
-                        <li>Size: {{ $component->size }}</li>
-                        <li>Mounts: {{ $component->mounts }}</li>
-                        <li>Manufacturer: {{ $component->manufacturer }}</li>
-                        <li>Quantity: {{ $component->quantity }}</li>
-                        <li>Details: {{ $component->details }}</li>
+                        <li>@lang('Typ'): {{ $component->type }}</li>
+                        <li>@lang('Größe'): {{ $component->size }}</li>
+                        <li>@lang('Montiert'): {{ $component->mounts }}</li>
+                        <li>@lang('Hersteller'): {{ $component->manufacturer }}</li>
+                        <li>@lang('Menge'): {{ $component->quantity }}</li>
+                        <li>@lang('Details'): {{ $component->details }}</li>
                     </ul>
                 </li>
             @endforeach
