@@ -31,6 +31,17 @@ class Hardpoint extends Model
 
     public $timestamps = false;
 
+    public function getPositionAttribute(): ?string
+    {
+        preg_match(
+            '/((left|right|tail|top|bottom|front|mid|lower|upper|back|rear)_?)+/',
+            $this->hardpoint_name,
+            $matches
+        );
+
+        return $matches[0] ?? null;
+    }
+
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');

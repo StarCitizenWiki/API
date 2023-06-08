@@ -46,10 +46,18 @@ class VehicleController extends AbstractApiV2Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(UnpackedVehicle::class, $request)
+            ->withoutEagerLoads()
+            ->with(['manufacturer', 'item'])
             ->orderByDesc('name')
             ->allowedFilters([
                 AllowedFilter::partial('manufacturer', 'manufacturer.name'),
             ])
+            ->whereRelation(
+                'item',
+                'version',
+                'LIKE',
+                config('api.sc_data_version') . '%'
+            )
             ->paginate($this->limit)
             ->appends(request()->query());
 

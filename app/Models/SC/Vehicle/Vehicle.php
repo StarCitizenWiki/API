@@ -115,11 +115,13 @@ class Vehicle extends CommodityItem
     ];
 
     protected $with = [
+        'parts',
         'armor',
         'flightController',
         'quantumDrives',
         'shields',
         'thrusters',
+        'partsWithoutParent',
     ];
 
     protected $perPage = 5;
@@ -152,6 +154,34 @@ class Vehicle extends CommodityItem
     public function handling(): HasOne
     {
         return $this->hasOne(VehicleHandling::class, 'vehicle_id', 'id');
+    }
+
+    /**
+     * Parts of a vehicle that can be destroyed / have max_damage
+     *
+     * @return HasMany
+     */
+    public function parts(): HasMany
+    {
+        return $this->hasMany(
+            VehiclePart::class,
+            'vehicle_id',
+            'id',
+        )->orderByDesc('damage_max');
+    }
+
+    /**
+     * Parts of a vehicle that can be destroyed / have max_damage
+     *
+     * @return HasMany
+     */
+    public function partsWithoutParent(): HasMany
+    {
+        return $this->hasMany(
+            VehiclePart::class,
+            'vehicle_id',
+            'id',
+        )->orderByDesc('damage_max')->where('parent_id', null);
     }
 
     /**
