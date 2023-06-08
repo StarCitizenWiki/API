@@ -4,6 +4,6 @@
     @else
         {{ Carbon\Carbon::parse($expired_at)->format('d.m.Y H:i') }}
     @endif
-@else
--
+    @else
+        -
 @endunless

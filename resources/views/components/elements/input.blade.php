@@ -8,4 +8,5 @@
        @if(isset($required) && $required == '1') required @endif
        @if(isset($autofocus) && $autofocus == '1') autofocus @endif
        class="{{ $labelClass ?? 'form-control' }}"
-       {{ $inputOptions ?? '' }}>
+       {{ $inputOptions ?? '' }}
+>

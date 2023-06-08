@@ -8,12 +8,11 @@
                 <th>@lang($language->locale_code)</th>
             @endforeach
             @can('web.user.translations.update')
-                <th data-orderable="false">&nbsp;</th>
+                <th data-orderable="false"></th>
             @endcan
         </tr>
     </thead>
     <tbody>
-
     @forelse($translations as $translation)
         <tr>
             @can('web.user.internals.view')
@@ -37,7 +36,7 @@
                 </td>
             @endcan
         </tr>
-    @empty
+        @empty
         <tr>
             <td colspan="3">@lang('Keine Übersetzungen vorhanden')</td>
         </tr>

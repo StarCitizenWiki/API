@@ -23,69 +23,68 @@
                         <th>@lang('Notiz')</th>
                         <th>@lang('Update')</th>
                         @can('web.user.starcitizen.vehicles.update')
-                            <th data-orderable="false">&nbsp;</th>
+                            <th data-orderable="false"></th>
                         @endcan
                     </tr>
                 </thead>
                 <tbody>
-
-                @forelse($ships as $ship)
-                    <tr>
-                        @can('web.user.internals.view')
+                    @forelse($ships as $ship)
+                        <tr>
+                            @can('web.user.internals.view')
+                                <td>
+                                    {{ $ship->id }}
+                                </td>
+                            @endcan
                             <td>
-                                {{ $ship->id }}
+                                {{ $ship->cig_id }}
                             </td>
-                        @endcan
-                        <td>
-                            {{ $ship->cig_id }}
-                        </td>
-                        <td>
-                            {{ $ship->name }}
-                        </td>
-                        <td>
-                            {{ ($ship->msrp ?? '-') }}$
-                        </td>
-                        <td>
-                            {{ optional($ship->manufacturer)->name_short }}
-                        </td>
-                        <td>
-                            {{
-                                $ship->foci->transform(function(\App\Models\StarCitizen\Vehicle\Focus\Focus $focus) {
-                                    return optional($focus->german())->translation ?? $focus->english()->translation ?? __('Keiner');
-                                })->implode(', ')
-                            }}
-                        </td>
-                        <td>
-                            {{ optional($ship->type->german())->translation ?? $ship->type->english()->translation ?? __('Keiner') }}
-                        </td>
-                        <td>
-                            {{ optional($ship->size->german())->translation ?? $ship->size->english()->translation ?? __('Keiner') }}
-                        </td>
-                        <td>
-                            {{ optional($ship->productionStatus->german())->translation ?? $ship->productionStatus->english()->translation ?? __('Keiner') }}
-                        </td>
-                        <td>
-                            {{ optional($ship->productionNote->german())->translation ?? $ship->productionNote->english()->translation ?? __('Keine') }}
-                        </td>
-                        <td data-order="{{ $ship->updated_at->timestamp }}">
-                            {{ $ship->updated_at->diffForHumans() }}
-                        </td>
-                        @can('web.user.starcitizen.vehicles.update')
-                            <td class="text-center">
-                                @component('components.edit_delete_block')
-                                    @slot('edit_url')
-                                        {{ route('web.user.starcitizen.vehicles.ships.edit', $ship->getRouteKey()) }}
-                                    @endslot
-                                    {{ $ship->getRouteKey() }}
-                                @endcomponent
+                            <td>
+                                {{ $ship->name }}
                             </td>
-                        @endcan
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="10">@lang('Keine Raumschiffe vorhanden')</td>
-                    </tr>
-                @endforelse
+                            <td>
+                                {{ ($ship->msrp ?? '-') }}$
+                            </td>
+                            <td>
+                                {{ optional($ship->manufacturer)->name_short }}
+                            </td>
+                            <td>
+                                {{
+                                    $ship->foci->transform(function(\App\Models\StarCitizen\Vehicle\Focus\Focus $focus) {
+                                        return optional($focus->german())->translation ?? $focus->english()->translation ?? __('Keiner');
+                                    })->implode(', ')
+                                }}
+                            </td>
+                            <td>
+                                {{ optional($ship->type->german())->translation ?? $ship->type->english()->translation ?? __('Keiner') }}
+                            </td>
+                            <td>
+                                {{ optional($ship->size->german())->translation ?? $ship->size->english()->translation ?? __('Keiner') }}
+                            </td>
+                            <td>
+                                {{ optional($ship->productionStatus->german())->translation ?? $ship->productionStatus->english()->translation ?? __('Keiner') }}
+                            </td>
+                            <td>
+                                {{ optional($ship->productionNote->german())->translation ?? $ship->productionNote->english()->translation ?? __('Keine') }}
+                            </td>
+                            <td data-order="{{ $ship->updated_at->timestamp }}">
+                                {{ $ship->updated_at->diffForHumans() }}
+                            </td>
+                            @can('web.user.starcitizen.vehicles.update')
+                                <td class="text-center">
+                                    @component('components.edit_delete_block')
+                                        @slot('edit_url')
+                                            {{ route('web.user.starcitizen.vehicles.ships.edit', $ship->getRouteKey()) }}
+                                        @endslot
+                                        {{ $ship->getRouteKey() }}
+                                    @endcomponent
+                                </td>
+                            @endcan
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10">@lang('Keine Raumschiffe vorhanden')</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
