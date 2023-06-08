@@ -56,6 +56,7 @@ class HardpointResource extends AbstractBaseResource
     {
         $data = [
             'name' => $this->hardpoint_name,
+            'position' => $this->position,
             'min_size' => $this->min_size,
             'max_size' => $this->max_size,
             'class_name' => $this->class_name,

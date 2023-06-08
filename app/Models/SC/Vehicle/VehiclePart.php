@@ -37,15 +37,17 @@ class VehiclePart extends Model
     {
         $cleaned = strtolower(Str::replace('_', ' ', $this->name));
 
-        foreach (['left', 'right', 'tail', 'top', 'bottom', 'front', 'rear'] as $separator) {
-            $parts = explode(' ' . $separator, $cleaned);
+        preg_match(
+            '/((left|right|tail|top|bottom|front|mid_|lower|upper|back|rear)_?)+/',
+            strtolower($this->name),
+            $matches
+        );
 
-            if (count($parts) > 1) {
-                $first = array_shift($parts);
-                array_unshift($parts, $separator);
-                $cleaned = sprintf('%s (%s)', trim($first), ltrim(implode($parts)));
-                break;
-            }
+        if (isset($matches[0]) && $matches[0] !== strtolower($this->name)) {
+            $name = trim(str_replace('_', ' ', str_replace($matches[0], '', strtolower($this->name))));
+            $position = trim(str_replace('_', ' ', $matches[0]));
+
+            return Str::ucfirst(sprintf('%s (%s)', $name, $position));
         }
 
         return Str::ucfirst($cleaned);
