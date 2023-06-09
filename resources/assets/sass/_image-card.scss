@@ -1,0 +1,71 @@
+/* Image Type */
+.file-type {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    border-radius: 4px;
+    color: #fff !important;
+}
+
+/* Image */
+.comm-link-card-image {
+    padding: 10px 10px 0;
+}
+.card-img-top {
+    min-height: 45px;
+    border-radius: var(--border-radius);
+}
+
+/* Body */
+.image-card .card-body {
+    padding: 10px 10px 5px;
+}
+
+/* Upload */
+a.badge.badge-info.upload-btn {
+    padding: 10px;
+    margin: 0;
+    width: 100%;
+    min-width: fit-content;
+    font-size: 0.9rem;
+}
+
+/* Infos */
+.image-info-card,
+.image-info-card-bottom {
+    padding: 10px;
+    margin: 10px 0 0;
+    border-radius: var(--border-radius);
+    background-color: var(--card-line);
+}
+.image-info-card p,
+.image-info-card-bottom p {
+    margin: 0;
+    font-weight: bold;
+}
+.image-info-card-bottom {
+    margin: 0 10px 5px;
+}
+.image-info-card-bottom a {
+    margin: 0 !important;
+}
+
+/* Footer */
+.image-card .card-footer {
+    padding: 0;
+    margin: 0 10px 10px;
+    text-align: center;
+}
+/* More Infos */
+.image-card .card-footer a {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+    text-decoration: none !important;
+    border-radius: var(--border-radius);
+    background-color: var(--button);
+}
+.image-card .card-footer a:hover {
+    background-color: var(--button-hover);
+}
