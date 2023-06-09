@@ -12,7 +12,7 @@
                 <a class="btn @if($active === 50) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=50">@lang('Jeder 50te Datensatz')</a>
                 <a class="btn @if($active === 25) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=25">@lang('Jeder 25te Datensatz')</a>
                 <a class="btn @if($active === 10) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=10">@lang('Jeder 10te Datensatz')</a>
-                <a class="btn @if($active === 5) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=5">@lang('Jeder 5th Datensatz')</a>
+                <a class="btn @if($active === 5) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=5">@lang('Jeder 5te Datensatz')</a>
                 <a class="btn @if($active === 0) btn-dark @else btn-outline-dark @endif" href="{{ route('web.user.rsi.stat.index') }}?skip=0">@lang('Alle Daten')</a>
             </div>
             <div class="mt-3">

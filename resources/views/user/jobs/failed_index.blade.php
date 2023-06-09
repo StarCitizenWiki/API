@@ -11,8 +11,8 @@
                     <tr>
                         <th>@lang('ID')</th>
                         <th>@lang('Verbindung')</th>
-                        <th>@lang('Stichwort')</th>
-                        <th>@lang('Nutzlast') / @lang('Ausnahme')</th>
+                        <th>@lang('Queue')</th>
+                        <th>@lang('Payload') / @lang('Exception')</th>
                         <th>@lang('Datum')</th>
                     </tr>
                 </thead>

@@ -27,14 +27,14 @@
                 @component('components.elements.icon', ['class' => 'mr-1'])
                     moon
                 @endcomponent
-                Darkmode
+                @lang('Dunkel modus')
             </a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">
                 @component('components.elements.icon', ['class' => 'mr-1'])
                     sun
                 @endcomponent
-                Whitemode
+                @lang('Heller modus')
             </a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">

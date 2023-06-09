@@ -10531,7 +10531,7 @@ a.font-italic:hover {
   --table-item-odd: #efeded90;
 }
 
-:root.darkmod {
+:root.darkmode {
   --body-background: #14181f;
   --scrollbar-track: #14181f;
   --scrollbar-thumb: #293044;
