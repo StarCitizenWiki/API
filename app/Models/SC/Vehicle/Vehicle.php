@@ -115,7 +115,6 @@ class Vehicle extends CommodityItem
     ];
 
     protected $with = [
-        'parts',
         'armor',
         'flightController',
         'quantumDrives',

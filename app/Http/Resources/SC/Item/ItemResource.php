@@ -92,6 +92,18 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'vehicle_weapon', ref: '#/components/schemas/vehicle_weapon_v2', nullable: true),
         new OA\Property(property: 'dimension', ref: '#/components/schemas/item_dimension_v2'),
         new OA\Property(property: 'inventory', ref: '#/components/schemas/item_container_v2', nullable: true),
+        new OA\Property(
+            property: 'tags',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'required_tags',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true,
+        ),
         new OA\Property(property: 'ports', ref: '#/components/schemas/item_port_data_v2', nullable: true),
         new OA\Property(property: 'heat', ref: '#/components/schemas/item_heat_data_v2', nullable: true),
         new OA\Property(property: 'power', ref: '#/components/schemas/item_power_data_v2', nullable: true),
@@ -159,6 +171,8 @@ class ItemResource extends AbstractTranslationResource
             $this->mergeWhen($this->container->exists, [
                 'inventory' => new ItemContainerResource($this->container),
             ]),
+            'tags' => $this->defaultTags->pluck('name')->toArray(),
+            'required_tags' => $this->requiredTags->pluck('name')->toArray(),
             'ports' => ItemPortResource::collection($this->whenLoaded('ports')),
             $this->mergeWhen($this->relationLoaded('heatData'), [
                 'heat' => new ItemHeatDataResource($this->heatData),

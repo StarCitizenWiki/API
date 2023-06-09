@@ -75,6 +75,8 @@ class Item extends HasTranslations
         'durabilityData',
         'descriptionData',
         'translations',
+        'defaultTags',
+        'requiredTags',
     ];
 
     public function translations(): HasMany
@@ -355,5 +357,27 @@ class Item extends HasTranslations
     public function manufacturer(): HasOne
     {
         return $this->hasOne(Manufacturer::class, 'id', 'manufacturer_id');
+    }
+
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Tag::class,
+            'sc_item_tag',
+            'item_id',
+            'tag_id'
+        )
+            ->using(ItemTag::class);
+    }
+
+    public function defaultTags(): BelongsToMany
+    {
+        return $this->tags()->wherePivot('is_required_tag', false);
+    }
+
+    public function requiredTags(): BelongsToMany
+    {
+        return $this->tags()->wherePivot('is_required_tag', true);
     }
 }

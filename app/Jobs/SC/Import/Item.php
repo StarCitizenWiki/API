@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\SC\Import;
 
 use App\Models\SC\Item\ItemPort;
+use App\Models\SC\Item\Tag;
 use App\Models\SC\Manufacturer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -80,6 +81,8 @@ class Item implements ShouldQueue
         $this->createHeatModel($itemModel);
         $this->createDistortionModel($itemModel);
         $this->createDurabilityModel($itemModel);
+        $this->addTags($itemModel, $this->data, 'tags');
+        $this->addTags($itemModel, $this->data, 'required_tags', true);
     }
 
     private function createDimensionModel(\App\Models\SC\Item\Item $itemModel): void
@@ -127,7 +130,7 @@ class Item implements ShouldQueue
         if (!empty($this->data['ports'])) {
             collect($this->data['ports'])->each(function (array $port) use ($itemModel) {
                 /** @var ItemPort $port */
-                $itemModel->ports()->updateOrCreate([
+                $portModel = $itemModel->ports()->updateOrCreate([
                     'name' => $port['name'],
                 ], [
                     'display_name' => $port['display_name'],
@@ -136,6 +139,9 @@ class Item implements ShouldQueue
                     'max_size' => $port['max_size'],
                     'position' => $port['position'],
                 ]);
+
+                $this->addTags($portModel, $port, 'tags');
+                $this->addTags($portModel, $port, 'required_tags', true);
             });
         }
     }
@@ -216,5 +222,25 @@ class Item implements ShouldQueue
                 'repairable' => $this->data['durability']['repairable'] ?? null,
             ]);
         }
+    }
+
+    private function addTags($model, $data, string $key, bool $isRequiredTag = false): void
+    {
+        if (empty($data[$key])) {
+            return;
+        }
+
+        $tags = collect(explode(' ', $data[$key]))
+            ->map('trim')
+            ->map('strtolower')
+            ->map(function ($tag) {
+                $tag = Tag::query()->firstOrCreate([
+                    'name' => $tag
+                ]);
+
+                return $tag->id;
+            });
+
+        $model->tags()->syncWithPivotValues($tags, ['is_required_tag' => $isRequiredTag]);
     }
 }

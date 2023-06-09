@@ -7,14 +7,16 @@ namespace App\Models\SC\Item;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ItemPort extends Model
 {
     use HasFactory;
 
     protected $with = [
-        'item'
+        'item',
+        'defaultTags',
+        'requiredTags',
     ];
 
     protected $table = 'sc_item_ports';
@@ -61,5 +63,26 @@ class ItemPort extends Model
             'weapon_action_attachment' => 'Weapon Action',
             default => $default,
         };
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Tag::class,
+            'sc_item_port_tag',
+            'item_port_id',
+            'tag_id'
+        )
+            ->using(ItemPortTag::class);
+    }
+
+    public function defaultTags(): BelongsToMany
+    {
+        return $this->tags()->wherePivot('is_required_tag', false);
+    }
+
+    public function requiredTags(): BelongsToMany
+    {
+        return $this->tags()->wherePivot('is_required_tag', true);
     }
 }

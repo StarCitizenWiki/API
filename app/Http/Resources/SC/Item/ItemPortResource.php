@@ -19,6 +19,18 @@ use OpenApi\Attributes as OA;
             new OA\Property(property: 'min', type: 'integer', nullable: true),
             new OA\Property(property: 'max', type: 'integer', nullable: true),
         ], type: 'object'),
+        new OA\Property(
+            property: 'tags',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true,
+        ),
+        new OA\Property(
+            property: 'required_tags',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true,
+        ),
         new OA\Property(property: 'equipped_item', ref: '#/components/schemas/item_v2', nullable: true),
     ],
     type: 'object'
@@ -31,7 +43,7 @@ class ItemPortResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'name' => $this->name,
@@ -41,6 +53,8 @@ class ItemPortResource extends AbstractBaseResource
                 'min' => $this->min_size,
                 'max' => $this->max_size,
             ],
+            'tags' => $this->defaultTags->pluck('name')->toArray(),
+            'required_tags' => $this->requiredTags->pluck('name')->toArray(),
             'equipped_item' => new ItemResource($this->whenLoaded('item'))
         ];
     }
