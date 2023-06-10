@@ -20,7 +20,7 @@
                                         if (is_array($change['old'])) {
                                             $str[] = ucfirst($key).": ".implode(', ', $change['old'])." <i class='fa fa-right-long'></i> ".implode(', ', $change['new']);
                                         } else {
-                                            $str[] = ucfirst($key).": ".\Illuminate\Support\Str::limit($change['old'], 40, "...")." <i class='fa fa-right-long'></i> ".\Illuminate\Support\Str::limit($change['new'], 40, "...");
+                                            $str[] = ucfirst($key).": ".\Illuminate\Support\Str::limit($change['old'], 40, "&hellip;")." <i class='fa fa-right-long'></i> ".\Illuminate\Support\Str::limit($change['new'], 40, "&hellip;");
                                         }
                                     }
                                     $str = implode('<br>', $str);
