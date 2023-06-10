@@ -44,28 +44,21 @@ if (document.getElementById('celestial-object-generator')) {
 window.snarkdown = snarkdown;
 
 (() => {
-    const changeButtonText = () => {
-        let text = 'Darkmode';
-        if (document.body.parentElement.classList.contains('darkmode')) {
-            text = 'Darkmode';
-        }
-        document.querySelector('#darkmode-toggle span').textContent = text;
-    };
-
-    if (document.body.parentElement.classList.contains('darkmode')) {
-        changeButtonText();
-        document.querySelector('#darkmode-toggle i').classList.remove('fa-toggle-off');
-        document.querySelector('#darkmode-toggle i').classList.add('fa-toggle-on');
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('darkmode-toggle').addEventListener('click', (e) => {
-            document.body.parentElement.classList.toggle('darkmode');
-            e.target.parentElement.querySelector('svg').classList.toggle('fa-toggle-on');
-            e.target.parentElement.querySelector('svg').classList.toggle('fa-toggle-off');
+        document.querySelectorAll('#theme-selector .dropdown-menu a').forEach(a => {
+            a.addEventListener('click', (e) => {
+                document.body.parentElement.classList.remove('darkmode');
+                document.body.parentElement.classList.remove('spacetheme');
+                document.body.parentElement.classList.add(a.id);
 
-            window.localStorage.setItem('darkmode', document.body.parentElement.classList.contains('darkmode') ? 'on' : 'off');
-            changeButtonText();
-        });
+                a.parentElement.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                a.classList.add('active');
+
+                window.localStorage.setItem('theme', a.id);
+                if (a.id === 'light') {
+                    window.localStorage.removeItem('theme');
+                }
+            });
+        })
     });
 })();

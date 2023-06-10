@@ -15,7 +15,7 @@
     </div>
 @endcomponent
 @component('components.navs.nav_element')
-    <div class="nav-item dropdown">
+    <div class="nav-item dropdown" id="theme-selector">
         <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
             @component('components.elements.icon', ['class' => 'mr-1'])
                 palette
@@ -23,21 +23,21 @@
             Themes
         </button>
         <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">
+            <a class="dropdown-item" id="darkmode" href="#">
                 @component('components.elements.icon', ['class' => 'mr-1'])
                     moon
                 @endcomponent
                 @lang('Dunkel modus')
             </a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">
+            <a class="dropdown-item" id="light" href="#">
                 @component('components.elements.icon', ['class' => 'mr-1'])
                     sun
                 @endcomponent
                 @lang('Heller modus')
             </a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">
+            <a class="dropdown-item" id="spacetheme" href="#">
                 @component('components.elements.icon', ['class' => 'mr-1'])
                     user-astronaut
                 @endcomponent

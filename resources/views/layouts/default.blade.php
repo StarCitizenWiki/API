@@ -3,7 +3,7 @@
 @section('body--class', 'bg-light')
 
 @section('body__content')
-    <script>(()=>{'on'===window.localStorage.getItem("darkmode")&&document.body.parentElement.classList.add("darkmode");})();</script>
+    <script>(()=>{const t=window.localStorage.getItem('theme');null!==t&&document.body.parentElement.classList.add(t);})();</script>
     @component('components.elements.container', ['type' => 'fluid'])
         {{-- Container Config --}}
         @slot('class')

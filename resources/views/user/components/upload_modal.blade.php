@@ -30,7 +30,7 @@
                             <label for="categories">@lang('Kategorien')</label>
                             <input type="text" class="form-control" id="categories">
                             <div id="category-pills">
-                                <span class="badge badge-secondary" role="button">@lang('Galerie')</span>
+                                <span class="badge badge-secondary" role="button">Galerie</span>
                             </div>
                             <small id="categoriesHelpBlock" class="form-text text-muted">
                                 @lang('Liste von Kategorien, getrennt durch ein Komma.<br>Die Kategorie des Comm-Links wird automatisch hinzugefügt.')
