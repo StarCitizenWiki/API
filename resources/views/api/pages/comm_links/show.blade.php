@@ -68,7 +68,7 @@
 
             <div class="tab-content" id="nav-tab-translations">
                 <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                    {!! empty($commLink->english()->translation) ? '@lang('Nicht vorhanden')' : nl2br($commLink->english()->translation) !!}
+                    {!! empty($commLink->english()->translation) ? __('Nicht vorhanden') : nl2br($commLink->english()->translation) !!}
                 </div>
 
                 <div class="tab-pane fade" id="links" role="tabpanel" aria-labelledby="nav-links-tab">
@@ -131,7 +131,7 @@
                             <th>@lang('URL')</th>
                             <td>
                                 <a href="https://robertsspaceindustries.com{{ $commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank">
-                                    {{ $commLink->url ?? '@lang('Keine Original URL vorhanden')' }}
+                                    {{ $commLink->url ?? __('Keine Original URL vorhanden') }}
                                 </a>
                             </td>
                         </tr>
