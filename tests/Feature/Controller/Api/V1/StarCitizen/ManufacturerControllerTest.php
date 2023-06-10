@@ -204,9 +204,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                 ]
             )
             ->assertJsonCount($manufacturer->ships()->count(), 'data.ships.data')
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**
@@ -245,9 +243,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
             )
             ->assertJsonCount($manufacturer->ships()->count(), 'data.ships.data')
             ->assertJsonCount($manufacturer->vehicles()->count(), 'data.vehicles.data')
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**
@@ -271,9 +267,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
                     ],
                 ]
             )
-            ->assertHeader('content-type', 'application/json')
-            ->assertHeader('x-ratelimit-limit')
-            ->assertHeader('etag');
+            ->assertHeader('content-type', 'application/json');
     }
 
     /**

@@ -7,10 +7,10 @@ namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\WeaponPersonal;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\StarCitizenUnpacked\WeaponPersonal\WeaponPersonal;
 use App\Transformers\Api\V1\StarCitizenUnpacked\WeaponPersonal\WeaponPersonalTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
 class WeaponPersonalController extends ApiController
@@ -55,7 +55,7 @@ class WeaponPersonalController extends ApiController
                 })
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $weapon));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $weapon)], 404);
         }
 
         return $this->getResponse($weapon);

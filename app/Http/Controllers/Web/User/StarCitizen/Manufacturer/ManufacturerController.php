@@ -6,12 +6,11 @@ namespace App\Http\Controllers\Web\User\StarCitizen\Manufacturer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StarCitizen\Manufacturer\ManufacturerTranslationRequest;
+use App\Models\StarCitizen\Manufacturer\Manufacturer;
 use App\Models\System\Language;
-use Dingo\Api\Dispatcher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class ManufacturerController
@@ -21,21 +20,12 @@ class ManufacturerController extends Controller
     private const MANUFACTURER_PERMISSION = 'web.user.starcitizen.manufacturers.update';
 
     /**
-     * @var Dispatcher
-     */
-    protected Dispatcher $api;
-
-    /**
      * ManufacturerController constructor.
-     *
-     * @param Dispatcher $dispatcher
      */
-    public function __construct(Dispatcher $dispatcher)
+    public function __construct()
     {
         parent::__construct();
         $this->middleware('auth')->except('index');
-        $this->api = $dispatcher;
-        $this->api->be(Auth::user());
     }
 
     /**
@@ -43,12 +33,11 @@ class ManufacturerController extends Controller
      */
     public function index(): View
     {
-        $manufacturers = $this->api->get('api/manufacturers', ['limit' => 0]);
-
         return view(
             'user.starcitizen.manufacturers.index',
             [
-                'manufacturers' => $manufacturers,
+                'manufacturers' => Manufacturer::all(),
+                'manufacturers_ingame' => \App\Models\SC\Manufacturer::query()->groupBy('name')->orderBy('name')->get(),
             ]
         );
     }
@@ -66,7 +55,10 @@ class ManufacturerController extends Controller
     {
         $this->authorize(self::MANUFACTURER_PERMISSION);
 
-        $manufacturer = $this->api->get("api/manufacturers/{$manufacturer}");
+        $manufacturer = Manufacturer::query()
+            ->where('name', $manufacturer)
+            ->orWhere('name_short', $manufacturer)
+            ->firstOrFail();
 
         return view(
             'user.starcitizen.manufacturers.edit',
@@ -95,7 +87,10 @@ class ManufacturerController extends Controller
         $this->authorize(self::MANUFACTURER_PERMISSION);
 
         $data = $request->validated();
-        $manufacturer = $this->api->get("api/manufacturers/{$manufacturer}");
+        $manufacturer = Manufacturer::query()
+            ->where('name', $manufacturer)
+            ->orWhere('name_short', $manufacturer)
+            ->firstOrFail();
 
         $localeCodes = Language::all('locale_code')->keyBy('locale_code');
 

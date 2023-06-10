@@ -368,10 +368,17 @@ FORMAT;
             });
 
         $properties = $properties->map(function ($item, $key) {
+            try {
+                $value = DeepLyFacade::translate($item, config('services.deepl.target_locale'), 'EN');
+            } catch (Exception $e) {
+                app('Log')::warning($e->getMessage());
+                $value = $item;
+            }
+
             return sprintf(
                 "|%s=%s",
                 $key,
-                DeepLyFacade::translate($item, config('services.deepl.target_locale'), 'EN')
+                $value
             );
         })
             ->implode("\n");

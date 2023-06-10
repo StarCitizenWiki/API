@@ -5,8 +5,6 @@
 @section('head__content')
     @parent
     <style>
-
-
         span ul {
             margin-bottom: 0;
         }
@@ -18,36 +16,35 @@
         <div class="card-header d-flex">
             <h4 class="mb-0 pt-1">@lang('Comm-Links')</h4>
             @unless(empty($commLinks) || !method_exists($commLinks, 'links'))
-            <span class="d-flex ml-auto">{{ $commLinks->links() }}</span>
+                <span class="d-flex ml-auto">{{ $commLinks->links() }}</span>
             @endunless
         </div>
         <div class="card-body px-0 table-responsive">
-            <table class="table table-striped mb-0" data-order='[[ 0, "desc" ]]' data-page-length="50" data-length-menu='[ [25, 50, 100, -1], [25, 50, 100, "Alle"] ]'>
+            <table class="table table-striped mb-0" data-order='[[ 0, "desc" ]]' data-page-length="50" data-length-menu='[ [25, 50, 100, -1], [25, 50, 100, "@lang('Alle')"] ]'>
                 <thead>
-                <tr>
-                    @can('web.user.internals.view')
-                        <th>@lang('ID')</th>
-                    @endcan
-                    <th>@lang('CIG ID')</th>
-                    <th>@lang('Titel')</th>
-                    <th>@lang('Bilder')</th>
-                    <th>@lang('Links')</th>
-                    <th>@lang('Inhalt')</th>
-                    <th>@lang('Übersetzt')</th>
-                    <th>@lang('Channel')</th>
-                    <th>@lang('Kategorie')</th>
-                    <th>@lang('Serie')</th>
-                    <th>@lang('Veröffentlichung')</th>
-                    @if(isset($appends) && !empty($appends))
-                        @foreach($appends as $append)
-                            <th>{{$append}}</th>
-                        @endforeach
-                    @endif
-                    <th data-orderable="false">&nbsp;</th>
-                </tr>
+                    <tr>
+                        @can('web.user.internals.view')
+                            <th>@lang('ID')</th>
+                        @endcan
+                        <th>@lang('CIG ID')</th>
+                        <th>@lang('Titel')</th>
+                        <th>@lang('Bilder')</th>
+                        <th>@lang('Links')</th>
+                        <th>@lang('Inhalt')</th>
+                        <th>@lang('Übersetzt')</th>
+                        <th>@lang('Channel')</th>
+                        <th>@lang('Kategorie')</th>
+                        <th>@lang('Serie')</th>
+                        <th>@lang('Veröffentlichung')</th>
+                        @if(isset($appends) && !empty($appends))
+                            @foreach($appends as $append)
+                                <th>{{$append}}</th>
+                            @endforeach
+                        @endif
+                        <th data-orderable="false"></th>
+                    </tr>
                 </thead>
                 <tbody>
-
                 @forelse($commLinks as $commLink)
                     <tr>
                         @can('web.user.internals.view')
@@ -68,19 +65,19 @@
                             {{ $commLink->links_count }}
                         </td>
                         <td>
-                            {{ optional($commLink->english())->translation ? 'Ja' : 'Nein' }}
+                            {{ optional($commLink->english())->translation ? __('Ja') : __('Nein') }}
                         </td>
                         @php
                             if (null !== $commLink->german()) {
                                 $status = 'warning';
-                                $text = 'Automatisch';
+                                $text = __('Automatisch');
                                 if ($commLink->german()->proofread === 1) {
                                     $status = 'success';
-                                    $text = 'Ja';
+                                    $text = __('Ja');
                                 }
                             } else {
                                 $status = 'danger';
-                                $text = 'Nein';
+                                $text = __('Nein');
                                 if (empty($commLink->english()->translation)) {
                                     $status = 'normal';
                                     $text = '-';

@@ -189,6 +189,7 @@ class Item extends HasTranslations
             case $this->type === 'FuelIntake':
                 return $this->hasOne(FuelIntake::class, 'uuid', 'uuid')->withDefault();
 
+            case $this->type === 'ToolArm':
             case $this->type === 'Turret':
             case $this->type === 'TurretBase':
             case $this->type === 'MiningArm':
@@ -213,6 +214,10 @@ class Item extends HasTranslations
 
             case $this->type === 'WeaponMining':
                 return $this->hasOne(MiningLaser::class, 'uuid', 'uuid')->withDefault();
+
+            case $this->type === 'Cargo':
+            case $this->type === 'CargoGrid':
+                return $this->hasOne(CargoGrid::class, 'uuid', 'uuid')->withDefault();
 
             default:
                 return $this->hasOne(CharArmor::class, 'uuid', 'type'); //NULL

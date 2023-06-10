@@ -7,6 +7,9 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 /**
@@ -58,6 +61,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if ($request->is('api*')) {
+            return $this->returnApiResponse($request, $exception);
+        }
+
         return parent::render($request, $exception);
     }
 
@@ -86,5 +93,46 @@ class Handler extends ExceptionHandler
     protected function wantsJson($request): bool
     {
         return $request->wantsJson() || $request->query('format', null) === 'json';
+    }
+
+    /**
+     * Get the status code from the exception.
+     *
+     * @param Throwable $exception
+     * @return int
+     */
+    protected function getStatusCode(Throwable $exception): int
+    {
+        $statusCode = null;
+
+        if ($exception instanceof ValidationException) {
+            $statusCode = $exception->status;
+        } elseif ($exception instanceof HttpExceptionInterface) {
+            $statusCode = $exception->getStatusCode();
+        } else {
+            // By default throw 500
+            $statusCode = 500;
+        }
+
+        // Be extra defensive
+        if ($statusCode < 100 || $statusCode > 599) {
+            $statusCode = 500;
+        }
+
+        return $statusCode;
+    }
+
+    private function returnApiResponse($request, Throwable $exception)
+    {
+        $request->headers->set('Accept', 'application/json');
+
+        if (config('app.debug')) {
+            return parent::render($request, $exception);
+        }
+
+        return new Response([
+            'code' => $this->getStatusCode($exception),
+            'message' => $exception->getMessage(),
+        ], $this->getStatusCode($exception));
     }
 }

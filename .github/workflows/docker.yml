@@ -13,7 +13,7 @@ jobs:
       - name: Installing PHP
         uses: shivammathur/setup-php@master
         with:
-          php-version: '8.1'
+          php-version: '8.2'
       - name: Get Composer Cache Directory 2
         id: composer-cache
         run: |

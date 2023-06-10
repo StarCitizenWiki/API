@@ -41,12 +41,12 @@
                             </a>
 
                             @unless(empty($commLink->english()->translation))
-                            <a class="nav-item nav-link" id="nav-de_DE-tab" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}" aria-selected="false" target="_blank">
-                                @lang('de_DE') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
-                            </a>
+                                <a class="nav-item nav-link" id="nav-de_DE-tab" href="{{ config('api.wiki_url') }}/Comm-Link:{{ $commLink->cig_id }}" aria-selected="false" target="_blank">
+                                    @lang('de_DE') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
+                                </a>
                             @endunless
 
-                            <a class="nav-item nav-link" id="nav-api-tab" href="{{ app('api.url')->version('v1')->route('api.v1.rsi.comm-links.show', $commLink->cig_id) }}" aria-selected="false" target="_blank">
+                            <a class="nav-item nav-link" id="nav-api-tab" href="{{ route('api.v2.cl.show', $commLink->cig_id) }}" aria-selected="false" target="_blank">
                                 @lang('API') <em class="fa fa-external-link-alt fa-sm" data-fa-transform="up-2"></em>
                             </a>
 
@@ -71,12 +71,12 @@
                             </a>
 
                             @can('web.user.rsi.comm-links.update')
-                            <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.user.rsi.comm-links.edit', $commLink->getRouteKey()) }}">
-                                @lang('Metadaten') @lang('bearbeiten')
-                            </a>
-                            <a class="nav-item nav-link" id="nav-deepl-tab" aria-selected="false" data-toggle="tab" href="#deepl" role="tab" aria-controls="deepl">
-                                @lang('DeepL Übersetzung')
-                            </a>
+                                <a class="nav-item nav-link" aria-selected="false" href="{{ route('web.user.rsi.comm-links.edit', $commLink->getRouteKey()) }}">
+                                    @lang('Metadaten') @lang('bearbeiten')
+                                </a>
+                                <a class="nav-item nav-link" id="nav-deepl-tab" aria-selected="false" data-toggle="tab" href="#deepl" role="tab" aria-controls="deepl">
+                                    @lang('DeepL Übersetzung')
+                                </a>
                             @endcan
                         </div>
                     </nav>
@@ -89,7 +89,7 @@
                         <div class="tab-pane fade" id="links" role="tabpanel" aria-labelledby="nav-links-tab">
                             <ul>
                                 @forelse($commLink->links as $link)
-                                    <li><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> &mdash; {{ $link->href }}</li>
+                                    <li><a href="{{ $link->href }}" target="_blank">{{ $link->text }}</a> - {{ $link->href }}</li>
                                 @empty
                                     <li>@lang('Keine Links vorhanden')</li>
                                 @endforelse
@@ -112,7 +112,7 @@
                             @component('user.components.changelog_list', [
                                 'changelogs' => $changelogs,
                             ])
-                                Comm-Link
+                                @lang('Comm-Link')
                             @endcomponent
                         </div>
 
@@ -172,7 +172,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">@lang('Url')</th>
+                            <th scope="row">@lang('URL')</th>
                             <td>
                                 <a href="https://robertsspaceindustries.com{{ $commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API" }}" target="_blank" style="word-break: break-all">
                                     {{ $commLink->url ?? __('Keine Original URL vorhanden') }}

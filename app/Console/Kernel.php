@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
+use App\Console\Commands\CopyTranslationData;
 use App\Console\Commands\FixChangelogNamespaces;
 use App\Console\Commands\PopulateData;
 use App\Console\Commands\Rsi\CommLink\CommLinkSchedule;
@@ -33,24 +34,23 @@ use App\Console\Commands\StarCitizen\Starmap\Import\ImportStarmap;
 use App\Console\Commands\StarCitizen\Starmap\Translate\TranslateSystems;
 use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
 use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
+use App\Console\Commands\StarCitizen\Vehicle\ImportLoaner;
 use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
-use App\Console\Commands\StarCitizenUnpacked\ImportCharArmor;
-use App\Console\Commands\StarCitizenUnpacked\ImportClothing;
-use App\Console\Commands\StarCitizenUnpacked\ImportFood;
-use App\Console\Commands\StarCitizenUnpacked\ImportShipItems;
-use App\Console\Commands\StarCitizenUnpacked\ImportShopItems;
-use App\Console\Commands\StarCitizenUnpacked\ImportVehicles;
-use App\Console\Commands\StarCitizenUnpacked\ImportWeaponAttachments;
-use App\Console\Commands\StarCitizenUnpacked\ImportWeaponPersonal;
-use App\Console\Commands\StarCitizenUnpacked\TranslateItems;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCharArmorWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateClothingWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateCommodityWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateFoodWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateShipItemWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponAttachmentWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\CreateWeaponPersonalWikiPages;
-use App\Console\Commands\StarCitizenUnpacked\Wiki\UploadItemImages;
+use App\Console\Commands\SC\ImportClothing;
+use App\Console\Commands\SC\ImportItems;
+use App\Console\Commands\SC\ImportPersonalWeapons;
+use App\Console\Commands\SC\ImportShops;
+use App\Console\Commands\SC\ImportVehicleItems;
+use App\Console\Commands\SC\ImportVehicles;
+use App\Console\Commands\SC\TranslateItems;
+use App\Console\Commands\SC\Wiki\CreateCharArmorWikiPages;
+use App\Console\Commands\SC\Wiki\CreateClothingWikiPages;
+use App\Console\Commands\SC\Wiki\CreateCommodityWikiPages;
+use App\Console\Commands\SC\Wiki\CreateFoodWikiPages;
+use App\Console\Commands\SC\Wiki\CreateShipItemWikiPages;
+use App\Console\Commands\SC\Wiki\CreateWeaponAttachmentWikiPages;
+use App\Console\Commands\SC\Wiki\CreateWeaponWikiPages;
+use App\Console\Commands\SC\Wiki\UploadItemImages;
 use App\Console\Commands\Transcript\ImportMetadata;
 use App\Console\Commands\Transcript\TranslateTranscripts;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
@@ -74,6 +74,7 @@ class Kernel extends ConsoleKernel
         ImportShipMatrix::class,
 
         ImportMsrp::class,
+        ImportLoaner::class,
 
         DownloadStats::class,
         ImportStats::class,
@@ -113,14 +114,12 @@ class Kernel extends ConsoleKernel
 
         FixChangelogNamespaces::class,
 
+        ImportItems::class,
         ImportVehicles::class,
-        ImportWeaponPersonal::class,
-        ImportWeaponAttachments::class,
-        ImportCharArmor::class,
+        ImportShops::class,
         ImportClothing::class,
-        ImportShopItems::class,
-        ImportShipItems::class,
-        ImportFood::class,
+        ImportVehicleItems::class,
+        ImportPersonalWeapons::class,
 
         TranslateItems::class,
 
@@ -129,12 +128,14 @@ class Kernel extends ConsoleKernel
         CreateClothingWikiPages::class,
         CreateShipItemWikiPages::class,
         CreateWeaponAttachmentWikiPages::class,
-        CreateWeaponPersonalWikiPages::class,
+        CreateWeaponWikiPages::class,
         CreateFoodWikiPages::class,
         UploadItemImages::class,
 
 
         PopulateData::class,
+
+        CopyTranslationData::class,
     ];
 
     /**
@@ -200,7 +201,7 @@ class Kernel extends ConsoleKernel
         /* Check for new Comm-Links */
         $this->schedule
             ->command(CommLinkSchedule::class)
-            ->hourlyAt(5);
+            ->everyFifteenMinutes();
 
         /* Run CommLink Notification only once each day */
         $this->schedule->call(function () {

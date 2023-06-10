@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders\System;
 
+use App\Models\System\Language;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,9 +16,13 @@ class LanguageTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-        $now = \Carbon\Carbon::now();
+        if (DB::table('languages')->where('locale_code', 'en_EN')->exists()) {
+            return;
+        }
+
+        $now = Carbon::now();
 
         DB::table('languages')->insert(
             [

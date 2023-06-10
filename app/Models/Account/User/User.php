@@ -44,14 +44,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'last_login',
-    ];
-
     protected $casts = [
         'blocked' => 'bool',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'last_login' => 'datetime',
     ];
 
     /**
@@ -67,7 +64,7 @@ class User extends Authenticatable
      */
     public function getHighestPermissionLevel(): int
     {
-        return $this->groups->first()->permission_level;
+        return $this->groups()->orderBy('permission_level')->first()->permission_level;
     }
 
     /**

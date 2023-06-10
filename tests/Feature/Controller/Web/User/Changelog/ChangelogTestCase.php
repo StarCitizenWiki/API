@@ -3,7 +3,6 @@
 namespace Tests\Feature\Controller\Web\User\Changelog;
 
 use App\Http\Controllers\Web\User\Changelog\ChangelogController;
-use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
@@ -26,18 +25,5 @@ class ChangelogTestCase extends UserTestCase
         if ($response->status() === Response::HTTP_OK) {
             $response->assertSee(__('Änderungsübersicht'));
         }
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\User\Changelog\ChangelogController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(ChangelogController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects($this->once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(ChangelogController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
     }
 }

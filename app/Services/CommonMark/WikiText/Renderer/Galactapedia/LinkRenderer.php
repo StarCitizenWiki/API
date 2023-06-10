@@ -39,6 +39,12 @@ class LinkRenderer implements NodeRendererInterface
 
         $urlText = $childRenderer->renderNodes($node->children());
 
+        $url = parse_url($node->getUrl());
+        if ($url === false) {
+            app('Log')::error(sprintf('URL "%s" could not be parsed.', $node->getUrl()));
+            return $node->getUrl();
+        }
+
         $path = parse_url($node->getUrl())['path'];
         $id = last(explode('/', $path));
         $id = explode('-', $id)[0];

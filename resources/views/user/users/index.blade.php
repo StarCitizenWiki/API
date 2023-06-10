@@ -56,17 +56,25 @@
                             {{ $user->changelogs_count }}
                         </td>
                         <td>
-                            @if($user->receiveApiNotifications())
-                            &check;
+                        @if($user->receiveApiNotifications())
+                                @component('components.elements.icon')
+                                    check
+                                @endcomponent
                             @else
-                            &cross;
+                                @component('components.elements.icon')
+                                    close
+                                @endcomponent
                             @endif
                         </td>
                         <td>
                             @if($user->receiveCommLinkNotifications())
-                            &check;
+                                @component('components.elements.icon')
+                                    check
+                                @endcomponent
                             @else
-                            &cross;
+                                @component('components.elements.icon')
+                                    close
+                                @endcomponent
                             @endif
                         </td>
                         <td data-content="{{ $user->last_login->format('d.m.Y H:i:s') }}" data-toggle="popover">

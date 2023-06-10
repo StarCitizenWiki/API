@@ -7,7 +7,6 @@ namespace Tests\Feature\Controller\Web\User\StarCitizen\Vehicle\GroundVehicle;
 use App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController;
 use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
-use Dingo\Api\Dispatcher;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\Feature\Controller\Web\User\StarCitizen\StarCitizenTestCase;
@@ -25,7 +24,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      * Test Index
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::index
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::index
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      */
     public function testIndex()
     {
@@ -50,7 +49,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      * Test Edit
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::edit
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController::show
      */
     public function testEdit()
     {
@@ -76,7 +75,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      * Test Edit
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::edit
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      *
      * @covers \App\Exceptions\Handler
      */
@@ -97,7 +96,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::update
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      *
      * @covers \App\Http\Requests\System\TranslationRequest
      *
@@ -126,7 +125,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\User\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::update
-     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::show
+     * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
      *
      * @covers \App\Exceptions\Handler
      */

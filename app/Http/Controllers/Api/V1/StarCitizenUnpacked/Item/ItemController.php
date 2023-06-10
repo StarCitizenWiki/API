@@ -7,13 +7,12 @@ namespace App\Http\Controllers\Api\V1\StarCitizenUnpacked\Item;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Models\StarCitizenUnpacked\Item;
-use App\Services\Parser\StarCitizenUnpacked\Shops\Inventory;
+use App\Services\Parser\SC\Shops\Inventory;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ItemTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class ItemController extends ApiController
@@ -61,7 +60,7 @@ class ItemController extends ApiController
             )
         ]
     )]
-    public function index(): Response
+    public function index(): \Illuminate\Http\Response
     {
         return $this->getResponse(Item::query()->orderBy('name'));
     }
@@ -128,7 +127,7 @@ class ItemController extends ApiController
                 ->orWhere('uuid', $item)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $item));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $item)], 404);
         }
 
         return $this->getResponse($item);
@@ -205,7 +204,7 @@ class ItemController extends ApiController
                 ->orWhere('type', $query)
                 ->orWhere('sub_type', $query);
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $query)], 404);
         }
 
         return $this->getResponse($item);

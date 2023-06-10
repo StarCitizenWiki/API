@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Traits\Jobs\CheckRsiDataStructureTrait as CheckRsiDataStructure;
-use Goutte\Client as GoutteClient;
+use Symfony\Component\BrowserKit\HttpBrowser;
 use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
@@ -34,7 +34,7 @@ abstract class AbstractBaseDownloadData
     protected static $cookieJar;
 
     /**
-     * @var GoutteClient
+     * @var HttpBrowser
      */
     protected static $scraper;
 
@@ -103,11 +103,11 @@ abstract class AbstractBaseDownloadData
     /**
      * Add Guzzle Cookies to Goutte.
      *
-     * @param GoutteClient $client
+     * @param HttpBrowser $client
      *
-     * @return GoutteClient
+     * @return HttpBrowser
      */
-    protected function addGuzzleCookiesToScraper(GoutteClient $client): GoutteClient
+    protected function addGuzzleCookiesToScraper(HttpBrowser $client): HttpBrowser
     {
         foreach (self::$cookieJar->toArray() as $cookie) {
             $client->getCookieJar()->set(

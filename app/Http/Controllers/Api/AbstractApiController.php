@@ -9,14 +9,15 @@ use App\Http\Controllers\Controller;
 use App\Transformers\Api\LocalizableTransformerInterface;
 use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 use Carbon\Carbon;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
-use Dingo\Api\Routing\Helpers;
-use Dingo\Api\Transformer\Factory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use League\Fractal\Manager;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use League\Fractal\Resource\Item;
 use OpenApi\Attributes as OA;
 
 #[OA\Info(
@@ -72,7 +73,6 @@ use OpenApi\Attributes as OA;
 )]
 abstract class AbstractApiController extends Controller
 {
-    use Helpers;
 
     public const SC_DATA_KEY = 'api.sc_data_version';
 
@@ -127,6 +127,8 @@ abstract class AbstractApiController extends Controller
      */
     protected array $extraMeta = [];
 
+    protected Manager $manager;
+
     /**
      * AbstractApiController constructor.
      *
@@ -136,9 +138,10 @@ abstract class AbstractApiController extends Controller
     {
         parent::__construct();
         $this->request = $request;
+        $this->manager = new Manager();
+        $this->manager->parseIncludes($request->get('include', ''));
 
         $this->processRequestParams();
-        app(Factory::class)->disableEagerLoading();
     }
 
     /**
@@ -224,7 +227,12 @@ abstract class AbstractApiController extends Controller
         }
 
         if ($query instanceof Model) {
-            return $this->response->item($query, $this->transformer)->setMeta($this->getMeta());
+            $resource = new Item($query, $this->transformer);
+            $resource->setMeta($this->getMeta());
+
+            $datum = $this->manager->createData($resource);
+
+            return new Response($datum, 200);
         }
 
         if ($this->limit === 0 || $query instanceof Collection) {
@@ -232,7 +240,10 @@ abstract class AbstractApiController extends Controller
                 $query = $query->get();
             }
 
-            return $this->response->collection($query, $this->transformer)->setMeta($this->getMeta());
+            $resource = new \League\Fractal\Resource\Collection($query, $this->transformer);
+            $resource->setMeta($this->getMeta());
+
+            return new Response($this->manager->createData($resource), 200);
         }
 
         $paginate = $query->paginate($this->limit);
@@ -243,7 +254,15 @@ abstract class AbstractApiController extends Controller
             'forwarded-for' => $this->request->header('X-Forwarded-For', '127.0.0.1'),
         ]);
 
-        return $this->response->paginator($paginate, $this->transformer)->setMeta($this->getMeta());
+
+        $resource = new \League\Fractal\Resource\Collection(
+            $query->get(),
+            $this->transformer
+        );
+        $resource->setMeta($this->getMeta());
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginate));
+
+        return new Response($this->manager->createData($resource), 200);
     }
 
     /**

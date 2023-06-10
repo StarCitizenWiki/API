@@ -93,7 +93,12 @@ trait HasBaseVersionsTrait
                 return Str::contains($value->item->name, 'Base') || $value->item->name === $baseName;
             });
 
-            return $base ?? $result->first();
+            $base = $base ?? $result->first();
+            if ($base->name === $this->name) {
+                return null;
+            }
+
+            return $base;
         }
 
         return null;

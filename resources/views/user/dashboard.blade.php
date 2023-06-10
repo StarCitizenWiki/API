@@ -59,8 +59,8 @@
             <div class="col-12 col-md-12 col-lg-6 col-xl-8 mb-4">
                 @component('user.components.card', [
                     'contentClass' => 'table-responsive',
+                    'icon' => 'users-viewfinder',
                     'title' => __('Benutzer Übersicht'),
-                    'icon' => 'table',
                 ])
                     <table class="table table-sm mb-2 border-top-0">
                         <tr>
@@ -86,16 +86,24 @@
                                 </td>
                                 <td>
                                     @if($user->receiveApiNotifications())
-                                        &check;
+                                        @component('components.elements.icon')
+                                            check
+                                        @endcomponent
                                     @else
-                                        &cross;
+                                        @component('components.elements.icon')
+                                            close
+                                        @endcomponent
                                     @endif
                                 </td>
                                 <td>
                                     @if($user->receiveCommLinkNotifications())
-                                        &check;
+                                    @component('components.elements.icon')
+                                        check
+                                    @endcomponent
                                     @else
-                                        &cross;
+                                        @component('components.elements.icon')
+                                            close
+                                        @endcomponent
                                     @endif
                                 </td>
                                 <td data-content="{{ $user->last_login->format('d.m.Y H:i:s') }}" data-toggle="popover">
@@ -108,7 +116,7 @@
                                     <td class="text-center">
                                         <a href="{{ route('web.user.users.edit', $user->getRouteKey()) }}">
                                             @component('components.elements.icon')
-                                                pencil-alt
+                                                pen
                                             @endcomponent
                                         </a>
                                     </td>
@@ -123,6 +131,7 @@
     <section class="row equal-height">
         <div class="col-12 col-md-12 col-lg-6 col-xl-3 mb-4">
             @component('user.components.card', [
+                'icon' => 'language',
                 'title' => __('DeepL Statistik'),
             ])
                 <dl class="mb-0">
@@ -152,6 +161,7 @@
 
         <div class="col-12 col-md-12 col-lg-6 col-xl-7 mb-4">
             @component('user.components.card', [
+                'icon' => 'network-wired',
                 'title' => __('Comm-Link Jobs'),
             ])
             <div class="row">
@@ -209,6 +219,7 @@
 
         <div class="col-12 col-md-12 col-lg-6 col-xl-2 mb-4">
             @component('user.components.card', [
+                'icon' => 'person-digging',
                 'title' => __('Jobs'),
             ])
                 <dl class="mb-0">
@@ -228,6 +239,7 @@
     <section class="row equal-height">
         <div class="col-12 col-lg-6 col-xl-3 mb-4">
             @component('user.components.card', [
+                'icon' => 'rocket',
                 'title' => __('Vehicle Jobs'),
             ])
                 @can('web.user.jobs.start_ship_matrix_download')
@@ -250,6 +262,7 @@
         </div>
         <div class="col-12 col-lg-6 col-xl-3 mb-4">
             @component('user.components.card', [
+                'icon' => 'database',
                 'title' => __('Galactapedia Jobs'),
             ])
                 @can('web.user.jobs.import_galactapedia_job')

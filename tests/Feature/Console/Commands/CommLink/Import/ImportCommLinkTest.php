@@ -31,18 +31,6 @@ class ImportCommLinkTest extends TestCase
      *
      * @return void
      */
-    public function testHandleMissingInDb(): void
-    {
-        $this->artisan('comm-links:import 12663')
-            ->expectsOutput('Comm-Link does not exist in DB.')
-            ->assertExitCode(1);
-    }
-
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
     public function testHandle(): void
     {
         CommLink::factory()->create(['cig_id' => 12663]);
@@ -56,22 +44,5 @@ class ImportCommLinkTest extends TestCase
             ->assertExitCode(0);
 
         Bus::assertDispatched(ImportCommLink::class);
-    }
-
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-    public function testHandleMissingFile(): void
-    {
-        CommLink::factory()->create(['id' => 18000]);
-
-        Bus::fake();
-
-        $this->artisan('comm-links:import 18000')
-            ->assertExitCode(1);
-
-        Bus::assertNotDispatched(ImportCommLink::class);
     }
 }

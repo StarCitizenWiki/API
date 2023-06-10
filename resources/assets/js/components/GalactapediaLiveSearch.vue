@@ -81,14 +81,14 @@ export default {
         return;
       }
 
-      axios.post('/api/galactapedia/search', {
-        query: this.term,
-        limit: 0
+      axios.post('/api/v2/galactapedia/search', {
+          query: this.term,
+          limit: 0
       }, {
-        mode: 'no-cors',
-        headers: this.apiToken !== null ? {
-          'Authorization': 'Bearer ' + this.apiToken
-        } : {}
+          mode: 'no-cors',
+          headers: this.apiToken !== null ? {
+              'Authorization': 'Bearer ' + this.apiToken
+          } : {}
       })
       .then((result) => {
         if (result.data.data.length > 0) {

@@ -38,10 +38,8 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        $this->registerPolicies();
-
         /*
          * Admin Gates
          */
@@ -101,6 +99,14 @@ class AuthServiceProvider extends ServiceProvider
         /*
          * Transcripts
          */
-        Gate::resource('web.user.transcripts', TranscriptPolicy::class);
+        Gate::resource(
+            'web.user.transcripts',
+            TranscriptPolicy::class,
+            [
+                'index' => 'index',
+                'view' => 'view',
+                'update' => 'update',
+            ]
+        );
     }
 }

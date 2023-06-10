@@ -6,12 +6,13 @@ namespace App\Http;
 
 use App\Http\Middleware\CheckUserState;
 use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\FormatApiResponse;
 use App\Http\Middleware\SetPreferredLocale;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Middleware\Web\User\RedirectIfAuthenticated;
-use App\Http\Throttle\ApiThrottle;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
@@ -21,6 +22,7 @@ use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -62,9 +64,16 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            ForceJsonResponse::class,
             'bindings',
             'check_user_state',
-            'api.throttle',
+        ],
+
+        'api.v2' => [
+            ForceJsonResponse::class,
+            'bindings',
+            'check_user_state',
+            FormatApiResponse::class,
         ],
     ];
 
@@ -75,13 +84,13 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected $routeMiddleware = [
-        'api.throttle' => ApiThrottle::class,
+    protected $middlewareAliases = [
         'auth' => Authenticate::class,
         'auth.basic' => AuthenticateWithBasicAuth::class,
         'bindings' => SubstituteBindings::class,
         'can' => Authorize::class,
         'check_user_state' => CheckUserState::class,
         'guest' => RedirectIfAuthenticated::class,
+        'throttle' => ThrottleRequests::class,
     ];
 }

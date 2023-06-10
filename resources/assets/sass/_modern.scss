@@ -1,29 +1,21 @@
-/* Text */
-a, p, h1, h2, h3, h4, h5, h6, th, td, div, pre, span, select, button {
-    color: var(--text-color) !important;
-}
-.text-light {
-    color: var(--text-color) !important;
-}
-
-/* Links */
-a.font-italic {
-    color: var(--link) !important;
-}
-a.font-italic:hover {
-    color: var(--link) !important;
-}
-
-
 /* Background */
 .bg-light {
     background-color: var(--body-background) !important;
 }
 
 
-/* hr Lines */
+/* Divider */
 hr {
     border-top: 3px solid var(--card-line);
+}
+.divider {
+    margin: 5px 0 5px;
+    border-top: 3px solid var(--card);
+    border-radius: var(--border-radius);
+}
+.divider-vertical {
+    border-right: 3px solid var(--card);
+    border-radius: var(--border-radius);
 }
 
 
@@ -32,8 +24,8 @@ hr {
     background-color: var(--nav) !important;
 }
 /* Sidebar Logo */
-.img-fluid {
-    filter: var(--logo-filter) !important;
+.logo {
+    color: var(--logo-color) !important;
 }
 /* Active Item */
 .nav-link.active {
@@ -60,12 +52,14 @@ hr {
 
 /* Dropdown Menu */
 .dropdown-menu {
+    z-index: 1000;
     margin: 1.125rem 0 0;
+    padding: 5px;
     border: none;
     border-radius: var(--border-radius);
     background-color: var(--nav);
-    -webkit-box-shadow: 0px 20px 30px 0px var(--shadow-color); 
-    box-shadow: 0px 20px 30px 0px var(--shadow-color);
+    -webkit-box-shadow: 0px 20px 30px 0px var(--shadow); 
+    box-shadow: 0px 20px 30px 0px var(--shadow);
     animation: growDown 300ms ease-in-out forwards;
     transform-origin: top center;
 }
@@ -80,15 +74,25 @@ hr {
 }
 /* Dropdown Divider */
 .dropdown-divider {
-    border-top: 3px solid var(--card-line);
+    margin: 5px 0;
+    border-top: 3px solid var(--card);
 }
 /* Dropdown Item */
-.darkmode .dropdown-item {
+.dropdown-item {
+    border-radius: 8px;
     color: var(--text-color);
 }
-.darkmode .dropdown-item:hover {
-    background-color: var(--nav);
+.dropdown-item:is(:hover, :focus) {
+    background-color: var(--button-hover) !important;
 }
+
+
+/* Dropdown Menu */
+
+
+
+
+
 /* Dropdown Animation */
 @keyframes growDown {
     0% {
@@ -105,69 +109,6 @@ hr {
 /* Nav Version */
 .nav-link.small {
     color: var(--text-disabled) !important;
-}
-
-
-/* Card */
-.card {
-    border: none;
-    border-radius: var(--border-radius);
-    background-color: var(--card) !important;
-    -webkit-box-shadow: 0px 20px 30px -15px var(--shadow-color); 
-    box-shadow: 0px 20px 30px -15px var(--shadow-color);
-}
-
-/* Card Haeder */
-.card-header {
-    padding: 12px 0 12px 0;
-    margin: 0 20px 0 20px;
-    font-weight: 800;
-    border-bottom: 3px solid var(--card-line);
-    background-color: var(--card) !important;
-}
-
-/* Card Tabs */
-.card .nav-tabs {
-    border-bottom: 3px solid var(--card-line);
-}
-.card .nav-tabs .nav-item.nav-link{
-    margin: 5px;
-    border: none;
-    border-radius: var(--border-radius);
-    background-color: var(--button);
-}
-.card .nav-tabs .nav-item.nav-link:hover {
-    background-color: var(--button-hover);
-}
-.card .nav-tabs .nav-item.nav-link.active {
-    font-weight: normal;
-    background-color: var(--button-active);
-}
-
-/* Card Image */
-.card-img-top {
-    border-radius: var(--border-radius);
-}
-
-/* Card Footer */
-.card-footer {
-    padding: 12px 0 12px 0;
-    margin: 0 20px 0 20px;
-    border-top: 3px solid var(--card-line);
-    border-radius: 0 0 var(--border-radius) var(--border-radius);
-    background-color: var(--card);
-}
-
-/* API Tab Card */
-.col-12.col-xl-10.col-md-8.col-lg-9 .card {
-    padding: 15px 15px 0 15px;
-    -webkit-box-shadow: 0px 20px 30px 0px var(--shadow-color); 
-    box-shadow: 0px 20px 30px 0px var(--shadow-color);
-}
-
-/* Stats Tab Card */
-.stats-card {
-    margin-top: 1rem;
 }
 
 /* Popover */
@@ -205,8 +146,8 @@ hr {
 .modal-content {
     border-radius: var(--border-radius);
     background-color: var(--card);
-    -webkit-box-shadow: 0px 20px 30px -15px var(--shadow-color); 
-    box-shadow: 0px 20px 30px -15px var(--shadow-color);
+    -webkit-box-shadow: 0px 20px 30px -15px var(--shadow); 
+    box-shadow: 0px 20px 30px -15px var(--shadow);
 }
 /* Modal Haeder */
 .modal-header {
@@ -228,11 +169,21 @@ hr {
 }
 /* Modal Footer */
 .modal-footer {
+    justify-content: space-between;
     padding: 12px 0 12px 0;
     margin: 0 20px 0 20px;
     border-top: 3px solid var(--card-line);
 }
-/* Modal Upload Button */
+/* Upload Modal */
+textarea.form-control {
+    height: auto;
+    min-height: 41px;
+    max-height: 235px;
+}
+.modal-footer .btn-close,
+.modal-footer .btn-upload {
+    margin: 0;
+}
 .modal-content .btn-primary {
     border: none;
     border-radius: var(--border-radius);
@@ -296,13 +247,11 @@ tr.even {
 .table td {
     vertical-align: middle !important;
 }
-tr.odd td:first-of-type,
-tr.even td:first-of-type {
+tr:is(.odd, .even) td:first-of-type {
     margin-top: 10px;
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
-tr.odd td:last-of-type,
-tr.even td:last-of-type {
+tr:is(.odd, .even) td:last-of-type {
     margin-top: 10px;
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
@@ -315,21 +264,27 @@ tr.even td:last-of-type {
     margin: 0 3px 0 3px !important;
     border: none;
     border-radius: var(--border-radius);
-    background-color: var(--button) !important;
+    background-color: var(--pagination-page-item) !important;
 }
 /* Hover */
 .paginate_button.page-item .page-link:hover,
 .pagination .page-link:hover {
-    background-color: var(--button-hover);
+    background-color: var(--pagination-page-item-hover) !important;
+}
+.card .paginate_button.page-item .page-link:hover,
+.card .pagination .page-link:hover {
+    background-color: var(--in-card-pagination-page-item-hover) !important;
 }
 /* Active */
 .paginate_button.page-item.active .page-link,
+.pagination .page-item.active .page-link,
 .pagination .page-link.active {
-    background-color: var(--body-background);
+    background-color: var(--pagination-page-item-active) !important;
 }
 
-/* Next Pages Disabled */
+/* Disabled */
 .page-item.next.disabled .page-link,
+.pagination .page-item.disabled .page-link,
 .pagination .page-link.disabled {
     color: var(--text-disabled) !important;
 }
@@ -400,7 +355,7 @@ input::file-selector-button {
     border-radius: 4px;
     color: var(--text-color);
     background-color: var(--button-hover);
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transition: background-color 0.15s ease-in-out;
 }
 input::file-selector-button:hover {
     background-color: var(--button-active);
@@ -434,12 +389,18 @@ input::file-selector-button:hover {
 
 /* Icons */
 a svg {
-    color: var(--svg);
+    color: var(--svg) !important;
+}
+.svg-inline--fa {
+    color: var(--svg) !important;
 }
 
 /* Icons:hover */
 a:hover svg {
-    color: var(--svg-hover);
+    color: var(--svg-hover) !important;
+}
+.svg-inline--fa:hover {
+    color: var(--svg-hover) !important;
 }
 
 /* Badges */
@@ -448,15 +409,6 @@ a:hover svg {
     margin-bottom: 3px;
     border-radius: var(--border-radius);
     color: #fff !important;
-}
-
-
-/* Comm-Link Card Image */
-.image-card-column .card {
-    border: 1px solid var(--card-line);
-}
-.card .text-center.d-block {
-    margin: 15px 15px 0 15px;
 }
 
 /* Comm-Link Card Info */

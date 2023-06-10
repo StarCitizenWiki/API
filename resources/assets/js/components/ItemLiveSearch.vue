@@ -46,9 +46,9 @@
         <tr class="col-12" v-for="result in results" :key="result.id">
           <td>{{ result.name }}</td>
           <td>{{ result.type }}</td>
-          <td>{{ result.manufacturer }}</td>
+          <td>{{ result.manufacturer.name }} ({{ result.manufacturer.code }})</td>
           <td>
-            <ItemPriceTable :shops="result.shops.data"></ItemPriceTable>
+              <ItemPriceTable :shops="result.shops"></ItemPriceTable>
           </td>
           <td>{{ result.version }}</td>
         </tr>
@@ -80,12 +80,12 @@ export default {
     }
   },
   mounted() {
-    axios.get('/api/shops?limit=0', {
-      mode: 'no-cors',
-      headers: this.apiToken !== null ? {
-        'Authorization': 'Bearer ' + this.apiToken
-      } : {}
-    })
+      axios.get('/api/v2/shops?limit=1000', {
+          mode: 'no-cors',
+          headers: this.apiToken !== null ? {
+              'Authorization': 'Bearer ' + this.apiToken
+          } : {}
+      })
         .then((result) => {
           if (result.data.data.length === 0) {
             return;
@@ -121,16 +121,16 @@ export default {
         return;
       }
 
-      axios.post('/api/items/search?include=shops.items', {
-        query: this.term,
-        shop: this.shopId,
-        limit: 25
-      }, {
-        mode: 'no-cors',
-        headers: this.apiToken !== null ? {
-          'Authorization': 'Bearer ' + this.apiToken
-        } : {}
-      })
+        axios.post('/api/v2/items/search?include=shops.items', {
+            query: this.term,
+            shop: this.shopId,
+            limit: 25
+        }, {
+            mode: 'no-cors',
+            headers: this.apiToken !== null ? {
+                'Authorization': 'Bearer ' + this.apiToken
+            } : {}
+        })
           .then((result) => {
             if (result.data.data.length > 0) {
               this.results = result.data.data;

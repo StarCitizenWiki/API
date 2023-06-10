@@ -17,3 +17,26 @@
 .text-strike {
   text-decoration: line-through;
 }
+
+/* Text */
+a, p, h1, h2, h3, h4, h5, h6, th, td, div, pre, span, select, button {
+  color: var(--text-color) !important;
+}
+.text-light {
+  color: var(--text-color) !important;
+}
+
+/* Links */
+a.font-italic {
+  color: var(--link) !important;
+}
+a.font-italic:hover {
+  color: var(--link) !important;
+}
+
+.url {
+  color: var(--text-url) !important;
+}
+.url:hover {
+  color: var(--text-url-hover) !important;
+}

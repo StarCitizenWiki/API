@@ -7,6 +7,13 @@
   }
 }
 
+.btn-secondary:focus,
+.btn-secondary.focus {
+  border: none;
+  background-color: var(--button-active) !important;
+  box-shadow: none !important;
+}
+
 @include media-breakpoint-down(xs) {
   .btn-block-xs-only {
     display: block;

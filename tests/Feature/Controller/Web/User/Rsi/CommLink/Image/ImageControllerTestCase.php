@@ -7,8 +7,8 @@ namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Image;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link\Link;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
 /**

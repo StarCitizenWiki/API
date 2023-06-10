@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Api\V1\Rsi\Transcript;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Transcript\Transcript;
 use App\Transformers\Api\V1\Rsi\Transcript\TranscriptTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -163,7 +163,7 @@ class TranscriptController extends ApiController
             $transcript = Transcript::query()->where('youtube_id', $transcript)->firstOrFail();
             $transcript->append(['prev', 'next']);
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $transcript));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $transcript)], 404);
         }
 
         $this->extraMeta = [

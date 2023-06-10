@@ -3,7 +3,7 @@
 @section('body--class', 'bg-dark')
 
 {{-- Page Title --}}
-@section('title', __('Login'))
+@section('title', __('Anmelden'))
 
 @section('topNav--class', 'd-none')
 
@@ -18,12 +18,12 @@
     @include('components.errors')
 
     <div class="card bg-dark text-light-grey">
-        <h4 class="card-header">@lang('Login')</h4>
+        <h4 class="card-header">@lang('Anmelden')</h4>
         <div class="card-body">
             <p>
-                @lang('Login via Star Citizen Wiki OAuth')
+                @lang('Anmelden über Star Citizen Wiki OAuth')
             </p>
-            <a href="{{ route('web.user.auth.login.start') }}" class="btn btn-secondary btn-block">@lang('Login')</a>
+            <a href="{{ route('web.user.auth.login.start') }}" class="btn btn-secondary btn-block">@lang('Anmelden')</a>
         </div>
     </div>
 @endsection

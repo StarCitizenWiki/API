@@ -15,7 +15,6 @@ abstract class AbstractShipItemSpecification extends Model
 
     public function shipItem(): BelongsTo
     {
-        return $this->belongsTo(ShipItem::class, 'uuid', 'uuid')
-            ->where('version', config('api.sc_data_version'));
+        return $this->belongsTo(ShipItem::class, 'uuid', 'uuid');
     }
 }

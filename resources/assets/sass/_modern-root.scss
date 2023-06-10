@@ -7,12 +7,14 @@
     --border-radius: 8px;
 
     --text-color: #212529;
+    --text-url: #209de0;
+    --text-url-hover: #00a6ff;
     --text-disabled: #6c757d;
 
     --nav: #efeded;
     --nav-mobile-menu-icon: invert(1);
 
-    --logo-filter: brightness(0.1);
+    --logo-color: #000;
     --svg: #212529;
     --svg-hover: #636d76;
 
@@ -20,12 +22,19 @@
     --button-hover: #e1e1e1;
     --button-active: #d2d2d2;
 
+    --pagination-page-item: #efeded;
+    --pagination-page-item-hover: #e1e1e1;
+    --pagination-page-item-active: #d2d2d2;
+    --in-card-pagination-page-item-hover: #e1e1e1;
+
     --input-border: #d8d8d8;
 
     --card: #ffffff;
-    --card-line: #d8d8d8;
+    --card-line: #efeded;
+    --card-in-card: #efeded;
+    --card-in-card-line: #ffffff;
 
-    --shadow-color: #B9B9B9;
+    --shadow: #B9B9B9;
 
     --link: #3366cc;
 
@@ -38,15 +47,13 @@
     --scrollbar-track: #14181f;
     --scrollbar-thumb: #293044;
 
-    --border-radius: 8px;
-
     --text-color: #ffffff;
     --text-disabled: #6c757d;
 
     --nav: #1e2433;
     --nav-mobile-menu-icon: invert(0);
 
-    --logo-filter: none;
+    --logo-color: #fff;
     --svg: #ced4da;
     --svg-hover: #b2bac2;
 
@@ -54,12 +61,55 @@
     --button-hover: #35405e;
     --button-active: #49577e;
 
+    --pagination-page-item: #293044;
+    --pagination-page-item-hover: #35405e;
+    --pagination-page-item-active: #49577e;
+    --in-card-pagination-page-item-hover: #35405e;
+
     --input-border: #252f42;
 
     --card: #1d2330;
     --card-line: #252f42;
 
-    --shadow-color: #0A0C11;
+    --shadow: #0A0C11;
+
+    --table-item-odd: #29304490;
+}
+
+:root.spacetheme {
+    --body-background: #0a0a0a;
+
+    --scrollbar-track: #0a0a0a;
+    --scrollbar-thumb: #878cff;
+    --scrollbar-thumb-hover: #666cff;
+
+    --text-color: #ffffff;
+    --text-disabled: #6c757d;
+
+    --nav: #141414;
+    --nav-mobile-menu-icon: invert(0);
+
+    --logo-color: #666cff;
+    --svg: #878cff;
+    --svg-hover: #666cff;
+
+    --button: #1e1e1e;
+    --button-hover: #1e1e1e;
+    --button-active: #0a0a0a;
+
+    --pagination-page-item: #1e1e1e;
+    --pagination-page-item-hover: #141414;
+    --pagination-page-item-active: #666cff;
+    --in-card-pagination-page-item-hover: #1a1a1a;
+
+    --input-border: #1e1e1e;
+
+    --card: #111111;
+    --card-line: #1e1e1e;
+    --card-in-card: #1e1e1e;
+    --card-in-card-line: #111111;
+
+    --shadow: #0A0C11;
 
     --table-item-odd: #29304490;
 }

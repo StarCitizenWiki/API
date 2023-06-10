@@ -8,23 +8,55 @@
             @endcomponent
         </div>
         <div class="col">
-            star-citizen.wiki
+            @lang('Wiki')
         </div>
     </div>
 @endcomponent
 
 
 @component('components.navs.nav_element', [
-    'route' => 'https://twitter.com/SC_Wiki',
+    'route' => 'https://discord.star-citizen.wiki',
 ])
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon', ['type' => 'fab'])
-                twitter
+                discord
             @endcomponent
         </div>
         <div class="col">
-            SC_Wiki
+            @lang('Discord')
+        </div>
+    </div>
+@endcomponent
+
+
+@component('components.navs.nav_element', [
+    'route' => 'https://www.youtube.com/@StarCitizenWiki',
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon', ['type' => 'fab'])
+                youtube
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('YouTube')
+        </div>
+    </div>
+@endcomponent
+
+
+@component('components.navs.nav_element', [
+    'route' => 'https://mastodon.star-citizen.wiki/@StarCitizenWiki',
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon', ['type' => 'fab'])
+                mastodon
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Mastodon')
         </div>
     </div>
 @endcomponent
@@ -40,7 +72,7 @@
             @endcomponent
         </div>
         <div class="col">
-            StarCitizenWiki
+            @lang('Facebook')
         </div>
     </div>
 @endcomponent
@@ -56,7 +88,7 @@
             @endcomponent
         </div>
         <div class="col">
-            WIKI
+            @lang('Wiki Orga')
         </div>
     </div>
 @endcomponent

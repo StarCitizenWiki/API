@@ -1,9 +1,11 @@
 @extends('errors.layouts.default')
 
-@section('title', '503 - Gleich wieder da')
+@section('title', '503 - ' . __('Wartungsarbeiten'))
 
-@section('top')
-    @lang('Wartungsarbeiten')
+@section('top', 503)
+
+@section('content')
+    @lang('Wartungsarbeiten').
 @endsection
 
 @section('style')

@@ -214,7 +214,7 @@ class VehicleTransformer extends TranslationTransformer
     {
         $this->missingTranslations = [];
 
-        $cargo = $vehicle->unpacked->cargo_capacity ?? $vehicle->cargo_capacity;
+        $cargo = $vehicle->unpacked->scu ?? $vehicle->cargo_capacity;
         if ($vehicle->unpacked->SCU > 0) {
             $cargo = $vehicle->unpacked->scu;
         }
@@ -239,7 +239,7 @@ class VehicleTransformer extends TranslationTransformer
                 'weapon' => $vehicle->unpacked->weapon_crew ?? 0,
                 'operation' => $vehicle->unpacked->operation_crew ?? 0,
             ],
-            'health' => $vehicle->unpacked->health_body ?? 0,
+            'health' => $vehicle->unpacked->health ?? 0,
             'speed' => [
                 'scm' => $vehicle->unpacked->scm_speed ?? $vehicle->scm_speed,
                 'afterburner' => $vehicle->afterburner_speed,

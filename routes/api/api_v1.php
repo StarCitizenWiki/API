@@ -2,90 +2,90 @@
 
 declare(strict_types=1);
 
-use Dingo\Api\Routing\Router;
+use Illuminate\Support\Facades\Route;
 
-$api->get('/openapi', function() {
+Route::get('/openapi', function () {
     return response(
         \Illuminate\Support\Facades\File::get(storage_path('app/swagger.json'))
     )->header('Content-Type', 'application/json');
 });
 
-$api->group(
+Route::group(
     [
         'namespace' => 'StarCitizen',
     ],
-    static function (Router $api) {
-        $api->group(
+    static function () {
+        Route::group(
             [
                 'namespace' => 'Stat',
                 'prefix' => 'stats',
             ],
-            static function (Router $api) {
-                $api->get('latest', ['as' => 'api.v1.starcitizen.stats.latest', 'uses' => 'StatController@latest']);
-                $api->get('/', ['as' => 'api.v1.starcitizen.stats.all', 'uses' => 'StatController@index']);
+            static function () {
+                Route::get('latest', ['as' => 'api.v1.starcitizen.stats.latest', 'uses' => 'StatController@latest']);
+                Route::get('/', ['as' => 'api.v1.starcitizen.stats.all', 'uses' => 'StatController@index']);
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'namespace' => 'Manufacturer',
                 'prefix' => 'manufacturers',
             ],
-            static function (Router $api) {
-                $api->get(
+            static function () {
+                Route::get(
                     '/',
                     ['as' => 'api.v1.starcitizen.manufacturers.all', 'uses' => 'ManufacturerController@index']
                 );
-                $api->get(
+                Route::get(
                     '{manufacturer}',
                     ['as' => 'api.v1.starcitizen.manufacturers.show', 'uses' => 'ManufacturerController@show']
                 );
-                $api->post(
+                Route::post(
                     '/search',
                     ['as' => 'api.v1.starcitizen.manufacturers.search', 'uses' => 'ManufacturerController@search']
                 );
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'namespace' => 'Vehicle',
             ],
-            static function (Router $api) {
-                $api->group(
+            static function () {
+                Route::group(
                     [
                         'prefix' => 'ships',
                     ],
-                    static function (Router $api) {
-                        $api->get(
+                    static function () {
+                        Route::get(
                             '/',
                             ['as' => 'api.v1.starcitizen.vehicles.ships.all', 'uses' => 'VehicleController@index']
                         );
-                        $api->get(
+                        Route::get(
                             '{vehicle}',
                             ['as' => 'api.v1.starcitizen.vehicles.ships.show', 'uses' => 'VehicleController@show']
                         );
-                        $api->post(
+                        Route::post(
                             '/search',
                             ['as' => 'api.v1.starcitizen.vehicles.ships.search', 'uses' => 'VehicleController@search']
                         );
                     }
                 );
 
-                $api->group(
+                Route::group(
                     [
                         'prefix' => 'vehicles',
                     ],
-                    static function (Router $api) {
-                        $api->get(
+                    static function () {
+                        Route::get(
                             '/',
                             ['as' => 'api.v1.starcitizen.vehicles.all', 'uses' => 'VehicleController@index']
                         );
-                        $api->get(
+                        Route::get(
                             '{vehicle}',
                             ['as' => 'api.v1.starcitizen.vehicles.show', 'uses' => 'VehicleController@show']
                         );
-                        $api->post(
+                        Route::post(
                             '/search',
                             ['as' => 'api.v1.starcitizen.vehicles.search', 'uses' => 'VehicleController@search']
                         );
@@ -94,43 +94,43 @@ $api->group(
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'namespace' => 'Starmap',
                 'prefix' => 'starmap',
             ],
-            static function (Router $api) {
-                $api->group(
+            static function () {
+                Route::group(
                     [
                         'namespace' => 'Starsystem',
                         'prefix' => 'starsystems',
                     ],
-                    function (Router $api) {
-                        $api->get(
+                    function () {
+                        Route::get(
                             '/',
                             ['as' => 'api.v1.starmap.starsystems.index', 'uses' => 'StarsystemController@index']
                         );
-                        $api->get(
+                        Route::get(
                             '{code}',
                             ['as' => 'api.v1.starmap.starsystems.show', 'uses' => 'StarsystemController@show']
                         );
                     }
                 );
 
-                $api->group(
+                Route::group(
                     [
                         'namespace' => 'CelestialObject',
                         'prefix' => 'celestial-objects',
                     ],
-                    static function (Router $api) {
-                        $api->get(
+                    static function () {
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.starmap.celestial-objects.index',
                                 'uses' => 'CelestialObjectController@index',
                             ]
                         );
-                        $api->get(
+                        Route::get(
                             '{code}',
                             [
                                 'as' => 'api.v1.starmap.celestial-objects.show',
@@ -142,21 +142,21 @@ $api->group(
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'namespace' => 'Galactapedia',
                 'prefix' => 'galactapedia',
             ],
-            static function (Router $api) {
-                $api->get(
+            static function () {
+                Route::get(
                     '/',
                     ['as' => 'api.v1.starcitizen.galactapedia.all', 'uses' => 'GalactapediaController@index']
                 );
-                $api->get(
+                Route::get(
                     '{article}',
                     ['as' => 'api.v1.starcitizen.galactapedia.show', 'uses' => 'GalactapediaController@show']
                 );
-                $api->post(
+                Route::post(
                     '/search',
                     ['as' => 'api.v1.starcitizen.galactapedia.search', 'uses' => 'GalactapediaController@search']
                 );
@@ -165,34 +165,34 @@ $api->group(
     }
 );
 
-$api->group(
+Route::group(
     [
         'namespace' => 'Rsi',
     ],
-    static function (Router $api) {
-        $api->group(
+    static function () {
+        Route::group(
             [
                 'namespace' => 'CommLink',
                 'prefix' => 'comm-links',
             ],
-            static function (Router $api) {
+            static function () {
                 /**
                  * Categories
                  */
-                $api->group(
+                Route::group(
                     [
                         'namespace' => 'Category',
                         'prefix' => 'categories',
                     ],
-                    static function (Router $api) {
-                        $api->get(
+                    static function () {
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.rsi.comm-links.categories.index',
                                 'uses' => 'CategoryController@index',
                             ]
                         );
-                        $api->get(
+                        Route::get(
                             '{category}',
                             [
                                 'as' => 'api.v1.rsi.comm-links.categories.show',
@@ -205,20 +205,20 @@ $api->group(
                 /**
                  * Channels
                  */
-                $api->group(
+                Route::group(
                     [
                         'namespace' => 'Channel',
                         'prefix' => 'channels',
                     ],
-                    static function (Router $api) {
-                        $api->get(
+                    static function () {
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.rsi.comm-links.channels.index',
                                 'uses' => 'ChannelController@index',
                             ]
                         );
-                        $api->get(
+                        Route::get(
                             '{channel}',
                             [
                                 'as' => 'api.v1.rsi.comm-links.channels.show',
@@ -231,20 +231,20 @@ $api->group(
                 /**
                  * Series
                  */
-                $api->group(
+                Route::group(
                     [
                         'namespace' => 'Series',
                         'prefix' => 'series',
                     ],
-                    static function (Router $api) {
-                        $api->get(
+                    static function () {
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.rsi.comm-links.series.index',
                                 'uses' => 'SeriesController@index',
                             ]
                         );
-                        $api->get(
+                        Route::get(
                             '{series}',
                             [
                                 'as' => 'api.v1.rsi.comm-links.series.show',
@@ -257,35 +257,35 @@ $api->group(
                 /**
                  * Comm Links
                  */
-                $api->post(
+                Route::post(
                     '/reverse-image-link-search',
                     [
                         'as' => 'api.v1.rsi.comm-links.reverse-image-link-search',
                         'uses' => 'CommLinkSearchController@reverseImageLinkSearch',
                     ]
                 );
-                $api->post(
+                Route::post(
                     '/reverse-image-search',
                     [
                         'as' => 'api.v1.rsi.comm-links.reverse-image-search',
                         'uses' => 'CommLinkSearchController@reverseImageSearch',
                     ]
                 );
-                $api->post(
+                Route::post(
                     '/search',
                     [
                         'as' => 'api.v1.rsi.comm-links.search',
                         'uses' => 'CommLinkSearchController@searchByTitle',
                     ]
                 );
-                $api->get(
+                Route::get(
                     '/',
                     [
                         'as' => 'api.v1.rsi.comm-links.index',
                         'uses' => 'CommLinkController@index',
                     ]
                 );
-                $api->get(
+                Route::get(
                     '{comm_link}',
                     [
                         'as' => 'api.v1.rsi.comm-links.show',
@@ -295,20 +295,20 @@ $api->group(
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'namespace' => 'Transcript',
                 'prefix' => 'transcripts',
             ],
-            static function (Router $api) {
-                $api->get(
+            static function () {
+                Route::get(
                     '/',
                     [
                         'as' => 'api.v1.rsi.transcripts.index',
                         'uses' => 'TranscriptController@index',
                     ]
                 );
-                $api->get(
+                Route::get(
                     '{transcript}',
                     [
                         'as' => 'api.v1.rsi.transcripts.show',
@@ -320,29 +320,29 @@ $api->group(
     }
 );
 
-$api->group(
+Route::group(
     [
         'namespace' => 'StarCitizenUnpacked',
     ],
-    static function (Router $api) {
-        $api->group(
+    static function () {
+        Route::group(
             [
                 'namespace' => 'WeaponPersonal',
                 'prefix' => 'weapons',
             ],
-            static function (Router $api) {
+            static function () {
 
                 /**
                  * Index
                  */
-                $api->get(
+                Route::get(
                     '/personal',
                     [
                         'as' => 'api.v1.scunpacked.weapons.personal.index',
                         'uses' => 'WeaponPersonalController@index',
                     ]
                 );
-                $api->get(
+                Route::get(
                     '/personal/{weapon}',
                     ['as' => 'api.v1.scunpacked.weapons.personal.show', 'uses' => 'WeaponPersonalController@show']
                 )->where('weapon', '(.*)');
@@ -350,54 +350,54 @@ $api->group(
                 /**
                  * Attachments Index
                  */
-                $api->get(
+                Route::get(
                     '/attachments',
                     [
                         'as' => 'api.v1.scunpacked.weapons.attachments.index',
                         'uses' => 'AttachmentController@index',
                     ]
                 );
-                $api->get(
+                Route::get(
                     '/attachments/{attachment}',
                     ['as' => 'api.v1.scunpacked.weapons.attachments.show', 'uses' => 'AttachmentController@show']
                 )->where('attachment', '(.*)');
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'prefix' => 'char',
             ],
-            static function (Router $api) {
-                $api->group(
+            static function () {
+                Route::group(
                     [
                         'namespace' => 'CharArmor',
                     ],
-                    static function (Router $api) {
+                    static function () {
                         /**
                          * Index
                          */
-                        $api->get(
+                        Route::get(
                             '/armor',
                             [
                                 'as' => 'api.v1.scunpacked.char.armor.index',
                                 'uses' => 'CharArmorController@index',
                             ]
                         );
-                        $api->get(
+                        Route::get(
                             '/armor/{armor}',
                             ['as' => 'api.v1.scunpacked.char.armor.show', 'uses' => 'CharArmorController@show']
                         )->where('armor', '(.*)');
                     }
                 );
 
-                $api->group(
+                Route::group(
                     [],
-                    static function (Router $api) {
+                    static function () {
                         /**
                          * Index
                          */
-                        $api->get(
+                        Route::get(
                             '/clothing',
                             [
                                 'as' => 'api.v1.scunpacked.char.clothing.index',
@@ -405,7 +405,7 @@ $api->group(
                             ]
                         );
 
-                        $api->get(
+                        Route::get(
                             '/clothing/{clothing}',
                             ['as' => 'api.v1.scunpacked.char.clothing.show', 'uses' => 'ClothingController@show']
                         )->where('clothing', '(.*)');
@@ -414,16 +414,16 @@ $api->group(
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'namespace' => 'Shop',
                 'prefix' => 'shops',
             ],
-            static function (Router $api) {
+            static function () {
                 /**
                  * Index
                  */
-                $api->get(
+                Route::get(
                     '/',
                     [
                         'as' => 'api.v1.scunpacked.shops.index',
@@ -431,7 +431,7 @@ $api->group(
                     ]
                 );
 
-                $api->get(
+                Route::get(
                     '/position/{position}',
                     [
                         'as' => 'api.v1.scunpacked.shops.position.show',
@@ -439,7 +439,7 @@ $api->group(
                     ]
                 );
 
-                $api->get(
+                Route::get(
                     '/name/{name}',
                     [
                         'as' => 'api.v1.scunpacked.shops.name.show',
@@ -447,7 +447,7 @@ $api->group(
                     ]
                 );
 
-                $api->get(
+                Route::get(
                     '/{position}/{name}',
                     [
                         'as' => 'api.v1.scunpacked.shops.position.name.show',
@@ -455,23 +455,23 @@ $api->group(
                     ]
                 );
 
-                $api->get(
+                Route::get(
                     '/{shop}',
                     ['as' => 'api.v1.scunpacked.shops.show', 'uses' => 'ShopController@show']
                 );
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'namespace' => 'Item',
                 'prefix' => 'items',
             ],
-            static function (Router $api) {
+            static function () {
                 /**
                  * Index
                  */
-                $api->get(
+                Route::get(
                     '/',
                     [
                         'as' => 'api.v1.scunpacked.items.index',
@@ -479,7 +479,7 @@ $api->group(
                     ]
                 );
 
-                $api->get(
+                Route::get(
                     '/tradeables',
                     [
                         'as' => 'api.v1.scunpacked.items.tradeables.index',
@@ -487,27 +487,27 @@ $api->group(
                     ]
                 );
 
-                $api->get(
+                Route::get(
                     '/{item}',
                     ['as' => 'api.v1.scunpacked.items.show', 'uses' => 'ItemController@show']
                 )->where('item', '(.*)');
 
-                $api->post(
+                Route::post(
                     '/search',
                     ['as' => 'api.v1.scunpacked.items.search', 'uses' => 'ItemController@search']
                 );
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'prefix' => 'food',
             ],
-            static function (Router $api) {
+            static function () {
                 /**
                  * Index
                  */
-                $api->get(
+                Route::get(
                     '/',
                     [
                         'as' => 'api.v1.scunpacked.food.index',
@@ -515,36 +515,36 @@ $api->group(
                     ]
                 );
 
-                $api->get(
+                Route::get(
                     '/{food}',
                     ['as' => 'api.v1.scunpacked.food.show', 'uses' => 'FoodController@show']
                 )->where('item', '(.*)');
 
-                $api->post(
+                Route::post(
                     '/search',
                     ['as' => 'api.v1.scunpacked.food.search', 'uses' => 'FoodController@search']
                 );
             }
         );
 
-        $api->group(
+        Route::group(
             [
                 'namespace' => 'Ship',
                 'prefix' => 'ship-items',
             ],
-            static function (Router $api) {
+            static function () {
                 /**
                  * Cooler
                  */
-                $api->group(
+                Route::group(
                     [
                         'prefix' => 'coolers',
                     ],
-                    static function (Router $api) {
+                    static function () {
                         /**
                          * Index
                          */
-                        $api->get(
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.coolers.index',
@@ -552,7 +552,7 @@ $api->group(
                             ]
                         );
 
-                        $api->get(
+                        Route::get(
                             '/{item}',
                             ['as' => 'api.v1.scunpacked.ship-items.coolers.show', 'uses' => 'CoolerController@show']
                         )->where('item', '(.*)');
@@ -562,15 +562,15 @@ $api->group(
                 /**
                  * Power Plants
                  */
-                $api->group(
+                Route::group(
                     [
                         'prefix' => 'power-plants',
                     ],
-                    static function (Router $api) {
+                    static function () {
                         /**
                          * Index
                          */
-                        $api->get(
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.power-plants.index',
@@ -578,7 +578,7 @@ $api->group(
                             ]
                         );
 
-                        $api->get(
+                        Route::get(
                             '/{item}',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.power-plants.show',
@@ -591,15 +591,15 @@ $api->group(
                 /**
                  * Quantum Drives
                  */
-                $api->group(
+                Route::group(
                     [
                         'prefix' => 'quantum-drives',
                     ],
-                    static function (Router $api) {
+                    static function () {
                         /**
                          * Index
                          */
-                        $api->get(
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.quantum-drives.index',
@@ -607,7 +607,7 @@ $api->group(
                             ]
                         );
 
-                        $api->get(
+                        Route::get(
                             '/{item}',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.quantum-drives.show',
@@ -620,15 +620,15 @@ $api->group(
                 /**
                  * Shields
                  */
-                $api->group(
+                Route::group(
                     [
                         'prefix' => 'shields',
                     ],
-                    static function (Router $api) {
+                    static function () {
                         /**
                          * Index
                          */
-                        $api->get(
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.shields.index',
@@ -636,7 +636,7 @@ $api->group(
                             ]
                         );
 
-                        $api->get(
+                        Route::get(
                             '/{item}',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.shields.show',
@@ -649,15 +649,15 @@ $api->group(
                 /**
                  * Weapons
                  */
-                $api->group(
+                Route::group(
                     [
                         'prefix' => 'weapons',
                     ],
-                    static function (Router $api) {
+                    static function () {
                         /**
                          * Index
                          */
-                        $api->get(
+                        Route::get(
                             '/',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.weapons.index',
@@ -665,7 +665,7 @@ $api->group(
                             ]
                         );
 
-                        $api->get(
+                        Route::get(
                             '/{item}',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.weapons.show',
@@ -675,12 +675,12 @@ $api->group(
                     }
                 );
 
-                $api->get(
+                Route::get(
                     '/{item}',
                     ['as' => 'api.v1.scunpacked.ship-items.show', 'uses' => 'ItemController@show']
                 )->where('item', '(.*)');
 
-                $api->post(
+                Route::post(
                     '/search',
                     ['as' => 'api.v1.scunpacked.ship-items.search', 'uses' => 'ItemController@search']
                 );

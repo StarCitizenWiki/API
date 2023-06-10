@@ -8,9 +8,9 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Models\StarCitizenUnpacked\ShipItem\ShipItem;
 use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\ShipItemTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -84,7 +84,7 @@ class ItemController extends ApiController
                 ->orWhere('uuid', $item)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $item));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $item)], 404);
         }
 
         return $this->getResponse($item);
@@ -108,7 +108,7 @@ class ItemController extends ApiController
                 ->whereRelation('item', 'name', 'like', "%{$query}%")
                 ->orWhere('uuid', $query);
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $query)], 404);
         }
 
         return $this->getResponse($item);

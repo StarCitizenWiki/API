@@ -83,6 +83,7 @@ class ShipItem extends CommodityItem
     public function specification(): HasOne
     {
         switch ($this->item->type) {
+            case 'CargoGrid':
             case 'Cargo':
                 return $this->hasOne(CargoGrid::class, 'uuid', 'uuid');
             case 'Cooler':
@@ -100,6 +101,8 @@ class ShipItem extends CommodityItem
                 return $this->hasOne(Shield::class, 'uuid', 'uuid');
             case 'Turret':
             case 'TurretBase':
+                // Todo: Separate to Model?
+            case 'ToolArm':
             case 'MiningArm':
             case 'WeaponMount':
                 return $this->hasOne(Turret::class, 'uuid', 'uuid');

@@ -5,9 +5,7 @@ namespace Tests\Feature\Controller\Web\User\Rsi\CommLink\Channel;
 use App\Http\Controllers\Web\User\Rsi\CommLink\Channel\ChannelController;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinkTranslation;
-use Dingo\Api\Dispatcher;
-use Dingo\Api\Http\Response;
+use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\User\UserTestCase;
 
 /**
@@ -54,19 +52,6 @@ class ChannelControllerTestCase extends UserTestCase
                 $this->commLinks->first()->title
             );
         }
-    }
-
-    /**
-     * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\Channel\ChannelController
-     */
-    public function testConstructor()
-    {
-        $controller = $this->getMockBuilder(ChannelController::class)->disableOriginalConstructor()->getMock();
-        $controller->expects(self::once())->method('middleware')->with('auth');
-
-        $reflectedClass = new \ReflectionClass(ChannelController::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invoke($controller, app(Dispatcher::class));
     }
 
     /**

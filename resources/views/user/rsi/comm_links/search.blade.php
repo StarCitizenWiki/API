@@ -39,7 +39,7 @@
                 ])
                     @component('components.forms.form-group', [
                         'inputType' => 'url',
-                        'label' => __('Comm-Link Bild Url'),
+                        'label' => __('Comm-Link Bild URL'),
                         'id' => 'url',
                     ])
                         @slot('inputOptions')
@@ -135,15 +135,15 @@
                     <div class="collapse mb-3" id="method">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="method" id="method1" value="perceptual" checked>
-                            <label class="form-check-label" for="method1">{{ __('Wahrnehmung') }} &mdash; @lang('Hash basierend auf Merkmalen des Inhalts')</label>
+                            <label class="form-check-label" for="method1">{{ __('Wahrnehmung') }} - @lang('Hash basierend auf Merkmalen des Inhalts')</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="method" id="method2" value="difference">
-                            <label class="form-check-label" for="method2">{{ __('Differenz') }} &mdash; @lang('Hash basierend auf dem vorherigen Pixel')</label>
+                            <label class="form-check-label" for="method2">{{ __('Differenz') }} - @lang('Hash basierend auf dem vorherigen Pixel')</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="method" id="method3" value="average">
-                            <label class="form-check-label" for="method3">{{ __('Durchschnitt') }} &mdash; @lang('Hash basierend auf der durchschnittlichen Bildfarbe')</label>
+                            <label class="form-check-label" for="method3">{{ __('Durchschnitt') }} - @lang('Hash basierend auf der durchschnittlichen Bildfarbe')</label>
                         </div>
                     </div>
 

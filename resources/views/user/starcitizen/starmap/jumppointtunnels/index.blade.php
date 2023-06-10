@@ -70,26 +70,27 @@
 
         <table class="table">
             <thead>
-            <tr>
-                <th>@lang('admin/starmap/jumppointtunnels/index.id')</th>
-                <th>@lang('admin/starmap/jumppointtunnels/index.created')</th>
-                <th>@lang('admin/starmap/jumppointtunnels/index.size')</th>
-                <th>@lang('admin/starmap/jumppointtunnels/index.entry_code')</th>
-                <th>@lang('admin/starmap/jumppointtunnels/index.exit_code')</th>
-            </tr>
+                <tr>
+                    <th>@lang('admin/starmap/jumppointtunnels/index.id')</th>
+                    <th>@lang('admin/starmap/jumppointtunnels/index.created')</th>
+                    <th>@lang('admin/starmap/jumppointtunnels/index.size')</th>
+                    <th>@lang('admin/starmap/jumppointtunnels/index.entry_code')</th>
+                    <th>@lang('admin/starmap/jumppointtunnels/index.exit_code')</th>
+                </tr>
             </thead>
             <tbody>
-            @foreach($jumppointtunnels as $jumppointtunnel)
-                <tr>
-                    <td>{{ $jumppointtunnel->getRouteKey() }}</td>
-                    <td>{{ $jumppointtunnel->created_at }}</td>
-                    <td>{{ $jumppointtunnel->size }}</td>
-                    <td>{{ $jumppointtunnel->entry_code }}</td>
-                    <td>{{ $jumppointtunnel->exit_code }}</td>
-                </tr>
-            @endforeach
+                @foreach($jumppointtunnels as $jumppointtunnel)
+                    <tr>
+                        <td>{{ $jumppointtunnel->getRouteKey() }}</td>
+                        <td>{{ $jumppointtunnel->created_at }}</td>
+                        <td>{{ $jumppointtunnel->size }}</td>
+                        <td>{{ $jumppointtunnel->entry_code }}</td>
+                        <td>{{ $jumppointtunnel->exit_code }}</td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
+    </div>
 @endsection
 
 @section('scripts')

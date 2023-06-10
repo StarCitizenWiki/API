@@ -8,133 +8,7 @@
 import './bootstrap';
 import snarkdown from './snarkdown';
 import 'datatables.net-bs4';
-import { library, dom } from '@fortawesome/fontawesome-svg-core'
-
-import {
-    faBook,
-    faBookmark,
-    faBuilding,
-    faBullhorn,
-    faCar,
-    faCheckCircle,
-    faCircle,
-    faCircleNotch,
-    faClipboardCheck,
-    faCloud,
-    faCogs,
-    faComment,
-    faCommentAlt,
-    faCrosshairs,
-    faChartBar,
-    faCube,
-    faDesktop,
-    faDotCircle,
-    faEnvelope,
-    faExclamation,
-    faExclamationTriangle,
-    faExpandAlt,
-    faExternalLinkAlt,
-    faEye,
-    faGlobe,
-    faHome,
-    faIdCard,
-    faImage,
-    faInfo,
-    faIndustry,
-    faMinus,
-    faPencilAlt,
-    faPlus,
-    faQuestionCircle,
-    faRedo,
-    faRocket,
-    faSearch,
-    faSignInAlt,
-    faSignOutAlt,
-    faStickyNote,
-    faStopCircle,
-    faTag,
-    faTable,
-    faTachometerAlt,
-    faTrashAlt,
-    faUser,
-    faUserCircle,
-    faUserPlus,
-    faUsers,
-    faUpload,
-    faToggleOn,
-    faToggleOff,
-} from '@fortawesome/free-solid-svg-icons'
-
-import {
-    faFacebook,
-    faTwitter,
-    faTeamspeak,
-    faGithub
-} from '@fortawesome/free-brands-svg-icons'
-
-library.add(
-    faBook,
-    faBookmark,
-    faBuilding,
-    faBullhorn,
-    faCar,
-    faCheckCircle,
-    faCircle,
-    faCircleNotch,
-    faClipboardCheck,
-    faCloud,
-    faCogs,
-    faComment,
-    faCommentAlt,
-    faCrosshairs,
-    faChartBar,
-    faCube,
-    faDesktop,
-    faDotCircle,
-    faEnvelope,
-    faExclamation,
-    faExclamationTriangle,
-    faExpandAlt,
-    faExternalLinkAlt,
-    faEye,
-    faGlobe,
-    faHome,
-    faIdCard,
-    faImage,
-    faInfo,
-    faIndustry,
-    faMinus,
-    faPencilAlt,
-    faPlus,
-    faQuestionCircle,
-    faRedo,
-    faRocket,
-    faSearch,
-    faSignInAlt,
-    faSignOutAlt,
-    faStickyNote,
-    faStopCircle,
-    faTag,
-    faTable,
-    faTachometerAlt,
-    faTrashAlt,
-    faUser,
-    faUserCircle,
-    faUserPlus,
-    faUsers,
-    faUpload,
-    faToggleOn,
-    faToggleOff,
-)
-
-library.add(
-    faFacebook,
-    faTwitter,
-    faTeamspeak,
-    faGithub
-)
-
-dom.watch()
+import './icon'
 
 
 import Vue from 'vue';
@@ -170,28 +44,21 @@ if (document.getElementById('celestial-object-generator')) {
 window.snarkdown = snarkdown;
 
 (() => {
-    const changeButtonText = () => {
-        let text = 'Darkmode';
-        if (document.body.parentElement.classList.contains('darkmode')) {
-            text = 'Darkmode';
-        }
-        document.querySelector('#darkmode-toggle span').textContent = text;
-    };
-
-    if (document.body.parentElement.classList.contains('darkmode')) {
-        changeButtonText();
-        document.querySelector('#darkmode-toggle i').classList.remove('fa-toggle-off');
-        document.querySelector('#darkmode-toggle i').classList.add('fa-toggle-on');
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('darkmode-toggle').addEventListener('click', (e) => {
-            document.body.parentElement.classList.toggle('darkmode');
-            e.target.parentElement.querySelector('svg').classList.toggle('fa-toggle-on');
-            e.target.parentElement.querySelector('svg').classList.toggle('fa-toggle-off');
+        document.querySelectorAll('#theme-selector .dropdown-menu a').forEach(a => {
+            a.addEventListener('click', (e) => {
+                document.body.parentElement.classList.remove('darkmode');
+                document.body.parentElement.classList.remove('spacetheme');
+                document.body.parentElement.classList.add(a.id);
 
-            window.localStorage.setItem('darkmode', document.body.parentElement.classList.contains('darkmode') ? 'on' : 'off');
-            changeButtonText();
-        });
+                a.parentElement.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                a.classList.add('active');
+
+                window.localStorage.setItem('theme', a.id);
+                if (a.id === 'light') {
+                    window.localStorage.removeItem('theme');
+                }
+            });
+        })
     });
 })();

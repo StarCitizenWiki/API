@@ -8,8 +8,7 @@ use App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
-use Dingo\Api\Dispatcher;
-use Dingo\Api\Http\Response;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Tests\Feature\Controller\Web\User\UserTestCase;
@@ -181,7 +180,7 @@ EOF
     /**
      * @covers \App\Http\Controllers\Web\User\Rsi\CommLink\CommLinkController::preview
      *
-     * @covers \App\Jobs\Rsi\CommLink\Import\Element\Content
+     * @covers \App\Services\Parser\CommLink\Content
      */
     public function testPreview(): void
     {

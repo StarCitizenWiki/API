@@ -45,9 +45,6 @@ return [
 
         'daily' => [
             'driver' => 'daily',
-            'tap'    => [
-                \App\Logging\AddLogProcessor::class,
-            ],
             'path'   => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'info'),
             'days'   => 7,

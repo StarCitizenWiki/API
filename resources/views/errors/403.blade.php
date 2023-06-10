@@ -1,6 +1,6 @@
 @extends('errors.layouts.default')
 
-@section('title', '403 - Verboten')
+@section('title', '403 - ' . __('Verboten'))
 
 @section('top', 403)
 
@@ -15,9 +15,9 @@
 @endsection
 
 @section('debug')
-@if(isset($exception))
-Message: {{ $exception->getMessage() }}<br>
-Stack: <br>
-{!! $exception->getTraceAsString() !!}
-@endif
+    @if(isset($exception))
+        Message: {{ $exception->getMessage() }}<br>
+        Stack: <br>
+        {!! $exception->getTraceAsString() !!}
+    @endif
 @endsection

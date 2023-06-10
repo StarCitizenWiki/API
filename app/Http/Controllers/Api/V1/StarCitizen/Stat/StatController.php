@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Api\V1\StarCitizen\Stat;
 use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\StarCitizen\Stat\Stat;
 use App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use OpenApi\Attributes as OA;
 
 class StatController extends ApiController

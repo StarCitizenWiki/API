@@ -46,7 +46,7 @@ class ReDownloadCommLinks extends Command
             [
                 new ImportCommLinks(-1),
             ]
-        )->dispatch($skip);
+        )->onQueue('redownload_comm_links')->dispatch($skip);
 
         return 0;
     }

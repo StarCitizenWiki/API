@@ -16,6 +16,7 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem\Weapon\WeaponTransforme
 use App\Transformers\Api\V1\StarCitizenUnpacked\Shop\ShopTransformer;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
+use RuntimeException;
 
 class ShipItemTransformer extends AbstractCommodityTransformer
 {
@@ -85,6 +86,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     private function addSpecificationData(AbstractShipItemSpecification $item): void
     {
         switch ($this->fixItem($item)->shipItem->item->type) {
+            case 'CargoGrid':
             case 'Cargo':
                 $this->defaultIncludes[] = 'cargoGrid';
                 break;
@@ -147,6 +149,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
                 $this->defaultIncludes[] = 'selfDestruct';
                 break;
 
+            case 'ToolArm':
             case 'Turret':
             case 'TurretBase':
             case 'MiningArm':
@@ -279,7 +282,7 @@ class ShipItemTransformer extends AbstractCommodityTransformer
         }
 
         if (!$item instanceof AbstractShipItemSpecification) {
-            throw new \RuntimeException();
+            throw new RuntimeException();
         }
 
         return $item;

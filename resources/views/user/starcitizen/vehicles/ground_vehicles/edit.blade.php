@@ -11,7 +11,7 @@
                 'class' => 'mb-4',
             ])
                 @slot('title')
-                    <h4 class="mb-0">@lang('Fahrzeugdaten') <small class="float-right mt-1">Letztes Update: {{ $groundVehicle->updated_at->diffForHumans() }}</small></h4>
+                    <h4 class="mb-0">@lang('Fahrzeugdaten') <small class="float-right mt-1">@lang('Letztes Update'): {{ $groundVehicle->updated_at->diffForHumans() }}</small></h4>
                 @endslot
                 @component('components.forms.form')
                         <div class="row">
@@ -56,7 +56,7 @@
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
-                                    'label' => __('Chassis ID'),
+                                    'label' => __('Fahrgestell ID'),
                                     'id' => 'chassis_id',
                                     'value' => $groundVehicle->chassis_id,
                                 ])@endcomponent
@@ -146,7 +146,7 @@
                                 @component('components.forms.form-group', [
                                     'inputType' => 'text',
                                     'inputOptions' => 'readonly',
-                                    'label' => __('Mass'),
+                                    'label' => __('Masse'),
                                     'id' => 'mass',
                                     'value' => $groundVehicle->mass.' Kg',
                                 ])@endcomponent
@@ -206,7 +206,7 @@
             <div class="card">
                 <h4 class="card-header">
                     <a data-toggle="collapse" href="#components" role="button"
-                       aria-expanded="false" aria-controls="components">Komponenten anzeigen</a>
+                       aria-expanded="false" aria-controls="components">@lang('Komponenten anzeigen')</a>
                 </h4>
                 <div class="card-body collapse" id="components">
                     @include('user.components.starcitizen.vehicle_components', ['componentGroups' => $componentGroups])
@@ -248,12 +248,12 @@
             @endcomponent
 
             <div class="card mt-3">
-                <h4 class="card-header">Änderungen</h4>
+                <h4 class="card-header">@lang('Änderungen')</h4>
                 <div class="card-body">
                     @component('user.components.changelog_list', [
                         'changelogs' => $changelogs,
                     ])
-                        Fahrzeug
+                        @lang('Fahrzeug')
                     @endcomponent
                 </div>
             </div>

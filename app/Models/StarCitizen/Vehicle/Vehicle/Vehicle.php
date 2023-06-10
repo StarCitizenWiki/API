@@ -268,6 +268,36 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
         return $length;
     }
 
+    public function getScWidthAttribute()
+    {
+        $unpacked = $this->sc->width;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $this->beam;
+    }
+
+    public function getScHeightAttribute($height)
+    {
+        $unpacked = $this->sc->height;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $height;
+    }
+
+    public function getScLengthAttribute($length)
+    {
+        $unpacked = $this->sc->length;
+        if ($unpacked !== null && $unpacked > 0) {
+            return $unpacked;
+        }
+
+        return $length;
+    }
+
     /**
      * Unpacked Data
      *
@@ -275,9 +305,29 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
      */
     public function unpacked(): HasOne
     {
-        return $this->hasOne(\App\Models\StarCitizenUnpacked\Vehicle::class, 'shipmatrix_id', 'id')
+        return $this->hasOne(
+            \App\Models\StarCitizenUnpacked\Vehicle::class,
+            'shipmatrix_id',
+            'id'
+        )
             ->withDefault();
     }
+
+    /**
+     * Unpacked Data
+     *
+     * @return HasOne
+     */
+    public function sc(): HasOne
+    {
+        return $this->hasOne(
+            \App\Models\SC\Vehicle\Vehicle::class,
+            'shipmatrix_id',
+            'id'
+        )
+            ->withDefault();
+    }
+
 
     /**
      * Ground Vehicles
@@ -315,5 +365,16 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+
+    public function loaner(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            __CLASS__,
+            'vehicle_loaners',
+            'vehicle_id',
+            'loaner_id',
+            'id',
+        )->withPivot('version');
     }
 }

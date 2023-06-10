@@ -99,7 +99,7 @@ class UploadWikiImage
                     );
                 }
             )
-                ->push($image->getLocalOrRemoteUrl())->implode(','),
+                ->push($image->url)->implode(','),
             'date' => $image->metadata->created_at,
             'filesize' => $image->metadata->size,
             'description' => $data['description'],

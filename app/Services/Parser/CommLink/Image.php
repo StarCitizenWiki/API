@@ -153,11 +153,20 @@ class Image extends BaseElement
 
     private function extractGElementImages(): void
     {
+        $defaultImageElements = [
+            ':image',
+            ':picture',
+            ':simple-image',
+            ':background-image',
+            ':main-responsive-image',
+        ];
+
         $elements = [
-            'g-banner' => ':background-image',
-            'g-illustration' => ':image',
-            'g-feature' => ':main-responsive-image',
-            'g-trailer' => ':simple-image',
+            'g-banner' => $defaultImageElements,
+            'g-illustration' => $defaultImageElements,
+            'g-feature' => $defaultImageElements,
+            'g-trailer' => $defaultImageElements,
+            'g-slideshow' => ':pictures',
         ];
 
         foreach ($elements as $path => $attr) {
@@ -165,31 +174,51 @@ class Image extends BaseElement
                 ->filter($this->getFilterSelector())->filterXPath(sprintf('//%s', $path))
                 ->each(
                     function (Crawler $crawler) use ($path, $attr) {
-                        $image = trim($crawler->attr($attr) ?? '');
-                        $data = [];
-
-                        try {
-                            $image = json_decode($image, true, 512, JSON_THROW_ON_ERROR);
-                        } catch (JsonException $e) {
-                            return;
+                        $attributes = $attr;
+                        if (!is_array($attributes)) {
+                            $attributes = [$attr];
                         }
 
-                        if (isset($image['format']['webp']) || isset($image['format']['originalFormat'])) {
-                            $data = [
-                                'src' => $image['format']['webp']['max'] ?? $image['format']['source'] ?? null,
-                                'alt' => $path,
-                            ];
-                        }
+                        foreach ($attributes as $attr) {
+                            $images = trim($crawler->attr($attr) ?? '');
+                            $data = [];
 
-                        if (isset($image['max']) || isset($image['source'])) {
-                            $data = [
-                                'src' => $image['max'] ?? $image['source'],
-                                'alt' => $image['alt'] ?? $path,
-                            ];
-                        }
+                            try {
+                                $images = json_decode($images, true, 512, JSON_THROW_ON_ERROR);
+                            } catch (JsonException $e) {
+                                continue;
+                            }
 
-                        if (!empty($data) && $data['src'] !== null) {
-                            $this->images[] = $data;
+                            if (!is_array($images)) {
+                                $images = [$images];
+                            }
+
+                            foreach ($images as $image) {
+                                if (isset($image['format']['webp']) || isset($image['format']['originalFormat'])) {
+                                    $data = [
+                                        'src' => $image['format']['webp']['max'] ?? $image['format']['source'] ?? null,
+                                        'alt' => $path,
+                                    ];
+                                }
+
+                                if (isset($image['max']) || isset($image['source'])) {
+                                    $data = [
+                                        'src' => $image['max'] ?? $image['source'],
+                                        'alt' => $image['alt'] ?? $path,
+                                    ];
+                                }
+
+                                if (isset($image['originalFormat']) || isset($image['webp'])) {
+                                    $data = [
+                                        'src' => $image['webp']['max'] ?? $image['originalFormat']['max'],
+                                        'alt' => $path,
+                                    ];
+                                }
+
+                                if (!empty($data) && $data['src'] !== null) {
+                                    $this->images[] = $data;
+                                }
+                            }
                         }
                     }
                 );

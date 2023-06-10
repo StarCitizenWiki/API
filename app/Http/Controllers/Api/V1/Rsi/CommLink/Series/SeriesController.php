@@ -8,9 +8,9 @@ use App\Http\Controllers\Api\AbstractApiController as ApiController;
 use App\Models\Rsi\CommLink\Series\Series;
 use App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer;
 use App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use OpenApi\Attributes as OA;
 
 /**
@@ -88,7 +88,7 @@ class SeriesController extends ApiController
                 ->orWhere('slug', $series)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $series));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $series)], 404);
         }
 
         $this->transformer = new CommLinkTransformer();

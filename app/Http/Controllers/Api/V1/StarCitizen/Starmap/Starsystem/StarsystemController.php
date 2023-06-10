@@ -9,9 +9,10 @@ use App\Http\Requests\StarCitizen\Starmap\StarsystemRequest;
 use App\Models\StarCitizen\Starmap\Starsystem\Starsystem;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemLinkTransformer;
 use App\Transformers\Api\V1\StarCitizen\Starmap\StarsystemTransformer;
-use Dingo\Api\Http\Request;
-use Dingo\Api\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
@@ -112,16 +113,23 @@ class StarsystemController extends ApiController
             )
         ]
     )]
-    public function show(Request $request): Response
+    public function show(Request $request)
     {
-        ['code' => $code] = Validator::validate(
-            [
-                'code' => $request->code,
-            ],
-            [
-                'code' => 'required|string|min:1|max:255',
-            ]
-        );
+        try {
+            ['code' => $code] = Validator::validate(
+                [
+                    'code' => $request->code,
+                ],
+                [
+                    'code' => 'required|string|min:1|max:255',
+                ]
+            );
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $code = mb_strtoupper(urldecode($code));
 
@@ -133,7 +141,7 @@ class StarsystemController extends ApiController
                 ->orWhere('name', 'LIKE', "%$code%")
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $code));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $code)], 404);
         }
 
         return $this->getResponse($starsystem);
@@ -171,17 +179,24 @@ class StarsystemController extends ApiController
 //            )
 //        ],
 //    )]
-    public function search(Request $request): Response
+    public function search(Request $request)
     {
         $rules = (new StarsystemRequest())->rules();
 
-        $request->validate($rules);
+        try {
+            $request->validate($rules);
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'code' => $e->status,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
         $query = urldecode($this->request->get('query', ''));
         $queryBuilder = Starsystem::query()->where('name', 'like', "%{$query}%");
 
         if ($queryBuilder->count() === 0) {
-            $this->response->errorNotFound(sprintf(static::NOT_FOUND_STRING, $query));
+            return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $query)], 404);
         }
 
         return $this->getResponse($queryBuilder);

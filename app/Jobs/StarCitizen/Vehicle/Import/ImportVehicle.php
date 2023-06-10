@@ -118,7 +118,7 @@ class ImportVehicle implements ShouldQueue
     {
         return [
             'id' => (int)$this->rawData->get(self::VEHICLE_ID),
-            'name' => $this->rawData->get(self::VEHICLE_NAME),
+            'name' => trim($this->rawData->get(self::VEHICLE_NAME)),
             'slug' => Str::slug($this->rawData->get(self::VEHICLE_NAME)),
             'manufacturer_id' => $this->getManufacturerId(),
             'production_status_id' => $this->getProductionStatusId(),
@@ -128,12 +128,12 @@ class ImportVehicle implements ShouldQueue
             'length' => $this->formatNum($this->rawData->get(self::VEHICLE_LENGTH)),
             'beam' => $this->formatNum($this->rawData->get(self::VEHICLE_BEAM)),
             'height' => $this->formatNum($this->rawData->get(self::VEHICLE_HEIGHT)),
-            'mass' => (int)$this->rawData->get(self::VEHICLE_MASS),
-            'cargo_capacity' => (int)$this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
-            'min_crew' => (int)$this->rawData->get(self::VEHICLE_MIN_CREW),
-            'max_crew' => (int)$this->rawData->get(self::VEHICLE_MAX_CREW),
-            'scm_speed' => (int)$this->rawData->get(self::VEHICLE_SCM_SPEED),
-            'afterburner_speed' => (int)$this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
+            'mass' => $this->rawData->get(self::VEHICLE_MASS),
+            'cargo_capacity' => $this->rawData->get(self::VEHICLE_CARGO_CAPACITY),
+            'min_crew' => $this->rawData->get(self::VEHICLE_MIN_CREW),
+            'max_crew' => $this->rawData->get(self::VEHICLE_MAX_CREW),
+            'scm_speed' => $this->rawData->get(self::VEHICLE_SCM_SPEED),
+            'afterburner_speed' => $this->rawData->get(self::VEHICLE_AFTERBURNER_SPEED),
             'pitch_max' => $this->formatNum($this->rawData->get(self::VEHICLE_PITCH_MAX)),
             'yaw_max' => $this->formatNum($this->rawData->get(self::VEHICLE_YAW_MAX)),
             'roll_max' => $this->formatNum($this->rawData->get(self::VEHICLE_ROLL_MAX)),
@@ -234,8 +234,12 @@ class ImportVehicle implements ShouldQueue
      *
      * @return string
      */
-    private function formatNum($number): string
+    private function formatNum($number): ?string
     {
+        if (empty($number)) {
+            return null;
+        }
+
         return number_format((float)$number, 2, '.', '');
     }
 

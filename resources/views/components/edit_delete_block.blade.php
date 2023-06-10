@@ -15,7 +15,7 @@
                 @slot('options')
                     data-fa-transform="up-2"
                 @endslot
-                pencil-alt
+                pen
             @endcomponent
         </a>
     @endunless

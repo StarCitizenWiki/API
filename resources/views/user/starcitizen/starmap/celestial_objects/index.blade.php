@@ -18,7 +18,7 @@
                         <th>@lang('CIG ID')</th>
                         <th>@lang('Sternensystem')</th>
                         <th>@lang('Name')</th>
-                        <th>@lang('Designation')</th>
+                        <th>@lang('Bezeichnung')</th>
                         <th>@lang('Typ')</th>
                         <th title="Fair Chance Act">@lang('FCA')</th>
                         <th>@lang('Habitabel')</th>
@@ -31,59 +31,58 @@
                     </tr>
                 </thead>
                 <tbody>
-
-                @forelse($objects as $object)
-                    <tr>
-                        @can('web.user.internals.view')
+                    @forelse($objects as $object)
+                        <tr>
+                            @can('web.user.internals.view')
+                                <td>
+                                    {{ $object->id }}
+                                </td>
+                            @endcan
                             <td>
-                                {{ $object->id }}
+                                {{ $object->cig_id }}
                             </td>
-                        @endcan
-                        <td>
-                            {{ $object->cig_id }}
-                        </td>
-                        <td>
-                            {{ $object->starsystem->name }}
-                        </td>
-                        <td>
-                            {{ $object->name }}
-                        </td>
-                        <td>
-                            {{ $object->designation }}
-                        </td>
-                        <td>
-                            {{ $object->type }}
-                        </td>
-                        <td>
-                            {{ $object->fairchanceact === true ? 'Ja' : 'Nein' }}
-                        </td>
-                        <td>
-                            {{ $object->habitable === true ? 'Ja' : 'Nein' }}
-                        </td>
-                        <td>
-                            {{ $object->latitude }}
-                        </td>
-                        <td>
-                            {{ $object->longitude }}
-                        </td>
-                        <td>
-                            {{ $object->sensor_population }}
-                        </td>
-                        <td>
-                            {{ $object->sensor_economy }}
-                        </td>
-                        <td>
-                            {{ $object->sensor_danger }}
-                        </td>
-                        <td data-order="{{ $object->time_modified->timestamp }}">
-                            {{ $object->time_modified->diffForHumans() }}
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="10">@lang('Keine Objekte vorhanden')</td>
-                    </tr>
-                @endforelse
+                            <td>
+                                {{ $object->starsystem->name }}
+                            </td>
+                            <td>
+                                {{ $object->name }}
+                            </td>
+                            <td>
+                                {{ $object->designation }}
+                            </td>
+                            <td>
+                                {{ $object->type }}
+                            </td>
+                            <td>
+                                {{ $object->fairchanceact === true ? __('Ja') : __('Nein') }}
+                            </td>
+                            <td>
+                                {{ $object->habitable === true ? __('Ja') : __('Nein') }}
+                            </td>
+                            <td>
+                                {{ $object->latitude }}
+                            </td>
+                            <td>
+                                {{ $object->longitude }}
+                            </td>
+                            <td>
+                                {{ $object->sensor_population }}
+                            </td>
+                            <td>
+                                {{ $object->sensor_economy }}
+                            </td>
+                            <td>
+                                {{ $object->sensor_danger }}
+                            </td>
+                            <td data-order="{{ $object->time_modified->timestamp }}">
+                                {{ $object->time_modified->diffForHumans() }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="10">@lang('Keine Objekte vorhanden')</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
