@@ -23,7 +23,7 @@
                 <p>
                     <a href="mailto:info@star-citizen.wiki" class="font-italic">@lang('Schreib')</a>
                         @lang('uns, oder besuch uns auf unserem')
-                    <a href="discord.star-citizen.wiki" class="font-italic">@lang('Discord-Server')</a>!
+                    <a href="https://discord.star-citizen.wiki" class="font-italic">@lang('Discord-Server')</a>!
                 </p>
             </div>
         </div>

@@ -15,7 +15,7 @@
 
 
 @component('components.navs.nav_element', [
-    'route' => 'discord.star-citizen.wiki',
+    'route' => 'https://discord.star-citizen.wiki',
 ])
     <div class="row">
         <div class="col-1">
