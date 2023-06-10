@@ -114,7 +114,7 @@
                 datasets: [{
                     backgroundColor: '#d24418',
                     label: 'Citizens',
-                    data: {!! $citizens !!},
+                    data: {!! $fans !!},
                 }]
             },
             options: {

@@ -58,7 +58,7 @@ class StatController extends Controller
             [
                 'labels' => $data->pluck('created_at')->toJson(),
                 'funds' => $data->pluck('funds')->toJson(),
-                'citizens' => $data->pluck('citizens')->toJson(),
+                'fans' => $data->pluck('fans')->toJson(),
                 'active' => $every,
                 'from' => optional($from)->format('Y-m-d'),
             ]
