@@ -184,7 +184,7 @@ class ItemController extends AbstractApiV2Controller
             $items->whereRelation('shops', 'uuid', $request->get('shop'));
         }
 
-        $items
+        $items = $items
             ->where('name', 'like', "%{$query}%")
             ->orWhere('uuid', $query)
             ->orWhere('type', $query)
