@@ -37,7 +37,7 @@
         <div class="row">
             <div class="col-1">
                 @component('components.elements.icon')
-                    pencil-alt
+                    pen
                 @endcomponent
             </div>
             <div class="col">
@@ -55,7 +55,7 @@
         <div class="row">
             <div class="col-1">
                 @component('components.elements.icon')
-                    exclamation
+                    ghost
                 @endcomponent
             </div>
             <div class="col">

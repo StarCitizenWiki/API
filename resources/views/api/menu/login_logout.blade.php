@@ -1,13 +1,59 @@
-@auth
-    @component('components.navs.nav_element', [
+@component('components.navs.nav_element', ['contentClass' => 'small'])
+    @slot('options')
+        style="cursor: default"
+    @endslot
+    v{{ config('app.version') }}
+@endcomponent
+@component('components.navs.nav_element', [
         'route' => route('web.user.dashboard')
     ])
+    <div class="btn btn-secondary" style="margin: 0;">
+        @component('components.elements.icon', ['class' => 'mr-1'])
+            tachometer-alt
+        @endcomponent
         @lang('Dashboard')
-    @endcomponent
+    </div>
+@endcomponent
+@component('components.navs.nav_element')
+    <div class="nav-item dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+            @component('components.elements.icon', ['class' => 'mr-1'])
+                palette
+            @endcomponent
+            Themes
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">
+                @component('components.elements.icon', ['class' => 'mr-1'])
+                    moon
+                @endcomponent
+                @lang('Dunkel modus')
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">
+                @component('components.elements.icon', ['class' => 'mr-1'])
+                    sun
+                @endcomponent
+                @lang('Heller modus')
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">
+                @component('components.elements.icon', ['class' => 'mr-1'])
+                    user-astronaut
+                @endcomponent
+                SpaceTheme (Recolor)
+            </a>
+        </div>
+    </div>
+@endcomponent
+@auth
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="admin_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+            @component('components.elements.icon', ['class' => 'mr-1'])
+                user
+            @endcomponent
             {{ Auth::user()->username }}
-        </a>
+        </button>
         <div class="dropdown-menu" aria-labelledby="admin_dropdown">
             <a class="dropdown-item" href="{{ route('web.user.account.index') }}">
                 @component('components.elements.icon', ['class' => 'mr-1'])
@@ -26,31 +72,17 @@
                 @component('components.elements.icon', ['class' => 'mr-1'])
                     sign-out-alt
                 @endcomponent
-                @lang('Logout')
+                @lang('Abmelden')
             </a>
         </div>
     </li>
-    @component('components.navs.nav_element', ['contentClass' => 'small'])
-        @slot('options')
-            style="padding-top: 0.7rem; cursor: default"
-        @endslot
-        v{{ config('app.version') }}
-    @endcomponent
 @else
-    @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])
-        @component('components.elements.icon')
-            sign-in-alt
+    <div class="btn btn-secondary">
+        @component('components.navs.nav_element', ['route' => route('web.user.auth.login')])
+            @component('components.elements.icon')
+                sign-in-alt
+            @endcomponent
+            @lang('Anmelden')
         @endcomponent
-        @lang('Login')
-    @endcomponent
+    </div>
 @endauth
-@component('components.navs.nav_element', ['contentClass' => 'small'])
-    @slot('options')
-        style="padding-top: 0.7rem; cursor: pointer"
-        id="darkmode-toggle"
-    @endslot
-    @component('components.elements.icon', ['class' => 'mr-1'])
-        toggle-off
-    @endcomponent
-    <span>@lang('Darkmode')</span>
-@endcomponent

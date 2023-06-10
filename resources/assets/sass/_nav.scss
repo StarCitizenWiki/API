@@ -20,6 +20,17 @@
     }
   }
 }
+.navbar-nav .nav-link {
+  padding: 0;
+}
+.navbar-nav>.nav-item:first-child {
+  display: flex;
+  align-items: center;
+}
+.nav-item:nth-child(2) .nav-link {
+  padding-right: 0;
+}
+
 /**
 #nav-top-menu {
   ul.collapse {

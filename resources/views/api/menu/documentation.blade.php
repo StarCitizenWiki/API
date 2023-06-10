@@ -24,12 +24,14 @@
             @endcomponent
         </div>
         <div class="col">
-            @lang('RSI Api')
+            @lang('RSI API')
         </div>
     </div>
 @endcomponent
 
 
+<?php
+/*
 @component('components.navs.nav_element', [
     'contentClass' => 'disabled',
     'route' => '-'
@@ -58,7 +60,7 @@
             @endcomponent
         </div>
         <div class="col">
-            @lang('Wiki Api')
+            @lang('Wiki API')
         </div>
     </div>
 @endcomponent
@@ -79,3 +81,5 @@
         </div>
     </div>
 @endcomponent
+*/
+?>

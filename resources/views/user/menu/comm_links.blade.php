@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                comment-alt
+                satellite
             @endcomponent
         </div>
         <div class="col">
@@ -54,7 +54,7 @@
                 @endcomponent
             </div>
             <div class="col">
-                @lang('Channel')
+                @lang('Channels')
             </div>
         </div>
     @endcomponent
@@ -80,7 +80,7 @@
         <div class="row">
             <div class="col-1">
                 @component('components.elements.icon')
-                    image
+                    images
                 @endcomponent
             </div>
             <div class="col">

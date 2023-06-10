@@ -25,71 +25,70 @@
                         <th>@lang('Gefahr')</th>
                         <th>@lang('Update')</th>
                         @can('web.user.starcitizen.starmap.view')
-                            <th data-orderable="false">&nbsp;</th>
+                            <th data-orderable="false"></th>
                         @endcan
                     </tr>
                 </thead>
                 <tbody>
-
-                @forelse($systems as $system)
-                    <tr>
-                        @can('web.user.internals.view')
+                    @forelse($systems as $system)
+                        <tr>
+                            @can('web.user.internals.view')
+                                <td>
+                                    {{ $system->id }}
+                                </td>
+                            @endcan
                             <td>
-                                {{ $system->id }}
+                                {{ $system->cig_id }}
                             </td>
-                        @endcan
-                        <td>
-                            {{ $system->cig_id }}
-                        </td>
-                        <td>
-                            {{ $system->code }}
-                        </td>
-                        <td>
-                            {{ $system->name }}
-                        </td>
-                        <td>
-                            {{ $system->status }}
-                        </td>
-                        <td>
-                            {{ $system->type }}
-                        </td>
-                        <td>
-                            {{ $system->planets_count }}
-                        </td>
-                        <td>
-                            {{ $system->moons_count }}
-                        </td>
-                        <td>
-                            {{ $system->aggregated_size }}
-                        </td>
-                        <td>
-                            {{ $system->aggregated_population }}
-                        </td>
-                        <td>
-                            {{ $system->aggregated_economy }}
-                        </td>
-                        <td>
-                            {{ $system->aggregated_danger }}
-                        </td>
-                        <td data-order="{{ $system->time_modified->timestamp }}">
-                            {{ $system->time_modified->diffForHumans() }}
-                        </td>
-                        @can('web.user.starcitizen.starmap.view')
-                            <td class="text-center">
-                                @component('components.edit_delete_block')
-                                    @slot('show_url')
-                                        {{ route('web.user.starcitizen.starmap.starsystems.show', $system->getRouteKey()) }}
-                                    @endslot
-                                    {{ $system->getRouteKey() }}
-                                @endcomponent
+                            <td>
+                                {{ $system->code }}
                             </td>
-                        @endcan
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="10">@lang('Keine Sternensysteme vorhanden')</td>
-                    </tr>
-                @endforelse
+                            <td>
+                                {{ $system->name }}
+                            </td>
+                            <td>
+                                {{ $system->status }}
+                            </td>
+                            <td>
+                                {{ $system->type }}
+                            </td>
+                            <td>
+                                {{ $system->planets_count }}
+                            </td>
+                            <td>
+                                {{ $system->moons_count }}
+                            </td>
+                            <td>
+                                {{ $system->aggregated_size }}
+                            </td>
+                            <td>
+                                {{ $system->aggregated_population }}
+                            </td>
+                            <td>
+                                {{ $system->aggregated_economy }}
+                            </td>
+                            <td>
+                                {{ $system->aggregated_danger }}
+                            </td>
+                            <td data-order="{{ $system->time_modified->timestamp }}">
+                                {{ $system->time_modified->diffForHumans() }}
+                            </td>
+                            @can('web.user.starcitizen.starmap.view')
+                                <td class="text-center">
+                                    @component('components.edit_delete_block')
+                                        @slot('show_url')
+                                            {{ route('web.user.starcitizen.starmap.starsystems.show', $system->getRouteKey()) }}
+                                        @endslot
+                                        {{ $system->getRouteKey() }}
+                                    @endcomponent
+                                </td>
+                            @endcan
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="10">@lang('Keine Sternensysteme vorhanden')</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

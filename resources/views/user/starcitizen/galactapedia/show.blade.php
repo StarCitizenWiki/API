@@ -76,7 +76,7 @@
 
                     <div class="tab-content" id="nav-tab-translations">
                         <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="nav-en_EN-tab">
-                            {!! empty($article->english()->translation) ? 'Nicht vorhanden' : nl2br(\App\Models\StarCitizen\Galactapedia\Article::normalizeContent($article->english()->translation)) !!}
+                            {!! empty($article->english()->translation) ? __('Nicht vorhanden') : nl2br(\App\Models\StarCitizen\Galactapedia\Article::normalizeContent($article->english()->translation)) !!}
                         </div>
 
                         <div class="tab-pane fade" id="changelog" role="tabpanel" aria-labelledby="nav-changelog-tab">
@@ -102,13 +102,13 @@
 
                         <div class="tab-pane fade" id="wikitext" role="tabpanel" aria-labelledby="nav-wikitext-tab">
                             <pre>
-{!! htmlspecialchars($wikitext) !!}
+                                {!! htmlspecialchars($wikitext) !!}
                             </pre>
                         </div>
 
                         @can('web.user.rsi.comm-links.update')
                             <div class="tab-pane fade" id="deepl" role="tabpanel" aria-labelledby="nav-deepl-tab">
-                                {!! empty($article->german()->translation) ? 'Nicht vorhanden' : nl2br($article->german()->translation) !!}
+                                {!! empty($article->german()->translation) ? __('Nicht vorhanden') : nl2br($article->german()->translation) !!}
                             </div>
                         @endcan
                     </div>
@@ -122,7 +122,7 @@
                             </th>
                         </tr>
                         <tr>
-                            <th class="border-top-0" scope="row">ID</th>
+                            <th class="border-top-0" scope="row">@lang('ID')</th>
                             <td class="border-top-0">{{ $article->cig_id }}</td>
                         </tr>
                         <tr>
@@ -147,16 +147,16 @@
                                             <td class="text-break">{{ $property->content }}</td>
                                         </tr>
                                     @empty
-                                            -
+                                        -
                                     @endforelse
                                 </table>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Url</th>
+                            <th scope="row">@lang('URL')</th>
                             <td>
                                 <a href="{{ $article->url }}" target="_blank" class="text-break">
-                                    {{ $article->url ?? 'Keine Original URL vorhanden' }}
+                                    {{ $article->url ?? __('Keine Original URL vorhanden') }}
                                 </a>
                             </td>
                         </tr>
@@ -168,8 +168,8 @@
                                         {{ $related->title }}
                                     </a>
                                     <br>
-                                @empty
-                                    -
+                                    @empty
+                                        -
                                 @endforelse
                             </td>
                         </tr>

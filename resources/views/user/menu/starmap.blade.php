@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                circle-notch
+                sun
             @endcomponent
         </div>
         <div class="col">
@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                dot-circle
+                meteor
             @endcomponent
         </div>
         <div class="col">

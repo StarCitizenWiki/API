@@ -1,14 +1,14 @@
 @component('components.navs.nav_element', [
-    'route' => route('web.user.rsi.stat.index'),
+    'route' => route('web.user.dashboard'),
 ])
     <div class="row">
         <div class="col-1">
             @component('components.elements.icon')
-                chart-column
+                tachometer-alt
             @endcomponent
         </div>
         <div class="col">
-            @lang('Spendenstatistiken')
+            @lang('Dashboard')
         </div>
     </div>
 @endcomponent

@@ -5,7 +5,7 @@
 @section('content')
     <div class="d-flex ">
         <form class="form-inline" id="modelForm">
-            <label class="my-1 mr-2" for="model">@lang('Model')</label>
+            <label class="my-1 mr-2" for="model">@lang('Modell')</label>
             <select class="custom-select form-control my-1 mr-sm-2" id="model">
                 <option value="" selected>@lang('Alle')</option>
                 @foreach($models as $model)
@@ -15,7 +15,7 @@
         </form>
 
         <form class="form-inline" id="typeForm">
-            <label class="my-1 mr-2" for="type">Typ</label>
+            <label class="my-1 mr-2" for="type">@lang('Typ')</label>
             <select class="custom-select form-control my-1 mr-sm-2" id="type">
                 <option value="" selected>@lang('Alle')</option>
                 @foreach($types as $type)
@@ -30,61 +30,59 @@
             <div class="dataTables_wrapper">
                 <table class="table table-striped mb-0">
                     <thead>
-                    <tr>
-                        @can('web.user.internals.view')
-                            <th>@lang('ID')</th>
-                        @endcan
-                        <th>@lang('Benutzer')</th>
-                        <th>@lang('Typ')</th>
-                        <th>@lang('Model')</th>
-                        <th>@lang('Datum')</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    @forelse($changelogs as $changelog)
                         <tr>
                             @can('web.user.internals.view')
-                                <td>
-                                    {{ $changelog->id }}
-                                </td>
+                                <th>@lang('ID')</th>
                             @endcan
-                            <td>
-                                {!! $changelog->user_link !!}
-                            </td>
-                            <td>
-                                <a data-toggle="collapse" href="#details_{{$loop->index}}" role="button"
-                                aria-expanded="false" aria-controls="#details_{{$loop->index}}">
-                                    <u>{{ __($changelog->type) }}</u>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="{{ $changelog->model_route }}">
-                                {{ class_basename($changelog->changelog_type) }}
-                                </a>
-                            </td>
-                            <td data-content="{{ $changelog->created_at->format('d.m.Y H:i:s') }}" data-toggle="popover">
-                                {{ $changelog->created_at->diffForHumans() }}
-                            </td>
+                            <th>@lang('Benutzer')</th>
+                            <th>@lang('Typ')</th>
+                            <th>@lang('Modell')</th>
+                            <th>@lang('Datum')</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($changelogs as $changelog)
+                            <tr>
+                                @can('web.user.internals.view')
+                                    <td>
+                                        {{ $changelog->id }}
+                                    </td>
+                                @endcan
+                                <td>
+                                    {!! $changelog->user_link !!}
+                                </td>
+                                <td>
+                                    <a data-toggle="collapse" href="#details_{{$loop->index}}" role="button"
+                                       aria-expanded="false" aria-controls="#details_{{$loop->index}}">
+                                        <u>{{ __($changelog->type) }}</u>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ $changelog->model_route }}">
+                                        {{ class_basename($changelog->changelog_type) }}
+                                    </a>
+                                </td>
+                                <td data-content="{{ $changelog->created_at->format('d.m.Y H:i:s') }}" data-toggle="popover">
+                                    {{ $changelog->created_at->diffForHumans() }}
+                                </td>
+                            </tr>
 
-                        <tr id="details_{{ $loop->index }}" class="collapse" style="overflow-y:scroll">
-                            <td colspan="5">
-                                @unless($changelog->model_route === '#')
-                                    <a href="{{ $changelog->model_route }}">{{ __('Änderungen') }} {{ __('Ansehen') }}</a>
-                                    <hr>
-                                @endunless
+                            <tr id="details_{{ $loop->index }}" class="collapse" style="overflow-y:scroll">
+                                <td colspan="5">
+                                    @unless($changelog->model_route === '#')
+                                        <a href="{{ $changelog->model_route }}">{{ __('Änderungen') }} {{ __('Ansehen') }}</a>
+                                        <hr>
+                                    @endunless
 
-                                <p class="mb-0">Details:</p>
-                                <pre><code class="mb-0" style="white-space: pre-wrap;">{!! $changelog->formatted_changelog !!}</code></pre>
-                            </td>
-                        </tr>
-
-                    @empty
-                        <tr>
-                            <td colspan="9">@lang('Keine Änderungen vorhanden')</td>
-                        </tr>
-                    @endforelse
+                                    <p class="mb-0">@lang('Details'):</p>
+                                    <pre><code class="mb-0" style="white-space: pre-wrap;">{!! $changelog->formatted_changelog !!}</code></pre>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="9">@lang('Keine Änderungen vorhanden')</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
