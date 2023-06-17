@@ -70,11 +70,7 @@ class Item extends HasTranslations
     protected $with = [
         'dimensions',
         'container',
-        'ports',
         'manufacturer',
-        'durabilityData',
-        'descriptionData',
-        'translations',
         'defaultTags',
         'requiredTags',
     ];

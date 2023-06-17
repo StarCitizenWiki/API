@@ -116,7 +116,7 @@ class ImportItems extends AbstractQueueCommand
             Artisan::call('sc:import-vehicles');
         }
 
-        $this->info('Done. You can import shop items by running sc:import-shop-items');
+        $this->info('Done. You can import shop items by running sc:import-shops');
         return Command::SUCCESS;
     }
 }

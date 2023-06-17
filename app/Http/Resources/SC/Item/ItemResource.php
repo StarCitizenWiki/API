@@ -123,11 +123,13 @@ use OpenApi\Attributes as OA;
 class ItemResource extends AbstractTranslationResource
 {
     private bool $isVehicleItem;
+    private bool $onlySimpleData;
 
-    public function __construct($resource, bool $isVehicleItem = false)
+    public function __construct($resource, bool $isVehicleItem = false, bool $onlyBaseData = false)
     {
         parent::__construct($resource);
         $this->isVehicleItem = $isVehicleItem;
+        $this->onlySimpleData = $onlyBaseData;
     }
 
     public static function validIncludes(): array
@@ -144,22 +146,26 @@ class ItemResource extends AbstractTranslationResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         if ($this->uuid === null) {
             return [];
         }
+
+        $vehicleItem = $this->vehicleItem;
 
         return [
             'uuid' => $this->uuid,
             'name' => $this->name,
             'description' => $this->getTranslation($this, $request),
             'size' => $this->size,
-            $this->mergeWhen($this->isVehicleItem || $this->vehicleItem->exists, [
-                'grade' => $this->vehicleItem->grade,
-                'class' => $this->vehicleItem->class,
+            $this->mergeWhen($vehicleItem !== null || $vehicleItem->exists, [
+                'grade' => $vehicleItem->grade,
+                'class' => $vehicleItem->class,
             ]),
-            'description_data' => ItemDescriptionDataResource::collection($this->whenLoaded('descriptionData')),
+            $this->mergeWhen(!$this->onlySimpleData, [
+                'description_data' => ItemDescriptionDataResource::collection($this->whenLoaded('descriptionData')),
+            ]),
             'manufacturer_description' => $this->getDescriptionDatum('Manufacturer'),
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
             'type' => $this->cleanType(),
@@ -167,23 +173,25 @@ class ItemResource extends AbstractTranslationResource
             $this->mergeWhen(...$this->addAttachmentPosition()),
             $this->mergeWhen($this->isTurret(), $this->addTurretData()),
             $this->mergeWhen(...$this->addSpecification()),
-            'dimension' => new ItemDimensionResource($this),
+            $this->mergeWhen(!$this->onlySimpleData, [
+                'dimension' => new ItemDimensionResource($this),
+            ]),
             $this->mergeWhen($this->container->exists, [
                 'inventory' => new ItemContainerResource($this->container),
             ]),
             'tags' => $this->defaultTags->pluck('name')->toArray(),
             'required_tags' => $this->requiredTags->pluck('name')->toArray(),
             'ports' => ItemPortResource::collection($this->whenLoaded('ports')),
-            $this->mergeWhen($this->relationLoaded('heatData'), [
+            $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('heatData'), [
                 'heat' => new ItemHeatDataResource($this->heatData),
             ]),
-            $this->mergeWhen($this->relationLoaded('powerData'), [
+            $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('powerData'), [
                 'power' => new ItemPowerDataResource($this->powerData),
             ]),
-            $this->mergeWhen($this->relationLoaded('distortionData'), [
+            $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('distortionData'), [
                 'distortion' => new ItemDistortionDataResource($this->distortionData),
             ]),
-            $this->mergeWhen($this->relationLoaded('durabilityData'), [
+            $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('durabilityData'), [
                 'durability' => new ItemDurabilityDataResource($this->durabilityData),
             ]),
             'shops' => ShopResource::collection($this->whenLoaded('shops')),
@@ -195,104 +203,105 @@ class ItemResource extends AbstractTranslationResource
 
     private function addSpecification(): array
     {
-        if (!$this?->specification?->exists || $this->specification === null) {
+        $specification = $this?->specification;
+        if (!$specification?->exists || $specification === null) {
             return [false, []];
         }
 
         return match (true) {
             $this->type === 'Armor' => [
-                $this->specification->exists,
-                ['emp' => new ArmorResource($this->specification),],
+                $specification->exists,
+                ['emp' => new ArmorResource($specification),],
             ],
             $this->type === 'EMP' => [
-                $this->specification->exists,
-                ['emp' => new EmpResource($this->specification),],
+                $specification->exists,
+                ['emp' => new EmpResource($specification),],
             ],
             $this->type === 'Cooler' => [
-                $this->specification->exists,
-                ['cooler' => new CoolerResource($this->specification),],
+                $specification->exists,
+                ['cooler' => new CoolerResource($specification),],
             ],
             str_contains($this->type, 'Char_Clothing'), str_contains($this->type, 'Char_Armor') => [
-                $this->specification->exists,
-                ['clothing' => new ClothingResource($this->specification),],
+                $specification->exists,
+                ['clothing' => new ClothingResource($specification),],
             ],
             $this->type === 'Food', $this->type === 'Bottle', $this->type === 'Drink' => [
-                $this->specification->exists,
-                ['food' => new FoodResource($this->specification),],
+                $specification->exists,
+                ['food' => new FoodResource($specification),],
             ],
             $this->type === 'MainThruster', $this->type === 'ManneuverThruster' => [
-                $this->specification->exists,
-                ['thruster' => new ThrusterResource($this->specification),],
+                $specification->exists,
+                ['thruster' => new ThrusterResource($specification),],
             ],
             $this->type === 'PowerPlant' => [
-                $this->specification->exists,
-                ['power_plant' => new PowerPlantResource($this->specification),],
+                $specification->exists,
+                ['power_plant' => new PowerPlantResource($specification),],
             ],
             $this->type === 'Shield' => [
-                $this->specification->exists,
-                ['shield' => new ShieldResource($this->specification),],
+                $specification->exists,
+                ['shield' => new ShieldResource($specification),],
             ],
             $this->type === 'SelfDestruct' => [
-                $this->specification->exists,
-                ['self_destruct' => new SelfDestructResource($this->specification),],
+                $specification->exists,
+                ['self_destruct' => new SelfDestructResource($specification),],
             ],
             $this->type === 'FlightController' => [
-                $this->specification->exists,
-                ['flight_controller' => new FlightControllerResource($this->specification),],
+                $specification->exists,
+                ['flight_controller' => new FlightControllerResource($specification),],
             ],
             $this->type === 'FuelTank', $this->type === 'QuantumFuelTank' => [
-                $this->specification->exists,
-                ['fuel_tank' => new FuelTankResource($this->specification),],
+                $specification->exists,
+                ['fuel_tank' => new FuelTankResource($specification),],
             ],
             $this->type === 'FuelIntake' => [
-                $this->specification->exists,
-                ['fuel_intake' => new FuelIntakeResource($this->specification),],
+                $specification->exists,
+                ['fuel_intake' => new FuelIntakeResource($specification),],
             ],
             $this->type === 'QuantumInterdictionGenerator' => [
-                $this->specification->exists,
-                ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($this->specification),],
+                $specification->exists,
+                ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($specification),],
             ],
             $this->type === 'QuantumDrive' => [
-                $this->specification->exists,
-                ['quantum_drive' => new QuantumDriveResource($this->specification),],
+                $specification->exists,
+                ['quantum_drive' => new QuantumDriveResource($specification),],
             ],
             $this->type === 'WeaponPersonal' && $this->sub_type === 'Grenade' => [
-                $this->specification->exists,
-                ['grenade' => new GrenadeResource($this->specification),],
+                $specification->exists,
+                ['grenade' => new GrenadeResource($specification),],
             ],
             $this->type === 'WeaponPersonal' => [
-                $this->specification->exists,
-                ['personal_weapon' => new PersonalWeaponResource($this->specification),],
+                $specification->exists,
+                ['personal_weapon' => new PersonalWeaponResource($specification),],
             ],
             $this->sub_type === 'IronSight' => [
-                $this->specification->exists,
-                ['iron_sight' => new IronSightResource($this->specification),],
+                $specification->exists,
+                ['iron_sight' => new IronSightResource($specification),],
             ],
             $this->type === 'WeaponAttachment' && in_array($this->sub_type, ['Barrel', 'BottomAttachment', 'Utility'], true) => [
-                $this->specification->exists,
-                ['barrel_attach' => new BarrelAttachResource($this->specification),],
+                $specification->exists,
+                ['barrel_attach' => new BarrelAttachResource($specification),],
             ],
             $this->sub_type === 'Magazine' => [
-                $this->specification->exists,
-                ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($this->specification),],
+                $specification->exists,
+                ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification),],
             ],
             $this->type === 'Missile', $this->type === 'Torpedo' => [
-                $this->specification->exists,
-                ['missile' => new MissileResource($this->specification),],
+                $specification->exists,
+                ['missile' => new MissileResource($specification),],
             ],
             $this->type === 'MiningModifier' => [
-                $this->specification->exists,
-                ['mining_module' => new MiningModuleResource($this->specification),],
+                $specification->exists,
+                ['mining_module' => new MiningModuleResource($specification),],
             ],
             $this->type === 'WeaponGun', $this->type === 'WeaponDefensive' => [
-                $this->specification->exists,
+                $specification->exists,
                 [($this->type === 'WeaponGun' ?
                     'vehicle_weapon' :
-                    'counter_measure') => new VehicleWeaponResource($this->specification),],
+                    'counter_measure') => new VehicleWeaponResource($specification),],
             ],
             $this->type === 'WeaponMining' => [
-                $this->specification->exists,
-                ['mining_laser' => new MiningLaserResource($this->specification),],
+                $specification->exists,
+                ['mining_laser' => new MiningLaserResource($specification),],
             ],
             default => [false, []],
         };
@@ -307,16 +316,22 @@ class ItemResource extends AbstractTranslationResource
             $mountName = 'max_bombs';
         }
 
+        $ports = $this->ports;
+
         return [
-            $mountName => $this->ports->count(),
-            'min_size' => $this->ports->min('min_size'),
-            'max_size' => $this->ports->max('max_size'),
+            $mountName => $ports->count(),
+            'min_size' => $ports->min('min_size'),
+            'max_size' => $ports->max('max_size'),
         ];
     }
 
     private function addBaseVersion(): array
     {
-        if ($this->specification === null || !is_callable([$this->specification, 'getBaseModelAttribute'])) {
+        if (
+            $this->onlySimpleData === true ||
+            $this->specification === null ||
+            !is_callable([$this->specification, 'getBaseModelAttribute'])
+        ) {
             return [false, []];
         }
 

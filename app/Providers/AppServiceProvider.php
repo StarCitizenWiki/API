@@ -35,14 +35,6 @@ class AppServiceProvider extends ServiceProvider
         if ('production' === config('app.env')) {
             URL::forceScheme('https');
         }
-
-        if (config('app.debug') && 'local' === config('app.env')) {
-            DB::listen(
-                static function (QueryExecuted $query) {
-                    //app('Log')::debug($query->sql);
-                }
-            );
-        }
     }
 
     /**

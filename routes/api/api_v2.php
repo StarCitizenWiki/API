@@ -37,10 +37,6 @@ Route::group(
         Route::get('stats', 'StatController@index')->name('stats.index');
         Route::get('stats/latest', 'StatController@latest')->name('stats.latest');
 
-        Route::get('vehicles', 'VehicleController@index')->name('vehicles.index');
-        Route::post('vehicles/search', 'VehicleController@search')->name('vehicles.search');
-        Route::get('vehicles/{vehicle}', 'VehicleController@show')->name('vehicles.show');
-
         Route::get('galactapedia', 'GalactapediaController@index')->name('galactapedia.index');
         Route::post('galactapedia/search', 'GalactapediaController@search')->name('galactapedia.search');
         Route::get('galactapedia/{article}', 'GalactapediaController@show')->name('galactapedia.show');
@@ -91,6 +87,10 @@ Route::group(
         Route::group([
             'namespace' => 'Vehicle',
         ], static function () {
+            Route::get('vehicles', 'VehicleController@index')->name('vehicles.index');
+            Route::post('vehicles/search', 'VehicleController@search')->name('vehicles.search');
+            Route::get('vehicles/{vehicle}', 'VehicleController@show')->name('vehicles.show');
+
             Route::get('vehicle-weapons', 'VehicleWeaponController@index')->name('sc.vehicles.index');
             Route::get('vehicle-weapons/{weapon}', 'VehicleWeaponController@show')->name('sc.vehicles.show');
 

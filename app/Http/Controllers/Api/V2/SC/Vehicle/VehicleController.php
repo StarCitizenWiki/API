@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V2\StarCitizen;
+namespace App\Http\Controllers\Api\V2\SC\Vehicle;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Requests\StarCitizen\Vehicle\VehicleSearchRequest;
@@ -11,13 +11,17 @@ use App\Http\Resources\SC\Vehicle\VehicleLinkResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
 use App\Models\SC\Vehicle\Vehicle as UnpackedVehicle;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -48,7 +52,7 @@ class VehicleController extends AbstractApiV2Controller
         $query = QueryBuilder::for(UnpackedVehicle::class, $request)
             ->withoutEagerLoads()
             ->with(['manufacturer', 'item'])
-            ->orderByDesc('name')
+            ->orderBy('name')
             ->allowedFilters([
                 AllowedFilter::partial('manufacturer', 'manufacturer.name'),
             ])
@@ -112,6 +116,8 @@ class VehicleController extends AbstractApiV2Controller
     )]
     public function show(Request $request): AbstractBaseResource
     {
+        DB::enableQueryLog();
+
         ['vehicle' => $identifier] = Validator::validate(
             [
                 'vehicle' => $request->vehicle,
@@ -138,6 +144,14 @@ class VehicleController extends AbstractApiV2Controller
                         ->orWhere('class_name', $identifier)
                         ->orWhere('item_uuid', $identifier);
                 })
+                ->with([
+                    'armor',
+                    'flightController',
+                    'quantumDrives',
+                    'shields',
+                    'thrusters',
+                    'partsWithoutParent',
+                ])
                 ->first();
 
             if ($vehicleModel === null) {
@@ -153,7 +167,18 @@ class VehicleController extends AbstractApiV2Controller
             throw new NotFoundHttpException('No Vehicle with specified name found.');
         }
 
-        return new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
+        $x = new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
+        return $x;
+//        $x->resolve($request);
+//
+//        $log = collect(DB::getQueryLog())->sortByDesc('time');
+//        //$log = collect($log)->filter(function($item){return $item['time']>0.5;});
+//
+//        $log[] = $log->sum('time');
+//
+//        Storage::write('db.json', json_encode($log, JSON_PRETTY_PRINT));
+//
+//        return $x;
     }
 
     #[OA\Post(

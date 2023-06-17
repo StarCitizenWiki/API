@@ -52,7 +52,7 @@ class HardpointResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         $data = [
             'name' => $this->hardpoint_name,
@@ -87,16 +87,16 @@ class HardpointResource extends AbstractBaseResource
     private function addItem(): array
     {
         if ($this->vehicleItem->exists) {
-            return [true, ['item' => new ItemResource($this->item, true)]];
+            return [true, ['item' => new ItemResource($this->item, true, true)]];
         }
 
         if ($this->item !== null && ($this->item->isTurret() || $this->item->type === 'Cargo')) {
-            return [true, ['item' => new ItemResource($this->item, true)]];
+            return [true, ['item' => new ItemResource($this->item, true, true)]];
 
         }
 
         if ($this->item !== null && $this->item->exists) {
-            return [true, ['item' => new ItemResource($this->item)]];
+            return [true, ['item' => new ItemResource($this->item, false, true)]];
         }
 
         return [false, []];

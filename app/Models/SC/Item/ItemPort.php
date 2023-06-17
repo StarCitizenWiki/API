@@ -14,7 +14,7 @@ class ItemPort extends Model
     use HasFactory;
 
     protected $with = [
-        'item',
+        //'item',
         'defaultTags',
         'requiredTags',
     ];

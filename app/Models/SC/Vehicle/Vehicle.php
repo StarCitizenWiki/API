@@ -445,8 +445,15 @@ class Vehicle extends CommodityItem
 
     public function getEmEmissionAttribute(): array
     {
-        $min = round($this->emData->sum('min_electromagnetic_emission'));
-        $max = round($this->emData->sum('max_electromagnetic_emission'));
+        $data = $this->emData->toArray();
+        $min = round(array_reduce($data, static function ($carry, $cur) {
+            return $carry + ($cur['power_base'] * $cur['power_to_em']);
+        }, 0));
+        $max = round(array_reduce($data, static function ($carry, $cur) {
+            return $carry + ($cur['power_draw'] * $cur['power_to_em']);
+        }, 0));
+
+       //$max = round($data->sum('max_electromagnetic_emission'));
 
         return [
             'min' => empty($min) ? null : $min,

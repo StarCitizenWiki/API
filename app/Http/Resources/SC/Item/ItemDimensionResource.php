@@ -39,21 +39,23 @@ class ItemDimensionResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
-        $sumDim = $this->dimension->width + $this->dimension->height + $this->dimension->length;
-        $sumTrueDim = $this->true_dimension->width + $this->true_dimension->height + $this->true_dimension->length;
+        $dim = $this->dimension;
+        $trueDim = $this->true_dimension;
+        $sumDim = $dim->width + $dim->height + $dim->length;
+        $sumTrueDim = $trueDim->width + $trueDim->height + $trueDim->length;
 
         return [
-            'width' => $this->dimension->width,
-            'height' => $this->dimension->height,
-            'length' => $this->dimension->length,
-            'volume' => $this->dimension->volume ?? $this->true_dimension->volume,
+            'width' => $dim->width,
+            'height' => $dim->height,
+            'length' => $dim->length,
+            'volume' => $dim->volume ?? $trueDim->volume,
             $this->mergeWhen($sumDim !== $sumTrueDim, [
                 'true_dimension' => [
-                    'width' => $this->true_dimension->width,
-                    'height' => $this->true_dimension->height,
-                    'length' => $this->true_dimension->length,
+                    'width' => $trueDim->width,
+                    'height' => $trueDim->height,
+                    'length' => $trueDim->length,
                 ]
             ]),
         ];

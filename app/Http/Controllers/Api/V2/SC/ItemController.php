@@ -109,10 +109,15 @@ class ItemController extends AbstractApiV2Controller
                 ->orWhere('name', $identifier)
                 ->orderByDesc('version')
                 ->with([
-                    'powerData',
-                    'distortionData',
-                    'heatData',
+                    'dimensions',
+                    'manufacturer',
+                    'translations',
+                    'container',
+                    'ports',
                     'durabilityData',
+                    'descriptionData',
+                    'defaultTags',
+                    'requiredTags',
                 ])
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();

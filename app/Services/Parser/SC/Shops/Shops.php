@@ -57,6 +57,9 @@ final class Shops
     {
         $this->shops
             ->filter(function (array $shop) {
+                return !str_contains($shop['name'], 'Levski');
+            })
+            ->filter(function (array $shop) {
                 return isset($shop['name']) &&
                     (str_contains($shop['name'], ',') || isset($this->shopNames[$shop['name']]));
             })

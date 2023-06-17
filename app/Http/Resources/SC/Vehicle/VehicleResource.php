@@ -244,6 +244,7 @@ class VehicleResource extends AbstractBaseResource
     {
         return [
             'shops',
+            'parts',
             'hardpoints',
             'components',
         ];
