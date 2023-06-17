@@ -375,6 +375,13 @@ class Vehicle implements ShouldQueue
 
                 return true;
             })
+            ->filter(function (array $hardpoint) use ($vehicle) {
+                if (in_array($vehicle->name, ['Origin 300i', 'Origin 315p', 'Origin 325a'], true)) {
+                    return $hardpoint['name'] !== 'hardpoint_fuel_tank_center';
+                }
+
+                return true;
+            })
             ->each(function ($hardpoint) use ($vehicle) {
                 $where = [
                     'hardpoint_name' => $hardpoint['name'],
