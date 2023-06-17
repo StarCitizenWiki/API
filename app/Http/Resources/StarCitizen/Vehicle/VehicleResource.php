@@ -152,8 +152,8 @@ class VehicleResource extends AbstractBaseResource
             ],
 
             'speed' => [
-                'scm' => $this->scm_speed,
-                'max' => $this->afterburner_speed,
+                'scm' => empty($this->scm_speed) ? null : $this->scm_speed,
+                'max' => empty($this->afterburner_speed) ? null : $this->afterburner_speed,
             ],
 
             'agility' => [
