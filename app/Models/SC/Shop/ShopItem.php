@@ -89,24 +89,31 @@ class ShopItem extends Pivot
         ];
     }
 
+    public function getAveragePriceAttribute(): float
+    {
+        $range = $this->getPriceRangeAttribute();
+
+        return ($range['min'] + $range['max']) / 2;
+    }
+
     public function getPrice1Attribute()
     {
-        return round(($this->offsetted_price / 100) * $this->rental->percentage_1);
+        return round(($this->average_price / 100) * $this->rental->percentage_1);
     }
 
     public function getPrice3Attribute()
     {
-        return round(($this->offsetted_price / 100) * 3 * $this->rental->percentage_3);
+        return round(($this->average_price / 100) * 3 * $this->rental->percentage_3);
     }
 
     public function getPrice7Attribute()
     {
-        return round(($this->offsetted_price / 100) * 7 * $this->rental->percentage_7);
+        return round(($this->average_price / 100) * 7 * $this->rental->percentage_7);
     }
 
     public function getPrice30Attribute()
     {
-        return round(($this->offsetted_price / 100) * 30 * $this->rental->percentage_30);
+        return round(($this->average_price / 100) * 30 * $this->rental->percentage_30);
     }
 
     public function item(): BelongsTo
