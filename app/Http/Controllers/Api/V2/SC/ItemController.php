@@ -10,6 +10,7 @@ use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Models\SC\Item\Item;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -105,8 +106,12 @@ class ItemController extends AbstractApiV2Controller
 
         try {
             $item = QueryBuilder::for(Item::class, $request)
-                ->where('uuid', $identifier)
-                ->orWhere('name', $identifier)
+                ->where('version', 'LIKE', $request->get('version', config('api.sc_data_version')) . '%')
+                ->where('class_name', 'NOT LIKE', '%test_%')
+                ->where(function (Builder $query) use ($identifier) {
+                    $query->where('uuid', $identifier)
+                      ->orWhere('name', $identifier);
+                })
                 ->orderByDesc('version')
                 ->with([
                     'dimensions',
@@ -175,7 +180,7 @@ class ItemController extends AbstractApiV2Controller
             'shop' => 'nullable|uuid',
         ]);
 
-        $query = $this->cleanQueryName($request->get('query'));
+        $toSearch = $this->cleanQueryName($request->get('query'));
 
         $items = QueryBuilder::for(Item::class)
             ->allowedFilters([
@@ -190,15 +195,18 @@ class ItemController extends AbstractApiV2Controller
         }
 
         $items = $items
-            ->where('name', 'like', "%{$query}%")
-            ->orWhere('uuid', $query)
-            ->orWhere('type', $query)
-            ->orWhere('sub_type', $query)
+            ->where('version', 'LIKE', $request->get('version', config('api.sc_data_version')) . '%')
+            ->where(function (Builder $query) use ($toSearch) {
+                $query->where('name', 'like', "%{$toSearch}%")
+                    ->orWhere('uuid', $toSearch)
+                    ->orWhere('type', $toSearch)
+                    ->orWhere('sub_type', $toSearch);
+            })
             ->paginate($this->limit)
             ->appends(request()->query());
 
         if ($items->count() === 0) {
-            throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $query));
+            throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $toSearch));
         }
 
         return ItemLinkResource::collection($items);

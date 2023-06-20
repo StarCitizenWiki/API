@@ -8,6 +8,7 @@ use App\Services\Parser\SC\Labels;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use JsonException;
 
 final class Shops
@@ -57,7 +58,7 @@ final class Shops
     {
         $this->shops
             ->filter(function (array $shop) {
-                return !str_contains($shop['name'], 'Levski');
+                return !Str::contains($shop['name'], ['Levski', 'IAE Expo']);
             })
             ->filter(function (array $shop) {
                 return isset($shop['name']) &&
