@@ -351,6 +351,9 @@ class Vehicle implements ShouldQueue
                 return $hardpoint['class'] === 'ItemPort';
             })
             ->filter(function (array $hardpoint) {
+                return isset($hardpoint['ItemPort']) && !empty($hardpoint['ItemPort']['flags']) && $hardpoint['ItemPort']['minsize'] > 0;
+            })
+            ->filter(function (array $hardpoint) {
                 // Filter out some
                 return !Str::contains($hardpoint['name'], [
                     '$slot',
@@ -366,21 +369,6 @@ class Vehicle implements ShouldQueue
             })
             ->filter(function (array $hardpoint) {
                 return ($hardpoint['skipPart'] ?? false) === false;
-            })
-            ->filter(function (array $hardpoint) use ($vehicle) {
-                $phoenixes = ['RSI Constellation Phoenix', 'RSI Constellation Phoenix Emerald' ];
-                if (str_contains($vehicle->name, 'Constellation') && !in_array($vehicle->name, $phoenixes, true)) {
-                    return str_contains($hardpoint['name'], 'bed') === false;
-                }
-
-                return true;
-            })
-            ->filter(function (array $hardpoint) use ($vehicle) {
-                if (in_array($vehicle->name, ['Origin 300i', 'Origin 315p', 'Origin 325a'], true)) {
-                    return $hardpoint['name'] !== 'hardpoint_fuel_tank_center';
-                }
-
-                return true;
             })
             ->each(function ($hardpoint) use ($vehicle) {
                 $where = [
