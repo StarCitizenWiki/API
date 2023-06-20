@@ -352,38 +352,32 @@ class Vehicle extends CommodityItem
 
     public function getFuelCapacityAttribute(): ?float
     {
-        $capacity = $this->fuelTanks()
+        return $this->fuelTanks()
             ->get()
             ->map(function ($item) {
                 return $item?->specification?->capacity ?? 0;
             })
             ->sum();
-
-        return empty($capacity) ? null : $capacity;
     }
 
     public function getQuantumFuelCapacityAttribute(): ?float
     {
-        $capacity = $this->fuelTanks('QuantumFuelTank')
+        return $this->fuelTanks('QuantumFuelTank')
             ->get()
             ->map(function ($item) {
                 return $item?->specification?->capacity ?? 0;
             })
             ->sum();
-
-        return empty($capacity) ? null : $capacity;
     }
 
     public function getFuelIntakeRateAttribute(): ?float
     {
-        $rate = $this->fuelIntakes()
+            return $this->fuelIntakes()
             ->get()
             ->map(function ($item) {
                 return $item?->specification?->fuel_push_rate ?? 0;
             })
             ->sum();
-
-        return empty($rate) ? null : $rate;
     }
 
     public function getFuelUsage(string $type = 'MainThruster'): ?float
@@ -414,9 +408,7 @@ class Vehicle extends CommodityItem
             })
             ->sum();
 
-        $usage = round($usage);
-
-        return empty($usage) ? null : $usage;
+        return round($usage);
     }
 
     public function irData(): HasManyThrough
