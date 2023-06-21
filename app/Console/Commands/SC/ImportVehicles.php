@@ -96,7 +96,7 @@ class ImportVehicles extends AbstractQueueCommand
             'BIS29',
             'Bombless',
             'CINEMATIC_ONLY',
-            'F7A_Mk1',
+            //'F7A_Mk1',
             'Fleetweek',
             'fw22nfz',
             'Indestructible',
