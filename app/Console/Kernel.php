@@ -249,6 +249,10 @@ class Kernel extends ConsoleKernel
         $this->schedule
             ->command(ImportMsrp::class)
             ->daily();
+
+        $this->schedule
+            ->command(ImportLoaner::class)
+            ->daily();
     }
 
     /**
