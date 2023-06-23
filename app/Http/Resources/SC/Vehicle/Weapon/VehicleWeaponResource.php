@@ -32,7 +32,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'regeneration',
-            ref: new OA\Items(ref: '#/components/schemas/weapon_regeneration_v2'),
+            ref: '#/components/schemas/vehicle_weapon_regen_v2',
             nullable: true
         ),
         new OA\Property(property: 'ammunition', properties: [
