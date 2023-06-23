@@ -96,8 +96,7 @@ class StarsystemResource extends AbstractTranslationResource
     {
         return [
             'affiliation',
-            'celestial_objects',
-            'jumppoints',
+            'celestialObjects',
         ];
     }
 
@@ -106,7 +105,7 @@ class StarsystemResource extends AbstractTranslationResource
      *
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'id' => $this->cig_id,
@@ -144,7 +143,7 @@ class StarsystemResource extends AbstractTranslationResource
 
             'affiliation' => AffiliationResource::collection($this->whenLoaded('affiliation')),
             'celestial_objects' => CelestialObjectResource::collection($this->whenLoaded('celestialObjects')),
-            'jumppoints' => JumppointResource::collection($this->whenLoaded('jumppoints')),
+            'jumppoints' => JumppointResource::collection($this->jumppoints()),
 
             'updated_at' => $this->time_modified,
         ];

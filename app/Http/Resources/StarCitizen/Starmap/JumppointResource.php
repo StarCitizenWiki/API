@@ -44,6 +44,14 @@ use OpenApi\Attributes as OA;
 )]
 class JumppointResource extends AbstractTranslationResource
 {
+    private bool $hideCO;
+
+    public function __construct($resource, bool $hideCO = false)
+    {
+        parent::__construct($resource);
+        $this->hideCO = $hideCO;
+    }
+
     public function toArray($request): array
     {
         return [
@@ -80,8 +88,10 @@ class JumppointResource extends AbstractTranslationResource
                 'code' => $this->exit->code,
                 'designation' => $this->exit->designation,
             ],
-            'celestial_object_entry' => new CelestialObjectResource($this->whenLoaded('entry')),
-            'celestial_object_exit' => new CelestialObjectResource($this->whenLoaded('exit')),
+            $this->mergeWhen(!$this->hideCO, [
+                'celestial_object_entry' => new CelestialObjectResource($this->whenLoaded('entry')),
+                'celestial_object_exit' => new CelestialObjectResource($this->whenLoaded('exit')),
+            ]),
         ];
     }
 }

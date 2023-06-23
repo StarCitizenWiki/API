@@ -46,6 +46,14 @@ use OpenApi\Attributes as OA;
 )]
 class CelestialObjectResource extends AbstractTranslationResource
 {
+    public static function validIncludes(): array
+    {
+        return [
+            'affiliation',
+            'starsystem',
+        ];
+    }
+
     public function toArray($request): array
     {
         return [
@@ -86,7 +94,7 @@ class CelestialObjectResource extends AbstractTranslationResource
             'parent_id' => $this->parent_id,
 
             'affiliation' => AffiliationResource::collection($this->whenLoaded('affiliation')),
-            'starsystem' => AffiliationResource::collection($this->whenLoaded('starsystem')),
+            'starsystem' => new StarsystemResource($this->whenLoaded('starsystem')),
             $this->mergeWhen($this->whenLoaded('subtype'), [
                 'sub_type' => [
                     'id' => $this->subtype->id,
@@ -94,8 +102,7 @@ class CelestialObjectResource extends AbstractTranslationResource
                     'type' => $this->subtype->type,
                 ],
             ]),
-            'jumppoints' => new JumppointResource($this->whenLoaded('jumppoint')),
-
+            'jumppoints' => new JumppointResource($this->jumppoint(), true),
             'time_modified' => $this->time_modified,
         ];
     }

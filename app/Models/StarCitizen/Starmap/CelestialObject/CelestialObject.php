@@ -79,7 +79,7 @@ class CelestialObject extends HasTranslations
     /**
      * @return HasMany
      */
-    public function translations()
+    public function translations(): HasMany
     {
         return $this->hasMany(CelestialObjectTranslation::class);
     }
@@ -91,7 +91,7 @@ class CelestialObject extends HasTranslations
      */
     public function subtype(): BelongsTo
     {
-        return $this->belongsTo(CelestialObjectSubtype::class, 'subtype_id');
+        return $this->belongsTo(CelestialObjectSubtype::class, 'subtype_id')->withDefault();
     }
 
     /**

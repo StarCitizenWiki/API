@@ -17,8 +17,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class StarsystemController extends AbstractApiV2Controller
 {
-
-
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Starsystem::class, $request)

@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 abstract class AbstractBaseResource extends JsonResource
 {
-    public const COMM_LINKS_SHOW = 'comm-links/%d';
+    public const COMM_LINKS_SHOW = 'comm-links/';
 
     public const VEHICLES_SHOW = 'vehicles/';
 

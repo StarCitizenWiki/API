@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Resources;
 
 use App\Models\SC\Item\ItemTranslation;
+use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObjectTranslation;
+use App\Models\StarCitizen\Starmap\Starsystem\StarsystemTranslation;
 use App\Models\System\Language;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -25,16 +27,6 @@ use OpenApi\Attributes as OA;
     description: 'Translation of an entity',
     type: 'string'
 )]
-//#[OA\Schema(
-//    schema: 'translation_v2',
-//    title: 'Translations',
-//    description: 'Translations of an entity',
-//    type: 'object',
-//    anyOf: [
-//        new OA\Property(ref: '#/components/schemas/translation_single_v2'),
-//        new OA\Property(ref: '#/components/schemas/translation_group_v2'),
-//    ]
-//)]
 abstract class AbstractTranslationResource extends AbstractBaseResource
 {
     protected function getTranslation($model, Request $request, $translationKey = 'translation')
@@ -65,7 +57,11 @@ abstract class AbstractTranslationResource extends AbstractBaseResource
     {
         $translation = null;
 
-        if ($translations instanceof ItemTranslation) {
+        if (
+            $translations instanceof ItemTranslation ||
+            $translations instanceof CelestialObjectTranslation ||
+            $translations instanceof StarsystemTranslation
+        ) {
             return $translations[$translationKey];
         }
 
