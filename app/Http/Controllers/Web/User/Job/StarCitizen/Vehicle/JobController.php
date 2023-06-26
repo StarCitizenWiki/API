@@ -61,4 +61,24 @@ class JobController extends Controller
             ]
         );
     }
+
+    /**
+     * @return RedirectResponse
+     *
+     * @throws AuthorizationException
+     */
+    public function startLoanerImportJob(): RedirectResponse
+    {
+        $this->authorize('web.user.jobs.start_msrp_import');
+
+        Artisan::call('vehicles:import-loaner');
+
+        return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
+            [
+                'success' => [
+                    __('Import gestartet'),
+                ],
+            ]
+        );
+    }
 }

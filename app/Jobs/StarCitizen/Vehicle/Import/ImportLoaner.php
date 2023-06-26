@@ -140,11 +140,11 @@ class ImportLoaner implements ShouldQueue
                 }
             })
                 ->filter()
-            ->mapWithKeys(function ($id) use ($version) {
-                return [ $id => [
-                    'version' => $version,
-                ]];
-            });
+                ->mapWithKeys(function ($id) use ($version) {
+                    return [ $id => [
+                        'version' => $version,
+                    ]];
+                });
 
             $vehicle->loaner()->sync($loanerIDs);
         });

@@ -64,6 +64,10 @@ Route::group(
                                 'import-vehicle-msrp',
                                 'Job\StarCitizen\Vehicle\JobController@startMsrpImportJob'
                             )->name('import-vehicle-msrp');
+                            Route::post(
+                                'import-vehicle-loaner',
+                                'Job\StarCitizen\Vehicle\JobController@startLoanerImportJob'
+                            )->name('import-vehicle-loaner');
 
 
                             Route::post(
@@ -82,6 +86,28 @@ Route::group(
                                 'create-galactapedia-pages',
                                 'Job\StarCitizen\Galactapedia\JobController@startCreateWikiPagesJob'
                             )->name('create-galactapedia-pages');
+
+
+                            Route::post(
+                                'import-sc-items',
+                                'Job\SC\JobController@startItemImportJob'
+                            )->name('import-sc-items');
+                            Route::post(
+                                'import-sc-vehicles',
+                                'Job\SC\JobController@startVehicleImportJob'
+                            )->name('import-sc-vehicles');
+                            Route::post(
+                                'import-sc-shops',
+                                'Job\SC\JobController@startShopImportJob'
+                            )->name('import-sc-shops');
+                            Route::post(
+                                'upload-sc-images',
+                                'Job\SC\JobController@startImageUploadJob'
+                            )->name('upload-sc-images');
+                            Route::post(
+                                'translate-sc-images',
+                                'Job\SC\JobController@startTranslateJob'
+                            )->name('translate-sc-images');
                         }
                     );
 

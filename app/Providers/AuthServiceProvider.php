@@ -97,6 +97,16 @@ class AuthServiceProvider extends ServiceProvider
         Gate::resource('web.user.rsi.stats', StatPolicy::class);
 
         /*
+         * SC
+         */
+        Gate::define(
+            'web.user.jobs.sc-import',
+            static function (User $admin) {
+                return $admin->getHighestPermissionLevel() >= UserGroup::SYSOP;
+            }
+        );
+
+        /*
          * Transcripts
          */
         Gate::resource(
