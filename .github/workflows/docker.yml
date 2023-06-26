@@ -33,8 +33,6 @@ jobs:
           key: ${{ runner.OS }}-build-${{ hashFiles('**/composer.lock') }}
       - name: Setup env file
         run: cp .env.ci .env
-      - name: test ls
-        run: ls -lao
       - name: Composer install
         if: steps.vendor-cache.outputs.cache-hit != 'true'
         run: composer install  --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
@@ -64,7 +62,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
       -
         name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}

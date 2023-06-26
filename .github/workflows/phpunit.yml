@@ -33,8 +33,6 @@ jobs:
           key: ${{ runner.OS }}-build-${{ hashFiles('**/composer.lock') }}
       - name: Setup env file
         run: cp .env.ci .env
-      - name: test ls
-        run: ls -lao
       - name: Composer install
         if: steps.vendor-cache.outputs.cache-hit != 'true'
         run: composer install  --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
@@ -65,7 +63,7 @@ jobs:
         ports:
           - 33306:3306
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mariadb-admin ping"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -95,8 +93,6 @@ jobs:
           key: ${{ runner.OS }}-build-${{ hashFiles('**/composer.lock') }}
       - name: Setup env file
         run: cp .env.ci .env
-      - name: test ls
-        run: ls -lao
       - name: Composer install
         if: steps.vendor-cache.outputs.cache-hit != 'true'
         run: composer install  --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
