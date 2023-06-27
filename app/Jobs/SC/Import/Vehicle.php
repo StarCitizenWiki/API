@@ -112,7 +112,9 @@ class Vehicle implements ShouldQueue
 
     public function getVehicleModelArray(array $vehicle): array
     {
-        return [
+        $key = isset($vehicle['FlightCharacteristics']) ? 'FlightCharacteristics' : 'DriveCharacteristics';
+
+        $data = [
             'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
 
             'shipmatrix_id' => $this->tryGetShipmatrixIdForVehicle($vehicle)->id ?? 0,
@@ -131,26 +133,32 @@ class Vehicle implements ShouldQueue
             'mass' => $vehicle['Mass'],
             'health' => $vehicle['Health'] ?? null,
 
-            'zero_to_scm' => $this->numFormat($vehicle['FlightCharacteristics']['ZeroToScm']),
-            'zero_to_max' => $this->numFormat($vehicle['FlightCharacteristics']['ZeroToMax']),
+            'acceleration_main' => $this->numFormat(Arr::get($vehicle, $key . '.Acceleration.Main', 0)),
+            'acceleration_retro' => $this->numFormat(Arr::get($vehicle, $key . '.Acceleration.Retro', 0)),
+            'acceleration_vtol' => $this->numFormat(Arr::get($vehicle, $key . '.Acceleration.Vtol', 0)),
+            'acceleration_maneuvering' => $this->numFormat(Arr::get($vehicle, $key . '.Acceleration.Maneuvering', 0)),
 
-            'scm_to_zero' => $this->numFormat($vehicle['FlightCharacteristics']['ScmToZero']),
-            'max_to_zero' => $this->numFormat($vehicle['FlightCharacteristics']['MaxToZero']),
-
-            'acceleration_main' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.Acceleration.Main', 0)),
-            'acceleration_retro' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.Acceleration.Retro', 0)),
-            'acceleration_vtol' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.Acceleration.Vtol', 0)),
-            'acceleration_maneuvering' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.Acceleration.Maneuvering', 0)),
-
-            'acceleration_g_main' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.AccelerationG.Main', 0)),
-            'acceleration_g_retro' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.AccelerationG.Retro', 0)),
-            'acceleration_g_vtol' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.AccelerationG.Vtol', 0)),
-            'acceleration_g_maneuvering' => $this->numFormat(Arr::get($vehicle, 'FlightCharacteristics.AccelerationG.Maneuvering', 0)),
+            'acceleration_g_main' => $this->numFormat(Arr::get($vehicle, $key . '.AccelerationG.Main', 0)),
+            'acceleration_g_retro' => $this->numFormat(Arr::get($vehicle, $key . '.AccelerationG.Retro', 0)),
+            'acceleration_g_vtol' => $this->numFormat(Arr::get($vehicle, $key . '.AccelerationG.Vtol', 0)),
+            'acceleration_g_maneuvering' => $this->numFormat(Arr::get($vehicle, $key . '.AccelerationG.Maneuvering', 0)),
 
             'claim_time' => $this->numFormat($vehicle['Insurance']['StandardClaimTime'] ?? 0),
             'expedite_time' => $this->numFormat($vehicle['Insurance']['ExpeditedClaimTime'] ?? 0),
             'expedite_cost' => $this->numFormat($vehicle['Insurance']['ExpeditedCost'] ?? 0),
         ];
+
+        if ($vehicle['IsSpaceship'] || ($vehicle['IsGravlev'] ?? false)) {
+            $data += [
+                'zero_to_scm' => $this->numFormat($vehicle[$key]['ZeroToScm']),
+                'zero_to_max' => $this->numFormat($vehicle[$key]['ZeroToMax']),
+
+                'scm_to_zero' => $this->numFormat($vehicle[$key]['ScmToZero']),
+                'max_to_zero' => $this->numFormat($vehicle[$key]['MaxToZero']),
+            ];
+        }
+
+        return $data;
     }
 
     /**
