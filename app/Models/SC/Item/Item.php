@@ -67,6 +67,11 @@ class Item extends HasTranslations
         'version',
     ];
 
+    public function getRouteKey()
+    {
+        return $this->uuid;
+    }
+
     protected $with = [
         'dimensions',
         'container',

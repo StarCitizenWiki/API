@@ -41,7 +41,7 @@ class ItemContainer extends Model
         return $this->width * $this->height * $this->length;
     }
 
-    public function getCalculatedScuAttribute(): float
+    public function getCalculatedScuAttribute(): ?float
     {
         if ($this->scu == 0 && $this->width > 0) {
             return $this->dimension / 1.953125;

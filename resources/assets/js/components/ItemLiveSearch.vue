@@ -44,7 +44,7 @@
         </thead>
         <tbody>
         <tr class="col-12" v-for="result in results" :key="result.id">
-          <td>{{ result.name }}</td>
+          <td><a class="btn btn-primary btn-block text-white" :href="'/items/'+result.uuid">{{ result.name }}</a></td>
           <td>{{ result.type }}</td>
           <td>{{ result.manufacturer.name }} ({{ result.manufacturer.code }})</td>
           <td>
