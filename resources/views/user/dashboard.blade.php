@@ -307,53 +307,40 @@
                 @endcan
             @endcomponent
         </div>
+        @can('web.user.jobs.sc-import')
         <div class="col-12 col-lg-6 col-xl-3 mb-4">
             @component('user.components.card', [
                 'icon' => 'database',
                 'title' => __('Spieldaten Jobs'),
             ])
-                @can('web.user.jobs.sc-import')
-                    @component('components.forms.form', [
-                        'action' => route('web.user.dashboard.import-sc-items'),
-                        'class' => 'mb-3',
-                    ])
-                        <button class="btn btn-block btn-outline-secondary">@lang('Items importieren')</button>
-                    @endcomponent
-                @endcan
-                @can('web.user.jobs.sc-import')
-                    @component('components.forms.form', [
-                        'action' => route('web.user.dashboard.import-sc-vehicles'),
-                        'class' => 'mb-3',
-                    ])
-                        <button class="btn btn-block btn-outline-secondary">@lang('Fahrzeuge importieren')</button>
-                    @endcomponent
-                @endcan
-                @can('web.user.jobs.sc-import')
-                    @component('components.forms.form', [
-                        'action' => route('web.user.dashboard.import-sc-shops'),
-                        'class' => 'mb-3',
-                    ])
-                        <button class="btn btn-block btn-outline-secondary">@lang('Shops importieren')</button>
-                    @endcomponent
-                @endcan
-                @can('web.user.jobs.sc-import')
-                    @component('components.forms.form', [
-                        'action' => route('web.user.dashboard.upload-sc-images'),
-                        'class' => 'mb-3',
-                    ])
-                        <button class="btn btn-block btn-outline-secondary">@lang('Items übersetzen')</button>
-                    @endcomponent
-                @endcan
-                @can('web.user.jobs.sc-import')
-                    @component('components.forms.form', [
-                        'action' => route('web.user.dashboard.translate-sc-images'),
-                        'class' => 'mb-3',
-                    ])
-                        <button class="btn btn-block btn-outline-secondary">@lang('Bilder hochladen')</button>
-                    @endcomponent
-                @endcan
+                @component('components.forms.form', [
+                    'action' => route('web.user.dashboard.import-sc-items'),
+                    'class' => 'mb-3',
+                ])
+                    <button class="btn btn-block btn-outline-secondary">@lang('Items importieren')</button>
+                @endcomponent
+
+                @component('components.forms.form', [
+                    'action' => route('web.user.dashboard.import-sc-vehicles'),
+                    'class' => 'mb-3',
+                ])
+                    <button class="btn btn-block btn-outline-secondary">@lang('Fahrzeuge importieren')</button>
+                @endcomponent
+                @component('components.forms.form', [
+                    'action' => route('web.user.dashboard.import-sc-shops'),
+                    'class' => 'mb-3',
+                ])
+                    <button class="btn btn-block btn-outline-secondary">@lang('Shops importieren')</button>
+                @endcomponent
+                @component('components.forms.form', [
+                    'action' => route('web.user.dashboard.translate-sc-items'),
+                    'class' => 'mb-3',
+                ])
+                    <button class="btn btn-block btn-outline-secondary">@lang('Items übersetzen')</button>
+                @endcomponent
             @endcomponent
         </div>
+        @endcan
     </section>
     @endcan
 @endsection

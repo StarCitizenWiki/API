@@ -107,7 +107,7 @@ Route::group(
                             Route::post(
                                 'translate-sc-images',
                                 'Job\SC\JobController@startTranslateJob'
-                            )->name('translate-sc-images');
+                            )->name('translate-sc-items');
                         }
                     );
 
