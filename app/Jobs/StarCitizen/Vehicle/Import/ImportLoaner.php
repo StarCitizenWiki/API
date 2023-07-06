@@ -26,7 +26,7 @@ class ImportLoaner implements ShouldQueue
      */
     private array $modelsMap = [
         "100 Series" => ['100i', '125a', '135c'],
-        "600i Series" => ["600i Touring", "600i Explorer", "600i Executive-Edition"],
+        "600i Series" => ["600i Touring", "600i Explorer", "600i Executive Edition"],
         "Apollo" => ["Apollo Medivac", "Apollo Triage"],
         "Ares Ion / Inferno" => ["Ares Ion", "Ares Inferno"],
         "Carrack / Carrack Expedition" => ["Carrack"],
@@ -35,6 +35,7 @@ class ImportLoaner implements ShouldQueue
         "Dragonfly" => ["Dragonfly Yellowjacket", "Dragonfly Black"],
         "G12A" => ["G12a"],
         "G12R" => ["G12r"],
+        "G12 Variants" => ["G12", "G12a", "G12r"],
         "Genesis Starliner" => ["Genesis"],
         "Hercules Starlifter (All)" => ["C2 Hercules", "M2 Hercules", "A2 Hercules"],
         "Hercules Starlifter A2" => ["A2 Hercules"],
@@ -59,7 +60,7 @@ class ImportLoaner implements ShouldQueue
     private array $modelMap = [
         "85x" => "85X",
         "F7C - Hornet" => "F7C Hornet",
-        "URSA Rover" => "Ursa Rover",
+        "URSA Rover" => "Ursa",
         "MPUV Passenger" => "MPUV Personnel",
         "Hercules C2" => "C2 Hercules",
         "Hercules M2" => "M2 Hercules",
