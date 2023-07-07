@@ -16,12 +16,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -35,6 +32,7 @@ class VehicleController extends AbstractApiV2Controller
             new OA\Parameter(ref: '#/components/parameters/limit'),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[chassis_id]', in: 'query', schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
             new OA\Response(
@@ -55,6 +53,7 @@ class VehicleController extends AbstractApiV2Controller
             ->orderBy('name')
             ->allowedFilters([
                 AllowedFilter::partial('manufacturer', 'manufacturer.name'),
+                AllowedFilter::exact('chassis_id', 'vehicle.chassis_id')
             ])
             ->whereRelation(
                 'item',
