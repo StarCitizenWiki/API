@@ -179,6 +179,10 @@ class Vehicle implements ShouldQueue
         array_shift($className);
 
         switch ($vehicle['Name']) {
+            case 'Aegis Retaliator':
+                $name = 'Retaliator Bomber';
+                break;
+
             case 'Anvil C8R Pisces Rescue':
                 $name = 'C8R Pisces';
                 break;
