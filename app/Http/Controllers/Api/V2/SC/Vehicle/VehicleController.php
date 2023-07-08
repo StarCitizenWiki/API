@@ -138,8 +138,8 @@ class VehicleController extends AbstractApiV2Controller
                     $request->get('version', config('api.sc_data_version')) . '%'
                 )
                 ->where(function (Builder $query) use ($identifier, $underscored) {
-                    $query->where('name', 'LIKE', "%{$identifier}")
-                        ->orWhere('class_name', 'LIKE', "%{$underscored}")
+                    $query->where('name', $identifier)
+                        ->orWhere('class_name', $underscored)
                         ->orWhere('class_name', $identifier)
                         ->orWhere('item_uuid', $identifier);
                 })
@@ -166,18 +166,7 @@ class VehicleController extends AbstractApiV2Controller
             throw new NotFoundHttpException('No Vehicle with specified name found.');
         }
 
-        $x = new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
-        return $x;
-//        $x->resolve($request);
-//
-//        $log = collect(DB::getQueryLog())->sortByDesc('time');
-//        //$log = collect($log)->filter(function($item){return $item['time']>0.5;});
-//
-//        $log[] = $log->sum('time');
-//
-//        Storage::write('db.json', json_encode($log, JSON_PRETTY_PRINT));
-//
-//        return $x;
+        return new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
     }
 
     #[OA\Post(
