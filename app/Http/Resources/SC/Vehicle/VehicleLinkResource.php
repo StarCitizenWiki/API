@@ -43,7 +43,7 @@ class VehicleLinkResource extends AbstractBaseResource
             'name' => $this->name,
             'link' => $this->makeApiUrl(self::VEHICLES_SHOW, ($this->item_uuid ?? $this->sc?->item_uuid ?? urlencode($this->name))),
             'updated_at' => $this->updated_at,
-            'version' => $this->sc->version,
+            'version' => $this->version ?? $this->sc?->version,
         ];
     }
 }
