@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
+use App\Models\SC\Manufacturer;
 use App\Models\SC\Vehicle\Hardpoint;
 use App\Services\Parser\SC\Labels;
 use App\Services\Parser\SC\Manufacturers;
@@ -88,6 +89,19 @@ class Vehicle implements ShouldQueue
             $vehicleModel->item->update([
                 'version' => config('api.sc_data_version'),
             ]);
+        }
+
+        // Manually override the Fury Manufacturer
+        if ( in_array($vehicle['rawData']['Entity']['__ref'], [
+            '96b11061-68ce-4896-9424-fc8804a410ae',
+            '469d850e-b86b-47fc-9ee2-df81d775ccc8'
+        ], true) && $vehicleModel->item->manufacturer_id === 1) {
+            $mirai = Manufacturer::query()->where('name', 'Mirai')->where('code', '<>', '')->first();
+            if ($mirai?->exists ?? false) {
+                $vehicleModel->item->update([
+                    'manufacturer_id' => $mirai->id,
+                ]);
+            }
         }
 
         $vehicleModel->refresh();
