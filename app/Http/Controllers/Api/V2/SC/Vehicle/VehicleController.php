@@ -47,20 +47,14 @@ class VehicleController extends AbstractApiV2Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(UnpackedVehicle::class, $request)
+        $query = QueryBuilder::for(Vehicle::class, $request)
             ->withoutEagerLoads()
-            ->with(['manufacturer', 'item'])
+            ->with(['manufacturer'])
             ->orderBy('name')
             ->allowedFilters([
                 AllowedFilter::partial('manufacturer', 'manufacturer.name'),
-                AllowedFilter::exact('chassis_id', 'vehicle.chassis_id')
+                AllowedFilter::exact('chassis_id', 'chassis_id')
             ])
-            ->whereRelation(
-                'item',
-                'version',
-                'LIKE',
-                config('api.sc_data_version') . '%'
-            )
             ->paginate($this->limit)
             ->appends(request()->query());
 
@@ -140,6 +134,7 @@ class VehicleController extends AbstractApiV2Controller
                 ->where(function (Builder $query) use ($identifier, $underscored) {
                     $query->where('name', $identifier)
                         ->orWhere('class_name', $underscored)
+                        ->orWhere('class_name', 'LIKE', "%_$underscored")
                         ->orWhere('class_name', $identifier)
                         ->orWhere('item_uuid', $identifier);
                 })
@@ -233,6 +228,14 @@ class VehicleController extends AbstractApiV2Controller
             ])
             ->paginate($this->limit)
             ->appends(request()->query());
+
+        if ($queryBuilder->count() === 0) {
+            $queryBuilder = QueryBuilder::for(Vehicle::class, $request)
+                ->where('name', $identifier)
+                ->orWhere('slug', $identifier)
+                ->orWhereRelation('sc', 'item_uuid', $identifier)
+                ->firstOrFail();
+        }
 
         if ($queryBuilder->count() === 0) {
             throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $identifier));

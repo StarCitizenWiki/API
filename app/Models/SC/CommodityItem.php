@@ -37,7 +37,7 @@ abstract class CommodityItem extends HasTranslations
 
     public function getVersionAttribute()
     {
-        return $this->item->version;
+        return $this->item?->version;
     }
 
     /**

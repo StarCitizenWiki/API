@@ -39,11 +39,11 @@ class VehicleLinkResource extends AbstractBaseResource
     public function toArray($request): array
     {
         return [
-            'uuid' => $this->item_uuid ?? $this->sc->item_uuid ?? urlencode($this->name),
+            'uuid' => $this->item_uuid ?? $this->sc?->item_uuid,
             'name' => $this->name,
-            'link' => $this->makeApiUrl(self::VEHICLES_SHOW, ($this->item_uuid ?? $this->sc->item_uuid ?? urlencode($this->name))),
+            'link' => $this->makeApiUrl(self::VEHICLES_SHOW, ($this->item_uuid ?? $this->sc?->item_uuid ?? urlencode($this->name))),
             'updated_at' => $this->updated_at,
-            'version' => $this->version,
+            'version' => $this->sc->version,
         ];
     }
 }
