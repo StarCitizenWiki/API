@@ -113,6 +113,7 @@ class ItemController extends AbstractApiV2Controller
                       ->orWhere('name', $identifier);
                 })
                 ->orderByDesc('version')
+                ->allowedIncludes(ItemResource::validIncludes())
                 ->with([
                     'dimensions',
                     'manufacturer',
@@ -123,8 +124,11 @@ class ItemController extends AbstractApiV2Controller
                     'descriptionData',
                     'defaultTags',
                     'requiredTags',
+                    'heatData',
+                    'powerData',
+                    'distortionData',
+                    'durabilityData',
                 ])
-                ->allowedIncludes(ItemResource::validIncludes())
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
