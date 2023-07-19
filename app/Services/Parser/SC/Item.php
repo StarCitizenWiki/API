@@ -161,6 +161,8 @@ final class Item extends AbstractCommodityItem
 
             'inventory_container' => $this->getInventoryContainer(),
 
+            'mass' => $this->get('SEntityPhysicsControllerParams.PhysType.SEntityRigidPhysicsControllerParams.Mass', 0),
+
             'ports' => $this->mapPorts(),
             'port_loadout' => $this->mapPortLoadouts(),
         ] + ItemBaseData::getData($this->item);

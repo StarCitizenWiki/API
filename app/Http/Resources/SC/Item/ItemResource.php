@@ -52,6 +52,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'size', type: 'integer', nullable: true),
         new OA\Property(property: 'grade', type: 'string', nullable: true),
         new OA\Property(property: 'class', type: 'string', nullable: true),
+        new OA\Property(property: 'mass', type: 'double', nullable: true),
         new OA\Property(
             property: 'description_data',
             type: 'array',

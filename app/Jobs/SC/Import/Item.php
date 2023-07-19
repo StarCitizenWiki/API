@@ -51,6 +51,7 @@ class Item implements ShouldQueue
             'manufacturer_description' => $this->data['manufacturer_description'],
             'size' => $this->data['size'],
             'class_name' => $this->data['class_name'],
+            'mass' => $this->data['mass'],
             'version' => config('api.sc_data_version'),
             'manufacturer_id' => $manufacturer->id,
         ]);

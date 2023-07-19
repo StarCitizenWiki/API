@@ -64,7 +64,13 @@ class Item extends HasTranslations
         'manufacturer_id',
         'size',
         'class_name',
+        'mass',
         'version',
+    ];
+
+    protected $casts = [
+        'size' => 'int',
+        'mass' => 'double',
     ];
 
     public function getRouteKey()
