@@ -160,6 +160,7 @@ class ItemResource extends AbstractTranslationResource
             'name' => $this->name,
             'description' => $this->getTranslation($this, $request),
             'size' => $this->size,
+            'mass' => $this->mass,
             $this->mergeWhen($vehicleItem !== null || $vehicleItem->exists, [
                 'grade' => $vehicleItem->grade,
                 'class' => $vehicleItem->class,
