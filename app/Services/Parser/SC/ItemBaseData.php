@@ -101,11 +101,13 @@ final class ItemBaseData extends AbstractItemSpecification
 
         return array_filter([
             'decay_rate' => Arr::get($item, $basePath . 'DecayRate'),
+            'decay_delay' => Arr::get($item, $basePath . 'DecayDelay'),
 
             'maximum' => Arr::get($item, $basePath . 'Maximum'),
 
             'overload_ratio' => Arr::get($item, $basePath . 'OverloadRatio'),
 
+            'warning_ratio' => Arr::get($item, $basePath . 'WarningRatio'),
             'recovery_ratio' => Arr::get($item, $basePath . 'RecoveryRatio'),
             'recovery_time' => Arr::get($item, $basePath . 'RecoveryTime'),
         ], static function ($entry) {

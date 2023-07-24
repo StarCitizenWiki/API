@@ -13,8 +13,10 @@ use OpenApi\Attributes as OA;
     title: 'Item Distortion Data',
     properties: [
         new OA\Property(property: 'decay_rate', type: 'double', nullable: true),
+        new OA\Property(property: 'decay_delay', type: 'double', nullable: true),
         new OA\Property(property: 'maximum', type: 'double', nullable: true),
         new OA\Property(property: 'overload_ratio', type: 'double', nullable: true),
+        new OA\Property(property: 'warning_ratio', type: 'double', nullable: true),
         new OA\Property(property: 'recovery_ratio', type: 'double', nullable: true),
         new OA\Property(property: 'recovery_time', type: 'double', nullable: true),
     ],
@@ -31,9 +33,11 @@ class ItemDistortionDataResource extends AbstractBaseResource
     public function toArray($request): array
     {
         return [
+            'decay_delay' => $this->decay_delay,
             'decay_rate' => $this->decay_rate,
             'maximum' => $this->maximum,
             'overload_ratio' => $this->overload_ratio,
+            'warning_ratio' => $this->warning_ratio,
             'recovery_ratio' => $this->recovery_ratio,
             'recovery_time' => $this->recovery_time,
         ];

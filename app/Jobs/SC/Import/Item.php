@@ -202,8 +202,10 @@ class Item implements ShouldQueue
             $itemModel->distortionData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
             ], [
+                'decay_delay' => $this->data['distortion']['decay_delay'] ?? null,
                 'decay_rate' => $this->data['distortion']['decay_rate'] ?? null,
                 'maximum' => $this->data['distortion']['maximum'] ?? null,
+                'warning_ratio' => $this->data['distortion']['warning_ratio'] ?? null,
                 'overload_ratio' => $this->data['distortion']['overload_ratio'] ?? null,
                 'recovery_ratio' => $this->data['distortion']['recovery_ratio'] ?? null,
                 'recovery_time' => $this->data['distortion']['recovery_time'] ?? null,
