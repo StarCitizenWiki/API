@@ -105,6 +105,12 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(type: 'string'),
             nullable: true,
         ),
+        new OA\Property(
+            property: 'interactions',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true,
+        ),
         new OA\Property(property: 'ports', ref: '#/components/schemas/item_port_data_v2', nullable: true),
         new OA\Property(property: 'heat', ref: '#/components/schemas/item_heat_data_v2', nullable: true),
         new OA\Property(property: 'power', ref: '#/components/schemas/item_power_data_v2', nullable: true),
@@ -183,6 +189,7 @@ class ItemResource extends AbstractTranslationResource
             ]),
             'tags' => $this->defaultTags->pluck('name')->toArray(),
             'required_tags' => $this->requiredTags->pluck('name')->toArray(),
+            'interactions' => $this->interactions->pluck('name')->toArray(),
             'ports' => ItemPortResource::collection($this->whenLoaded('ports')),
             $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('heatData'), [
                 'heat' => new ItemHeatDataResource($this->heatData),

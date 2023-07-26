@@ -9,8 +9,8 @@ use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Models\SC\Item\Item;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -128,6 +128,7 @@ class ItemController extends AbstractApiV2Controller
                     'powerData',
                     'distortionData',
                     'durabilityData',
+                    'interactions',
                 ])
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {

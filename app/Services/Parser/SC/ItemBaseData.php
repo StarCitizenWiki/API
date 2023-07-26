@@ -26,6 +26,7 @@ final class ItemBaseData extends AbstractItemSpecification
         $out['power'] = self::addPowerData($item);
         $out['heat'] = self::addHeatData($item);
         $out['distortion'] = self::addDistortionData($item);
+        $out['interactions'] = self::addInteractionData($item);
 
         return $out;
     }
@@ -113,5 +114,22 @@ final class ItemBaseData extends AbstractItemSpecification
         ], static function ($entry) {
             return $entry !== null;
         });
+    }
+
+    private static function addInteractionData(Collection $item): array
+    {
+        if (!isset($item['Components']['SEntityInteractableParams'])) {
+            return [];
+        }
+
+        $basePath = 'Components.SEntityInteractableParams.Interactable.SharedInteractions';
+
+
+        return collect(Arr::get($item, $basePath))->map(fn(array $interaction) => $interaction['Name'] )
+            ->unique()
+            ->map('trim')
+            ->map('strtolower')
+            ->map('ucwords')
+            ->toArray();
     }
 }

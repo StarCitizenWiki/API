@@ -7,7 +7,6 @@ namespace App\Models\SC\Item;
 use App\Events\ModelUpdating;
 use App\Models\SC\Char\Clothing\Armor;
 use App\Models\SC\Char\Clothing\Clothes;
-use App\Models\SC\Char\Clothing\Clothing;
 use App\Models\SC\Char\Grenade;
 use App\Models\SC\Char\PersonalWeapon\BarrelAttach;
 use App\Models\SC\Char\PersonalWeapon\IronSight;
@@ -366,7 +365,6 @@ class Item extends HasTranslations
         return $this->hasOne(Manufacturer::class, 'id', 'manufacturer_id');
     }
 
-
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -386,5 +384,15 @@ class Item extends HasTranslations
     public function requiredTags(): BelongsToMany
     {
         return $this->tags()->wherePivot('is_required_tag', true);
+    }
+
+    public function interactions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Interaction::class,
+            'sc_item_interaction',
+            'item_id',
+            'interaction_id'
+        );
     }
 }

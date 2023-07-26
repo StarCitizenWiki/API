@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
+use App\Models\SC\Item\Interaction;
 use App\Models\SC\Item\ItemPort;
 use App\Models\SC\Item\Tag;
 use App\Models\SC\Manufacturer;
@@ -84,6 +85,7 @@ class Item implements ShouldQueue
         $this->createDurabilityModel($itemModel);
         $this->addTags($itemModel, $this->data, 'tags');
         $this->addTags($itemModel, $this->data, 'required_tags', true);
+        $this->addInteractions($itemModel, $this->data);
     }
 
     private function createDimensionModel(\App\Models\SC\Item\Item $itemModel): void
@@ -245,5 +247,23 @@ class Item implements ShouldQueue
             });
 
         $model->tags()->syncWithPivotValues($tags, ['is_required_tag' => $isRequiredTag]);
+    }
+
+    private function addInteractions($model, $data): void
+    {
+        if (empty($data['interactions'])) {
+            return;
+        }
+
+        $interactions = collect($data['interactions'])
+            ->map(function ($interaction) {
+                $interaction = Interaction::query()->firstOrCreate([
+                    'name' => $interaction,
+                ]);
+
+                return $interaction->id;
+            });
+
+        $model->interactions()->sync($interactions);
     }
 }
