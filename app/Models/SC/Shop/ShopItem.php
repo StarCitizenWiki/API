@@ -13,15 +13,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class ShopItem extends Pivot
 {
-    use ModelChangelog;
-
     protected $primaryKey = 'node_uuid';
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
 
     protected $table = 'sc_shop_item';
 

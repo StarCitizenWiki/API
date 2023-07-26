@@ -35,7 +35,7 @@ final class Inventory
         $data = [
             'uuid' => $inventory['item_reference'],
             'node_uuid' => $inventory['node_reference'],
-            'name' => $inventory['displayName'],
+            'name' => $inventory['displayName'] ?? $inventory['name'] ?? null,
             'type' => $type,
             'sub_type' => $subType,
             'base_price' => $inventory['basePrice'] ?? null,

@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Shop extends Model
 {
     use HasFactory;
-    use ModelChangelog;
 
     protected static function boot(): void
     {
@@ -29,12 +28,6 @@ class Shop extends Model
             }
         );
     }
-
-    protected $dispatchesEvents = [
-        'updating' => ModelUpdating::class,
-        'created' => ModelUpdating::class,
-        'deleting' => ModelUpdating::class,
-    ];
 
     protected $table = 'sc_shops';
 

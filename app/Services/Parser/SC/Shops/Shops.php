@@ -84,7 +84,7 @@ final class Shops
     {
         [
             'name' => $name,
-            'position' => $position
+            'position' => $position,
         ] = self::parseShopName($this->shopNames[$shop['name']] ?? $shop['name']);
 
         return [
@@ -105,21 +105,6 @@ final class Shops
         return collect($shop['inventory'])
             ->filter(function (array $inventory) {
                 return isset($inventory['item_reference']);
-            })
-            ->map(function (array $inventory) {
-                if (!isset($inventory['displayName'])) {
-                    $key = $this->labels->first(function ($value, $key) use ($inventory) {
-                        return sprintf('item_name_%s', $inventory['name']) === strtolower($key);
-                    });
-
-                    if ($key === false || $key === null) {
-                        return null;
-                    }
-
-                    $inventory['displayName'] = $key;
-                }
-
-                return $inventory;
             })
             ->filter(function ($inventory) {
                 return $inventory !== false && $inventory !== null;
