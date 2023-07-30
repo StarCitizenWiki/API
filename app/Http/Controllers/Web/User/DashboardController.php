@@ -6,13 +6,12 @@ namespace App\Http\Controllers\Web\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account\User\User;
-use App\Models\System\ModelChangelog;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Octfx\DeepLy\HttpClient\CallException;
 use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
 use stdClass;
 
@@ -47,7 +46,6 @@ class DashboardController extends Controller
                 'users' => $this->getUserStats(),
                 'deepl' => $this->getDeeplStats(),
                 'jobs' => $this->getQueueStats(),
-                'changelogs' => ModelChangelog::query()->orderByDesc('id')->take(5),
             ];
         }
 
@@ -100,7 +98,7 @@ class DashboardController extends Controller
 
         try {
             $deeplUsage = DeepLyFacade::getUsage()->getResponse();
-        } catch (CallException $e) {
+        } catch (Exception $e) {
             $deeplUsage = [
                 self::DEEPL_CHARACTER_COUNT => -1,
                 self::DEEPL_CHARACTER_LIMIT => -1,
