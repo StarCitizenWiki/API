@@ -37,7 +37,7 @@ class Missile extends CommodityItem
 
     public function getDamageAttribute(): float
     {
-        return $this->damages->reduce(function ($carry, $item) {
+        return $this->damages->where('name', 'physical')->reduce(function ($carry, $item) {
             return $carry + $item->damage;
         }, 0);
     }
