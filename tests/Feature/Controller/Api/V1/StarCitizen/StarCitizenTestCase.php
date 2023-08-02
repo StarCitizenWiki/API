@@ -4,7 +4,7 @@ namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
 
 use App\Http\Controllers\Api\AbstractApiController;
-use Tests\Feature\Controller\Api\ApiTestCase;
+use Tests\Feature\Controller\Api\V1\ApiTestCase;
 
 class StarCitizenTestCase extends ApiTestCase
 {

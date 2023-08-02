@@ -26,3 +26,15 @@ if (!function_exists('str_split_unicode')) {
         return $tmp;
     }
 }
+
+if (!function_exists('scdata')) {
+    /**
+     * Generate a link to the scunpacked data
+     *
+     * @param string $path
+     * @return string
+     */
+    function scdata( string $path ): string {
+        return storage_path(sprintf('%s/%s', config('api.sc_data_path' ), ltrim($path, '/')));
+    }
+}

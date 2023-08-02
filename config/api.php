@@ -5,4 +5,5 @@ return [
     'rsi_url' => env('RSI_URL', 'https://robertsspaceindustries.com'),
 
     'sc_data_version' => env('SC_DATA_VERSION'),
+    'sc_data_path' => env('SC_DATA_PATH', 'app/api/scunpacked-data'),
 ];

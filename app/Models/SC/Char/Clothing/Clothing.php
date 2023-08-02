@@ -48,7 +48,7 @@ class Clothing extends Item
         return $this->resistances()
             ->where('type', 'temp_min')
             ->first()
-            ->threshold;
+            ?->threshold;
     }
 
     public function getTempResistanceMaxAttribute()
@@ -56,7 +56,7 @@ class Clothing extends Item
         return $this->resistances()
             ->where('type', 'temp_max')
             ->first()
-            ->threshold;
+            ?->threshold;
     }
 
     public function getDamageReductionAttribute()

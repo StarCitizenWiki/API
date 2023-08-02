@@ -36,7 +36,7 @@ class ImportVehicles extends AbstractQueueCommand
     public function handle()
     {
         try {
-            $vehicles = File::get(storage_path('app/api/scunpacked-data/v2/ships.json'));
+            $vehicles = File::get(scdata('v2/ships.json'));
         } catch (FileNotFoundException $e) {
             $this->error('ships.json not found. Did you clone scunpacked?');
             return Command::FAILURE;
@@ -69,15 +69,15 @@ class ImportVehicles extends AbstractQueueCommand
                         return $this->isNotIgnoredClass($vehicle['ClassName']);
                     })
                     ->map(function (array $vehicle) {
-                        $vehicle['filePathV2'] = sprintf(
-                            'api/scunpacked-data/v2/ships/%s-raw.json',
+                        $vehicle['filePathV2'] = scdata(sprintf(
+                            'v2/ships/%s-raw.json',
                             strtolower($vehicle['ClassName'])
-                        );
+                        ));
 
-                        $vehicle['filePath'] = sprintf(
-                            'api/scunpacked-data/ships/%s.json',
+                        $vehicle['filePath'] = scdata(sprintf(
+                            'ships/%s.json',
                             strtolower($vehicle['ClassName'])
-                        );
+                        ));
 
                         return $vehicle;
                     })->each(function (array $vehicle) {

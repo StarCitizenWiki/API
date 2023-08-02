@@ -4,8 +4,8 @@ namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink\Series;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Series\Series;
+use Tests\Feature\Controller\Api\V1\ApiTestCase;
 use Illuminate\Support\Collection;
-use Tests\Feature\Controller\Api\ApiTestCase;
 
 /**
  * {@inheritdoc}

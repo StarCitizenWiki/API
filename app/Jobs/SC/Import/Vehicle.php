@@ -58,7 +58,7 @@ class Vehicle implements ShouldQueue
         $vehicle = $this->shipData;
 
         try {
-            $rawData = File::get(storage_path(sprintf('app/%s', $vehicle['filePathV2'])));
+            $rawData = File::get($vehicle['filePathV2']);
 
             $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
         } catch (FileNotFoundException | JsonException $e) {

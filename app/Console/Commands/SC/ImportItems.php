@@ -14,6 +14,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 
@@ -50,7 +51,8 @@ class ImportItems extends AbstractQueueCommand
         $labels = (new Labels())->getData();
         $manufacturers = (new Manufacturers())->getData();
 
-        $files = Storage::allFiles('api/scunpacked-data/items') + Storage::allFiles('api/scunpacked-data/ships');
+
+        $files = File::allFiles(scdata('items')) + Storage::allFiles(scdata('ships'));
 
         if ($this->option('skipItems') === false) {
             collect($files)

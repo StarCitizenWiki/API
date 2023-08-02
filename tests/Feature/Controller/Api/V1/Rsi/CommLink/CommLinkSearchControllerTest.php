@@ -3,7 +3,7 @@
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
-use Tests\Feature\Controller\Api\ApiTestCase;
+use Tests\Feature\Controller\Api\V1\ApiTestCase;
 
 /**
  * {@inheritdoc}

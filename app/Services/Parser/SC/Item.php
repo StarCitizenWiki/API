@@ -34,7 +34,7 @@ final class Item extends AbstractCommodityItem
      */
     public function __construct(string $fileName, Collection $labels, Collection $manufacturers)
     {
-        $items = File::get(storage_path(sprintf('app/%s', $fileName)));
+        $items = File::get($fileName);
         $this->item = collect(json_decode($items, true, 512, JSON_THROW_ON_ERROR));
         $this->labels = $labels;
         $this->manufacturers = $manufacturers;
