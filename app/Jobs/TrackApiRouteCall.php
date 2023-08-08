@@ -35,7 +35,7 @@ class TrackApiRouteCall implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         Http::withHeaders([
             'User-Agent' => $this->request['user-agent'],
@@ -47,6 +47,7 @@ class TrackApiRouteCall implements ShouldQueue
                 'name' => 'pageview',
                 'url' => $this->request['url'],
                 'domain' => parse_url(config('app.url'))['host'],
-            ]);
+            ])
+            ->onError(fn() => $this->delete());
     }
 }
