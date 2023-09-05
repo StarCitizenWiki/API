@@ -218,10 +218,10 @@ class VehicleController extends AbstractApiV2Controller
                 $request->get('version', config('api.sc_data_version')) . '%'
             )
             ->where(function (Builder $query) use ($identifier, $underscored) {
-                $query->where('name', 'LIKE', "%{$identifier}")
-                    ->orWhere('class_name', 'LIKE', "%{$underscored}")
+                $query->Where('class_name', 'LIKE', "%{$underscored}")
                     ->orWhere('class_name', $identifier)
-                    ->orWhere('item_uuid', $identifier);
+                    ->orWhere('item_uuid', $identifier)
+                    ->orWhere('name', 'LIKE', "%{$identifier}%");
             })
             ->allowedFilters([
                 AllowedFilter::partial('manufacturer', 'manufacturer.name'),
@@ -231,7 +231,7 @@ class VehicleController extends AbstractApiV2Controller
 
         if ($queryBuilder->count() === 0) {
             $queryBuilder = QueryBuilder::for(Vehicle::class, $request)
-                ->where('name', $identifier)
+                ->where('name', 'LIKE', "%{$identifier}%")
                 ->orWhere('slug', $identifier)
                 ->orWhereRelation('sc', 'item_uuid', $identifier)
                 ->paginate($this->limit)
