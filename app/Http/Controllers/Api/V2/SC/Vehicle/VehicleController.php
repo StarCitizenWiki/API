@@ -234,7 +234,8 @@ class VehicleController extends AbstractApiV2Controller
                 ->where('name', $identifier)
                 ->orWhere('slug', $identifier)
                 ->orWhereRelation('sc', 'item_uuid', $identifier)
-                ->firstOrFail();
+                ->paginate($this->limit)
+                ->appends(request()->query());
         }
 
         if ($queryBuilder->count() === 0) {
