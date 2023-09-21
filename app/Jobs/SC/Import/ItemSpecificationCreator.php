@@ -8,8 +8,6 @@ final class ItemSpecificationCreator
 {
     public static function createSpecification(array $itemData, string $filePath): void
     {
-        $filePath = storage_path(sprintf('app/%s', $filePath));
-
         $type = $itemData['type'];
         $subType = $itemData['sub_type'];
 
