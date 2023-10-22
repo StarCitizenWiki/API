@@ -348,7 +348,7 @@ class VehicleResource extends AbstractBaseResource
                 'armor' => new ArmorResource($this->armor),
             ]),
             'foci' => [
-                'en_EN' => $this->career,
+                ['en_EN' => $this->career],
             ],
             'type' => [
                 'en_EN' => $this->role,
