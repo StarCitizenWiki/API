@@ -160,17 +160,14 @@ class Vehicle implements ShouldQueue
             'claim_time' => $this->numFormat($vehicle['Insurance']['StandardClaimTime'] ?? 0),
             'expedite_time' => $this->numFormat($vehicle['Insurance']['ExpeditedClaimTime'] ?? 0),
             'expedite_cost' => $this->numFormat($vehicle['Insurance']['ExpeditedCost'] ?? 0),
+
+			'zero_to_scm' => $this->numFormat($vehicle[$key]['ZeroToScm'] ?? 0),
+			'zero_to_max' => $this->numFormat($vehicle[$key]['ZeroToMax'] ?? 0),
+
+			'scm_to_zero' => $this->numFormat($vehicle[$key]['ScmToZero'] ?? 0),
+			'max_to_zero' => $this->numFormat($vehicle[$key]['MaxToZero'] ?? 0),
         ];
 
-        if ($vehicle['IsSpaceship'] || ($vehicle['IsGravlev'] ?? false)) {
-            $data += [
-                'zero_to_scm' => $this->numFormat($vehicle[$key]['ZeroToScm']),
-                'zero_to_max' => $this->numFormat($vehicle[$key]['ZeroToMax']),
-
-                'scm_to_zero' => $this->numFormat($vehicle[$key]['ScmToZero']),
-                'max_to_zero' => $this->numFormat($vehicle[$key]['MaxToZero']),
-            ];
-        }
 
         return $data;
     }
