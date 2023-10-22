@@ -95,7 +95,7 @@ class Vehicle implements ShouldQueue
         if ( in_array($vehicle['rawData']['Entity']['__ref'], [
             '96b11061-68ce-4896-9424-fc8804a410ae',
             '469d850e-b86b-47fc-9ee2-df81d775ccc8'
-        ], true) && $vehicleModel->item->manufacturer_id === 1) {
+        ], true) && $vehicleModel->item?->manufacturer_id === 1) {
             $mirai = Manufacturer::query()->where('name', 'Mirai')->where('code', '<>', '')->first();
             if ($mirai?->exists ?? false) {
                 $vehicleModel->item->update([
