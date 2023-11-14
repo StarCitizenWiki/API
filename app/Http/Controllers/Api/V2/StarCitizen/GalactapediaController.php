@@ -178,7 +178,7 @@ class GalactapediaController extends AbstractApiV2Controller
         $queryBuilder = QueryBuilder::for(Article::class, $request)
             ->where('title', 'like', "%{$query}%")
             ->orWhere('slug', 'like', "%{$query}%")
-            ->orWhere('cig_id', 'like', "%{$query}%")
+            ->orWhere('cig_id', $query)
             ->orWhereHas('templates', function (Builder $builder) use ($query) {
                 return $builder->where('template', 'like', "%{$query}%");
             })
