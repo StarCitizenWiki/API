@@ -55,7 +55,7 @@ class ItemPortResource extends AbstractBaseResource
             ],
             'tags' => $this->defaultTags->pluck('name')->toArray(),
             'required_tags' => $this->requiredTags->pluck('name')->toArray(),
-            'equipped_item' => new ItemResource($this->whenLoaded('item'))
+            'equipped_item' => new ItemLinkResource($this->item),
         ];
     }
 }
