@@ -17,6 +17,7 @@ use App\Models\SC\ItemSpecification\QuantumInterdictionGenerator;
 use App\Models\SC\ItemSpecification\SelfDestruct;
 use App\Models\SC\ItemSpecification\Shield;
 use App\Models\SC\ItemSpecification\Thruster;
+use App\Models\SC\ItemSpecification\TractorBeam;
 use App\Models\SC\Vehicle\VehicleItem as VehicleItemModel;
 use App\Models\SC\Vehicle\Weapon\VehicleWeapon;
 use App\Services\Parser\SC\Labels;
@@ -134,6 +135,10 @@ class VehicleItem implements ShouldQueue
 
             case 'SelfDestruct':
                 $this->createSelfDestruct($item);
+                break;
+
+            case 'TractorBeam':
+                $this->createTractorBeam($item);
                 break;
         }
     }
@@ -428,4 +433,22 @@ class VehicleItem implements ShouldQueue
             'ship_item_id' => $shipItem->id,
         ]);
     }
+
+	private function createTractorBeam(array $item): void
+	{
+		TractorBeam::updateOrCreate([
+			'item_uuid' => $item['uuid'],
+		], [
+			'min_force' => $item['self_destruct']['damage'] ?? null,
+			'max_force' => $item['self_destruct']['radius'] ?? null,
+			'min_distance' => $item['self_destruct']['min_radius'] ?? null,
+			'max_distance' => $item['self_destruct']['phys_radius'] ?? null,
+			'full_strength_distance' => $item['self_destruct']['min_phys_radius'] ?? null,
+			'max_angle' => $item['self_destruct']['time'] ?? null,
+			'max_volume' => $item['self_destruct']['time'] ?? null,
+			'volume_force_coefficient' => $item['self_destruct']['time'] ?? null,
+			'tether_break_time' => $item['self_destruct']['time'] ?? null,
+			'safe_range_value_factor' => $item['self_destruct']['time'] ?? null,d
+		]);
+	}
 }

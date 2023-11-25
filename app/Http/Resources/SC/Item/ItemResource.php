@@ -27,6 +27,7 @@ use App\Http\Resources\SC\ItemSpecification\QuantumInterdictionGeneratorResource
 use App\Http\Resources\SC\ItemSpecification\SelfDestructResource;
 use App\Http\Resources\SC\ItemSpecification\ShieldResource;
 use App\Http\Resources\SC\ItemSpecification\ThrusterResource;
+use App\Http\Resources\SC\ItemSpecification\TractorBeamResource;
 use App\Http\Resources\SC\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\SC\Shop\ShopResource;
 use App\Http\Resources\SC\Vehicle\Weapon\VehicleWeaponResource;
@@ -311,6 +312,10 @@ class ItemResource extends AbstractTranslationResource
             $this->type === 'WeaponMining' => [
                 $specification->exists,
                 ['mining_laser' => new MiningLaserResource($specification),],
+            ],
+            $this->type === 'TractorBeam' => [
+                $specification->exists,
+                ['tractor_beam' => new TractorBeamResource($specification),],
             ],
             default => [false, []],
         };

@@ -76,8 +76,9 @@ final class VehicleItem extends AbstractCommodityItem
         $mappedItem['self_destruct'] = SelfDestruct::getData($item);
         $mappedItem['shield'] = Shield::getData($item);
         $mappedItem['thruster'] = Thruster::getData($item);
-        if (Arr::has($item, 'Raw.Entity.Components.SCItemWeaponComponentParams')) {
-            $mappedItem['weapon'] = (new Weapon($this->filePath, $this->labels))->getData();
-        }
-    }
+		if (Arr::has($item, 'Raw.Entity.Components.SCItemWeaponComponentParams')) {
+			$mappedItem['weapon'] = (new Weapon($this->filePath, $this->labels))->getData();
+		}
+		$mappedItem['tractor_beam'] = TractorBeam::getData($item);
+	}
 }
