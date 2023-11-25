@@ -65,6 +65,7 @@ final class ItemSpecificationCreator
             case stripos($type, 'WeaponGun') !== false:
             case stripos($type, 'FlightController') !== false:
             case stripos($type, 'Turret') !== false:
+            case stripos($type, 'TractorBeam') !== false:
             case stripos($type, 'Mount') !== false:
             case stripos($type, 'Arm') !== false:
             case stripos($type, 'WheeledController') !== false:

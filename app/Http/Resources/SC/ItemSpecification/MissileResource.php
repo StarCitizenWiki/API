@@ -15,6 +15,11 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'signal_type', type: 'string', nullable: true),
         new OA\Property(property: 'lock_time', type: 'double', nullable: true),
+        new OA\Property(property: 'lock_range_max', type: 'double', nullable: true),
+        new OA\Property(property: 'lock_range_min', type: 'double', nullable: true),
+        new OA\Property(property: 'tracking_signal_min', type: 'double', nullable: true),
+        new OA\Property(property: 'speed', type: 'double', nullable: true),
+        new OA\Property(property: 'fuel_tank_size', type: 'double', nullable: true),
         new OA\Property(property: 'damage_total', type: 'double', nullable: true),
         new OA\Property(
             property: 'damages',
@@ -37,6 +42,11 @@ class MissileResource extends AbstractBaseResource
         return [
             'signal_type' => $this->getDescriptionDatum('Tracking Signal'),
             'lock_time' => $this->lock_time,
+            'lock_range_max' => $this->lock_range_max,
+            'lock_range_min' => $this->lock_range_min,
+            'tracking_signal_min' => $this->tracking_signal_min,
+            'speed' => $this->speed,
+            'fuel_tank_size' => $this->fuel_tank_size,
             'damage_total' => $this->damage ?? 0,
             'damages' => WeaponDamageResource::collection($this->whenLoaded('damages')),
         ];

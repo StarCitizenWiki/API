@@ -377,6 +377,11 @@ class VehicleItem implements ShouldQueue
         ], [
             'signal_type' => $item['missile']['signal_type'],
             'lock_time' => $item['missile']['lock_time'] ?? null,
+            'lock_range_max' => $item['missile']['lock_range_max'] ?? null,
+            'lock_range_min' => $item['missile']['lock_range_min'] ?? null,
+            'tracking_signal_min' => $item['missile']['tracking_signal_min'] ?? null,
+            'speed' => $item['missile']['speed'] ?? null,
+            'fuel_tank_size' => $item['missile']['fuel_tank_size'] ?? null,
         ]);
 
         if (isset($item['missile']['damages'])) {

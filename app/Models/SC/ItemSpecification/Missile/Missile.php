@@ -24,10 +24,20 @@ class Missile extends CommodityItem
         'item_uuid',
         'signal_type',
         'lock_time',
+        'lock_range_max',
+        'lock_range_min',
+        'tracking_signal_min',
+        'speed',
+        'fuel_tank_size',
     ];
 
     protected $casts = [
         'lock_time' => 'double',
+        'lock_range_max' => 'double',
+        'lock_range_min' => 'double',
+        'tracking_signal_min' => 'double',
+        'speed' => 'double',
+        'fuel_tank_size' => 'double',
     ];
 
     public function damages(): HasMany

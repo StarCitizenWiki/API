@@ -20,6 +20,13 @@ final class Missile extends AbstractItemSpecification
         return array_filter([
             'signal_type' => Arr::get($data, 'targetingParams.trackingSignalType'),
             'lock_time' => Arr::get($data, 'targetingParams.lockTime'),
+
+            'lock_range_max' => Arr::get($data, 'targetingParams.lockRangeMax'),
+            'lock_range_min' => Arr::get($data, 'targetingParams.lockRangeMin'),
+            'tracking_signal_min' => Arr::get($data, 'targetingParams.trackingSignalMin'),
+            'speed' => Arr::get($data, 'GCSParams.linearSpeed'),
+            'fuel_tank_size' => Arr::get($data, 'GCSParams.fuelTankSize'),
+
             'damages' => array_filter([
                 'physical' => Arr::get($data, 'explosionParams.damage.0.DamagePhysical'),
                 'energy' => Arr::get($data, 'explosionParams.damage.0.DamageEnergy'),
