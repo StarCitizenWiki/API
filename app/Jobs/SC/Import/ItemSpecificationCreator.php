@@ -43,31 +43,32 @@ final class ItemSpecificationCreator
                 break;
 
             // Vehicle Items
+            case stripos($type, 'Arm') !== false:
             case stripos($type, 'Armor') !== false:
             case stripos($type, 'Battery') !== false:
             case stripos($type, 'Cooler') !== false:
             case stripos($type, 'EMP') !== false:
             case stripos($type, 'ExternalFuelTank') !== false:
+            case stripos($type, 'FlightController') !== false:
             case stripos($type, 'FuelIntake') !== false:
             case stripos($type, 'FuelTank') !== false:
             case stripos($type, 'MainThruster') !== false:
             case stripos($type, 'ManneuverThruster') !== false:
             case stripos($type, 'Missile') !== false:
+            case stripos($type, 'Mount') !== false:
             case stripos($type, 'Paints') !== false:
             case stripos($type, 'PowerPlant') !== false:
             case stripos($type, 'QuantumDrive') !== false:
             case stripos($type, 'QuantumFuelTank') !== false:
             case stripos($type, 'QuantumInterdictionGenerator') !== false:
             case stripos($type, 'Radar') !== false:
+            case stripos($type, 'SalvageModifier') !== false:
             case stripos($type, 'SelfDestruct') !== false:
             case stripos($type, 'Shield') !== false:
+            case stripos($type, 'TractorBeam') !== false:
+            case stripos($type, 'Turret') !== false:
             case stripos($type, 'WeaponDefensive') !== false:
             case stripos($type, 'WeaponGun') !== false:
-            case stripos($type, 'FlightController') !== false:
-            case stripos($type, 'Turret') !== false:
-            case stripos($type, 'TractorBeam') !== false:
-            case stripos($type, 'Mount') !== false:
-            case stripos($type, 'Arm') !== false:
             case stripos($type, 'WheeledController') !== false:
             case in_array($type, [
                 'BombLauncher',

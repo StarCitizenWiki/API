@@ -24,6 +24,7 @@ use App\Http\Resources\SC\ItemSpecification\MissileResource;
 use App\Http\Resources\SC\ItemSpecification\PowerPlantResource;
 use App\Http\Resources\SC\ItemSpecification\QuantumDrive\QuantumDriveResource;
 use App\Http\Resources\SC\ItemSpecification\QuantumInterdictionGeneratorResource;
+use App\Http\Resources\SC\ItemSpecification\SalvageModifierResource;
 use App\Http\Resources\SC\ItemSpecification\SelfDestructResource;
 use App\Http\Resources\SC\ItemSpecification\ShieldResource;
 use App\Http\Resources\SC\ItemSpecification\ThrusterResource;
@@ -316,6 +317,10 @@ class ItemResource extends AbstractTranslationResource
             $this->type === 'TractorBeam' => [
                 $specification->exists,
                 ['tractor_beam' => new TractorBeamResource($specification),],
+            ],
+            $this->type === 'SalvageModifier' => [
+                $specification->exists,
+                ['salvage_modifier' => new SalvageModifierResource($specification),],
             ],
             default => [false, []],
         };

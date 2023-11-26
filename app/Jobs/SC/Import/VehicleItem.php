@@ -14,6 +14,7 @@ use App\Models\SC\ItemSpecification\Missile\Missile;
 use App\Models\SC\ItemSpecification\PowerPlant;
 use App\Models\SC\ItemSpecification\QuantumDrive\QuantumDrive;
 use App\Models\SC\ItemSpecification\QuantumInterdictionGenerator;
+use App\Models\SC\ItemSpecification\SalvageModifier;
 use App\Models\SC\ItemSpecification\SelfDestruct;
 use App\Models\SC\ItemSpecification\Shield;
 use App\Models\SC\ItemSpecification\Thruster;
@@ -139,6 +140,10 @@ class VehicleItem implements ShouldQueue
 
             case 'TractorBeam':
                 $this->createTractorBeam($item);
+                break;
+
+            case 'SalvageModifier':
+                $this->createSalvageModifier($item);
                 break;
         }
     }
@@ -379,9 +384,12 @@ class VehicleItem implements ShouldQueue
             'lock_time' => $item['missile']['lock_time'] ?? null,
             'lock_range_max' => $item['missile']['lock_range_max'] ?? null,
             'lock_range_min' => $item['missile']['lock_range_min'] ?? null,
+            'lock_angle' => $item['missile']['lock_angle'] ?? null,
             'tracking_signal_min' => $item['missile']['tracking_signal_min'] ?? null,
             'speed' => $item['missile']['speed'] ?? null,
             'fuel_tank_size' => $item['missile']['fuel_tank_size'] ?? null,
+            'explosion_radius_min' => $item['missile']['explosion_radius_min'] ?? null,
+            'explosion_radius_max' => $item['missile']['explosion_radius_max'] ?? null,
         ]);
 
         if (isset($item['missile']['damages'])) {
@@ -439,21 +447,32 @@ class VehicleItem implements ShouldQueue
         ]);
     }
 
-	private function createTractorBeam(array $item): void
-	{
-		TractorBeam::updateOrCreate([
-			'item_uuid' => $item['uuid'],
-		], [
-			'min_force' => $item['self_destruct']['damage'] ?? null,
-			'max_force' => $item['self_destruct']['radius'] ?? null,
-			'min_distance' => $item['self_destruct']['min_radius'] ?? null,
-			'max_distance' => $item['self_destruct']['phys_radius'] ?? null,
-			'full_strength_distance' => $item['self_destruct']['min_phys_radius'] ?? null,
-			'max_angle' => $item['self_destruct']['time'] ?? null,
-			'max_volume' => $item['self_destruct']['time'] ?? null,
-			'volume_force_coefficient' => $item['self_destruct']['time'] ?? null,
-			'tether_break_time' => $item['self_destruct']['time'] ?? null,
-			'safe_range_value_factor' => $item['self_destruct']['time'] ?? null,d
-		]);
-	}
+    private function createTractorBeam(array $item): void
+    {
+        TractorBeam::updateOrCreate([
+            'item_uuid' => $item['uuid'],
+        ], [
+            'min_force' => $item['tractor_beam']['min_force'] ?? null,
+            'max_force' => $item['tractor_beam']['max_force'] ?? null,
+            'min_distance' => $item['tractor_beam']['min_distance'] ?? null,
+            'max_distance' => $item['tractor_beam']['max_distance'] ?? null,
+            'full_strength_distance' => $item['tractor_beam']['full_strength_distance'] ?? null,
+            'max_angle' => $item['tractor_beam']['max_angle'] ?? null,
+            'max_volume' => $item['tractor_beam']['max_volume'] ?? null,
+            'volume_force_coefficient' => $item['tractor_beam']['volume_force_coefficient'] ?? null,
+            'tether_break_time' => $item['tractor_beam']['tether_break_time'] ?? null,
+            'safe_range_value_factor' => $item['tractor_beam']['safe_range_value_factor'] ?? null,
+        ]);
+    }
+
+    private function createSalvageModifier(array $item): void
+    {
+        SalvageModifier::updateOrCreate([
+            'item_uuid' => $item['uuid'],
+        ], [
+            'salvage_speed_multiplier' => $item['salvage_modifier']['salvage_speed_multiplier'] ?? null,
+            'radius_multiplier' => $item['salvage_modifier']['radius_multiplier'] ?? null,
+            'extraction_efficiency' => $item['salvage_modifier']['extraction_efficiency'] ?? null,
+        ]);
+    }
 }

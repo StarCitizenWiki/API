@@ -95,17 +95,19 @@ class PersonalWeapon implements ShouldQueue
             return;
         }
 
-        collect($data['modes'])->each(function (array $mode) use ($weapon) {
-            $weapon->modes()->updateOrCreate([
-                'mode' => $mode['mode'],
-            ], [
-                'localised' => $mode['localised'],
-                'type' => $mode['type'],
-                'rounds_per_minute' => $mode['rounds_per_minute'],
-                'ammo_per_shot' => $mode['ammo_per_shot'],
-                'pellets_per_shot' => $mode['pellets_per_shot'],
-            ]);
-        });
+        collect($data['modes'])
+            ->filter(fn($e) => isset($e['type']))
+            ->each(function (array $mode) use ($weapon) {
+                $weapon->modes()->updateOrCreate([
+                    'mode' => $mode['mode'],
+                ], [
+                    'localised' => $mode['localised'],
+                    'type' => $mode['type'],
+                    'rounds_per_minute' => $mode['rounds_per_minute'],
+                    'ammo_per_shot' => $mode['ammo_per_shot'],
+                    'pellets_per_shot' => $mode['pellets_per_shot'],
+                ]);
+            });
     }
 
     private function addLoadout(array $data, PersonalWeaponModel $weapon): void
