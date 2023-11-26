@@ -24,9 +24,11 @@ use App\Models\SC\ItemSpecification\Missile\Missile;
 use App\Models\SC\ItemSpecification\PowerPlant;
 use App\Models\SC\ItemSpecification\QuantumDrive\QuantumDrive;
 use App\Models\SC\ItemSpecification\QuantumInterdictionGenerator;
+use App\Models\SC\ItemSpecification\SalvageModifier;
 use App\Models\SC\ItemSpecification\SelfDestruct;
 use App\Models\SC\ItemSpecification\Shield;
 use App\Models\SC\ItemSpecification\Thruster;
+use App\Models\SC\ItemSpecification\TractorBeam;
 use App\Models\SC\Manufacturer;
 use App\Models\SC\Shop\Shop;
 use App\Models\SC\Shop\ShopItem;
@@ -246,6 +248,9 @@ class Item extends HasTranslations
             case $this->type === 'SelfDestruct':
                 return $this->hasOne(SelfDestruct::class, 'item_uuid', 'uuid')->withDefault();
 
+            case $this->type === 'TractorBeam':
+                return $this->hasOne(TractorBeam::class, 'item_uuid', 'uuid')->withDefault();
+
 //
 //            case $this->type === 'Radar':
 //                return $this->hasOne(Radar::class, 'uuid', 'uuid')->withDefault();
@@ -255,6 +260,9 @@ class Item extends HasTranslations
 
             case $this->type === 'MiningModifier':
                 return $this->hasOne(MiningModule::class, 'uuid', 'uuid')->withDefault();
+
+            case $this->type === 'SalvageModifier':
+                return $this->hasOne(SalvageModifier::class, 'uuid', 'uuid')->withDefault();
         }
 
         return $this->hasOne(__CLASS__, 'id', 'uuid'); //NULL
