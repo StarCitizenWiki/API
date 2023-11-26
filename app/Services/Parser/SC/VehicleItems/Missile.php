@@ -23,9 +23,12 @@ final class Missile extends AbstractItemSpecification
 
             'lock_range_max' => Arr::get($data, 'targetingParams.lockRangeMax'),
             'lock_range_min' => Arr::get($data, 'targetingParams.lockRangeMin'),
+            'lock_angle' => Arr::get($data, 'targetingParams.lockingAngle'),
             'tracking_signal_min' => Arr::get($data, 'targetingParams.trackingSignalMin'),
             'speed' => Arr::get($data, 'GCSParams.linearSpeed'),
             'fuel_tank_size' => Arr::get($data, 'GCSParams.fuelTankSize'),
+            'explosion_radius_min' => Arr::get($data, 'explosionParams.minPhysRadius'),
+            'explosion_radius_max' => Arr::get($data, 'explosionParams.maxPhysRadius'),
 
             'damages' => array_filter([
                 'physical' => Arr::get($data, 'explosionParams.damage.0.DamagePhysical'),
