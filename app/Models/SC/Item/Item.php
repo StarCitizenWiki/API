@@ -262,7 +262,7 @@ class Item extends HasTranslations
                 return $this->hasOne(MiningModule::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'SalvageModifier':
-                return $this->hasOne(SalvageModifier::class, 'uuid', 'uuid')->withDefault();
+                return $this->hasOne(SalvageModifier::class, 'item_uuid', 'uuid')->withDefault();
         }
 
         return $this->hasOne(__CLASS__, 'id', 'uuid'); //NULL
