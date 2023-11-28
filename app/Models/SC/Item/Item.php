@@ -248,6 +248,7 @@ class Item extends HasTranslations
             case $this->type === 'SelfDestruct':
                 return $this->hasOne(SelfDestruct::class, 'item_uuid', 'uuid')->withDefault();
 
+            case $this->type === 'TowingBeam':
             case $this->type === 'TractorBeam':
                 return $this->hasOne(TractorBeam::class, 'item_uuid', 'uuid')->withDefault();
 

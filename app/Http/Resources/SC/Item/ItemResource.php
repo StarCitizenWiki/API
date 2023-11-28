@@ -314,7 +314,7 @@ class ItemResource extends AbstractTranslationResource
                 $specification->exists,
                 ['mining_laser' => new MiningLaserResource($specification),],
             ],
-            $this->type === 'TractorBeam' => [
+            $this->type === 'TractorBeam' || $this->type === 'TowingBeam' => [
                 $specification->exists,
                 ['tractor_beam' => new TractorBeamResource($specification),],
             ],

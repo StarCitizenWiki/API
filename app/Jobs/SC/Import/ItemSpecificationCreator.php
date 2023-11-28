@@ -65,6 +65,7 @@ final class ItemSpecificationCreator
             case stripos($type, 'SalvageModifier') !== false:
             case stripos($type, 'SelfDestruct') !== false:
             case stripos($type, 'Shield') !== false:
+            case stripos($type, 'TowingBeam') !== false:
             case stripos($type, 'TractorBeam') !== false:
             case stripos($type, 'Turret') !== false:
             case stripos($type, 'WeaponDefensive') !== false:

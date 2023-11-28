@@ -138,6 +138,7 @@ class VehicleItem implements ShouldQueue
                 $this->createSelfDestruct($item);
                 break;
 
+            case 'TowingBeam':
             case 'TractorBeam':
                 $this->createTractorBeam($item);
                 break;

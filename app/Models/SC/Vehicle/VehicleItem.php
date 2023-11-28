@@ -44,6 +44,7 @@ class VehicleItem extends Item
                     'SelfDestruct',
                     'Shield',
                     'ToolArm',
+                    'TowingBeam',
                     'TractorBeam',
                     'Turret',
                     'Turret',
