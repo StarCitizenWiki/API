@@ -41,7 +41,7 @@ class Focus extends BaseElement
             return [];
         }
 
-        $vehicleFoci = array_map('trim', preg_split('/(\/|\s-\s|,)/', $rawFocus));
+        $vehicleFoci = array_map('trim', preg_split('/(\/|\s-\s|,|\sand\s)/', $rawFocus));
         $vehicleFociIDs = [];
 
         app('Log')::debug('Vehicle Focus count: ' . count($vehicleFoci));
