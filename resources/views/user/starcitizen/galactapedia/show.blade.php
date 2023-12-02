@@ -101,9 +101,7 @@
                         </div>
 
                         <div class="tab-pane fade" id="wikitext" role="tabpanel" aria-labelledby="nav-wikitext-tab">
-                            <pre>
-                                {!! htmlspecialchars($wikitext) !!}
-                            </pre>
+                            <pre>{!! htmlspecialchars($wikitext) !!}</pre>
                         </div>
 
                         @can('web.user.rsi.comm-links.update')

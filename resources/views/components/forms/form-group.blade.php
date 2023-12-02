@@ -19,9 +19,7 @@
                   class="{{ $inputClass ?? 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
                   @if(isset($required) && $required == '1') required @endif
                   @if(isset($autofocus) && $autofocus == '1') autofocus @endif
-                {{ $inputOptions ?? '' }}>
-                {{ $value ?? old($id) }}
-        </textarea>
+                {{ $inputOptions ?? '' }}>{{ $value ?? old($id) }}</textarea>
     @elseif(isset($inputType) && $inputType === 'select')
         <select type="{{ $inputType ?? 'text' }}"
                 name="{{ $name ?? $id }}"
@@ -44,8 +42,7 @@
                class="{{ $inputClass ?? 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
                @if(isset($required) && $required == '1') required @endif
                @if(isset($autofocus) && $autofocus == '1') autofocus @endif
-            {{ $inputOptions ?? '' }}>
-        </input>
+            {{ $inputOptions ?? '' }} />
     @endif
     {{ $slot }}
 </div>
