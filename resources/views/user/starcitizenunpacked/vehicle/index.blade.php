@@ -51,7 +51,7 @@
                                 {{ $vehicle->size }}
                             </td>
                             <td>
-                                {{ $vehicle->beam }}
+                                {{ $vehicle->length }}
                             </td>
                             <td>
                                 {{ $vehicle->width }}
