@@ -33,7 +33,7 @@
                                 </td>
                             @endcan
                             <td title="{{ $vehicle->item_uuid }}">
-                                {{ $vehicle->name }}
+                                <a href="{{ config('app.url') }}/api/v2/vehicles/{{ $vehicle->item_uuid }}">{{ $vehicle->name }}</a>
                             </td>
                             <td>
                                 {{ $vehicle->class_name }}

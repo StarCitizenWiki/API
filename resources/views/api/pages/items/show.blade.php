@@ -4,7 +4,7 @@
 
 
 @section('content')
-    <div class="card">
+    <div class="card mb-4">
         <div id="item-live-search"><item-live-search api-token="{{ $apiToken ?? '' }}"></item-live-search></div>
     </div>
     <div class="card">
@@ -63,7 +63,7 @@
                             <table class="table">
                                 <tr>
                                     <th>UUID:</th>
-                                    <td>{{ $item->uuid }}</td>
+                                    <td><a href="{{ config('app.url') }}/api/v2/items/{{ $item->uuid }}">{{ $item->uuid }}</a></td>
                                 </tr>
                                 <tr>
                                     <th>@lang('Type'):</th>
