@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Jenssegers\ImageHash\ImageHash;
 use Jenssegers\ImageHash\Implementations\AverageHash;
 use Jenssegers\ImageHash\Implementations\DifferenceHash;
@@ -202,23 +202,71 @@ class CommLinkSearchController extends AbstractApiV2Controller
 
         $request->validate((new ReverseImageSearchRequest())->rules());
 
-        $hashConfig = $this->getHashConfigForMethod($request->get('method'));
-        $hashConfig['similarity'] = (int)$request->get('similarity');
-        $hashData = $this->hashImage($hashConfig['hasher'], $request->file('image'));
+        $hashData = [
+            'perceptual_hash' => $this->hashImage(new ImageHash(new PerceptualHash2()), $request->file('image')),
+            'difference_hash' => $this->hashImage(new ImageHash(new AverageHash()), $request->file('image')),
+            'average_hash' => $this->hashImage(new ImageHash(new DifferenceHash()), $request->file('image')),
+        ];
 
-        $data = $this->getHashesFromDatabase($hashConfig, $hashData)
+        $data = $this->getResultImages($hashData, (int)$request->get('similarity'));
+
+        return ImageHashResource::collection($data);
+    }
+
+    public function similarSearch(Request $request)
+    {
+        ['image' => $image, 'similarity' => $similarity] = Validator::validate(
+            [
+                'image' => $request->image,
+                'similarity' => $request->similarity,
+            ],
+            [
+                'image' => 'required|int|exists:comm_link_images,id',
+                'similarity' => 'nullable|int|min:1|max:100',
+            ]
+        );
+
+        $image = Image::query()->find($image);
+
+        $hashData = [
+            'perceptual_hash' => $image->hash->perceptual_hash,
+            'average_hash' => $image->hash->difference_hash,
+            'difference_hash' => $image->hash->average_hash,
+        ];
+
+        $data = $this->getResultImages($hashData, $similarity ?? 50, true);
+
+        return ImageHashResource::collection($data);
+    }
+
+    private function getResultImages(array $hashData, int $similarity = 50, bool $fromDB = false)
+    {
+        return $this->getHashesFromDatabase($hashData, $fromDB)
             ->map(
                 function (object $data) {
                     $id = $data->comm_link_image_id;
                     $image = Image::query()->find($id);
-                    $image->similarity = round((1 - $data->distance / 64) * 100);
+
+                    $image->similarity = max(
+                        round((1 - ($data->a_distance / 64)) * 100),
+                        round((1 - ($data->d_distance / 64)) * 100),
+                        round((1 - ($data->p_distance / 64)) * 100)
+                    );
+
+                    $min = min(
+                        $data->a_distance,
+                        $data->d_distance,
+                        $data->p_distance
+                    );
+
+                    $image->similarity_method = $min === $data->a_distance ? __('Basierend auf dem vorherigen Pixel') :
+                        ($min === $data->d_distance ? __('Basierend auf der durchschnittlichen Bildfarbe') : __('Basierend auf Merkmalen des Inhalts'));
 
                     return $image;
                 }
             )
-            ->sortByDesc('similarity');
-
-        return ImageHashResource::collection($data);
+            ->sortByDesc('similarity')
+            ->filter(fn (object $image) => $image->similarity >= 100 - $similarity);
     }
 
     /**
@@ -253,34 +301,6 @@ class CommLinkSearchController extends AbstractApiV2Controller
     }
 
     /**
-     * Hash config based on hash method
-     *
-     * @param string $hashMethod
-     *
-     * @return array
-     */
-    private function getHashConfigForMethod(string $hashMethod): array
-    {
-        return match ($hashMethod) {
-            'average' => [
-                'hasher' => new ImageHash(new AverageHash()),
-                'prefix' => 'a',
-                'table' => 'average_hash',
-            ],
-            'difference' => [
-                'hasher' => new ImageHash(new DifferenceHash()),
-                'prefix' => 'd',
-                'table' => 'difference_hash',
-            ],
-            default => [
-                'hasher' => new ImageHash(new PerceptualHash2()),
-                'prefix' => 'p',
-                'table' => 'perceptual_hash',
-            ],
-        };
-    }
-
-    /**
      * Hashes an uploaded image
      *
      * @param ImageHash $hasher The hasher with set hash method
@@ -292,74 +312,74 @@ class CommLinkSearchController extends AbstractApiV2Controller
     {
         $hash = $hasher->hash($file)->toHex();
 
-        return [
-            'hash' => $hash,
-            'decoded' => array_map('hexdec', (str_split($hash, strlen($hash) / 2))),
-        ];
+        return ['hash' => $hash];
     }
 
     /**
      * Return hashes based on database connection type
      *
-     * @param array $hashConfig
      * @param array $hashData
      *
      * @return Builder[]|Collection|\Illuminate\Support\Collection
      */
-    private function getHashesFromDatabase(array $hashConfig, array $hashData)
+    private function getHashesFromDatabase(array $hashData, bool $fromDB = false)
     {
         // Since SQLITE does not support the BIT_COUNT operation we only search for exact hash matches
         if (config('database.default') === 'sqlite') {
-            return $this->getHashesFromSQLiteStore($hashConfig['table'], $hashData['hash']);
+            return $this->getHashesFromSQLiteStore($hashData['perceptual_hash']);
         }
 
-        return $this->getHashesFromSQLStore(
-            $hashConfig['prefix'],
-            $hashData['decoded'],
-            $hashConfig['similarity']
-        );
+        return $this->getHashesFromSQLStore($hashData, $fromDB);
     }
 
     /**
      * Get the image hashes that equal the provided hash
      *
-     * @param string $hashMethod Hash method average, distance, perceptual
      * @param string $hash The image hash
      *
      * @return Builder[]|Collection
      */
-    private function getHashesFromSQLiteStore(string $hashMethod, string $hash)
+    private function getHashesFromSQLiteStore(string $hash)
     {
         return ImageHashModel::query()
-            ->where($hashMethod, $hash)
+            ->where('perceptual_hash', $hash)
             ->get('comm_link_image_id');
     }
 
     /**
      * Get the image hashes matching the provided hash method and hamming distance
      *
-     * @param string $prefix Hash Attribute prefix
-     * @param array $decodedHash Image hash split in the middle and hex decoded
-     * @param int $distance The maximum hamming distance
+     * @param array $hashes Image hash split in the middle and hex decoded
+     * @param bool $fromDB Wheter the provided hashes come directly from the DB (i.e. they are not hex)
      *
      * @return \Illuminate\Support\Collection
      */
-    private function getHashesFromSQLStore(
-        string $prefix,
-        array  $decodedHash,
-        int    $distance
-    ): \Illuminate\Support\Collection
+    private function getHashesFromSQLStore(array $hashes, bool $fromDB = false): \Illuminate\Support\Collection
     {
-        return DB::table('comm_link_image_hashes')
-            ->select('comm_link_image_id')
+        $query = 'CAST(CONV(?, 16, 10) AS UNSIGNED INTEGER)';
+        if ($fromDB) {
+            $query = '?';
+        }
+        return ImageHashModel::query()
+            ->with('image')
+            ->select('comm_link_image_hashes.comm_link_image_id')
             ->selectRaw(
-                'BIT_COUNT(' . $prefix . '_hash_1 ^ ?) + BIT_COUNT(' . $prefix . '_hash_2 ^ ?) AS distance',
-                [
-                    $decodedHash[0],
-                    $decodedHash[1],
-                ]
+                'BIT_COUNT(perceptual_hash ^ ' . $query . ') AS p_distance',
+                [$hashes['perceptual_hash']]
             )
-            ->havingRaw('distance <= ?', [$distance])
+            ->selectRaw(
+                'BIT_COUNT(average_hash ^ ' . $query . ') AS a_distance',
+                [$hashes['difference_hash']]
+            )
+            ->selectRaw(
+                'BIT_COUNT(difference_hash ^ ' . $query . ') AS d_distance',
+                [$hashes['average_hash']]
+            )
+            ->join('comm_link_images', 'comm_link_image_hashes.comm_link_image_id', '=', 'comm_link_images.id')
+            ->join('comm_link_image_metadata', 'comm_link_image_metadata.comm_link_image_id', '=', 'comm_link_images.id')
+            // Filter out small images
+            ->where('size', '>=', 250 * 1024)
+            ->orderBy('p_distance')
             ->limit(50)
             ->get();
     }

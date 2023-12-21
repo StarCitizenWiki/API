@@ -13,16 +13,8 @@ class ImageHash extends Model
 
     protected $fillable = [
         'perceptual_hash',
-        'p_hash_1',
-        'p_hash_2',
-
         'difference_hash',
-        'd_hash_1',
-        'd_hash_2',
-
         'average_hash',
-        'a_hash_1',
-        'a_hash_2',
     ];
 
     /**

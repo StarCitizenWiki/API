@@ -29,16 +29,6 @@ class ReverseImageSearchRequest extends FormRequest
         return [
             'image' => 'required|file|max:5120', // Limit to 5mb
             'similarity' => 'required|numeric|min:1|max:100',
-            'method' => [
-                'required',
-                Rule::in(
-                    [
-                        'perceptual',
-                        'difference',
-                        'average',
-                    ]
-                ),
-            ],
         ];
     }
 }

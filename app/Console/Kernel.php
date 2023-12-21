@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console;
 
+use App\Console\Commands\ConvertImageHashTable;
 use App\Console\Commands\CopyTranslationData;
 use App\Console\Commands\FixChangelogNamespaces;
 use App\Console\Commands\PopulateData;
@@ -136,6 +137,8 @@ class Kernel extends ConsoleKernel
         PopulateData::class,
 
         CopyTranslationData::class,
+
+        ConvertImageHashTable::class,
     ];
 
     /**
