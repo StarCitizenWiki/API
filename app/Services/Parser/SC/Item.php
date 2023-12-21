@@ -267,7 +267,7 @@ final class Item extends AbstractCommodityItem
 
                 $item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
                 return Arr::get($item, 'Raw.Entity.__ref');
-            } catch (FileNotFoundException|JsonException $e) {
+            } catch (FileNotFoundException | JsonException $e) {
                 return null;
             }
         }

@@ -9,5 +9,4 @@ namespace App\Repositories;
  */
 abstract class AbstractBaseRepository
 {
-
 }

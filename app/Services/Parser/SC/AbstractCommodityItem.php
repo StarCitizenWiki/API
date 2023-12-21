@@ -137,15 +137,18 @@ abstract class AbstractCommodityItem
         return preg_replace('/\s+/', ' ', $string);
     }
 
-    protected function getUUID(): ?string {
+    protected function getUUID(): ?string
+    {
         return Arr::get($this->item, 'Raw.Entity.__ref');
     }
 
-    protected function getAttachDef(): ?array {
+    protected function getAttachDef(): ?array
+    {
         return $this->get('SAttachableComponentParams.AttachDef');
     }
 
-    protected function get(string $key, $default = null): mixed {
+    protected function get(string $key, $default = null): mixed
+    {
         return Arr::get($this->item, 'Raw.Entity.Components.' . $key, $default);
     }
 }

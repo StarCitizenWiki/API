@@ -51,10 +51,11 @@ class Missile extends CommodityItem
         return $this->hasMany(MissileDamage::class, 'missile_id');
     }
 
-	public function getClusterSizeAttribute(): int {
-		$cluster = $this->item->ports()->count();
-		return $cluster === 0 ? 1 : $cluster;
-	}
+    public function getClusterSizeAttribute(): int
+    {
+        $cluster = $this->item->ports()->count();
+        return $cluster === 0 ? 1 : $cluster;
+    }
 
     public function getDamageAttribute(): float
     {

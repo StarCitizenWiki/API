@@ -28,7 +28,6 @@ use OpenApi\Attributes as OA;
 )]
 class ComponentResource extends JsonResource
 {
-
     /**
      * Transform the resource into an array.
      *

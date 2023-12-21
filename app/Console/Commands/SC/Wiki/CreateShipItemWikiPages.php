@@ -99,7 +99,7 @@ FORMAT;
                 ->createOnly()
                 ->summary('Creating Ship Item page')
                 ->request();
-        } catch (ErrorException|GuzzleException $e) {
+        } catch (ErrorException | GuzzleException $e) {
             $this->error($e->getMessage());
 
             return;

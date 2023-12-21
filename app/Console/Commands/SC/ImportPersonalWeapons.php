@@ -30,7 +30,7 @@ class ImportPersonalWeapons extends AbstractQueueCommand
     public function handle(): int
     {
         return $this->call(
-    'sc:import-items',
+            'sc:import-items',
             [
                 '--skipVehicles',
                 '--type' => 'WeaponPersonal'

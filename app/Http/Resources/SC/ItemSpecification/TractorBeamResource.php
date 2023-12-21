@@ -27,7 +27,6 @@ use OpenApi\Attributes as OA;
 )]
 class TractorBeamResource extends AbstractBaseResource
 {
-
     /**
      * Transform the resource collection into an array.
      *

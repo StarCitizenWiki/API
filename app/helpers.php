@@ -34,7 +34,8 @@ if (!function_exists('scdata')) {
      * @param string $path
      * @return string
      */
-    function scdata( string $path ): string {
-        return storage_path(sprintf('%s/%s', config('api.sc_data_path' ), ltrim($path, '/')));
+    function scdata(string $path): string
+    {
+        return storage_path(sprintf('%s/%s', config('api.sc_data_path'), ltrim($path, '/')));
     }
 }

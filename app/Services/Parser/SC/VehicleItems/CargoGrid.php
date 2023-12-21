@@ -36,5 +36,4 @@ final class CargoGrid extends AbstractItemSpecification
             return !empty($entry);
         });
     }
-
 }

@@ -12,7 +12,6 @@ use JsonException;
 
 final class Food extends AbstractCommodityItem
 {
-
     public function getData(): ?array
     {
         $attachDef = $this->getAttachDef();
