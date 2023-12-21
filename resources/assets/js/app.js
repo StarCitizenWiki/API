@@ -9,6 +9,7 @@ import './bootstrap';
 import snarkdown from './snarkdown';
 import 'datatables.net-bs4';
 import './icon'
+import 'select2'
 
 
 import Vue from 'vue';

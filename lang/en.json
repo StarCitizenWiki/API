@@ -63,6 +63,7 @@
   "Bild hochladen": "Upload image",
   "Bild hochgeladen!": "Image uploaded!",
   "Bilder": "Images",
+  "Bilder Tags": "Image tags",
   "Blockieren": "Block",
   "Bodenfahrzeuge": "Ground vehicles",
   "Breite": "Width",
@@ -152,9 +153,9 @@
   "Geänderte Comm-Links": "Changed Comm-Links",
 
   "Habitabel": "Habitable",
-  "Hash basierend auf dem vorherigen Pixel": "Hash based on the previous pixel",
-  "Hash basierend auf der durchschnittlichen Bildfarbe": "Hash based on average image color",
-  "Hash basierend auf Merkmalen des Inhalts": "Hash based on characteristics of the content",
+  "Basierend auf dem vorherigen Pixel": "Based on the previous pixel",
+  "Basierend auf der durchschnittlichen Bildfarbe": "Based on average image color",
+  "Basierend auf Merkmalen des Inhalts": "Based on characteristics of the content",
   "Heller modus": "Lightmode",
   "Hersteller": "Manufacturer",
   "Herstellerdaten": "Manufacturer data",
@@ -344,6 +345,7 @@
   "Zuletzt geändert": "Last modified",
   "Zurück": "Back",
 
+  "Ähnliche Bilder (alpha)": "Similar images (alpha)",
   "Ähnlich": "Similar",
   "Ähnlichkeit": "Similarity",
   "Änderungen": "Changes",
