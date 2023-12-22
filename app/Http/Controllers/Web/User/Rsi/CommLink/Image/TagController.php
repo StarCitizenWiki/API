@@ -47,7 +47,7 @@ class TagController extends Controller
         return view(
             'user.rsi.comm_links.tags.index',
             [
-                'tags' => Tag::query()->paginate(250),
+                'tags' => Tag::query()->orderByDesc('images_count')->paginate(250),
             ]
         );
     }
