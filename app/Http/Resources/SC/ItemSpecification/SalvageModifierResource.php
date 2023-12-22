@@ -20,7 +20,6 @@ use OpenApi\Attributes as OA;
 )]
 class SalvageModifierResource extends AbstractBaseResource
 {
-
     /**
      * Transform the resource collection into an array.
      *

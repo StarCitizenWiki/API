@@ -24,6 +24,12 @@ Route::group(
         Route::post('comm-links/search', 'CommLinkSearchController@searchByTitle')->name('cl.search');
         Route::post('comm-links/reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearch')->name('cl.search-link');
         Route::post('comm-links/reverse-image-search', 'CommLinkSearchController@reverseImageSearch')->name('cl.search-image');
+
+        Route::get('comm-link-images', 'ImageController@index')->name('cli.index');
+        Route::get('comm-link-images/random', 'ImageController@random')->name('cli.random');
+        #Route::post('comm-link-images/search', 'ImageController@search')->name('cli.search');
+        #Route::get('comm-link-images/{image}', 'ImageController@show')->name('cli.show');
+        Route::get('comm-link-images/{image}/similar', 'CommLinkSearchController@similarSearch')->name('cli.similar');
     }
 );
 

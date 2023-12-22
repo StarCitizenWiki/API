@@ -30,7 +30,7 @@ class ImportVehicleItems extends AbstractQueueCommand
     public function handle(): int
     {
         return $this->call(
-    'sc:import-items',
+            'sc:import-items',
             [
                 '--skipVehicles',
                 '--type' => 'Armor,Battery,BombLauncher,Cooler,CoolerController,EMP,ExternalFuelTank,FlightController,FuelIntake,FuelTank,MainThruster,ManneuverThruster,Missile,MissileController,MissileLauncher,Paints,PowerPlant,QuantumDrive,QuantumFuelTank,QuantumInterdictionGenerator,Radar,SelfDestruct,Shield,ShieldController,ToolArm,Turret,TurretBase,UtilityTurret,WeaponDefensive,WeaponGun,WeaponMining,WeaponMount,WheeledController'

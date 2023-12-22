@@ -75,7 +75,7 @@
     @endcomponent
 
     @component('components.navs.nav_element', [
-        'route' => route('web.user.rsi.comm-links.images.index'),
+        'route' => route('web.user.rsi.comm-links.image-tags.index'),
     ])
         <div class="row">
             <div class="col-1">
@@ -84,8 +84,23 @@
                 @endcomponent
             </div>
             <div class="col">
-                @lang('Bilder')
+                @lang('Bilder Tags')
             </div>
         </div>
     @endcomponent
 @endcan
+
+@component('components.navs.nav_element', [
+    'route' => route('web.user.rsi.comm-links.images.index'),
+])
+    <div class="row">
+        <div class="col-1">
+            @component('components.elements.icon')
+                images
+            @endcomponent
+        </div>
+        <div class="col">
+            @lang('Bilder')
+        </div>
+    </div>
+@endcomponent

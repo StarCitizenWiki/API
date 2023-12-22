@@ -1,4 +1,12 @@
 /* Image Type */
+.first-tag {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    border-radius: 4px;
+    color: #fff !important;
+}
+
 .file-type {
     position: absolute;
     top: 15px;
@@ -46,9 +54,6 @@ a.badge.badge-info.upload-btn {
 .image-info-card-bottom {
     margin: 0 10px 5px;
 }
-.image-info-card-bottom a {
-    margin: 0 !important;
-}
 
 /* Footer */
 .image-card .card-footer {
@@ -58,14 +63,29 @@ a.badge.badge-info.upload-btn {
 }
 /* More Infos */
 .image-card .card-footer a {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    text-align: center;
-    text-decoration: none !important;
     border-radius: var(--border-radius);
     background-color: var(--button);
 }
 .image-card .card-footer a:hover {
     background-color: var(--button-hover);
+}
+
+.image-card .image-description span {
+    font-weight: normal;
+}
+
+.image-card .image-metadata {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.image-card .tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.image-card .tag-container a {
+    flex-grow: 1;
 }

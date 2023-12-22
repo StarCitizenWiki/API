@@ -28,17 +28,9 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
      * Data used if Hash could not be created
      */
     private const NOT_FOUND_HASH = [
-        'perceptual_hash' => 'DEADBEEF',
-        'p_hash_1' => 0,
-        'p_hash_2' => 0,
-
-        'difference_hash' => 'DEADBEEF',
-        'd_hash_1' => 0,
-        'd_hash_2' => 0,
-
-        'average_hash' => 'DEADBEEF',
-        'a_hash_1' => 0,
-        'a_hash_2' => 0,
+        'perceptual_hash' => 0xDEADBEEF,
+        'difference_hash' => 0xDEADBEEF,
+        'average_hash' => 0xDEADBEEF,
     ];
     private Image $image;
     private ImageHash $perceptionHasher;
@@ -113,23 +105,11 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        $perceptionData = $this->splitHexString($perception);
-        $differenceData = $this->splitHexString($difference);
-        $averageData = $this->splitHexString($average);
-
         $this->image->hash()->create(
             [
                 'perceptual_hash' => $perception,
-                'p_hash_1' => $perceptionData[0],
-                'p_hash_2' => $perceptionData[1],
-
                 'difference_hash' => $difference,
-                'd_hash_1' => $differenceData[0],
-                'd_hash_2' => $differenceData[1],
-
                 'average_hash' => $average,
-                'a_hash_1' => $averageData[0],
-                'a_hash_2' => $averageData[1],
             ]
         );
     }
@@ -174,21 +154,5 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         }
 
         return $response->body();
-    }
-
-    /**
-     * @param string $hex
-     *
-     * @return array
-     */
-    private function splitHexString(string $hex): array
-    {
-        if ($hex === '') {
-            return [0, 0];
-        }
-
-        $hex = str_split($hex, strlen($hex) / 2);
-
-        return array_map('hexdec', $hex);
     }
 }

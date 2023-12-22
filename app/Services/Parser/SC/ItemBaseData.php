@@ -125,7 +125,7 @@ final class ItemBaseData extends AbstractItemSpecification
         $basePath = 'Components.SEntityInteractableParams.Interactable.SharedInteractions';
 
 
-        return collect(Arr::get($item, $basePath))->map(fn(array $interaction) => $interaction['Name'] )
+        return collect(Arr::get($item, $basePath))->map(fn(array $interaction) => $interaction['Name'])
             ->unique()
             ->map('trim')
             ->map('strtolower')

@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Auth;
  */
 class CommLinkSearchController extends Controller
 {
-
     /**
      * Reverse search view
      *

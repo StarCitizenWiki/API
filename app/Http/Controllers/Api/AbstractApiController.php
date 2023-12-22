@@ -73,7 +73,6 @@ use OpenApi\Attributes as OA;
 )]
 abstract class AbstractApiController extends Controller
 {
-
     public const SC_DATA_KEY = 'api.sc_data_version';
 
     public const INVALID_LIMIT_STRING = 'Limit has to be greater than 0';

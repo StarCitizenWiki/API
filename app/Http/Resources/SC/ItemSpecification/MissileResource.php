@@ -44,7 +44,7 @@ class MissileResource extends AbstractBaseResource
     public function toArray($request): array
     {
         return [
-			'cluster_size' => $this->cluster_size,
+            'cluster_size' => $this->cluster_size,
             'signal_type' => $this->getDescriptionDatum('Tracking Signal'),
             'lock_time' => $this->lock_time,
             'lock_range_max' => $this->lock_range_max,

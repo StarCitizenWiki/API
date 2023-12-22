@@ -104,48 +104,27 @@
                     <p>@lang('Genauigkeit'):</p>
                     <div class="flex-row">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity1" value="1">
-                            <label class="form-check-label" for="similarity1">{{ __('Exakt') }}</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity1" value="5">
+                            <label class="form-check-label" for="similarity1" title="5%">@lang('Exakt')</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity2" value="5" checked>
-                            <label class="form-check-label" for="similarity2">{{ __('Sehr ähnlich') }}</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity2" value="20" checked>
+                            <label class="form-check-label" for="similarity2" title="20%">@lang('Sehr ähnlich')</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity3" value="10">
-                            <label class="form-check-label" for="similarity3">{{ __('Ähnlich') }}</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity3" value="40">
+                            <label class="form-check-label" for="similarity3" title="40%">@lang('Ähnlich')</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity4" value="18">
-                            <label class="form-check-label" for="similarity4">{{ __('Ungenau') }}</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity4" value="50">
+                            <label class="form-check-label" for="similarity4" title="50%">@lang('Ungenau')</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity5" value="25">
-                            <label class="form-check-label" for="similarity5">{{ __('Sehr ungenau') }}</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity5" value="75">
+                            <label class="form-check-label" for="similarity5" title="75%">@lang('Sehr ungenau')</label>
                         </div>
                     </div>
 
-
-                    <p class="mt-3">
-                        <a data-toggle="collapse" href="#method" role="button" aria-expanded="false" aria-controls="method">
-                            @lang('Methode'):
-                        </a>
-                    </p>
-
-                    <div class="collapse mb-3" id="method">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="method" id="method1" value="perceptual" checked>
-                            <label class="form-check-label" for="method1">{{ __('Wahrnehmung') }} - @lang('Hash basierend auf Merkmalen des Inhalts')</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="method" id="method2" value="difference">
-                            <label class="form-check-label" for="method2">{{ __('Differenz') }} - @lang('Hash basierend auf dem vorherigen Pixel')</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="method" id="method3" value="average">
-                            <label class="form-check-label" for="method3">{{ __('Durchschnitt') }} - @lang('Hash basierend auf der durchschnittlichen Bildfarbe')</label>
-                        </div>
-                    </div>
 
                     <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Comm-Links mit Bild')</button>
                 @endcomponent

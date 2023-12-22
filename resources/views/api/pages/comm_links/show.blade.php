@@ -84,7 +84,7 @@
                 <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="nav-images-tab">
                     @forelse($commLink->images as $image)
                         @if(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
-                        <a class="" href="{{ $image->getLocalOrRemoteUrl() }}" target="_blank">
+                        <a class="" href="{{ $image->url }}" target="_blank">
                             <img src="{{ str_replace('source', 'post', $image->url) }}" alt="Comm-Link Image" class="img-thumbnail" style="max-width: 150px;">
                         </a>
                         @endif

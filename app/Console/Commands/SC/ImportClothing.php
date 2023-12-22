@@ -30,7 +30,7 @@ class ImportClothing extends AbstractQueueCommand
     public function handle(): int
     {
         return $this->call(
-    'sc:import-items',
+            'sc:import-items',
             [
                 '--skipVehicles',
                 '--type' => 'Char_Clothing_Torso_1,Char_Clothing_Legs,Char_Clothing_Torso_0,Char_Clothing_Feet,Char_Clothing_Hat,Char_Armor_Backpack,Char_Clothing_Hands,Char_Armor_Helmet,Char_Armor_Arms,Char_Armor_Torso,Char_Armor_Legs,Char_Armor_Undersuit,Char_Clothing_Torso_2,Char_Clothing_Backpack'

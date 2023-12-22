@@ -92,7 +92,6 @@ class HardpointResource extends AbstractBaseResource
 
         if ($this->item !== null && ($this->item->isTurret() || $this->item->type === 'Cargo')) {
             return [true, ['item' => new ItemResource($this->item, true, true)]];
-
         }
 
         if ($this->item !== null && $this->item->exists) {

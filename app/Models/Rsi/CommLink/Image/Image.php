@@ -47,6 +47,19 @@ class Image extends Model
     }
 
     /**
+     * @return BelongsToMany
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Tag::class,
+            'comm_link_image_tag',
+            'image_id',
+            'tag_id'
+        )->orderByDesc('images_count');
+    }
+
+    /**
      * @return HasOne
      */
     public function hash(): HasOne
@@ -54,17 +67,9 @@ class Image extends Model
         return $this->hasOne(ImageHash::class, 'comm_link_image_id')
             ->withDefault(
                 [
-                    'perceptual_hash' => 'DEADBEEF',
-                    'p_hash_1' => 0,
-                    'p_hash_2' => 0,
-
-                    'difference_hash' => 'DEADBEEF',
-                    'd_hash_1' => 0,
-                    'd_hash_2' => 0,
-
-                    'average_hash' => 'DEADBEEF',
-                    'a_hash_1' => 0,
-                    'a_hash_2' => 0,
+                    'perceptual_hash' => 0xDEADBEEF,
+                    'difference_hash' => 0xDEADBEEF,
+                    'average_hash' => 0xDEADBEEF,
                 ]
             );
     }

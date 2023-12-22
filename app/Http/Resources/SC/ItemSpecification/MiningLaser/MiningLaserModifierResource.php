@@ -20,7 +20,6 @@ use OpenApi\Attributes as OA;
 )]
 class MiningLaserModifierResource extends AbstractBaseResource
 {
-
     /**
      * Transform the resource collection into an array.
      *

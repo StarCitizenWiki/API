@@ -254,31 +254,6 @@ class ImageControllerTest extends ApiTestCase
         $response->assertStatus(422);
     }
 
-    /**
-     * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch
-     * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
-     */
-    public function testSearchInvalidMethod(): void
-    {
-        $response = $this->json(
-            'post',
-            sprintf('%s/%s', static::BASE_API_ENDPOINT, 'reverse-image-search'),
-            [
-                'image' => new UploadedFile(
-                    storage_path('framework/testing/ChrisRobertsWCfilm1.jpg'),
-                    'ChrisRobertsWCfilm1.jpg',
-                    'image/jpeg',
-                    null,
-                    true
-                ),
-                'method' => 'invalid',
-                'similarity' => 10,
-            ]
-        );
-
-        $response->assertStatus(422);
-    }
-
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch

@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources\Rsi\CommLink\Image;
 
+use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -26,11 +26,18 @@ use OpenApi\Attributes as OA;
             ],
             type: 'object',
             nullable: true
-        )
+        ),
+        new OA\Property(
+            property: 'tags',
+            type: 'array',
+            items: new OA\Items(type: 'string'),
+            nullable: true,
+        ),
+        new OA\Property(property: 'similar_url', type: 'string'),
     ],
     type: 'object'
 )]
-class ImageResource extends JsonResource
+class ImageResource extends AbstractBaseResource
 {
     /**
      * Transform the resource into an array.
@@ -51,7 +58,11 @@ class ImageResource extends JsonResource
                 'perceptual_hash' => $this->hash->perceptual_hash,
                 'difference_hash' => $this->hash->difference_hash,
                 'average_hash' => $this->hash->average_hash,
-            ])
+            ]),
+            $this->mergeWhen($this->whenLoaded('tags'), [
+                'tags' => $this->tags->map(fn ($tag) => $tag->translated_name)
+            ]),
+            'similar_url' => $this->makeApiUrl(static::COMM_LINK_IMAGES_SIMILAR, $this->getRouteKey() . '/similar')
         ];
     }
 }
