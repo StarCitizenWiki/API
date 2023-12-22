@@ -56,7 +56,7 @@ class Image extends Model
             'comm_link_image_tag',
             'image_id',
             'tag_id'
-        );
+        )->orderByDesc('images_count');
     }
 
     /**

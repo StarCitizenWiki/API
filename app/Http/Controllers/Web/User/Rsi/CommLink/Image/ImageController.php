@@ -12,11 +12,14 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageMetadata;
 use App\Models\Rsi\CommLink\Image\Tag;
 use App\Services\UploadWikiImage;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use JsonException;
 
 /**
  * Class ImageController
@@ -38,8 +41,6 @@ class ImageController extends Controller
      * @param Request $request
      *
      * @return Factory|View
-     *
-     * @throws AuthorizationException
      */
     public function index(Request $request)
     {
@@ -68,11 +69,27 @@ class ImageController extends Controller
     }
 
     /**
+     * @param Tag $tag
+     *
+     * @return Factory|View
+     */
+    public function indexByTag(Tag $tag)
+    {
+        return view(
+            'user.rsi.comm_links.images.index',
+            [
+                'images' => $tag->images,
+            ]
+        );
+    }
+
+    /**
      * @param ImageUploadRequest $request
      *
      * @return string
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws AuthorizationException
+     *
+     * @throws GuzzleException
+     * @throws AuthorizationException|JsonException
      */
     public function upload(ImageUploadRequest $request): string
     {
@@ -86,12 +103,13 @@ class ImageController extends Controller
     }
 
     /**
-     * Retrieve similar images based on hash
+     * Retrieve similar images based on a hash
      *
      * @param Request $request
+     *
      * @return View
      */
-    public function similarImages(Request $request)
+    public function similarImages(Request $request): View
     {
         $controller = new CommLinkSearchController($request);
 
@@ -103,7 +121,14 @@ class ImageController extends Controller
         );
     }
 
-    public function editTags(Image $image)
+    /**
+     * View for editing the tags of an image
+     *
+     * @param Image $image
+     *
+     * @return View
+     */
+    public function editTags(Image $image): View
     {
         return view(
             'user.rsi.comm_links.tags.edit',
@@ -115,13 +140,21 @@ class ImageController extends Controller
         );
     }
 
-    public function saveTags(Image $image, AddImageTagsRequest $request)
+    /**
+     * Save tags to an image
+     *
+     * @param Image $image
+     * @param AddImageTagsRequest $request
+     *
+     * @return RedirectResponse
+     */
+    public function saveTags(Image $image, AddImageTagsRequest $request): RedirectResponse
     {
         $data = $request->validated();
 
         $ids = collect($data['tags'])->map(function (string $datum) {
-            if (is_numeric($datum)) {
-                return (int) $datum;
+            if (str_starts_with($datum, 'id:')) {
+                return (int) str_replace('id:', '', $datum);
             }
 
             return Tag::query()->firstOrCreate(['name' => $datum])->id;

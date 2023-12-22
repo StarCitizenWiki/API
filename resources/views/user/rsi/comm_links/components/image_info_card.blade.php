@@ -2,6 +2,11 @@
     <a href="{{ $image->url }}" target="_blank" class="text-center d-block">
         @if(\Illuminate\Support\Str::contains($image->metadata->mime, 'video'))
             <div style="position: relative;" class="comm-link-card-image">
+                @unless($image->tags->isEmpty())
+                    <a href="{{ route('web.user.rsi.comm-links.images.index-by-tag', $image->tags->first()->getRouteKey()) }}" class="first-tag badge badge-secondary">
+                        {{ $image->tags->first()->name }}
+                    </a>
+                @endunless
                 <span class="file-type badge badge-{{ $image->metadata->mime_class }}">{{ $image->metadata->mime }}</span>
                 <video class="card-img-top" loading="lazy" controls>
                     <source src="{{ $image->url }}" type="{{ $image->metadata->mime }}">
@@ -9,6 +14,11 @@
             </div>
         @elseif(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
         <div style="position: relative;" class="comm-link-card-image">
+            @unless($image->tags->isEmpty())
+                <a href="{{ route('web.user.rsi.comm-links.images.index-by-tag', $image->tags->first()->getRouteKey()) }}" class="first-tag badge badge-secondary">
+                    {{ $image->tags->first()->name }}
+                </a>
+            @endunless
             <span class="file-type badge badge-{{ $image->metadata->mime_class }}">{{ $image->metadata->mime }}</span>
             <img src="{{ str_replace('source', 'post', $image->url) }}"
                  alt="{{ empty($image->alt) ? __('Kein alt Text verfügbar') : $image->alt }}"
@@ -26,30 +36,32 @@
     @unless(isset($noFooter))
     <div class="card-body">
         @can('web.user.rsi.comm-links.view')
-            <a type="button" class="badge badge-info upload-btn" data-id={{ $image->id }} data-cl-id="{{ $image->commLinks->pluck('cig_id')->min() }}">
-                @lang('Hochladen ins Wiki')
-            </a>
-        @endcan
-        <div class="btn-group d-flex" style="gap: 0.5rem">
-            @if(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
-                <a type="button" class="btn btn- btn-secondary mt-2" href="{{ route('web.user.rsi.comm-links.images.similar', $image->getRouteKey()) }}">
-                    @lang('Ähnliche Bilder (alpha)')
+            <div class="btn-group d-flex" style="gap: 0.5rem">
+                <a type="button" class="btn btn-outline-primary upload-btn bg-primary" data-id={{ $image->id }} data-cl-id="{{ $image->commLinks->pluck('cig_id')->min() }}">
+                    @lang('Hochladen ins Wiki')
                 </a>
-            @endif
 
-            <a type="button" class="btn btn- btn-secondary mt-2" href="{{ route('web.user.rsi.comm-links.images.edit-tags', $image->getRouteKey()) }}">
-                @lang('Tags')
+                <a type="button" title="@lang('Edit') @lang('Tags')" class="btn btn-secondary" href="{{ route('web.user.rsi.comm-links.images.edit-tags', $image->getRouteKey()) }}">
+                    @component('components.elements.icon')
+                        tag
+                    @endcomponent
+                </a>
+            </div>
+
+        @endcan
+        @if(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
+            <a type="button" class="btn btn-block btn-secondary mt-2" href="{{ route('web.user.rsi.comm-links.images.similar', $image->getRouteKey()) }}">
+                @lang('Ähnliche Bilder (alpha)')
             </a>
-        </div>
+        @endif
 
 
         <div class="image-info-card">
             @unless(empty($image->alt))
-            <p>@lang('Beschreibung'):</p>
-            <span>{{ $image->alt }}</span>
+            <p class="image-description">@lang('Beschreibung'): <span>{{ $image->alt }}</span></p>
             <div class="divider"></div>
             @endunless
-            <div style="display: flex; justify-content: space-evenly; gap: 10px;">
+            <div class="image-metadata">
                 @if(isset($image->similarity))
                     <div>
                         <p>@lang('Ähnlichkeit')</p>
@@ -74,9 +86,18 @@
     </div>
     @endunless
     @if(@isset($loop))
-    <div class="image-info-card-bottom list-group list-group-flush collapse" id="comm_link_container_{{ $loop->index }}">
-        <p>@lang('Quelle'):</p>
-        <span><a class="url" href="{{ $image->url }}" target="_blank">{{ $image->src }}</a></span>
+    <div class="image-info-card-bottom list-group list-group-flush collapse mt-1" id="comm_link_container_{{ $loop->index }}">
+        @unless($image->tags->isEmpty())
+        <div class="tag-container">
+            @foreach($image->tags as $tag)
+                <a class="badge badge-secondary m-0" href="{{ route('web.user.rsi.comm-links.images.index-by-tag', $tag->getRouteKey()) }}" title="{{ $tag->images_count }} @lang('Bilder mit diesem Tag')">
+                    {{ $tag->name }}
+                </a>
+            @endforeach
+        </div>
+        <div class="divider"></div>
+        @endunless
+        <p><a class="url" href="{{ $image->url }}" target="_blank">@lang('Quelle')</a></p>
         @unless(empty($image->commLinks))
             <div class="divider"></div>
             <p>@lang('Comm-Links'):</p>
@@ -94,7 +115,7 @@
     </div>
 
     <div class="card-footer">
-        <a data-toggle="collapse" href="#comm_link_container_{{ $loop->index }}" role="button"
+        <a class="btn btn-block btn-secondary mt-1" data-toggle="collapse" href="#comm_link_container_{{ $loop->index }}" role="button"
            aria-expanded="false" aria-controls="comm_link_container_{{ $loop->index }}">
            @lang('Mehr Infos')
         </a>

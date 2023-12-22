@@ -32,6 +32,14 @@ class Tag extends Model
     ];
 
     /**
+     * @inheritDoc
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'name';
+    }
+
+    /**
      * @return BelongsToMany
      */
     public function images(): BelongsToMany

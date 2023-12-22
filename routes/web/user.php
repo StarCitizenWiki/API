@@ -215,6 +215,7 @@ Route::group(
 
                                             return redirect(route('web.user.rsi.comm-links.images.edit-tags', $image->getRouteKey()));
                                         })->name('images.start-edit');
+                                        Route::get('image/{tag}', 'Image\ImageController@indexByTag')->name('images.index-by-tag');
 
                                         Route::get('image-tags', 'Image\TagController@index')->name('image-tags.index');
                                         Route::post('image-tags', 'Image\TagController@post')->name('image-tags.create');
