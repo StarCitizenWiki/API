@@ -25,6 +25,7 @@ class Tag extends Model
 
     protected $fillable = [
         'name',
+        'name_en',
     ];
 
     protected $withCount = [
@@ -45,5 +46,18 @@ class Tag extends Model
     public function images(): BelongsToMany
     {
         return $this->belongsToMany(Image::class, 'comm_link_image_tag');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTranslatedNameAttribute()
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'en' && !empty($this["name_$locale"])) {
+            return $this["name_$locale"];
+        }
+
+        return $this->name;
     }
 }

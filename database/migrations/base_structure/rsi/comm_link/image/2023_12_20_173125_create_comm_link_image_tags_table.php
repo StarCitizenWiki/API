@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('comm_link_image_tags', static function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('name_en')->nullable();
             $table->timestamps();
         });
     }

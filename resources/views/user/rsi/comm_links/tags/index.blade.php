@@ -27,6 +27,7 @@
                     <tr>
                         <th>@lang('ID')</th>
                         <th>@lang('Name')</th>
+                        <th>@lang('Englisch') @lang('Name')</th>
                         <th>@lang('Bilder')</th>
                         <th data-orderable="false"></th>
                     </tr>
@@ -39,6 +40,9 @@
                         </td>
                         <td>
                             <a href="{{ route('web.user.rsi.comm-links.images.index-by-tag', $tag->getRouteKey()) }}">{{ $tag->name }}</a>
+                        </td>
+                        <td>
+                            {{ $tag->name_en }}
                         </td>
                         <td>
                             {{ $tag->images_count }}

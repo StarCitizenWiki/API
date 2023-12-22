@@ -22,7 +22,7 @@
                         <span class="help-block d-block mb-2">@lang('Neue Einträge können durch Tippen in der Auswahl hinzugefügt werden.')</span>
                         <select class="form-select custom-select form-control" multiple size="15" name="tags[]" id="tags">
                             @foreach($tags as $tag)
-                                <option value="id:{{ $tag->id }}" @php if ($image_tags->contains($tag->name)) echo "selected"; @endphp>{{ $tag->name }}</option>
+                                <option value="id:{{ $tag->id }}" @php if ($image_tags->contains($tag->name)) echo "selected"; @endphp>{{ $tag->translated_name }}</option>
                             @endforeach
                         </select>
                     </div>

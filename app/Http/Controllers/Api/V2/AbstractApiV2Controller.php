@@ -181,6 +181,7 @@ abstract class AbstractApiV2Controller extends Controller
     {
         if (in_array($localeCode, config('language.codes'), true)) {
             $this->localeCode = $localeCode;
+            app()->setLocale(substr($localeCode, 0, 2));
         }
     }
 

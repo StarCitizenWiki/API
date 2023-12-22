@@ -73,12 +73,14 @@ class ImageController extends Controller
      *
      * @return Factory|View
      */
-    public function indexByTag(Tag $tag)
+    public function indexByTag(Request $request)
     {
+        $tag = Tag::query()->where('name', $request->tag)->orWhere('name_en', $request->tag)->first();
+
         return view(
             'user.rsi.comm_links.images.index',
             [
-                'images' => $tag->images,
+                'images' => optional($tag)->images ?? [],
             ]
         );
     }

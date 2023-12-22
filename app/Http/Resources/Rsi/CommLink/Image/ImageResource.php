@@ -60,7 +60,7 @@ class ImageResource extends AbstractBaseResource
                 'average_hash' => $this->hash->average_hash,
             ]),
             $this->mergeWhen($this->whenLoaded('tags'), [
-                'tags' => $this->tags->map(fn ($tag) => $tag->name)
+                'tags' => $this->tags->map(fn ($tag) => $tag->translated_name)
             ]),
             'similar_url' => $this->makeApiUrl(static::COMM_LINK_IMAGES_SIMILAR, $this->getRouteKey() . '/similar')
         ];

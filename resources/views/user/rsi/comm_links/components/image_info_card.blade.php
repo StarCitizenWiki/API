@@ -4,7 +4,7 @@
             <div style="position: relative;" class="comm-link-card-image">
                 @unless($image->tags->isEmpty())
                     <a href="{{ route('web.user.rsi.comm-links.images.index-by-tag', $image->tags->first()->getRouteKey()) }}" class="first-tag badge badge-secondary">
-                        {{ $image->tags->first()->name }}
+                        {{ $image->tags->first()->translated_name }}
                     </a>
                 @endunless
                 <span class="file-type badge badge-{{ $image->metadata->mime_class }}">{{ $image->metadata->mime }}</span>
@@ -16,7 +16,7 @@
         <div style="position: relative;" class="comm-link-card-image">
             @unless($image->tags->isEmpty())
                 <a href="{{ route('web.user.rsi.comm-links.images.index-by-tag', $image->tags->first()->getRouteKey()) }}" class="first-tag badge badge-secondary">
-                    {{ $image->tags->first()->name }}
+                    {{ $image->tags->first()->translated_name }}
                 </a>
             @endunless
             <span class="file-type badge badge-{{ $image->metadata->mime_class }}">{{ $image->metadata->mime }}</span>
@@ -91,7 +91,7 @@
         <div class="tag-container">
             @foreach($image->tags as $tag)
                 <a class="badge badge-secondary m-0" href="{{ route('web.user.rsi.comm-links.images.index-by-tag', $tag->getRouteKey()) }}" title="{{ $tag->images_count }} @lang('Bilder mit diesem Tag')">
-                    {{ $tag->name }}
+                    {{ $tag->translated_name }}
                 </a>
             @endforeach
         </div>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V2\Rsi\CommLink;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
+use App\Http\Filters\ImageTagFilter;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
@@ -44,7 +45,7 @@ class ImageController extends AbstractApiV2Controller
     {
         $query = QueryBuilder::for(Image::class, $request)
             ->allowedFilters([
-                AllowedFilter::partial('tags', 'tags.name'),
+                AllowedFilter::custom('tags', new ImageTagFilter()),
             ])
             ->orderByDesc('id')
             ->paginate($this->limit)
