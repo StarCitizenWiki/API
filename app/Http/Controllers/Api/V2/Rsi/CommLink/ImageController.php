@@ -58,6 +58,7 @@ class ImageController extends AbstractApiV2Controller
         tags: ['Comm-Links', 'RSI-Website', 'Images'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(name: 'filter[tags]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(
@@ -73,7 +74,9 @@ class ImageController extends AbstractApiV2Controller
     public function random(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Image::class, $request)
-            ->with('tags')
+            ->allowedFilters([
+                AllowedFilter::partial('tags', 'tags.name'),
+            ])
             ->whereRelation('metadata', 'size', '>=', 250 * 1024)
             ->inRandomOrder()
             ->limit($request->has('limit') ? $this->limit : 1)
