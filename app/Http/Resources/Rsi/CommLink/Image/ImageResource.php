@@ -18,16 +18,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'mime_type', type: 'string'),
         new OA\Property(property: 'last_modified', type: 'string'),
         new OA\Property(
-            property: 'hashes',
-            properties: [
-                new OA\Property(property: 'perceptual_hash', type: 'integer'),
-                new OA\Property(property: 'difference_hash', type: 'integer'),
-                new OA\Property(property: 'average_hash', type: 'integer'),
-            ],
-            type: 'object',
-            nullable: true
-        ),
-        new OA\Property(
             property: 'tags',
             type: 'array',
             items: new OA\Items(type: 'string'),
@@ -54,11 +44,6 @@ class ImageResource extends AbstractBaseResource
             'size' => $this->metadata->size,
             'mime_type' => $this->metadata->mime,
             'last_modified' => $this->metadata->last_modified,
-            'hashes' => $this->whenLoaded('hash', [
-                'perceptual_hash' => $this->hash->perceptual_hash,
-                'difference_hash' => $this->hash->difference_hash,
-                'average_hash' => $this->hash->average_hash,
-            ]),
             $this->mergeWhen($this->whenLoaded('tags'), [
                 'tags' => $this->tags->map(fn ($tag) => $tag->translated_name)
             ]),

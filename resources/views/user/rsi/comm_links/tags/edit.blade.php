@@ -1,4 +1,4 @@
-@extends('user.layouts.default_wide')
+@extends('user.layouts.default')
 
 @section('title', __('Bild').' - '.$image->id. ' ' . __('(bearbeiten)'))
 
@@ -7,26 +7,22 @@
     @component('components.forms.form', [
         'method' => 'PATCH',
         'action' => route('web.user.rsi.comm-links.images.save-tags', $image->getRouteKey()),
-        'class' => 'card',
+        'class' => '',
     ])
-        <div class="wrapper">
-            <div class="card-body">
-                @include('components.errors')
-                <div class="row">
-                    <div class="col-12 col-md-8">
-                        @include('user.rsi.comm_links.components.image_info_card', ['image' => $image, 'noFooter' => true])
-                    </div>
-                    <div class="col-12 col-md-4 d-flex align-content-stretch flex-column">
-                        <button type="submit" class="btn btn-block btn-primary mb-3">@lang('Speichern')</button>
-                        <span class="alert alert-warning d-none" id="new-tag-warning"></span>
-                        <span class="help-block d-block mb-2">@lang('Neue Einträge können durch Tippen in der Auswahl hinzugefügt werden.')</span>
-                        <select class="form-select custom-select form-control" multiple size="15" name="tags[]" id="tags">
-                            @foreach($tags as $tag)
-                                <option value="id:{{ $tag->id }}" @php if ($image_tags->contains($tag->name)) echo "selected"; @endphp>{{ $tag->translated_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+        @include('components.errors')
+        <div class="row">
+            <div class="col-12 col-md-7">
+                @include('user.rsi.comm_links.components.image_info_card', ['image' => $image, 'noFooter' => true])
+            </div>
+            <div class="col-12 col-md-5 d-flex align-content-stretch flex-column">
+                <button type="submit" class="btn btn-block btn-primary mb-3">@lang('Speichern')</button>
+                <span class="alert alert-warning d-none" id="new-tag-warning"></span>
+                <span class="help-block d-block mb-2">@lang('Neue Einträge können durch Tippen in der Auswahl hinzugefügt werden.')</span>
+                <select class="form-select custom-select form-control" multiple size="15" name="tags[]" id="tags">
+                    @foreach($tags as $tag)
+                        <option value="id:{{ $tag->id }}" @php if ($image_tags->contains($tag->name)) echo "selected"; @endphp>{{ $tag->translated_name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
     @endcomponent

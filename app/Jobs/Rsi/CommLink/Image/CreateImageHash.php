@@ -6,12 +6,17 @@ namespace App\Jobs\Rsi\CommLink\Image;
 
 use App\Jobs\AbstractBaseDownloadData as BaseDownloadData;
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Services\ImageHash\Implementations\PDQHash\PDQHash;
+use App\Services\ImageHash\Implementations\PDQHasher;
 use App\Services\ImageHash\Implementations\PerceptualHash2;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Exception\NotReadableException;
 use Jenssegers\ImageHash\ImageHash;
 use Jenssegers\ImageHash\Implementations\AverageHash;
@@ -65,7 +70,12 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        if ($this->image->hash !== null && $this->image->hash->exists) {
+        if (!str_contains($this->image->metadata->mime, 'image')) {
+            $this->delete();
+            return;
+        }
+
+        if ($this->image->hash !== null && $this->image->hash->exists && $this->image->hash->pdq_hash1 !== null) {
             $this->delete();
 
             return;
@@ -75,7 +85,12 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         $url = $file;
 
         if (!$this->image->local) {
-            $file = $this->downloadFile($file);
+            if (Storage::disk('comm_link_images')->exists("{$this->image->dir}/{$this->image->name}")) {
+                $this->image->update(['local' => true]);
+            } else {
+                $this->fail('File not local');
+                return;
+            }
         }
 
         // 4xx Error
@@ -98,6 +113,19 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         $difference = $this->differenceHasher->hash($file)->toHex();
         $average = $this->averageHasher->hash($file)->toHex();
 
+        $path = storage_path("app/public/comm_link_images/{$this->image->dir}/{$this->image->name}");
+
+        try {
+            [$hash, $quality] = PDQHasher::computeHashAndQualityFromFilename($path, false, false, true);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+            return;
+        }
+
+        /** @var PDQHash $hash */
+
+        $hash = $hash->to64BitStrings();
+
         if ($perception === '' || $difference === '' || $average === '') {
             app('Log')::debug("Hash for {$url} is empty.", [$url]);
             $this->image->hash()->create(self::NOT_FOUND_HASH);
@@ -105,11 +133,16 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        $this->image->hash()->create(
+        $this->image->hash()->updateOrCreate(
             [
-                'perceptual_hash' => $perception,
-                'difference_hash' => $difference,
-                'average_hash' => $average,
+                'perceptual_hash' => hex2bin($perception),
+                'difference_hash' => hex2bin($difference),
+                'average_hash' => hex2bin($average),
+                'pdq_hash1' => hex2bin($hash[0]),
+                'pdq_hash2' => hex2bin($hash[1]),
+                'pdq_hash3' => hex2bin($hash[2]),
+                'pdq_hash4' => hex2bin($hash[3]),
+                'pdq_quality' => $quality,
             ]
         );
     }

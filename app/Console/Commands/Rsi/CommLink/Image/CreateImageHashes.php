@@ -44,7 +44,7 @@ class CreateImageHashes extends QueueCommand
             function (Collection $images) {
                 $images->each(
                     function (Image $image) {
-                        dispatch(new CreateImageHash($image));
+                        CreateImageHash::dispatch($image)->onQueue('image_hashes');
                         $this->advanceBar();
                     }
                 );
@@ -67,6 +67,7 @@ class CreateImageHashes extends QueueCommand
         return Image::query()
             ->whereHas('commLinks')
             ->whereDoesntHave('hash')
+            ->orWhereRelation('hash', 'pdq_hash1', 'IS NULL')
             ->whereHas(
                 'metadata',
                 function (Builder $query) {

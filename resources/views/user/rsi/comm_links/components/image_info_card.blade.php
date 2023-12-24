@@ -36,25 +36,18 @@
     @unless(isset($noFooter))
     <div class="card-body">
         @can('web.user.rsi.comm-links.view')
-            <div class="btn-group d-flex" style="gap: 0.5rem">
-                <a type="button" class="btn btn-outline-primary upload-btn bg-primary" data-id={{ $image->id }} data-cl-id="{{ $image->commLinks->pluck('cig_id')->min() }}">
+            <div class="btn-group d-flex mb-2" style="gap: 0.5rem">
+                <a type="button" class="btn btn-outline-primary upload-btn bg-primary w-75" data-id={{ $image->id }} data-cl-id="{{ $image->commLinks->pluck('cig_id')->min() }}">
                     @lang('Hochladen ins Wiki')
                 </a>
 
-                <a type="button" title="@lang('Edit') @lang('Tags')" class="btn btn-secondary" href="{{ route('web.user.rsi.comm-links.images.edit-tags', $image->getRouteKey()) }}">
+                <a type="button" title="@lang('Edit') @lang('Tags')" class="btn btn-secondary w-25" href="{{ route('web.user.rsi.comm-links.images.edit-tags', $image->getRouteKey()) }}">
                     @component('components.elements.icon')
                         tag
                     @endcomponent
                 </a>
             </div>
-
         @endcan
-        @if(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
-            <a type="button" class="btn btn-block btn-secondary mt-2" href="{{ route('web.user.rsi.comm-links.images.similar', $image->getRouteKey()) }}">
-                @lang('Ähnliche Bilder (alpha)')
-            </a>
-        @endif
-
 
         <div class="image-info-card">
             @unless(empty($image->alt))
@@ -97,27 +90,46 @@
         </div>
         <div class="divider"></div>
         @endunless
-        <p><a class="url" href="{{ $image->url }}" target="_blank">@lang('Quelle')</a></p>
+        <ul class="list-unstyled mb-0">
+            <li><a class="url" href="{{ $image->url }}" target="_blank">@lang('Bildquelle')</a></li>
+            <li><a class="url" href="{{ route('web.user.rsi.comm-links.images.show', $image->getRouteKey()) }}">@lang('Bilddaten')</a></li>
+            @if(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
+                <li><a class="url" href="{{ route('web.user.rsi.comm-links.images.similar', $image->getRouteKey()) }}">@lang('Ähnliche Bilder (alpha)')</a></li>
+            @endif
+        </ul>
+        @unless($image->duplicates->isEmpty())
+            <div class="divider"></div>
+            <div>
+                <p>@lang('Duplikate')</p>
+                <ul class="list-unstyled mb-0">
+                    @foreach($image->duplicates as $duplicate)
+                        <li><a class="url" href="{{ route('web.user.rsi.comm-links.images.show', $duplicate->getRouteKey()) }}">{{ $duplicate->name }} ({{ $duplicate->similarity }}%)</a></li>
+                    @endforeach
+                </ul>
+            </div>
+        @endunless
         @unless(empty($image->commLinks))
             <div class="divider"></div>
             <p>@lang('Comm-Links'):</p>
-            <span style="display: flex; flex-direction: column;">
+            <ul class="list-unstyled mb-0">
                 @foreach($image->commLinks->sortByDesc('cig_id')->take(5) as $commLink)
-                    <a href="{{ route('web.user.rsi.comm-links.show', $commLink->getRouteKey()) }}"
-                       class="card-link">{{ $commLink->cig_id }} - {{ $commLink->title }}
-                    </a>
+                    <li>
+                        <a class="url" href="{{ route('web.user.rsi.comm-links.show', $commLink->getRouteKey()) }}"
+                           class="card-link">{{ $commLink->cig_id }} - {{ $commLink->title }}
+                        </a>
+                    </li>
                 @endforeach
                 @if($image->commLinks->count() > 5)
-                    <span>@lang('Verwendet in') <b>{{ $image->commLinks->count() }}</b> @lang('Comm-Links')</span>
+                    <li>@lang('Verwendet in') <b>{{ $image->commLinks->count() }}</b> @lang('Comm-Links')</li>
                 @endif
-            </span>
+            </ul>
         @endunless
     </div>
 
     <div class="card-footer">
         <a class="btn btn-block btn-secondary mt-1" data-toggle="collapse" href="#comm_link_container_{{ $loop->index }}" role="button"
            aria-expanded="false" aria-controls="comm_link_container_{{ $loop->index }}">
-           @lang('Mehr Infos')
+           @lang('Zeige mehr Infos')
         </a>
     </div>
     @endif

@@ -45,7 +45,8 @@ class ImageController extends Controller
     public function index(Request $request)
     {
         $query = Image::query()
-            ->where('dir', 'NOT LIKE', 'NOT_FOUND');
+            ->where('dir', 'NOT LIKE', 'NOT_FOUND')
+            ->whereNull('base_image_id');
 
         if ($request->get('mime', null) !== null) {
             $query->whereHas(
@@ -60,6 +61,7 @@ class ImageController extends Controller
             'user.rsi.comm_links.images.index',
             [
                 'images' => $query
+                    ->where('local', 1)
                     ->orderByDesc('id')
                     ->groupBy('src')
                     ->paginate(50),
@@ -69,7 +71,7 @@ class ImageController extends Controller
     }
 
     /**
-     * @param Tag $tag
+     * @param Request $request
      *
      * @return Factory|View
      */
@@ -81,6 +83,21 @@ class ImageController extends Controller
             'user.rsi.comm_links.images.index',
             [
                 'images' => optional($tag)->images ?? [],
+            ]
+        );
+    }
+
+    /**
+     * @param Image $image
+     *
+     * @return Factory|View
+     */
+    public function show(Image $image)
+    {
+        return view(
+            'user.rsi.comm_links.images.show',
+            [
+                'image' => $image
             ]
         );
     }

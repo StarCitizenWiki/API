@@ -13,6 +13,7 @@ use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLink;
 use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLinks;
 use App\Console\Commands\Rsi\CommLink\Download\Image\DownloadCommLinkImages;
 use App\Console\Commands\Rsi\CommLink\Download\ReDownloadCommLinks;
+use App\Console\Commands\Rsi\CommLink\Image\ComputeSimilarImageIds;
 use App\Console\Commands\Rsi\CommLink\Image\CreateImageHashes;
 use App\Console\Commands\Rsi\CommLink\Image\CreateImageMetadata;
 use App\Console\Commands\Rsi\CommLink\Image\SyncImageIds;
@@ -98,6 +99,7 @@ class Kernel extends ConsoleKernel
         SyncImageIds::class,
         CreateImageHashes::class,
         CreateImageMetadata::class,
+        ComputeSimilarImageIds::class,
 
         TranslateTranscripts::class,
         ImportMetadata::class,
