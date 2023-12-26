@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\User\Rsi\CommLink\Image;
 use App\Http\Controllers\Api\V2\Rsi\CommLink\CommLinkSearchController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\Image\AddImageTagsRequest;
+use App\Http\Requests\Rsi\CommLink\Image\ImageSearchRequest;
 use App\Http\Requests\Rsi\CommLink\Image\ImageUploadRequest;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageMetadata;
@@ -61,7 +62,6 @@ class ImageController extends Controller
             'user.rsi.comm_links.images.index',
             [
                 'images' => $query
-                    ->where('local', 1)
                     ->orderByDesc('id')
                     ->groupBy('src')
                     ->paginate(50),
@@ -182,5 +182,23 @@ class ImageController extends Controller
         $image->tags()->sync($ids);
 
         return redirect()->back();
+    }
+
+    /**
+     * Search for images by filename
+     *
+     * @param ImageSearchRequest $request
+     * @return View
+     */
+    public function search(ImageSearchRequest $request): View {
+        $request->query->set('limit', 250);
+        $controller = new \App\Http\Controllers\Api\V2\Rsi\CommLink\ImageController($request);
+
+        return view(
+            'user.rsi.comm_links.images.index',
+            [
+                'images' => $controller->search($request),
+            ]
+        );
     }
 }

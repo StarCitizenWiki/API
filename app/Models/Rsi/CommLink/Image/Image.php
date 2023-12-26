@@ -130,6 +130,7 @@ SQL,
             // Filter out small images
             ->where('size', '>=', 250 * 1024)
             ->where('comm_link_images.id', '!=', $this->id)
+            ->where('comm_link_images.base_image_id', 'IS NULL')
             ->orderBy('pdq_distance')
             ->limit($limit)
             ->get()

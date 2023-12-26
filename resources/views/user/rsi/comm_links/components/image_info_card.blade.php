@@ -20,10 +20,11 @@
                 </a>
             @endunless
             <span class="file-type badge badge-{{ $image->metadata->mime_class }}">{{ $image->metadata->mime }}</span>
-            <img src="{{ str_replace('source', 'post', $image->url) }}"
+            <img src="{{ str_replace('source', 'post', $image->getLocalOrRemoteUrl()) }}"
                  alt="{{ empty($image->alt) ? __('Kein alt Text verfügbar') : $image->alt }}"
                  class="card-img-top"
                  loading="lazy" />
+            <small class="d-block">{{ $image->name }}</small>
         </div>
         @elseif(\Illuminate\Support\Str::contains($image->metadata->mime, 'audio'))
             <audio class="card-img-top" controls>
@@ -103,7 +104,7 @@
                 <p>@lang('Duplikate')</p>
                 <ul class="list-unstyled mb-0">
                     @foreach($image->duplicates as $duplicate)
-                        <li><a class="url" href="{{ route('web.user.rsi.comm-links.images.show', $duplicate->getRouteKey()) }}">{{ $duplicate->name }} ({{ $duplicate->similarity }}%)</a></li>
+                        <li><a class="url" href="{{ route('web.user.rsi.comm-links.images.show', $duplicate->getRouteKey()) }}">{{ $duplicate->name }}</a></li>
                     @endforeach
                 </ul>
             </div>

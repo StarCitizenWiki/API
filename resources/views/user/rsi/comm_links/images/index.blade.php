@@ -73,13 +73,15 @@
                 })
             }
 
-            mimeSelect.addEventListener('change', (ev) => {
-                currentUrl.searchParams.delete('page')
-                currentUrl.searchParams.delete('mime')
-                currentUrl.searchParams.append('mime', ev.target.value)
+            if (mimeSelect) {
+                mimeSelect.addEventListener('change', (ev) => {
+                    currentUrl.searchParams.delete('page')
+                    currentUrl.searchParams.delete('mime')
+                    currentUrl.searchParams.append('mime', ev.target.value)
 
-                window.location = currentUrl.href
-            })
+                    window.location = currentUrl.href
+                });
+            }
         })();
     </script>
 @endsection

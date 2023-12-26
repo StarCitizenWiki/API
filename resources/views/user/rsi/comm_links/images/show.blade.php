@@ -68,7 +68,7 @@
                     <td>
                         <ul class="list-unstyled mb-0">
                         @forelse($image->duplicates as $duplicate)
-                            <li><a class="url" href="{{ route('web.user.rsi.comm.links.images.show', $duplicate->getRouteKey()) }}">{{ $duplicate->name }} ({{ $duplicate->similarity }}%)</a></li>
+                            <li><a class="url" href="{{ route('web.user.rsi.comm-links.images.show', $duplicate->getRouteKey()) }}">{{ $duplicate->name }}</a></li>
                         @empty
                             <li>@lang('Keine')</li>
                         @endforelse

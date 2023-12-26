@@ -207,6 +207,7 @@ Route::group(
 
                                         Route::get('images', 'Image\ImageController@index')->name('images.index');
                                         Route::post('images/upload-wiki', 'Image\ImageController@upload')->name('images.upload-wiki');
+                                        Route::post('images/search', 'Image\ImageController@search')->name('images.search');
                                         Route::get('images/{image}/similar', 'Image\ImageController@similarImages')->name('images.similar');
                                         Route::get('images/{image}/tags', 'Image\ImageController@editTags')->name('images.edit-tags');
                                         Route::patch('images/{image}/tags', 'Image\ImageController@saveTags')->name('images.save-tags');

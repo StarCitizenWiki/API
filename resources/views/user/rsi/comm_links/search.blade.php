@@ -29,7 +29,7 @@
         <div class="card mb-3">
             <div class="card-header">
                 <h4>
-                    {{ __('Comm-Link Bildlinksuche') }}
+                    {{ __('Suche nach Comm-Links mit Medienurl') }}
                 </h4>
             </div>
             <div class="card-body">
@@ -49,7 +49,7 @@
                         <small>@lang('URL der Form'): <br>https://robertsspaceindustries.com/media/...<br>https://media.robertsspaceindustries.com/...</small>
                     @endcomponent
 
-                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Comm-Links mit Bildlink')</button>
+                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche')</button>
                 @endcomponent
             </div>
         </div>
@@ -58,7 +58,7 @@
         <div class="card mb-3">
             <div class="card-header">
                 <h4>
-                    {{ __('Comm-Link Inhalt') }}
+                    {{ __('Suche nach Comm-Link mit Text') }}
                 </h4>
             </div>
             <div class="card-body">
@@ -68,23 +68,26 @@
                 ])
                     @component('components.forms.form-group', [
                         'inputType' => 'text',
-                        'label' => __('Comm-Link Inhalt'),
+                        'label' => __('Inhalt'),
                         'id' => 'query',
                         'inputOptions' => 'required',
+                        'placeholder' => 'Welcome to the Comm-Link'
                     ])
                         <small>@lang('Text, welcher in einem Comm-Link vorkommt')</small>
                     @endcomponent
 
-                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Bildern')</button>
+                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche')</button>
                 @endcomponent
             </div>
         </div>
         @endauth
+    </div>
 
+    <div class="card-deck">
         <div class="card mb-3">
             <div class="card-header">
                 <h4>
-                    {{ __('Comm-Link Bildsuche') }}
+                    {{ __('Suche nach Comm-Link mit Bild') }}
                 </h4>
             </div>
             <div class="card-body">
@@ -124,9 +127,32 @@
                             <label class="form-check-label" for="similarity5" title="75%">@lang('Sehr ungenau')</label>
                         </div>
                     </div>
+                    <button class="btn btn-block btn-outline-secondary mt-3">@lang('Suche')</button>
+                @endcomponent
+            </div>
+        </div>
 
+        <div class="card mb-3">
+            <div class="card-header">
+                <h4>
+                    {{ __('Suche nach Comm-Link Bildern') }}
+                </h4>
+            </div>
+            <div class="card-body">
+                @component('components.forms.form', [
+                    'action' => route('web.user.rsi.comm-links.images.search'),
+                    'class' => 'd-flex h-100 flex-column',
+                ])
+                    @component('components.forms.form-group', [
+                        'inputType' => 'text',
+                        'label' => __('Dateiname'),
+                        'id' => 'query',
+                        'placeholder' => 'Carrack',
+                        'required' => true
+                    ])
+                    @endcomponent
 
-                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche nach Comm-Links mit Bild')</button>
+                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche')</button>
                 @endcomponent
             </div>
         </div>
