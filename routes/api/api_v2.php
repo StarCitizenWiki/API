@@ -27,7 +27,7 @@ Route::group(
 
         Route::get('comm-link-images', 'ImageController@index')->name('cli.index');
         Route::get('comm-link-images/random', 'ImageController@random')->name('cli.random');
-        #Route::post('comm-link-images/search', 'ImageController@search')->name('cli.search');
+        Route::post('comm-link-images/search', 'ImageController@search')->name('cli.search');
         #Route::get('comm-link-images/{image}', 'ImageController@show')->name('cli.show');
         Route::get('comm-link-images/{image}/similar', 'CommLinkSearchController@similarSearch')->name('cli.similar');
     }

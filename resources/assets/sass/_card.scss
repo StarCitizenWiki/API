@@ -24,8 +24,8 @@
   border: 1px solid var(--card-line);
   border-radius: var(--border-radius);
   background-color: var(--card) !important;
-  -webkit-box-shadow: 0px 20px 30px -15px var(--shadow); 
-  box-shadow: 0px 20px 30px -15px var(--shadow);
+  -webkit-box-shadow: 0 20px 30px -15px var(--shadow);
+  box-shadow: 0 20px 30px -15px var(--shadow);
 }
 
 /* Card Haeder */

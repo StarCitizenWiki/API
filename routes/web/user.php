@@ -207,6 +207,7 @@ Route::group(
 
                                         Route::get('images', 'Image\ImageController@index')->name('images.index');
                                         Route::post('images/upload-wiki', 'Image\ImageController@upload')->name('images.upload-wiki');
+                                        Route::post('images/search', 'Image\ImageController@search')->name('images.search');
                                         Route::get('images/{image}/similar', 'Image\ImageController@similarImages')->name('images.similar');
                                         Route::get('images/{image}/tags', 'Image\ImageController@editTags')->name('images.edit-tags');
                                         Route::patch('images/{image}/tags', 'Image\ImageController@saveTags')->name('images.save-tags');
@@ -215,7 +216,8 @@ Route::group(
 
                                             return redirect(route('web.user.rsi.comm-links.images.edit-tags', $image->getRouteKey()));
                                         })->name('images.start-edit');
-                                        Route::get('image/{tag}', 'Image\ImageController@indexByTag')->name('images.index-by-tag');
+                                        Route::get('images/{image}', 'Image\ImageController@show')->name('images.show');
+                                        Route::get('images/tag-{tag}', 'Image\ImageController@indexByTag')->name('images.index-by-tag');
 
                                         Route::get('image-tags', 'Image\TagController@index')->name('image-tags.index');
                                         Route::post('image-tags', 'Image\TagController@post')->name('image-tags.create');

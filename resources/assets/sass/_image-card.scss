@@ -17,7 +17,7 @@
 
 /* Image */
 .comm-link-card-image {
-    padding: 10px 10px 0;
+    padding: 10px;
 }
 .card-img-top {
     min-height: 45px;
@@ -26,7 +26,7 @@
 
 /* Body */
 .image-card .card-body {
-    padding: 10px 10px 5px;
+    padding: 0 10px 5px;
 }
 
 /* Upload */
@@ -42,7 +42,7 @@ a.badge.badge-info.upload-btn {
 .image-info-card,
 .image-info-card-bottom {
     padding: 10px;
-    margin: 10px 0 0;
+    margin: 0;
     border-radius: var(--border-radius);
     background-color: var(--card-line);
 }

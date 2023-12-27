@@ -42,6 +42,7 @@
                class="{{ $inputClass ?? 'form-control' }} {{ $errors->has($id) ? 'is-invalid' : '' }}"
                @if(isset($required) && $required == '1') required @endif
                @if(isset($autofocus) && $autofocus == '1') autofocus @endif
+               @if(isset($placeholder)) placeholder="{{ $placeholder }}" @endif
             {{ $inputOptions ?? '' }} />
     @endif
     {{ $slot }}

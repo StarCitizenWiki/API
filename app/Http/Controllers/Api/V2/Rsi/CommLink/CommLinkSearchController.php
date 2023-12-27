@@ -226,17 +226,10 @@ class CommLinkSearchController extends AbstractApiV2Controller
             ]
         );
 
+        /** @var Image $image */
         $image = Image::query()->find($image);
 
-        $hashData = [
-            'perceptual_hash' => $image->hash->perceptual_hash,
-            'average_hash' => $image->hash->difference_hash,
-            'difference_hash' => $image->hash->average_hash,
-        ];
-
-        $data = $this->getResultImages($hashData, $similarity ?? 50, true);
-
-        return ImageHashResource::collection($data);
+        return ImageHashResource::collection($image->similarImages($similarity ?? 50, 50));
     }
 
     private function getResultImages(array $hashData, int $similarity = 50, bool $fromDB = false)
@@ -369,11 +362,11 @@ class CommLinkSearchController extends AbstractApiV2Controller
             )
             ->selectRaw(
                 'BIT_COUNT(average_hash ^ ' . $query . ') AS a_distance',
-                [$hashes['difference_hash']]
+                [$hashes['average_hash']]
             )
             ->selectRaw(
                 'BIT_COUNT(difference_hash ^ ' . $query . ') AS d_distance',
-                [$hashes['average_hash']]
+                [$hashes['difference_hash']]
             )
             ->join('comm_link_images', 'comm_link_image_hashes.comm_link_image_id', '=', 'comm_link_images.id')
             ->join('comm_link_image_metadata', 'comm_link_image_metadata.comm_link_image_id', '=', 'comm_link_images.id')

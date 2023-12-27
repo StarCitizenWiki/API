@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\User\Rsi\CommLink\Image;
 use App\Http\Controllers\Api\V2\Rsi\CommLink\CommLinkSearchController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\Image\AddImageTagsRequest;
+use App\Http\Requests\Rsi\CommLink\Image\ImageSearchRequest;
 use App\Http\Requests\Rsi\CommLink\Image\ImageUploadRequest;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageMetadata;
@@ -45,16 +46,21 @@ class ImageController extends Controller
     public function index(Request $request)
     {
         $query = Image::query()
-            ->where('dir', 'NOT LIKE', 'NOT_FOUND');
+            ->where('dir', 'NOT LIKE', 'NOT_FOUND')
+            ->whereNull('base_image_id');
 
-        if ($request->get('mime', null) !== null) {
+        $mimes = [];
+        if ($request->get('mime') !== null) {
+            $mimes = array_filter($request->get('mime'));
+
             $query->whereHas(
                 'metadata',
-                function (Builder $query) use ($request) {
-                    return $query->where('mime', '=', $request->get('mime'));
+                function (Builder $query) use ($mimes) {
+                    return $query->whereIn('mime', $mimes);
                 }
             );
         }
+
 
         return view(
             'user.rsi.comm_links.images.index',
@@ -64,12 +70,13 @@ class ImageController extends Controller
                     ->groupBy('src')
                     ->paginate(50),
                 'mimes' => ImageMetadata::query()->groupBy('mime')->get('mime'),
+                'selectedMimes' => $mimes,
             ]
         );
     }
 
     /**
-     * @param Tag $tag
+     * @param Request $request
      *
      * @return Factory|View
      */
@@ -81,6 +88,21 @@ class ImageController extends Controller
             'user.rsi.comm_links.images.index',
             [
                 'images' => optional($tag)->images ?? [],
+            ]
+        );
+    }
+
+    /**
+     * @param Image $image
+     *
+     * @return Factory|View
+     */
+    public function show(Image $image)
+    {
+        return view(
+            'user.rsi.comm_links.images.show',
+            [
+                'image' => $image
             ]
         );
     }
@@ -165,5 +187,25 @@ class ImageController extends Controller
         $image->tags()->sync($ids);
 
         return redirect()->back();
+    }
+
+    /**
+     * Search for images by filename
+     *
+     * @param ImageSearchRequest $request
+     *
+     * @return View
+     */
+    public function search(ImageSearchRequest $request): View
+    {
+        $request->query->set('limit', 250);
+        $controller = new \App\Http\Controllers\Api\V2\Rsi\CommLink\ImageController($request);
+
+        return view(
+            'user.rsi.comm_links.images.index',
+            [
+                'images' => $controller->search($request),
+            ]
+        );
     }
 }

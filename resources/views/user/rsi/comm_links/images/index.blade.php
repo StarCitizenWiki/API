@@ -10,10 +10,10 @@
             {{ $images->links() }}
             <form class="form-inline ml-auto" id="mimeForm">
                 <label class="my-1 mr-2" for="mime">@lang('Mime Type')</label>
-                <select class="custom-select form-control my-1 mr-sm-2" id="mime">
-                    <option value="" selected>@lang('Alle')</option>
+                <select class="custom-select form-control my-1 mr-sm-2" id="mime" multiple name="mime[]">
+                    <option value="" @if(empty($selectedMimes)) selected @endif>@lang('Alle')</option>
                     @foreach($mimes as $mime)
-                        <option value="{{ $mime->mime }}">{{ $mime->mime }}</option>
+                        <option value="{{ $mime->mime }}" @php if(in_array($mime->mime, $selectedMimes, true)) echo "selected"; @endphp>{{ $mime->mime }}</option>
                     @endforeach
                 </select>
             </form>
@@ -51,35 +51,18 @@
         (() => {
             hoverVideoPlay();
 
+            $('#mime').select2({
+                closeOnSelect: false,
+            });
+            $('#mime').on('select2:close', function(e) {
+                document.getElementById('mimeForm').submit();
+            });
+
             document.querySelectorAll('.badge.last-modified').forEach(entry => {
                 entry.addEventListener('click', () => {
                     navigator.clipboard.writeText(entry.dataset.lastModified)
                 });
             });
-
-            const currentUrl = new URL(window.location)
-            const mimeSelect = document.getElementById('mime')
-
-            if (currentUrl.searchParams.has('mime')) {
-                mimeSelect.querySelectorAll('option').forEach(option => {
-                    option.selected = option.value === currentUrl.searchParams.get('mime');
-                })
-
-                document.querySelectorAll('nav .page-item a.page-link').forEach(navLink => {
-                    const url = new URL(navLink.href)
-                    url.searchParams.append('mime', currentUrl.searchParams.get('mime'))
-
-                    navLink.href = url.toString()
-                })
-            }
-
-            mimeSelect.addEventListener('change', (ev) => {
-                currentUrl.searchParams.delete('page')
-                currentUrl.searchParams.delete('mime')
-                currentUrl.searchParams.append('mime', ev.target.value)
-
-                window.location = currentUrl.href
-            })
         })();
     </script>
 @endsection

@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Api\V2\Rsi\CommLink;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Filters\ImageTagFilter;
+use App\Http\Requests\AbstractSearchRequest;
+use App\Http\Requests\Rsi\CommLink\Image\ImageSearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
@@ -81,6 +83,40 @@ class ImageController extends AbstractApiV2Controller
             ->whereRelation('metadata', 'size', '>=', 250 * 1024)
             ->inRandomOrder()
             ->limit($request->has('limit') ? $this->limit : 1)
+            ->get();
+
+        return ImageResource::collection($query);
+    }
+
+    #[OA\Post(
+        path: '/api/v2/comm-link-images/search',
+        tags: ['Comm-Links', 'RSI-Website', 'Images', 'Search'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(name: 'filter[tags]', in: 'query', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Search for a Comm-Link Image by its filename.',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/comm_link_image_v2')
+                )
+            )
+        ]
+    )]
+    public function search(ImageSearchRequest $request): AnonymousResourceCollection
+    {
+        $query = QueryBuilder::for(Image::class, $request)
+            ->allowedFilters([
+                AllowedFilter::partial('tags', 'tags.name'),
+            ])
+            ->whereNull('base_image_id')
+            ->whereRaw("LOWER(src) LIKE ?", [sprintf('%%%s%%', strtolower($request->get('query')))])
+            ->whereRelation('metadata', 'size', '>', 0)
+            ->limit($this->limit)
+            ->orderByDesc('created_at')
             ->get();
 
         return ImageResource::collection($query);

@@ -15,6 +15,11 @@ class ImageHash extends Model
         'perceptual_hash',
         'difference_hash',
         'average_hash',
+        'pdq_hash1',
+        'pdq_hash2',
+        'pdq_hash3',
+        'pdq_hash4',
+        'pdq_quality',
     ];
 
     /**
