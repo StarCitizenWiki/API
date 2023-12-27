@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\User\Rsi\CommLink\Image;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rsi\CommLink\Image\NewImageTagRequest;
 use App\Http\Requests\Rsi\CommLink\Image\ImageUploadRequest;
+use App\Http\Requests\Rsi\CommLink\Image\TagUpdateRequest;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Image\ImageMetadata;
 use App\Models\Rsi\CommLink\Image\Tag;
@@ -32,8 +33,6 @@ class TagController extends Controller
     }
 
     /**
-     * All downloaded Images, excluding those that could not be found
-     *
      * @param Request $request
      *
      * @return Factory|View
@@ -48,6 +47,52 @@ class TagController extends Controller
             'user.rsi.comm_links.tags.index',
             [
                 'tags' => Tag::query()->orderByDesc('images_count')->paginate(250),
+            ]
+        );
+    }
+
+    /**
+     * @param Tag $tag
+     *
+     * @return Factory|View
+     *
+     * @throws AuthorizationException
+     */
+    public function edit(Tag $tag)
+    {
+        $this->authorize('web.user.rsi.comm-links.view');
+
+        return view(
+            'user.rsi.comm_links.tags.edit-tag',
+            [
+                'tag' => $tag,
+            ]
+        );
+    }
+
+    /**
+     * @param Tag $tag
+     * @param TagUpdateRequest $request
+     *
+     * @return Factory|View
+     *
+     * @throws AuthorizationException
+     */
+    public function update(Tag $tag, TagUpdateRequest $request): Factory|View
+    {
+        $this->authorize('web.user.rsi.comm-links.view');
+        $data = $request->validated();
+
+        $tag->update([
+            #'name' => $data['name'],
+            'name_en' => $data['name_en'],
+        ]);
+
+        return redirect()->route('web.user.rsi.comm-links.image-tags.index')->withMessages(
+            [
+                'success' => [
+                    __('Tag aktualisiert'),
+                ],
             ]
         );
     }

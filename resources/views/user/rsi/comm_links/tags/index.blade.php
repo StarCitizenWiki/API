@@ -51,8 +51,7 @@
                             @component('components.edit_delete_block')
                                 @can('web.user.rsi.comm-links.update')
                                     @slot('edit_url')
-                                        #
-{{--                                        {{ route('web.user.rsi.comm-links.edit', $tag->getRouteKey()) }}--}}
+                                        {{ route('web.user.rsi.comm-links.image-tags.edit', $tag->getRouteKey()) }}
                                     @endslot
                                 @endcan
                                 {{ $tag->getRouteKey() }}

@@ -221,6 +221,8 @@ Route::group(
 
                                         Route::get('image-tags', 'Image\TagController@index')->name('image-tags.index');
                                         Route::post('image-tags', 'Image\TagController@post')->name('image-tags.create');
+                                        Route::get('image-tags/{tag}', 'Image\TagController@edit')->name('image-tags.edit');
+                                        Route::post('image-tags/{tag}', 'Image\TagController@update')->name('image-tags.update');
 
                                         Route::get('search', 'CommLinkSearchController@search')->name('search');
                                         Route::post('reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearchPost')->name('reverse-image-link-search.post');
