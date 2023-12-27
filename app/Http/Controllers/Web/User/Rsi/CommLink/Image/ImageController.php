@@ -49,10 +49,10 @@ class ImageController extends Controller
             ->where('dir', 'NOT LIKE', 'NOT_FOUND')
             ->whereNull('base_image_id');
 
-        $mimes = [];
-        if ($request->get('mime') !== null) {
-            $mimes = array_filter($request->get('mime'));
+        $mimes = array_filter($request->get('mime', []));
+        $tags = array_filter($request->get('tag', []));
 
+        if (!empty($mimes)) {
             $query->whereHas(
                 'metadata',
                 function (Builder $query) use ($mimes) {
@@ -61,6 +61,14 @@ class ImageController extends Controller
             );
         }
 
+        if (!empty($tags)) {
+            $query->whereRelation(
+                'tags',
+                function (Builder $query) use ($tags) {
+                    return $query->whereIn('name', $tags)->orWhereIn('name_en', $tags);
+                }
+            );
+        }
 
         return view(
             'user.rsi.comm_links.images.index',
@@ -71,6 +79,8 @@ class ImageController extends Controller
                     ->paginate(50),
                 'mimes' => ImageMetadata::query()->groupBy('mime')->get('mime'),
                 'selectedMimes' => $mimes,
+                'tags' => Tag::query()->get(),
+                'selectedTags' => $tags,
             ]
         );
     }
