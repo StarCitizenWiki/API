@@ -70,10 +70,7 @@ class CreateImageHashes extends QueueCommand
                     ->orWhereRelation('metadata', 'mime', 'LIKE', 'image%');
             })
             ->whereHas('commLinks')
-            ->where(function (Builder $query) {
-                $query->whereDoesntHave('hash')
-                    ->orWhereRelation('hash', 'pdq_hash1', 'IS NULL');
-            })
+            ->doesntHave('hash')
             ->where('src', 'NOT LIKE', '%.svg')
             ->where('src', 'NOT LIKE', '%.tiff');
     }

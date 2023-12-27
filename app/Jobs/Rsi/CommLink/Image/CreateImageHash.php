@@ -82,7 +82,11 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        $fileUrl = $this->image->getLocalOrRemoteUrl();
+        if ($this->image->local) {
+            $fileUrl = $this->image->local_path;
+        } else {
+            $fileUrl = $this->image->getLocalOrRemoteUrl();
+        }
 
         if (str_contains($this->image->metadata->mime, 'video')) {
             if (!$this->image->local) {
