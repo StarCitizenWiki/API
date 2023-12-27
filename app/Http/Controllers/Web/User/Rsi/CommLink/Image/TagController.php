@@ -15,6 +15,7 @@ use App\Services\UploadWikiImage;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -74,11 +75,11 @@ class TagController extends Controller
      * @param Tag $tag
      * @param TagUpdateRequest $request
      *
-     * @return Factory|View
+     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */
-    public function update(Tag $tag, TagUpdateRequest $request): Factory|View
+    public function update(Tag $tag, TagUpdateRequest $request)
     {
         $this->authorize('web.user.rsi.comm-links.view');
         $data = $request->validated();
