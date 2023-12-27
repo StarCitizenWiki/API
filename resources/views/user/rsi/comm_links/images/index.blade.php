@@ -24,7 +24,7 @@
                         <select class="custom-select form-control my-1 mr-sm-2" id="tag" multiple name="tag[]">
                             <option value="" @if(empty($selectedTags)) selected @endif>@lang('Alle')</option>
                             @foreach($tags as $tag)
-                                <option value="{{ $tag->translatedName }}" @php if(in_array($tag->translatedName, $selectedTags, true)) echo "selected"; @endphp>{{ $tag->translatedName }}</option>
+                                <option value="{{ $tag->name }}" @php if(in_array($tag->translatedName, $selectedTags, true)) echo "selected"; @endphp>{{ $tag->translatedName }}</option>
                             @endforeach
                         </select>
                     </div>

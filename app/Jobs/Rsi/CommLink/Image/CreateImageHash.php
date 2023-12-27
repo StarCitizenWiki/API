@@ -234,6 +234,8 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             $pathExt
         ]);
 
+        $proc->setTimeout(120);
+
         $code = $proc->run();
 
         return $code === 0 ? $pathExt : null;
