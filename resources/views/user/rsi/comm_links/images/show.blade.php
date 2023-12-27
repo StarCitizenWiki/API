@@ -9,10 +9,14 @@
         </div>
         <div class="col-12 col-md-4">
             <table class="table mb-0 table-responsive">
-                <caption>@lang('Bild Metadaten')</caption>
+                <caption>@lang('Datei Metadaten')</caption>
                 <tr>
                     <th scope="row">@lang('Beschreibung')</th>
-                    <td>{{ $image->alt ?? '-' }}</td>
+                    <td>{{ empty($image->alt) ? '-' : $image->alt }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">@lang('Name')</th>
+                    <td>{{ $image->name }}</td>
                 </tr>
                 <tr>
                     <th scope="row">@lang('Links')</th>
@@ -22,7 +26,7 @@
                             @if(\Illuminate\Support\Str::contains($image->metadata->mime, 'image'))
                                 <li>
                                     <a class="url" href="{{ route('web.user.rsi.comm-links.images.similar', $image->getRouteKey()) }}">
-                                        @lang('Ähnliche Bilder (alpha)')
+                                        @lang('Ähnliche Dateien (alpha)')
                                     </a>
                                 </li>
                             @endif
@@ -63,6 +67,7 @@
                         @endforelse
                     </td>
                 </tr>
+                @if($image->baseImage === null)
                 <tr>
                     <th scope="row">@lang('Duplikate')</th>
                     <td>
@@ -75,6 +80,14 @@
                         </ul>
                     </td>
                 </tr>
+                @else
+                    <tr>
+                        <th scope="row">@lang('Base Image')</th>
+                        <td>
+                            <a class="url" href="{{ route('web.user.rsi.comm-links.images.show', $image->baseImage->getRouteKey()) }}">{{ $image->baseImage->name }}</a>
+                        </td>
+                    </tr>
+                @endif
                 <tr>
                     <th scope="row">@lang('Comm-Links')</th>
                     <td>

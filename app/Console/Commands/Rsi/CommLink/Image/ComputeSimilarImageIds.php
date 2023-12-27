@@ -30,6 +30,9 @@ class ComputeSimilarImageIds extends Command
         Image::query()
             ->whereNull('base_image_id')
             //->whereRelation('metadata', 'size', '>=', 250 * 1024)
+            ->with([
+                'metadata' => fn($query) => $query->orderBy('size', 'DESC'),
+            ])
             ->orderBy('created_at')
             ->chunk(25, function (Collection $images) {
                 $images->each(function (Image $image) {
@@ -39,7 +42,7 @@ class ComputeSimilarImageIds extends Command
                         return;
                     }
 
-                    \App\Jobs\Rsi\CommLink\Image\ComputeSimilarImageIds::dispatch($image);
+                    \App\Jobs\Rsi\CommLink\Image\ComputeSimilarImageIds::dispatch($image)->onQueue('comm_link_images');
                 });
             });
     }

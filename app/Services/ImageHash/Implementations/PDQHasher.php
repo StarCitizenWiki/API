@@ -31,6 +31,7 @@
 namespace App\Services\ImageHash\Implementations;
 
 use App\Services\ImageHash\Implementations\PDQHash\PDQHash;
+use Exception;
 
 class PDQHasher
 {
@@ -573,23 +574,30 @@ class PDQHasher
     }
 
     // ================================================================
-    static function readImageFromFilename($filename, $downsample_first)
+    static function readImageFromFilename($filename, $downsample_first, $fromString)
     {
-        $is_jpeg = false;
-        if (substr_compare($filename, '.jpg', -strlen('.jpg')) === 0) {
+        if ($fromString) {
+            $orig_image = imagecreatefromstring($filename);
+        } elseif (substr_compare($filename, '.jpg', -strlen('.jpg'), null, true) === 0) {
+            try {
+                $orig_image = imagecreatefromjpeg($filename);
+            } catch (Exception $e) {
+                $orig_image = imagecreatefrompng($filename);
+            }
+        } elseif (substr_compare($filename, '.jpeg', -strlen('.jpeg'), null, true) === 0) {
             $orig_image = imagecreatefromjpeg($filename);
-            $is_jpeg = true;
-        } elseif (substr_compare($filename, '.jpeg', -strlen('.jpeg')) === 0) {
-            $orig_image = imagecreatefromjpeg($filename);
-            $is_jpeg = true;
-        } elseif (substr_compare($filename, '.png', -strlen('.png')) === 0) {
-            $orig_image = imagecreatefrompng($filename);
-        } elseif (substr_compare($filename, '.gif', -strlen('.gif')) === 0) {
+        } elseif (substr_compare($filename, '.png', -strlen('.png'), null, true) === 0) {
+            try {
+                $orig_image = imagecreatefrompng($filename);
+            } catch (Exception $e) {
+                $orig_image = imagecreatefromjpeg($filename);
+            }
+        } elseif (substr_compare($filename, '.gif', -strlen('.gif'), null, true) === 0) {
             $orig_image = imagecreatefromgif($filename);
-        } elseif (substr_compare($filename, '.webp', -strlen('.webp')) === 0) {
+        } elseif (substr_compare($filename, '.webp', -strlen('.webp'), null, true) === 0) {
             $orig_image = imagecreatefromwebp($filename);
         } else {
-            throw new \Exception('PDQHasher: could not handle filetype of ' . $filename);
+            throw new Exception('PDQHasher: could not handle filetype of ' . $filename);
         }
 
         // The pure-PHP hasher is *really* slow in pure PHP for megapixel images.
@@ -608,26 +616,6 @@ class PDQHasher
         } else {
             $image = $orig_image;
         }
-
-// NOTE: the PDQ hashes within ThreatExchange aren't respecting EXIF rotation tags
-// so we should likewise ignore them.
-//
-//    if ($is_jpeg) {
-//      $exif = exif_read_data($filename);
-//      if (!empty($exif['Orientation'])) {
-//        switch ($exif['Orientation']) {
-//        case 3:
-//          $image = imagerotate($image, 180, 0);
-//          break;
-//        case 6:
-//          $image = imagerotate($image, -90, 0);
-//          break;
-//        case 8:
-//          $image = imagerotate($image, 90, 0);
-//          break;
-//        }
-//      }
-//    }
 
         return $image;
     }
@@ -877,7 +865,8 @@ class PDQHasher
         $filename,
         $show_timings = false,
         $dump = false,
-        $downsample = false
+        $downsample = false,
+        $fromString = false
     ) {
 
         $t01 = microtime(true);
@@ -898,7 +887,7 @@ class PDQHasher
 
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         $t1 = microtime(true);
-        $image = self::readImageFromFilename($filename, $downsample);
+        $image = self::readImageFromFilename($filename, $downsample, $fromString);
         $t2 = microtime(true);
         if ($show_timings) {
             printf("X000-READ %.6f\n", $t2 - $t1);

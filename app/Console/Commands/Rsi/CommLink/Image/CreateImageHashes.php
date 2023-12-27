@@ -44,7 +44,7 @@ class CreateImageHashes extends QueueCommand
             function (Collection $images) {
                 $images->each(
                     function (Image $image) {
-                        CreateImageHash::dispatch($image)->onQueue('image_hashes');
+                        CreateImageHash::dispatch($image)->onQueue('comm_link_images');
                         $this->advanceBar();
                     }
                 );
@@ -65,22 +65,16 @@ class CreateImageHashes extends QueueCommand
     private function getImages(): Builder
     {
         return Image::query()
+            ->where(function (Builder $query) {
+                $query->whereRelation('metadata', 'mime', 'LIKE', 'video%')
+                    ->orWhereRelation('metadata', 'mime', 'LIKE', 'image%');
+            })
             ->whereHas('commLinks')
-            ->whereDoesntHave('hash')
-            ->orWhereRelation('hash', 'pdq_hash1', 'IS NULL')
-            ->whereHas(
-                'metadata',
-                function (Builder $query) {
-                    $query->where('size', '<', 1024 * 1024 * 10); // Max 10MB files
-                }
-            )
-            ->where(
-                function (Builder $query) {
-                    $query->orWhereRaw('LOWER(src) LIKE \'%.jpg\'')
-                        ->orWhereRaw('LOWER(src) LIKE \'%.jpeg\'')
-                        ->orWhereRaw('LOWER(src) LIKE \'%.png\'')
-                        ->orWhereRaw('LOWER(src) LIKE \'%.webp\'');
-                }
-            );
+            ->where(function (Builder $query) {
+                $query->whereDoesntHave('hash')
+                    ->orWhereRelation('hash', 'pdq_hash1', 'IS NULL');
+            })
+            ->where('src', 'NOT LIKE', '%.svg')
+            ->where('src', 'NOT LIKE', '%.tiff');
     }
 }

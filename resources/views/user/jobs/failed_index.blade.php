@@ -49,7 +49,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="9">@lang('Keine fehlgeschlafenen Jobs vorhanden')</td>
+                            <td colspan="9">@lang('Keine fehlgeschlagenen Jobs vorhanden')</td>
                         </tr>
                     @endforelse
                 </tbody>

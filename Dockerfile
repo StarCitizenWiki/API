@@ -99,6 +99,7 @@ USER root
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+        ffmpeg \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libwebp-dev \

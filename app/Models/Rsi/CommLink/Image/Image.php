@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
-use App\Services\ImageHash\Implementations\PDQHash\PDQHash;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -92,7 +91,11 @@ class Image extends Model
      */
     public function baseImage(): BelongsTo
     {
-        return $this->belongsTo(__CLASS__, 'id', 'base_image_id');
+        return $this->belongsTo(
+            __CLASS__,
+            'base_image_id',
+            'id',
+        );
     }
 
     /**
@@ -105,6 +108,10 @@ class Image extends Model
      */
     public function similarImages(int $similarity = 90, int $limit = 15): Collection
     {
+        if ($this->hash->pdq_hash1 === null) {
+            return collect();
+        }
+
         return ImageHash::query()
             ->select(['comm_link_image_hashes.comm_link_image_id', 'pdq_quality', 'perceptual_hash'])
             ->selectRaw(
@@ -112,27 +119,26 @@ class Image extends Model
 (BIT_COUNT(CONV(HEX(pdq_hash1), 16, 10) ^ CONV(HEX(?), 16, 10)) +
 BIT_COUNT(CONV(HEX(pdq_hash2), 16, 10) ^ CONV(HEX(?), 16, 10)) +
 BIT_COUNT(CONV(HEX(pdq_hash3), 16, 10) ^ CONV(HEX(?), 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash4), 16, 10) ^ CONV(HEX(?), 16, 10))) as pdq_distance
+    BIT_COUNT(CONV(HEX(pdq_hash4), 16, 10) ^ CONV(HEX(?), 16, 10))) as pdq_distance,
+BIT_COUNT(CONV(HEX(perceptual_hash), 16, 10) ^ CONV(HEX(?), 16, 10)) AS p_distance
 SQL,
                 [
                     $this->hash->pdq_hash1,
                     $this->hash->pdq_hash2,
                     $this->hash->pdq_hash3,
                     $this->hash->pdq_hash4,
+                    $this->hash->perceptual_hash,
                 ]
             )
-            ->selectRaw(
-                'BIT_COUNT(CONV(HEX(perceptual_hash), 16, 10) ^ CONV(HEX(?), 16, 10)) AS p_distance',
-                [$this->hash->perceptual_hash]
-            )
             ->join('comm_link_images', 'comm_link_image_hashes.comm_link_image_id', '=', 'comm_link_images.id')
-            ->join('comm_link_image_metadata', 'comm_link_image_metadata.comm_link_image_id', '=', 'comm_link_images.id')
+            #->join('comm_link_image_metadata', 'comm_link_image_metadata.comm_link_image_id', '=', 'comm_link_images.id')
             // Filter out small images
-            ->where('size', '>=', 250 * 1024)
+            #->where('size', '>=', 250 * 1024)
             ->where('comm_link_images.id', '!=', $this->id)
-            ->where('comm_link_images.base_image_id', 'IS NULL')
+            ->whereNotNull('pdq_quality')
+            ->whereNull('comm_link_images.base_image_id')
             ->orderBy('pdq_distance')
-            ->limit($limit)
+            ->limit(500)
             ->get()
             ->map(
                 function (object $data) {
@@ -148,12 +154,15 @@ SQL,
                         $image->similarity_method = ''; #PDQ
                     }
 
+                    $image->pdq_distance = $data->pdq_distance ?? $image->p_distance;
+
                     return $image;
                 }
             )
             ->filter()
-            ->sortByDesc('similarity')
-            ->filter(fn (object $image) => $image->similarity >= $similarity);
+            ->sortByDesc('similarity')#->map(fn($x)=>[$x->similarity, $x->name, $x->pdq_distance])->dd()
+            ->filter(fn (object $image) => $image->similarity >= $similarity)
+            ->slice(0, $limit);
     }
 
     /**
@@ -223,30 +232,21 @@ SQL,
 
     public function getExtension(): string
     {
-        switch ($this->metadata->mime) {
-            case 'image/jpeg':
-                $ext = 'jpg';
-                break;
-            case 'image/webp':
-                $ext = 'webp';
-                break;
-            case 'image/tiff':
-                $ext = 'tif';
-                break;
-            case 'image/x-icon':
-                $ext = 'ico';
-                break;
-            case 'video/x-m4v':
-                $ext = 'm4v';
-                break;
-            case 'video/h264':
-                $ext = 'mp4';
-                break;
-            default:
-                $ext = explode('/', $this->metadata->mime)[1] ?? '';
-                break;
-        }
+        $ext = match ($this->metadata->mime) {
+            'image/jpeg' => 'jpg',
+            'image/webp' => 'webp',
+            'image/tiff' => 'tif',
+            'image/x-icon' => 'ico',
+            'video/x-m4v' => 'm4v',
+            'video/h264' => 'mp4',
+            default => explode('/', $this->metadata->mime)[1] ?? '',
+        };
 
         return $ext !== '' ? sprintf('.%s', $ext) : '';
+    }
+
+    public function getLocalPathAttribute()
+    {
+        return storage_path("app/public/comm_link_images/{$this->dir}/{$this->name}");
     }
 }

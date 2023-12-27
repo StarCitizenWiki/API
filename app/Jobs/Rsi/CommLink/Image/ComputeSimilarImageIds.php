@@ -21,7 +21,8 @@ class ComputeSimilarImageIds implements ShouldQueue
 
     private Image $image;
 
-    public function __construct(Image $image) {
+    public function __construct(Image $image)
+    {
         $this->image = $image;
     }
 
@@ -30,12 +31,18 @@ class ComputeSimilarImageIds implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->image->refresh();
         if ($this->image->base_image_id !== null) {
             return;
         }
 
-        $this->image->similarImages(90, 250)->each(function (Image $duplicate) {
-            unset($duplicate->similarity, $duplicate->similarity_method);
+        $this->image->similarImages(95, 250)->each(function (Image $duplicate) {
+            unset($duplicate->similarity, $duplicate->similarity_method, $duplicate->pdq_distance);
+
+            if ($duplicate->base_image_id === $this->image->id) {
+                return;
+            }
+
             $duplicate->update([
                 'base_image_id' => $this->image->id,
             ]);

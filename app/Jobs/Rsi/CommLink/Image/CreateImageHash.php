@@ -21,6 +21,7 @@ use Intervention\Image\Exception\NotReadableException;
 use Jenssegers\ImageHash\ImageHash;
 use Jenssegers\ImageHash\Implementations\AverageHash;
 use Jenssegers\ImageHash\Implementations\DifferenceHash;
+use Symfony\Component\Process\Process;
 
 class CreateImageHash extends BaseDownloadData implements ShouldQueue
 {
@@ -29,14 +30,9 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * Data used if Hash could not be created
-     */
-    private const NOT_FOUND_HASH = [
-        'perceptual_hash' => 0xDEADBEEF,
-        'difference_hash' => 0xDEADBEEF,
-        'average_hash' => 0xDEADBEEF,
-    ];
+    private $deleteTempFile = false;
+    private $tempFileUrl;
+
     private Image $image;
     private ImageHash $perceptionHasher;
     private ImageHash $differenceHasher;
@@ -57,6 +53,16 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
     }
 
     /**
+     * Delete possible temp files when done
+     */
+    public function __destruct()
+    {
+        if ($this->deleteTempFile) {
+            File::delete($this->tempFileUrl);
+        }
+    }
+
+    /**
      * Execute the job.
      *
      * @return void
@@ -65,13 +71,8 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
     {
         if (!extension_loaded('gd') && !extension_loaded('imagick')) {
             app('Log')::error('Required extension "GD" or "Imagick" not available.');
-
             $this->fail('Required extension "GD" or "Imagick" not available.');
-            return;
-        }
 
-        if (!str_contains($this->image->metadata->mime, 'image')) {
-            $this->delete();
             return;
         }
 
@@ -81,54 +82,73 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             return;
         }
 
-        $file = $this->image->getLocalOrRemoteUrl();
-        $url = $file;
+        $fileUrl = $this->image->getLocalOrRemoteUrl();
 
+        if (str_contains($this->image->metadata->mime, 'video')) {
+            if (!$this->image->local) {
+                $this->fail('Can\'t extract frame from remote file.');
+
+                return;
+            }
+
+            $fileUrl = $this->saveVideoFrame();
+            if ($fileUrl === null) {
+                $this->fail(sprintf('Could not extract frame from video %s', $this->image->name));
+
+                return;
+            }
+
+            $this->deleteTempFile = true;
+            $this->tempFileUrl = $fileUrl;
+        }
+
+        $pdqFromStream = false;
         if (!$this->image->local) {
             if (Storage::disk('comm_link_images')->exists("{$this->image->dir}/{$this->image->name}")) {
                 $this->image->update(['local' => true]);
             } else {
-                $this->fail('File not local');
-                return;
+                $pdqFromStream = true;
+                $fileUrl = $this->downloadFile($fileUrl);
             }
         }
 
         // 4xx Error
-        if ($file === null) {
-            $this->image->hash()->create(self::NOT_FOUND_HASH);
-
+        if ($fileUrl === null) {
             return;
         }
 
         try {
-            $hash = $this->perceptionHasher->hash($file);
+            $hash = $this->perceptionHasher->hash($fileUrl);
         } catch (NotReadableException $e) {
-            app('Log')::info("Image {$url} is not readable", [$url]);
+            app('Log')::info("Image $fileUrl is not readable", [$fileUrl]);
             $this->fail($e);
 
             return;
         }
 
         $perception = $hash->toHex();
-        $difference = $this->differenceHasher->hash($file)->toHex();
-        $average = $this->averageHasher->hash($file)->toHex();
-
-        $path = storage_path("app/public/comm_link_images/{$this->image->dir}/{$this->image->name}");
+        $difference = $this->differenceHasher->hash($fileUrl)->toHex();
+        $average = $this->averageHasher->hash($fileUrl)->toHex();
 
         try {
-            [$hash, $quality] = PDQHasher::computeHashAndQualityFromFilename($path, false, false, true);
+            [$hash, $quality] = PDQHasher::computeHashAndQualityFromFilename(
+                $fileUrl,
+                false,
+                false,
+                true,
+                $pdqFromStream
+            );
         } catch (Exception $e) {
             $this->fail($e->getMessage());
+
             return;
         }
 
         /** @var PDQHash $hash */
-
         $hash = $hash->to64BitStrings();
 
         if ($perception === '' || $difference === '' || $average === '') {
-            app('Log')::debug("Hash for {$url} is empty.", [$url]);
-            $this->image->hash()->create(self::NOT_FOUND_HASH);
+            app('Log')::debug("Hash for $fileUrl is empty.", [$fileUrl]);
 
             return;
         }
@@ -187,5 +207,35 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         }
 
         return $response->body();
+    }
+
+    /**
+     * Use FFMPEG to retrieve a frame from second 1
+     *
+     * @return string|null
+     */
+    private function saveVideoFrame(): ?string
+    {
+        $fp = tmpfile();
+        $path = stream_get_meta_data($fp)['uri'];
+        fclose($fp);
+        $pathExt = $path . '.jpg';
+
+        $proc = new Process([
+            '/usr/bin/ffmpeg',
+            '-i',
+            $this->image->local_path,
+            '-an',
+            '-ss',
+            '1',
+            '-y',
+            '-f',
+            'mjpeg',
+            $pathExt
+        ]);
+
+        $code = $proc->run();
+
+        return $code === 0 ? $pathExt : null;
     }
 }

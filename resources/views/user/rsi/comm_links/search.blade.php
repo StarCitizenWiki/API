@@ -54,36 +54,6 @@
             </div>
         </div>
 
-        @auth
-        <div class="card mb-3">
-            <div class="card-header">
-                <h4>
-                    {{ __('Suche nach Comm-Link mit Text') }}
-                </h4>
-            </div>
-            <div class="card-body">
-                @component('components.forms.form', [
-                    'action' => route('web.user.rsi.comm-links.image-text-search.post'),
-                    'class' => 'd-flex h-100 flex-column',
-                ])
-                    @component('components.forms.form-group', [
-                        'inputType' => 'text',
-                        'label' => __('Inhalt'),
-                        'id' => 'query',
-                        'inputOptions' => 'required',
-                        'placeholder' => 'Welcome to the Comm-Link'
-                    ])
-                        <small>@lang('Text, welcher in einem Comm-Link vorkommt')</small>
-                    @endcomponent
-
-                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche')</button>
-                @endcomponent
-            </div>
-        </div>
-        @endauth
-    </div>
-
-    <div class="card-deck">
         <div class="card mb-3">
             <div class="card-header">
                 <h4>
@@ -135,7 +105,7 @@
         <div class="card mb-3">
             <div class="card-header">
                 <h4>
-                    {{ __('Suche nach Comm-Link Bildern') }}
+                    {{ __('Suche nach Comm-Link Medien') }}
                 </h4>
             </div>
             <div class="card-body">

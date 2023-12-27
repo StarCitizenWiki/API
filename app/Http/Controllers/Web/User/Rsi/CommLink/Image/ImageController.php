@@ -49,14 +49,18 @@ class ImageController extends Controller
             ->where('dir', 'NOT LIKE', 'NOT_FOUND')
             ->whereNull('base_image_id');
 
-        if ($request->get('mime', null) !== null) {
+        $mimes = [];
+        if ($request->get('mime') !== null) {
+            $mimes = array_filter($request->get('mime'));
+
             $query->whereHas(
                 'metadata',
-                function (Builder $query) use ($request) {
-                    return $query->where('mime', '=', $request->get('mime'));
+                function (Builder $query) use ($mimes) {
+                    return $query->whereIn('mime', $mimes);
                 }
             );
         }
+
 
         return view(
             'user.rsi.comm_links.images.index',
@@ -66,6 +70,7 @@ class ImageController extends Controller
                     ->groupBy('src')
                     ->paginate(50),
                 'mimes' => ImageMetadata::query()->groupBy('mime')->get('mime'),
+                'selectedMimes' => $mimes,
             ]
         );
     }
@@ -188,9 +193,11 @@ class ImageController extends Controller
      * Search for images by filename
      *
      * @param ImageSearchRequest $request
+     *
      * @return View
      */
-    public function search(ImageSearchRequest $request): View {
+    public function search(ImageSearchRequest $request): View
+    {
         $request->query->set('limit', 250);
         $controller = new \App\Http\Controllers\Api\V2\Rsi\CommLink\ImageController($request);
 
