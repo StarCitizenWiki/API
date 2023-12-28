@@ -228,7 +228,7 @@ class Kernel extends ConsoleKernel
             $this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
         }
 
-        $this->schedule->job(ComputeSimilarImageIds::class)->daily()->withoutOverlapping();
+        $this->schedule->job(ComputeSimilarImageIds::class)->weekly()->withoutOverlapping();
 
         /* Update Proof Read Status */
         $this->schedule
