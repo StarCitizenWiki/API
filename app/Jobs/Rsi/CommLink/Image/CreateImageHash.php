@@ -137,8 +137,6 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         try {
             [$hash, $quality] = PDQHasher::computeHashAndQualityFromFilename(
                 $fileUrl,
-                false,
-                false,
                 true,
                 $pdqFromStream
             );

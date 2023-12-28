@@ -216,8 +216,6 @@ class CommLinkSearchController extends AbstractApiV2Controller
         /** @var PDQHash $hash */
         [$hash, $quality] = PDQHasher::computeHashAndQualityFromFilename(
             $request->file('image')->get(),
-            false,
-            false,
             true,
             true
         );

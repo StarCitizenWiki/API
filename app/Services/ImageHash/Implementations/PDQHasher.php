@@ -620,36 +620,20 @@ class PDQHasher
 
     // ================================================================
     static function computeDCTAndQualityFromImage(
-        /*resource*/&$image,
-        /*bool*/ $show_timings,
-        /*bool*/ $dump
+        /*resource*/&$image
     ) {
         $num_rows = imagesy($image);
         $num_cols = imagesx($image);
-        if ($dump) {
-            echo "num_rows=$num_rows\n";
-            echo "num_cols=$num_cols\n";
-        }
 
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // RGB to luma
-        $t1 = microtime(true);
         $luma_matrix = self::imageToLumaMatrix($image, $num_rows, $num_cols);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X010-LUMA %.6f\n", $t2 - $t1);
-        }
 
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Downsample (blur and decimate)
-        $t1 = microtime(true);
         $window_size_along_rows = self::computeJaroszFilterWindowSize($num_cols);
         $window_size_along_cols = self::computeJaroszFilterWindowSize($num_rows);
         self::jaroszFilter($luma_matrix, $num_rows, $num_cols, $window_size_along_rows, $window_size_along_cols);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X020-JRSZ %.6f\n", $t2 - $t1);
-        }
 
         // Decimation per se. Target centers not corners.
         $buffer_64x64 = array();
@@ -660,7 +644,6 @@ class PDQHasher
             }
             $buffer_64x64[$i] = $row;
         }
-        $t1 = microtime(true);
         for ($i = 0; $i < 64; $i++) {
             $ini = (int)((($i + 0.5) * $num_rows) / 64);
             for ($j = 0; $j < 64; $j++) {
@@ -668,31 +651,13 @@ class PDQHasher
                 $buffer_64x64[$i][$j] = $luma_matrix[$ini][$inj];
             }
         }
-        $t2 = microtime(true);
-        if ($dump) {
-            echo "DOWNSAMPLE IMAGE:\n";
-            print_r($buffer_64x64);
-        }
-        if ($show_timings) {
-            printf("X030-DSMP %.6f\n", $t2 - $t1);
-        }
 
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Quality metric.  Reuse the 64x64 image-domain downsample
         // since we already have it.
-        $t1 = microtime(true);
         $quality = self::computeImageDomainQualityMetric($buffer_64x64);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X040-QMTC %.6f\n", $t2 - $t1);
-        }
-        if ($dump) {
-            echo "QUALITY:$quality\n";
-        }
 
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $t1 = microtime(true);
-
         $buffer_16x64 = array();
         for ($i = 0; $i < 16; $i++) {
             $row = array();
@@ -729,26 +694,9 @@ class PDQHasher
                     cos(($pi / 2 / 64.0) * ($i + 1) * (2 * $j + 1));
             }
         }
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X050-DMTX %.6f\n", $t2 - $t1);
-        }
-        if ($dump) {
-            echo "DCT MATRIX:\n";
-            print_r($dct_16x64);
-        }
 
         // 2D DCT
-        $t1 = microtime(true);
         self::computeDCT64To16($buffer_64x64, $buffer_16x64, $buffer_16x16, $dct_16x64);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X060-CDCT %.6f\n", $t2 - $t1);
-        }
-        if ($dump) {
-            echo "DCT OUTPUT:\n";
-            print_r($buffer_16x16);
-        }
 
         return array($buffer_16x16, $quality);
     }
@@ -756,27 +704,14 @@ class PDQHasher
     // ----------------------------------------------------------------
     static function computeHashAndQualityFromImage(
         /*resource*/&$image,
-        /*bool*/ $show_timings,
-        /*bool*/ $dump
     ) {
-        $t01 = microtime(true);
-
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        list ($buffer_16x16, $quality) = self:: computeDCTAndQualityFromImage(
-            $image,
-            $show_timings,
-            $dump
+        list ($buffer_16x16, $quality) = self::computeDCTAndQualityFromImage(
+            $image
         );
 
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         $hash = self::computeHashFromDCTOutput($buffer_16x16);
-        if ($dump) {
-            echo "HASH:" . $hash->toHexString() . "\n";
-        }
-        $t02 = microtime(true);
-        if ($show_timings) {
-            printf("X999-OVRL %.6f\n", $t02 - $t01);
-        }
 
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         return array($hash, $quality);
@@ -785,17 +720,11 @@ class PDQHasher
     // ----------------------------------------------------------------
     static function computeHashesAndQualityFromImage(
         /*resource*/&$image,
-        /*int*/ $which_flags = self::DIH_ALL,
-        /*bool*/ $show_timings,
-        /*bool*/ $dump
+        /*int*/ $which_flags = self::DIH_ALL
     ) {
-        $t01 = microtime(true);
-
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        list ($buffer_16x16, $quality) = self:: computeDCTAndQualityFromImage(
-            $image,
-            $show_timings,
-            $dump
+        list ($buffer_16x16, $quality) = self::computeDCTAndQualityFromImage(
+            $image
         );
 
         $buffer_16x16_aux = array();
@@ -849,73 +778,26 @@ class PDQHasher
             $hashes['flpm'] = self::computeHashFromDCTOutput($buffer_16x16Aux);
         }
 
-        $t02 = microtime(true);
-        if ($show_timings) {
-            printf("X999-OVRL %.6f\n", $t02 - $t01);
-        }
-
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         return array($hashes, $quality);
     }
 
     // ================================================================
-    static function computeHashAndQualityFromFilename(
-        $filename,
-        $show_timings = false,
-        $dump = false,
-        $downsample = false,
-        $fromString = false
-    ) {
-
-
-        //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $t1 = microtime(true);
+    static function computeHashAndQualityFromFilename($filename, $downsample = false, $fromString = false)
+    {
         $image = self::readImageFromFilename($filename, $downsample, $fromString);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X000-READ %.6f\n", $t2 - $t1);
-        }
 
-        return self::computeHashAndQualityFromImage($image, $show_timings, $dump);
+        return self::computeHashAndQualityFromImage($image);
     }
 
     // ----------------------------------------------------------------
-    static function computeHashesAndQualityFromFilename(
-        $filename,
-        $which_flags = self::DIH_ALL,
-        $show_timings = false,
-        $dump = false
-    ) {
-
-        $t01 = microtime(true);
-
-        //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $info = getimagesize($filename);
-        if ($dump) {
-            echo "IMAGE INFO:\n";
-            print_r($info);
-        }
-
-        $num_rows = $info[1]; // height
-        $num_cols = $info[0]; // width
-        if ($dump) {
-            echo "num_rows=$num_rows\n";
-            echo "num_cols=$num_cols\n";
-        }
-
-        //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $t1 = microtime(true);
+    static function computeHashesAndQualityFromFilename($filename, $which_flags = self::DIH_ALL)
+    {
         $image = self::readImageFromFilename($filename, true);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X000-READ %.6f\n", $t2 - $t1);
-        }
 
         return self::computeHashesAndQualityFromImage(
             $image,
-            $which_flags,
-            $show_timings,
-            $dump
+            $which_flags
         );
     }
 
@@ -923,86 +805,23 @@ class PDQHasher
     // Array of hash and quality.
     // The hash is a hex-string, not a PDQHash object.
 
-    static function computeStringHashAndQualityFromFilenameUsingExtension(
-        $filename,
-        $show_timings = false,
-        $dump = false
-    ) {
-
-        $t01 = microtime(true);
-
-        //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $info = getimagesize($filename);
-        if ($dump) {
-            echo "IMAGE INFO:\n";
-            print_r($info);
-        }
-
-        $num_rows = $info[1]; // height
-        $num_cols = $info[0]; // width
-        if ($dump) {
-            echo "num_rows=$num_rows\n";
-            echo "num_cols=$num_cols\n";
-        }
-
-        //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $t1 = microtime(true);
+    static function computeStringHashAndQualityFromFilenameUsingExtension($filename)
+    {
         $image = self::readImageFromFilename($filename, false);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X000-READ %.6f\n", $t2 - $t1);
-        }
 
         // Uses the PDQ Zend-PHP extension
-        $t1 = microtime(true);
         $retval = pdq_compute_string_hash_and_quality_from_image_resource($image);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X000-EXTN %.6f\n", $t2 - $t1);
-        }
 
         return array($retval['hash'], $retval['quality']);
     }
 
     // ----------------------------------------------------------------
-    static function computeStringHashesAndQualityFromFilenameUsingExtension(
-        $filename,
-        $which_flags = self::DIH_ALL,
-        $show_timings = false,
-        $dump = false
-    ) {
-
-        $t01 = microtime(true);
-
-        //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $info = getimagesize($filename);
-        if ($dump) {
-            echo "IMAGE INFO:\n";
-            print_r($info);
-        }
-
-        $num_rows = $info[1]; // height
-        $num_cols = $info[0]; // width
-        if ($dump) {
-            echo "num_rows=$num_rows\n";
-            echo "num_cols=$num_cols\n";
-        }
-
-        //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $t1 = microtime(true);
+    static function computeStringHashesAndQualityFromFilenameUsingExtension($filename, $which_flags = self::DIH_ALL)
+    {
         $image = self::readImageFromFilename($filename, false);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X000-READ %.6f\n", $t2 - $t1);
-        }
 
         // Uses the PDQ Zend-PHP extension
-        $t1 = microtime(true);
         $retval = pdq_compute_string_hashes_and_quality_from_image_resource($image);
-        $t2 = microtime(true);
-        if ($show_timings) {
-            printf("X000-EXTN %.6f\n", $t2 - $t1);
-        }
 
         return array(
             array(
