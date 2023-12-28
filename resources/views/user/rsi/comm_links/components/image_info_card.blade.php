@@ -23,7 +23,7 @@
             @endunless
             <span class="file-type badge badge-{{ $image->metadata->mime_class }}">{{ $image->metadata->mime }}</span>
             <a href="{{ $image->url }}" target="_blank" class="text-center d-block">
-                <img src="{{ str_replace('source', 'post', $image->getLocalOrRemoteUrl()) }}"
+                <img src="{{ str_replace('source', 'post', $image->url) }}"
                      alt="{{ empty($image->alt) ? __('Kein alt Text verfügbar') : $image->alt }}"
                      class="card-img-top"
                      loading="lazy"/>
