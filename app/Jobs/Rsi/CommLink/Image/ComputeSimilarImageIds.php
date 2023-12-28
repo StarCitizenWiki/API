@@ -36,7 +36,7 @@ class ComputeSimilarImageIds implements ShouldQueue
             return;
         }
 
-        $this->image->similarImages(95, 250)->each(function (Image $duplicate) {
+        $this->image->similarImages(95, 50)->each(function (Image $duplicate) {
             unset($duplicate->similarity, $duplicate->similarity_method, $duplicate->pdq_distance);
 
             if ($duplicate->base_image_id === $this->image->id) {

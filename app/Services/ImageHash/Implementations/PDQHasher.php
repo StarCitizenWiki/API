@@ -581,12 +581,12 @@ class PDQHasher
         } elseif (substr_compare($filename, '.jpg', -strlen('.jpg'), null, true) === 0) {
             $orig_image = imagecreatefromjpeg($filename);
             if ($orig_image === false) {
-                $orig_image = imagecreatefrompng($filename);
+                $orig_image = @imagecreatefrompng($filename);
             }
         } elseif (substr_compare($filename, '.jpeg', -strlen('.jpeg'), null, true) === 0) {
             $orig_image = imagecreatefromjpeg($filename);
         } elseif (substr_compare($filename, '.png', -strlen('.png'), null, true) === 0) {
-            $orig_image = imagecreatefrompng($filename);
+            $orig_image = @imagecreatefrompng($filename);
             if ($orig_image === false) {
                 $orig_image = imagecreatefromjpeg($filename);
             }
