@@ -77,24 +77,24 @@
                     <p>@lang('Genauigkeit'):</p>
                     <div class="flex-row">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity1" value="5">
-                            <label class="form-check-label" for="similarity1" title="5%">@lang('Exakt')</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity1" value="95">
+                            <label class="form-check-label" for="similarity1" title=">= 95% @lang('Ähnlichkeit')">@lang('Exakt')</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity2" value="20" checked>
-                            <label class="form-check-label" for="similarity2" title="20%">@lang('Sehr ähnlich')</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity2" value="80" checked>
+                            <label class="form-check-label" for="similarity2" title=">= 80% @lang('Ähnlichkeit')">@lang('Sehr ähnlich')</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity3" value="40">
-                            <label class="form-check-label" for="similarity3" title="40%">@lang('Ähnlich')</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity3" value="60">
+                            <label class="form-check-label" for="similarity3" title=">= 60% @lang('Ähnlichkeit')">@lang('Ähnlich')</label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="similarity" id="similarity4" value="50">
-                            <label class="form-check-label" for="similarity4" title="50%">@lang('Ungenau')</label>
+                            <label class="form-check-label" for="similarity4" title=">= 50% @lang('Ähnlichkeit')">@lang('Ungenau')</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="similarity" id="similarity5" value="75">
-                            <label class="form-check-label" for="similarity5" title="75%">@lang('Sehr ungenau')</label>
+                            <input class="form-check-input" type="radio" name="similarity" id="similarity5" value="25">
+                            <label class="form-check-label" for="similarity5" title=">= 25% @lang('Ähnlichkeit')">@lang('Sehr ungenau')</label>
                         </div>
                     </div>
                     <button class="btn btn-block btn-outline-secondary mt-3">@lang('Suche')</button>

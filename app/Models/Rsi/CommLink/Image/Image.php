@@ -47,7 +47,13 @@ class Image extends Model
      */
     public function commLinks(): BelongsToMany
     {
-        return $this->belongsToMany(CommLink::class, 'comm_link_image', 'comm_link_image_id', 'comm_link_id')->orderByDesc('cig_id');
+        return $this->belongsToMany(
+            CommLink::class,
+            'comm_link_image',
+            'comm_link_image_id',
+            'comm_link_id'
+        )
+            ->orderByDesc('cig_id');
     }
 
     /**
@@ -113,32 +119,29 @@ class Image extends Model
         }
 
         return ImageHash::query()
-            ->select(['comm_link_image_hashes.comm_link_image_id', 'pdq_quality', 'perceptual_hash'])
+            ->select(['comm_link_image_hashes.comm_link_image_id', 'pdq_quality'])
             ->selectRaw(
                 <<<SQL
-(BIT_COUNT(CONV(HEX(pdq_hash1), 16, 10) ^ CONV(HEX(?), 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash2), 16, 10) ^ CONV(HEX(?), 16, 10)) +
-BIT_COUNT(CONV(HEX(pdq_hash3), 16, 10) ^ CONV(HEX(?), 16, 10)) +
-    BIT_COUNT(CONV(HEX(pdq_hash4), 16, 10) ^ CONV(HEX(?), 16, 10))) as pdq_distance,
-BIT_COUNT(CONV(HEX(perceptual_hash), 16, 10) ^ CONV(HEX(?), 16, 10)) AS p_distance
+(BIT_COUNT(CONV(HEX(pdq_hash1), 16, 10) ^ CONV(?, 16, 10)) +
+BIT_COUNT(CONV(HEX(pdq_hash2), 16, 10) ^ CONV(?, 16, 10)) +
+BIT_COUNT(CONV(HEX(pdq_hash3), 16, 10) ^ CONV(?, 16, 10)) +
+BIT_COUNT(CONV(HEX(pdq_hash4), 16, 10) ^ CONV(?, 16, 10))) as pdq_distance,
+BIT_COUNT(CONV(HEX(perceptual_hash), 16, 10) ^ CONV(?, 16, 10)) AS p_distance
 SQL,
                 [
-                    $this->hash->pdq_hash1,
-                    $this->hash->pdq_hash2,
-                    $this->hash->pdq_hash3,
-                    $this->hash->pdq_hash4,
-                    $this->hash->perceptual_hash,
+                    bin2hex($this->hash->pdq_hash1),
+                    bin2hex($this->hash->pdq_hash2),
+                    bin2hex($this->hash->pdq_hash3),
+                    bin2hex($this->hash->pdq_hash4),
+                    bin2hex($this->hash->perceptual_hash),
                 ]
             )
             ->join('comm_link_images', 'comm_link_image_hashes.comm_link_image_id', '=', 'comm_link_images.id')
-            #->join('comm_link_image_metadata', 'comm_link_image_metadata.comm_link_image_id', '=', 'comm_link_images.id')
-            // Filter out small images
-            #->where('size', '>=', 250 * 1024)
             ->where('comm_link_images.id', '!=', $this->id)
             ->whereNotNull('pdq_quality')
             ->whereNull('comm_link_images.base_image_id')
             ->orderBy('pdq_distance')
-            ->limit(500)
+            ->limit($limit)
             ->get()
             ->map(
                 function (object $data) {
@@ -146,7 +149,7 @@ SQL,
 
                     $image = Image::query()->find($id);
 
-                    if ($data->pdq_quality <= 66 || $data->pdq_distance === null) {
+                    if ($data->pdq_distance === null) {
                         $image->similarity = round((1 - ($data->p_distance / 64)) * 100);
                         $image->similarity_method = __('Basierend auf Merkmalen des Inhalts');
                     } else {
@@ -160,7 +163,7 @@ SQL,
                 }
             )
             ->filter()
-            ->sortByDesc('similarity')#->map(fn($x)=>[$x->similarity, $x->name, $x->pdq_distance])->dd()
+            ->sortByDesc('similarity')
             ->filter(fn (object $image) => $image->similarity >= $similarity)
             ->slice(0, $limit);
     }

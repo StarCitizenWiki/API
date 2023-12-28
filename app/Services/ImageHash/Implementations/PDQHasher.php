@@ -867,21 +867,6 @@ class PDQHasher
         $fromString = false
     ) {
 
-        $t01 = microtime(true);
-
-        //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        $info = getimagesize($filename);
-        if ($dump) {
-            echo "IMAGE INFO:\n";
-            print_r($info);
-        }
-
-        $num_rows = $info[1]; // height
-        $num_cols = $info[0]; // width
-        if ($dump) {
-            echo "num_rows=$num_rows\n";
-            echo "num_cols=$num_cols\n";
-        }
 
         //  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         $t1 = microtime(true);
