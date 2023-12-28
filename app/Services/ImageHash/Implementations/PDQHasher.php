@@ -579,17 +579,15 @@ class PDQHasher
         if ($fromString) {
             $orig_image = imagecreatefromstring($filename);
         } elseif (substr_compare($filename, '.jpg', -strlen('.jpg'), null, true) === 0) {
-            try {
-                $orig_image = imagecreatefromjpeg($filename);
-            } catch (Exception $e) {
+            $orig_image = imagecreatefromjpeg($filename);
+            if ($orig_image === false) {
                 $orig_image = imagecreatefrompng($filename);
             }
         } elseif (substr_compare($filename, '.jpeg', -strlen('.jpeg'), null, true) === 0) {
             $orig_image = imagecreatefromjpeg($filename);
         } elseif (substr_compare($filename, '.png', -strlen('.png'), null, true) === 0) {
-            try {
-                $orig_image = imagecreatefrompng($filename);
-            } catch (Exception $e) {
+            $orig_image = imagecreatefrompng($filename);
+            if ($orig_image === false) {
                 $orig_image = imagecreatefromjpeg($filename);
             }
         } elseif (substr_compare($filename, '.gif', -strlen('.gif'), null, true) === 0) {
