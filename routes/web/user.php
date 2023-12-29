@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+use App\Models\Rsi\CommLink\Image\Image;
+
 Route::get('/', static fn() => redirect()->to('/dashboard'))->name('index');
 
 Route::get('/comm-links/{commLink}', 'Rsi\CommLink\CommLinkController@show')->name('comm-links.show');
@@ -214,9 +216,9 @@ Route::group(
                                 Route::get('images/{image}/tags', 'Image\ImageController@editTags')->name('images.edit-tags');
                                 Route::patch('images/{image}/tags', 'Image\ImageController@saveTags')->name('images.save-tags');
                                 Route::get('images/start-edit', static function () {
-                                    $image = \App\Models\Rsi\CommLink\Image\Image::query()->inRandomOrder()->limit(1)->firstOrFail();
+                                    $image = Image::query()->inRandomOrder()->limit(1)->firstOrFail();
 
-                                    return redirect(route('web.user.rsi.comm-links.images.edit-tags', $image->getRouteKey()));
+                                    return redirect(route('web.rsi.comm-links.images.edit-tags', $image->getRouteKey()));
                                 })->name('images.start-edit');
                                 Route::get('images/tag-{tag}', 'Image\ImageController@indexByTag')->name('images.index-by-tag');
                                 Route::get('images/{image}', 'Image\ImageController@show')->name('images.show');
