@@ -42,6 +42,10 @@ class ManufacturerController extends AbstractApiV2Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Manufacturer::class, $request)
+            ->select(['name'])
+            ->selectRaw('MAX(`code`) as code')
+            ->groupBy('name')
+            ->orderBy('name')
             ->paginate($this->limit)
             ->appends(request()->query());
 
