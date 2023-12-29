@@ -111,7 +111,7 @@ class CommLinkTransformer extends V1Transformer
             'title' => $commLink->title,
             'rsi_url' => $this->getCommLinkUrl($commLink),
             'api_url' => $this->makeApiUrl(self::COMM_LINKS_SHOW, $commLink->getRouteKey()),
-            'api_public_url' => route('web.api.comm-links.show', $commLink->getRouteKey()),
+            'api_public_url' => route('web.comm-links.show', $commLink->getRouteKey()),
             'channel' => $commLink->channel->name,
             'category' => $commLink->category->name,
             'series' => $commLink->series->name,

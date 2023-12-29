@@ -35,6 +35,10 @@ class User extends Authenticatable
         'settings',
     ];
 
+    protected $withCount = [
+        'changelogs'
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *

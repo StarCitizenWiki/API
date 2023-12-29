@@ -19,7 +19,7 @@ class CommLinkRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::check() && Auth::user()->can('web.user.rsi.comm-links.update');
+        return Auth::check() && Auth::user()->can('web.rsi.comm-links.update');
     }
 
     /**

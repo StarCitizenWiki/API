@@ -78,7 +78,7 @@ class ModelChangelog extends Model
 
         return sprintf(
             '<a href="%s">%s</a>',
-            route('web.user.users.edit', $this->user->getRouteKey()),
+            route('web.users.edit', $this->user->getRouteKey()),
             $this->user->username
         );
     }
@@ -104,7 +104,7 @@ class ModelChangelog extends Model
                 }
 
                 $route = route(
-                    'web.user.starcitizen.vehicles.' . $route . '.edit',
+                    'web.starcitizen.vehicles.' . $route . '.edit',
                     $relation->getRouteKey(),
                 );
                 break;
@@ -114,7 +114,7 @@ class ModelChangelog extends Model
                 $relation = $relation->commLink;
             case CommLink::class:
                 $route = route(
-                    'web.user.rsi.comm-links.show',
+                    'web.rsi.comm-links.show',
                     $relation->getRouteKey(),
                 );
                 break;
@@ -123,42 +123,42 @@ class ModelChangelog extends Model
                 $relation = $relation->manufacturer;
             case Manufacturer::class:
                 $route = route(
-                    'web.user.starcitizen.manufacturers.edit',
+                    'web.starcitizen.manufacturers.edit',
                     $relation->getRouteKey(),
                 );
                 break;
 
             case TypeTranslation::class:
                 $route = route(
-                    'web.user.starcitizen.vehicles.types.edit',
+                    'web.starcitizen.vehicles.types.edit',
                     $relation->type->getRouteKey(),
                 );
                 break;
 
             case SizeTranslation::class:
                 $route = route(
-                    'web.user.starcitizen.vehicles.sizes.edit',
+                    'web.starcitizen.vehicles.sizes.edit',
                     $relation->size->getRouteKey(),
                 );
                 break;
 
             case FocusTranslation::class:
                 $route = route(
-                    'web.user.starcitizen.vehicles.foci.edit',
+                    'web.starcitizen.vehicles.foci.edit',
                     $relation->focus->getRouteKey(),
                 );
                 break;
 
             case ProductionStatusTranslation::class:
                 $route = route(
-                    'web.user.starcitizen.production-statuses.edit',
+                    'web.starcitizen.production-statuses.edit',
                     $relation->productionStatus->getRouteKey(),
                 );
                 break;
 
             case ProductionNoteTranslation::class:
                 $route = route(
-                    'web.user.starcitizen.production-notes.edit',
+                    'web.starcitizen.production-notes.edit',
                     $relation->productionNote->getRouteKey(),
                 );
                 break;
@@ -167,7 +167,7 @@ class ModelChangelog extends Model
                 $relation = $relation->article;
             case Article::class:
                 $route = route(
-                    'web.user.starcitizen.galactapedia.show',
+                    'web.starcitizen.galactapedia.show',
                     $relation->getRouteKey(),
                 );
                 break;

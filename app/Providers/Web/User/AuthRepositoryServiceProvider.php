@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Providers\Web\User;
 
 use App\Contracts\Web\User\AuthRepositoryInterface;
-use App\Repositories\Web\User\AuthRepository;
-use App\Repositories\Web\User\AuthRepositoryStub;
+use App\Repositories\Web\AuthRepository;
+use App\Repositories\Web\AuthRepositoryStub;
 use Illuminate\Support\ServiceProvider;
 
 /**

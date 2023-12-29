@@ -65,7 +65,7 @@ class CommLinkResource extends AbstractBaseResource
             'title' => $this->title,
             'rsi_url' => $this->getCommLinkUrl(),
             'api_url' => $this->makeApiUrl(self::COMM_LINKS_SHOW, $this->getRouteKey()),
-            'api_public_url' => route('web.api.comm-links.show', $this->getRouteKey()),
+            'api_public_url' => route('web.comm-links.show', $this->getRouteKey()),
             'channel' => $this->channel->name,
             'category' => $this->category->name,
             'series' => $this->series->name,

@@ -17,7 +17,7 @@ class TranscriptUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::check() && Auth::user()->can('web.user.transcripts.update');
+        return Auth::check() && Auth::user()->can('web.transcripts.update');
     }
 
     /**

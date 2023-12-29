@@ -95,17 +95,7 @@ class RouteServiceProvider extends ServiceProvider
             ->group(
                 function () {
                     Route::namespace('Web')
-                        ->group(
-                            function () {
-                                Route::name('api.')
-                                    ->namespace('Api')
-                                    ->group(base_path('routes/web/api.php'));
-
-                                Route::name('user.')
-                                    ->namespace('User')
-                                    ->group(base_path('routes/web/user.php'));
-                            }
-                        );
+                        ->group(base_path('routes/web/user.php'));
                 }
             );
     }

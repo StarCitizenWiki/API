@@ -6,18 +6,18 @@ namespace App\Providers;
 
 use App\Models\Account\User\User;
 use App\Models\Account\User\UserGroup;
-use App\Policies\Web\User\Account\AccountPolicy;
-use App\Policies\Web\User\Changelog\ChangelogPolicy;
-use App\Policies\Web\User\DashboardPolicy;
-use App\Policies\Web\User\Job\JobPolicy;
-use App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy;
-use App\Policies\Web\User\Rsi\Stat\StatPolicy;
-use App\Policies\Web\User\StarCitizen\Manufacturer\ManufacturerPolicy;
-use App\Policies\Web\User\StarCitizen\Starmap\StarmapPolicy;
-use App\Policies\Web\User\StarCitizen\Vehicle\VehiclePolicy;
-use App\Policies\Web\User\Transcript\TranscriptPolicy;
-use App\Policies\Web\User\TranslationPolicy;
-use App\Policies\Web\User\User\UserPolicy;
+use App\Policies\Web\Account\AccountPolicy;
+use App\Policies\Web\Changelog\ChangelogPolicy;
+use App\Policies\Web\DashboardPolicy;
+use App\Policies\Web\Job\JobPolicy;
+use App\Policies\Web\Rsi\CommLink\CommLinkPolicy;
+use App\Policies\Web\Rsi\Stat\StatPolicy;
+use App\Policies\Web\StarCitizen\Manufacturer\ManufacturerPolicy;
+use App\Policies\Web\StarCitizen\Starmap\StarmapPolicy;
+use App\Policies\Web\StarCitizen\Vehicle\VehiclePolicy;
+use App\Policies\Web\Transcript\TranscriptPolicy;
+use App\Policies\Web\TranslationPolicy;
+use App\Policies\Web\User\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -43,12 +43,12 @@ class AuthServiceProvider extends ServiceProvider
         /*
          * Admin Gates
          */
-        Gate::resource('web.user.dashboard', DashboardPolicy::class);
-        Gate::resource('web.user.account', AccountPolicy::class);
-        Gate::resource('web.user.translations', TranslationPolicy::class);
-        Gate::resource('web.user.changelogs', ChangelogPolicy::class);
+        Gate::resource('web.dashboard', DashboardPolicy::class);
+        Gate::resource('web.account', AccountPolicy::class);
+        Gate::resource('web.translations', TranslationPolicy::class);
+        Gate::resource('web.changelogs', ChangelogPolicy::class);
         Gate::resource(
-            'web.user.jobs',
+            'web.jobs',
             JobPolicy::class,
             [
                 'upload_csv' => 'uploadCsv',
@@ -73,34 +73,34 @@ class AuthServiceProvider extends ServiceProvider
          * Internals = Datenbank IDs, etc.
          */
         Gate::define(
-            'web.user.internals.view',
+            'web.internals.view',
             static function (User $admin) {
                 return $admin->getHighestPermissionLevel() >= UserGroup::SYSOP;
             }
         );
 
-        Gate::resource('web.user.users', UserPolicy::class);
+        Gate::resource('web.users', UserPolicy::class);
 
         /*
          * Star Citizen
          */
-        Gate::resource('web.user.starcitizen.manufacturers', ManufacturerPolicy::class);
-        Gate::resource('web.user.starcitizen.vehicles', VehiclePolicy::class);
-        Gate::resource('web.user.starcitizen.starmap', StarmapPolicy::class);
+        Gate::resource('web.starcitizen.manufacturers', ManufacturerPolicy::class);
+        Gate::resource('web.starcitizen.vehicles', VehiclePolicy::class);
+        Gate::resource('web.starcitizen.starmap', StarmapPolicy::class);
 
         /*
          * RSI
          */
-        Gate::resource('web.user.rsi.comm-links', CommLinkPolicy::class);
-        Gate::define('web.user.rsi.comm-links.preview', 'App\Policies\Web\User\Rsi\CommLink\CommLinkPolicy@preview');
+        Gate::resource('web.rsi.comm-links', CommLinkPolicy::class);
+        Gate::define('web.rsi.comm-links.preview', 'App\Policies\Web\Rsi\CommLink\CommLinkPolicy@preview');
 
-        Gate::resource('web.user.rsi.stats', StatPolicy::class);
+        Gate::resource('web.rsi.stats', StatPolicy::class);
 
         /*
          * SC
          */
         Gate::define(
-            'web.user.jobs.sc-import',
+            'web.jobs.sc-import',
             static function (User $admin) {
                 return $admin->getHighestPermissionLevel() >= UserGroup::SYSOP;
             }
@@ -110,7 +110,7 @@ class AuthServiceProvider extends ServiceProvider
          * Transcripts
          */
         Gate::resource(
-            'web.user.transcripts',
+            'web.transcripts',
             TranscriptPolicy::class,
             [
                 'index' => 'index',

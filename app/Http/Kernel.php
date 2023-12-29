@@ -12,7 +12,7 @@ use App\Http\Middleware\SetPreferredLocale;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\VerifyCsrfToken;
-use App\Http\Middleware\Web\User\RedirectIfAuthenticated;
+use App\Http\Middleware\Web\RedirectIfAuthenticated;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
