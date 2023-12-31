@@ -11,12 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comm_link_image_hashes', static function (Blueprint $table) {
-            $table->binary('pdq_hash1')->nullable()->after('difference_hash');
-            $table->binary('pdq_hash2')->nullable()->after('pdq_hash1');
-            $table->binary('pdq_hash3')->nullable()->after('pdq_hash2');
-            $table->binary('pdq_hash4')->nullable()->after('pdq_hash3');
-            $table->smallInteger('pdq_quality')->nullable()->after('pdq_hash4');
+        Schema::dropIfExists('comm_link_image_hashes');
+        Schema::create('comm_link_image_hashes', static function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('comm_link_image_id');
+            $table->binary('average_hash');
+            $table->binary('perceptual_hash');
+            $table->binary('difference_hash');
+            $table->binary('pdq_hash1');
+            $table->binary('pdq_hash2');
+            $table->binary('pdq_hash3');
+            $table->binary('pdq_hash4');
+            $table->smallInteger('pdq_quality');
+            $table->timestamps();
+
+            $table->foreign('comm_link_image_id')->references('id')->on('comm_link_images')->onDelete('cascade');
+            $table->unique('comm_link_image_id');
         });
     }
 
@@ -25,12 +35,17 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('comm_link_image_hashes', static function (Blueprint $table) {
-            $table->dropColumn('pdq_hash1');
-            $table->dropColumn('pdq_hash2');
-            $table->dropColumn('pdq_hash3');
-            $table->dropColumn('pdq_hash4');
-            $table->dropColumn('pdq_quality');
+        Schema::dropIfExists('comm_link_image_hashes');
+        Schema::create('comm_link_image_hashes', static function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('comm_link_image_id');
+            $table->binary('average_hash');
+            $table->binary('perceptual_hash');
+            $table->binary('difference_hash');
+            $table->timestamps();
+
+            $table->foreign('comm_link_image_id')->references('id')->on('comm_link_images')->onDelete('cascade');
+            $table->unique('comm_link_image_id');
         });
     }
 };

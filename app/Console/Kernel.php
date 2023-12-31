@@ -139,8 +139,6 @@ class Kernel extends ConsoleKernel
         PopulateData::class,
 
         CopyTranslationData::class,
-
-        ConvertImageHashTable::class,
     ];
 
     /**
