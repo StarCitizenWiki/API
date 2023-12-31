@@ -125,12 +125,6 @@ class VehicleController extends AbstractApiV2Controller
 
         try {
             $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
-                ->whereRelation(
-                    'item',
-                    'version',
-                    'LIKE',
-                    $request->get('version', config('api.sc_data_version')) . '%'
-                )
                 ->where(function (Builder $query) use ($identifier, $underscored) {
                     $query->where('name', $identifier)
                         ->orWhere('class_name', $underscored)
@@ -211,12 +205,6 @@ class VehicleController extends AbstractApiV2Controller
         $underscored = str_replace(' ', '_', $identifier);
 
         $queryBuilder = QueryBuilder::for(UnpackedVehicle::class)
-            ->whereRelation(
-                'item',
-                'version',
-                'LIKE',
-                $request->get('version', config('api.sc_data_version')) . '%'
-            )
             ->where(function (Builder $query) use ($identifier, $underscored) {
                 $query->Where('class_name', 'LIKE', "%{$underscored}")
                     ->orWhere('class_name', $identifier)

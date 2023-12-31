@@ -47,11 +47,6 @@ class ItemController extends AbstractApiV2Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Item::class, $request)
-            ->where(
-                'version',
-                'LIKE',
-                $request->get('version', config('api.sc_data_version')) . '%'
-            )
             ->allowedFilters([
                 'type',
                 'sub_type',
@@ -106,13 +101,11 @@ class ItemController extends AbstractApiV2Controller
 
         try {
             $item = QueryBuilder::for(Item::class, $request)
-                ->where('version', 'LIKE', $request->get('version', config('api.sc_data_version')) . '%')
                 ->where('class_name', 'NOT LIKE', '%test_%')
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
                       ->orWhere('name', $identifier);
                 })
-                ->orderByDesc('version')
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->with([
                     'dimensions',
@@ -200,7 +193,6 @@ class ItemController extends AbstractApiV2Controller
         }
 
         $items = $items
-            ->where('version', 'LIKE', $request->get('version', config('api.sc_data_version')) . '%')
             ->where(function (Builder $query) use ($toSearch) {
                 $query->where('name', 'like', "%{$toSearch}%")
                     ->orWhere('uuid', $toSearch)

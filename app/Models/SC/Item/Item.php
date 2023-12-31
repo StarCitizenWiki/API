@@ -38,6 +38,7 @@ use App\Models\SC\Vehicle\Weapon\VehicleWeapon;
 use App\Models\System\Translation\AbstractHasTranslations as HasTranslations;
 use App\Traits\HasDescriptionDataTrait;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -86,6 +87,18 @@ class Item extends HasTranslations
         'defaultTags',
         'requiredTags',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::addGlobalScope(
+            'version',
+            static function (Builder $builder) {
+                $builder->where('sc_items.version', config('api.sc_data_version'));
+            }
+        );
+    }
 
     public function translations(): HasMany
     {

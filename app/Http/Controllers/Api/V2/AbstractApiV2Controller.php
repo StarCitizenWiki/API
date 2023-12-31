@@ -151,13 +151,13 @@ abstract class AbstractApiV2Controller extends Controller
      */
     private function processLimit(): void
     {
-        if ($this->request->has(self::LIMIT) && null !== $this->request->get(self::LIMIT)) {
-            $itemLimit = (int)$this->request->get(self::LIMIT);
+        if ($this->request->input(self::LIMIT) !== null) {
+            $itemLimit = (int) $this->request->get(self::LIMIT);
 
-            if ($itemLimit > 0) {
+            if ($itemLimit > 500) {
+                $this->limit = 500;
+            } elseif ($itemLimit >= 0) {
                 $this->limit = $itemLimit;
-            } elseif (0 === $itemLimit) {
-                $this->limit = 0;
             }
         }
     }
