@@ -165,7 +165,7 @@ class ImageController extends Controller
     public function editTags(Image $image): View
     {
         return view(
-            'web.rsi.comm_links.tags.edit',
+            'web.rsi.comm_links.images.edit-tags',
             [
                 'tags' => Tag::query()->orderByDesc('name')->get(),
                 'image' => $image,

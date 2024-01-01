@@ -59,7 +59,7 @@ class TagController extends Controller
         $this->authorize('web.rsi.comm-links.view');
 
         return view(
-            'web.rsi.comm_links.tags.edit-tag',
+            'web.rsi.comm_links.tags.edit',
             [
                 'tag' => $tag,
             ]

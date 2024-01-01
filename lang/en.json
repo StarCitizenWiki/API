@@ -241,9 +241,11 @@
   "Monde": "Moons",
   "Montiert": "Mounts",
 
+  "Nächstes Bild": "Next image",
   "Name": "Name",
   "Nein": "No",
   "Neu importierte Comm-Links": "Newly imported Comm-Links",
+  "Neue Tags können durch Tippen in der Auswahl hinzugefügt werden.": "New tags can be added by typing into the input field.",
   "Nicht gefunden": "Not found",
   "Nicht vorhanden": "Not available",
   "Nutzlast": "Payload",
@@ -333,6 +335,7 @@
   "Veröffentlichung": "Publication",
   "Vorhandene Versionen": "Existing versions",
   "Vorheriger": "Previous",
+  "Vorheriges Bild": "Previous image",
   "Vorschau": "Preview",
   "Vorschau Version vom": "Preview version from",
 
@@ -353,6 +356,7 @@
   "zu": "to",
   "Zuletzt geändert": "Last modified",
   "Zurück": "Back",
+  "Zufälliges Bild": "Random image",
 
   "Ähnliche Dateien (alpha)": "Similar files (alpha)",
   "Ähnlich": "Similar",

@@ -252,4 +252,26 @@ SQL,
     {
         return storage_path("app/public/comm_link_images/{$this->dir}/{$this->name}");
     }
+
+    /**
+     * Previous Image
+     */
+    public function getPrevAttribute()
+    {
+        return self::query()->where('id', '<', $this->id)
+            ->whereNull('base_image_id')
+            ->orderBy('id', 'desc')
+            ->first(['id']);
+    }
+
+    /**
+     * Next Image
+     */
+    public function getNextAttribute()
+    {
+        return self::query()->where('id', '>', $this->id)
+            ->whereNull('base_image_id')
+            ->orderBy('id')
+            ->first(['id']);
+    }
 }
