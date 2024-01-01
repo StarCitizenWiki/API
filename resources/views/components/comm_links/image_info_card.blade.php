@@ -84,69 +84,68 @@
             </div>
         </div>
     @endunless
-    @if(@isset($loop))
-        <div class="image-info-card-bottom list-group list-group-flush collapse mt-1"
-             id="comm_link_container_{{ $loop->index }}">
-            @unless($image->tags->isEmpty())
-                <div class="tag-container">
-                    @foreach($image->tags as $tag)
-                        <a class="badge badge-secondary m-0"
-                           href="{{ route('web.rsi.comm-links.images.index-by-tag', $tag->getRouteKey()) }}"
-                           title="{{ $tag->images_count }} @lang('Bilder mit diesem Tag')">
-                            {{ $tag->translated_name }}
-                        </a>
-                    @endforeach
-                </div>
-                <div class="divider"></div>
-            @endunless
-            <ul class="list-unstyled mb-0">
-                <li><a class="url" href="{{ $image->url }}" target="_blank">@lang('Bildquelle')</a></li>
+
+    <div class="image-info-card-bottom list-group list-group-flush collapse mt-1"
+         id="comm_link_container_@php if(isset($loop))echo $loop->index;@endphp">
+        @unless($image->tags->isEmpty())
+            <div class="tag-container">
+                @foreach($image->tags as $tag)
+                    <a class="badge badge-secondary m-0"
+                       href="{{ route('web.rsi.comm-links.images.index-by-tag', $tag->getRouteKey()) }}"
+                       title="{{ $tag->images_count }} @lang('Bilder mit diesem Tag')">
+                        {{ $tag->translated_name }}
+                    </a>
+                @endforeach
+            </div>
+            <div class="divider"></div>
+        @endunless
+        <ul class="list-unstyled mb-0">
+            <li><a class="url" href="{{ $image->url }}" target="_blank">@lang('Bildquelle')</a></li>
+            <li><a class="url"
+                   href="{{ route('web.rsi.comm-links.images.show', $image->getRouteKey()) }}">@lang('Dateiinfo')</a>
+            </li>
+            @if(Str::contains($image->metadata->mime, 'image') || Str::contains($image->metadata->mime, 'video'))
                 <li><a class="url"
-                       href="{{ route('web.rsi.comm-links.images.show', $image->getRouteKey()) }}">@lang('Dateiinfo')</a>
+                       href="{{ route('web.rsi.comm-links.images.similar', $image->getRouteKey()) }}">@lang('Ähnliche Dateien (alpha)')</a>
                 </li>
-                @if(Str::contains($image->metadata->mime, 'image') || Str::contains($image->metadata->mime, 'video'))
-                    <li><a class="url"
-                           href="{{ route('web.rsi.comm-links.images.similar', $image->getRouteKey()) }}">@lang('Ähnliche Dateien (alpha)')</a>
-                    </li>
-                @endif
-            </ul>
-            @unless($image->duplicates->isEmpty())
-                <div class="divider"></div>
-                <div>
-                    <p>@lang('Duplikate')</p>
-                    <ul class="list-unstyled mb-0">
-                        @foreach($image->duplicates as $duplicate)
-                            <li><a class="url"
-                                   href="{{ route('web.rsi.comm-links.images.show', $duplicate->getRouteKey()) }}">{{ $duplicate->name }}</a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endunless
-            @unless(empty($image->commLinks))
-                <div class="divider"></div>
-                <p>@lang('Comm-Links'):</p>
+            @endif
+        </ul>
+        @unless($image->duplicates->isEmpty())
+            <div class="divider"></div>
+            <div>
+                <p>@lang('Duplikate')</p>
                 <ul class="list-unstyled mb-0">
-                    @foreach($image->commLinks->sortByDesc('cig_id')->take(5) as $commLink)
-                        <li>
-                            <a class="url" href="{{ route('web.rsi.comm-links.show', $commLink->getRouteKey()) }}"
-                               class="card-link">{{ $commLink->cig_id }} - {{ $commLink->title }}
-                            </a>
+                    @foreach($image->duplicates as $duplicate)
+                        <li><a class="url"
+                               href="{{ route('web.rsi.comm-links.images.show', $duplicate->getRouteKey()) }}">{{ $duplicate->name }}</a>
                         </li>
                     @endforeach
-                    @if($image->commLinks->count() > 5)
-                        <li>@lang('Verwendet in') <b>{{ $image->commLinks->count() }}</b> @lang('Comm-Links')</li>
-                    @endif
                 </ul>
-            @endunless
-        </div>
+            </div>
+        @endunless
+        @unless(empty($image->commLinks))
+            <div class="divider"></div>
+            <p>@lang('Comm-Links'):</p>
+            <ul class="list-unstyled mb-0">
+                @foreach($image->commLinks->sortByDesc('cig_id')->take(5) as $commLink)
+                    <li>
+                        <a class="url" href="{{ route('web.rsi.comm-links.show', $commLink->getRouteKey()) }}"
+                           class="card-link">{{ $commLink->cig_id }} - {{ $commLink->title }}
+                        </a>
+                    </li>
+                @endforeach
+                @if($image->commLinks->count() > 5)
+                    <li>@lang('Verwendet in') <b>{{ $image->commLinks->count() }}</b> @lang('Comm-Links')</li>
+                @endif
+            </ul>
+        @endunless
+    </div>
 
-        <div class="card-footer">
-            <a class="btn btn-block btn-secondary mt-1" data-toggle="collapse"
-               href="#comm_link_container_{{ $loop->index }}" role="button"
-               aria-expanded="false" aria-controls="comm_link_container_{{ $loop->index }}">
-                @lang('Zeige mehr Infos')
-            </a>
-        </div>
-    @endif
+    <div class="card-footer">
+        <a class="btn btn-block btn-secondary mt-1" data-toggle="collapse"
+           href="#comm_link_container_@php if(isset($loop))echo $loop->index;@endphp" role="button"
+           aria-expanded="false" aria-controls="comm_link_container_@php if(isset($loop))echo $loop->index;@endphp">
+            @lang('Zeige mehr Infos')
+        </a>
+    </div>
 </div>

@@ -4,16 +4,16 @@
 
 @section('content')
     <div class="d-flex mb-3 nav-bar justify-content-between">
-        @unless($image->prev === null)
-            <a href="{{ route('web.rsi.comm-links.images.edit-tags', $image->prev) }}" class="btn btn-outline-secondary d-block">@lang('Vorheriges Bild')</a>
-        @else
-            <a href="#" class="btn btn-outline-secondary disabled d-block">@lang('Vorheriges Bild')</a>
-        @endunless
-        <a href="{{ route('web.rsi.comm-links.images.start-edit') }}" class="btn btn-secondary d-block">@lang('Zufälliges Bild')</a>
         @unless($image->next === null)
             <a href="{{ route('web.rsi.comm-links.images.edit-tags', $image->next) }}" class="btn btn-outline-secondary d-block">@lang('Nächstes Bild')</a>
         @else
             <a href="#" class="btn btn-outline-secondary disabled d-block">@lang('Nächstes Bild')</a>
+        @endunless
+        <a href="{{ route('web.rsi.comm-links.images.start-edit') }}" class="btn btn-secondary d-block">@lang('Zufälliges Bild')</a>
+        @unless($image->prev === null)
+            <a href="{{ route('web.rsi.comm-links.images.edit-tags', $image->prev) }}" class="btn btn-outline-secondary d-block">@lang('Vorheriges Bild')</a>
+        @else
+            <a href="#" class="btn btn-outline-secondary disabled d-block">@lang('Vorheriges Bild')</a>
         @endunless
     </div>
 
@@ -25,7 +25,7 @@
         @include('components.errors')
         <div class="row">
             <div class="col-12 col-md-7">
-                @include('components.comm_links.image_info_card', ['image' => $image, 'noFooter' => true])
+                @include('components.comm_links.image_info_card', ['image' => $image])
             </div>
             <div class="col-12 col-md-5 d-flex align-content-stretch flex-column">
                 <button type="submit" class="btn btn-block btn-primary mb-3">@lang('Speichern')</button>
