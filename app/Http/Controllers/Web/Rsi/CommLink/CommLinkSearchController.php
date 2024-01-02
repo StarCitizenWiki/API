@@ -9,10 +9,10 @@ use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\CommLinkTranslation;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -97,39 +97,35 @@ class CommLinkSearchController extends Controller
     }
 
     /**
-     * Search for images based on text content of the comm-link
+     * Search for comm-links based on the relevance of the input
      *
      * @param CommLinkSearchRequest $request
      *
      * @return Application|Factory|View
      */
-    public function imageTextSearchPost(CommLinkSearchRequest $request)
+    public function textSearchPost(CommLinkSearchRequest $request)
     {
         $this->middleware('auth');
         $data = $request->validated();
 
-        $data = $data['query'] ?? $data['keyword'];
+        $data = $data['query'];
 
-        $images = CommLink::query()
-            ->whereHas('translations', function (Builder $query) use ($data) {
-                return $query->where('translation', 'LIKE', sprintf('%%%s%%', $data));
+        $links = CommLink::query()
+            ->whereRelation('translations', function ($query) use ($data) {
+                $query->whereFullText('translation', $data);
             })
-            ->orderByDesc('created_at')
-            ->get()
-            ->flatMap(function (CommLink $commLink) {
-                return $commLink->images;
-            })
-            ->unique('url');
+            ->limit(50)
+            ->get();
 
-        if ($images->isEmpty()) {
-            return $this->handleSearchResult($images, 'web.rsi.comm_links.images.index');
+        if ($links->isEmpty()) {
+            return $this->handleSearchResult($links, 'web.rsi.comm_links.index');
         }
 
         return view(
-            'web.rsi.comm_links.images.index',
+            'web.rsi.comm_links.index',
             [
-                'images' => $images,
-                'keyword' => $data,
+                'commLinks' => $links,
+                'relevanceSorted' => true,
             ]
         );
     }

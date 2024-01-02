@@ -20,7 +20,13 @@
             @endunless
         </div>
         <div class="card-body px-0 table-responsive">
-            <table class="table table-striped mb-0" data-order='[[ 0, "desc" ]]' data-page-length="50" data-length-menu='[ [25, 50, 100, -1], [25, 50, 100, "@lang('Alle')"] ]'>
+            <table class="table table-striped mb-0"
+                   @unless(isset($relevanceSorted))
+                       data-order='[[ 0, "desc" ]]'
+                   @else
+                       data-order=''
+                   @endif
+                   data-page-length="50" data-length-menu='[ [25, 50, 100, -1], [25, 50, 100, "@lang('Alle')"] ]'>
                 <thead>
                     <tr>
                         @can('web.internals.view')

@@ -231,8 +231,8 @@ Route::group(
                                 Route::get('search', 'CommLinkSearchController@search')->name('search');
                                 Route::post('reverse-image-link-search', 'CommLinkSearchController@reverseImageLinkSearchPost')->name('reverse-image-link-search.post');
                                 Route::post('reverse-image-search', 'CommLinkSearchController@reverseImageSearchPost')->name('reverse-image-search.post');
-                                Route::post('image-text-search', 'CommLinkSearchController@imageTextSearchPost')->name('image-text-search.post');
 
+                                Route::post('text-search', 'CommLinkSearchController@textSearchPost')->name('text-search.post');
                                 Route::post('search', 'CommLinkSearchController@searchByTitle')->name('search-by-title.post');
                             }
                         );

@@ -43,7 +43,8 @@ class TranslateCommLinks extends CommLinkCommand
             $this->info('Including all Comm-Links');
         }
 
-        TranslateCommLinksJob::dispatch($this->filterDirectories('comm_links', $modifiedTime)->toArray());;
+        TranslateCommLinksJob::dispatch($this->filterDirectories('comm_links', $modifiedTime)->toArray());
+        ;
 
         return CommLinkCommand::SUCCESS;
     }

@@ -23,7 +23,33 @@
 
     @include('components.errors')
 
-    <div id="cl-live-search"><comm-link-live-search api-token="{{ $apiToken }}"></comm-link-live-search></div>
+
+    <div class="card-deck">
+        <div id="cl-live-search"><comm-link-live-search api-token="{{ $apiToken }}"></comm-link-live-search></div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <h4>
+                    {{ __('Suche nach Comm-Link Inhalt') }}
+                </h4>
+            </div>
+            <div class="card-body">
+                @component('components.forms.form', [
+                    'action' => route('web.rsi.comm-links.text-search.post'),
+                    'class' => 'd-flex h-100 flex-column',
+                ])
+                    @component('components.forms.form-group', [
+                        'inputType' => 'text',
+                        'label' => __('Inhalt'),
+                        'id' => 'query',
+                    ])
+                    @endcomponent
+
+                    <button class="btn btn-block btn-outline-secondary mt-auto">@lang('Suche')</button>
+                @endcomponent
+            </div>
+        </div>
+    </div>
 
     <div class="card-deck">
         <div class="card mb-3">
