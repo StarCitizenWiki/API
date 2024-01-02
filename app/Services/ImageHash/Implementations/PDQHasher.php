@@ -577,23 +577,23 @@ class PDQHasher
     static function readImageFromFilename($filename, $downsample_first, $fromString)
     {
         if ($fromString) {
-            $orig_image = imagecreatefromstring($filename);
+            $orig_image = @imagecreatefromstring($filename);
         } elseif (substr_compare($filename, '.jpg', -strlen('.jpg'), null, true) === 0) {
-            $orig_image = imagecreatefromjpeg($filename);
+            $orig_image = @imagecreatefromjpeg($filename);
             if ($orig_image === false) {
                 $orig_image = @imagecreatefrompng($filename);
             }
         } elseif (substr_compare($filename, '.jpeg', -strlen('.jpeg'), null, true) === 0) {
-            $orig_image = imagecreatefromjpeg($filename);
+            $orig_image = @imagecreatefromjpeg($filename);
         } elseif (substr_compare($filename, '.png', -strlen('.png'), null, true) === 0) {
             $orig_image = @imagecreatefrompng($filename);
             if ($orig_image === false) {
-                $orig_image = imagecreatefromjpeg($filename);
+                $orig_image = @imagecreatefromjpeg($filename);
             }
         } elseif (substr_compare($filename, '.gif', -strlen('.gif'), null, true) === 0) {
-            $orig_image = imagecreatefromgif($filename);
+            $orig_image = @imagecreatefromgif($filename);
         } elseif (substr_compare($filename, '.webp', -strlen('.webp'), null, true) === 0) {
-            $orig_image = imagecreatefromwebp($filename);
+            $orig_image = @imagecreatefromwebp($filename);
         } else {
             throw new Exception('PDQHasher: could not handle filetype of ' . $filename);
         }
@@ -606,7 +606,7 @@ class PDQHasher
             $orig_height = imagesy($orig_image);
             $orig_width = imagesx($orig_image);
             if ($orig_height > 128 || $orig_width > 128) {
-                $image = imagecreatetruecolor(128, 128);
+                $image = @imagecreatetruecolor(128, 128);
                 imagecopyresampled($image, $orig_image, 0, 0, 0, 0, 128, 128, $orig_width, $orig_height);
             } else {
                 $image = $orig_image;
