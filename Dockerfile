@@ -115,7 +115,7 @@ COPY --from=extensions /usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d
 COPY --from=extensions /usr/local/lib/php/extensions/no-debug-non-zts-20220829/*.so /usr/local/lib/php/extensions/no-debug-non-zts-20220829/
 
 RUN sed -i -e "s/extension=zip.so/;extension=zip.so/" /usr/local/etc/php/conf.d/docker-php-ext-zip.ini && \
-    echo 'memory_limit = 512M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
+    echo 'memory_limit = 1G' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini && \
     echo 'max_execution_time = 60' >> /usr/local/etc/php/conf.d/docker-php-executiontime.ini
 
 COPY --chown=www-data:www-data --chmod=770 ./docker/schedule.sh /usr/local/bin/schedule
