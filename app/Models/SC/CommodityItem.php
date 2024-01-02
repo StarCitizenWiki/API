@@ -32,7 +32,7 @@ abstract class CommodityItem extends HasTranslations
 
     public function getNameAttribute()
     {
-        return $this->item->name;
+        return $this->item?->name;
     }
 
     public function getVersionAttribute()

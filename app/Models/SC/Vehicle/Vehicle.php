@@ -125,6 +125,18 @@ class Vehicle extends CommodityItem
 
     protected $perPage = 5;
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::addGlobalScope(
+            'has_item',
+            static function (Builder $builder) {
+                $builder->whereHas('item');
+            }
+        );
+    }
+
     public function getCleanNameAttribute()
     {
         return trim(str_replace($this->manufacturer->code, '', $this->name));
