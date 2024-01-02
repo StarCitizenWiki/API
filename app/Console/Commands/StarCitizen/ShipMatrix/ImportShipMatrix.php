@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\StarCitizen\ShipMatrix\Import;
+namespace App\Console\Commands\StarCitizen\ShipMatrix;
 
 use App\Jobs\StarCitizen\Vehicle\Import\ImportShipMatrix as ImportShipMatrixJob;
 use Illuminate\Console\Command;

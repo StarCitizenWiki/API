@@ -33,6 +33,6 @@ class CreateCommLinkWikiTranslationPages extends Command
 
         \App\Jobs\Wiki\CommLink\CreateCommLinkWikiTranslationPages::dispatch();
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

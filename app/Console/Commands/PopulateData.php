@@ -36,11 +36,13 @@ class PopulateData extends AbstractQueueCommand
         $this->bar->advance();
 
         if (!$this->option('skipCommLinks')) {
+            $this->info('Downloading and importing all missing Comm-Links.');
             Artisan::call('comm-links:schedule');
         }
         $this->bar->advance();
 
         if (!$this->option('skipGalactapedia')) {
+            $this->info('Downloading and importing all Galactapedia articles.');
             Artisan::call('galactapedia:import-categories');
             Artisan::call('galactapedia:import-articles');
             Artisan::call('galactapedia:import-properties');
@@ -51,13 +53,14 @@ class PopulateData extends AbstractQueueCommand
         $this->bar->advance();
 
         if (!$this->option('skipStarmap')) {
+            $this->info('Downloading and importing starmap.');
             Artisan::call('starmap:download --import');
         }
         $this->bar->advance();
 
         if (!$this->option('skipScUnpacked')) {
+            $this->info('Importing all Star Citizen Items.');
             Artisan::call('sc:import-items');
-            Artisan::call('sc:import-shops');
         }
         $this->bar->finish();
 

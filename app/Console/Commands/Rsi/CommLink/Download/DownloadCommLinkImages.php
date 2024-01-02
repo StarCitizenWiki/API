@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\Rsi\CommLink\Download\Image;
+namespace App\Console\Commands\Rsi\CommLink\Download;
 
 use App\Jobs\Rsi\CommLink\Download\Image\DownloadCommLinkImage;
 use App\Jobs\Rsi\CommLink\Download\Image\DownloadCommLinkImages as DownloadCommLinkImagesJob;
@@ -36,8 +36,8 @@ class DownloadCommLinkImages extends Command
      */
     public function handle(): int
     {
-        dispatch(new DownloadCommLinkImagesJob());
+        DownloadCommLinkImagesJob::dispatch();
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

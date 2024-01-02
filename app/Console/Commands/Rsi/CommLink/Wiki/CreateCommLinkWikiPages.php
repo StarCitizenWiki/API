@@ -31,8 +31,8 @@ class CreateCommLinkWikiPages extends Command
     {
         $this->info('Dispatching Comm-Link Wiki Page Creation');
 
-        dispatch(new \App\Jobs\Wiki\CommLink\CreateCommLinkWikiPages());
+        \App\Jobs\Wiki\CommLink\CreateCommLinkWikiPages::dispatch();
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

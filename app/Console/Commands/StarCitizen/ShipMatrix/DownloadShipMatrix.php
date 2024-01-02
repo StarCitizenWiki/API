@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\StarCitizen\ShipMatrix\Download;
+namespace App\Console\Commands\StarCitizen\ShipMatrix;
 
 use App\Jobs\StarCitizen\Vehicle\CheckShipMatrixStructure;
 use App\Jobs\StarCitizen\Vehicle\DownloadShipMatrix as DownloadShipMatrixJob;

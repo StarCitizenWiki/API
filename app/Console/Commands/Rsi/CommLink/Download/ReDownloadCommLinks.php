@@ -48,6 +48,6 @@ class ReDownloadCommLinks extends Command
             ]
         )->onQueue('redownload_comm_links')->dispatch($skip);
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

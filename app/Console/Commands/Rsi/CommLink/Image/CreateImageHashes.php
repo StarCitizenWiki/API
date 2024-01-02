@@ -53,7 +53,7 @@ class CreateImageHashes extends QueueCommand
 
         $this->finishBar();
 
-        return 0;
+        return QueueCommand::SUCCESS;
     }
 
     /**

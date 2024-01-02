@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\StarCitizen\Stat\Import;
+namespace App\Console\Commands\StarCitizen\Stat;
 
 use App\Jobs\StarCitizen\Stat\Import\ImportStat;
 use Illuminate\Bus\Dispatcher;

@@ -45,7 +45,7 @@ class CreateImageMetadata extends QueueCommand
             function (Collection $images) {
                 $images->each(
                     function (Image $image) {
-                        dispatch(new CreateImageMetadatum($image));
+                        CreateImageMetadatum::dispatch($image);
                         $this->advanceBar();
                     }
                 );
@@ -54,6 +54,6 @@ class CreateImageMetadata extends QueueCommand
 
         $this->finishBar();
 
-        return 0;
+        return QueueCommand::SUCCESS;
     }
 }

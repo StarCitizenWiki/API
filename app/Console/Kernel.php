@@ -4,40 +4,19 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use App\Console\Commands\ConvertImageHashTable;
-use App\Console\Commands\CopyTranslationData;
-use App\Console\Commands\FixChangelogNamespaces;
 use App\Console\Commands\PopulateData;
 use App\Console\Commands\Rsi\CommLink\CommLinkSchedule;
 use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLink;
-use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLinks;
-use App\Console\Commands\Rsi\CommLink\Download\Image\DownloadCommLinkImages;
+use App\Console\Commands\Rsi\CommLink\Download\DownloadCommLinkImages;
 use App\Console\Commands\Rsi\CommLink\Download\ReDownloadCommLinks;
 use App\Console\Commands\Rsi\CommLink\Image\ComputeSimilarImageIds;
 use App\Console\Commands\Rsi\CommLink\Image\CreateImageHashes;
 use App\Console\Commands\Rsi\CommLink\Image\CreateImageMetadata;
 use App\Console\Commands\Rsi\CommLink\Image\SyncImageIds;
-use App\Console\Commands\Rsi\CommLink\Import\ImportCommLink;
-use App\Console\Commands\Rsi\CommLink\Import\ImportCommLinks;
-use App\Console\Commands\Rsi\CommLink\Translate\TranslateCommLinks;
+use App\Console\Commands\Rsi\CommLink\ImportCommLink;
+use App\Console\Commands\Rsi\CommLink\TranslateCommLinks;
 use App\Console\Commands\Rsi\CommLink\Wiki\CreateCommLinkWikiPages;
 use App\Console\Commands\Rsi\CommLink\Wiki\CreateCommLinkWikiTranslationPages;
-use App\Console\Commands\StarCitizen\Galactapedia\ImportArticleProperties;
-use App\Console\Commands\StarCitizen\Galactapedia\ImportArticles;
-use App\Console\Commands\StarCitizen\Galactapedia\ImportCategories;
-use App\Console\Commands\StarCitizen\Galactapedia\TranslateArticles;
-use App\Console\Commands\StarCitizen\Galactapedia\Wiki\ApproveArticles;
-use App\Console\Commands\StarCitizen\Galactapedia\Wiki\CreateWikiPages;
-use App\Console\Commands\StarCitizen\Galactapedia\Wiki\UploadImages;
-use App\Console\Commands\StarCitizen\ShipMatrix\Download\DownloadShipMatrix;
-use App\Console\Commands\StarCitizen\ShipMatrix\Import\ImportShipMatrix;
-use App\Console\Commands\StarCitizen\Starmap\Download\DownloadStarmap;
-use App\Console\Commands\StarCitizen\Starmap\Import\ImportStarmap;
-use App\Console\Commands\StarCitizen\Starmap\Translate\TranslateSystems;
-use App\Console\Commands\StarCitizen\Stat\Download\DownloadStats;
-use App\Console\Commands\StarCitizen\Stat\Import\ImportStats;
-use App\Console\Commands\StarCitizen\Vehicle\ImportLoaner;
-use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Console\Commands\SC\ImportClothing;
 use App\Console\Commands\SC\ImportItems;
 use App\Console\Commands\SC\ImportPersonalWeapons;
@@ -53,6 +32,22 @@ use App\Console\Commands\SC\Wiki\CreateShipItemWikiPages;
 use App\Console\Commands\SC\Wiki\CreateWeaponAttachmentWikiPages;
 use App\Console\Commands\SC\Wiki\CreateWeaponWikiPages;
 use App\Console\Commands\SC\Wiki\UploadItemImages;
+use App\Console\Commands\StarCitizen\Galactapedia\ImportArticleProperties;
+use App\Console\Commands\StarCitizen\Galactapedia\ImportArticles;
+use App\Console\Commands\StarCitizen\Galactapedia\ImportCategories;
+use App\Console\Commands\StarCitizen\Galactapedia\TranslateArticles;
+use App\Console\Commands\StarCitizen\Galactapedia\Wiki\ApproveArticles;
+use App\Console\Commands\StarCitizen\Galactapedia\Wiki\CreateWikiPages;
+use App\Console\Commands\StarCitizen\Galactapedia\Wiki\UploadImages;
+use App\Console\Commands\StarCitizen\ShipMatrix\DownloadShipMatrix;
+use App\Console\Commands\StarCitizen\ShipMatrix\ImportShipMatrix;
+use App\Console\Commands\StarCitizen\Starmap\DownloadStarmap;
+use App\Console\Commands\StarCitizen\Starmap\ImportStarmap;
+use App\Console\Commands\StarCitizen\Starmap\TranslateSystems;
+use App\Console\Commands\StarCitizen\Stat\DownloadStats;
+use App\Console\Commands\StarCitizen\Stat\ImportStats;
+use App\Console\Commands\StarCitizen\Vehicle\ImportLoaner;
+use App\Console\Commands\StarCitizen\Vehicle\ImportMsrp;
 use App\Console\Commands\Transcript\ImportMetadata;
 use App\Console\Commands\Transcript\TranslateTranscripts;
 use App\Events\Rsi\CommLink\CommLinksChanged as CommLinksChangedEvent;
@@ -81,12 +76,10 @@ class Kernel extends ConsoleKernel
         DownloadStats::class,
         ImportStats::class,
 
-        ImportCommLinks::class,
         ImportCommLink::class,
         CommLinkSchedule::class,
 
         DownloadCommLink::class,
-        DownloadCommLinks::class,
         ReDownloadCommLinks::class,
         DownloadCommLinkImages::class,
 
@@ -115,8 +108,6 @@ class Kernel extends ConsoleKernel
         ApproveArticles::class,
         UploadImages::class,
 
-        FixChangelogNamespaces::class,
-
         ImportItems::class,
         ImportVehicles::class,
         ImportShops::class,
@@ -137,8 +128,6 @@ class Kernel extends ConsoleKernel
 
 
         PopulateData::class,
-
-        CopyTranslationData::class,
     ];
 
     /**

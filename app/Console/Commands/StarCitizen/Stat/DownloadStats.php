@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\StarCitizen\Stat\Download;
+namespace App\Console\Commands\StarCitizen\Stat;
 
 use App\Jobs\StarCitizen\Stat\DownloadStats as DownloadStatsJob;
 use App\Jobs\StarCitizen\Stat\Import\ImportStat;

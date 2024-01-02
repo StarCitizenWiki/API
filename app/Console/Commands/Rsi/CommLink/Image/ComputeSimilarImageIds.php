@@ -25,7 +25,7 @@ class ComputeSimilarImageIds extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         Image::query()
             ->whereNull('base_image_id')
@@ -45,5 +45,7 @@ class ComputeSimilarImageIds extends Command
                     \App\Jobs\Rsi\CommLink\Image\ComputeSimilarImageIds::dispatch($image)->onQueue('comm_link_images');
                 });
             });
+
+        return Command::SUCCESS;
     }
 }

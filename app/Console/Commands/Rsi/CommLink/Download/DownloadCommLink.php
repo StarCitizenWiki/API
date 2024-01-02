@@ -58,7 +58,7 @@ class DownloadCommLink extends CommLinkCommand
      */
     public function handle(): int
     {
-        $minId = collect($this->argument('id'))->filter(
+        collect($this->argument('id'))->filter(
             static function ($id) {
                 return is_numeric($id);
             }
@@ -85,27 +85,24 @@ class DownloadCommLink extends CommLinkCommand
                     $this->dispatcher->dispatch(new DownloadCommLinkJob($id, $skipExisting));
                     $this->advanceBar();
                 }
-            )
-            ->min();
+            );
 
         $this->finishBar();
 
         if ($this->option('import') === true) {
-            $this->dispatchImportJob((int)$minId);
+            $this->dispatchImportJob();
         }
 
-        return 0;
+        return CommLinkCommand::SUCCESS;
     }
 
     /**
      * Import jobs to run after downloading comm link files
-     *
-     * @param int $minId
      */
-    private function dispatchImportJob(int $minId): void
+    private function dispatchImportJob(): void
     {
         $this->info("\nImporting Comm-Links");
-        $this->dispatcher->dispatch(new ImportCommLinks($minId));
+        $this->dispatcher->dispatch(new ImportCommLinks(30));
         $this->dispatcher->dispatch(new CreateImageMetadata());
         $this->dispatcher->dispatch(new CreateImageHashes());
     }

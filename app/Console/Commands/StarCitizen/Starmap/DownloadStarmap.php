@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\StarCitizen\Starmap\Download;
+namespace App\Console\Commands\StarCitizen\Starmap;
 
 use App\Jobs\StarCitizen\Starmap\Download\DownloadStarmap as DownloadStarmapJob;
 use App\Jobs\StarCitizen\Starmap\Import\ImportStarmap;

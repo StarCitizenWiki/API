@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\StarCitizen\Starmap\Translate;
+namespace App\Console\Commands\StarCitizen\Starmap;
 
 use App\Console\Commands\AbstractQueueCommand as QueueCommand;
 

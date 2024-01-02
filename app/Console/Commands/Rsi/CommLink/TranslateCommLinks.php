@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\Rsi\CommLink\Translate;
+namespace App\Console\Commands\Rsi\CommLink;
 
 use App\Console\Commands\Rsi\CommLink\AbstractCommLinkCommand as CommLinkCommand;
 use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks as TranslateCommLinksJob;
@@ -43,8 +43,8 @@ class TranslateCommLinks extends CommLinkCommand
             $this->info('Including all Comm-Links');
         }
 
-        dispatch(new TranslateCommLinksJob($this->filterDirectories('comm_links', $modifiedTime)->toArray()));
+        TranslateCommLinksJob::dispatch($this->filterDirectories('comm_links', $modifiedTime)->toArray());;
 
-        return 0;
+        return CommLinkCommand::SUCCESS;
     }
 }

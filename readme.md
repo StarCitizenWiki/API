@@ -2,7 +2,7 @@
 <img src="https://star-citizen.wiki/thumb.php?f=Star_Citizen_Wiki_Logo.png&width=300" alt="Star Citizen Wiki Logo" />
 </p>
 <p align="center">
-    <img src="https://img.shields.io/github/actions/workflow/status/StarCitizenWiki/API/phpunit.yml" />
+    <img src="https://img.shields.io/github/actions/workflow/status/StarCitizenWiki/API/docker-dev.yml" />
     <a href="https://hub.docker.com/r/scwiki/api" alt="Docker Hub">
         <img src="https://img.shields.io/docker/pulls/scwiki/api" />
     </a>
@@ -66,9 +66,6 @@ MAIL_FROM_NAME=
 MAIL_USERNAME=
 MAIL_PASSWORD=
 
-# Max 10.000 Requests in one Second
-THROTTLE_GUEST_REQUESTS=10000
-THROTTLE_PERIOD=1
 
 #WIKI_URL=https://star-citizen.wiki
 #WIKI_API_URL=https://star-citizen.wiki/api.php
@@ -92,10 +89,6 @@ WIKI_TRANS_LOCALE=
 DEEPL_AUTH_KEY=
 # Target language of DeepL Translations Default: DE
 DEEPL_TARGET_LOCALE=
-
-# User account on RSI // Login currently BROKEN due to recaptcha
-RSI_USERNAME=
-RSI_PASSWORD=
 
 SC_DATA_VERSION=3.13
 
@@ -187,7 +180,22 @@ All available commands can be listed by calling `php artisan`.
 
 To get help for a specific command call `php artisan help COMMAND`.
 
+### Importing _all_ data
+To import all and everything you can run:
+```shell
+php artisan data:populate
+```
+
+This command will import _everything_ but will take multiple hours to days.  
+You can alternatively skip some parts using the following options:
+- `--skipCommLinks`
+- `--skipGalactapedia`
+- `--skipStarmap`
+- `--skipScUnpacked`
+
 ### Comm-Links
+All Comm-Link commands require that the database is seeded using `php artisan db:seed`!
+
 #### Import missing Comm-Links
 Inside the container execute
 ```shell script
@@ -199,7 +207,7 @@ The import command can be safely stopped by `Ctrl+C`.
 Comm-Links should be accessible through `API_URL/api/comm-links`.
 
 #### Import downloaded Comm-Links  
-Downloaded Comm-Links can be imported by calling `php artisan comm-links:import-all`.  
+Downloaded Comm-Links can be imported by calling `php artisan comm-links:import --all`.  
 This command will dispatch parsing jobs for every downloaded Comm-Link found in `storage/app/comm_links`.
 
 #### Download specific Comm-Links
@@ -216,6 +224,8 @@ Jobs are dispatched on the `comm_link_images` queue. This queue needs to be call
 #### Create Comm-Link Image metadata
 Command: `php artisan comm-links:images-create-metadata`.  
 Requests the following metadata for each image: `size`, `mime_type`, `last_modified`.
+
+Without the image metadata no images will be shown on the image index view.
 
 #### Create Comm-Link Image hashes
 Command: `php artisan comm-links:images-create-hashes`.  
@@ -249,6 +259,12 @@ php artisan galactapedia:import-properties
 ```
 
 Articles should be accessible through `API_URL/api/galactapedia`
+
+### In-Game Items / Vehicles
+To import the data found in the scunpacked folder run:
+```shell
+php artisan sc:import-items
+```
 
 ### Schedule
 The schedule container specified in `docker-compose` will run the following commands:

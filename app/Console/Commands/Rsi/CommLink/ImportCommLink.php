@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands\Rsi\CommLink\Import;
+namespace App\Console\Commands\Rsi\CommLink;
 
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink as ImportCommLinkJob;
+use App\Jobs\Rsi\CommLink\Import\ImportCommLinks as ImportCommLinksJob;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,14 +20,14 @@ class ImportCommLink extends Command
      *
      * @var string
      */
-    protected $signature = 'comm-links:import {id : Comm-Link ID starting at 12663}';
+    protected $signature = 'comm-links:import {id? : Comm-Link ID starting at 12663} {--all : Import all downloaded Comm-Links}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Re-Import a single downloaded Comm-Link';
+    protected $description = 'Import a single or all Comm-Links. Downloads single Comm-Link if missing.';
 
     /**
      * Execute the console command.
@@ -35,6 +36,17 @@ class ImportCommLink extends Command
      */
     public function handle(): int
     {
+        if ($this->hasOption('all')) {
+            ImportCommLinksJob::dispatch(-1);
+            return Command::SUCCESS;
+        }
+
+        if (!$this->hasArgument('id')) {
+            $this->error('Missing Comm-Link ID argument.');
+
+            return Command::FAILURE;
+        }
+
         $id = (int)$this->argument('id');
 
         try {
@@ -49,13 +61,13 @@ class ImportCommLink extends Command
         if (count(Storage::disk('comm_links')->files($id)) === 0) {
             $this->error('Comm-Link does not exist on \'comm_links\' disk.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $file = basename(Arr::last(Storage::disk('comm_links')->files($id)));
 
         dispatch(new ImportCommLinkJob($id, $file, $commLink, true));
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

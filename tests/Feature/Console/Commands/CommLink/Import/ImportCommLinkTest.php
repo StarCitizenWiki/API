@@ -21,9 +21,18 @@ class ImportCommLinkTest extends TestCase
      */
     public function testHandleMissingId(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->artisan('comm-links:import')->assertExitCode(1);
+    }
 
-        $this->artisan('comm-links:import');
+    /**
+     * A basic feature test example.
+     *
+     * @return void
+     */
+    public function testHandleAllOption(): void
+    {
+        Bus::fake();
+        $this->artisan('comm-links:import --all')->assertExitCode(0);
     }
 
     /**

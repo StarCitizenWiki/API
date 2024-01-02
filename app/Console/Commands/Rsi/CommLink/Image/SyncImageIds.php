@@ -24,23 +24,6 @@ class SyncImageIds extends CommLinkCommand
     protected $description = 'Re-Parse all local Comm-Links and sync the images';
 
     /**
-     * @var Dispatcher
-     */
-    private Dispatcher $dispatcher;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param Dispatcher $dispatcher
-     */
-    public function __construct(Dispatcher $dispatcher)
-    {
-        parent::__construct();
-
-        $this->dispatcher = $dispatcher;
-    }
-
-    /**
      * Execute the console command.
      *
      * @return int
@@ -53,8 +36,8 @@ class SyncImageIds extends CommLinkCommand
 
         $this->info("Starting at Comm-Link ID {$offset}");
 
-        $this->dispatcher->dispatch(new \App\Jobs\Rsi\CommLink\SyncImageIds($offset));
+        \App\Jobs\Rsi\CommLink\SyncImageIds::dispatch($offset);
 
-        return 0;
+        return CommLinkCommand::SUCCESS;
     }
 }

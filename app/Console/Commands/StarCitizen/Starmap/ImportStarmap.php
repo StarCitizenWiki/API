@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\StarCitizen\Starmap\Import;
+namespace App\Console\Commands\StarCitizen\Starmap;
 
 use App\Jobs\StarCitizen\Starmap\Import\ImportStarmap as ImportStarmapJob;
 use Illuminate\Console\Command;
