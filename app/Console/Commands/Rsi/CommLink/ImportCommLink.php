@@ -36,12 +36,12 @@ class ImportCommLink extends Command
      */
     public function handle(): int
     {
-        if ($this->hasOption('all')) {
+        if ($this->option('all') === true) {
             ImportCommLinksJob::dispatch(-1);
             return Command::SUCCESS;
         }
 
-        if (!$this->hasArgument('id')) {
+        if ($this->argument('id') === null) {
             $this->error('Missing Comm-Link ID argument.');
 
             return Command::FAILURE;
