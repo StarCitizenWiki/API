@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
-use stdClass;
 
 /**
  * Class DashboardController.
@@ -66,20 +65,18 @@ class DashboardController extends Controller
         $today = Carbon::today()->toDateString();
 
         return [
-            'overall' => User::all()->count(),
+            'overall' => User::query()->count(),
             'last' => User::query()->take(5)->orderBy('created_at', 'desc')->get(),
             'registrations' => [
                 'counts' => [
                     'last_hour' => User::query()->whereDate('created_at', '>', Carbon::now()->subHour())->count(),
                     'today' => User::query()->whereDate('created_at', '=', $today)->get()->count(),
-                    'overall' => User::all()->count(),
                 ],
             ],
             'logins' => [
                 'counts' => [
                     'last_hour' => User::query()->whereDate('last_login', '>', Carbon::now()->subHour())->count(),
                     'today' => User::query()->whereDate('last_login', '=', $today)->get()->count(),
-                    'overall' => User::all()->count(),
                 ],
             ],
         ];
@@ -97,6 +94,9 @@ class DashboardController extends Controller
         }
 
         try {
+            if (empty(config('services.deeplauth_key'))) {
+                throw new Exception();
+            }
             $deeplUsage = DeepLyFacade::getUsage()->getResponse();
         } catch (Exception $e) {
             $deeplUsage = [
@@ -146,18 +146,13 @@ class DashboardController extends Controller
      */
     private function getQueueStats(): array
     {
-        $jobs = DB::table('jobs')->get();
+        $jobs = DB::table('jobs')->count();
+        $jobsActive = DB::table('jobs')->whereNull('reserved_at')->count();
         $jobsFailed = DB::table('failed_jobs')->count();
 
-        $active = $jobs->filter(
-            static function (stdClass $job) {
-                return null !== $job->reserved_at;
-            }
-        );
-
         return [
-            'all' => number_format($jobs->count(), 0, ',', '.'),
-            'active' => number_format($active->count(), 0, ',', '.'),
+            'all' => number_format($jobs, 0, ',', '.'),
+            'active' => number_format($jobsActive, 0, ',', '.'),
             'failed' => number_format($jobsFailed, 0, ',', '.'),
         ];
     }
