@@ -17,8 +17,10 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use JsonException;
 
@@ -70,6 +72,10 @@ class ImageController extends Controller
             );
         }
 
+        if (!Auth::check()) {
+            $query->whereHas('commLinks');
+        }
+
         return view(
             'web.rsi.comm_links.images.index',
             [
@@ -109,10 +115,14 @@ class ImageController extends Controller
      */
     public function show(Image $image)
     {
+        if (!Auth::check() && $image->commLinks()->count() === 0) {
+            throw new ModelNotFoundException();
+        }
+
         return view(
             'web.rsi.comm_links.images.show',
             [
-                'image' => $image
+                'image' => $image,
             ]
         );
     }
@@ -131,9 +141,7 @@ class ImageController extends Controller
 
         $params = $request->validated();
 
-        $uploader = new UploadWikiImage();
-
-        return $uploader->uploadCommLinkImage($params);
+        return (new UploadWikiImage())->uploadCommLinkImage($params);
     }
 
     /**

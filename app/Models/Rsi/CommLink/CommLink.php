@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Comm-Link
@@ -58,6 +59,25 @@ class CommLink extends HasTranslations
     protected $casts = [
         'cig_id' => 'int',
     ];
+
+    /**
+     * Hide Subscriber Comm-Links from anons
+     *
+     * @return void
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::addGlobalScope(
+            'limit_subscriber',
+            static function (Builder $builder) {
+                if (!Auth::check()) {
+                    $builder->whereRelation('channel', 'name', '!=', 'Subscriber');
+                }
+            }
+        );
+    }
 
     /**
      * {@inheritdoc}
