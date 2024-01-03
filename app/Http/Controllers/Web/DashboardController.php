@@ -94,7 +94,7 @@ class DashboardController extends Controller
         }
 
         try {
-            if (empty(config('services.deeplauth_key'))) {
+            if (empty(config('services.deepl.auth_key'))) {
                 throw new Exception();
             }
             $deeplUsage = DeepLyFacade::getUsage()->getResponse();
