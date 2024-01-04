@@ -66,15 +66,27 @@
 
             $('#mime').select2({
                 closeOnSelect: false,
+                sorter: (entries) => entries.sort((a, b) => a.text.localeCompare(b.text))
             });
             $('#mime').on('select2:close', function(e) {
+                const selected = e.target.selectedOptions;
+                if (selected.length === 0 || (selected[0]?.value ?? '') === '') {
+                    return;
+                }
+
                 document.getElementById('metaForm').submit();
             });
 
             $('#tag').select2({
                 closeOnSelect: false,
+                sorter: (entries) => entries.sort((a, b) => a.text.localeCompare(b.text))
             });
             $('#tag').on('select2:close', function(e) {
+                const selected = e.target.selectedOptions;
+                if (selected.length === 0 || (selected[0]?.value ?? '') === '') {
+                    return;
+                }
+
                 document.getElementById('metaForm').submit();
             });
 

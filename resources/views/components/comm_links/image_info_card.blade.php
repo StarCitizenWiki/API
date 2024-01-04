@@ -34,7 +34,9 @@
             <source src="{{ $image->url }}" type="{{ $image->metadata->mime }}">
         </audio>
     @else
-        <p class="card-img-top m-0 pt-2">{{ $image->name }}</p>
+        <a href="{{ $image->url }}" target="_blank">
+            <p class="card-img-top m-0 pt-2 text-center">{{ $image->name }}</p>
+        </a>
     @endif
     @unless(isset($noFooter))
         <div class="card-body">

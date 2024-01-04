@@ -20,7 +20,6 @@
     @component('components.forms.form', [
         'method' => 'PATCH',
         'action' => route('web.rsi.comm-links.images.save-tags', $image->getRouteKey()),
-        'class' => '',
     ])
         @include('components.errors')
         <div class="row">
@@ -51,7 +50,8 @@
             $('#tags').select2({
                 allowClear: true,
                 closeOnSelect: false,
-                tags: true
+                tags: true,
+                sorter: (entries) => entries.sort((a, b) => a.text.localeCompare(b.text))
             });
 
             $('#tags').select2('open');

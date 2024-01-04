@@ -175,7 +175,7 @@ class ImageController extends Controller
         return view(
             'web.rsi.comm_links.images.edit-tags',
             [
-                'tags' => Tag::query()->orderByDesc('name')->get(),
+                'tags' => Tag::query()->orderBy('name')->get(),
                 'image' => $image,
                 'image_tags' => $image->tags->map(fn(Tag $tag) => $tag->name),
             ]
