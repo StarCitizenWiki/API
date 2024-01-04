@@ -212,10 +212,8 @@ class Kernel extends ConsoleKernel
 
         /* Download Comm-Link Images */
         if (config('schedule.comm_links.download_local') === true) {
-            $this->schedule->job(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
+            $this->schedule->command(DownloadCommLinkImages::class)->daily()->withoutOverlapping();
         }
-
-        $this->schedule->job(ComputeSimilarImageIds::class)->weekly()->withoutOverlapping();
 
         /* Update Proof Read Status */
         $this->schedule

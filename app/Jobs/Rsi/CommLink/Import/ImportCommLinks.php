@@ -16,6 +16,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -99,5 +100,7 @@ class ImportCommLinks implements ShouldQueue
         if ($clientNotNull && $apiUrlNotNull) {
             dispatch(new CreateCommLinkWikiPages())->delay(90);
         }
+
+        Artisan::call('comm-links:compute-similar-image-ids --recent');
     }
 }
