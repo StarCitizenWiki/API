@@ -4,6 +4,7 @@ namespace App\Console\Commands\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\Image\Image;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class ComputeSimilarImageIds extends Command
@@ -13,7 +14,7 @@ class ComputeSimilarImageIds extends Command
      *
      * @var string
      */
-    protected $signature = 'comm-links:compute-similar-image-ids';
+    protected $signature = 'comm-links:compute-similar-image-ids {--recent : Only compute for images created in the last week}';
 
     /**
      * The console command description.
@@ -27,13 +28,18 @@ class ComputeSimilarImageIds extends Command
      */
     public function handle(): int
     {
-        Image::query()
+        $images = Image::query()
             ->whereNull('base_image_id')
             //->whereRelation('metadata', 'size', '>=', 250 * 1024)
             ->with([
                 'metadata' => fn($query) => $query->orderBy('size', 'DESC'),
-            ])
-            ->orderBy('created_at')
+            ]);
+
+        if ($this->option('recent') === true) {
+            $images->where('created_at', '>=', Carbon::now()->subWeek());
+        }
+
+        $images->orderBy('created_at')
             ->chunk(25, function (Collection $images) {
                 $images->each(function (Image $image) {
                     $image->refresh();
