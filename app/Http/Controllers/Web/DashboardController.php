@@ -147,7 +147,7 @@ class DashboardController extends Controller
     private function getQueueStats(): array
     {
         $jobs = DB::table('jobs')->count();
-        $jobsActive = DB::table('jobs')->whereNull('reserved_at')->count();
+        $jobsActive = DB::table('jobs')->whereNotNull('reserved_at')->count();
         $jobsFailed = DB::table('failed_jobs')->count();
 
         return [
