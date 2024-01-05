@@ -262,6 +262,8 @@ SQL,
     {
         return self::query()->where('id', '<', $this->id)
             ->whereNull('base_image_id')
+            ->whereHas('metadata')
+            ->whereHas('commLinks')
             ->orderBy('id', 'desc')
             ->first(['id']);
     }
@@ -273,6 +275,8 @@ SQL,
     {
         return self::query()->where('id', '>', $this->id)
             ->whereNull('base_image_id')
+            ->whereHas('metadata')
+            ->whereHas('commLinks')
             ->orderBy('id')
             ->first(['id']);
     }

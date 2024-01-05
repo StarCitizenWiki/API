@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink\Content;
 
+use App\Services\Parser\CommLink\Content\Traits\GBannerAdvancedExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GExploreExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GGridExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GIntroductionExtractorTrait;
@@ -16,6 +17,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
     use GTumbrilFeaturesExtractorrait;
     use GExploreExtractorTrait;
     use GGridExtractorTrait;
+    use GBannerAdvancedExtractorTrait;
 
     private Crawler $page;
 
@@ -33,6 +35,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
         $content .= $this->getTumbrilFeatures($this->page);
         $content .= $this->getExplore($this->page);
         $content .= $this->getGrid($this->page);
+        $content .= $this->getBannerAdvancedContent($this->page);
 
         $this->page->filter(self::getFilter())->each(
             function (Crawler $crawler) use (&$content) {
