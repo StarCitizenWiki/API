@@ -61,6 +61,8 @@ class ImageController extends Controller
                     return $query->whereIn('mime', $mimes);
                 }
             );
+        } else {
+            $query->whereHas('metadata');
         }
 
         if (!empty($tags)) {
