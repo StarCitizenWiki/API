@@ -8,6 +8,7 @@ use App\Services\Parser\CommLink\Content\Traits\GBannerAdvancedExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GExploreExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GGridExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GIntroductionExtractorTrait;
+use App\Services\Parser\CommLink\Content\Traits\GSkusExtractorTrait;
 use App\Services\Parser\CommLink\Content\Traits\GTumbrilFeaturesExtractorrait;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -18,6 +19,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
     use GExploreExtractorTrait;
     use GGridExtractorTrait;
     use GBannerAdvancedExtractorTrait;
+    use GSkusExtractorTrait;
 
     private Crawler $page;
 
@@ -36,6 +38,10 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
         $content .= $this->getExplore($this->page);
         $content .= $this->getGrid($this->page);
         $content .= $this->getBannerAdvancedContent($this->page);
+        $content .= $this->getSkusContent($this->page);
+
+        $vue = new VueArticleExtractor($this->page);
+        $content .= $vue->getContent();
 
         $this->page->filter(self::getFilter())->each(
             function (Crawler $crawler) use (&$content) {

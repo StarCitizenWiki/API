@@ -10,9 +10,10 @@ use Symfony\Component\DomCrawler\Crawler;
 trait GBannerAdvancedExtractorTrait
 {
     /**
-     * Extract <g-banner-advanced> content
+     * Extract <g-banner-advanced> and <g-skus> content
      *
      * @param Crawler $page
+     *
      * @return string
      */
     public function getBannerAdvancedContent(Crawler $page): string

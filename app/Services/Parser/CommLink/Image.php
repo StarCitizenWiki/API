@@ -167,7 +167,7 @@ class Image extends BaseElement
             'g-feature' => $defaultImageElements,
             'g-trailer' => $defaultImageElements,
             'g-slideshow' => ':pictures',
-            'g-banner-advanced' => ':content',
+            'g-banner-advanced' => [':content', ':media'],
         ];
 
         foreach ($elements as $path => $attr) {
@@ -190,8 +190,12 @@ class Image extends BaseElement
                                 continue;
                             }
 
-                            if ($path === 'g-banner-advanced' && isset($images['logo']['picture'])) {
-                                $images = $images['logo']['picture'];
+                            if ($path === 'g-banner-advanced') {
+                                if ($attr === ':content' && isset($images['logo']['picture'])) {
+                                    $images = $images['logo']['picture'];
+                                } elseif ($attr === ':media' && isset($images['background']['picture'])) {
+                                    $images = $images['background']['picture'];
+                                }
                             }
 
                             if (!is_array($images)) {
