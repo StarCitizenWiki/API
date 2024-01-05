@@ -21,9 +21,13 @@ final class VueArticleExtractor implements ContentExtractorInterface
     /**
      * {@inheritDoc}
      */
-    public function getContent(): string
+    public function getContent(bool $withIntroduction = true): string
     {
-        $content = $this->getIntroduction($this->page);
+        $content = '';
+
+        if ($withIntroduction) {
+            $content = $this->getIntroduction($this->page);
+        }
 
         $this->page->filterXPath(self::getFilter())->each(
             function (Crawler $crawler) use (&$content) {

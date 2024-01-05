@@ -41,7 +41,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
         $content .= $this->getSkusContent($this->page);
 
         $vue = new VueArticleExtractor($this->page);
-        $content .= $vue->getContent();
+        $content .= $vue->getContent(false);
 
         $this->page->filter(self::getFilter())->each(
             function (Crawler $crawler) use (&$content) {
