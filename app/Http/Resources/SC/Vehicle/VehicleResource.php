@@ -193,6 +193,11 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'skus',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/vehicle_sku')
+        ),
+        new OA\Property(
             property: 'manufacturer',
             properties: [
                 new OA\Property(property: 'code', type: 'string'),
@@ -444,6 +449,7 @@ class VehicleResource extends AbstractBaseResource
             'acceleration.y_axis',
             'acceleration.z_axis',
             'loaner',
+            'skus',
         ];
 
         foreach ($toAdd as $key) {

@@ -95,6 +95,11 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'skus',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/vehicle_sku')
+        ),
+        new OA\Property(
             property: 'manufacturer',
             properties: [
                 new OA\Property(property: 'code', type: 'string'),
@@ -182,6 +187,7 @@ class VehicleResource extends AbstractBaseResource
             $this->mergeWhen($this->pledge_url !== null, [
                 'pledge_url' => sprintf('https://robertsspaceindustries.com%s', $this->pledge_url),
             ]),
+            'skus' => VehicleSkuResource::collection($this->skus),
 
             'manufacturer' => [
                 'code' => $this->manufacturer->name_short,

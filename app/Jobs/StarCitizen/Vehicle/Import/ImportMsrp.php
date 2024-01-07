@@ -36,6 +36,12 @@ class ImportMsrp extends AbstractRSIDownloadData implements ShouldQueue
       name
       msrp
       link
+      skus {
+        id
+        title
+        available
+        price
+      }
     }
 }
 QUERY;
@@ -58,15 +64,32 @@ QUERY;
         collect($response->json('data.ships', []))
             ->each(
                 function (array $vehicle) {
+                    /** @var Vehicle $model */
                     $model = Vehicle::query()->where('cig_id', $vehicle['id'])->first();
 
-                    if ($model !== null && $vehicle['msrp'] !== null) {
+                    if ($model === null) {
+                        return;
+                    }
+
+                    if ($vehicle['msrp'] !== null) {
                         $model->update(
                             [
                                 'msrp' => substr($vehicle['msrp'], 0, -2),
                                 'pledge_url' => $vehicle['link'],
                             ]
                         );
+                    }
+
+                    if (!empty($vehicle['skus'])) {
+                        collect($vehicle['skus'])->each(function (array $sku) use ($model) {
+                            $model->skus()->updateOrCreate([
+                                'cig_id' => $sku['id'],
+                            ], [
+                                'title' => $sku['title'],
+                                'price' => substr($sku['price'], 0, -2),
+                                'available' => $sku['available'],
+                            ]);
+                        });
                     }
                 }
             );

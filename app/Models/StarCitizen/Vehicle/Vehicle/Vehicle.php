@@ -114,6 +114,14 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
     }
 
     /**
+     * @return HasMany
+     */
+    public function skus()
+    {
+        return $this->hasMany(VehicleSku::class);
+    }
+
+    /**
      * @return HasManyThrough
      */
     public function translationChangelogs(): HasManyThrough
