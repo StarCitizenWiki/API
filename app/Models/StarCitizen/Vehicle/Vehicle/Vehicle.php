@@ -53,6 +53,7 @@ class Vehicle extends HasTranslations implements HasChangelogsInterface
         'y_axis_acceleration',
         'z_axis_acceleration',
         'msrp',
+        'pledge_url',
         'chassis_id',
         'updated_at',
     ];

@@ -89,6 +89,12 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'pledge_url',
+            description: 'Link to RSI Pledge Store',
+            type: 'string',
+            nullable: true
+        ),
+        new OA\Property(
             property: 'manufacturer',
             properties: [
                 new OA\Property(property: 'code', type: 'string'),
@@ -173,6 +179,10 @@ class VehicleResource extends AbstractBaseResource
             'description' => TranslationResourceFactory::getTranslationResource($request, $this),
             'size' => TranslationResourceFactory::getTranslationResource($request, $this->size),
             'msrp' => $this->msrp,
+            $this->mergeWhen($this->pledge_url !== null, [
+                'pledge_url' => sprintf('https://robertsspaceindustries.com%s', $this->pledge_url),
+            ]),
+
             'manufacturer' => [
                 'code' => $this->manufacturer->name_short,
                 'name' => $this->manufacturer->name,

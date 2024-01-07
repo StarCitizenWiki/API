@@ -187,6 +187,12 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'pledge_url',
+            description: 'Link to RSI Pledge Store',
+            type: 'string',
+            nullable: true
+        ),
+        new OA\Property(
             property: 'manufacturer',
             properties: [
                 new OA\Property(property: 'code', type: 'string'),
@@ -432,6 +438,7 @@ class VehicleResource extends AbstractBaseResource
             'description',
             'size',
             'msrp',
+            'pledge_url',
             'components',
             'acceleration.x_axis',
             'acceleration.y_axis',

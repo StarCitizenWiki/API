@@ -35,6 +35,7 @@ class ImportMsrp extends AbstractRSIDownloadData implements ShouldQueue
       id
       name
       msrp
+      link
     }
 }
 QUERY;
@@ -63,6 +64,7 @@ QUERY;
                         $model->update(
                             [
                                 'msrp' => substr($vehicle['msrp'], 0, -2),
+                                'pledge_url' => $vehicle['link'],
                             ]
                         );
                     }
