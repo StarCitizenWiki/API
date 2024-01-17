@@ -101,7 +101,7 @@ class PersonalWeapon extends Item
             PersonalWeaponAmmunitionDamage::class,
             PersonalWeaponAmmunition::class,
             'item_uuid',
-            'id',
+            'ammunition_id',
             'uuid',
             'id',
         );
