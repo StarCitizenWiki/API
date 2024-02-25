@@ -9,6 +9,7 @@ use App\Models\StarCitizen\Starmap\CelestialObject\CelestialObjectTranslation;
 use App\Models\StarCitizen\Starmap\Starsystem\StarsystemTranslation;
 use App\Models\System\Language;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -31,6 +32,7 @@ abstract class AbstractTranslationResource extends AbstractBaseResource
 {
     protected function getTranslation($model, Request $request, $translationKey = 'translation')
     {
+        /** @var Collection $translations */
         $translations = $model->translationsCollection();
 
         $locale = $request->get('locale');
@@ -38,7 +40,7 @@ abstract class AbstractTranslationResource extends AbstractBaseResource
             return $this->getSingleTranslation($translations, $request->get('locale'), $translationKey);
         }
 
-        return $translations->map(
+        $translations = $translations->map(
             function ($translation) use ($translationKey, $translations) {
                 if ($translation instanceof Language) {
                     return $this->getSingleTranslation($translations, 'en_EN', $translationKey);
@@ -51,6 +53,8 @@ abstract class AbstractTranslationResource extends AbstractBaseResource
                 return !empty($translations);
             }
         );
+
+        return $translations->isEmpty() ? null : $translations;
     }
 
     private function getSingleTranslation($translations, string $locale, $translationKey = 'translation'): ?string
