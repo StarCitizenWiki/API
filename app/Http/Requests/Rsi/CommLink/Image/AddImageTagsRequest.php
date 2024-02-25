@@ -29,7 +29,7 @@ class AddImageTagsRequest extends FormRequest
     {
         return [
             'tags' => [
-                'required',
+                'nullable',
                 'array',
             ],
         ];
