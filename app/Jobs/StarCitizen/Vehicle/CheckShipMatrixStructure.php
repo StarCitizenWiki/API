@@ -23,40 +23,31 @@ use RuntimeException;
 class CheckShipMatrixStructure implements ShouldQueue
 {
     use Dispatchable;
+    use GetNewestShipMatrixFilename;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetNewestShipMatrixFilename;
 
     private ?string $shipMatrix = null;
+
     private $groundTruth;
-
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        try {
-            $this->shipMatrix = $this->getNewestShipMatrixFilename();
-
-            $this->groundTruth = File::get(storage_path('framework/testing/shipmatrix/aurora_es.json'));
-
-            $this->groundTruth = collect(json_decode($this->groundTruth, true, 512, JSON_THROW_ON_ERROR));
-        } catch (FileNotFoundException | RuntimeException | JsonException $e) {
-            $this->fail($e);
-        }
-    }
 
     /**
      * Execute the job.
      *
-     * @return void
      * @throws JsonException
      */
     public function handle(): void
     {
+        try {
+            $this->shipMatrix = $this->getNewestShipMatrixFilename();
+            $this->groundTruth = File::get(storage_path('framework/testing/shipmatrix/aurora_es.json'));
+
+            $this->groundTruth = collect(json_decode($this->groundTruth, true, 512, JSON_THROW_ON_ERROR));
+        } catch (FileNotFoundException|RuntimeException|JsonException $e) {
+            $this->fail($e);
+        }
+
         $vehicles = json_decode(Storage::disk('vehicles')->get($this->shipMatrix), true, 512, JSON_THROW_ON_ERROR);
 
         $diff = $this->groundTruth->diffKeys($vehicles[0]);
@@ -67,7 +58,7 @@ class CheckShipMatrixStructure implements ShouldQueue
             app('Log')::error('Ship Matrix structure changed, aborting job. Missing keys:', $keys->toArray());
             ShipMatrixStructureChanged::dispatch();
 
-            $this->fail('Ship Matrix structure changed. Missing keys: ' . $keys->implode(', '));
+            $this->fail('Ship Matrix structure changed. Missing keys: '.$keys->implode(', '));
         }
     }
 }
