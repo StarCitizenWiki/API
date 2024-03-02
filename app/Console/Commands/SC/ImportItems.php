@@ -6,7 +6,6 @@ namespace App\Console\Commands\SC;
 
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\SC\Import\ItemSpecificationCreator;
-use App\Jobs\SC\Import\Vehicle;
 use App\Services\Parser\SC\Item;
 use App\Services\Parser\SC\Labels;
 use App\Services\Parser\SC\Manufacturers;
@@ -42,7 +41,6 @@ class ImportItems extends AbstractQueueCommand
     /**
      * Execute the console command.
      *
-     * @return int
      * @throws FileNotFoundException
      * @throws JsonException
      */
@@ -51,19 +49,18 @@ class ImportItems extends AbstractQueueCommand
         $labels = (new Labels())->getData();
         $manufacturers = (new Manufacturers())->getData();
 
-
         $files = File::allFiles(scdata('items')) + Storage::allFiles(scdata('ships'));
 
         if ($this->option('skipItems') === false) {
             collect($files)
                 ->filter(function (string $file) {
-                    return !str_contains($file, '-raw.json');
+                    return ! str_contains($file, '-raw.json');
                 })
                 ->tap(function (Collection $chunks) {
                     $this->info(sprintf(
                         'Importing %d items in chunks of 25 (%d).',
                         $chunks->count(),
-                        (int)($chunks->count() / 25)
+                        (int) ($chunks->count() / 25)
                     ));
                 })
                 ->chunk(25)
@@ -76,7 +73,7 @@ class ImportItems extends AbstractQueueCommand
                     $chunk->map(function (string $file) use ($labels, $manufacturers) {
                         return [
                             'file' => $file,
-                            'item' => (new Item($file, $labels, $manufacturers))->getData()
+                            'item' => (new Item($file, $labels, $manufacturers))->getData(),
                         ];
                     })
                         ->filter(function (array $data) {
@@ -84,10 +81,11 @@ class ImportItems extends AbstractQueueCommand
                         })
                         ->filter(function (array $data) {
                             $item = $data['item'];
-                            return isset($item['name']) && !in_array($item['name'], $this->ignoredNames, true);
+
+                            return isset($item['name']) && ! in_array($item['name'], $this->ignoredNames, true);
                         })
                         ->filter(function (array $data) {
-                            if (!$this->option('type') !== null) {
+                            if (! $this->option('type') !== null) {
                                 return true;
                             }
 
@@ -102,7 +100,7 @@ class ImportItems extends AbstractQueueCommand
                             \App\Jobs\SC\Import\Item::dispatch($data['item']);
 
                             return [
-                                'item' =>  $data['item'],
+                                'item' => $data['item'],
                                 'file' => $data['file'],
                             ];
                         })
@@ -118,7 +116,10 @@ class ImportItems extends AbstractQueueCommand
             Artisan::call('sc:import-vehicles');
         }
 
-        $this->info('Done. You can import shop items by running sc:import-shops');
+        Artisan::call('sc:compute-item-base-ids');
+
+        $this->info('Done.');
+
         return Command::SUCCESS;
     }
 }

@@ -40,15 +40,16 @@ use App\Traits\HasDescriptionDataTrait;
 use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Item extends HasTranslations
 {
-    use ModelChangelog;
-    use HasFactory;
     use HasDescriptionDataTrait;
+    use HasFactory;
+    use ModelChangelog;
 
     protected $table = 'sc_items';
 
@@ -67,6 +68,7 @@ class Item extends HasTranslations
         'size',
         'class_name',
         'mass',
+        'base_id',
         'version',
     ];
 
@@ -167,20 +169,20 @@ class Item extends HasTranslations
             case $this->type === 'Bottle':
                 return $this->hasOne(Food::class, 'item_uuid', 'uuid')->withDefault();
 
-            /**
-             * Armor
-             */
+                /**
+                 * Armor
+                 */
             case str_contains($this->type, 'Char_Armor'):
                 return $this->hasOne(Armor::class, 'uuid', 'uuid')->withDefault();
-            /**
-             * Char Clothing
-             */
+                /**
+                 * Char Clothing
+                 */
             case str_contains($this->type, 'Char_Clothing'):
                 return $this->hasOne(Clothes::class, 'uuid', 'uuid')->withDefault();
 
-            /**
-             * Personal Weapons
-             */
+                /**
+                 * Personal Weapons
+                 */
             case str_contains($this->type, 'WeaponPersonal'):
                 if ($this->sub_type === 'Grenade') {
                     return $this->hasOne(Grenade::class, 'item_uuid', 'uuid')->withDefault();
@@ -203,15 +205,15 @@ class Item extends HasTranslations
                 }
                 break;
 
-            /**
-             * Vehicles
-             */
+                /**
+                 * Vehicles
+                 */
             case str_contains($this->type, 'Vehicle'):
                 return $this->hasOne(Vehicle::class, 'item_uuid', 'uuid')->withDefault();
 
-            /**
-             * Ship Items
-             */
+                /**
+                 * Ship Items
+                 */
             case $this->type === 'Armor':
                 return $this->hasOne(\App\Models\SC\ItemSpecification\Armor::class, 'item_uuid', 'uuid')->withDefault();
 
@@ -265,9 +267,9 @@ class Item extends HasTranslations
             case $this->type === 'TractorBeam':
                 return $this->hasOne(TractorBeam::class, 'item_uuid', 'uuid')->withDefault();
 
-//
-//            case $this->type === 'Radar':
-//                return $this->hasOne(Radar::class, 'uuid', 'uuid')->withDefault();
+                //
+                //            case $this->type === 'Radar':
+                //                return $this->hasOne(Radar::class, 'uuid', 'uuid')->withDefault();
 
             case $this->type === 'WeaponMining':
                 return $this->hasOne(MiningLaser::class, 'item_uuid', 'uuid')->withDefault();
@@ -416,5 +418,16 @@ class Item extends HasTranslations
             'item_id',
             'interaction_id'
         );
+    }
+
+    public function baseVariant(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'base_id', 'id');
+
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(self::class, 'base_id', 'id');
     }
 }
