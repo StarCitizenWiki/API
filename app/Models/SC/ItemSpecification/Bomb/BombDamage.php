@@ -14,7 +14,7 @@ class BombDamage extends Model
     protected $table = 'sc_item_bomb_damages';
 
     protected $fillable = [
-        'missile_id',
+        'bomb_id',
         'type',
         'name',
         'damage',

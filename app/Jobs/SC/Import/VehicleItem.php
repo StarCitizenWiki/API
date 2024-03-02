@@ -437,7 +437,7 @@ class VehicleItem implements ShouldQueue
         if (isset($item['bomb']['damages'])) {
             foreach ($item['bomb']['damages'] as $name => $damage) {
                 $bomb->damages()->updateOrCreate([
-                    'missile_id' => $bomb->id,
+                    'bomb_id' => $bomb->id,
                     'name' => $name,
                 ], [
                     'damage' => $damage,

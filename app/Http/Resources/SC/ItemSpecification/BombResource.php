@@ -45,7 +45,7 @@ class BombResource extends AbstractBaseResource
             'explosion_safety_distance' => $this->explosion_safety_distance,
             'explosion_radius_min' => $this->explosion_radius_min,
             'explosion_radius_max' => $this->explosion_radius_max,
-            'damage' => $this->damage_total ?? 0,
+            'damage' => $this->damage ?? 0,
             'damages' => WeaponDamageResource::collection($this->whenLoaded('damages')),
         ];
     }

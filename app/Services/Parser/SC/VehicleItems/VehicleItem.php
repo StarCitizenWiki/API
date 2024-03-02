@@ -60,6 +60,7 @@ final class VehicleItem extends AbstractCommodityItem
         );
 
         $mappedItem['armor'] = Armor::getData($item);
+        $mappedItem['bomb'] = Bomb::getData($item);
         $mappedItem['cargo_grid'] = CargoGrid::getData($item);
         $mappedItem['cooler'] = Cooler::getData($item);
         $mappedItem['counter_measure'] = CounterMeasure::getData($item);

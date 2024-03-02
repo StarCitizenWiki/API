@@ -23,6 +23,9 @@ final class Bomb extends AbstractItemSpecification
             'collision_delay_time' => Arr::get($data, 'collisionDelayTime'),
             'explosion_safety_distance' => Arr::get($data, 'explosionSafetyDistance'),
 
+            'explosion_radius_min' => Arr::get($data, 'explosionParams.minRadius'),
+            'explosion_radius_max' => Arr::get($data, 'explosionParams.maxRadius'),
+
             'damages' => array_filter([
                 'physical' => Arr::get($data, 'explosionParams.damage.0.DamagePhysical'),
                 'energy' => Arr::get($data, 'explosionParams.damage.0.DamageEnergy'),
