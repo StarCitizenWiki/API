@@ -26,7 +26,7 @@ class FuelTankResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         return [
             'fill_rate' => $this->fill_rate,

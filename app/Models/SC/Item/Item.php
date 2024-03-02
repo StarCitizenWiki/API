@@ -244,6 +244,7 @@ class Item extends HasTranslations
                 return $this->hasOne(Shield::class, 'item_uuid', 'uuid')->withDefault();
 
             case $this->type === 'FuelTank':
+            case $this->type === 'ExternalFuelTank':
             case $this->type === 'QuantumFuelTank':
                 return $this->hasOne(FuelTank::class, 'item_uuid', 'uuid')->withDefault();
 
