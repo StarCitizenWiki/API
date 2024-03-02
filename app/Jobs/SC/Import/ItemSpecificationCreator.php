@@ -46,6 +46,7 @@ final class ItemSpecificationCreator
             case stripos($type, 'Arm') !== false:
             case stripos($type, 'Armor') !== false:
             case stripos($type, 'Battery') !== false:
+            case stripos($type, 'Bomb') !== false:
             case stripos($type, 'Cooler') !== false:
             case stripos($type, 'EMP') !== false:
             case stripos($type, 'ExternalFuelTank') !== false:

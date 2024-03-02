@@ -236,6 +236,10 @@ class ItemResource extends AbstractTranslationResource
                 $specification->exists,
                 ['emp' => new ArmorResource($specification)],
             ],
+            $this->type === 'Bomb' => [
+                $specification->exists,
+                ['bomb' => new BombResource($specification)],
+            ],
             $this->type === 'EMP' => [
                 $specification->exists,
                 ['emp' => new EmpResource($specification)],

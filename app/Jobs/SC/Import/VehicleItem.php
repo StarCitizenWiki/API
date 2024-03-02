@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\SC\Import;
 
 use App\Models\SC\ItemSpecification\Armor;
+use App\Models\SC\ItemSpecification\Bomb\Bomb;
 use App\Models\SC\ItemSpecification\Cooler;
 use App\Models\SC\ItemSpecification\Emp;
 use App\Models\SC\ItemSpecification\FlightController;
@@ -49,8 +50,6 @@ class VehicleItem implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -58,8 +57,9 @@ class VehicleItem implements ShouldQueue
 
         try {
             $parser = new \App\Services\Parser\SC\VehicleItems\VehicleItem($this->filePath, $labels);
-        } catch (FileNotFoundException | JsonException $e) {
+        } catch (FileNotFoundException|JsonException $e) {
             $this->fail($e);
+
             return;
         }
 
@@ -74,12 +74,15 @@ class VehicleItem implements ShouldQueue
         $this->createModelSpecification($item, $itemModel);
     }
 
-
     private function createModelSpecification(array $item, \App\Models\SC\Item\Item $itemModel): void
     {
         switch ($itemModel->type) {
             case 'Armor':
                 $this->createArmor($item);
+                break;
+
+            case 'Bomb':
+                $this->createBomb($item);
                 break;
 
             case 'FlightController':
@@ -239,15 +242,15 @@ class VehicleItem implements ShouldQueue
             'reallocation_rate' => $item['shield']['reallocation_rate'],
         ]);
 
-//        foreach ($item['shield']['absorptions'] as $type => $absorption) {
-//            $shield->absorptions()->updateOrCreate([
-//                'ship_shield_id' => $shield->id,
-//                'type' => $type
-//            ], [
-//                'min' => $absorption['min'] ?? 0,
-//                'max' => $absorption['max'] ?? 0,
-//            ]);
-//        }
+        //        foreach ($item['shield']['absorptions'] as $type => $absorption) {
+        //            $shield->absorptions()->updateOrCreate([
+        //                'ship_shield_id' => $shield->id,
+        //                'type' => $type
+        //            ], [
+        //                'min' => $absorption['min'] ?? 0,
+        //                'max' => $absorption['max'] ?? 0,
+        //            ]);
+        //        }
     }
 
     private function createQuantumDrive(array $item): void
@@ -326,7 +329,7 @@ class VehicleItem implements ShouldQueue
             'capacity' => Arr::get($item, 'weapon.capacity'),
         ]);
 
-        if (!empty($item['weapon']['ammunition'])) {
+        if (! empty($item['weapon']['ammunition'])) {
             $ammunition = $weapon->ammunition()->updateOrCreate([
                 'weapon_id' => $weapon->id,
             ], [
@@ -360,7 +363,7 @@ class VehicleItem implements ShouldQueue
             ]);
         });
 
-        if (!empty($item['weapon']['regen_consumption'])) {
+        if (! empty($item['weapon']['regen_consumption'])) {
             $weapon->regen()->updateOrCreate([
                 'weapon_id' => $weapon->id,
             ], [
@@ -374,7 +377,7 @@ class VehicleItem implements ShouldQueue
 
     private function createMissile(array $item): void
     {
-        if (!isset($item['missile']['signal_type'])) {
+        if (! isset($item['missile']['signal_type'])) {
             return;
         }
 
@@ -414,6 +417,34 @@ class VehicleItem implements ShouldQueue
         }
     }
 
+    private function createBomb(array $item): void
+    {
+        if (! isset($item['bomb']['arm_time'])) {
+            return;
+        }
+
+        $bomb = Bomb::updateOrCreate([
+            'item_uuid' => $item['uuid'],
+        ], [
+            'arm_time' => $item['bomb']['arm_time'] ?? null,
+            'ignite_time' => $item['bomb']['ignite_time'] ?? null,
+            'collision_delay_time' => $item['bomb']['collision_delay_time'] ?? null,
+            'explosion_safety_distance' => $item['bomb']['explosion_safety_distance'] ?? null,
+            'explosion_radius_min' => $item['bomb']['explosion_radius_min'] ?? null,
+            'explosion_radius_max' => $item['bomb']['explosion_radius_max'] ?? null,
+        ]);
+
+        if (isset($item['bomb']['damages'])) {
+            foreach ($item['bomb']['damages'] as $name => $damage) {
+                $bomb->damages()->updateOrCreate([
+                    'missile_id' => $bomb->id,
+                    'name' => $name,
+                ], [
+                    'damage' => $damage,
+                ]);
+            }
+        }
+    }
 
     private function createThruster(array $item): void
     {

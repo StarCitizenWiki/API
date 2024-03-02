@@ -13,6 +13,7 @@ use App\Models\SC\Char\PersonalWeapon\IronSight;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
 use App\Models\SC\Food\Food;
+use App\Models\SC\ItemSpecification\Bomb\Bomb;
 use App\Models\SC\ItemSpecification\Cooler;
 use App\Models\SC\ItemSpecification\Emp;
 use App\Models\SC\ItemSpecification\FlightController;
@@ -216,6 +217,9 @@ class Item extends HasTranslations
                  */
             case $this->type === 'Armor':
                 return $this->hasOne(\App\Models\SC\ItemSpecification\Armor::class, 'item_uuid', 'uuid')->withDefault();
+
+            case $this->type === 'Bomb':
+                return $this->hasOne(Bomb::class, 'item_uuid', 'uuid')->withDefault();
 
             case $this->type === 'WeaponDefensive':
             case $this->type === 'WeaponGun':
