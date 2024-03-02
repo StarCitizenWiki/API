@@ -30,8 +30,6 @@ class Item implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -43,7 +41,7 @@ class Item implements ShouldQueue
         ]);
 
         /** @var \App\Models\SC\Item\Item $itemModel */
-        $itemModel = \App\Models\SC\Item\Item::updateOrCreate([
+        $itemModel = \App\Models\SC\Item\Item::query()->withoutGlobalScopes()->updateOrCreate([
             'uuid' => $this->data['uuid'],
         ], [
             'name' => $this->data['name'],
@@ -57,7 +55,7 @@ class Item implements ShouldQueue
             'manufacturer_id' => $manufacturer->id,
         ]);
 
-        if (!empty($this->data['description'])) {
+        if (! empty($this->data['description'])) {
             $itemModel->translations()->updateOrCreate([
                 'locale_code' => 'en_EN',
             ], [
@@ -130,7 +128,7 @@ class Item implements ShouldQueue
 
     private function createPorts(\App\Models\SC\Item\Item $itemModel): void
     {
-        if (!empty($this->data['ports'])) {
+        if (! empty($this->data['ports'])) {
             collect($this->data['ports'])->each(function (array $port) use ($itemModel) {
                 /** @var ItemPort $port */
                 $portModel = $itemModel->ports()->updateOrCreate([
@@ -151,7 +149,7 @@ class Item implements ShouldQueue
 
     private function createPowerModel(\App\Models\SC\Item\Item $itemModel): void
     {
-        if (!empty($this->data['power'])) {
+        if (! empty($this->data['power'])) {
             $itemModel->powerData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
             ], [
@@ -171,7 +169,7 @@ class Item implements ShouldQueue
 
     private function createHeatModel(\App\Models\SC\Item\Item $itemModel): void
     {
-        if (!empty($this->data['heat'])) {
+        if (! empty($this->data['heat'])) {
             $itemModel->heatData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
             ], [
@@ -200,7 +198,7 @@ class Item implements ShouldQueue
 
     private function createDistortionModel(\App\Models\SC\Item\Item $itemModel): void
     {
-        if (!empty($this->data['distortion'])) {
+        if (! empty($this->data['distortion'])) {
             $itemModel->distortionData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
             ], [
@@ -217,7 +215,7 @@ class Item implements ShouldQueue
 
     private function createDurabilityModel(\App\Models\SC\Item\Item $itemModel): void
     {
-        if (!empty($this->data['durability'])) {
+        if (! empty($this->data['durability'])) {
             $itemModel->durabilityData()->updateOrCreate([
                 'item_uuid' => $this->data['uuid'],
             ], [
@@ -240,7 +238,7 @@ class Item implements ShouldQueue
             ->map('strtolower')
             ->map(function ($tag) {
                 $tag = Tag::query()->firstOrCreate([
-                    'name' => $tag
+                    'name' => $tag,
                 ]);
 
                 return $tag->id;

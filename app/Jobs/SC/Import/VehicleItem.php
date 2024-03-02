@@ -378,13 +378,22 @@ class VehicleItem implements ShouldQueue
             return;
         }
 
+        $lockRangeMax = $item['missile']['lock_range_max'] ?? null;
+        if ($lockRangeMax !== null) {
+            $lockRangeMax = max(0, $lockRangeMax);
+        }
+        $lockRangeMin = $item['missile']['lock_range_min'] ?? null;
+        if ($lockRangeMin !== null) {
+            $lockRangeMin = max(0, $lockRangeMin);
+        }
+
         $missile = Missile::updateOrCreate([
             'item_uuid' => $item['uuid'],
         ], [
             'signal_type' => $item['missile']['signal_type'],
             'lock_time' => $item['missile']['lock_time'] ?? null,
-            'lock_range_max' => $item['missile']['lock_range_max'] ?? null,
-            'lock_range_min' => $item['missile']['lock_range_min'] ?? null,
+            'lock_range_max' => $lockRangeMax,
+            'lock_range_min' => $lockRangeMin,
             'lock_angle' => $item['missile']['lock_angle'] ?? null,
             'tracking_signal_min' => $item['missile']['tracking_signal_min'] ?? null,
             'speed' => $item['missile']['speed'] ?? null,

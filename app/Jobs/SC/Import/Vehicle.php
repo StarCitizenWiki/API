@@ -30,12 +30,11 @@ class Vehicle implements ShouldQueue
     use SerializesModels;
 
     private Collection $hardpoints;
+
     private Collection $parts;
 
     /**
      * Filter out parts that have a damage value lower than this
-     *
-     * @var int
      */
     private readonly int $minPartDamage;
 
@@ -61,20 +60,20 @@ class Vehicle implements ShouldQueue
             $rawData = File::get($vehicle['filePathV2']);
 
             $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
-        } catch (FileNotFoundException | JsonException $e) {
+        } catch (FileNotFoundException|JsonException $e) {
             $this->fail($e->getMessage());
         }
 
-        if (!isset($vehicle['rawData']['Entity']['__ref'])) {
+        if (! isset($vehicle['rawData']['Entity']['__ref'])) {
             return;
         }
 
         /** @var \App\Models\SC\Vehicle\Vehicle $vehicleModel */
-        $vehicleModel = \App\Models\SC\Vehicle\Vehicle::updateOrCreate([
+        $vehicleModel = \App\Models\SC\Vehicle\Vehicle::query()->withoutGlobalScopes()->updateOrCreate([
             'item_uuid' => $vehicle['rawData']['Entity']['__ref'],
         ], $this->getVehicleModelArray($vehicle) + ['class_name' => $vehicle['ClassName']]);
 
-        if (!$vehicleModel->item === null || !optional($vehicleModel->item)->exists) {
+        if (! $vehicleModel->item === null || ! optional($vehicleModel->item)->exists) {
             $itemParser = new \App\Services\Parser\SC\Item(
                 $vehicle['filePath'],
                 $labels,
@@ -92,9 +91,9 @@ class Vehicle implements ShouldQueue
         }
 
         // Manually override the Fury Manufacturer
-        if ( in_array($vehicle['rawData']['Entity']['__ref'], [
+        if (in_array($vehicle['rawData']['Entity']['__ref'], [
             '96b11061-68ce-4896-9424-fc8804a410ae',
-            '469d850e-b86b-47fc-9ee2-df81d775ccc8'
+            '469d850e-b86b-47fc-9ee2-df81d775ccc8',
         ], true) && $vehicleModel->item?->manufacturer_id === 1) {
             $mirai = Manufacturer::query()->where('name', 'Mirai')->where('code', '<>', '')->first();
             if ($mirai?->exists ?? false) {
@@ -135,7 +134,7 @@ class Vehicle implements ShouldQueue
             'name' => $vehicle['Name'],
             'career' => $vehicle['Career'],
             'role' => $vehicle['Role'],
-            'is_ship' => (bool)$vehicle['IsSpaceship'],
+            'is_ship' => (bool) $vehicle['IsSpaceship'],
             'size' => $vehicle['Size'],
             'width' => $vehicle['Width'] ?? 0,
             'height' => $vehicle['Height'] ?? 0,
@@ -147,27 +146,26 @@ class Vehicle implements ShouldQueue
             'mass' => $vehicle['Mass'],
             'health' => $vehicle['Health'] ?? null,
 
-            'acceleration_main' => $this->numFormat(Arr::get($vehicle, $key . '.Acceleration.Main', 0)),
-            'acceleration_retro' => $this->numFormat(Arr::get($vehicle, $key . '.Acceleration.Retro', 0)),
-            'acceleration_vtol' => $this->numFormat(Arr::get($vehicle, $key . '.Acceleration.Vtol', 0)),
-            'acceleration_maneuvering' => $this->numFormat(Arr::get($vehicle, $key . '.Acceleration.Maneuvering', 0)),
+            'acceleration_main' => $this->numFormat(Arr::get($vehicle, $key.'.Acceleration.Main', 0)),
+            'acceleration_retro' => $this->numFormat(Arr::get($vehicle, $key.'.Acceleration.Retro', 0)),
+            'acceleration_vtol' => $this->numFormat(Arr::get($vehicle, $key.'.Acceleration.Vtol', 0)),
+            'acceleration_maneuvering' => $this->numFormat(Arr::get($vehicle, $key.'.Acceleration.Maneuvering', 0)),
 
-            'acceleration_g_main' => $this->numFormat(Arr::get($vehicle, $key . '.AccelerationG.Main', 0)),
-            'acceleration_g_retro' => $this->numFormat(Arr::get($vehicle, $key . '.AccelerationG.Retro', 0)),
-            'acceleration_g_vtol' => $this->numFormat(Arr::get($vehicle, $key . '.AccelerationG.Vtol', 0)),
-            'acceleration_g_maneuvering' => $this->numFormat(Arr::get($vehicle, $key . '.AccelerationG.Maneuvering', 0)),
+            'acceleration_g_main' => $this->numFormat(Arr::get($vehicle, $key.'.AccelerationG.Main', 0)),
+            'acceleration_g_retro' => $this->numFormat(Arr::get($vehicle, $key.'.AccelerationG.Retro', 0)),
+            'acceleration_g_vtol' => $this->numFormat(Arr::get($vehicle, $key.'.AccelerationG.Vtol', 0)),
+            'acceleration_g_maneuvering' => $this->numFormat(Arr::get($vehicle, $key.'.AccelerationG.Maneuvering', 0)),
 
             'claim_time' => $this->numFormat($vehicle['Insurance']['StandardClaimTime'] ?? 0),
             'expedite_time' => $this->numFormat($vehicle['Insurance']['ExpeditedClaimTime'] ?? 0),
             'expedite_cost' => $this->numFormat($vehicle['Insurance']['ExpeditedCost'] ?? 0),
 
-			'zero_to_scm' => $this->numFormat($vehicle[$key]['ZeroToScm'] ?? 0),
-			'zero_to_max' => $this->numFormat($vehicle[$key]['ZeroToMax'] ?? 0),
+            'zero_to_scm' => $this->numFormat($vehicle[$key]['ZeroToScm'] ?? 0),
+            'zero_to_max' => $this->numFormat($vehicle[$key]['ZeroToMax'] ?? 0),
 
-			'scm_to_zero' => $this->numFormat($vehicle[$key]['ScmToZero'] ?? 0),
-			'max_to_zero' => $this->numFormat($vehicle[$key]['MaxToZero'] ?? 0),
+            'scm_to_zero' => $this->numFormat($vehicle[$key]['ScmToZero'] ?? 0),
+            'max_to_zero' => $this->numFormat($vehicle[$key]['MaxToZero'] ?? 0),
         ];
-
 
         return $data;
     }
@@ -176,7 +174,6 @@ class Vehicle implements ShouldQueue
      * As  some in-game ship names differ from the ship matrix, we try to catch this here
      * Currently an in-game ship needs to have an accompanying ship-matrix entry
      *
-     * @param array $vehicle
      * @return Builder|Model|object|null
      */
     private function tryGetShipmatrixIdForVehicle(array $vehicle)
@@ -259,9 +256,6 @@ class Vehicle implements ShouldQueue
 
     /**
      * Just a small query wrapper
-     *
-     * @param array $config
-     * @return Model|null
      */
     private function queryForName(array $config): ?Model
     {
@@ -270,9 +264,6 @@ class Vehicle implements ShouldQueue
 
     /**
      * "Rounds" to a given precision
-     *
-     * @param $data
-     * @return float|int
      */
     private function numFormat($data): float|int
     {
@@ -285,9 +276,8 @@ class Vehicle implements ShouldQueue
         $negation = ($num < 0) ? (-1) : 1;
         $coefficient = 10 ** 3;
 
-        return $negation * floor((abs((float)$num) * $coefficient)) / $coefficient;
+        return $negation * floor((abs((float) $num) * $coefficient)) / $coefficient;
     }
-
 
     private function getItemUUID(string $className): ?string
     {
@@ -299,9 +289,6 @@ class Vehicle implements ShouldQueue
     /**
      * Creates all hardpoints found on a vehicle
      * Iterates through all sup-hardpoints also
-     *
-     * @param \App\Models\SC\Vehicle\Vehicle $vehicle
-     * @param array $rawData
      */
     private function createHardpoints(\App\Models\SC\Vehicle\Vehicle $vehicle, array $rawData): void
     {
@@ -323,7 +310,7 @@ class Vehicle implements ShouldQueue
                 $entries
                     ->each(function ($hardpoint) use ($hardpoints, $vehicle) {
                         $itemUuid = null;
-                        if (!empty($hardpoint['entityClassName'])) {
+                        if (! empty($hardpoint['entityClassName'])) {
                             $itemUuid = $this->getItemUUID($hardpoint['entityClassName']);
                         }
 
@@ -352,10 +339,10 @@ class Vehicle implements ShouldQueue
             // Create vehicle parts
             ->each(function ($hardpoint) use ($vehicle) {
                 $isBaseBody = $hardpoint['class'] === 'Animated' && $hardpoint['damagemax'] === 0;
-                $isPart = !empty($hardpoint['name']) && isset($hardpoint['damageMax']) && $hardpoint['damageMax'] > $this->minPartDamage;
+                $isPart = ! empty($hardpoint['name']) && isset($hardpoint['damageMax']) && $hardpoint['damageMax'] > $this->minPartDamage;
 
                 if ($isBaseBody || $isPart) {
-                    if (!empty($hardpoint['parent'])) {
+                    if (! empty($hardpoint['parent'])) {
                         $hardpoint['parent'] = $vehicle->parts()->where('name', $hardpoint['parent'])->first()->id ?? null;
                     }
 
@@ -374,11 +361,11 @@ class Vehicle implements ShouldQueue
                 return $hardpoint['class'] === 'ItemPort';
             })
             ->filter(function (array $hardpoint) {
-                return isset($hardpoint['ItemPort']) && !empty($hardpoint['ItemPort']['flags']) && $hardpoint['ItemPort']['minsize'] > 0;
+                return isset($hardpoint['ItemPort']) && ! empty($hardpoint['ItemPort']['flags']) && $hardpoint['ItemPort']['minsize'] > 0;
             })
             ->filter(function (array $hardpoint) {
                 // Filter out some
-                return !Str::contains($hardpoint['name'], [
+                return ! Str::contains($hardpoint['name'], [
                     '$slot',
                     '_trail_',
                     '_SQUIB_',
@@ -415,15 +402,11 @@ class Vehicle implements ShouldQueue
     /**
      * Flat-maps all hardpoints from hardpoint name to hardpoint data
      * This is used to get the min and max sizes later on
-     *
-     * @param array $parts
-     * @param array $out
-     * @param string|null $parent
      */
     private function mapHardpoints(array $parts, array &$out, ?string $parent = null): void
     {
         foreach ($parts as $part) {
-            if (!isset($part['name'])) {
+            if (! isset($part['name'])) {
                 continue;
             }
 
@@ -443,10 +426,6 @@ class Vehicle implements ShouldQueue
 
     /**
      * This runs on each child hardpoint found on a hardpoint recursively
-     *
-     * @param array $entries
-     * @param Hardpoint $parent
-     * @param \App\Models\SC\Vehicle\Vehicle $vehicle
      */
     private function createSubPoint(array $entries, Hardpoint $parent, \App\Models\SC\Vehicle\Vehicle $vehicle): void
     {
@@ -466,7 +445,7 @@ class Vehicle implements ShouldQueue
 
             $subEntries = Arr::get($subPoint, 'loadout.SItemPortLoadoutManualParams.entries');
 
-            if (!empty($subEntries)) {
+            if (! empty($subEntries)) {
                 $this->createSubPoint($subEntries, $point, $vehicle);
             }
         }
