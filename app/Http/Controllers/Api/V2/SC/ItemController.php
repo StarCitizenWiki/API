@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V2\SC;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
+use App\Http\Filters\ItemVariantsFilter;
 use App\Http\Requests\StarCitizenUnpacked\ItemSearchRequest;
 use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
@@ -29,6 +30,8 @@ class ItemController extends AbstractApiV2Controller
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(ref: '#/components/parameters/variant_includes_v2'),
+            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -41,7 +44,7 @@ class ItemController extends AbstractApiV2Controller
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/item_link_v2')
                 )
-            )
+            ),
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
@@ -50,7 +53,8 @@ class ItemController extends AbstractApiV2Controller
             ->allowedFilters([
                 'type',
                 'sub_type',
-                AllowedFilter::exact('manufacturer', 'manufacturer.name')
+                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
+                AllowedFilter::custom('variants', new ItemVariantsFilter()),
             ])
             ->allowedIncludes(ItemResource::validIncludes())
             ->paginate($this->limit)
@@ -65,6 +69,7 @@ class ItemController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(ref: '#/components/parameters/variant_includes_v2'),
             new OA\Parameter(
                 name: 'item',
                 in: 'path',
@@ -83,7 +88,7 @@ class ItemController extends AbstractApiV2Controller
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/item_v2')
                 )
-            )
+            ),
         ]
     )]
     public function show(Request $request)
@@ -104,7 +109,7 @@ class ItemController extends AbstractApiV2Controller
                 ->where('class_name', 'NOT LIKE', '%test_%')
                 ->where(function (Builder $query) use ($identifier) {
                     $query->where('uuid', $identifier)
-                      ->orWhere('name', $identifier);
+                        ->orWhere('name', $identifier);
                 })
                 ->allowedIncludes(ItemResource::validIncludes())
                 ->with([
@@ -147,7 +152,7 @@ class ItemController extends AbstractApiV2Controller
                         type: 'object',
                     ),
                     example: '{"query": "Arrow"}',
-                )
+                ),
             ]
         ),
         tags: ['In-Game', 'Item'],
@@ -156,6 +161,8 @@ class ItemController extends AbstractApiV2Controller
             new OA\Parameter(ref: '#/components/parameters/limit'),
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(ref: '#/components/parameters/commodity_includes_v2'),
+            new OA\Parameter(ref: '#/components/parameters/variant_includes_v2'),
+            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[sub_type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[manufacturer]', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -168,7 +175,7 @@ class ItemController extends AbstractApiV2Controller
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/item_link_v2')
                 )
-            )
+            ),
         ]
     )]
     public function search(ItemSearchRequest $request): JsonResource
@@ -184,7 +191,8 @@ class ItemController extends AbstractApiV2Controller
             ->allowedFilters([
                 'type',
                 'sub_type',
-                AllowedFilter::exact('manufacturer', 'manufacturer.name')
+                AllowedFilter::exact('manufacturer', 'manufacturer.name'),
+                AllowedFilter::custom('variants', new ItemVariantsFilter()),
             ])
             ->allowedIncludes(['shops.items']);
 

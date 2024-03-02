@@ -8,23 +8,29 @@ use Illuminate\Http\Resources\Json\JsonResource;
 abstract class AbstractBaseResource extends JsonResource
 {
     public const COMM_LINKS_SHOW = 'comm-links/';
+
     public const COMM_LINK_IMAGES_SIMILAR = 'comm-link-images/';
 
     public const VEHICLES_SHOW = 'vehicles/';
 
     public const STARMAP_STARSYSTEM_SHOW = 'starsystems/';
+
     public const STARMAP_CELESTIAL_OBJECTS_SHOW = 'celestial-objects/';
 
     public const GALACTAPEDIA_ARTICLE_SHOW = 'galactapedia/';
 
-
     public const ITEMS_SHOW = 'items/';
+
     public const FOOD_SHOW = 'food/';
 
-    public const PERSONAL_WEAPONS_SHOW = 'personal-weapons/';
+    public const PERSONAL_WEAPONS_SHOW = 'weapons/';
+
     public const ARMOR_SHOW = 'armor/';
+
     public const CLOTHES_SHOW = 'clothes/';
+
     public const SHOPS_SHOW = 'shops/';
+
     public const MANUFACTURERS_SHOW = 'manufacturers/';
 
     public function __construct($resource)
@@ -40,10 +46,7 @@ abstract class AbstractBaseResource extends JsonResource
     /**
      * Formats the fragment and returns an absolute api url
      *
-     * @param string $fragment
-     * @param mixed ...$routeKey
-     *
-     * @return string
+     * @param  mixed  ...$routeKey
      */
     protected function makeApiUrl(string $fragment, ...$routeKey): string
     {
@@ -52,7 +55,9 @@ abstract class AbstractBaseResource extends JsonResource
 
     public static function validIncludes(): array
     {
-        return [];
+        return [
+            'variants',
+        ];
     }
 
     public function addMetadata(mixed $key, mixed $value = null): void

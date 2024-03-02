@@ -37,12 +37,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'lifetime', type: 'double', nullable: true),
         new OA\Property(property: 'speed', type: 'double', nullable: true),
         new OA\Property(property: 'range', type: 'double', nullable: true),
-        new OA\Property(
-            property: 'base_model',
-            description: 'Link to the base model version',
-            type: 'string',
-            nullable: true
-        ),
     ],
     type: 'object'
 )]
@@ -50,7 +44,7 @@ class PersonalWeaponResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
-        return [
+        return parent::validIncludes() + [
             'shops',
             'shops.items',
         ];
@@ -62,7 +56,7 @@ class PersonalWeaponResource extends AbstractBaseResource
      * @param Request $request
      * @return array
      */
-    public function toArray($request): array
+    public function toArray(Request $request): array
     {
         $data = [
             'class' => $this->weapon_class,
@@ -83,11 +77,6 @@ class PersonalWeaponResource extends AbstractBaseResource
                 'speed' => $this->ammunition->speed ?? null,
                 'range' => $this->ammunition->range ?? null,
             ];
-        }
-
-        $baseModel = $this->baseModel;
-        if ($baseModel !== null && $baseModel->name !== $this->name) {
-            $data['base_model'] = $this->makeApiUrl(self::PERSONAL_WEAPONS_SHOW, $baseModel->uuid);
         }
 
         return $data;

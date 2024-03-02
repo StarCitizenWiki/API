@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace App\Models\SC\Char\Clothing;
 
 use App\Models\SC\Item\Item;
-use App\Traits\HasBaseVersionsV2Trait;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Clothing extends Item
 {
-    use HasBaseVersionsV2Trait;
-
     public function __construct(array $attributes = [])
     {
         $this->with = collect($this->with)->merge([

@@ -54,9 +54,6 @@ class PersonalWeapon extends Item
         return trim($exploded[0]);
     }
 
-    /**
-     * @return HasMany
-     */
     public function modes(): HasMany
     {
         return $this->hasMany(PersonalWeaponMode::class, 'item_uuid', 'uuid');
@@ -76,25 +73,16 @@ class PersonalWeapon extends Item
         return optional();
     }
 
-    /**
-     * @return HasOne
-     */
     public function ammunition(): HasOne
     {
         return $this->hasOne(PersonalWeaponAmmunition::class, 'item_uuid', 'uuid');
     }
 
-    /**
-     * @return HasMany
-     */
     public function attachments(): HasMany
     {
         return $this->ports();
     }
 
-    /**
-     * @return HasManyThrough
-     */
     public function damages(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -105,15 +93,6 @@ class PersonalWeapon extends Item
             'uuid',
             'id',
         );
-    }
-
-    public function getBaseModelAttribute(): ?self
-    {
-        $baseName = preg_replace('/"[\w\s\']+"\s/', '', $this->name);
-        return self::query()
-            ->where('name', $baseName)
-            ->whereNot('name', $this->name)
-            ->first();
     }
 
     public function getRofAttribute()

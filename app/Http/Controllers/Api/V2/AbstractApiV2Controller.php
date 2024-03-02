@@ -87,6 +87,23 @@ use Spatie\QueryBuilder\AllowedInclude;
     explode: false,
     allowReserved: true
 )]
+#[OA\Parameter(
+    parameter: 'variant_includes_v2',
+    name: 'include',
+    in: 'query',
+    schema: new OA\Schema(
+        description: 'Variants of an item',
+        type: 'array',
+        items: new OA\Items(
+            type: 'string',
+            enum: [
+                'variants',
+            ]
+        ),
+    ),
+    explode: false,
+    allowReserved: true
+)]
 #[OA\Schema(
     schema: 'query',
     type: 'string',

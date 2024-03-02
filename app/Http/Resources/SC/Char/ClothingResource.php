@@ -50,7 +50,7 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(ref: '#/components/schemas/clothing_resistance_v2'),
             nullable: true,
         ),
-        new OA\Property(property: 'base_model', type: 'string', nullable: true),
+        new OA\Property(property: 'base_variant', type: 'string', nullable: true),
     ],
     type: 'object'
 )]
@@ -58,7 +58,7 @@ class ClothingResource extends AbstractBaseResource
 {
     public static function validIncludes(): array
     {
-        return [
+        return parent::validIncludes() + [
             'shops',
             'shops.items',
         ];
@@ -67,8 +67,7 @@ class ClothingResource extends AbstractBaseResource
     /**
      * Transform the resource collection into an array.
      *
-     * @param Request $request
-     * @return array
+     * @param  Request  $request
      */
     public function toArray($request): array
     {

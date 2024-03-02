@@ -55,6 +55,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'grade', type: 'string', nullable: true),
         new OA\Property(property: 'class', type: 'string', nullable: true),
         new OA\Property(property: 'mass', type: 'double', nullable: true),
+        new OA\Property(property: 'is_base_variant', type: 'boolean'),
         new OA\Property(
             property: 'description_data',
             type: 'array',
@@ -119,6 +120,13 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'distortion', ref: '#/components/schemas/item_distortion_data_v2', nullable: true),
         new OA\Property(property: 'durability', ref: '#/components/schemas/item_durability_data_v2', nullable: true),
         new OA\Property(property: 'shops', ref: '#/components/schemas/shop_v2', nullable: true),
+        new OA\Property(property: 'base_variant', ref: '#/components/schemas/item_link_v2', nullable: true),
+        new OA\Property(
+            property: 'variants',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/item_link_v2'),
+            nullable: true
+        ),
         new OA\Property(property: 'updated_at', type: 'double', nullable: true),
         new OA\Property(
             property: 'version',
@@ -132,6 +140,7 @@ use OpenApi\Attributes as OA;
 class ItemResource extends AbstractTranslationResource
 {
     private bool $isVehicleItem;
+
     private bool $onlySimpleData;
 
     public function __construct($resource, bool $isVehicleItem = false, bool $onlyBaseData = false)
@@ -143,17 +152,14 @@ class ItemResource extends AbstractTranslationResource
 
     public static function validIncludes(): array
     {
-        return [
+        return parent::validIncludes() + [
             'shops',
-            'shops.items'
+            'shops.items',
         ];
     }
 
     /**
      * Transform the resource collection into an array.
-     *
-     * @param Request $request
-     * @return array
      */
     public function toArray(Request $request): array
     {
@@ -169,11 +175,12 @@ class ItemResource extends AbstractTranslationResource
             'description' => $this->getTranslation($this, $request),
             'size' => $this->size,
             'mass' => $this->mass,
+            'is_base_variant' => $this->base_id === null,
             $this->mergeWhen($vehicleItem !== null || $vehicleItem->exists, [
                 'grade' => $vehicleItem->grade,
                 'class' => $vehicleItem->class,
             ]),
-            $this->mergeWhen(!$this->onlySimpleData, [
+            $this->mergeWhen(! $this->onlySimpleData, [
                 'description_data' => ItemDescriptionDataResource::collection($this->whenLoaded('descriptionData')),
             ]),
             'manufacturer_description' => $this->getDescriptionDatum('Manufacturer'),
@@ -183,7 +190,7 @@ class ItemResource extends AbstractTranslationResource
             $this->mergeWhen(...$this->addAttachmentPosition()),
             $this->mergeWhen($this->isTurret(), $this->addTurretData()),
             $this->mergeWhen(...$this->addSpecification()),
-            $this->mergeWhen(!$this->onlySimpleData, [
+            $this->mergeWhen(! $this->onlySimpleData, [
                 'dimension' => new ItemDimensionResource($this),
             ]),
             $this->mergeWhen($this->container->exists, [
@@ -193,20 +200,23 @@ class ItemResource extends AbstractTranslationResource
             'required_tags' => $this->requiredTags->pluck('name')->toArray(),
             'interactions' => $this->interactions->pluck('name')->toArray(),
             'ports' => ItemPortResource::collection($this->whenLoaded('ports')),
-            $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('heatData'), [
+            $this->mergeWhen(! $this->onlySimpleData && $this->relationLoaded('heatData'), [
                 'heat' => new ItemHeatDataResource($this->heatData),
             ]),
-            $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('powerData'), [
+            $this->mergeWhen(! $this->onlySimpleData && $this->relationLoaded('powerData'), [
                 'power' => new ItemPowerDataResource($this->powerData),
             ]),
-            $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('distortionData'), [
+            $this->mergeWhen(! $this->onlySimpleData && $this->relationLoaded('distortionData'), [
                 'distortion' => new ItemDistortionDataResource($this->distortionData),
             ]),
-            $this->mergeWhen(!$this->onlySimpleData && $this->relationLoaded('durabilityData'), [
+            $this->mergeWhen(! $this->onlySimpleData && $this->relationLoaded('durabilityData'), [
                 'durability' => new ItemDurabilityDataResource($this->durabilityData),
             ]),
             'shops' => ShopResource::collection($this->whenLoaded('shops')),
-            $this->mergeWhen(...$this->addBaseVersion()),
+            $this->mergeWhen($this->base_id !== null, [
+                'base_variant' => new ItemLinkResource($this->baseVariant),
+            ]),
+            'variants' => ItemLinkResource::collection($this->whenLoaded('variants')),
             'updated_at' => $this->updated_at,
             'version' => $this->version,
         ];
@@ -215,112 +225,112 @@ class ItemResource extends AbstractTranslationResource
     private function addSpecification(): array
     {
         $specification = $this?->specification;
-        if (!$specification?->exists || $specification === null) {
+        if (! $specification?->exists || $specification === null) {
             return [false, []];
         }
 
         return match (true) {
             $this->type === 'Armor' => [
                 $specification->exists,
-                ['emp' => new ArmorResource($specification),],
+                ['emp' => new ArmorResource($specification)],
             ],
             $this->type === 'EMP' => [
                 $specification->exists,
-                ['emp' => new EmpResource($specification),],
+                ['emp' => new EmpResource($specification)],
             ],
             $this->type === 'Cooler' => [
                 $specification->exists,
-                ['cooler' => new CoolerResource($specification),],
+                ['cooler' => new CoolerResource($specification)],
             ],
             str_contains($this->type, 'Char_Clothing'), str_contains($this->type, 'Char_Armor') => [
                 $specification->exists,
-                ['clothing' => new ClothingResource($specification),],
+                ['clothing' => new ClothingResource($specification)],
             ],
             $this->type === 'Food', $this->type === 'Bottle', $this->type === 'Drink' => [
                 $specification->exists,
-                ['food' => new FoodResource($specification),],
+                ['food' => new FoodResource($specification)],
             ],
             $this->type === 'MainThruster', $this->type === 'ManneuverThruster' => [
                 $specification->exists,
-                ['thruster' => new ThrusterResource($specification),],
+                ['thruster' => new ThrusterResource($specification)],
             ],
             $this->type === 'PowerPlant' => [
                 $specification->exists,
-                ['power_plant' => new PowerPlantResource($specification),],
+                ['power_plant' => new PowerPlantResource($specification)],
             ],
             $this->type === 'Shield' => [
                 $specification->exists,
-                ['shield' => new ShieldResource($specification),],
+                ['shield' => new ShieldResource($specification)],
             ],
             $this->type === 'SelfDestruct' => [
                 $specification->exists,
-                ['self_destruct' => new SelfDestructResource($specification),],
+                ['self_destruct' => new SelfDestructResource($specification)],
             ],
             $this->type === 'FlightController' => [
                 $specification->exists,
-                ['flight_controller' => new FlightControllerResource($specification),],
+                ['flight_controller' => new FlightControllerResource($specification)],
             ],
             $this->type === 'FuelTank', $this->type === 'QuantumFuelTank' => [
                 $specification->exists,
-                ['fuel_tank' => new FuelTankResource($specification),],
+                ['fuel_tank' => new FuelTankResource($specification)],
             ],
             $this->type === 'FuelIntake' => [
                 $specification->exists,
-                ['fuel_intake' => new FuelIntakeResource($specification),],
+                ['fuel_intake' => new FuelIntakeResource($specification)],
             ],
             $this->type === 'QuantumInterdictionGenerator' => [
                 $specification->exists,
-                ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($specification),],
+                ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($specification)],
             ],
             $this->type === 'QuantumDrive' => [
                 $specification->exists,
-                ['quantum_drive' => new QuantumDriveResource($specification),],
+                ['quantum_drive' => new QuantumDriveResource($specification)],
             ],
             $this->type === 'WeaponPersonal' && $this->sub_type === 'Grenade' => [
                 $specification->exists,
-                ['grenade' => new GrenadeResource($specification),],
+                ['grenade' => new GrenadeResource($specification)],
             ],
             $this->type === 'WeaponPersonal' => [
                 $specification->exists,
-                ['personal_weapon' => new PersonalWeaponResource($specification),],
+                ['personal_weapon' => new PersonalWeaponResource($specification)],
             ],
             $this->sub_type === 'IronSight' => [
                 $specification->exists,
-                ['iron_sight' => new IronSightResource($specification),],
+                ['iron_sight' => new IronSightResource($specification)],
             ],
             $this->type === 'WeaponAttachment' && in_array($this->sub_type, ['Barrel', 'BottomAttachment', 'Utility'], true) => [
                 $specification->exists,
-                ['barrel_attach' => new BarrelAttachResource($specification),],
+                ['barrel_attach' => new BarrelAttachResource($specification)],
             ],
             $this->sub_type === 'Magazine' => [
                 $specification->exists,
-                ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification),],
+                ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification)],
             ],
             $this->type === 'Missile', $this->type === 'Torpedo' => [
                 $specification->exists,
-                ['missile' => new MissileResource($specification),],
+                ['missile' => new MissileResource($specification)],
             ],
             $this->type === 'MiningModifier' => [
                 $specification->exists,
-                ['mining_module' => new MiningModuleResource($specification),],
+                ['mining_module' => new MiningModuleResource($specification)],
             ],
             $this->type === 'WeaponGun', $this->type === 'WeaponDefensive' => [
                 $specification->exists,
                 [($this->type === 'WeaponGun' ?
                     'vehicle_weapon' :
-                    'counter_measure') => new VehicleWeaponResource($specification),],
+                    'counter_measure') => new VehicleWeaponResource($specification), ],
             ],
             $this->type === 'WeaponMining' => [
                 $specification->exists,
-                ['mining_laser' => new MiningLaserResource($specification),],
+                ['mining_laser' => new MiningLaserResource($specification)],
             ],
             $this->type === 'TractorBeam' || $this->type === 'TowingBeam' => [
                 $specification->exists,
-                ['tractor_beam' => new TractorBeamResource($specification),],
+                ['tractor_beam' => new TractorBeamResource($specification)],
             ],
             $this->type === 'SalvageModifier' => [
                 $specification->exists,
-                ['salvage_modifier' => new SalvageModifierResource($specification),],
+                ['salvage_modifier' => new SalvageModifierResource($specification)],
             ],
             default => [false, []],
         };
@@ -344,24 +354,6 @@ class ItemResource extends AbstractTranslationResource
         ];
     }
 
-    private function addBaseVersion(): array
-    {
-        if (
-            $this->onlySimpleData === true ||
-            $this->specification === null ||
-            !is_callable([$this->specification, 'getBaseModelAttribute'])
-        ) {
-            return [false, []];
-        }
-
-        return [
-            true,
-            [
-                'base_version' => new ItemLinkResource($this->specification->base_model),
-            ]
-        ];
-    }
-
     private function addAttachmentPosition(): array
     {
         if ($this->type !== 'WeaponAttachment' || $this->name === '<= PLACEHOLDER =>') {
@@ -379,7 +371,7 @@ class ItemResource extends AbstractTranslationResource
                     'BottomAttachment' => 'Underbarrel',
                     default => $this->sub_type,
                 },
-            ]
+            ],
         ];
     }
 }

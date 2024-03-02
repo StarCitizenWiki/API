@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V2\SC\Char\PersonalWeapon;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
+use App\Http\Filters\ItemVariantsFilter;
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponLinkResource;
 use App\Http\Resources\SC\Char\PersonalWeapon\PersonalWeaponResource;
+use App\Http\Resources\SC\Item\ItemLinkResource;
 use App\Http\Resources\SC\Item\ItemResource;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeapon;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,6 +29,8 @@ class PersonalWeaponController extends AbstractApiV2Controller
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/limit'),
+            new OA\Parameter(ref: '#/components/parameters/variant_includes_v2'),
+            new OA\Parameter(name: 'filter[variants]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[class]', in: 'query', schema: new OA\Schema(type: 'string')),
         ],
@@ -37,9 +40,9 @@ class PersonalWeaponController extends AbstractApiV2Controller
                 description: 'List of Personal Weapons',
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/personal_weapon_link_v2')
+                    items: new OA\Items(ref: '#/components/schemas/item_link_v2')
                 )
-            )
+            ),
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
@@ -48,17 +51,18 @@ class PersonalWeaponController extends AbstractApiV2Controller
             ->allowedFilters([
                 AllowedFilter::callback('type', static function (Builder $query, $value) {
                     $query->whereRelation('descriptionData', 'name', 'Item Type')
-                    ->whereRelation('descriptionData', 'value', $value);
+                        ->whereRelation('descriptionData', 'value', $value);
                 }),
                 AllowedFilter::callback('class', static function (Builder $query, $value) {
                     $query->whereRelation('descriptionData', 'name', 'Class')
-                    ->whereRelation('descriptionData', 'value', $value);
+                        ->whereRelation('descriptionData', 'value', $value);
                 }),
+                AllowedFilter::custom('variants', new ItemVariantsFilter()),
             ])
             ->paginate($this->limit)
             ->appends(request()->query());
 
-        return PersonalWeaponLinkResource::collection($query);
+        return ItemLinkResource::collection($query);
     }
 
     #[OA\Get(
@@ -75,6 +79,7 @@ class PersonalWeaponController extends AbstractApiV2Controller
                     items: new OA\Items(
                         type: 'string',
                         enum: [
+                            'variants',
                             'ports',
                             'shops',
                             'shops.items',
@@ -102,7 +107,7 @@ class PersonalWeaponController extends AbstractApiV2Controller
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/personal_weapon_v2')
                 )
-            )
+            ),
         ]
     )]
     public function show(Request $request): AbstractBaseResource

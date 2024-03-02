@@ -263,9 +263,6 @@ class VehicleResource extends AbstractBaseResource
 
     /**
      * Transform the resource into an array.
-     *
-     * @param Request $request
-     * @return array
      */
     public function toArray(Request $request): array
     {
@@ -285,9 +282,9 @@ class VehicleResource extends AbstractBaseResource
             'slug' => Str::slug($this->name),
             'class_name' => $this->class_name,
             'sizes' => [
-                'length' => (double)$this->length,
-                'beam' => (double)$this->width,
-                'height' => (double)$this->height,
+                'length' => (float) $this->length,
+                'beam' => (float) $this->width,
+                'height' => (float) $this->height,
             ],
             'emission' => [
                 'ir' => $this->ir_emission,
@@ -410,21 +407,17 @@ class VehicleResource extends AbstractBaseResource
                     'quantum_spool_time' => $normal->spool_up_time,
                     'quantum_fuel_capacity' => $this->quantum_fuel_capacity,
                     'quantum_range' => $this->quantum_fuel_capacity / ($drives[0]->quantum_fuel_requirement / 1e6),
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
     /**
      * Adds ship-matrix information to the output
-     *
-     * @param array $data
-     * @param Request $request
-     * @return void
      */
     private function loadShipMatrixData(array &$data, Request $request): void
     {
-        if (!$this->vehicle->exists) {
+        if (! $this->vehicle->exists) {
             return;
         }
 
@@ -453,7 +446,7 @@ class VehicleResource extends AbstractBaseResource
         ];
 
         foreach ($toAdd as $key) {
-            if (!empty($matrixVehicle[$key])) {
+            if (! empty($matrixVehicle[$key])) {
                 if (str_contains($key, 'acceleration')) {
                     $key = explode('.', $key)[1];
                     $data['acceleration'][$key] = $matrixVehicle['acceleration'][$key];
