@@ -22,11 +22,12 @@ class ImportLoaner implements ShouldQueue
 
     /**
      * https://github.com/fleetyards/fleetyards/blob/de56bf20cb105881426e7a1d98472c16e06715ef/app/lib/rsi/loaner_loader.rb
+     *
      * @var array|array[]
      */
     private array $modelsMap = [
         '100 Series' => ['100i', '125a', '135c'],
-        '600i Series' => ['600i Touring', '600i Explorer', '600i Executive Edition'],
+        '600i Explorer and Executive' => ['600i Explorer', '600i Executive Edition'],
         'Apollo' => ['Apollo Medivac', 'Apollo Triage'],
         'Ares Ion / Inferno' => ['Ares Ion', 'Ares Inferno'],
         'Carrack / Carrack Expedition' => ['Carrack'],
@@ -56,9 +57,9 @@ class ImportLoaner implements ShouldQueue
         'Spirit E1' => ['E1 Spirit'],
         'Storm Variants' => ['Storm', 'Storm AA'],
         'Talon & Talon Shrike' => ['Talon', 'Talon Shrike'],
-        'X1 & Variants' => ['X1', 'X1 Velocity', 'X1 Force'],
-        'Zeus ES and MR Variants' => ['Zeus Mk II ES', 'Zeus Mk II MR'],
-        'Zeus CL' => 'Zeus Mk II CL'
+        'X1 (+ Velocity, Force)' => ['X1', 'X1 Velocity', 'X1 Force'],
+        'Zeus ES (+ CL)' => ['Zeus Mk II ES', 'Zeus Mk II CL'],
+        'Zeus MR' => 'Zeus Mk II MR',
     ];
 
     private array $modelMap = [
@@ -106,6 +107,7 @@ class ImportLoaner implements ShouldQueue
             $name = $this->modelsMap[$data['ship']] ?? $data['ship'];
             $loaners = collect(explode(',', $data['loaners']))->map(function ($loaner) {
                 $loaner = str_replace('and', '', $loaner);
+
                 return preg_replace('/^\W*(.*?)\W*$/', '$1', $loaner);
             });
 
@@ -134,6 +136,7 @@ class ImportLoaner implements ShouldQueue
                 $vehicle = Vehicle::query()->where('name', 'LIKE', "%{$name}%")->firstOrFail();
             } catch (ModelNotFoundException $e) {
                 $this->missing[] = $name;
+
                 return;
             }
 
@@ -143,10 +146,12 @@ class ImportLoaner implements ShouldQueue
                 } catch (ModelNotFoundException $e) {
                     $this->missing[] = $loaner;
                 }
+
+                return null;
             })
                 ->filter()
                 ->mapWithKeys(function ($id) use ($version) {
-                    return [ $id => [
+                    return [$id => [
                         'version' => $version,
                     ]];
                 });
@@ -156,7 +161,7 @@ class ImportLoaner implements ShouldQueue
 
         $this->missing = collect($this->missing)->unique()->toArray();
 
-        if (!empty($this->missing)) {
+        if (! empty($this->missing)) {
             app('Log')::info(sprintf(
                 'Found missing vehicles while importing loaner: %s',
                 implode(', ', $this->missing)
@@ -172,7 +177,7 @@ class ImportLoaner implements ShouldQueue
             }
         });
 
-        $version = Arr::first(array_filter($version)) ?? null;
+        $version = Arr::first(array_filter($version));
 
         if ($version === null) {
             return null;
