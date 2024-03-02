@@ -82,7 +82,7 @@ final class WeaponAttachment extends AbstractCommodityItem
 
         return [
             'initial_ammo_count' => $ammo['initialAmmoCount'],
-            'max_ammo_count' => $ammo['maxAmmoCount'],
+            'max_ammo_count' => $ammo['maxAmmoCount'] ?? $ammo['maxRestockCount'],
         ];
     }
 }

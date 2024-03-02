@@ -30,8 +30,6 @@ class WeaponAttachment implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -39,8 +37,9 @@ class WeaponAttachment implements ShouldQueue
 
         try {
             $parser = new \App\Services\Parser\SC\WeaponAttachment($this->filePath, $labels);
-        } catch (FileNotFoundException | JsonException $e) {
+        } catch (FileNotFoundException|JsonException $e) {
             $this->fail($e);
+
             return;
         }
 
@@ -50,7 +49,7 @@ class WeaponAttachment implements ShouldQueue
             return;
         }
 
-        if (!empty($item['ammo'])) {
+        if (! empty($item['ammo'])) {
             PersonalWeaponMagazine::updateOrCreate([
                 'item_uuid' => $item['uuid'],
             ], [
