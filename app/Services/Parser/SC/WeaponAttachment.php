@@ -76,13 +76,19 @@ final class WeaponAttachment extends AbstractCommodityItem
     private function loadAmmoData(): array
     {
         $ammo = $this->get('SAmmoContainerComponentParams', []);
+
         if (empty($ammo)) {
             return [];
         }
 
+        $max = $ammo['maxAmmoCount'];
+        if ($max == 0) {
+            $max = $ammo['maxRestockCount'];
+        }
+
         return [
             'initial_ammo_count' => $ammo['initialAmmoCount'],
-            'max_ammo_count' => $ammo['maxAmmoCount'] ?? $ammo['maxRestockCount'],
+            'max_ammo_count' => $max,
         ];
     }
 }

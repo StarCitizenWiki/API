@@ -269,7 +269,7 @@ final class Weapon extends AbstractCommodityItem
 
         return [
             'initial_ammo_count' => $data['initialAmmoCount'] ?? 0,
-            'max_ammo_count' => $data['initialAmmoCount'] ?? 0,
+            'max_ammo_count' => $data['maxAmmoCount'] ?? $data['maxRestockCount'] ?? 0,
         ];
     }
 
