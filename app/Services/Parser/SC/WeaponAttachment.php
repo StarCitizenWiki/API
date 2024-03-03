@@ -63,13 +63,14 @@ final class WeaponAttachment extends AbstractCommodityItem
             'size' => $attachDef['Size'],
             'grade' => $attachDef['Grade'],
             'type' => $data['type'] ?? null,
-            'sub_type' =>  $attachDef['SubType'],
+            'sub_type' => $attachDef['SubType'],
             'item_type' => $data['item_type'] ?? null,
             'attachment_point' => $data['attachment_point'] ?? null,
             'magnification' => $data['magnification'] ?? null,
             'capacity' => $data['capacity'] ?? null,
             'utility_class' => $data['utility_class'] ?? null,
             'ammo' => $this->loadAmmoData(),
+            'iron_sight' => $attachDef['SubType'] === 'IronSight' ? $this->loadIronSightData() : [],
         ];
     }
 
@@ -89,6 +90,25 @@ final class WeaponAttachment extends AbstractCommodityItem
         return [
             'initial_ammo_count' => $ammo['initialAmmoCount'],
             'max_ammo_count' => $max,
+        ];
+    }
+
+    private function loadIronSightData(): array
+    {
+        $aimModifier = $this->get('SWeaponModifierComponentParams.modifier.weaponStats.aimModifier', []);
+        $zeroingParams = $this->get('SWeaponModifierComponentParams.zeroingParams.SWeaponZeroingParams', []);
+
+        if (empty($aimModifier) && empty($zeroingParams)) {
+            return [];
+        }
+
+        return [
+            'default_range' => $zeroingParams['defaultRange'] ?? null,
+            'max_range' => $zeroingParams['maxRange'] ?? null,
+            'range_increment' => $zeroingParams['rangeIncrement'] ?? null,
+            'auto_zeroing_time' => $zeroingParams['autoZeroingTime'] ?? null,
+            'zoom_scale' => $aimModifier['zoomScale'] ?? null,
+            'zoom_time_scale' => $aimModifier['zoomTimeScale'] ?? null,
         ];
     }
 }

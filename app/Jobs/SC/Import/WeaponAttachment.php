@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\SC\Import;
 
+use App\Models\SC\Char\PersonalWeapon\IronSight;
 use App\Models\SC\Char\PersonalWeapon\PersonalWeaponMagazine;
 use App\Services\Parser\SC\Labels;
 use Illuminate\Bus\Queueable;
@@ -56,6 +57,19 @@ class WeaponAttachment implements ShouldQueue
                 'initial_ammo_count' => $item['ammo']['initial_ammo_count'] ?? null,
                 'max_ammo_count' => $item['ammo']['max_ammo_count'] ?? null,
                 'type' => $item['item_type'] ?? null,
+            ]);
+        }
+
+        if (! empty($item['iron_sight'])) {
+            IronSight::updateOrCreate([
+                'item_uuid' => $item['uuid'],
+            ], [
+                'default_range' => $item['iron_sight']['default_range'],
+                'max_range' => $item['iron_sight']['max_range'],
+                'range_increment' => $item['iron_sight']['range_increment'],
+                'auto_zeroing_time' => $item['iron_sight']['auto_zeroing_time'],
+                'zoom_scale' => $item['iron_sight']['zoom_scale'],
+                'zoom_time_scale' => $item['iron_sight']['zoom_time_scale'],
             ]);
         }
     }

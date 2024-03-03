@@ -194,7 +194,7 @@ class Item extends HasTranslations
             case $this->type === 'WeaponAttachment':
                 switch ($this->sub_type) {
                     case 'IronSight':
-                        return $this->hasOne(IronSight::class, 'uuid', 'uuid')->withDefault();
+                        return $this->hasOne(IronSight::class, 'item_uuid', 'uuid')->withDefault();
 
                     case 'Magazine':
                         return $this->hasOne(PersonalWeaponMagazine::class, 'item_uuid', 'uuid')->withDefault();
