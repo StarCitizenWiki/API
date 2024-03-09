@@ -26,9 +26,6 @@ final class Item extends AbstractCommodityItem
     ];
 
     /**
-     * @param string $fileName
-     * @param Collection $labels
-     * @param Collection $manufacturers
      * @throws FileNotFoundException
      * @throws JsonException
      */
@@ -44,7 +41,7 @@ final class Item extends AbstractCommodityItem
     {
         $attachDef = $this->getAttachDef();
 
-        if ($attachDef === null || !Arr::has($this->item, 'Raw.Entity.ClassName')) {
+        if ($attachDef === null || ! Arr::has($this->item, 'Raw.Entity.ClassName')) {
             return null;
         }
 
@@ -123,7 +120,7 @@ final class Item extends AbstractCommodityItem
             ]
         );
 
-        if (!empty($descriptionData['manufacturer'])) {
+        if (! empty($descriptionData['manufacturer'])) {
             $descriptionData['manufacturer'] = $this->manufacturerFixes[$descriptionData['manufacturer']] ?? $descriptionData['manufacturer'];
         }
 
@@ -176,10 +173,10 @@ final class Item extends AbstractCommodityItem
             $volume = $volume['SStandardCargoUnit']['standardCargoUnits'];
         } elseif (isset($volume['SCentiCargoUnit']['centiSCU'])) {
             $unit = 2;
-            $volume = (float)($volume['SCentiCargoUnit']['centiSCU']) * (10 ** -$unit);
+            $volume = (float) ($volume['SCentiCargoUnit']['centiSCU']) * (10 ** -$unit);
         } elseif (isset($volume['SMicroCargoUnit']['microSCU'])) {
             $unit = 6;
-            $volume = (float)($volume['SMicroCargoUnit']['microSCU']) * (10 ** -$unit);
+            $volume = (float) ($volume['SMicroCargoUnit']['microSCU']) * (10 ** -$unit);
         } else {
             $volume = 0;
         }
@@ -266,8 +263,9 @@ final class Item extends AbstractCommodityItem
                 );
 
                 $item = collect(json_decode($item, true, 512, JSON_THROW_ON_ERROR));
+
                 return Arr::get($item, 'Raw.Entity.__ref');
-            } catch (FileNotFoundException | JsonException $e) {
+            } catch (FileNotFoundException|JsonException $e) {
                 return null;
             }
         }
@@ -282,7 +280,7 @@ final class Item extends AbstractCommodityItem
             ->mapWithKeys(function ($loadout) {
                 $itemUuid = null;
 
-                if (!empty($loadout['entityClassName'])) {
+                if (! empty($loadout['entityClassName'])) {
                     $itemUuid = $this->getItemUUID($loadout['entityClassName']);
                 }
 
@@ -293,7 +291,7 @@ final class Item extends AbstractCommodityItem
                 $itemPortName = strtolower($loadout['itemPortName']);
 
                 return [
-                    $itemPortName => $itemUuid
+                    $itemPortName => $itemUuid,
                 ];
             })
             ->filter();

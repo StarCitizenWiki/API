@@ -13,13 +13,12 @@ use JsonException;
 abstract class AbstractCommodityItem
 {
     protected string $filePath;
+
     protected Collection $item;
 
     protected Collection $labels;
 
     /**
-     * @param string $filePath
-     * @param Collection $labels
      * @throws FileNotFoundException
      * @throws JsonException
      */
@@ -36,17 +35,17 @@ abstract class AbstractCommodityItem
     /**
      * Tries to do some regex magic to extract information from a string
      *
-     * @param string $description The string to run the matches on.
-     * Should be in the format of 'Keyword: Data Keyword: ...'
-     * @param array $wantedMatches Associative array mapping a Keyword to an output index on the returned array
-     * Example: [ 'Temp. Rating' => 'temp_rating' ] would try to find 'Temp. Rating' in $description and add
-     * the matched content to 'temp_rating' => match on the output
-     *
-     * @return array
+     * @param  string  $description  The string to run the matches on.
+     *                               Should be in the format of 'Keyword: Data Keyword: ...'
+     * @param  array  $wantedMatches  Associative array mapping a Keyword to an output index on the returned array
+     *                                Example: [ 'Temp. Rating' => 'temp_rating' ] would try to find 'Temp. Rating' in $description and add
+     *                                the matched content to 'temp_rating' => match on the output
      */
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
         $description = trim(str_replace('\n', "\n", $description));
+        $description = str_replace(['‘', '’', '`', '´', ' '], ['\'', '\'', '\'', '\'', ' '], $description);
+
         $parts = explode("\n", $description);
 
         if (count($parts) === 1) {
@@ -58,13 +57,19 @@ abstract class AbstractCommodityItem
         })->implode("\n");
 
         $match = preg_match_all(
-            '/(' . implode('|', array_keys($wantedMatches)) . '):(?:\s| )?([µ\w_&\ \(\),\.\-\°\/\\%%+-]*)(?:\\n|\n||\\\n|$)/m',
+            '/('.implode('|', array_keys($wantedMatches)).'):(?:\s| )?([µ\w_& (),.\-°\/%%+-]*)(?:\n|\\\n|$)/m',
             $withColon,
             $matches
         );
 
         if ($match === false || $match === 0) {
-            return [];
+            if ($description === '<= PLACEHOLDER =>' || str_contains($description, '[PH]')) {
+                return [];
+            }
+
+            return [
+                'description' => $description,
+            ];
         }
 
         $out = [];
@@ -87,19 +92,18 @@ abstract class AbstractCommodityItem
             return preg_match('/\w:[\s| ]/u', $part) !== 1;
         });
 
-        $exploded = join("\n\n", $exploded);
-
-        $exploded = str_replace(['‘', '’', '`', '´', ' '], ['\'', '\'', '\'', '\'', ' '], trim($exploded ?? ''));
+        $exploded = trim(implode("\n\n", $exploded));
 
         return $out + [
-                'description' => $exploded,
-            ];
+            'description' => $exploded,
+        ];
     }
 
     protected function getName(array $attachDef, string $default): string
     {
         $name = $this->labels->get(substr($attachDef['Localization']['Name'], 1));
         $name = $this->cleanString(trim($name ?? $default));
+
         return empty($name) ? $default : $name;
     }
 
@@ -134,6 +138,7 @@ abstract class AbstractCommodityItem
         $string = str_replace(['‘', '’', '`', '´'], "'", $string);
         $string = str_replace(['“', '”', '"'], '"', $string);
         $string = trim(str_replace(' ', ' ', $string));
+
         return preg_replace('/\s+/', ' ', $string);
     }
 
@@ -149,6 +154,6 @@ abstract class AbstractCommodityItem
 
     protected function get(string $key, $default = null): mixed
     {
-        return Arr::get($this->item, 'Raw.Entity.Components.' . $key, $default);
+        return Arr::get($this->item, 'Raw.Entity.Components.'.$key, $default);
     }
 }
