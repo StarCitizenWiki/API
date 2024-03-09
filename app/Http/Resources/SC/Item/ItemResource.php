@@ -123,6 +123,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'power', ref: '#/components/schemas/item_power_data_v2', nullable: true),
         new OA\Property(property: 'distortion', ref: '#/components/schemas/item_distortion_data_v2', nullable: true),
         new OA\Property(property: 'durability', ref: '#/components/schemas/item_durability_data_v2', nullable: true),
+        new OA\Property(property: 'weapon_modifier', ref: '#/components/schemas/item_weapon_modifier_data_v2', nullable: true),
         new OA\Property(property: 'shops', ref: '#/components/schemas/shop_v2', nullable: true),
         new OA\Property(property: 'base_variant', ref: '#/components/schemas/item_link_v2', nullable: true),
         new OA\Property(
@@ -215,6 +216,9 @@ class ItemResource extends AbstractTranslationResource
             ]),
             $this->mergeWhen(! $this->onlySimpleData && $this->relationLoaded('durabilityData'), [
                 'durability' => new ItemDurabilityDataResource($this->durabilityData),
+            ]),
+            $this->mergeWhen($this->type === 'WeaponAttachment', [
+                'weapon_modifier' => new ItemWeaponModifierDataResource($this->weaponModifierData),
             ]),
             'shops' => ShopResource::collection($this->whenLoaded('shops')),
             $this->mergeWhen($this->base_id !== null, [

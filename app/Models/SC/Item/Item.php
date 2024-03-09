@@ -393,6 +393,16 @@ class Item extends HasTranslations
         );
     }
 
+
+    public function weaponModifierData(): HasOne
+    {
+        return $this->hasOne(
+            ItemWeaponModifierData::class,
+            'item_uuid',
+            'uuid'
+        );
+    }
+
     public function manufacturer(): HasOne
     {
         return $this->hasOne(Manufacturer::class, 'id', 'manufacturer_id');

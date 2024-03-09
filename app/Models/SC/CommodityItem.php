@@ -19,12 +19,9 @@ abstract class CommodityItem extends HasTranslations
     use HasFactory;
 
     protected $with = [
-        'item'
+        'item',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class, 'item_uuid', 'uuid');
@@ -40,17 +37,11 @@ abstract class CommodityItem extends HasTranslations
         return $this->item?->version;
     }
 
-    /**
-     * @return HasMany
-     */
     public function translations(): HasMany
     {
         return $this->item->translations();
     }
 
-    /**
-     * @return HasManyThrough
-     */
     public function shops(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -63,9 +54,6 @@ abstract class CommodityItem extends HasTranslations
         );
     }
 
-    /**
-     * @return HasManyThrough
-     */
     public function descriptionData(): HasManyThrough
     {
         return $this->hasManyThrough(

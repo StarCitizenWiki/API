@@ -35,6 +35,7 @@ final class ItemSpecificationCreator
                 break;
             case $type === 'WeaponAttachment':
                 WeaponAttachment::dispatch($filePath);
+                WeaponModifier::dispatch($filePath);
                 break;
 
             case $subType === 'Hacking':
