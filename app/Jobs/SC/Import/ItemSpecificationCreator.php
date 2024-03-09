@@ -37,6 +37,10 @@ final class ItemSpecificationCreator
                 WeaponAttachment::dispatch($filePath);
                 break;
 
+            case $subType === 'Hacking':
+                HackingChip::dispatch($filePath);
+                break;
+
             // Mining
             case stripos($type, 'WeaponMining') !== false:
                 MiningLaser::dispatch($filePath);

@@ -19,6 +19,7 @@ use App\Http\Resources\SC\ItemSpecification\EmpResource;
 use App\Http\Resources\SC\ItemSpecification\FlightControllerResource;
 use App\Http\Resources\SC\ItemSpecification\FuelIntakeResource;
 use App\Http\Resources\SC\ItemSpecification\FuelTankResource;
+use App\Http\Resources\SC\ItemSpecification\HackingChipResource;
 use App\Http\Resources\SC\ItemSpecification\MiningLaser\MiningLaserResource;
 use App\Http\Resources\SC\ItemSpecification\MiningModuleResource;
 use App\Http\Resources\SC\ItemSpecification\MissileResource;
@@ -83,6 +84,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'fuel_intake', ref: '#/components/schemas/fuel_intake_v2', nullable: true),
         new OA\Property(property: 'fuel_tank', ref: '#/components/schemas/fuel_tank_v2', nullable: true),
         new OA\Property(property: 'grenade', ref: '#/components/schemas/grenade_v2', nullable: true),
+        new OA\Property(property: 'hacking_chip', ref: '#/components/schemas/hacking_chip_v2', nullable: true),
         new OA\Property(property: 'iron_sight', ref: '#/components/schemas/iron_sight_v2', nullable: true),
         new OA\Property(property: 'mining_laser', ref: '#/components/schemas/mining_laser_v2', nullable: true),
         new OA\Property(property: 'mining_module', ref: '#/components/schemas/mining_module_v2', nullable: true),
@@ -240,10 +242,6 @@ class ItemResource extends AbstractTranslationResource
                 $specification->exists,
                 ['bomb' => new BombResource($specification)],
             ],
-            $this->type === 'EMP' => [
-                $specification->exists,
-                ['emp' => new EmpResource($specification)],
-            ],
             $this->type === 'Cooler' => [
                 $specification->exists,
                 ['cooler' => new CoolerResource($specification)],
@@ -252,25 +250,13 @@ class ItemResource extends AbstractTranslationResource
                 $specification->exists,
                 ['clothing' => new ClothingResource($specification)],
             ],
+            $this->type === 'EMP' => [
+                $specification->exists,
+                ['emp' => new EmpResource($specification)],
+            ],
             $this->type === 'Food', $this->type === 'Bottle', $this->type === 'Drink' => [
                 $specification->exists,
                 ['food' => new FoodResource($specification)],
-            ],
-            $this->type === 'MainThruster', $this->type === 'ManneuverThruster' => [
-                $specification->exists,
-                ['thruster' => new ThrusterResource($specification)],
-            ],
-            $this->type === 'PowerPlant' => [
-                $specification->exists,
-                ['power_plant' => new PowerPlantResource($specification)],
-            ],
-            $this->type === 'Shield' => [
-                $specification->exists,
-                ['shield' => new ShieldResource($specification)],
-            ],
-            $this->type === 'SelfDestruct' => [
-                $specification->exists,
-                ['self_destruct' => new SelfDestructResource($specification)],
             ],
             $this->type === 'FlightController' => [
                 $specification->exists,
@@ -284,6 +270,30 @@ class ItemResource extends AbstractTranslationResource
                 $specification->exists,
                 ['fuel_intake' => new FuelIntakeResource($specification)],
             ],
+            $this->sub_type === 'Hacking' => [
+                $specification->exists,
+                ['hacking_chip' => new HackingChipResource($specification)],
+            ],
+            $this->type === 'MainThruster', $this->type === 'ManneuverThruster' => [
+                $specification->exists,
+                ['thruster' => new ThrusterResource($specification)],
+            ],
+            $this->sub_type === 'Magazine' => [
+                $specification->exists,
+                ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification)],
+            ],
+            $this->type === 'Missile', $this->type === 'Torpedo' => [
+                $specification->exists,
+                ['missile' => new MissileResource($specification)],
+            ],
+            $this->type === 'MiningModifier' => [
+                $specification->exists,
+                ['mining_module' => new MiningModuleResource($specification)],
+            ],
+            $this->type === 'PowerPlant' => [
+                $specification->exists,
+                ['power_plant' => new PowerPlantResource($specification)],
+            ],
             $this->type === 'QuantumInterdictionGenerator' => [
                 $specification->exists,
                 ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($specification)],
@@ -291,6 +301,22 @@ class ItemResource extends AbstractTranslationResource
             $this->type === 'QuantumDrive' => [
                 $specification->exists,
                 ['quantum_drive' => new QuantumDriveResource($specification)],
+            ],
+            $this->type === 'SalvageModifier' => [
+                $specification->exists,
+                ['salvage_modifier' => new SalvageModifierResource($specification)],
+            ],
+            $this->type === 'SelfDestruct' => [
+                $specification->exists,
+                ['self_destruct' => new SelfDestructResource($specification)],
+            ],
+            $this->type === 'Shield' => [
+                $specification->exists,
+                ['shield' => new ShieldResource($specification)],
+            ],
+            $this->type === 'TractorBeam' || $this->type === 'TowingBeam' => [
+                $specification->exists,
+                ['tractor_beam' => new TractorBeamResource($specification)],
             ],
             $this->type === 'WeaponPersonal' && $this->sub_type === 'Grenade' => [
                 $specification->exists,
@@ -308,18 +334,6 @@ class ItemResource extends AbstractTranslationResource
                 $specification->exists,
                 ['barrel_attach' => new BarrelAttachResource($specification)],
             ],
-            $this->sub_type === 'Magazine' => [
-                $specification->exists,
-                ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification)],
-            ],
-            $this->type === 'Missile', $this->type === 'Torpedo' => [
-                $specification->exists,
-                ['missile' => new MissileResource($specification)],
-            ],
-            $this->type === 'MiningModifier' => [
-                $specification->exists,
-                ['mining_module' => new MiningModuleResource($specification)],
-            ],
             $this->type === 'WeaponGun', $this->type === 'WeaponDefensive' => [
                 $specification->exists,
                 [($this->type === 'WeaponGun' ?
@@ -329,14 +343,6 @@ class ItemResource extends AbstractTranslationResource
             $this->type === 'WeaponMining' => [
                 $specification->exists,
                 ['mining_laser' => new MiningLaserResource($specification)],
-            ],
-            $this->type === 'TractorBeam' || $this->type === 'TowingBeam' => [
-                $specification->exists,
-                ['tractor_beam' => new TractorBeamResource($specification)],
-            ],
-            $this->type === 'SalvageModifier' => [
-                $specification->exists,
-                ['salvage_modifier' => new SalvageModifierResource($specification)],
             ],
             default => [false, []],
         };

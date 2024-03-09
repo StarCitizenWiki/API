@@ -19,6 +19,7 @@ use App\Models\SC\ItemSpecification\Emp;
 use App\Models\SC\ItemSpecification\FlightController;
 use App\Models\SC\ItemSpecification\FuelIntake;
 use App\Models\SC\ItemSpecification\FuelTank;
+use App\Models\SC\ItemSpecification\HackingChip;
 use App\Models\SC\ItemSpecification\MiningLaser;
 use App\Models\SC\ItemSpecification\MiningModule;
 use App\Models\SC\ItemSpecification\Missile\Missile;
@@ -205,6 +206,9 @@ class Item extends HasTranslations
                         return $this->hasOne(BarrelAttach::class, 'uuid', 'uuid')->withDefault();
                 }
                 break;
+
+            case $this->sub_type === 'Hacking':
+                return $this->hasOne(HackingChip::class, 'item_uuid', 'uuid')->withDefault();
 
                 /**
                  * Vehicles
