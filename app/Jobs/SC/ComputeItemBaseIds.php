@@ -41,6 +41,9 @@ class ComputeItemBaseIds implements ShouldQueue
 
                         if (! empty($classAlt)) {
                             $query->orWhere('class_name', $classAlt);
+                            // Thanks ADP-mk4 Core Woodland
+                            $query->orWhere('class_name', $classAlt.'_01');
+                            $query->orWhere('class_name', $classAlt.'_01_01');
                         }
                     })
                     ->first();
