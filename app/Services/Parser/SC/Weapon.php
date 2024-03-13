@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\SC;
 
-use App\Services\Parser\SC\AbstractCommodityItem;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use JsonException;
 
 final class Weapon extends AbstractCommodityItem
 {
@@ -51,17 +49,16 @@ final class Weapon extends AbstractCommodityItem
             'regen_consumption' => $this->buildRegenConsumption($this->item),
         ];
 
-        if (empty($out['capacity']) && !empty($out['regen_consumption'])) {
+        if (empty($out['capacity']) && ! empty($out['regen_consumption'])) {
             $out['capacity'] = floor($out['regen_consumption']['requested_ammo_load'] / $out['regen_consumption']['cost_per_bullet']);
         }
-
 
         return $out;
     }
 
     private function buildAmmunitionWeaponPart(Collection $rawData): array
     {
-        if (!$rawData->has('ammo')) {
+        if (! $rawData->has('ammo')) {
             return [];
         }
 
@@ -98,21 +95,57 @@ final class Weapon extends AbstractCommodityItem
             ->filter($damageFilter)
             ->toArray();
 
+        $pierceKey = 'ammo.projectileParams.BulletProjectileParams.pierceabilityParams.';
+        $falloffKey = 'ammo.projectileParams.BulletProjectileParams.damageDropParams.BulletDamageDropParams.';
+
         return [
+            'uuid' => Arr::get($rawData, 'ammo.__ref'),
             'size' => Arr::get($rawData, 'ammo.size') ?? 1,
             'speed' => Arr::get($rawData, 'ammo.speed'),
             'lifetime' => Arr::get($rawData, 'ammo.lifetime'),
-            'range' => (float)Arr::get($rawData, 'ammo.speed', 0) * (float)Arr::get($rawData, 'ammo.lifetime', 0),
+            'range' => (float) Arr::get($rawData, 'ammo.speed', 0) * (float) Arr::get($rawData, 'ammo.lifetime', 0),
             'damages' => array_filter([
                 'impact' => $damage,
                 'detonation' => $detonation,
             ]),
+            'piercability' => [
+                'damage_falloff_level_1' => Arr::get($rawData, $pierceKey.'damageFalloffLevel1'),
+                'damage_falloff_level_2' => Arr::get($rawData, $pierceKey.'damageFalloffLevel2'),
+                'damage_falloff_level_3' => Arr::get($rawData, $pierceKey.'damageFalloffLevel3'),
+                'max_penetration_thickness' => Arr::get($rawData, $pierceKey.'maxPenetrationThickness'),
+            ],
+            'damage_falloffs' => [
+                'min_distance' => [
+                    'physical' => Arr::get($rawData, $falloffKey.'damageDropMinDistance.DamageInfo.DamagePhysical'),
+                    'energy' => Arr::get($rawData, $falloffKey.'damageDropMinDistance.DamageInfo.DamageEnergy'),
+                    'distortion' => Arr::get($rawData, $falloffKey.'damageDropMinDistance.DamageInfo.DamageDistortion'),
+                    'thermal' => Arr::get($rawData, $falloffKey.'damageDropMinDistance.DamageInfo.DamageThermal'),
+                    'biochemical' => Arr::get($rawData, $falloffKey.'damageDropMinDistance.DamageInfo.DamageBiochemical'),
+                    'stun' => Arr::get($rawData, $falloffKey.'damageDropMinDistance.DamageInfo.DamageStun'),
+                ],
+                'per_meter' => [
+                    'physical' => Arr::get($rawData, $falloffKey.'damageDropPerMeter.DamageInfo.DamagePhysical'),
+                    'energy' => Arr::get($rawData, $falloffKey.'damageDropPerMeter.DamageInfo.DamageEnergy'),
+                    'distortion' => Arr::get($rawData, $falloffKey.'damageDropPerMeter.DamageInfo.DamageDistortion'),
+                    'thermal' => Arr::get($rawData, $falloffKey.'damageDropPerMeter.DamageInfo.DamageThermal'),
+                    'biochemical' => Arr::get($rawData, $falloffKey.'damageDropPerMeter.DamageInfo.DamageBiochemical'),
+                    'stun' => Arr::get($rawData, $falloffKey.'damageDropPerMeter.DamageInfo.DamageStun'),
+                ],
+                'min_damage' => [
+                    'physical' => Arr::get($rawData, $falloffKey.'damageDropMinDamage.DamageInfo.DamagePhysical'),
+                    'energy' => Arr::get($rawData, $falloffKey.'damageDropMinDamage.DamageInfo.DamageEnergy'),
+                    'distortion' => Arr::get($rawData, $falloffKey.'damageDropMinDamage.DamageInfo.DamageDistortion'),
+                    'thermal' => Arr::get($rawData, $falloffKey.'damageDropMinDamage.DamageInfo.DamageThermal'),
+                    'biochemical' => Arr::get($rawData, $falloffKey.'damageDropMinDamage.DamageInfo.DamageBiochemical'),
+                    'stun' => Arr::get($rawData, $falloffKey.'damageDropMinDamage.DamageInfo.DamageStun'),
+                ],
+            ],
         ];
     }
 
     private function buildMode(array $mode): array
     {
-        if (!isset($mode['name'])) {
+        if (! isset($mode['name'])) {
             return [];
         }
 
@@ -193,6 +226,7 @@ final class Weapon extends AbstractCommodityItem
                 if (isset($mode['sequenceEntries'])) {
                     $mode['name'] = 'looping';
                 }
+
                 return $this->buildMode($mode);
             });
 
@@ -248,15 +282,15 @@ final class Weapon extends AbstractCommodityItem
             $value = trim(array_pop($split), ')');
         }
 
-        if (!is_numeric(trim($value, ' km'))) {
+        if (! is_numeric(trim($value, ' km'))) {
             return 0;
         }
 
         if (strpos($value, 'km') !== false) {
-            $value = (int)trim($value, ' km') * 1000;
+            $value = (int) trim($value, ' km') * 1000;
         }
 
-        return (int)trim((string)$value, ' m');
+        return (int) trim((string) $value, ' m');
     }
 
     private function buildMagazinePart(Collection $rawData)

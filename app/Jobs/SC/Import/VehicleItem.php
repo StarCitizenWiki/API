@@ -327,28 +327,11 @@ class VehicleItem implements ShouldQueue
             'weapon_type' => Arr::get($item, 'weapon.weapon_type'),
             'weapon_class' => Arr::get($item, 'weapon.weapon_class'),
             'capacity' => Arr::get($item, 'weapon.capacity'),
+            'ammunition_uuid' => $item['weapon']['ammunition']['uuid'] ?? null,
         ]);
 
         if (! empty($item['weapon']['ammunition'])) {
-            $ammunition = $weapon->ammunition()->updateOrCreate([
-                'weapon_id' => $weapon->id,
-            ], [
-                'size' => Arr::get($item, 'weapon.ammunition.size'),
-                'lifetime' => Arr::get($item, 'weapon.ammunition.lifetime'),
-                'speed' => Arr::get($item, 'weapon.ammunition.speed'),
-                'range' => Arr::get($item, 'weapon.ammunition.range'),
-            ]);
-
-            collect($item['weapon']['ammunition']['damages'])->each(function ($damageClass) use ($ammunition) {
-                collect($damageClass)->each(function ($damage) use ($ammunition) {
-                    $ammunition->damages()->updateOrCreate([
-                        'type' => $damage['type'],
-                        'name' => $damage['name'],
-                    ], [
-                        'damage' => $damage['damage'],
-                    ]);
-                });
-            });
+            (new Ammunition($item['weapon']))->handle();
         }
 
         collect($item['weapon']['modes'])->each(function (array $mode) use ($weapon) {

@@ -2,10 +2,10 @@
 
 namespace App\Models\SC\Vehicle\Weapon;
 
+use App\Models\SC\Ammunition\Ammunition;
 use App\Models\SC\CommodityItem;
 use App\Traits\HasDescriptionDataTrait;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class VehicleWeapon extends CommodityItem
@@ -17,6 +17,7 @@ class VehicleWeapon extends CommodityItem
     protected $fillable = [
         'item_uuid',
         'capacity',
+        'ammunition_uuid',
     ];
 
     protected $casts = [
@@ -26,7 +27,6 @@ class VehicleWeapon extends CommodityItem
     protected $with = [
         'modes',
         'item',
-        'ammunition',
         'regen',
     ];
 
@@ -42,7 +42,7 @@ class VehicleWeapon extends CommodityItem
 
     public function ammunition(): HasOne
     {
-        return $this->hasOne(VehicleWeaponAmmunition::class, 'weapon_id');
+        return $this->hasOne(Ammunition::class, 'uuid', 'ammunition_uuid')->withDefault();
     }
 
     public function regen(): HasOne
@@ -50,24 +50,14 @@ class VehicleWeapon extends CommodityItem
         return $this->hasOne(VehicleWeaponRegeneration::class, 'weapon_id');
     }
 
-    /**
-     * @return HasManyThrough
-     */
-    public function damages(): HasManyThrough
+    public function damages()
     {
-        return $this->hasManyThrough(
-            VehicleWeaponAmmunitionDamage::class,
-            VehicleWeaponAmmunition::class,
-            'weapon_id',
-            'id'
-        );
+        return $this->ammunition->damages;
     }
 
     public function getDamageAttribute(): float
     {
-        return $this->damages->reduce(function ($carry, $item) {
-            return $carry + $item->damage;
-        }, 0);
+        return $this->ammunition->damage;
     }
 
 

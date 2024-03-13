@@ -32,8 +32,6 @@ class PersonalWeapon extends Item
     {
         $this->with = collect($this->with)->merge([
             'modes',
-            'damages',
-            'ammunition',
         ])
             ->unique()
             ->toArray();
@@ -73,9 +71,9 @@ class PersonalWeapon extends Item
         return optional();
     }
 
-    public function ammunition(): HasOne
+    public function getAmmunitionAttribute()
     {
-        return $this->hasOne(PersonalWeaponAmmunition::class, 'item_uuid', 'uuid');
+        return $this->magazine->ammunition;
     }
 
     public function attachments(): HasMany
@@ -83,16 +81,9 @@ class PersonalWeapon extends Item
         return $this->ports();
     }
 
-    public function damages(): HasManyThrough
+    public function damages()
     {
-        return $this->hasManyThrough(
-            PersonalWeaponAmmunitionDamage::class,
-            PersonalWeaponAmmunition::class,
-            'item_uuid',
-            'ammunition_id',
-            'uuid',
-            'id',
-        );
+        return $this->magazine->ammunition->damages;
     }
 
     public function getRofAttribute()

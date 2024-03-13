@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Jobs\SC\Import;
 
 use App\Models\SC\Char\PersonalWeapon\PersonalWeapon as PersonalWeaponModel;
-use App\Models\SC\Char\PersonalWeapon\PersonalWeaponAmmunition;
 use App\Services\Parser\SC\Labels;
 use App\Services\Parser\SC\Weapon;
 use Illuminate\Bus\Queueable;
@@ -34,8 +33,6 @@ class PersonalWeapon implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -43,8 +40,9 @@ class PersonalWeapon implements ShouldQueue
 
         try {
             $parser = new Weapon($this->filePath, $labels);
-        } catch (JsonException | FileNotFoundException $e) {
+        } catch (JsonException|FileNotFoundException $e) {
             $this->fail($e->getMessage());
+
             return;
         }
 
@@ -56,37 +54,18 @@ class PersonalWeapon implements ShouldQueue
             return;
         }
 
-        $this->addAmmunition($item, $itemModel);
+        $this->addAmmunition($item);
         $this->addModes($item, $itemModel);
         $this->addLoadout($item, $itemModel);
     }
 
-    private function addAmmunition(array $data, PersonalWeaponModel $weapon): void
+    private function addAmmunition(array $data): void
     {
-        if (empty($data['ammunition'])) {
+        if (empty($data['ammunition']) || empty($data['uuid'])) {
             return;
         }
 
-        /** @var PersonalWeaponAmmunition $ammunition */
-        $ammunition = $weapon->ammunition()->updateOrCreate([
-            'item_uuid' => $weapon->uuid,
-        ], [
-            'size' => $data['ammunition']['size'],
-            'lifetime' => $data['ammunition']['lifetime'],
-            'speed' => $data['ammunition']['speed'],
-            'range' => $data['ammunition']['range'],
-        ]);
-
-        collect($data['ammunition']['damages'])->each(function ($damageClass) use ($ammunition) {
-            collect($damageClass)->each(function ($damage) use ($ammunition) {
-                $ammunition->damages()->updateOrCreate([
-                    'type' => $damage['type'],
-                    'name' => $damage['name'],
-                ], [
-                    'damage' => $damage['damage'],
-                ]);
-            });
-        });
+        (new \App\Jobs\SC\Import\Ammunition($data))->handle();
     }
 
     private function addModes(array $data, PersonalWeaponModel $weapon): void
@@ -96,7 +75,7 @@ class PersonalWeapon implements ShouldQueue
         }
 
         collect($data['modes'])
-            ->filter(fn($e) => isset($e['type']))
+            ->filter(fn ($e) => isset($e['type']))
             ->each(function (array $mode) use ($weapon) {
                 $weapon->modes()->updateOrCreate([
                     'mode' => $mode['mode'],

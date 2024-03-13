@@ -88,6 +88,7 @@ final class WeaponAttachment extends AbstractCommodityItem
         }
 
         return [
+            'ammunition_uuid' => $ammo['ammoParamsRecord'],
             'initial_ammo_count' => $ammo['initialAmmoCount'],
             'max_ammo_count' => $max,
         ];
