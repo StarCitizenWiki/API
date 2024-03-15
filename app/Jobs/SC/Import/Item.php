@@ -6,6 +6,9 @@ namespace App\Jobs\SC\Import;
 
 use App\Models\SC\Item\Interaction;
 use App\Models\SC\Item\ItemPort;
+use App\Models\SC\Item\ItemPortType;
+use App\Models\SC\Item\ItemSubType;
+use App\Models\SC\Item\ItemType;
 use App\Models\SC\Item\Tag;
 use App\Models\SC\Manufacturer;
 use Illuminate\Bus\Queueable;
@@ -129,7 +132,7 @@ class Item implements ShouldQueue
     private function createPorts(\App\Models\SC\Item\Item $itemModel): void
     {
         if (! empty($this->data['ports'])) {
-            collect($this->data['ports'])->each(function (array $port) use ($itemModel) {
+            $availablePorts = collect($this->data['ports'])->each(function (array $port) use ($itemModel) {
                 /** @var ItemPort $port */
                 $portModel = $itemModel->ports()->updateOrCreate([
                     'name' => $port['name'],
@@ -143,7 +146,52 @@ class Item implements ShouldQueue
 
                 $this->addTags($portModel, $port, 'tags');
                 $this->addTags($portModel, $port, 'required_tags', true);
-            });
+
+                $types = collect($port['compatible_types'])
+                    ->map(function (array $type) {
+                        /** @var ItemType $typeModel */
+                        $typeModel = ItemType::query()->firstOrCreate([
+                            'type' => $type['type'],
+                        ]);
+
+                        $type['id'] = $typeModel->id;
+
+                        return $type;
+                    })
+                    ->each(function (array $type) use ($portModel) {
+                        /** @var ItemPort $portModel */
+                        $portModelType = $portModel->compatibleTypes()->updateOrCreate([
+                            'item_type_id' => $type['id'],
+                        ]);
+
+                        $subTypes = collect($type['sub_types'])
+                            ->map(function (string $subType) {
+                                /** @var ItemSubType $typeModel */
+                                $typeModel = ItemSubType::query()->firstOrCreate([
+                                    'sub_type' => $subType,
+                                ]);
+
+                                return $typeModel->id;
+                            })
+                            ->each(function (int $id) use ($portModelType) {
+                                /** @var ItemPortType $portModelType */
+                                $portModelType->subTypes()->updateOrCreate([
+                                    'sub_type_id' => $id,
+                                ]);
+                            });
+
+                        /** @var ItemPortType $portModelType */
+                        $portModelType->subTypes()->whereNotIn('sub_type_id', $subTypes)->delete();
+                    })
+                    ->pluck('id');
+
+                /** @var ItemPort $portModel */
+                $portModel->compatibleTypes()->whereNotIn('item_type_id', $types)->delete();
+            })
+                ->pluck('name');
+
+            // Remove old ports
+            $itemModel->ports()->whereNotIn('name', $availablePorts)->delete();
         }
     }
 

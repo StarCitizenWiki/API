@@ -214,6 +214,7 @@ final class Item extends AbstractCommodityItem
                 'equipped_item_uuid' => $port['EquippedItemUuid'] ?? $loadout[strtolower($port['Name'])] ?? null,
                 'tags' => $port['PortTags'] ?? null,
                 'required_tags' => $port['RequiredPortTags'] ?? null,
+                'compatible_types' => $this->mapPortCompatibleTypes($port),
             ];
         }
 
@@ -292,6 +293,20 @@ final class Item extends AbstractCommodityItem
 
                 return [
                     $itemPortName => $itemUuid,
+                ];
+            })
+            ->filter();
+    }
+
+    private function mapPortCompatibleTypes(array $port): Collection
+    {
+        return collect(Arr::get($port, 'Types', []))
+            ->map(function ($type) {
+                return [
+                    'type' => $type['Type'],
+                    'sub_types' => collect(Arr::get($type, 'SubTypes', []))
+                        ->map(fn (array $subType) => $subType['value'] ?? null)
+                        ->filter(),
                 ];
             })
             ->filter();

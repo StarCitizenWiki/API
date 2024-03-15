@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sc_item_ports', function (Blueprint $table) {
+        Schema::create('sc_item_ports', static function (Blueprint $table) {
             $table->id();
             $table->string('item_uuid');
 

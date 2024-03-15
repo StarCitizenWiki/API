@@ -19,6 +19,7 @@ use OpenApi\Attributes as OA;
             new OA\Property(property: 'min', type: 'integer', nullable: true),
             new OA\Property(property: 'max', type: 'integer', nullable: true),
         ], type: 'object'),
+        new OA\Property(property: 'compatible_types', ref: '#/components/schemas/item_port_type_v2', nullable: true),
         new OA\Property(
             property: 'tags',
             type: 'array',
@@ -53,6 +54,7 @@ class ItemPortResource extends AbstractBaseResource
                 'min' => $this->min_size,
                 'max' => $this->max_size,
             ],
+            'compatible_types' => ItemPortTypeResource::collection($this->compatibleTypes),
             'tags' => $this->defaultTags->pluck('name')->toArray(),
             'required_tags' => $this->requiredTags->pluck('name')->toArray(),
             'equipped_item' => new ItemLinkResource($this->item),
