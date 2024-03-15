@@ -7,6 +7,8 @@ namespace App\Models\System;
 use App\Models\Account\User\User;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
+use App\Models\SC\Item\Item;
+use App\Models\SC\Item\ItemTranslation;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Galactapedia\ArticleTranslation;
 use App\Models\StarCitizen\Manufacturer\Manufacturer;
@@ -47,9 +49,6 @@ class ModelChangelog extends Model
         'user',
     ];
 
-    /**
-     * @return MorphTo
-     */
     public function changelog(): MorphTo
     {
         return $this->morphTo();
@@ -57,8 +56,6 @@ class ModelChangelog extends Model
 
     /**
      * Associated User
-     *
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -67,8 +64,6 @@ class ModelChangelog extends Model
 
     /**
      * Returns a link to the user who created the changelog
-     *
-     * @return string
      */
     public function getUserLinkAttribute(): string
     {
@@ -85,8 +80,6 @@ class ModelChangelog extends Model
 
     /**
      * Returns a routable url to the detail page of the changed model
-     *
-     * @return string
      */
     public function getModelRouteAttribute(): string
     {
@@ -104,7 +97,7 @@ class ModelChangelog extends Model
                 }
 
                 $route = route(
-                    'web.starcitizen.vehicles.' . $route . '.edit',
+                    'web.starcitizen.vehicles.'.$route.'.edit',
                     $relation->getRouteKey(),
                 );
                 break;
@@ -172,6 +165,15 @@ class ModelChangelog extends Model
                 );
                 break;
 
+            case ItemTranslation::class:
+                $relation = $relation?->item;
+            case Item::class:
+                $route = route(
+                    'web.starcitizenunpacked.items.show',
+                    $relation?->getRouteKey() ?? '',
+                );
+                break;
+
             default:
                 $route = '#';
         }
@@ -182,7 +184,6 @@ class ModelChangelog extends Model
     /**
      * Returns changelog data crudely formatted
      *
-     * @return string
      *
      * @throws \JsonException
      */
@@ -204,19 +205,19 @@ class ModelChangelog extends Model
                 ->map(function ($item, $key) {
                     return sprintf('%s: %s', $key, $item);
                 })
-                ->implode("<br>");
+                ->implode('<br>');
         }
 
         if ($this->type === 'creation') {
             return collect($data)->reduce(
                 function ($carry, $data) {
                     if (is_string($data)) {
-                        return $carry . sprintf('%s<br>', $data);
+                        return $carry.sprintf('%s<br>', $data);
                     }
 
                     $keys = array_keys($data)[0];
 
-                    return $carry . sprintf('%s: %s<br>', $keys, $data[$keys]);
+                    return $carry.sprintf('%s: %s<br>', $keys, $data[$keys]);
                 },
                 ''
             );
@@ -227,7 +228,7 @@ class ModelChangelog extends Model
                 ->map(function ($change) {
                     return $change->diff;
                 })
-                ->implode("<br>");
+                ->implode('<br>');
         }
 
         return json_encode($data['changes'], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
