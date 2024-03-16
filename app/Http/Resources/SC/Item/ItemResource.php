@@ -43,6 +43,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'uuid', type: 'string', nullable: true),
         new OA\Property(property: 'name', type: 'string', nullable: true),
+        new OA\Property(property: 'class_name', type: 'string', nullable: true),
         new OA\Property(
             property: 'description',
             oneOf: [
@@ -177,6 +178,7 @@ class ItemResource extends AbstractTranslationResource
         return [
             'uuid' => $this->uuid,
             'name' => $this->name,
+            'class_name' => $this->class_name,
             'description' => $this->getTranslation($this, $request),
             'size' => $this->size,
             'mass' => $this->mass,
