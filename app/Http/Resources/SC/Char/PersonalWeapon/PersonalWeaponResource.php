@@ -63,7 +63,7 @@ class PersonalWeaponResource extends AbstractBaseResource
             'magazine_type' => $this->magazineType,
             'magazine_size' => $this->magazine->max_ammo_count ?? null,
             'effective_range' => $this->effective_range ?? null,
-            'damage_per_shot' => $this->ammunition->damage ?? null,
+            'damage_per_shot' => $this->ammunition?->damage ?? null,
             'rof' => $this->rof ?? null,
             'modes' => WeaponModeResource::collection($this->whenLoaded('modes')),
             'damages' => WeaponDamageResource::collection($this->damages()),

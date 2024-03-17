@@ -28,9 +28,9 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Vehicle extends CommodityItem
 {
+    use HasDescriptionDataTrait;
     use HasFactory;
     use ModelChangelog;
-    use HasDescriptionDataTrait;
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
@@ -137,6 +137,11 @@ class Vehicle extends CommodityItem
         );
     }
 
+    public function getRouteKey()
+    {
+        return $this->item_uuid;
+    }
+
     public function getCleanNameAttribute()
     {
         return trim(str_replace($this->manufacturer->code, '', $this->name));
@@ -144,8 +149,6 @@ class Vehicle extends CommodityItem
 
     /**
      * The Vehicle Manufacturer
-     *
-     * @return BelongsTo
      */
     public function vehicle(): BelongsTo
     {
@@ -159,8 +162,6 @@ class Vehicle extends CommodityItem
     /**
      * Vehicle handling params found on ground vehicles
      * Sadly those are not set on the WheeledController
-     *
-     * @return HasOne
      */
     public function handling(): HasOne
     {
@@ -169,8 +170,6 @@ class Vehicle extends CommodityItem
 
     /**
      * Parts of a vehicle that can be destroyed / have max_damage
-     *
-     * @return HasMany
      */
     public function parts(): HasMany
     {
@@ -183,8 +182,6 @@ class Vehicle extends CommodityItem
 
     /**
      * Parts of a vehicle that can be destroyed / have max_damage
-     *
-     * @return HasMany
      */
     public function partsWithoutParent(): HasMany
     {
@@ -197,8 +194,6 @@ class Vehicle extends CommodityItem
 
     /**
      * Hardpoints and sub-hardpoints found on a vehicle
-     *
-     * @return HasMany
      */
     public function hardpoints(): HasMany
     {
@@ -211,8 +206,6 @@ class Vehicle extends CommodityItem
 
     /**
      * Only root hardpoints i.e. no hardpoints found on other hardpoints
-     *
-     * @return HasMany
      */
     public function hardpointsWithoutParent(): HasMany
     {
@@ -223,8 +216,6 @@ class Vehicle extends CommodityItem
 
     /**
      * Items equipped on hardpoints
-     *
-     * @return HasManyThrough
      */
     public function hardpointItems(): HasManyThrough
     {
@@ -233,8 +224,6 @@ class Vehicle extends CommodityItem
 
     /**
      * Items equipped on hardpoints
-     *
-     * @return HasManyThrough
      */
     public function hardpointItemPortItems(): HasManyThrough
     {
@@ -345,8 +334,6 @@ class Vehicle extends CommodityItem
 
     /**
      * Size of the vehicle inventory accessible through the 'I' key, or through the pilot set access
-     *
-     * @return float
      */
     public function getVehicleInventoryScuAttribute(): float
     {
@@ -384,7 +371,7 @@ class Vehicle extends CommodityItem
 
     public function getFuelIntakeRateAttribute(): ?float
     {
-            return $this->fuelIntakes()
+        return $this->fuelIntakes()
             ->get()
             ->map(function ($item) {
                 return $item?->specification?->fuel_push_rate ?? 0;
@@ -457,7 +444,7 @@ class Vehicle extends CommodityItem
             return $carry + ($cur['power_draw'] * $cur['power_to_em']);
         }, 0));
 
-       //$max = round($data->sum('max_electromagnetic_emission'));
+        //$max = round($data->sum('max_electromagnetic_emission'));
 
         return [
             'min' => empty($min) ? null : $min,

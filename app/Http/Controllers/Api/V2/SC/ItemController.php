@@ -50,6 +50,7 @@ class ItemController extends AbstractApiV2Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Item::class, $request)
+            ->where('class_name', 'NOT LIKE', '%test_%')
             ->allowedFilters([
                 'type',
                 'sub_type',

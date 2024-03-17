@@ -28,11 +28,10 @@ Route::group(
         Route::get('comm-link-images', 'ImageController@index')->name('cli.index');
         Route::get('comm-link-images/random', 'ImageController@random')->name('cli.random');
         Route::post('comm-link-images/search', 'ImageController@search')->name('cli.search');
-        #Route::get('comm-link-images/{image}', 'ImageController@show')->name('cli.show');
+        //Route::get('comm-link-images/{image}', 'ImageController@show')->name('cli.show');
         Route::get('comm-link-images/{image}/similar', 'CommLinkSearchController@similarSearch')->name('cli.similar');
     }
 );
-
 
 Route::group(
     [
@@ -50,7 +49,7 @@ Route::group(
         Route::group(
             [
                 'namespace' => 'Starmap',
-                'name' => 'starmap'
+                'name' => 'starmap',
             ],
             static function () {
                 Route::get('starsystems', 'StarsystemController@index')->name('starsystem.index');

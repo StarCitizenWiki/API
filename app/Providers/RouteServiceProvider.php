@@ -50,8 +50,6 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Define the routes for the application.
-     *
-     * @return void
      */
     public function map(): void
     {
@@ -63,19 +61,17 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Define the "api" routes for the application.
      * These routes are typically stateless.
-     *
-     * @return void
      */
     protected function mapApiRoutes(): void
     {
-        Route::namespace($this->namespace . '\Api\V1')
+        Route::namespace($this->namespace.'\Api\V1')
             ->prefix('api/')
             ->middleware(['api'])
             ->group(base_path('routes/api/api_v1.php'));
 
         Route::middleware('api.v2')
             ->name('api.v2.')
-            ->namespace($this->namespace . '\Api\V2')
+            ->namespace($this->namespace.'\Api\V2')
             ->prefix('api/v2')
             ->middleware(['api.v2', 'throttle:api'])
             ->group(base_path('routes/api/api_v2.php'));
@@ -84,8 +80,6 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Define the "web" routes for the application.
      * These routes all receive session state, CSRF protection, etc.
-     *
-     * @return void
      */
     protected function mapWebRoutes(): void
     {

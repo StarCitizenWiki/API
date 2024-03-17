@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\SC\Char\PersonalWeapon;
 
+use App\Models\SC\Ammunition\Ammunition;
+use App\Models\SC\Ammunition\AmmunitionDamage;
 use App\Models\SC\Item\Item;
 use App\Traits\HasDescriptionDataTrait;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Optional;
 
 class PersonalWeapon extends Item
@@ -57,23 +59,20 @@ class PersonalWeapon extends Item
         return $this->hasMany(PersonalWeaponMode::class, 'item_uuid', 'uuid');
     }
 
-    /**
-     * @return Optional|null
-     */
-    public function getMagazineAttribute()
+    public function getMagazineAttribute(): Model|Optional|null
     {
         $magazine = $this->ports()->where('name', 'LIKE', '%magazine%')->first();
 
         if ($magazine !== null) {
-            return $magazine?->item?->specification;
+            return $magazine->item?->specification;
         }
 
         return optional();
     }
 
-    public function getAmmunitionAttribute()
+    public function getAmmunitionAttribute(): ?Ammunition
     {
-        return $this->magazine->ammunition;
+        return $this->magazine?->ammunition;
     }
 
     public function attachments(): HasMany
@@ -81,9 +80,12 @@ class PersonalWeapon extends Item
         return $this->ports();
     }
 
-    public function damages()
+    /**
+     * @return Collection<AmmunitionDamage>
+     */
+    public function damages(): Collection
     {
-        return $this->magazine->ammunition->damages;
+        return $this->getAmmunitionAttribute()?->damages ?? collect();
     }
 
     public function getRofAttribute()

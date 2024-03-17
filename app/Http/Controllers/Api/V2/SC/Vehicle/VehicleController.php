@@ -42,7 +42,7 @@ class VehicleController extends AbstractApiV2Controller
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/vehicle_link_v2')
                 )
-            )
+            ),
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
@@ -53,7 +53,7 @@ class VehicleController extends AbstractApiV2Controller
             ->orderBy('name')
             ->allowedFilters([
                 AllowedFilter::partial('manufacturer', 'manufacturer.name'),
-                AllowedFilter::exact('chassis_id', 'chassis_id')
+                AllowedFilter::exact('chassis_id', 'chassis_id'),
             ])
             ->paginate($this->limit)
             ->appends(request()->query());
@@ -104,7 +104,7 @@ class VehicleController extends AbstractApiV2Controller
                         new OA\Schema(ref: '#/components/schemas/vehicle_v2'),
                     ],
                 )
-            )
+            ),
         ]
     )]
     public function show(Request $request): AbstractBaseResource
@@ -125,13 +125,11 @@ class VehicleController extends AbstractApiV2Controller
 
         try {
             $vehicleModel = QueryBuilder::for(UnpackedVehicle::class)
-                ->where(function (Builder $query) use ($identifier, $underscored) {
-                    $query->where('name', $identifier)
-                        ->orWhere('class_name', $underscored)
-                        ->orWhere('class_name', 'LIKE', "%_$underscored")
-                        ->orWhere('class_name', $identifier)
-                        ->orWhere('item_uuid', $identifier);
-                })
+                ->where('name', $identifier)
+                ->orWhere('class_name', $underscored)
+                ->orWhere('class_name', 'LIKE', "%_$underscored")
+                ->orWhere('class_name', $identifier)
+                ->orWhere('item_uuid', $identifier)
                 ->with([
                     'armor',
                     'flightController',
@@ -152,7 +150,7 @@ class VehicleController extends AbstractApiV2Controller
                 return new VehicleResource($vehicleModel);
             }
         } catch (ModelNotFoundException $e) {
-            throw new NotFoundHttpException('No Vehicle with specified name found.');
+            throw new NotFoundHttpException('No Vehicle with specified name found.' . $request->vehicle);
         }
 
         return new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
@@ -170,7 +168,7 @@ class VehicleController extends AbstractApiV2Controller
                         type: 'object',
                     ),
                     example: '{"query": "Merchant"}',
-                )
+                ),
             ]
         ),
         tags: ['Vehicles', 'RSI-Website', 'In-Game'],
@@ -192,7 +190,7 @@ class VehicleController extends AbstractApiV2Controller
             new OA\Response(
                 response: 404,
                 description: 'No vehicle(s) found.',
-            )
+            ),
         ],
     )]
     public function search(Request $request): AnonymousResourceCollection
