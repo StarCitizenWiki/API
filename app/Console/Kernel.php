@@ -33,6 +33,7 @@ use App\Console\Commands\SC\Wiki\CreateShipItemWikiPages;
 use App\Console\Commands\SC\Wiki\CreateWeaponAttachmentWikiPages;
 use App\Console\Commands\SC\Wiki\CreateWeaponWikiPages;
 use App\Console\Commands\SC\Wiki\UploadItemImages;
+use App\Console\Commands\ScTools\CreateArmorVariantPages;
 use App\Console\Commands\StarCitizen\Galactapedia\ImportArticleProperties;
 use App\Console\Commands\StarCitizen\Galactapedia\ImportArticles;
 use App\Console\Commands\StarCitizen\Galactapedia\ImportCategories;
@@ -130,6 +131,8 @@ class Kernel extends ConsoleKernel
 
 
         PopulateData::class,
+
+        CreateArmorVariantPages::class,
     ];
 
     /**

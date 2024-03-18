@@ -67,5 +67,11 @@ return [
     'plausible' => [
         'enabled' => env('PLAUSIBLE_ENABLED', false),
         'domain' => env('PLAUSIBLE_DOMAIN'),
-    ]
+    ],
+
+    'sc_tools' => [
+        'url' => env('SC_TOOLS_URL', 'https://starcitizen.tools'),
+        'bot_name' => env('SC_TOOLS_BOT_NAME'),
+        'bot_password' => env('SC_TOOLS_BOT_PASSWORD'),
+    ],
 ];
