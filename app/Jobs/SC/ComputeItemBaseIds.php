@@ -36,9 +36,24 @@ class ComputeItemBaseIds implements ShouldQueue
 
                 $baseModel = Item::query()
                     ->where('uuid', '<>', $item->uuid)
-                    ->where('type', $item->type)
-                    ->whereIn('class_name', $baseClassChecks)
-                    ->first();
+                    ->where('type', $item->type);
+
+                // Special backpack handling, they differ in their "set" ids (we assume) but share the same set
+                if ($item->type === 'Char_Armor_Backpack') {
+                    $baseClass = substr($item->class_name, 0, $idEnd - 1);
+
+                    if (str_ends_with($item->name, 'Backpack') && ! str_contains($item->name, '"Expo"')) {
+                        $baseClass = '<>'; // Don't match anything
+                    }
+
+                    $baseModel
+                        ->where('class_name', 'LIKE', $baseClass.'%')
+                        ->orderBy('name');
+                } else {
+                    $baseModel->whereIn('class_name', $baseClassChecks);
+                }
+
+                $baseModel = $baseModel->first();
 
                 $item->update([
                     'base_id' => $baseModel?->id,
