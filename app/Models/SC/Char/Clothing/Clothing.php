@@ -5,10 +5,29 @@ declare(strict_types=1);
 namespace App\Models\SC\Char\Clothing;
 
 use App\Models\SC\Item\Item;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Clothing extends Item
 {
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::addGlobalScope(
+            'only_available',
+            static function (Builder $builder) {
+                $builder->where('name', '<>', '<= PLACEHOLDER =>')
+                    ->where('class_name', 'NOT LIKE', '%test%')
+                    ->where('class_name', 'NOT LIKE', '%nodraw%')
+                    ->where('class_name', 'NOT LIKE', '%mannequin%')
+                    ->where('class_name', 'NOT LIKE', '%ai_exclusive%')
+                    ->where('class_name', 'NOT LIKE', 'animated%')
+                    ->where('class_name', 'NOT LIKE', '%_dmg_%');
+            }
+        );
+    }
+
     public function __construct(array $attributes = [])
     {
         $this->with = collect($this->with)->merge([
@@ -63,7 +82,6 @@ class Clothing extends Item
             ->first()
             ->multiplier ?? null;
     }
-
 
     public function getClothingTypeAttribute(): string
     {
