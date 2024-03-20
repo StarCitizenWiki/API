@@ -43,6 +43,8 @@ abstract class AbstractCommodityItem
      */
     protected function tryExtractDataFromDescription(string $description, array $wantedMatches): array
     {
+        $description = str_replace('\\n \\n', '\\n\\n', $description);
+
         $description = trim(str_replace('\n', "\n", $description));
         $description = str_replace(['‘', '’', '`', '´', ' '], ['\'', '\'', '\'', '\'', ' '], $description);
 
@@ -88,7 +90,7 @@ abstract class AbstractCommodityItem
             $exploded = explode('\n\n', $exploded[0]);
         }
 
-        $exploded = array_filter($exploded, function (string $part) {
+        $exploded = array_filter($exploded, static function (string $part) {
             return preg_match('/\w:[\s| ]/u', $part) !== 1;
         });
 
