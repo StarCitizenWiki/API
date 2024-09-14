@@ -13,7 +13,7 @@
         "@fortawesome/fontawesome-svg-core": "^6.4.0",
         "@fortawesome/free-brands-svg-icons": "^6.4.0",
         "@fortawesome/free-solid-svg-icons": "^6.4.0",
-        "bootstrap": "^4.6.2",
+        "bootstrap": "^5.0.0",
         "cross-env": "^7.0.3",
         "datatables.net-bs4": "^1.13.8",
         "jquery": "^3.7.0",
