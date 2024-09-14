@@ -20,9 +20,6 @@ class ManufacturerController extends ApiController
 {
     /**
      * ManufacturerController constructor.
-     *
-     * @param Request                 $request
-     * @param ManufacturerTransformer $transformer
      */
     public function __construct(Request $request, ManufacturerTransformer $transformer)
     {
@@ -58,7 +55,7 @@ class ManufacturerController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/manufacturer')
                 )
-            )
+            ),
         ]
     )]
     public function index(): Response
@@ -105,7 +102,7 @@ class ManufacturerController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Manufacturer with specified CODE found.',
-            )
+            ),
         ]
     )]
     public function show(Request $request)
@@ -153,7 +150,7 @@ class ManufacturerController extends ApiController
                         type: 'json',
                     ),
                     example: '{"query": "RSI"}',
-                )
+                ),
             ]
         ),
         tags: ['Manufacturers', 'RSI-Website'],
@@ -185,12 +182,12 @@ class ManufacturerController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No manufacturer found.',
-            )
+            ),
         ],
     )]
     public function search(Request $request)
     {
-        $rules = (new ManufacturerSearchRequest())->rules();
+        $rules = (new ManufacturerSearchRequest)->rules();
 
         try {
             $request->validate($rules);

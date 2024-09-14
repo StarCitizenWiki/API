@@ -197,7 +197,7 @@ class VehicleController extends AbstractApiV2Controller
     )]
     public function search(Request $request): AnonymousResourceCollection
     {
-        $rules = (new VehicleSearchRequest())->rules();
+        $rules = (new VehicleSearchRequest)->rules();
 
         $request->validate($rules);
 

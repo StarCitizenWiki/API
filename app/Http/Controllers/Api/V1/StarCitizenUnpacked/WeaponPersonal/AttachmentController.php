@@ -15,10 +15,6 @@ use Illuminate\Support\Facades\Validator;
 
 class AttachmentController extends ApiController
 {
-    /**
-     * @param WeaponPersonalAttachmentsTransformer $transformer
-     * @param Request $request
-     */
     public function __construct(WeaponPersonalAttachmentsTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
@@ -48,7 +44,7 @@ class AttachmentController extends ApiController
         try {
             $attachment = Attachment::query()
                 ->whereHas('item', function (Builder $query) use ($attachment) {
-                    return $query->where('name', 'LIKE', $attachment . '%')
+                    return $query->where('name', 'LIKE', $attachment.'%')
                         ->orWhere('uuid', $attachment);
                 })
                 ->firstOrFail();

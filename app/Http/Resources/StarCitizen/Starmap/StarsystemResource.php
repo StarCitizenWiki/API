@@ -59,7 +59,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/celestial_object_v2',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -78,7 +78,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/jumppoint_v2',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -100,11 +100,6 @@ class StarsystemResource extends AbstractTranslationResource
         ];
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return array
-     */
     public function toArray(Request $request): array
     {
         return [

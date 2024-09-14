@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class MiningLaser extends CommodityItem
 {
-    use HasFactory;
     use HasDescriptionDataTrait;
+    use HasFactory;
 
     protected $table = 'sc_item_mining_lasers';
 
@@ -36,7 +36,7 @@ class MiningLaser extends CommodityItem
     ];
 
     protected $with = [
-        'modifiers'
+        'modifiers',
     ];
 
     public function item(): BelongsTo

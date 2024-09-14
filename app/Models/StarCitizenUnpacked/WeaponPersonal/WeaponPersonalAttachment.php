@@ -16,17 +16,11 @@ class WeaponPersonalAttachment extends Pivot
         'attachment_id',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function weapon(): BelongsTo
     {
         return $this->belongsTo(WeaponPersonal::class, 'weapon_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function attachment(): BelongsTo
     {
         return $this->belongsTo(Attachment::class, 'attachment_id');

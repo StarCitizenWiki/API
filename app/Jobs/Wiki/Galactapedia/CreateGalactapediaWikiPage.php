@@ -32,10 +32,10 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements ShouldQueue
 {
     use Dispatchable;
+    use GetWikiCsrfTokenTrait;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetWikiCsrfTokenTrait;
 
     /**
      * TODO Move into DB
@@ -44,48 +44,45 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
      */
     /* jscpd:ignore-start */
     public static array $categoryTranslations = [
-        "Human" => "Menschen",
-        "Food and Beverages" => "Essen und Trinken",
-        "Entertainment" => "Unterhaltung",
-        "Law" => "Recht",
-        "Planetary Systems" => "Planetares System",
-        "Education" => "Bildung",
-        "Art" => "Kunst",
-        "Animals" => "Tier",
-        "Space" => "Weltraum",
-        "Ground Transportation" => "Bodentransport",
-        "Culture" => "Kultur",
-        "Music" => "Musik",
-        "Military" => "Militär",
-        "Exploration" => "Erforschung",
-        "Archaeology" => "Archäologie",
-        "Weapons" => "Waffe",
-        "Commerce" => "Unternehmen",
-        "People" => "Persönlichkeit",
-        "Civilizations" => "Zivilisation",
-        "History" => "Geschichte",
-        "Government" => "Regierung",
-        "Fiction" => "Belletristik",
-        "Illegal Activity" => "Illegale Aktivität",
-        "Locations" => "Standort",
-        "Factions" => "Fraktion",
-        "Plants" => "Pflanze",
-        "Politics" => "Politik",
-        "Science and Technology" => "Wissenschaft und Technik",
-        "Settlements" => "Siedlung",
-        "Spacecraft" => "Raumschiff",
-        "Sports" => "Sport",
-        "Holidays" => "Feiertag",
-        "Geography" => "Geographie",
-        "Publications" => "Publikation",
-        "Moons" => "Mond",
-        "Planets" => "Planet",
+        'Human' => 'Menschen',
+        'Food and Beverages' => 'Essen und Trinken',
+        'Entertainment' => 'Unterhaltung',
+        'Law' => 'Recht',
+        'Planetary Systems' => 'Planetares System',
+        'Education' => 'Bildung',
+        'Art' => 'Kunst',
+        'Animals' => 'Tier',
+        'Space' => 'Weltraum',
+        'Ground Transportation' => 'Bodentransport',
+        'Culture' => 'Kultur',
+        'Music' => 'Musik',
+        'Military' => 'Militär',
+        'Exploration' => 'Erforschung',
+        'Archaeology' => 'Archäologie',
+        'Weapons' => 'Waffe',
+        'Commerce' => 'Unternehmen',
+        'People' => 'Persönlichkeit',
+        'Civilizations' => 'Zivilisation',
+        'History' => 'Geschichte',
+        'Government' => 'Regierung',
+        'Fiction' => 'Belletristik',
+        'Illegal Activity' => 'Illegale Aktivität',
+        'Locations' => 'Standort',
+        'Factions' => 'Fraktion',
+        'Plants' => 'Pflanze',
+        'Politics' => 'Politik',
+        'Science and Technology' => 'Wissenschaft und Technik',
+        'Settlements' => 'Siedlung',
+        'Spacecraft' => 'Raumschiff',
+        'Sports' => 'Sport',
+        'Holidays' => 'Feiertag',
+        'Geography' => 'Geographie',
+        'Publications' => 'Publikation',
+        'Moons' => 'Mond',
+        'Planets' => 'Planet',
     ];
     /* jscpd:ignore-end */
 
-    /**
-     * @var Article
-     */
     private Article $article;
 
     /**
@@ -95,23 +92,16 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
     /**
      * Response of the thumbnail head request
-     *
-     * @var Response|null
      */
     private ?Response $response = null;
 
     /**
      * The article wiki page title
-     *
-     * @var string
      */
     private string $title = '';
 
     /**
      * Create a new job instance.
-     *
-     * @param Article $article
-     * @param string $token
      */
     public function __construct(Article $article, string $token)
     {
@@ -121,8 +111,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -138,12 +126,14 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
                 $this->article->cleanTitle
             ));
             $this->release(7200);
+
             return;
         }
 
         if ($wikiText === null && WrappedWiki::pageExists($this->title)) {
             app('Log')::warning(sprintf('Could not load content for "%s"', $this->title));
             $this->release(7200);
+
             return;
         }
 
@@ -152,11 +142,12 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
             // Skip if texts are equal or translation markers are present
             if (strcmp($text, $wikiText ?? '') === 0 || strpos($wikiText ?? '', '<!--T:') !== false) {
-                if (strcmp($text, $wikiText ?? '') === 0 && !$this->article->in_wiki) {
+                if (strcmp($text, $wikiText ?? '') === 0 && ! $this->article->in_wiki) {
                     $this->article->update(['in_wiki' => true]);
                 }
 
                 $this->delete();
+
                 return;
             }
 
@@ -188,7 +179,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             $this->release(60);
 
             return;
-        } catch (GuzzleException | RuntimeException $e) {
+        } catch (GuzzleException|RuntimeException $e) {
             app('Log')::error('Could not get an CSRF Token', $e->getResponse()->getErrors());
 
             $this->fail($e);
@@ -200,10 +191,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
     /**
      * Make the edit request
      *
-     * @param string $text
-     * @param string|null $wikiText
-     * @param bool $refreshToken
-     * @return MediaWikiResponse
      * @throws GuzzleException
      */
     private function editRequest(string $text, ?string $wikiText, bool $refreshToken = false): MediaWikiResponse
@@ -222,7 +209,7 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
             ->text($text)
             ->summary(
                 sprintf(
-                    "%s Galactapedia Article %s",
+                    '%s Galactapedia Article %s',
                     ($wikiText === null ? 'Importing' : 'Updating'),
                     $this->article->cleanTitle
                 )
@@ -234,8 +221,6 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
     /**
      * Get the normalized translation of the article
-     *
-     * @return string
      */
     private function getArticleText(): string
     {
@@ -254,14 +239,10 @@ class CreateGalactapediaWikiPage extends AbstractBaseDownloadData implements Sho
 
     /**
      * TODO somehow clean up
-     *
-     * @param string $markdown
-     * @param string|null $pageContent
-     * @return string
      */
     public function getFormattedText(string $markdown, ?string $pageContent): string
     {
-        $format = <<<FORMAT
+        $format = <<<'FORMAT'
 %s<!--imported-text
 
 !!! Achtung, der folgende Text wird automatisiert verwaltet, alle Änderungen werden gelöscht. !!!
@@ -295,7 +276,7 @@ FORMAT;
                 $content['content'] = implode(".\n\n", array_map('trim', $text));
             }
 
-            $contentRef = $content['content'] . $ref;
+            $contentRef = $content['content'].$ref;
 
             if (
                 config('language.translate_wrap_galactapedia') === true &&
@@ -320,7 +301,7 @@ FORMAT;
             );
         }
 
-        $contentRef = $content . $ref;
+        $contentRef = $content.$ref;
 
         if (
             config('language.translate_wrap_galactapedia') === true &&
@@ -340,8 +321,6 @@ FORMAT;
 
     /**
      * Creates the galactapedia template with content
-     *
-     * @return string
      */
     private function createTemplate(): string
     {
@@ -376,7 +355,7 @@ FORMAT;
             }
 
             return sprintf(
-                "|%s=%s",
+                '|%s=%s',
                 $key,
                 $value
             );
@@ -406,9 +385,8 @@ TEMPLATE;
      * Creates the page text content and optionally wraps it in a fancy box
      * Thx @alistair
      *
-     * @param string $markdown The raw galactapedia markdown
-     * @param bool $boxed Flag to box the content
-     *
+     * @param  string  $markdown  The raw galactapedia markdown
+     * @param  bool  $boxed  Flag to box the content
      * @return string Parsed Wikitext
      */
     private function createContent(string $markdown, bool $boxed = false): string
@@ -425,7 +403,7 @@ TEMPLATE;
             $wikitext = preg_replace('/^=+.*\s?/', '', $wikitext, 1);
         }
 
-        if (!$boxed) {
+        if (! $boxed) {
             return $wikitext;
         }
 
@@ -441,8 +419,6 @@ CONTENT;
 
     /**
      * Maps the article categories to string
-     *
-     * @return string
      */
     private function createCategories(): string
     {
@@ -455,6 +431,7 @@ CONTENT;
                 ) {
                     $suffix = '{{#translation:}}';
                 }
+
                 return sprintf(
                     '[[Category:%s%s]]',
                     self::$categoryTranslations[$category->name] ?? $category->name,
@@ -472,8 +449,6 @@ CONTENT;
 
     /**
      * Creates a ref Template which links to the original galactapedia article
-     *
-     * @return string
      */
     private function createRef(): string
     {
@@ -489,8 +464,8 @@ CONTENT;
     /**
      * Replaces text tokens formulated as (FROM|TO)
      *
-     * @param string $content Galactapedia translation
-     * @param string $pageContent Wikitext
+     * @param  string  $content  Galactapedia translation
+     * @param  string  $pageContent  Wikitext
      * @return array|string[] Array containing 'content' 'repl'
      */
     private function runTextReplacements(string $content, string $pageContent): array
@@ -513,7 +488,7 @@ CONTENT;
 
         if ($found === false || $found === 0 || count($matches[1]) !== count($matches[2])) {
             return [
-                'content' => $content
+                'content' => $content,
             ];
         }
 
@@ -527,7 +502,7 @@ CONTENT;
 
         return [
             'content' => $content,
-            'repl' => sprintf("\n%s", implode("\n", $matches[0]))
+            'repl' => sprintf("\n%s", implode("\n", $matches[0])),
         ];
     }
 }

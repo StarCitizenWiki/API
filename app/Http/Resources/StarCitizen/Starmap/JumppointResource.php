@@ -88,7 +88,7 @@ class JumppointResource extends AbstractTranslationResource
                 'code' => $this->exit->code,
                 'designation' => $this->exit->designation,
             ],
-            $this->mergeWhen(!$this->hideCO, [
+            $this->mergeWhen(! $this->hideCO, [
                 'celestial_object_entry' => new CelestialObjectResource($this->whenLoaded('entry')),
                 'celestial_object_exit' => new CelestialObjectResource($this->whenLoaded('exit')),
             ]),

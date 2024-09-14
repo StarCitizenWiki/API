@@ -14,7 +14,6 @@ trait GetNewestShipMatrixFilenameTrait
     /**
      * Tries to return the newest ship matrix filename from the 'vehicles' disk
      *
-     * @return string
      *
      * @throws RuntimeException If 'vehicles' disk has no directories or if no file was found
      */
@@ -22,13 +21,13 @@ trait GetNewestShipMatrixFilenameTrait
     {
         $newestShipMatrixDir = Arr::last(Arr::sort(Storage::disk('vehicles')->directories()));
 
-        if (null === $newestShipMatrixDir) {
+        if ($newestShipMatrixDir === null) {
             throw new RuntimeException('No Shipmatrix directories found');
         }
 
         $file = Arr::last(Arr::sort(Storage::disk('vehicles')->files($newestShipMatrixDir)));
 
-        if (null !== $file && Str::contains($file, 'shipmatrix')) {
+        if ($file !== null && Str::contains($file, 'shipmatrix')) {
             return $file;
         }
 

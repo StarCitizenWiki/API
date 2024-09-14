@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Services\ImageHash\Implementations;
@@ -199,6 +200,7 @@ final class PerceptualHash2 implements Implementation
             0.55557023,
         ],
     ];
+
     public const DCT_11_32 = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [
@@ -542,6 +544,7 @@ final class PerceptualHash2 implements Implementation
             0.88192126,
         ],
     ];
+
     public const DCT_11_64 = [
         [
             1,
@@ -1275,10 +1278,12 @@ final class PerceptualHash2 implements Implementation
      * @var int
      */
     private $size;
+
     /**
      * @var int[][]|float[][]
      */
     private $dct11;
+
     /**
      * @var float
      */
@@ -1319,7 +1324,7 @@ final class PerceptualHash2 implements Implementation
         for ($y = 0; $y < $this->size; $y++) {
             for ($x = 0; $x < $this->size; $x++) {
                 $rgb = $resized->pickColor($x, $y);
-                $row[$x] = (int)floor(($rgb[0] * 0.299) + ($rgb[1] * 0.587) + ($rgb[2] * 0.114));
+                $row[$x] = (int) floor(($rgb[0] * 0.299) + ($rgb[1] * 0.587) + ($rgb[2] * 0.114));
             }
             $rows[$y] = $this->calculateDCT($row, $matrixSize);
         }
@@ -1343,7 +1348,7 @@ final class PerceptualHash2 implements Implementation
         // Calculate hash.
         $bits = [];
         foreach ($pixels as $pixel) {
-            $bits[] = (int)($pixel > $compare);
+            $bits[] = (int) ($pixel > $compare);
         }
 
         return Hash::fromBits($bits);
@@ -1352,10 +1357,7 @@ final class PerceptualHash2 implements Implementation
     /**
      * Perform a 1 dimension Discrete Cosine Transformation.
      *
-     * @param int[]|float[] $matrix
-     *
-     * @param int           $partialSize
-     *
+     * @param  int[]|float[]  $matrix
      * @return float[]
      */
     private function calculateDCT(array $matrix, int $partialSize): array
@@ -1413,16 +1415,12 @@ final class PerceptualHash2 implements Implementation
 
     /**
      * Get the average of the pixel values.
-     *
-     * @param array $pixels
-     *
-     * @return float
      */
     private function average(array $pixels): float
     {
         // Calculate the average value from top 8x8 pixels, except for the first one.
         $n = count($pixels) - 1;
 
-        return array_sum((array)array_slice($pixels, 1, $n)) / $n;
+        return array_sum((array) array_slice($pixels, 1, $n)) / $n;
     }
 }

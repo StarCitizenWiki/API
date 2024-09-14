@@ -39,7 +39,7 @@ use OpenApi\Attributes as OA;
                                     property: 'data',
                                     ref: '#/components/schemas/comm_link_image',
                                     type: 'array',
-                                    items: new OA\Items(),
+                                    items: new OA\Items,
                                 ),
                             ],
                             type: 'object',
@@ -63,7 +63,7 @@ use OpenApi\Attributes as OA;
                                     property: 'data',
                                     ref: '#/components/schemas/comm_link_content_link',
                                     type: 'array',
-                                    items: new OA\Items(),
+                                    items: new OA\Items,
                                 ),
                             ],
                             type: 'object',
@@ -71,7 +71,7 @@ use OpenApi\Attributes as OA;
                         ),
                     ],
                     type: 'object'
-                )
+                ),
             ]
         ),
         new OA\Property(property: 'comment_count', type: 'integer'),
@@ -99,11 +99,6 @@ class CommLinkTransformer extends V1Transformer
         'german',
     ];
 
-    /**
-     * @param CommLink $commLink
-     *
-     * @return array
-     */
     public function transform(CommLink $commLink): array
     {
         return [
@@ -124,62 +119,38 @@ class CommLinkTransformer extends V1Transformer
 
     /**
      * If no URL is set a default url will be returned
-     *
-     * @param CommLink $commLink
-     *
-     * @return string
      */
     private function getCommLinkUrl(CommLink $commLink): string
     {
         return sprintf('%s%s', config('api.rsi_url'), ($commLink->url ?? "/comm-link/SCW/{$commLink->cig_id}-API"));
     }
 
-    /**
-     * @param CommLink $commLink
-     *
-     * @return Collection
-     */
     public function includeImages(CommLink $commLink): Collection
     {
         $images = $commLink->images;
 
-        return $this->collection($images, new ImageTransformer());
+        return $this->collection($images, new ImageTransformer);
     }
 
-    /**
-     * @param CommLink $commLink
-     *
-     * @return Collection
-     */
     public function includeLinks(CommLink $commLink): Collection
     {
         $links = $commLink->links;
 
-        return $this->collection($links, new LinkTransformer());
+        return $this->collection($links, new LinkTransformer);
     }
 
-    /**
-     * @param CommLink $commLink
-     *
-     * @return Item
-     */
     public function includeEnglish(CommLink $commLink): Item
     {
         $translation = $commLink->english();
 
-        return $this->item($translation, new TranslationTransformer());
+        return $this->item($translation, new TranslationTransformer);
     }
 
-    /**
-     * @param CommLink $commLink
-     *
-     * @return Item
-     */
     public function includeGerman(CommLink $commLink): Item
     {
         //$translation = $commLink->german();
         $translation = null; // Disable this for now
 
-        return $this->item($translation, new TranslationTransformer());
+        return $this->item($translation, new TranslationTransformer);
     }
 }

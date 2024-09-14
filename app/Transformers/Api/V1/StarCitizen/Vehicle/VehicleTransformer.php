@@ -150,7 +150,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/vehicle_component',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -168,7 +168,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/vehicle_hardpoint',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -186,7 +186,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/shop',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -205,11 +205,6 @@ class VehicleTransformer extends TranslationTransformer
         'hardpoints',
     ];
 
-    /**
-     * @param Vehicle $vehicle
-     *
-     * @return array
-     */
     public function transform(Vehicle $vehicle): array
     {
         $this->missingTranslations = [];
@@ -226,9 +221,9 @@ class VehicleTransformer extends TranslationTransformer
             'name' => $vehicle->name,
             'slug' => $vehicle->slug,
             'sizes' => [
-                'length' => (double)$vehicle->length,
-                'beam' => (double)$vehicle->width,
-                'height' => (double)$vehicle->height,
+                'length' => (float) $vehicle->length,
+                'beam' => (float) $vehicle->width,
+                'height' => (float) $vehicle->height,
             ],
             'mass' => $vehicle->unpacked->mass ?? $vehicle->mass,
             'cargo_capacity' => $cargo,
@@ -313,15 +308,13 @@ class VehicleTransformer extends TranslationTransformer
     }
 
     /**
-     * @param Vehicle $vehicle
-     *
      * @return \League\Fractal\Resource\Collection
      *
      * TODO Wrap by component_class key
      */
     public function includeComponents(Vehicle $vehicle): \League\Fractal\Resource\Collection
     {
-        $components = $this->collection($vehicle->components, new ComponentTransformer());
+        $components = $this->collection($vehicle->components, new ComponentTransformer);
         $components->setMetaValue('info', 'Ship-Matrix Components');
 
         return $components;
@@ -329,26 +322,20 @@ class VehicleTransformer extends TranslationTransformer
 
     public function includeHardpoints(Vehicle $vehicle): \League\Fractal\Resource\Collection
     {
-        $hardpoints = $this->collection($vehicle->unpacked->hardpointsWithoutParent, new VehicleHardpointTransformer());
+        $hardpoints = $this->collection($vehicle->unpacked->hardpointsWithoutParent, new VehicleHardpointTransformer);
         $hardpoints->setMetaValue('info', 'Game Data Components');
 
         return $hardpoints;
     }
 
     /**
-     * @param Vehicle $vehicle
-     * @return \League\Fractal\Resource\Collection
+     * @param  Vehicle  $vehicle
      */
     public function includeShops($vehicle): \League\Fractal\Resource\Collection
     {
-        return $this->collection($vehicle->unpacked->shops, new ShopTransformer());
+        return $this->collection($vehicle->unpacked->shops, new ShopTransformer);
     }
 
-    /**
-     * @param Vehicle $vehicle
-     *
-     * @return array
-     */
     protected function getFociTranslations(Vehicle $vehicle): array
     {
         /** @var Collection $foci */
@@ -365,8 +352,6 @@ class VehicleTransformer extends TranslationTransformer
     }
 
     /**
-     * @param Vehicle $vehicle
-     *
      * @return array|string
      */
     protected function getProductionStatusTranslations(Vehicle $vehicle)
@@ -375,8 +360,6 @@ class VehicleTransformer extends TranslationTransformer
     }
 
     /**
-     * @param Vehicle $vehicle
-     *
      * @return array|string
      */
     protected function getProductionNoteTranslations(Vehicle $vehicle)
@@ -385,8 +368,6 @@ class VehicleTransformer extends TranslationTransformer
     }
 
     /**
-     * @param Vehicle $vehicle
-     *
      * @return array|string
      */
     protected function getDescriptionTranslations(Vehicle $vehicle)
@@ -395,8 +376,6 @@ class VehicleTransformer extends TranslationTransformer
     }
 
     /**
-     * @param Vehicle $vehicle
-     *
      * @return array|string
      */
     protected function getTypeTranslations(Vehicle $vehicle)
@@ -405,8 +384,6 @@ class VehicleTransformer extends TranslationTransformer
     }
 
     /**
-     * @param Vehicle $vehicle
-     *
      * @return array|string
      */
     protected function getSizeTranslations(Vehicle $vehicle)

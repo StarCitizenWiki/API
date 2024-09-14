@@ -25,14 +25,12 @@ class CreateWikiPages extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         $this->info('Dispatching Galactapedia Wiki Page Creation');
 
-        dispatch(new CreateGalactapediaWikiPages());
+        dispatch(new CreateGalactapediaWikiPages);
 
         return 0;
     }

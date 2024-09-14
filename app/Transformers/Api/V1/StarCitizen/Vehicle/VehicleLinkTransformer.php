@@ -22,9 +22,7 @@ use OpenApi\Attributes as OA;
 class VehicleLinkTransformer extends VehicleTransformer
 {
     /**
-     * @param Ship $vehicle
-     *
-     * @return array
+     * @param  Ship  $vehicle
      */
     public function transform(Vehicle $vehicle): array
     {

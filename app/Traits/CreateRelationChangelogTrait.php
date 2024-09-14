@@ -11,8 +11,8 @@ trait CreateRelationChangelogTrait
     /**
      * Creates a new changelog for synced templates, tags and related articles
      *
-     * @param array $relationSyncData Array containing the return values of ->sync(). E.g.: ['groupName' => 'sync Return']
-     * @param HasChangelogsInterface $model The model
+     * @param  array  $relationSyncData  Array containing the return values of ->sync(). E.g.: ['groupName' => 'sync Return']
+     * @param  HasChangelogsInterface  $model  The model
      */
     protected function createRelationChangelog(array $relationSyncData, HasChangelogsInterface $model): void
     {
@@ -29,7 +29,7 @@ trait CreateRelationChangelogTrait
                 ];
             })
             ->filter(function (array $group) {
-                return !empty($group['old']) || !empty($group['new']);
+                return ! empty($group['old']) || ! empty($group['new']);
             })
             ->toArray();
 

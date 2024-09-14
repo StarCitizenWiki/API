@@ -8,11 +8,6 @@ use App\Models\StarCitizenUnpacked\Clothing;
 
 class ClothingLinkTransformer extends AbstractCommodityTransformer
 {
-    /**
-     * @param Clothing $clothing
-     *
-     * @return array
-     */
     public function transform(Clothing $clothing): array
     {
         return [

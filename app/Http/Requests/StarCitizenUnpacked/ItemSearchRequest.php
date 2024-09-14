@@ -6,6 +6,4 @@ namespace App\Http\Requests\StarCitizenUnpacked;
 
 use App\Http\Requests\AbstractSearchRequest;
 
-class ItemSearchRequest extends AbstractSearchRequest
-{
-}
+class ItemSearchRequest extends AbstractSearchRequest {}

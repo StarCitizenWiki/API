@@ -7,7 +7,6 @@ namespace App\Console\Commands\SC;
 use App\Console\Commands\AbstractQueueCommand;
 use App\Jobs\SC\Import\ItemSpecificationCreator;
 use App\Services\Parser\SC\Item;
-use App\Services\Parser\SC\Labels;
 use App\Services\Parser\SC\Manufacturers;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -46,7 +45,7 @@ class ImportItems extends AbstractQueueCommand
      */
     public function handle(): int
     {
-        $manufacturers = (new Manufacturers())->getData();
+        $manufacturers = (new Manufacturers)->getData();
 
         $files = File::allFiles(scdata('items')) + Storage::allFiles(scdata('ships'));
 

@@ -9,14 +9,9 @@ use App\Models\StarCitizenUnpacked\Clothing;
 class ClothingTransformer extends AbstractCommodityTransformer
 {
     protected array $availableIncludes = [
-        'shops'
+        'shops',
     ];
 
-    /**
-     * @param Clothing $clothing
-     *
-     * @return array
-     */
     public function transform(Clothing $clothing): array
     {
         $this->missingTranslations = [];
@@ -40,7 +35,7 @@ class ClothingTransformer extends AbstractCommodityTransformer
 
         $baseModel = $clothing->baseModel;
         if ($baseModel !== null && $baseModel->item->name !== $clothing->item->name) {
-            $data['base_model'] = (new ClothingLinkTransformer())->transform($baseModel);
+            $data['base_model'] = (new ClothingLinkTransformer)->transform($baseModel);
         }
 
         $data += [

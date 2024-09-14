@@ -27,14 +27,11 @@ use JsonException;
 class UploadGalactapediaWikiImages extends AbstractBaseDownloadData implements ShouldQueue
 {
     use Dispatchable;
+    use GetWikiCsrfTokenTrait;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetWikiCsrfTokenTrait;
 
-    /**
-     * @var Article
-     */
     private Article $article;
 
     /**
@@ -49,15 +46,11 @@ class UploadGalactapediaWikiImages extends AbstractBaseDownloadData implements S
 
     /**
      * Response of the thumbnail head request
-     *
-     * @var Response|null
      */
     private ?Response $response = null;
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -72,7 +65,6 @@ class UploadGalactapediaWikiImages extends AbstractBaseDownloadData implements S
         $this->loadThumbnailMetadata();
         $this->uploadGalactapediaImage();
     }
-
 
     /**
      * Makes a head request on the thumbnail url of the article
@@ -143,8 +135,8 @@ class UploadGalactapediaWikiImages extends AbstractBaseDownloadData implements S
             $this->release(60);
 
             return;
-        } catch (GuzzleException | JsonException $e) {
-            app('Log')::error('Could not upload Galactapedia Image: ' . $e->getMessage());
+        } catch (GuzzleException|JsonException $e) {
+            app('Log')::error('Could not upload Galactapedia Image: '.$e->getMessage());
         }
     }
 }

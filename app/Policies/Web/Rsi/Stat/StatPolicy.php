@@ -12,8 +12,6 @@ class StatPolicy
 
     /**
      * View all / single resource
-     *
-     * @return bool
      */
     public function view(): bool
     {

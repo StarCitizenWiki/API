@@ -29,7 +29,6 @@ class FocusController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -50,9 +49,7 @@ class FocusController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Focus $focus
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -72,10 +69,7 @@ class FocusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TranslationRequest $request
-     * @param Focus              $focus
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

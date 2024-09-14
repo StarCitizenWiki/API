@@ -14,15 +14,10 @@ use function get_class;
 
 class LinkRenderer implements NodeRendererInterface
 {
-    /**
-     * @param Node $node
-     * @param ChildNodeRendererInterface $childRenderer
-     * @return string
-     */
     public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
-        if (!($node instanceof Link)) {
-            throw new InvalidArgumentException('Incompatible inline type: ' . get_class($node));
+        if (! ($node instanceof Link)) {
+            throw new InvalidArgumentException('Incompatible inline type: '.get_class($node));
         }
 
         return sprintf(

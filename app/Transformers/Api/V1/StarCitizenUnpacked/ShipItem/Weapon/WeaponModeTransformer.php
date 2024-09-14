@@ -14,11 +14,6 @@ class WeaponModeTransformer extends TransformerAbstract
         'damages',
     ];
 
-    /**
-     * @param WeaponMode $mode
-     *
-     * @return array
-     */
     public function transform(WeaponMode $mode): array
     {
         return array_filter([
@@ -33,6 +28,6 @@ class WeaponModeTransformer extends TransformerAbstract
 
     public function includeDamages(WeaponMode $weaponMode): Collection
     {
-        return $this->collection($weaponMode->damages, new WeaponDamageTransformer());
+        return $this->collection($weaponMode->damages, new WeaponDamageTransformer);
     }
 }

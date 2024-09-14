@@ -18,8 +18,6 @@ class VehiclePolicy extends BaseAdminPolicy
 
     /**
      * View all / single resource
-     *
-     * @return bool
      */
     public function view(): bool
     {
@@ -29,7 +27,6 @@ class VehiclePolicy extends BaseAdminPolicy
     /**
      * Update a Resource
      *
-     * @param \App\Models\Account\User\User $user
      *
      * @return bool
      */

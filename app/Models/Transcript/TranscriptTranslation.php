@@ -15,9 +15,6 @@ class TranscriptTranslation extends Translation
         'translation',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function transcript(): BelongsTo
     {
         return $this->belongsTo(Transcript::class);

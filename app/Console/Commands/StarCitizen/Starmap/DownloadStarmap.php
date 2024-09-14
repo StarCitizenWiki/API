@@ -32,15 +32,10 @@ class DownloadStarmap extends Command
      */
     protected $description = 'Starts the Starmap Download Job';
 
-    /**
-     * @var Dispatcher
-     */
     private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
-     *
-     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -51,8 +46,6 @@ class DownloadStarmap extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -64,7 +57,7 @@ class DownloadStarmap extends Command
 
         if ($this->option('import') === true) {
             $this->info('Starting Import');
-            $this->dispatcher->dispatch(new ImportStarmap());
+            $this->dispatcher->dispatch(new ImportStarmap);
         }
 
         return 0;
@@ -75,7 +68,7 @@ class DownloadStarmap extends Command
      */
     private function createDiskIfNotExists(): void
     {
-        if (!File::exists(config('filesystems.disks.starmap.root'))) {
+        if (! File::exists(config('filesystems.disks.starmap.root'))) {
             Storage::makeDirectory(config('filesystems.disks.starmap.root'));
         }
     }

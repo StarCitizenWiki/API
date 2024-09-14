@@ -152,6 +152,4 @@ use OpenApi\Attributes as OA;
         ),
     ],
 )]
-class VehicleItemResource extends AbstractBaseResource {
-
-}
+class VehicleItemResource extends AbstractBaseResource {}

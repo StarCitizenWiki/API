@@ -53,7 +53,7 @@ class ItemController extends AbstractApiV2Controller
                 'type',
                 'sub_type',
                 AllowedFilter::exact('manufacturer', 'manufacturer.name'),
-                AllowedFilter::custom('variants', new ItemVariantsFilter()),
+                AllowedFilter::custom('variants', new ItemVariantsFilter),
             ])
             ->allowedIncludes(ItemResource::validIncludes())
             ->paginate($this->limit)
@@ -185,7 +185,7 @@ class ItemController extends AbstractApiV2Controller
                 'type',
                 'sub_type',
                 AllowedFilter::exact('manufacturer', 'manufacturer.name'),
-                AllowedFilter::custom('variants', new ItemVariantsFilter()),
+                AllowedFilter::custom('variants', new ItemVariantsFilter),
             ])
             ->allowedIncludes(['shops.items']);
 

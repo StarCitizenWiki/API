@@ -14,6 +14,7 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Dispatches DownloadCommLinkImage jobs for all non-local images.
+ *
  * @see DownloadCommLinkImage
  */
 class DownloadCommLinkImages implements ShouldQueue
@@ -25,8 +26,6 @@ class DownloadCommLinkImages implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

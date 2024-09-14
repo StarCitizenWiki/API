@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Component extends Model
 {
-    use VehicleRelations;
     use HasFactory;
+    use VehicleRelations;
 
     /**
      * @var string

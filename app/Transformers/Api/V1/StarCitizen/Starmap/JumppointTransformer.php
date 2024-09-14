@@ -7,8 +7,8 @@ namespace App\Transformers\Api\V1\StarCitizen\Starmap;
 use App\Models\StarCitizen\Starmap\Jumppoint\Jumppoint;
 use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 use League\Fractal\Resource\Item;
-use Throwable;
 use OpenApi\Attributes as OA;
+use Throwable;
 
 #[OA\Schema(
     schema: 'jumppoint',
@@ -52,11 +52,6 @@ class JumppointTransformer extends AbstractTranslationTransformer
         'celestial_object_exit',
     ];
 
-    /**
-     * @param Jumppoint $jumppoint
-     *
-     * @return array
-     */
     public function transform(Jumppoint $jumppoint): array
     {
         return [
@@ -99,9 +94,7 @@ class JumppointTransformer extends AbstractTranslationTransformer
     /**
      * The celestial object of the jump point entry
      *
-     * @param Jumppoint $jumppoint
      *
-     * @return Item
      * @throws Throwable
      */
     public function includeCelestialObjectEntry(Jumppoint $jumppoint): Item
@@ -112,9 +105,7 @@ class JumppointTransformer extends AbstractTranslationTransformer
     /**
      * The celestial object of the jump point exit
      *
-     * @param Jumppoint $jumppoint
      *
-     * @return Item
      * @throws Throwable
      */
     public function includeCelestialObjectExit(Jumppoint $jumppoint): Item

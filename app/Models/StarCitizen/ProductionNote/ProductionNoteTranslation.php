@@ -18,9 +18,6 @@ class ProductionNoteTranslation extends Translation
         'translation',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function productionNote(): BelongsTo
     {
         return $this->belongsTo(ProductionNote::class);

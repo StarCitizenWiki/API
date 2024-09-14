@@ -25,13 +25,11 @@ class ReDownloadCommLinks extends Command
      *
      * @var string
      */
-    protected $description = 'Re-Download all Database Comm-Links and parse them.' .
-                            'Pass "--skip=false" to not skip already downloaded Comm-Links.';
+    protected $description = 'Re-Download all Database Comm-Links and parse them.'.
+        'Pass "--skip=false" to not skip already downloaded Comm-Links.';
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {

@@ -17,9 +17,6 @@ class ClothingController extends ApiController
 {
     /**
      * ClothingController constructor.
-     *
-     * @param ClothingTransformer $transformer
-     * @param Request $request
      */
     public function __construct(ClothingTransformer $transformer, Request $request)
     {

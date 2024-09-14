@@ -19,9 +19,6 @@ class CelestialSubtype
         $this->rawData = new Collection($rawData);
     }
 
-    /**
-     * @return CelestialObjectSubtype
-     */
     public function getCelestialSubtype(): ?CelestialObjectSubtype
     {
         if ($this->rawData->isEmpty()) {

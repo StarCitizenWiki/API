@@ -21,11 +21,6 @@ use OpenApi\Attributes as OA;
 )]
 class SeriesTransformer extends V1Transformer
 {
-    /**
-     * @param Series $series
-     *
-     * @return array
-     */
     public function transform(Series $series): array
     {
         return [

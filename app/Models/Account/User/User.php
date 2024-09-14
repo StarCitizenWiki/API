@@ -18,8 +18,8 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable
 {
-    use Notifiable;
     use HasFactory;
+    use Notifiable;
 
     protected $fillable = [
         'username',
@@ -36,7 +36,7 @@ class User extends Authenticatable
     ];
 
     protected $withCount = [
-        'changelogs'
+        'changelogs',
     ];
 
     /**
@@ -55,9 +55,6 @@ class User extends Authenticatable
         'last_login' => 'datetime',
     ];
 
-    /**
-     * @return bool
-     */
     public function isAdmin(): bool
     {
         return $this->getHighestPermissionLevel() >= UserGroup::SYSOP;
@@ -73,8 +70,6 @@ class User extends Authenticatable
 
     /**
      * Associated Changelogs
-     *
-     * @return HasMany
      */
     public function changelogs(): HasMany
     {
@@ -93,49 +88,32 @@ class User extends Authenticatable
 
     /**
      * Returns only Users with 'bureaucrat' or 'sysop' group
-     *
-     * @return BelongsToMany
      */
     public function adminGroup(): BelongsToMany
     {
         return $this->groups()->admin();
     }
 
-    /**
-     * @return BelongsToMany
-     */
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(UserGroup::class)->orderByDesc('permission_level');
     }
 
-    /**
-     * @return HasOne
-     */
     public function settings(): HasOne
     {
         return $this->hasOne(UserSetting::class)->withDefault();
     }
 
-    /**
-     * @return bool
-     */
     public function receiveApiNotifications(): bool
     {
         return $this->settings->receive_api_notifications ?? false;
     }
 
-    /**
-     * @return bool
-     */
     public function receiveCommLinkNotifications(): bool
     {
         return $this->settings->receive_comm_link_notifications ?? false;
     }
 
-    /**
-     * @return HasMany
-     */
     public function sessions(): HasMany
     {
         return $this->hasMany(Session::class, 'user_id', 'id');

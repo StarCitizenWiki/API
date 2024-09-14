@@ -57,7 +57,7 @@ class PersonalWeaponController extends AbstractApiV2Controller
                     $query->whereRelation('descriptionData', 'name', 'Class')
                         ->whereRelation('descriptionData', 'value', $value);
                 }),
-                AllowedFilter::custom('variants', new ItemVariantsFilter()),
+                AllowedFilter::custom('variants', new ItemVariantsFilter),
             ])
             ->paginate($this->limit)
             ->appends(request()->query());

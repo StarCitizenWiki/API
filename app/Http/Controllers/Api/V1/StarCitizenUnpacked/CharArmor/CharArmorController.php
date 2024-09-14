@@ -17,9 +17,6 @@ class CharArmorController extends ApiController
 {
     /**
      * ShipController constructor.
-     *
-     * @param CharArmorTransformer $transformer
-     * @param Request $request
      */
     public function __construct(CharArmorTransformer $transformer, Request $request)
     {

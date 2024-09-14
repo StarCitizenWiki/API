@@ -30,9 +30,6 @@ class PersonalWeaponAmmunition extends Model
         'range' => 'double',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function weapon(): BelongsTo
     {
         return $this->belongsTo(PersonalWeapon::class, 'item_uuid', 'uuid');

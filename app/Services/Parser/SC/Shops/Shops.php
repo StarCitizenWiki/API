@@ -14,7 +14,9 @@ use JsonException;
 final class Shops
 {
     private Collection $shops;
+
     private Collection $mapped;
+
     private Collection $labels;
 
     /**
@@ -41,6 +43,7 @@ final class Shops
 
     /**
      * AssaultRifle constructor.
+     *
      * @throws FileNotFoundException
      * @throws JsonException
      */
@@ -51,21 +54,21 @@ final class Shops
         $this->addShops();
         $this->mapped = collect();
 
-        $this->labels = (new Labels())->getData();
+        $this->labels = (new Labels)->getData();
     }
 
     public function getData(): Collection
     {
         $this->shops
             ->filter(function (array $shop) {
-                return !Str::contains($shop['name'], ['Levski', 'IAE Expo']);
+                return ! Str::contains($shop['name'], ['Levski', 'IAE Expo']);
             })
             ->filter(function (array $shop) {
                 return isset($shop['name']) &&
                     (str_contains($shop['name'], ',') || isset($this->shopNames[$shop['name']]));
             })
             ->filter(function (array $shop) {
-                return !in_array($shop['name'], $this->ignoredShops, true);
+                return ! in_array($shop['name'], $this->ignoredShops, true);
             })
             ->filter(function (array $shop) {
                 return isset($shop['inventory']);
@@ -73,7 +76,7 @@ final class Shops
             ->each(function (array $shop) {
                 $this->mapped->put($this->shopNames[$shop['name']] ?? $shop['name'], [
                     'shop' => $this->mapShop($shop),
-                    'inventory' => $this->mapInventory($shop)
+                    'inventory' => $this->mapInventory($shop),
                 ]);
             });
 
@@ -116,9 +119,9 @@ final class Shops
                 return $item !== null;
             })
             ->filter(function ($item) {
-                return !empty($item['name']) &&
-                    !str_contains($item['name'], '[PH]') &&
-                    !str_contains($item['name'], 'igp_');
+                return ! empty($item['name']) &&
+                    ! str_contains($item['name'], '[PH]') &&
+                    ! str_contains($item['name'], 'igp_');
             })
             ->filter(function ($item) {
                 return ($item['base_price'] ?? null) !== null;
@@ -128,7 +131,6 @@ final class Shops
     /**
      * Splits the shop name by ',' and trims it
      *
-     * @param string $name
      * @return array|string[]
      */
     public static function parseShopName(string $name): array
@@ -232,7 +234,7 @@ final class Shops
                 $shop['name'] = sprintf('%s, %s', $shopName, $name);
 
                 $hex = bin2hex($name);
-                $shop['reference'] = substr($shop['reference'], 0, -12) . substr($hex, 0, 12);
+                $shop['reference'] = substr($shop['reference'], 0, -12).substr($hex, 0, 12);
 
                 return $shop;
             });

@@ -20,11 +20,6 @@ use OpenApi\Attributes as OA;
 )]
 class LinkTransformer extends V1Transformer
 {
-    /**
-     * @param Link $link
-     *
-     * @return array
-     */
     public function transform(Link $link): array
     {
         return [

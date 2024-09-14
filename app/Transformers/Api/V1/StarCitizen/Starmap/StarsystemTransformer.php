@@ -60,7 +60,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/celestial_object',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -79,7 +79,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/jumppoint',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -102,11 +102,6 @@ class StarsystemTransformer extends AbstractTranslationTransformer
         'affiliation',
     ];
 
-    /**
-     * @param Starsystem $starsystem
-     *
-     * @return array
-     */
     public function transform(Starsystem $starsystem): array
     {
         return [
@@ -149,22 +144,14 @@ class StarsystemTransformer extends AbstractTranslationTransformer
 
     /**
      * Starsystem affiliation, included by default
-     *
-     * @param Starsystem $starsystem
-     *
-     * @return Collection
      */
     public function includeAffiliation(Starsystem $starsystem): Collection
     {
-        return $this->collection($starsystem->affiliation, new AffiliationTransformer(), 'affiliation');
+        return $this->collection($starsystem->affiliation, new AffiliationTransformer, 'affiliation');
     }
 
     /**
      * System celestial objcets like planets, jumppoints, asteroid belts, ...
-     *
-     * @param Starsystem $starsystem
-     *
-     * @return Collection
      */
     public function includeCelestialObjects(Starsystem $starsystem): Collection
     {
@@ -177,13 +164,9 @@ class StarsystemTransformer extends AbstractTranslationTransformer
 
     /**
      * Jump points starting in this system
-     *
-     * @param Starsystem $starsystem
-     *
-     * @return Collection
      */
     public function includeJumppoints(Starsystem $starsystem): Collection
     {
-        return $this->collection($starsystem->jumppoints(), new JumppointTransformer(), 'jumppoint');
+        return $this->collection($starsystem->jumppoints(), new JumppointTransformer, 'jumppoint');
     }
 }

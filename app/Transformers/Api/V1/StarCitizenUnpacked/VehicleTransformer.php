@@ -103,11 +103,6 @@ class VehicleTransformer extends AbstractTranslationTransformer
         'Ground' => 'Bodenfahrzeug',
     ];
 
-    /**
-     * @param Vehicle $vehicle
-     *
-     * @return array
-     */
     public function transform(Vehicle $vehicle): array
     {
         $name = explode('_', $vehicle->class_name);
@@ -135,9 +130,9 @@ class VehicleTransformer extends AbstractTranslationTransformer
             'name' => $name,
             'slug' => $vehicle->vehicle->slug ?? Str::slug($name),
             'sizes' => [
-                'length' => (double)$vehicle->length,
-                'beam' => (double)$vehicle->width,
-                'height' => (double)$vehicle->height,
+                'length' => (float) $vehicle->length,
+                'beam' => (float) $vehicle->width,
+                'height' => (float) $vehicle->height,
             ],
             'mass' => $vehicle->mass,
             'cargo_capacity' => $cargo,
@@ -219,7 +214,7 @@ class VehicleTransformer extends AbstractTranslationTransformer
         }
 
         if ($vehicle->vehicle !== null) {
-            $transformer = new \App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleTransformer();
+            $transformer = new \App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleTransformer;
             $transformed = $transformer->transform($vehicle->vehicle);
             $data['foci'] = $transformed['foci'];
             $data['production_status'] = $transformed['production_status'];
@@ -237,6 +232,7 @@ class VehicleTransformer extends AbstractTranslationTransformer
         $out = collect(explode('/', $role))
             ->map(function ($role) use ($data) {
                 $role = trim($role);
+
                 return [
                     'en_EN' => $role,
                     'de_DE' => $data[$role] ?? $role,
@@ -254,18 +250,14 @@ class VehicleTransformer extends AbstractTranslationTransformer
 
     public function includeHardpoints(Vehicle $vehicle): Collection
     {
-        $hardpoints = $this->collection($vehicle->hardpointsWithoutParent, new VehicleHardpointTransformer());
+        $hardpoints = $this->collection($vehicle->hardpointsWithoutParent, new VehicleHardpointTransformer);
         $hardpoints->setMetaValue('info', 'Game Data Components');
 
         return $hardpoints;
     }
 
-    /**
-     * @param Vehicle $vehicle
-     * @return Collection
-     */
     public function includeShops(Vehicle $vehicle): Collection
     {
-        return $this->collection($vehicle->shops, new ShopTransformer());
+        return $this->collection($vehicle->shops, new ShopTransformer);
     }
 }

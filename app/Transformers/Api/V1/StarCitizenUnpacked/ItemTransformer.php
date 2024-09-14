@@ -59,7 +59,7 @@ use OpenApi\Attributes as OA;
 class ItemTransformer extends AbstractCommodityTransformer
 {
     protected array $availableIncludes = [
-        'shops'
+        'shops',
     ];
 
     public function transform(Item $item): array

@@ -20,9 +20,6 @@ class SeriesController extends ApiController
 {
     /**
      * StatsAPIController constructor.
-     *
-     * @param Request           $request
-     * @param SeriesTransformer $transformer
      */
     public function __construct(Request $request, SeriesTransformer $transformer)
     {
@@ -45,7 +42,7 @@ class SeriesController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/comm_link_series')
                 )
-            )
+            ),
         ]
     )]
     public function index(): Response
@@ -77,7 +74,7 @@ class SeriesController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Series with specified name found.',
-            )
+            ),
         ]
     )]
     public function show(string $series): Response
@@ -91,7 +88,7 @@ class SeriesController extends ApiController
             return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $series)], 404);
         }
 
-        $this->transformer = new CommLinkTransformer();
+        $this->transformer = new CommLinkTransformer;
 
         return $this->getResponse($series->commLinks()->orderByDesc('cig_id'));
     }

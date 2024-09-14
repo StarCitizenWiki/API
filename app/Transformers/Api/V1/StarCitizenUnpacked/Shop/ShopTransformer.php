@@ -30,7 +30,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/item',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -44,7 +44,7 @@ use OpenApi\Attributes as OA;
 class ShopTransformer extends AbstractV1Transformer
 {
     protected array $availableIncludes = [
-        'items'
+        'items',
     ];
 
     public function transform(Shop $shop): array
@@ -61,6 +61,6 @@ class ShopTransformer extends AbstractV1Transformer
 
     public function includeItems(Shop $shop): Collection
     {
-        return $this->collection($shop->items, new ShopItemTransformer());
+        return $this->collection($shop->items, new ShopItemTransformer);
     }
 }

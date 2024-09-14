@@ -23,9 +23,6 @@ class Link extends Model
         'text',
     ];
 
-    /**
-     * @return BelongsToMany
-     */
     public function commLinks(): BelongsToMany
     {
         return $this->belongsToMany(CommLink::class);

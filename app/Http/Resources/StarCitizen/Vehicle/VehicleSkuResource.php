@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
-
 #[OA\Schema(
     schema: 'vehicle_sku',
     title: 'Vehicle SKU',

@@ -23,9 +23,6 @@ class TranscriptController extends ApiController
 {
     /**
      * CommLinkController constructor.
-     *
-     * @param Request $request
-     * @param TranscriptTransformer $transformer
      */
     public function __construct(Request $request, TranscriptTransformer $transformer)
     {
@@ -41,8 +38,11 @@ class TranscriptController extends ApiController
      * Returns all Transcripts
      *
      * @Get("/{?page,limit,include}")
+     *
      * @Versions({"v1"})
+     *
      * @Parameters({
+     *
      *     @Parameter("page", type="integer", required=false, description="Pagination page", default=1),
      *     @Parameter(
      *          "include",
@@ -58,7 +58,9 @@ class TranscriptController extends ApiController
      *          default=10
      *     ),
      * })
+     *
      * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"})
+     *
      * @Response(200, body={
      * "data": {
      *      {
@@ -94,8 +96,6 @@ class TranscriptController extends ApiController
      * }
      * }
      * })
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -106,8 +106,11 @@ class TranscriptController extends ApiController
      * Returns a singular transcript by its youtube-id
      *
      * @Get("/{ID}{?include}")
+     *
      * @Versions({"v1"})
+     *
      * @Parameters({
+     *
      *     @Parameter("ID", type="string", required=true, description="YouTube Video ID"),
      *     @Parameter(
      *          "include",
@@ -118,7 +121,9 @@ class TranscriptController extends ApiController
      * })
      *
      * @Transaction({
+     *
      * @Request(headers={"Accept": "application/x.StarCitizenWikiApi.v1+json"}),
+     *
      * @Response(200, body={
      * "data": {
      *      "title": "Inside Star Citizen: Report Purport | Summer 2021",
@@ -143,9 +148,6 @@ class TranscriptController extends ApiController
      * }),
      * })
      *
-     * @param Request $request
-     *
-     * @return Response
      * @throws ValidationException
      */
     public function show(Request $request): Response

@@ -13,11 +13,6 @@ class WeaponPersonalAttachmentsTransformer extends AbstractCommodityTransformer
         'shops',
     ];
 
-    /**
-     * @param Attachment $port
-     *
-     * @return array
-     */
     public function transform(Attachment $port): array
     {
         $data = [

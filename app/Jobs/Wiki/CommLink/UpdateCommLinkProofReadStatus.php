@@ -22,13 +22,14 @@ use RuntimeException;
 class UpdateCommLinkProofReadStatus implements ShouldQueue
 {
     use Dispatchable;
+    use GetCommLinkWikiPageInfo;
     use InteractsWithQueue;
+    use LoginWikiBotAccount;
     use Queueable;
     use SerializesModels;
-    use GetCommLinkWikiPageInfo;
-    use LoginWikiBotAccount;
 
     private const CATEGORIES = 'categories';
+
     private const LOCALE_CODE = 'locale_code';
 
     /**

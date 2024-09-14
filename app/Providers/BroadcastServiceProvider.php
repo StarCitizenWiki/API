@@ -27,7 +27,7 @@ class BroadcastServiceProvider extends ServiceProvider
         Broadcast::channel(
             'App.User.*',
             function ($user, $userId) {
-                return (int)$user->id === (int)$userId;
+                return (int) $user->id === (int) $userId;
             }
         );
     }

@@ -75,12 +75,11 @@ class ShipItemTransformer extends AbstractCommodityTransformer
     }
 
     /**
-     * @param AbstractShipItemSpecification $item
-     * @return Collection
+     * @param  AbstractShipItemSpecification  $item
      */
     public function includeShops($item): Collection
     {
-        return $this->collection($this->fixItem($item)->shipItem->item->shops, new ShopTransformer());
+        return $this->collection($this->fixItem($item)->shipItem->item->shops, new ShopTransformer);
     }
 
     private function addSpecificationData(AbstractShipItemSpecification $item): void
@@ -167,112 +166,112 @@ class ShipItemTransformer extends AbstractCommodityTransformer
 
     public function includeModes($model): Collection
     {
-        return $this->collection($model->modes, new WeaponModeTransformer());
+        return $this->collection($model->modes, new WeaponModeTransformer);
     }
 
     public function includeHeat($data): Item
     {
-        return $this->item($this->fixItem($data)->shipItem->heatData, new ShipItemHeatDataTransformer());
+        return $this->item($this->fixItem($data)->shipItem->heatData, new ShipItemHeatDataTransformer);
     }
 
     public function includePower($data): Item
     {
-        return $this->item($this->fixItem($data)->shipItem->powerData, new ShipItemPowerDataTransformer());
+        return $this->item($this->fixItem($data)->shipItem->powerData, new ShipItemPowerDataTransformer);
     }
 
     public function includeDistortion($data): Item
     {
-        return $this->item($this->fixItem($data)->shipItem->distortionData, new ShipItemDistortionDataTransformer());
+        return $this->item($this->fixItem($data)->shipItem->distortionData, new ShipItemDistortionDataTransformer);
     }
 
     public function includeDurability($data): Item
     {
-        return $this->item($this->fixItem($data)->shipItem->durabilityData, new ShipItemDurabilityDataTransformer());
+        return $this->item($this->fixItem($data)->shipItem->durabilityData, new ShipItemDurabilityDataTransformer);
     }
 
     public function includeShield($data): Item
     {
-        return $this->item($this->fixItem($data), new ShieldTransformer());
+        return $this->item($this->fixItem($data), new ShieldTransformer);
     }
 
     public function includePowerPlant($data): Item
     {
-        return $this->item($this->fixItem($data), new PowerPlantTransformer());
+        return $this->item($this->fixItem($data), new PowerPlantTransformer);
     }
 
     public function includeCooler($data): Item
     {
-        return $this->item($this->fixItem($data), new CoolerTransformer());
+        return $this->item($this->fixItem($data), new CoolerTransformer);
     }
 
     public function includeQuantumDrive($data): Item
     {
-        return $this->item($this->fixItem($data), new QuantumDriveTransformer());
+        return $this->item($this->fixItem($data), new QuantumDriveTransformer);
     }
 
     public function includeWeapon($data): Item
     {
-        return $this->item($this->fixItem($data), new WeaponTransformer());
+        return $this->item($this->fixItem($data), new WeaponTransformer);
     }
 
     public function includeMissileRack($data): Item
     {
-        return $this->item($this->fixItem($data), new MissileRackTransformer());
+        return $this->item($this->fixItem($data), new MissileRackTransformer);
     }
 
     public function includeMissile($data): Item
     {
-        return $this->item($this->fixItem($data), new MissileTransformer());
+        return $this->item($this->fixItem($data), new MissileTransformer);
     }
 
     public function includeFuelTank($data): Item
     {
-        return $this->item($this->fixItem($data), new FuelTankTransformer());
+        return $this->item($this->fixItem($data), new FuelTankTransformer);
     }
 
     public function includeFuelIntake($data): Item
     {
-        return $this->item($this->fixItem($data), new FuelIntakeTransformer());
+        return $this->item($this->fixItem($data), new FuelIntakeTransformer);
     }
 
     public function includeThruster($data): Item
     {
-        return $this->item($this->fixItem($data), new ThrusterTransformer());
+        return $this->item($this->fixItem($data), new ThrusterTransformer);
     }
 
     public function includeSelfDestruct($data): Item
     {
-        return $this->item($this->fixItem($data), new SelfDestructTransformer());
+        return $this->item($this->fixItem($data), new SelfDestructTransformer);
     }
 
     public function includeTurret($data): Item
     {
-        return $this->item($this->fixItem($data), new TurretTransformer());
+        return $this->item($this->fixItem($data), new TurretTransformer);
     }
 
     public function includeCounterMeasure($data): Item
     {
-        return $this->item($this->fixItem($data), new CounterMeasureTransformer());
+        return $this->item($this->fixItem($data), new CounterMeasureTransformer);
     }
 
     public function includeRadar($data): Item
     {
-        return $this->item($this->fixItem($data), new RadarTransformer());
+        return $this->item($this->fixItem($data), new RadarTransformer);
     }
 
     public function includeMiningLaser($data): Item
     {
-        return $this->item($this->fixItem($data), new MiningLaserTransformer());
+        return $this->item($this->fixItem($data), new MiningLaserTransformer);
     }
 
     public function includeCargoGrid($data): Item
     {
-        return $this->item($this->fixItem($data), new CargoGridTransformer());
+        return $this->item($this->fixItem($data), new CargoGridTransformer);
     }
 
     public function includePersonalInventory($data): Item
     {
-        return $this->item($this->fixItem($data), new PersonalInventoryTransformer());
+        return $this->item($this->fixItem($data), new PersonalInventoryTransformer);
     }
 
     private function fixItem($item): AbstractShipItemSpecification
@@ -281,8 +280,8 @@ class ShipItemTransformer extends AbstractCommodityTransformer
             $item = $item->specification;
         }
 
-        if (!$item instanceof AbstractShipItemSpecification) {
-            throw new RuntimeException();
+        if (! $item instanceof AbstractShipItemSpecification) {
+            throw new RuntimeException;
         }
 
         return $item;

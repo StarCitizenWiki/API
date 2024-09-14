@@ -18,7 +18,7 @@ abstract class AbstractCommLinkCommand extends AbstractQueueCommand
      */
     protected function parseOffset(): int
     {
-        $offset = (int)$this->argument('offset');
+        $offset = (int) $this->argument('offset');
 
         if ($offset <= 0) {
             return self::FIRST_COMM_LINK_ID;

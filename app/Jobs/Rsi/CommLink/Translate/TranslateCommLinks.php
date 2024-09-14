@@ -23,11 +23,11 @@ use RuntimeException;
 class TranslateCommLinks implements ShouldQueue
 {
     use Dispatchable;
+    use GetCommLinkWikiPageInfo;
     use InteractsWithQueue;
+    use LoginWikiBotAccount;
     use Queueable;
     use SerializesModels;
-    use GetCommLinkWikiPageInfo;
-    use LoginWikiBotAccount;
 
     /**
      * @var int Comm-Link IDs to operate on
@@ -36,8 +36,6 @@ class TranslateCommLinks implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param array $commLinkIds
      */
     public function __construct(array $commLinkIds = [])
     {
@@ -46,8 +44,6 @@ class TranslateCommLinks implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

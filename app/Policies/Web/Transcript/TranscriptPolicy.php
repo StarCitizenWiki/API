@@ -15,10 +15,6 @@ class TranscriptPolicy extends BaseAdminPolicy
 
     /**
      * View all / single resource.
-     *
-     * @param User $user
-     *
-     * @return bool
      */
     public function index(User $user): bool
     {
@@ -27,10 +23,6 @@ class TranscriptPolicy extends BaseAdminPolicy
 
     /**
      * View all / single resource.
-     *
-     * @param User $user
-     *
-     * @return bool
      */
     public function view(User $user): bool
     {
@@ -39,10 +31,6 @@ class TranscriptPolicy extends BaseAdminPolicy
 
     /**
      * Update a Resource.
-     *
-     * @param User $user
-     *
-     * @return bool
      */
     public function update(User $user): bool
     {

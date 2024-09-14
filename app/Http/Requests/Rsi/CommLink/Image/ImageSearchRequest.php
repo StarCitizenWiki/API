@@ -6,6 +6,4 @@ namespace App\Http\Requests\Rsi\CommLink\Image;
 
 use App\Http\Requests\AbstractSearchRequest;
 
-class ImageSearchRequest extends AbstractSearchRequest
-{
-}
+class ImageSearchRequest extends AbstractSearchRequest {}

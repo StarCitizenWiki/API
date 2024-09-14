@@ -30,9 +30,6 @@ class VehicleWeaponMode extends Model
         'pellets_per_shot' => 'double',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function weapon(): BelongsTo
     {
         return $this->belongsTo(VehicleWeapon::class, 'weapon_id');
@@ -41,6 +38,7 @@ class VehicleWeaponMode extends Model
     public function getDamagePerSecondAttribute(): float
     {
         $multiplier = $this->rounds_per_minute / 60;
+
         return $this->weapon->ammunition->damage * $multiplier;
     }
 }

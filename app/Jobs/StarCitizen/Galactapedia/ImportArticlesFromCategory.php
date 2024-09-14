@@ -23,8 +23,6 @@ class ImportArticlesFromCategory extends AbstractBaseDownloadData implements Sho
 
     /**
      * Create a new job instance.
-     *
-     * @param Category $category
      */
     public function __construct(Category $category)
     {
@@ -33,15 +31,13 @@ class ImportArticlesFromCategory extends AbstractBaseDownloadData implements Sho
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
         $result = $this->makeClient()->post('galactapedia/graphql', [
-            'query' => <<<QUERY
-query ArticleByCategory(\$query: String) {
-  allArticle(where: {categories: {contains: \$query}}) {
+            'query' => <<<'QUERY'
+query ArticleByCategory($query: String) {
+  allArticle(where: {categories: {contains: $query}}) {
     edges {
       node {
         id
@@ -59,7 +55,7 @@ QUERY,
 
         $result = $result->json() ?? [];
 
-        if (!isset($result['data']['allArticle']['edges'])) {
+        if (! isset($result['data']['allArticle']['edges'])) {
             return;
         }
 

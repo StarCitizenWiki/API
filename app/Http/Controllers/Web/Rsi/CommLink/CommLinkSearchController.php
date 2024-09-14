@@ -9,7 +9,6 @@ use App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageLinkSearchRequest;
 use App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest;
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\Rsi\CommLink\CommLinkTranslation;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -32,8 +31,6 @@ class CommLinkSearchController extends Controller
     }
 
     /**
-     * @param CommLinkSearchRequest $request
-     *
      * @return View|RedirectResponse
      */
     public function searchByTitle(CommLinkSearchRequest $request)
@@ -64,7 +61,6 @@ class CommLinkSearchController extends Controller
     /**
      * Reverse searches a comm-link by an image url
      *
-     * @param ReverseImageLinkSearchRequest $request
      *
      * @return Application|Factory|View
      */
@@ -82,7 +78,6 @@ class CommLinkSearchController extends Controller
     /**
      * Reverse searches a comm-link by an actual image file
      *
-     * @param ReverseImageSearchRequest $request
      *
      * @return Application|Factory|View
      */
@@ -99,7 +94,6 @@ class CommLinkSearchController extends Controller
     /**
      * Search for comm-links based on the relevance of the input
      *
-     * @param CommLinkSearchRequest $request
      *
      * @return Application|Factory|View
      */
@@ -133,9 +127,6 @@ class CommLinkSearchController extends Controller
     /**
      * Things to do after a search request was done
      *
-     * @param $results
-     * @param string $view
-     * @param string $key
      * @return Application|Factory|View
      */
     private function handleSearchResult($results, string $view, string $key = 'images')

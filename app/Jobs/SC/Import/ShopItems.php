@@ -30,11 +30,11 @@ class ShopItems implements ShouldQueue
      */
     public function handle()
     {
-        $this->manufacturers = (new Manufacturers())->getData();
+        $this->manufacturers = (new Manufacturers)->getData();
 
         try {
-            $shops = new Shops();
-        } catch (\JsonException | FileNotFoundException $e) {
+            $shops = new Shops;
+        } catch (\JsonException|FileNotFoundException $e) {
             $this->fail($e->getMessage());
 
             return;
@@ -64,12 +64,12 @@ class ShopItems implements ShouldQueue
                         }
 
                         // TODO: Extract
-                        if ($inventory['rentable'] === true && isset($inventory['rental']) && !empty($inventory['rental'])) {
+                        if ($inventory['rentable'] === true && isset($inventory['rental']) && ! empty($inventory['rental'])) {
                             ShopItemRental::updateOrCreate([
                                 'item_uuid' => $itemModel->uuid,
                                 'shop_uuid' => $shopModel->uuid,
                                 'node_uuid' => $inventory['node_uuid'],
-                            ], $inventory['rental'] + ['version' => config('api.sc_data_version'),]);
+                            ], $inventory['rental'] + ['version' => config('api.sc_data_version')]);
                         }
 
                         return [
@@ -91,7 +91,7 @@ class ShopItems implements ShouldQueue
                                 'sellable' => $inventory['sellable'],
                                 'rentable' => $inventory['rentable'],
                                 'version' => config('api.sc_data_version'),
-                            ]
+                            ],
                         ];
                     })
                     ->filter(function ($item) {

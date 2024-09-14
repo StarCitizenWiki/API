@@ -76,9 +76,6 @@ class CelestialObject extends HasTranslations
         'time_modified' => 'datetime',
     ];
 
-    /**
-     * @return HasMany
-     */
     public function translations(): HasMany
     {
         return $this->hasMany(CelestialObjectTranslation::class);
@@ -116,8 +113,6 @@ class CelestialObject extends HasTranslations
 
     /**
      * A jumppoint with its entry or exit id equal to this cig_id
-     *
-     * @return Jumppoint|null
      */
     public function jumppoint(): ?Jumppoint
     {

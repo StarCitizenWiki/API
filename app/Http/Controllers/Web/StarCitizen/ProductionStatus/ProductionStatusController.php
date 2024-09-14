@@ -29,7 +29,6 @@ class ProductionStatusController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -50,9 +49,7 @@ class ProductionStatusController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param ProductionStatus $productionStatus
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -72,10 +69,7 @@ class ProductionStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TranslationRequest $request
-     * @param ProductionStatus   $productionStatus
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

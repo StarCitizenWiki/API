@@ -24,8 +24,6 @@ class ImageHash extends Model
 
     /**
      * The Comm-Link Image
-     *
-     * @return BelongsTo
      */
     public function image(): BelongsTo
     {

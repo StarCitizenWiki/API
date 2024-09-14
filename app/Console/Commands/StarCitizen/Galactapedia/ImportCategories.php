@@ -24,12 +24,11 @@ class ImportCategories extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         \App\Jobs\StarCitizen\Galactapedia\ImportCategories::dispatch();
+
         return 0;
     }
 }

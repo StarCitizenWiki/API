@@ -24,16 +24,14 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class CreateCommLinkWikiTranslationPages implements ShouldQueue
 {
     use Dispatchable;
+    use GetCommLinkWikiPageInfo;
+    use GetWikiCsrfToken;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetCommLinkWikiPageInfo;
-    use GetWikiCsrfToken;
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -73,12 +71,11 @@ class CreateCommLinkWikiTranslationPages implements ShouldQueue
                                 "<noinclude>{{Comm-Link}}</noinclude>\n%s",
                                 optional($commLink->english())->translation
                             ))
-                            ->summary("Importing Comm-Link Translation")
+                            ->summary('Importing Comm-Link Translation')
                             ->csrfToken($token)
                             ->markBotEdit()
                             ->request();
                     });
-
 
                     if (config('services.wiki_approve_revs.access_secret', null) !== null) {
                         dispatch(new ApproveRevisions($commlinks->map(function (CommLink $commLink) {

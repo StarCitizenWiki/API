@@ -23,17 +23,14 @@ use RuntimeException;
  */
 class ImportStarmap implements ShouldQueue
 {
+    use CheckRsiDataStructure;
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use CheckRsiDataStructure;
 
     private const STARSYSTEM_DISK = 'starmap';
 
-    /**
-     * @var string|null
-     */
     private ?string $timestamp;
 
     /**
@@ -43,8 +40,6 @@ class ImportStarmap implements ShouldQueue
 
     /**
      * ParseStarmapDownload constructor.
-     *
-     * @param null|string $timestamp
      */
     public function __construct(?string $timestamp = null)
     {
@@ -53,12 +48,10 @@ class ImportStarmap implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
-        if (null === $this->timestamp) {
+        if ($this->timestamp === null) {
             $this->starmapFolder = $this->getNewestStarmapFolder();
         } else {
             $this->starmapFolder = Storage::disk(self::STARSYSTEM_DISK)->path($this->timestamp);
@@ -70,9 +63,6 @@ class ImportStarmap implements ShouldQueue
         $this->dispatchJumppointJobs();
     }
 
-    /**
-     * @return string
-     */
     private function getNewestStarmapFolder(): string
     {
         $diskPath = Storage::disk(self::STARSYSTEM_DISK)->path('');
@@ -119,7 +109,7 @@ class ImportStarmap implements ShouldQueue
             ->filter(
                 function ($systemData) {
                     // Should not happen
-                    return !empty($systemData) && $systemData !== '';
+                    return ! empty($systemData) && $systemData !== '';
                 }
             )
             ->map(
@@ -147,7 +137,7 @@ class ImportStarmap implements ShouldQueue
             $this->fail($e);
         }
 
-        if (!$this->checkDataStructureIsValid($bootupData, ['data', 'tunnels', 'resultset', 0])) {
+        if (! $this->checkDataStructureIsValid($bootupData, ['data', 'tunnels', 'resultset', 0])) {
             $this->fail('Bootup tunnel data not valid.');
         }
 

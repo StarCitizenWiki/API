@@ -31,12 +31,12 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: 'average_hash', type: 'integer'),
                     ],
                     type: 'array',
-                    items: new OA\Items()
+                    items: new OA\Items
                 ),
             ],
             type: 'object',
             nullable: true
-        )
+        ),
     ],
     type: 'object'
 )]
@@ -46,11 +46,6 @@ class ImageTransformer extends V1Transformer
         'hashes',
     ];
 
-    /**
-     * @param Image $image
-     *
-     * @return array
-     */
     public function transform(Image $image): array
     {
         return [
@@ -63,11 +58,6 @@ class ImageTransformer extends V1Transformer
         ];
     }
 
-    /**
-     * @param Image $image
-     *
-     * @return Primitive
-     */
     public function includeHashes(Image $image): Primitive
     {
         return $this->primitive(

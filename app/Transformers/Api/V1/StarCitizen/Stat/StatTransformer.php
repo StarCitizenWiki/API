@@ -22,11 +22,6 @@ use OpenApi\Attributes as OA;
 )]
 class StatTransformer extends V1Transformer
 {
-    /**
-     * @param Stat $stat
-     *
-     * @return array
-     */
     public function transform(Stat $stat): array
     {
         return [

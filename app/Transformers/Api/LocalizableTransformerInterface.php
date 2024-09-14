@@ -9,15 +9,7 @@ namespace App\Transformers\Api;
  */
 interface LocalizableTransformerInterface
 {
-    /**
-     * @param string $localeCode
-     *
-     * @return void
-     */
     public function setLocale(string $localeCode): void;
 
-    /**
-     * @return string|null
-     */
     public function getLocale(): ?string;
 }

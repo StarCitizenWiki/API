@@ -23,9 +23,6 @@ final class TranslateText
     }
 
     /**
-     * @param string $targetLocale
-     * @param string $formality
-     * @return string
      * @throws QuotaException
      * @throws RateLimitedException
      * @throws TextLengthException
@@ -53,7 +50,7 @@ final class TranslateText
         } catch (TextLengthException $e) {
             app('Log')::warning($e->getMessage());
             throw $e;
-        } catch (CallException | AuthenticationException | InvalidArgumentException $e) {
+        } catch (CallException|AuthenticationException|InvalidArgumentException $e) {
             app('Log')::warning(sprintf('%s: %s', 'Translation failed with Message', $e->getMessage()));
             throw $e;
         }
@@ -63,9 +60,6 @@ final class TranslateText
 
     /**
      * Replace some wrong translations
-     *
-     * @param string $translation
-     * @return string
      */
     public static function runTextReplacements(string $translation): string
     {
@@ -82,7 +76,6 @@ final class TranslateText
             'der Sternenbürger-Community' => 'der Star Citizen Community',
             'für alle Sternenbürger' => 'für alle Star Citizen',
             'Sternenbürger live' => 'Star Citizen live',
-
 
             'der Sternenbürger' => 'Star Citizen',
             'zur Sternenbürgerkunde' => 'zur Star Citizen Lore',
@@ -101,7 +94,6 @@ final class TranslateText
 
             'Staffel 42' => 'Squadron 42',
         ]);
-
 
         $replacements->each(function (string $to, string $from) use (&$translation) {
             $translation = str_replace($from, $to, $translation);

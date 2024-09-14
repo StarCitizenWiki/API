@@ -18,8 +18,6 @@ class ManufacturerPolicy extends BaseAdminPolicy
 
     /**
      * View all / single resource
-     *
-     * @return bool
      */
     public function view(): bool
     {
@@ -29,7 +27,6 @@ class ManufacturerPolicy extends BaseAdminPolicy
     /**
      * Update a Resource
      *
-     * @param User $user
      *
      * @return bool
      */

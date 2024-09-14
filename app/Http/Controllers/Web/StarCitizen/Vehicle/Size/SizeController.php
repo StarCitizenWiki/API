@@ -29,7 +29,6 @@ class SizeController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -50,9 +49,7 @@ class SizeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Size $size
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -72,10 +69,7 @@ class SizeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TranslationRequest $request
-     * @param Size               $size
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

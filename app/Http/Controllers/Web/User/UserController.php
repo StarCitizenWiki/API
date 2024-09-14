@@ -30,7 +30,6 @@ class UserController extends Controller
     /**
      * View all Admins
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -49,9 +48,7 @@ class UserController extends Controller
     /**
      * Edit Admin
      *
-     * @param User $user
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -70,10 +67,7 @@ class UserController extends Controller
     /**
      * Update (Block/Restore) Admin
      *
-     * @param Request $request
-     * @param User    $user
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */
@@ -120,10 +114,6 @@ class UserController extends Controller
     }
 
     /**
-     * @param User $user
-     *
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     private function block(User $user): RedirectResponse

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Traits\Jobs\CheckRsiDataStructureTrait as CheckRsiDataStructure;
-use Symfony\Component\BrowserKit\HttpBrowser;
 use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use stdClass;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\BrowserKit\HttpBrowser;
 
 /**
  * Base Class for Download Data Jobs
@@ -40,15 +40,11 @@ abstract class AbstractBaseDownloadData
 
     /**
      * Inits the Guzzle Client.
-     *
-     * @param bool $withTokenHeader
-     *
-     * @return PendingRequest
      */
     protected function makeClient(bool $withTokenHeader = true): PendingRequest
     {
-        if (null === self::$client) {
-            self::$cookieJar = new CookieJar();
+        if (self::$client === null) {
+            self::$cookieJar = new CookieJar;
 
             $client = Http::withOptions(
                 [
@@ -57,7 +53,7 @@ abstract class AbstractBaseDownloadData
                 ]
             )->timeout(60);
 
-            if (true === $withTokenHeader) {
+            if ($withTokenHeader === true) {
                 $client = $client->withHeaders(
                     [
                         'X-RSI-Token' => self::RSI_TOKEN,
@@ -93,7 +89,7 @@ abstract class AbstractBaseDownloadData
 
         $response = $res->json();
 
-        if (1 !== $response['success'] || !$res->successful()) {
+        if ($response['success'] !== 1 || ! $res->successful()) {
             throw new RuntimeException('Login was not successful');
         }
 
@@ -102,10 +98,6 @@ abstract class AbstractBaseDownloadData
 
     /**
      * Add Guzzle Cookies to Goutte.
-     *
-     * @param HttpBrowser $client
-     *
-     * @return HttpBrowser
      */
     protected function addGuzzleCookiesToScraper(HttpBrowser $client): HttpBrowser
     {

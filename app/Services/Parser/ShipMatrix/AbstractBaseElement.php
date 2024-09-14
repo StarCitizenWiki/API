@@ -15,8 +15,6 @@ abstract class AbstractBaseElement
 
     /**
      * AbstractBaseElement constructor.
-     *
-     * @param Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
@@ -25,10 +23,6 @@ abstract class AbstractBaseElement
 
     /**
      * Decodes HTML Entities and trims the string
-     *
-     * @param string|null $string
-     *
-     * @return string
      */
     protected function normalizeString(?string $string): string
     {

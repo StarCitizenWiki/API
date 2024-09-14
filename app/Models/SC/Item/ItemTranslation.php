@@ -7,7 +7,6 @@ namespace App\Models\SC\Item;
 use App\Models\System\Translation\AbstractTranslation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ItemTranslation extends AbstractTranslation
 {

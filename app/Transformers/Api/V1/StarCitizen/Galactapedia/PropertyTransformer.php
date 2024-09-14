@@ -20,11 +20,6 @@ use OpenApi\Attributes as OA;
 )]
 class PropertyTransformer extends V1Transformer
 {
-    /**
-     * @param ArticleProperty $property
-     *
-     * @return array
-     */
     public function transform(ArticleProperty $property): array
     {
         return [

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\SC\Shop;
 
-use App\Events\ModelUpdating;
 use App\Models\SC\Item\Item;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +22,7 @@ class Shop extends Model
             'name_raw',
             static function (Builder $builder) {
                 $builder->where('name_raw', 'NOT LIKE', '%Levski%')
-                ->where('name_raw', 'NOT LIKE', '%IAE Expo%');
+                    ->where('name_raw', 'NOT LIKE', '%IAE Expo%');
             }
         );
     }

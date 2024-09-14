@@ -47,9 +47,6 @@ class Focus extends HasTranslations
         return 'slug';
     }
 
-    /**
-     * @return HasMany
-     */
     public function translations(): HasMany
     {
         return $this->hasMany(FocusTranslation::class);

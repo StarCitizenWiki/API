@@ -26,9 +26,6 @@ class GroundVehicleController extends Controller
         $this->middleware('auth')->except(['index']);
     }
 
-    /**
-     * @return View
-     */
     public function index(): View
     {
         return view(
@@ -42,9 +39,7 @@ class GroundVehicleController extends Controller
     /**
      * Display Ship data, edit Translations
      *
-     * @param GroundVehicle $groundVehicle
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -74,10 +69,7 @@ class GroundVehicleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TranslationRequest $request
-     * @param GroundVehicle      $groundVehicle
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

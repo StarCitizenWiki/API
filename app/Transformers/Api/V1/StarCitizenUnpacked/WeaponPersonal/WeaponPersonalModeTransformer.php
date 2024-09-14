@@ -11,14 +11,9 @@ use League\Fractal\Resource\Collection;
 class WeaponPersonalModeTransformer extends AbstractTranslationTransformer
 {
     protected array $defaultIncludes = [
-        'damages'
+        'damages',
     ];
 
-    /**
-     * @param WeaponPersonalMode $mode
-     *
-     * @return array
-     */
     public function transform(WeaponPersonalMode $mode): array
     {
         return [
@@ -33,6 +28,6 @@ class WeaponPersonalModeTransformer extends AbstractTranslationTransformer
 
     public function includeDamages(WeaponPersonalMode $mode): Collection
     {
-        return $this->collection($mode->weapon->ammunition->damages, new WeaponPersonalAmmunitionDamageTransformer());
+        return $this->collection($mode->weapon->ammunition->damages, new WeaponPersonalAmmunitionDamageTransformer);
     }
 }

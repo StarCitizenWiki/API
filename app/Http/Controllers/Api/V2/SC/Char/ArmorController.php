@@ -76,7 +76,7 @@ class ArmorController extends AbstractApiV2Controller
         $query = QueryBuilder::for(Armor::class, $request)
             ->allowedFilters([
                 AllowedFilter::partial('type'),
-                AllowedFilter::custom('variants', new ItemVariantsFilter()),
+                AllowedFilter::custom('variants', new ItemVariantsFilter),
             ])
             ->paginate($this->limit)
             ->appends(request()->query());

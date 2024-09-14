@@ -26,8 +26,6 @@ class CommLinksChanged extends Model
 
     /**
      * The Associated Comm-Link
-     *
-     * @return BelongsTo
      */
     public function commLink(): BelongsTo
     {

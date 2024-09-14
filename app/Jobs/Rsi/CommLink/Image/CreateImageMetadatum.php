@@ -25,8 +25,6 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param Image $image
      */
     public function __construct(Image $image)
     {
@@ -35,8 +33,6 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -73,8 +69,6 @@ class CreateImageMetadatum extends BaseDownloadData implements ShouldQueue
 
     /**
      * Saves response data as metadata
-     *
-     * @param Response $response
      */
     private function saveMetadata(Response $response): void
     {

@@ -27,8 +27,6 @@ class CreateImageMetadata implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param array $commLinkIds
      */
     public function __construct(array $commLinkIds = [])
     {
@@ -37,8 +35,6 @@ class CreateImageMetadata implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

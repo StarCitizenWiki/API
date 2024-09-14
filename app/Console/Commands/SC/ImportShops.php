@@ -26,14 +26,13 @@ class ImportShops extends AbstractQueueCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         $this->info('Importing Shops');
         ShopItems::dispatch();
         $this->info('Done');
+
         return Command::SUCCESS;
     }
 }

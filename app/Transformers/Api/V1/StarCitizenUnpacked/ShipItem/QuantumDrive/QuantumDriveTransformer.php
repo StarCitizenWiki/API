@@ -11,7 +11,7 @@ use League\Fractal\Resource\Collection;
 class QuantumDriveTransformer extends AbstractCommodityTransformer
 {
     protected array $defaultIncludes = [
-        'modes'
+        'modes',
     ];
 
     public function transform(QuantumDrive $item): array
@@ -32,6 +32,6 @@ class QuantumDriveTransformer extends AbstractCommodityTransformer
 
     public function includeModes(QuantumDrive $drive): Collection
     {
-        return $this->collection($drive->modes, new QuantumDriveModeTransformer());
+        return $this->collection($drive->modes, new QuantumDriveModeTransformer);
     }
 }

@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  */
 class Manufacturer extends HasTranslations
 {
-    use VehicleRelations;
     use ModelChangelog;
+    use VehicleRelations;
 
     protected $dispatchesEvents = [
         'updating' => ModelUpdating::class,
@@ -59,9 +59,6 @@ class Manufacturer extends HasTranslations
         return 'name_short';
     }
 
-    /**
-     * @return HasManyThrough
-     */
     public function translationChangelogs(): HasManyThrough
     {
         return $this->hasManyThrough(

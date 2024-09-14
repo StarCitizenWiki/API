@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CharArmor extends CommodityItem
 {
-    use HasFactory;
     use HasBaseVersionsTrait;
+    use HasFactory;
 
     protected $table = 'star_citizen_unpacked_char_armor';
 

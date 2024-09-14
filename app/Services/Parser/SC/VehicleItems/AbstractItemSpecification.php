@@ -18,6 +18,6 @@ abstract class AbstractItemSpecification
 
     protected static function get(Collection $item, string $key): ?array
     {
-        return Arr::get($item, 'Raw.Entity.Components.' . $key);
+        return Arr::get($item, 'Raw.Entity.Components.'.$key);
     }
 }

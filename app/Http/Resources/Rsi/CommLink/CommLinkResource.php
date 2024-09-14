@@ -48,15 +48,14 @@ class CommLinkResource extends AbstractBaseResource
         return [
             'images',
             'links',
-            'translations'
+            'translations',
         ];
     }
 
     /**
      * Transform the resource into an array.
      *
-     * @param Request $request
-     * @return array
+     * @param  Request  $request
      */
     public function toArray($request): array
     {
@@ -81,8 +80,6 @@ class CommLinkResource extends AbstractBaseResource
 
     /**
      * If no URL is set a default url will be returned
-     *
-     * @return string
      */
     private function getCommLinkUrl(): string
     {

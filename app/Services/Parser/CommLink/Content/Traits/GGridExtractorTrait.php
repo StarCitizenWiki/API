@@ -11,9 +11,6 @@ trait GGridExtractorTrait
 {
     /**
      * Extract <g-grid> content
-     *
-     * @param Crawler $page
-     * @return string
      */
     public function getGrid(Crawler $page): string
     {
@@ -36,11 +33,11 @@ trait GGridExtractorTrait
                 foreach ($cards as $card) {
                     $card = $card['content'];
 
-                    if (isset($card['title']) && !empty($card['title'])) {
+                    if (isset($card['title']) && ! empty($card['title'])) {
                         $out[] = sprintf('<h1>%s</h1>', $card['title']);
                     }
 
-                    if (!empty($card['summary'])) {
+                    if (! empty($card['summary'])) {
                         $out[] = sprintf('<p>%s</p>', $card['summary']);
                     }
 

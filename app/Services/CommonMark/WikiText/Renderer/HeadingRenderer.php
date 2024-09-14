@@ -17,22 +17,17 @@ class HeadingRenderer implements NodeRendererInterface
     private bool $bumpH1;
 
     /**
-     * @param bool $bumpH1 Bumps H1 to H2 if flag is set
+     * @param  bool  $bumpH1  Bumps H1 to H2 if flag is set
      */
     public function __construct(bool $bumpH1 = true)
     {
         $this->bumpH1 = $bumpH1;
     }
 
-    /**
-     * @param Node $node
-     * @param ChildNodeRendererInterface $childRenderer
-     * @return string
-     */
     public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
-        if (!($node instanceof Heading)) {
-            throw new InvalidArgumentException('Incompatible block type: ' . get_class($node));
+        if (! ($node instanceof Heading)) {
+            throw new InvalidArgumentException('Incompatible block type: '.get_class($node));
         }
 
         $level = $node->getLevel();

@@ -26,6 +26,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
     use SerializesModels;
 
     public const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
+
     public const DISK = 'comm_links';
 
     /**
@@ -37,9 +38,6 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param int  $commLinkId
-     * @param bool $skipExisting
      */
     public function __construct(int $commLinkId, bool $skipExisting = false)
     {
@@ -49,8 +47,6 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -76,7 +72,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
             sprintf('%s/%s/%d-IMPORT', self::COMM_LINK_BASE_URL, 'SCW', $this->commLinkId)
         );
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             $this->fail(new RequestException($response));
 
             return;
@@ -84,7 +80,7 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 
         $content = $this->removeRsiToken($response->body());
 
-        if (!Str::contains($content, ['id="post"', 'id="subscribers"', 'id="layout-system"'])) {
+        if (! Str::contains($content, ['id="post"', 'id="subscribers"', 'id="layout-system"'])) {
             app('Log')::info(
                 "Comm-Link with ID {$this->commLinkId} does not exist",
                 [
@@ -100,10 +96,6 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 
     /**
      * Strips the X-RSI Token from the Page.
-     *
-     * @param string $content
-     *
-     * @return string
      */
     private function removeRsiToken(string $content): string
     {
@@ -112,8 +104,6 @@ class DownloadCommLink extends BaseDownloadData implements ShouldQueue
 
     /**
      * Write the Comm-Link to disk
-     *
-     * @param string $content
      */
     private function writeFile(string $content): void
     {

@@ -20,9 +20,6 @@ use MediaWiki\OAuthClient\Exception as OAuthException;
  */
 class AuthRepository implements AuthRepositoryInterface
 {
-    /**
-     * @var Client
-     */
     private Client $client;
 
     /**
@@ -98,13 +95,11 @@ class AuthRepository implements AuthRepositoryInterface
     }
 
     /**
-     * @param \stdClass $data OAuth user data
-     *
-     * @return User
+     * @param  \stdClass  $data  OAuth user data
      */
     private function userDetails($data): User
     {
-        $user = new User();
+        $user = new User;
         $user->id = $data->sub;
         $user->email = optional($data)->email;
         $user->username = $data->username;
@@ -167,11 +162,6 @@ class AuthRepository implements AuthRepositoryInterface
 
     /**
      * Creates the local User Record.
-     *
-     * @param User   $oauthUser
-     * @param string $provider
-     *
-     * @return User
      */
     private function createLocalUser(User $oauthUser, string $provider): User
     {

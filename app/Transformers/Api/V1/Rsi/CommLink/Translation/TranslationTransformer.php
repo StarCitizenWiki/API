@@ -20,11 +20,6 @@ use OpenApi\Attributes as OA;
 )]
 class TranslationTransformer extends V1Transformer
 {
-    /**
-     * @param CommLinkTranslation|null $translation
-     *
-     * @return array
-     */
     public function transform(?CommLinkTranslation $translation): array
     {
         if ($translation === null) {

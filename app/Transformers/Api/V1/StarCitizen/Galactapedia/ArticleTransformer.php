@@ -33,7 +33,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/galactapedia_category',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -52,7 +52,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/galactapedia_tag',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -71,7 +71,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/galactapedia_property',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -90,7 +90,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/galactpedia_related_article',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -109,7 +109,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/galactpedia_translation',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -131,11 +131,6 @@ class ArticleTransformer extends AbstractTranslationTransformer
         'english',
     ];
 
-    /**
-     * @param Article $article
-     *
-     * @return array
-     */
     public function transform(Article $article): array
     {
         return [
@@ -155,33 +150,28 @@ class ArticleTransformer extends AbstractTranslationTransformer
 
     public function includeCategories(Article $article): Collection
     {
-        return $this->collection($article->categories, new CategoryTransformer());
+        return $this->collection($article->categories, new CategoryTransformer);
     }
 
     public function includeTags(Article $article): Collection
     {
-        return $this->collection($article->tags, new TagTransformer());
+        return $this->collection($article->tags, new TagTransformer);
     }
 
     public function includeProperties(Article $article): Collection
     {
-        return $this->collection($article->properties, new PropertyTransformer());
+        return $this->collection($article->properties, new PropertyTransformer);
     }
 
     public function includeRelatedArticles(Article $article): Collection
     {
-        return $this->collection($article->related, new RelatedArticleTransformer());
+        return $this->collection($article->related, new RelatedArticleTransformer);
     }
 
-    /**
-     * @param Article $article
-     *
-     * @return Item
-     */
     public function includeEnglish(Article $article): Item
     {
         $translation = $article->english();
 
-        return $this->item($translation, new TranslationTransformer());
+        return $this->item($translation, new TranslationTransformer);
     }
 }

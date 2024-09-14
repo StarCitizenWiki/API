@@ -27,7 +27,6 @@ class ChangelogController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return Factory|View
      *
      * @throws AuthorizationException
@@ -37,7 +36,7 @@ class ChangelogController extends Controller
         $this->authorize('web.changelogs.view');
 
         $query = ModelChangelog::query()
-            #->where('changelog_type', '!=', ShopItem::class)
+            //->where('changelog_type', '!=', ShopItem::class)
             ->with('changelog')
             ->orderByDesc('id');
 

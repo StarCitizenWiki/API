@@ -19,11 +19,6 @@ use OpenApi\Attributes as OA;
 )]
 class CommLinkLinkTransformer extends V1Transformer
 {
-    /**
-     * @param CommLink $commLink
-     *
-     * @return array
-     */
     public function transform(CommLink $commLink): array
     {
         return [

@@ -20,7 +20,6 @@ class Knife extends AbstractItemCreationJob
     use Queueable;
     use SerializesModels;
 
-
     /**
      * Execute the job.
      */

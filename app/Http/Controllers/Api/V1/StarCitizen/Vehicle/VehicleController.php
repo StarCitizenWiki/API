@@ -23,9 +23,6 @@ class VehicleController extends ApiController
 {
     /**
      * ShipController constructor.
-     *
-     * @param VehicleTransformer $transformer
-     * @param Request $request
      */
     public function __construct(VehicleTransformer $transformer, Request $request)
     {
@@ -66,14 +63,14 @@ class VehicleController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/vehicle')
                 )
-            )
+            ),
         ]
     )]
     public function index(Request $request): Response
     {
         if ($request->has('transformer') && $request->get('transformer') === 'link') {
-            $this->transformer = new VehicleLinkTransformer();
-            if (!$request->has('limit')) {
+            $this->transformer = new VehicleLinkTransformer;
+            if (! $request->has('limit')) {
                 $this->limit = 100;
             }
         }
@@ -120,7 +117,7 @@ class VehicleController extends ApiController
                 ref: '#/components/schemas/vehicle',
                 response: 200,
                 description: 'A singular vehicle'
-            )
+            ),
         ]
     )]
     public function show(Request $request)
@@ -151,12 +148,12 @@ class VehicleController extends ApiController
 
             if ($vehicleModel === null) {
                 $vehicleModel = UnpackedVehicle::query()
-                    ->where('name', 'like', '%' . $vehicle . '%')
-                    ->orWhere('class_name', 'like', '%' . $vehicle . '%')
+                    ->where('name', 'like', '%'.$vehicle.'%')
+                    ->orWhere('class_name', 'like', '%'.$vehicle.'%')
                     ->firstOrFail();
 
                 $locale = $this->transformer->getLocale();
-                $this->transformer = new UnpackedVehicleTransformer();
+                $this->transformer = new UnpackedVehicleTransformer;
                 if ($locale !== null) {
                     $this->transformer->setLocale($locale);
                 }
@@ -181,7 +178,7 @@ class VehicleController extends ApiController
                         type: 'json',
                     ),
                     example: '{"query": "Merchant"}',
-                )
+                ),
             ]
         ),
         tags: ['Vehicles', 'RSI-Website', 'In-Game'],
@@ -197,12 +194,12 @@ class VehicleController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No vehicle found.',
-            )
+            ),
         ],
     )]
     public function search(Request $request)
     {
-        $rules = (new VehicleSearchRequest())->rules();
+        $rules = (new VehicleSearchRequest)->rules();
         try {
             $request->validate($rules);
         } catch (ValidationException $e) {

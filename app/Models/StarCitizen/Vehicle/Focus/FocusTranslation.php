@@ -20,9 +20,6 @@ class FocusTranslation extends Translation
         'translation',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function focus(): BelongsTo
     {
         return $this->belongsTo(Focus::class, 'focus_id');

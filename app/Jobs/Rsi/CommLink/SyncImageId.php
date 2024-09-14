@@ -23,20 +23,12 @@ class SyncImageId implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * @var CommLink
-     */
     private CommLink $commLink;
 
-    /**
-     * @var Crawler
-     */
     private Crawler $crawler;
 
     /**
      * Create a new job instance.
-     *
-     * @param CommLink $commLink
      */
     public function __construct(CommLink $commLink)
     {
@@ -60,16 +52,16 @@ class SyncImageId implements ShouldQueue
 
         $content = Storage::disk('comm_links')->get("{$this->commLink->cig_id}/{$this->commLink->file}");
         if ($content === null) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException;
         }
 
-        $this->crawler = new Crawler();
+        $this->crawler = new Crawler;
         $this->crawler->addHtmlContent($content, 'UTF-8');
 
         $post = $this->crawler->filter(ImportCommLink::POST_SELECTOR);
         $subscribers = $this->crawler->filter(ImportCommLink::SUBSCRIBERS_SELECTOR);
 
-        if (0 === $post->count() && 0 === $subscribers->count()) {
+        if ($post->count() === 0 && $subscribers->count() === 0) {
             app('Log')::info("Comm-Link with id {$this->commLink->cig_id} has no content");
 
             return;

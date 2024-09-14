@@ -29,7 +29,6 @@ class TypeController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -50,9 +49,7 @@ class TypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Type $type
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -72,10 +69,7 @@ class TypeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TranslationRequest $request
-     * @param Type               $type
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

@@ -79,9 +79,6 @@ final class GFeatureExtractor implements ContentExtractorInterface
 
     /**
      * <g-features> Intro
-     *
-     * @param Crawler $crawler
-     * @param string $content
      */
     private function getGFeaturesIntro(Crawler $crawler, string &$content): void
     {

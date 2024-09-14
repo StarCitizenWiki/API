@@ -331,10 +331,6 @@ class Item implements ShouldQueue
         $model->interactions()->sync($interactions);
     }
 
-    /**
-     * @param \App\Models\SC\Item\Item $model
-     * @param $data
-     */
     private function addEntityTags(\App\Models\SC\Item\Item $model, $data): void
     {
         if (empty($data['entity_tags'])) {

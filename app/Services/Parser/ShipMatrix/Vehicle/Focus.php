@@ -35,7 +35,7 @@ class Focus extends BaseElement
 
         $rawFocus = $this->rawData->get(self::VEHICLE_FOCUS);
 
-        if (null === $rawFocus) {
+        if ($rawFocus === null) {
             app('Log')::debug('Vehicle Focus not set in Matrix');
 
             return [];
@@ -44,7 +44,7 @@ class Focus extends BaseElement
         $vehicleFoci = array_map('trim', preg_split('/(\/|\s-\s|,|\sand\s)/', $rawFocus));
         $vehicleFociIDs = [];
 
-        app('Log')::debug('Vehicle Focus count: ' . count($vehicleFoci));
+        app('Log')::debug('Vehicle Focus count: '.count($vehicleFoci));
 
         collect($vehicleFoci)->each(
             function ($vehicleFocus) use (&$vehicleFociIDs) {
@@ -72,13 +72,11 @@ class Focus extends BaseElement
     }
 
     /**
-     * @param string $rawFocus
-     *
      * @return mixed|string
      */
     private function getNormalizedFocus(string $rawFocus)
     {
-        if (null !== $rawFocus && is_string($rawFocus) && in_array($rawFocus, self::FOCI)) {
+        if ($rawFocus !== null && is_string($rawFocus) && in_array($rawFocus, self::FOCI)) {
             $rawFocus = self::FOCUS_NORMALIZED;
         }
 
@@ -88,9 +86,7 @@ class Focus extends BaseElement
     /**
      * Creates a new Vehicle Focus
      *
-     * @param string $focus English Focus Translation
-     *
-     * @return VehicleFocus
+     * @param  string  $focus  English Focus Translation
      */
     private function createNewVehicleFocus(string $focus): VehicleFocus
     {

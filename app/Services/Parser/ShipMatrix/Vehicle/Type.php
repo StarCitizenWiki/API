@@ -18,8 +18,6 @@ class Type extends BaseElement
     private const VEHICLE_TYPE = 'type';
 
     /**
-     * @return VehicleType
-     *
      * @throws ModelNotFoundException
      */
     public function getVehicleType(): VehicleType
@@ -28,7 +26,7 @@ class Type extends BaseElement
 
         $type = $this->rawData->get(self::VEHICLE_TYPE);
 
-        if (null === $type) {
+        if ($type === null) {
             app('Log')::debug('Vehicle Type not set in Matrix, returning default (undefined)');
 
             return VehicleType::findOrFail(1);
@@ -52,9 +50,6 @@ class Type extends BaseElement
         return $typeTranslation->type;
     }
 
-    /**
-     * @return VehicleType
-     */
     private function createNewVehicleType(): VehicleType
     {
         app('Log')::debug('Creating new Vehicle Type');

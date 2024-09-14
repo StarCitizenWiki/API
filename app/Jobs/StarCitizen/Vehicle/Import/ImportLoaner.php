@@ -88,7 +88,7 @@ class ImportLoaner implements ShouldQueue
         $data = Http::asJson()->get('https://support.robertsspaceindustries.com/api/v2/help_center/en-us/articles/360003093114');
         $data = $data->json('article.body');
 
-        $crawler = new Crawler();
+        $crawler = new Crawler;
         $crawler->addHtmlContent($data);
 
         $rows = $crawler->filter('table tbody tr')->each(function (Crawler $crawler) {

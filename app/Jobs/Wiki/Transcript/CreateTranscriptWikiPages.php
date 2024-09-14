@@ -23,16 +23,14 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class CreateTranscriptWikiPages implements ShouldQueue
 {
     use Dispatchable;
+    use GetCommLinkWikiPageInfo;
     use InteractsWithQueue;
+    use LoginWikiBotAccount;
     use Queueable;
     use SerializesModels;
-    use GetCommLinkWikiPageInfo;
-    use LoginWikiBotAccount;
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

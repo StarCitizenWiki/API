@@ -35,7 +35,7 @@ final class Manufacturers
                         'name' => $manufacturer['name'] ?? 'Unknown Manufacturer',
                         'code' => $manufacturer['code'] ?? 'UNKN',
                         'uuid' => $manufacturer['reference'] ?? '00000000-0000-0000-0000-000000000000',
-                    ]
+                    ],
                 ];
             });
     }

@@ -9,11 +9,6 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 
 trait CreateEnglishSubpageTrait
 {
-    /**
-     * @param string $pageName
-     * @param string $csrfToken
-     * @return void
-     */
     private function createEnglishSubpage(string $pageName, string $csrfToken): void
     {
         if (config('services.wiki_translations.create_english_subpage') === true) {

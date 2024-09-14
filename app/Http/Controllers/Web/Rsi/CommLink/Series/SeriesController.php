@@ -26,7 +26,6 @@ class SeriesController extends Controller
     /**
      * All Series
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -45,9 +44,7 @@ class SeriesController extends Controller
     /**
      * Get all Comm-Links in a given Series
      *
-     * @param Series $series
      *
-     * @return View
      *
      * @throws AuthorizationException
      */

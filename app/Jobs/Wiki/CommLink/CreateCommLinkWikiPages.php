@@ -23,23 +23,19 @@ use RuntimeException;
 class CreateCommLinkWikiPages implements ShouldQueue
 {
     use Dispatchable;
+    use GetCommLinkWikiPageInfo;
+    use GetWikiCsrfToken;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetCommLinkWikiPageInfo;
-    use GetWikiCsrfToken;
 
     /**
      * Comm-Link creation config
-     *
-     * @var array
      */
     private array $config;
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

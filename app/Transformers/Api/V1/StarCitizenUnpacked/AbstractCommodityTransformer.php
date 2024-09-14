@@ -13,11 +13,10 @@ use League\Fractal\Resource\Collection;
 abstract class AbstractCommodityTransformer extends AbstractTranslationTransformer
 {
     /**
-     * @param Item|CommodityItem $item
-     * @return Collection
+     * @param  Item|CommodityItem  $item
      */
     public function includeShops($item): Collection
     {
-        return $this->collection($item->shops, new ShopTransformer());
+        return $this->collection($item->shops, new ShopTransformer);
     }
 }

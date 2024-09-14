@@ -23,8 +23,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startDownloadShipMatrixJob(): RedirectResponse
@@ -43,8 +41,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startMsrpImportJob(): RedirectResponse
@@ -63,8 +59,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startLoanerImportJob(): RedirectResponse

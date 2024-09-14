@@ -31,25 +31,27 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
     use SerializesModels;
 
     private $deleteTempFile = false;
+
     private $tempFileUrl;
 
     private Image $image;
+
     private ImageHash $perceptionHasher;
+
     private ImageHash $differenceHasher;
+
     private ImageHash $averageHasher;
 
     /**
      * Create a new job instance.
-     *
-     * @param Image $image
      */
     public function __construct(Image $image)
     {
         $this->image = $image;
 
         $this->perceptionHasher = new ImageHash(new PerceptualHash2(32));
-        $this->differenceHasher = new ImageHash(new DifferenceHash());
-        $this->averageHasher = new ImageHash(new AverageHash());
+        $this->differenceHasher = new ImageHash(new DifferenceHash);
+        $this->averageHasher = new ImageHash(new AverageHash);
     }
 
     /**
@@ -64,12 +66,10 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
-        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+        if (! extension_loaded('gd') && ! extension_loaded('imagick')) {
             app('Log')::error('Required extension "GD" or "Imagick" not available.');
             $this->fail('Required extension "GD" or "Imagick" not available.');
 
@@ -89,7 +89,7 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         }
 
         if (str_contains($this->image->metadata->mime, 'video')) {
-            if (!$this->image->local) {
+            if (! $this->image->local) {
                 $this->fail('Can\'t extract frame from remote file.');
 
                 return;
@@ -107,7 +107,7 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         }
 
         $pdqFromStream = false;
-        if (!$this->image->local) {
+        if (! $this->image->local) {
             if (Storage::disk('comm_link_images')->exists("{$this->image->dir}/{$this->image->name}")) {
                 $this->image->update(['local' => true]);
             } else {
@@ -172,11 +172,8 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
     /**
      * Downloads a file and returns the content
      *
-     * @param string $url
      *
-     * @param bool   $selfCall Don't retry indefinitely
-     *
-     * @return string|null
+     * @param  bool  $selfCall  Don't retry indefinitely
      */
     private function downloadFile(string $url, bool $selfCall = false): ?string
     {
@@ -194,7 +191,7 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
         }
 
         if ($response->clientError()) {
-            if (!$selfCall && $response->status() === 404) {
+            if (! $selfCall && $response->status() === 404) {
                 $url = str_replace('/source/', '/post/', $url);
 
                 app('Log')::debug('Retrying download with smaller version.', [$url]);
@@ -213,15 +210,13 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
 
     /**
      * Use FFMPEG to retrieve a frame from second 1
-     *
-     * @return string|null
      */
     private function saveVideoFrame(): ?string
     {
         $fp = tmpfile();
         $path = stream_get_meta_data($fp)['uri'];
         fclose($fp);
-        $pathExt = $path . '.jpg';
+        $pathExt = $path.'.jpg';
 
         $proc = new Process([
             '/usr/bin/ffmpeg',
@@ -233,7 +228,7 @@ class CreateImageHash extends BaseDownloadData implements ShouldQueue
             '-y',
             '-f',
             'mjpeg',
-            $pathExt
+            $pathExt,
         ]);
 
         $proc->setTimeout(120);

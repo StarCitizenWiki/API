@@ -25,8 +25,6 @@ class ProductionNote extends BaseElement
     private const PRODUCTION_STATUS_NORMALIZED = 'Update Pass Scheduled';
 
     /**
-     * @return ProductionNoteModel
-     *
      * @throws ModelNotFoundException
      */
     public function getProductionNote(): ProductionNoteModel
@@ -34,7 +32,7 @@ class ProductionNote extends BaseElement
         app('Log')::debug('Getting Production Note');
 
         $note = $this->getNormalizedStatus();
-        if (null === $note) {
+        if ($note === null) {
             app('Log')::debug('Production Note not set in Matrix, returning default (None)');
 
             return ProductionNoteModel::findOrFail(1);
@@ -60,14 +58,12 @@ class ProductionNote extends BaseElement
 
     /**
      * Returns the normalized Production Status
-     *
-     * @return string|null
      */
     private function getNormalizedStatus(): ?string
     {
         $status = $this->rawData->get(self::PRODUCTION_NOTE);
 
-        if (null !== $status && is_string($status)) {
+        if ($status !== null && is_string($status)) {
             $status = rtrim($status, '.');
 
             if (in_array($status, self::PRODUCTION_STATUSES)) {
@@ -78,9 +74,6 @@ class ProductionNote extends BaseElement
         return $status;
     }
 
-    /**
-     * @return ProductionNoteModel
-     */
     private function createNewProductionNote(): ProductionNoteModel
     {
         app('Log')::debug('Creating new Production Note');

@@ -29,8 +29,6 @@ class TagController extends Controller
     }
 
     /**
-     * @param Request $request
-     *
      * @return Factory|View
      *
      * @throws AuthorizationException
@@ -48,8 +46,6 @@ class TagController extends Controller
     }
 
     /**
-     * @param Tag $tag
-     *
      * @return Factory|View
      *
      * @throws AuthorizationException
@@ -67,9 +63,6 @@ class TagController extends Controller
     }
 
     /**
-     * @param Tag $tag
-     * @param TagUpdateRequest $request
-     *
      * @return RedirectResponse
      *
      * @throws AuthorizationException
@@ -80,7 +73,7 @@ class TagController extends Controller
         $data = $request->validated();
 
         $tag->update([
-            #'name' => $data['name'],
+            //'name' => $data['name'],
             'name_en' => $data['name_en'],
         ]);
 
@@ -96,7 +89,6 @@ class TagController extends Controller
     /**
      * Creates a new image tag
      *
-     * @param NewImageTagRequest $request
      * @return mixed
      */
     public function post(NewImageTagRequest $request)

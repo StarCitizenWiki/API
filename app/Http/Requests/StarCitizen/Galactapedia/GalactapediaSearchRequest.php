@@ -6,6 +6,4 @@ namespace App\Http\Requests\StarCitizen\Galactapedia;
 
 use App\Http\Requests\AbstractSearchRequest;
 
-class GalactapediaSearchRequest extends AbstractSearchRequest
-{
-}
+class GalactapediaSearchRequest extends AbstractSearchRequest {}

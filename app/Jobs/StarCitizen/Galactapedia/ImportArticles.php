@@ -20,13 +20,11 @@ class ImportArticles extends AbstractBaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
         $result = $this->makeClient()->post('galactapedia/graphql', [
-            'query' => <<<QUERY
+            'query' => <<<'QUERY'
 query GetArticles {
   allArticle {
     edges {
@@ -43,7 +41,7 @@ QUERY,
 
         $result = $result->json() ?? [];
 
-        if (!isset($result['data']['allArticle']['edges'])) {
+        if (! isset($result['data']['allArticle']['edges'])) {
             return;
         }
 

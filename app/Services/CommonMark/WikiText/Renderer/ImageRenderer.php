@@ -14,15 +14,10 @@ use function preg_replace;
 
 class ImageRenderer implements NodeRendererInterface
 {
-    /**
-     * @param Node $node
-     * @param ChildNodeRendererInterface $childRenderer
-     * @return string
-     */
     public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
-        if (!($node instanceof Image)) {
-            throw new InvalidArgumentException('Incompatible inline type: ' . \get_class($node));
+        if (! ($node instanceof Image)) {
+            throw new InvalidArgumentException('Incompatible inline type: '.\get_class($node));
         }
 
         $alt = $childRenderer->renderNodes($node->children());

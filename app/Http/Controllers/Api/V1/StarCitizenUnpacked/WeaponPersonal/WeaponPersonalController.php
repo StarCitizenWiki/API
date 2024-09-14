@@ -17,9 +17,6 @@ class WeaponPersonalController extends ApiController
 {
     /**
      * ShipController constructor.
-     *
-     * @param WeaponPersonalTransformer $transformer
-     * @param Request $request
      */
     public function __construct(WeaponPersonalTransformer $transformer, Request $request)
     {

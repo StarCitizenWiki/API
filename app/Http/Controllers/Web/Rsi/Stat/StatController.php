@@ -13,29 +13,24 @@ use Illuminate\Http\Request;
 
 class StatController extends Controller
 {
-    /**
-     * @param Request $request
-     *
-     * @return View
-     */
     public function index(Request $request): View
     {
         $every = $request->get('skip', 100);
 
-        if (!is_numeric($every) || $every < 0) {
+        if (! is_numeric($every) || $every < 0) {
             $every = 100;
         }
 
-        if ($request->has('from') && !$request->has('skip')) {
+        if ($request->has('from') && ! $request->has('skip')) {
             $every = 0;
         }
 
-        $every = (int)$every;
+        $every = (int) $every;
 
         if ($every === 0 || config('database.default') === 'sqlite') {
             $data = Stat::query();
         } else {
-            $data = Stat::query()->whereRaw('id mod ' . $every . ' = 0');
+            $data = Stat::query()->whereRaw('id mod '.$every.' = 0');
         }
 
         $from = null;

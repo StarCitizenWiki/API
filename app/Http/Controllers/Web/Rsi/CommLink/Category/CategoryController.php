@@ -26,7 +26,6 @@ class CategoryController extends Controller
     /**
      * All Categories
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -45,9 +44,7 @@ class CategoryController extends Controller
     /**
      * Get All Comm-Links in a given Category
      *
-     * @param Category $category
      *
-     * @return View
      *
      * @throws AuthorizationException
      */

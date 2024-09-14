@@ -10,6 +10,7 @@ use Illuminate\Console\Command;
 
 /**
  * Command Wrapper for Download Comm-Link Job
+ *
  * @see DownloadCommLinkImagesJob
  * @see DownloadCommLinkImage
  */
@@ -31,8 +32,6 @@ class DownloadCommLinkImages extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {

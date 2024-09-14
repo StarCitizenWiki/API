@@ -13,15 +13,17 @@ use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 class Manufacturer extends BaseElement
 {
     private const MANUFACTURER = 'manufacturer';
+
     private const MANUFACTURER_ID = 'manufacturer_id';
+
     private const MANUFACTURER_NAME = 'name';
+
     private const MANUFACTURER_CODE = 'code';
+
     private const MANUFACTURER_KNOWN_FOR = 'known_for';
+
     private const MANUFACTURER_DESCRIPTION = 'description';
 
-    /**
-     * @return ManufacturerModel
-     */
     public function getManufacturer(): ManufacturerModel
     {
         app('Log')::debug('Getting Manufacturer');

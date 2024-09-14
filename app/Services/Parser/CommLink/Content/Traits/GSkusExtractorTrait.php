@@ -11,10 +11,6 @@ trait GSkusExtractorTrait
 {
     /**
      * Extract <g-banner-advanced> and <g-skus> content
-     *
-     * @param Crawler $page
-     *
-     * @return string
      */
     public function getSkusContent(Crawler $page): string
     {
@@ -34,28 +30,28 @@ trait GSkusExtractorTrait
                     return;
                 }
 
-                if (!isset($textContent['blocks'])) {
+                if (! isset($textContent['blocks'])) {
                     return;
                 }
 
                 $out = [];
 
                 foreach ($textContent['blocks'] as $block) {
-                    if (!isset($block['properties']) || ($block['type'] ?? '') !== 'text') {
+                    if (! isset($block['properties']) || ($block['type'] ?? '') !== 'text') {
                         continue;
                     }
 
                     $block = $block['properties'];
 
-                    if (!empty($block['title'])) {
+                    if (! empty($block['title'])) {
                         $out[] = sprintf('<h1>%s</h1>', $block['title']);
                     }
 
-                    if (!empty($block['subtitle'])) {
+                    if (! empty($block['subtitle'])) {
                         $out[] = sprintf('<h2>%s</h2>', $block['subtitle']);
                     }
 
-                    if (!empty($block['content'])) {
+                    if (! empty($block['content'])) {
                         $out[] = $block['content'];
                     }
                 }

@@ -22,7 +22,6 @@ class PersonalWeapon extends AbstractItemCreationJob
     use Queueable;
     use SerializesModels;
 
-
     /**
      * Execute the job.
      */

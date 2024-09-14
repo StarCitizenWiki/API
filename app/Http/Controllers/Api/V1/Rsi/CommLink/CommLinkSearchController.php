@@ -32,9 +32,6 @@ class CommLinkSearchController extends ApiController
 {
     /**
      * CommLinkController constructor.
-     *
-     * @param Request             $request
-     * @param CommLinkTransformer $transformer
      */
     public function __construct(Request $request, CommLinkTransformer $transformer)
     {
@@ -56,7 +53,7 @@ class CommLinkSearchController extends ApiController
                         type: 'json',
                     ),
                     example: '{"query": "Banu Merchantman"}',
-                )
+                ),
             ]
         ),
         tags: ['Comm-Links', 'RSI-Website'],
@@ -72,13 +69,13 @@ class CommLinkSearchController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link with found.',
-            )
+            ),
         ],
     )]
     public function searchByTitle(Request $request)
     {
         try {
-            $request->validate((new CommLinkSearchRequest())->rules());
+            $request->validate((new CommLinkSearchRequest)->rules());
         } catch (ValidationException $e) {
             return new JsonResponse([
                 'code' => $e->status,
@@ -110,7 +107,7 @@ class CommLinkSearchController extends ApiController
                         type: 'json',
                     ),
                     example: '{"url": "https://robertsspaceindustries.com/i/cc75a45005a236c6e015dfc2782a2f55ed1e84a2/ADdPNihJzmPbNuTnFsH1DqUeqBRpXdSXVVtgJTyDDgscGKrzJuoFjResiiucPBBDeyrBscqRyZz4qxNsSbWvqUwdG/alien-week-2022-front.webp"}',
-                )
+                ),
             ]
         ),
         tags: ['Comm-Links', 'RSI-Website'],
@@ -126,13 +123,13 @@ class CommLinkSearchController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link found.',
-            )
+            ),
         ],
     )]
     public function reverseImageLinkSearch(Request $request)
     {
         try {
-            $request->validate((new ReverseImageLinkSearchRequest())->rules());
+            $request->validate((new ReverseImageLinkSearchRequest)->rules());
         } catch (ValidationException $e) {
             return new JsonResponse([
                 'code' => $e->status,
@@ -200,7 +197,7 @@ class CommLinkSearchController extends ApiController
                         'average',
                     ]
                 )
-            )
+            ),
         ],
         responses: [
             new OA\Response(
@@ -214,14 +211,14 @@ class CommLinkSearchController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link found.',
-            )
+            ),
         ],
     )]
     public function reverseImageSearch(Request $request)
     {
         $this->checkExtensionsLoaded();
         try {
-            $request->validate((new ReverseImageSearchRequest())->rules());
+            $request->validate((new ReverseImageSearchRequest)->rules());
         } catch (ValidationException $e) {
             return new JsonResponse([
                 'code' => $e->status,
@@ -229,11 +226,11 @@ class CommLinkSearchController extends ApiController
             ], $e->status);
         }
 
-        $this->transformer = new ImageHashTransformer();
+        $this->transformer = new ImageHashTransformer;
         $this->transformer->includeAllAvailableIncludes();
 
         $hashConfig = $this->getHashConfigForMethod($request->get('method'));
-        $hashConfig['similarity'] = (int)$request->get('similarity');
+        $hashConfig['similarity'] = (int) $request->get('similarity');
         $hashData = $this->hashImage($hashConfig['hasher'], $request->file('image'));
 
         return $this->disablePagination()
@@ -255,8 +252,7 @@ class CommLinkSearchController extends ApiController
     /**
      * Returns the RSI directory hash of an image url
      *
-     * @param string $url The RSI Media URl
-     *
+     * @param  string  $url  The RSI Media URl
      * @return string The directory hash of the image
      */
     private function getDirHashFromImageUrl(string $url): string
@@ -276,7 +272,7 @@ class CommLinkSearchController extends ApiController
      */
     private function checkExtensionsLoaded(): void
     {
-        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+        if (! extension_loaded('gd') && ! extension_loaded('imagick')) {
             app('Log')::error('Required extension "GD" or "Imagick" not available.');
 
             $this->response->error('Required extension "GD" or "Imagick" not available.', 501);
@@ -285,24 +281,20 @@ class CommLinkSearchController extends ApiController
 
     /**
      * Hash config based on hash method
-     *
-     * @param string $hashMethod
-     *
-     * @return array
      */
     private function getHashConfigForMethod(string $hashMethod): array
     {
         switch ($hashMethod) {
             case 'average':
                 return [
-                    'hasher' => new ImageHash(new AverageHash()),
+                    'hasher' => new ImageHash(new AverageHash),
                     'prefix' => 'a',
                     'table' => 'average_hash',
                 ];
 
             case 'difference':
                 return [
-                    'hasher' => new ImageHash(new DifferenceHash()),
+                    'hasher' => new ImageHash(new DifferenceHash),
                     'prefix' => 'd',
                     'table' => 'difference_hash',
                 ];
@@ -310,7 +302,7 @@ class CommLinkSearchController extends ApiController
             case 'perceptual':
             default:
                 return [
-                    'hasher' => new ImageHash(new PerceptualHash2()),
+                    'hasher' => new ImageHash(new PerceptualHash2),
                     'prefix' => 'p',
                     'table' => 'perceptual_hash',
                 ];
@@ -320,10 +312,8 @@ class CommLinkSearchController extends ApiController
     /**
      * Hashes an uploaded image
      *
-     * @param ImageHash    $hasher The hasher with set hash method
-     * @param UploadedFile $file   The uploaded file
-     *
-     * @return array
+     * @param  ImageHash  $hasher  The hasher with set hash method
+     * @param  UploadedFile  $file  The uploaded file
      */
     private function hashImage(ImageHash $hasher, $file): array
     {
@@ -338,8 +328,6 @@ class CommLinkSearchController extends ApiController
     /**
      * Return hashes based on database connection type
      *
-     * @param array $hashConfig
-     * @param array $hashData
      *
      * @return Builder[]|Collection|\Illuminate\Support\Collection
      */
@@ -360,9 +348,8 @@ class CommLinkSearchController extends ApiController
     /**
      * Get the image hashes that equal the provided hash
      *
-     * @param string $hashMethod Hash method average, distance, perceptual
-     * @param string $hash       The image hash
-     *
+     * @param  string  $hashMethod  Hash method average, distance, perceptual
+     * @param  string  $hash  The image hash
      * @return Builder[]|Collection
      */
     private function getHashesFromSQLiteStore(string $hashMethod, string $hash)
@@ -375,11 +362,9 @@ class CommLinkSearchController extends ApiController
     /**
      * Get the image hashes matching the provided hash method and hamming distance
      *
-     * @param string $prefix      Hash Attribute prefix
-     * @param array  $decodedHash Image hash split in the middle and hex decoded
-     * @param int    $distance    The maximum hamming distance
-     *
-     * @return \Illuminate\Support\Collection
+     * @param  string  $prefix  Hash Attribute prefix
+     * @param  array  $decodedHash  Image hash split in the middle and hex decoded
+     * @param  int  $distance  The maximum hamming distance
      */
     private function getHashesFromSQLStore(
         string $prefix,
@@ -389,7 +374,7 @@ class CommLinkSearchController extends ApiController
         return DB::table('comm_link_image_hashes')
             ->select('comm_link_image_id')
             ->selectRaw(
-                'BIT_COUNT(' . $prefix . '_hash_1 ^ ?) + BIT_COUNT(' . $prefix . '_hash_2 ^ ?) AS distance',
+                'BIT_COUNT('.$prefix.'_hash_1 ^ ?) + BIT_COUNT('.$prefix.'_hash_2 ^ ?) AS distance',
                 [
                     $decodedHash[0],
                     $decodedHash[1],

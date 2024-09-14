@@ -25,8 +25,7 @@ class RelatedArticleResource extends AbstractBaseResource
     /**
      * Transform the resource into an array.
      *
-     * @param Request $request
-     * @return array
+     * @param  Request  $request
      */
     public function toArray($request): array
     {
@@ -37,7 +36,7 @@ class RelatedArticleResource extends AbstractBaseResource
             'api_url' => $this->makeApiUrl(
                 self::GALACTAPEDIA_ARTICLE_SHOW,
                 $this->getRouteKey(),
-            )
+            ),
         ];
     }
 }

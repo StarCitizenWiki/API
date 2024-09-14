@@ -23,8 +23,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startImportGalactapediaCategoriesJob(): RedirectResponse
@@ -43,8 +41,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startImportGalactapediaArticlesJob(): RedirectResponse
@@ -63,8 +59,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startImportGalactapediaArticlePropertiesJob(): RedirectResponse
@@ -83,8 +77,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startCreateWikiPagesJob(): RedirectResponse

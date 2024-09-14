@@ -27,8 +27,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startCommLinkTranslationJob(): RedirectResponse
@@ -47,8 +45,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startCommLinkImageDownloadJob(): RedirectResponse
@@ -67,10 +63,6 @@ class JobController extends Controller
     }
 
     /**
-     * @param Request $request
-     *
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startCommLinkDownloadJob(Request $request): RedirectResponse
@@ -93,7 +85,7 @@ class JobController extends Controller
             }
         )->map(
             static function ($id) {
-                return (int)$id;
+                return (int) $id;
             }
         )->filter(
             static function (int $id) {

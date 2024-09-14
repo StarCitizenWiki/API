@@ -27,7 +27,7 @@ class TranslateTranscripts implements ShouldQueue
     /**
      * TranslateTranscripts constructor.
      *
-     * @param int $limit Max translation jobs to run
+     * @param  int  $limit  Max translation jobs to run
      */
     public function __construct(int $limit = 0)
     {
@@ -41,7 +41,7 @@ class TranslateTranscripts implements ShouldQueue
     {
         app('Log')::info('Starting Transcript Translations');
 
-        $jobLimit = 0 === $this->limit ? PHP_INT_MAX : $this->limit;
+        $jobLimit = $this->limit === 0 ? PHP_INT_MAX : $this->limit;
         $count = 0;
 
         Transcript::query()->chunk(
@@ -49,8 +49,8 @@ class TranslateTranscripts implements ShouldQueue
             static function (Collection $transcripts) use ($jobLimit, &$count) {
                 $transcripts->each(
                     static function (Transcript $transcript) use ($jobLimit, &$count) {
-                        if ($count < $jobLimit && null === optional($transcript->german())->translation) {
-                            ++$count;
+                        if ($count < $jobLimit && optional($transcript->german())->translation === null) {
+                            $count++;
                             dispatch(new TranslateTranscript($transcript));
                         }
                     }

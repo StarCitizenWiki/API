@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands\Rsi\CommLink\Image;
 
 use App\Console\Commands\Rsi\CommLink\AbstractCommLinkCommand as CommLinkCommand;
-use Illuminate\Bus\Dispatcher;
 
 class SyncImageIds extends CommLinkCommand
 {
@@ -25,8 +24,6 @@ class SyncImageIds extends CommLinkCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {

@@ -38,15 +38,10 @@ class LoginController extends Controller
      */
     public $redirectTo = '/account';
 
-    /**
-     * @var AuthRepositoryInterface
-     */
     private AuthRepositoryInterface $authRepository;
 
     /**
      * Create a new controller instance.
-     *
-     * @param AuthRepositoryInterface $authRepository
      */
     public function __construct(AuthRepositoryInterface $authRepository)
     {
@@ -97,10 +92,6 @@ class LoginController extends Controller
 
     /**
      * Obtain the user information from the Provider.
-     *
-     * @param Request $request
-     *
-     * @return RedirectResponse
      */
     public function handleProviderCallback(Request $request): RedirectResponse
     {
@@ -115,17 +106,12 @@ class LoginController extends Controller
 
     /**
      * Redirect to Intended Route or Account.
-     *
-     * @return RedirectResponse
      */
     protected function authenticated(): RedirectResponse
     {
         return redirect()->intended($this->getRedirectTo());
     }
 
-    /**
-     * @return string
-     */
     public function getRedirectTo(): string
     {
         if (Auth::user()->isAdmin()) {
@@ -137,10 +123,6 @@ class LoginController extends Controller
 
     /**
      * Redirect to Login Form.
-     *
-     * @param Request $request
-     *
-     * @return RedirectResponse
      */
     protected function loggedOut(Request $request): RedirectResponse
     {

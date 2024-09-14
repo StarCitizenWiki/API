@@ -14,9 +14,7 @@ class LogSuccessfulLogin
     /**
      * Handle the event.
      *
-     * @param Login $event Event
-     *
-     * @return void
+     * @param  Login  $event  Event
      */
     public function handle(Login $event): void
     {

@@ -28,15 +28,10 @@ class DownloadStats extends Command
      */
     protected $description = 'Download funding statistics and optionally import them';
 
-    /**
-     * @var Dispatcher
-     */
     private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
-     *
-     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -47,8 +42,6 @@ class DownloadStats extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -56,12 +49,12 @@ class DownloadStats extends Command
             $this->info('Downloading funding statistics and starting import');
             DownloadStatsJob::withChain(
                 [
-                    new ImportStat(),
+                    new ImportStat,
                 ]
             )->dispatch();
         } else {
             $this->info('Starting funding statistics download');
-            $this->dispatcher->dispatch(new DownloadStatsJob());
+            $this->dispatcher->dispatch(new DownloadStatsJob);
         }
 
         return 0;

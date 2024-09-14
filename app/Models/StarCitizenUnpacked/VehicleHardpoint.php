@@ -15,7 +15,7 @@ class VehicleHardpoint extends Model
     protected $table = 'star_citizen_unpacked_vehicle_hardpoints';
 
     protected $with = [
-        'children'
+        'children',
     ];
 
     protected $fillable = [
@@ -35,9 +35,6 @@ class VehicleHardpoint extends Model
         return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');
     }
 
-    /**
-     * @return HasOne
-     */
     public function item(): HasOne
     {
         return $this->hasOne(
@@ -49,8 +46,6 @@ class VehicleHardpoint extends Model
 
     /**
      * Retrieve child hardpoints form the same table by joining on the parent_hardpoint_id attribute
-     *
-     * @return HasMany
      */
     public function children(): HasMany
     {
@@ -65,8 +60,6 @@ class VehicleHardpoint extends Model
     /**
      * This is needed because fractal re-uses relations?
      * While this is exactly the same as above this truly retrieves the children from the DB
-     *
-     * @return HasMany
      */
     public function children2(): HasMany
     {

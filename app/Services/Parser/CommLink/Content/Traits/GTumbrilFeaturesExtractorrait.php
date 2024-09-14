@@ -12,10 +12,6 @@ trait GTumbrilFeaturesExtractorrait
     /**
      * TODO: Generalize this into a generic g-*-features
      * Extract <g-tumbril-features> content
-     *
-     * @param Crawler $page
-     *
-     * @return string
      */
     public function getTumbrilFeatures(Crawler $page): string
     {
@@ -41,11 +37,11 @@ trait GTumbrilFeaturesExtractorrait
                 foreach ($features as $feature) {
                     $string = '';
 
-                    if (isset($feature['title']) && !empty($feature['title'])) {
+                    if (isset($feature['title']) && ! empty($feature['title'])) {
                         $string .= sprintf('<h1>%s</h1>', $feature['title']);
                     }
 
-                    if (isset($feature['content']) && !empty($feature['content'])) {
+                    if (isset($feature['content']) && ! empty($feature['content'])) {
                         $string .= sprintf('<p>%s</p>', $feature['content']);
                     }
 

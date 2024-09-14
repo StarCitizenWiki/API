@@ -22,9 +22,6 @@ class CommLinkTranslation extends Translation
         'proofread' => 'boolean',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function commLink(): BelongsTo
     {
         return $this->belongsTo(CommLink::class);

@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Bomb extends CommodityItem
 {
-    use HasFactory;
     use HasDescriptionDataTrait;
+    use HasFactory;
 
     protected $table = 'sc_item_bombs';
 

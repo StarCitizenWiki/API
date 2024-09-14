@@ -22,15 +22,13 @@ class ImportCategories extends AbstractBaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
         app('Log')::info('Importing Galactapedia categories.');
 
         $result = $this->makeClient()->post('galactapedia/graphql', [
-            'query' => <<<QUERY
+            'query' => <<<'QUERY'
 query GetCategories {
   allCategory {
     edges {
@@ -50,7 +48,7 @@ QUERY
 
         $result = $result->json() ?? [];
 
-        if (!isset($result['data']['allCategory']['edges'])) {
+        if (! isset($result['data']['allCategory']['edges'])) {
             return;
         }
 

@@ -4,12 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\SC;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
-use JsonException;
-
 final class Food extends AbstractCommodityItem
 {
     public function getData(): ?array

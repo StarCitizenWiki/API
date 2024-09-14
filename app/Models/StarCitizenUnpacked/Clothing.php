@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Clothing extends CommodityItem
 {
-    use HasFactory;
     use HasBaseVersionsTrait;
+    use HasFactory;
 
     protected $table = 'star_citizen_unpacked_clothing';
 

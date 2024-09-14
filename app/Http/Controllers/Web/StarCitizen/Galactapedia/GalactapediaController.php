@@ -15,9 +15,6 @@ class GalactapediaController extends Controller
 {
     use DiffTranslationChangelogTrait;
 
-    /**
-     * @return View
-     */
     public function index(): View
     {
         return view(
@@ -25,15 +22,11 @@ class GalactapediaController extends Controller
             [
                 'articles' => Article::query()->orderByDesc('id')->paginate(250),
             ]
-        );//->with('apiToken', optional(Auth::user())->api_token);
+        ); //->with('apiToken', optional(Auth::user())->api_token);
     }
 
     /**
      * Shows a singular article
-     *
-     * @param string $article
-     *
-     * @return View
      */
     public function show(string $article): View
     {

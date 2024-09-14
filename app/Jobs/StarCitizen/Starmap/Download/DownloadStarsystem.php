@@ -25,23 +25,23 @@ class DownloadStarsystem extends AbstractRSIDownloadData implements ShouldQueue
     use SerializesModels;
 
     private const STARSYSTEM_ENDPOINT = '/api/starmap/star-systems/';
+
     private const STRUCTURE_CHECKLIST = ['data', 'resultset', 0, 'celestial_objects', 0];
 
     private string $systemCode;
+
     private array $systemData;
+
     private string $folder;
+
     private ?Collection $bootupData;
 
     private Response $response;
 
     /**
      * Create a new job instance.
-     *
-     * @param string          $systemCode
-     * @param string          $folder
-     * @param Collection|null $bootupData
      */
-    public function __construct(string $systemCode, string $folder, Collection $bootupData = null)
+    public function __construct(string $systemCode, string $folder, ?Collection $bootupData = null)
     {
         $this->systemCode = $systemCode;
         $this->folder = $folder;
@@ -51,8 +51,6 @@ class DownloadStarsystem extends AbstractRSIDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -102,7 +100,7 @@ class DownloadStarsystem extends AbstractRSIDownloadData implements ShouldQueue
             $this->fail($e);
         }
 
-        if (!$this->checkDataStructureIsValid($this->systemData, static::STRUCTURE_CHECKLIST)) {
+        if (! $this->checkDataStructureIsValid($this->systemData, static::STRUCTURE_CHECKLIST)) {
             $this->fail('Starsystem data can\'t be processed.');
         }
     }

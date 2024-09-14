@@ -17,8 +17,6 @@ class DashboardPolicy extends BaseAdminPolicy
     use HandlesAuthorization;
 
     /**
-     * @param \App\Models\Account\User\User $user
-     *
      * @return bool
      */
     public function view(User $user)

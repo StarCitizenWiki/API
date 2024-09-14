@@ -20,7 +20,9 @@ use Octfx\DeepLy\Integrations\Laravel\DeepLyFacade;
 class DashboardController extends Controller
 {
     private const DEEPL_STATS_CACHE_KEY = 'deepl_stats';
+
     private const DEEPL_CHARACTER_COUNT = 'character_count';
+
     private const DEEPL_CHARACTER_LIMIT = 'character_limit';
 
     /**
@@ -34,8 +36,6 @@ class DashboardController extends Controller
 
     /**
      * Returns the Dashboard View.
-     *
-     * @return View
      */
     public function index(): View
     {
@@ -57,8 +57,6 @@ class DashboardController extends Controller
     /**
      * User Stats
      * New Registrations and Logins.
-     *
-     * @return array
      */
     private function getUserStats(): array
     {
@@ -84,8 +82,6 @@ class DashboardController extends Controller
 
     /**
      * Deepl Usage Stats.
-     *
-     * @return array
      */
     private function getDeeplStats(): array
     {
@@ -95,7 +91,7 @@ class DashboardController extends Controller
 
         try {
             if (empty(config('services.deepl.auth_key'))) {
-                throw new Exception();
+                throw new Exception;
             }
             $deeplUsage = DeepLyFacade::getUsage()->getResponse();
         } catch (Exception $e) {
@@ -118,7 +114,7 @@ class DashboardController extends Controller
 
         $stats = [
             'usage' => [
-                'limit' => -1 === $deeplUsage[self::DEEPL_CHARACTER_LIMIT] ? __(
+                'limit' => $deeplUsage[self::DEEPL_CHARACTER_LIMIT] === -1 ? __(
                     'Fehler bei der Datenabfrage'
                 ) : number_format(
                     $deeplUsage[self::DEEPL_CHARACTER_LIMIT],
@@ -141,8 +137,6 @@ class DashboardController extends Controller
 
     /**
      * Simple Queue Stat Counts.
-     *
-     * @return array
      */
     private function getQueueStats(): array
     {

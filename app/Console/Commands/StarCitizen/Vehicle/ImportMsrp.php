@@ -23,8 +23,6 @@ class ImportMsrp extends AbstractQueueCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {

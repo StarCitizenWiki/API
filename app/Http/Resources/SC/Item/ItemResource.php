@@ -192,7 +192,6 @@ use OpenApi\Attributes as OA;
 )]
 class ItemResource extends AbstractTranslationResource
 {
-
     public static function validIncludes(): array
     {
         return parent::validIncludes() + [

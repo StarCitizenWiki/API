@@ -27,44 +27,56 @@ use Illuminate\Support\Str;
  */
 class ImportVehicle implements ShouldQueue
 {
+    use CreateRelationChangelogTrait;
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use CreateRelationChangelogTrait;
 
     protected const VEHICLE_ID = 'id';
+
     protected const VEHICLE_CHASSIS_ID = 'chassis_id';
+
     protected const VEHICLE_NAME = 'name';
+
     protected const VEHICLE_LENGTH = 'length';
+
     protected const VEHICLE_BEAM = 'beam';
+
     protected const VEHICLE_HEIGHT = 'height';
+
     protected const VEHICLE_MASS = 'mass';
+
     protected const VEHICLE_CARGO_CAPACITY = 'cargocapacity';
+
     protected const VEHICLE_MIN_CREW = 'min_crew';
+
     protected const VEHICLE_MAX_CREW = 'max_crew';
+
     protected const VEHICLE_SCM_SPEED = 'scm_speed';
+
     protected const VEHICLE_AFTERBURNER_SPEED = 'afterburner_speed';
+
     protected const VEHICLE_PITCH_MAX = 'pitch_max';
+
     protected const VEHICLE_YAW_MAX = 'yaw_max';
+
     protected const VEHICLE_ROLL_MAX = 'roll_max';
+
     protected const VEHICLE_X_AXIS_ACCELERATION = 'xaxis_acceleration';
+
     protected const VEHICLE_Y_AXIS_ACCELERATION = 'yaxis_acceleration';
+
     protected const VEHICLE_Z_AXIS_ACCELERATION = 'zaxis_acceleration';
 
     protected const VEHICLE_DESCRIPTION = 'description';
 
     protected const TIME_MODIFIED_UNFILTERED = 'time_modified.unfiltered';
 
-    /**
-     * @var Collection
-     */
     protected Collection $rawData;
 
     /**
      * Create a new job instance.
-     *
-     * @param Collection $rawData
      */
     public function __construct(Collection $rawData)
     {
@@ -73,8 +85,6 @@ class ImportVehicle implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -117,7 +127,7 @@ class ImportVehicle implements ShouldQueue
     public function getData(): array
     {
         return [
-            'id' => (int)$this->rawData->get(self::VEHICLE_ID),
+            'id' => (int) $this->rawData->get(self::VEHICLE_ID),
             'name' => trim($this->rawData->get(self::VEHICLE_NAME)),
             'slug' => Str::slug($this->rawData->get(self::VEHICLE_NAME)),
             'manufacturer_id' => $this->getManufacturerId(),
@@ -140,14 +150,11 @@ class ImportVehicle implements ShouldQueue
             'x_axis_acceleration' => $this->formatNum($this->rawData->get(self::VEHICLE_X_AXIS_ACCELERATION)),
             'y_axis_acceleration' => $this->formatNum($this->rawData->get(self::VEHICLE_Y_AXIS_ACCELERATION)),
             'z_axis_acceleration' => $this->formatNum($this->rawData->get(self::VEHICLE_Z_AXIS_ACCELERATION)),
-            'chassis_id' => (int)$this->rawData->get(self::VEHICLE_CHASSIS_ID),
+            'chassis_id' => (int) $this->rawData->get(self::VEHICLE_CHASSIS_ID),
             'updated_at' => $this->rawData->get(self::TIME_MODIFIED_UNFILTERED),
         ];
     }
 
-    /**
-     * @return int
-     */
     private function getManufacturerId(): int
     {
         $manufacturer = new Manufacturer($this->rawData);
@@ -155,9 +162,6 @@ class ImportVehicle implements ShouldQueue
         return $manufacturer->getManufacturer()->id;
     }
 
-    /**
-     * @return int
-     */
     private function getProductionStatusId(): int
     {
         $productionStatus = new ProductionStatus($this->rawData);
@@ -173,9 +177,6 @@ class ImportVehicle implements ShouldQueue
         return $id;
     }
 
-    /**
-     * @return int
-     */
     private function getProductionNoteId(): int
     {
         $productionNote = new ProductionNote($this->rawData);
@@ -191,9 +192,6 @@ class ImportVehicle implements ShouldQueue
         return $id;
     }
 
-    /**
-     * @return int
-     */
     private function getSizeId(): int
     {
         $size = new Size($this->rawData);
@@ -209,9 +207,6 @@ class ImportVehicle implements ShouldQueue
         return $id;
     }
 
-    /**
-     * @return int
-     */
     private function getTypeId(): int
     {
         $type = new Type($this->rawData);
@@ -230,9 +225,7 @@ class ImportVehicle implements ShouldQueue
     /**
      * Formats Vehicle Numbers
      *
-     * @param string|int|float $number
-     *
-     * @return string
+     * @param  string|int|float  $number
      */
     private function formatNum($number): ?string
     {
@@ -240,13 +233,12 @@ class ImportVehicle implements ShouldQueue
             return null;
         }
 
-        return number_format((float)$number, 2, '.', '');
+        return number_format((float) $number, 2, '.', '');
     }
 
     /**
      * Syncs Vehicle Foci IDs to the Model and generates a Changelog if the Focus has changed
      *
-     * @param Vehicle $vehicle
      *
      * @return array Changed vehicle focis
      */
@@ -260,7 +252,6 @@ class ImportVehicle implements ShouldQueue
     /**
      * Syncs Vehicle Component IDs to the Model and generates a Changelog if the Focus has changed
      *
-     * @param Vehicle $vehicle
      *
      * @return array Changed components
      */

@@ -30,8 +30,6 @@ class VehiclePart extends Model
 
     /**
      * Generates a display name for a part
-     *
-     * @return string
      */
     public function getDisplayNameAttribute(): string
     {

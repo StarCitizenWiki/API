@@ -24,14 +24,12 @@ class TranslateSystems extends QueueCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         $this->info('Dispatching Systems Translation');
 
-        dispatch(new \App\Jobs\StarCitizen\Starmap\Translate\TranslateSystems());
+        dispatch(new \App\Jobs\StarCitizen\Starmap\Translate\TranslateSystems);
 
         return 0;
     }

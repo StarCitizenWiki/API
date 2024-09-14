@@ -17,10 +17,6 @@ use OpenApi\Attributes as OA;
 
 class ItemController extends ApiController
 {
-    /**
-     * @param ItemTransformer $transformer
-     * @param Request $request
-     */
     public function __construct(ItemTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
@@ -57,7 +53,7 @@ class ItemController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/item')
                 )
-            )
+            ),
         ]
     )]
     public function index(): \Illuminate\Http\Response
@@ -105,7 +101,7 @@ class ItemController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Item with specified UUID or name found.',
-            )
+            ),
         ]
     )]
     public function show(Request $request): Response
@@ -146,7 +142,7 @@ class ItemController extends ApiController
                         type: 'json',
                     ),
                     example: '{"query": "Arrowhead"}',
-                )
+                ),
             ]
         ),
         tags: ['In-Game', 'Items'],
@@ -179,12 +175,12 @@ class ItemController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No item found.',
-            )
+            ),
         ],
     )]
     public function search(ItemSearchRequest $request): Response
     {
-        $rules = (new ItemSearchRequest())->rules();
+        $rules = (new ItemSearchRequest)->rules();
         $request->validate($rules);
 
         $query = $this->cleanQueryName($request->get('query'));
@@ -239,7 +235,7 @@ class ItemController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/item')
                 )
-            )
+            ),
         ]
     )]
     public function indexTradeables(): Response

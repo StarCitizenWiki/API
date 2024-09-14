@@ -4,12 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\SC;
 
-use App\Services\Parser\SC\AbstractCommodityItem;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
-use JsonException;
-
 final class Clothing extends AbstractCommodityItem
 {
     public function getData(): ?array
@@ -38,15 +32,14 @@ final class Clothing extends AbstractCommodityItem
         }
 
         return [
-                'uuid' => $this->item->pull('Raw.Entity.__ref'),
-                'description_key' => $this->getDescriptionKey($attachDef),
-                'description' => $this->cleanString(trim($data['description'] ?? $description)),
-                'type' => trim($type),
-                'damage_reduction' => $data['damage_reduction'] ?? null,
-                'carrying_capacity' => $data['carrying_capacity'] ?? null
-            ] + $this->loadResistances();
+            'uuid' => $this->item->pull('Raw.Entity.__ref'),
+            'description_key' => $this->getDescriptionKey($attachDef),
+            'description' => $this->cleanString(trim($data['description'] ?? $description)),
+            'type' => trim($type),
+            'damage_reduction' => $data['damage_reduction'] ?? null,
+            'carrying_capacity' => $data['carrying_capacity'] ?? null,
+        ] + $this->loadResistances();
     }
-
 
     private function loadResistances(): array
     {

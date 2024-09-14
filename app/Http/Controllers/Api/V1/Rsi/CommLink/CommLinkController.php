@@ -19,9 +19,6 @@ class CommLinkController extends ApiController
 {
     /**
      * CommLinkController constructor.
-     *
-     * @param Request             $request
-     * @param CommLinkTransformer $transformer
      */
     public function __construct(Request $request, CommLinkTransformer $transformer)
     {
@@ -64,7 +61,7 @@ class CommLinkController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/comm_link')
                 )
-            )
+            ),
         ]
     )]
     public function index(): Response
@@ -116,7 +113,7 @@ class CommLinkController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Comm-Link with specified ID found.',
-            )
+            ),
         ]
     )]
     public function show(Request $request)

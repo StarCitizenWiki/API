@@ -48,7 +48,7 @@ class ClothesController extends AbstractApiV2Controller
             ->where('type', 'LIKE', 'Char_Clothing%')
             ->allowedFilters([
                 AllowedFilter::partial('type'),
-                AllowedFilter::custom('variants', new ItemVariantsFilter()),
+                AllowedFilter::custom('variants', new ItemVariantsFilter),
             ])
             ->paginate($this->limit)
             ->appends(request()->query());

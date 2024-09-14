@@ -19,7 +19,6 @@ class TranslationPolicy extends BaseAdminPolicy
     /**
      * View all / single resource
      *
-     * @param \App\Models\Account\User\User $user
      *
      * @return bool
      */
@@ -31,7 +30,6 @@ class TranslationPolicy extends BaseAdminPolicy
     /**
      * Create a new resource
      *
-     * @param \App\Models\Account\User\User $user
      *
      * @return bool
      */
@@ -43,7 +41,6 @@ class TranslationPolicy extends BaseAdminPolicy
     /**
      * Update a Resource
      *
-     * @param \App\Models\Account\User\User $user
      *
      * @return bool
      */

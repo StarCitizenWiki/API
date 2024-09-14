@@ -14,17 +14,12 @@ use function get_class;
 
 class ThematicBreakRenderer implements NodeRendererInterface
 {
-    /**
-     * @param Node $node
-     * @param ChildNodeRendererInterface $childRenderer
-     * @return string
-     */
     public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
-        if (!($node instanceof ThematicBreak)) {
-            throw new InvalidArgumentException('Incompatible block type: ' . get_class($node));
+        if (! ($node instanceof ThematicBreak)) {
+            throw new InvalidArgumentException('Incompatible block type: '.get_class($node));
         }
 
-        return "----";
+        return '----';
     }
 }

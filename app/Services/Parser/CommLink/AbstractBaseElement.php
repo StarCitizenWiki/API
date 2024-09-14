@@ -14,7 +14,6 @@ abstract class AbstractBaseElement
     /**
      * Removes all new lines and trims the string.
      *
-     * @param string $string
      *
      * @return string cleaned text
      */
@@ -26,25 +25,17 @@ abstract class AbstractBaseElement
     /**
      * Checks if Comm-Link Page is a Ship Page
      * Ship Pages are wrapped in a '#layout-system' Div.
-     *
-     * @param Crawler $commLink
-     *
-     * @return bool
      */
     protected function isSpecialPage(Crawler $commLink): bool
     {
-        return 1 === $commLink->filter('#layout-system')->count();
+        return $commLink->filter('#layout-system')->count() === 1;
     }
 
     /**
      * Checks if Comm-Link Page is a Subscriber Article.
-     *
-     * @param Crawler $commLink
-     *
-     * @return bool
      */
     protected function isSubscriberPage(Crawler $commLink): bool
     {
-        return 1 === $commLink->filter('div#subscribers')->count();
+        return $commLink->filter('div#subscribers')->count() === 1;
     }
 }

@@ -11,9 +11,6 @@ trait GExploreExtractorTrait
 {
     /**
      * Extract <g-introduction> content
-     *
-     * @param Crawler $page
-     * @return string
      */
     public function getExplore(Crawler $page): string
     {
@@ -34,7 +31,7 @@ trait GExploreExtractorTrait
                 $out = [];
 
                 foreach ($explore as $side) {
-                    if (isset($side['title']) && !empty($side['title'])) {
+                    if (isset($side['title']) && ! empty($side['title'])) {
                         $out[] = sprintf('<h1>%s</h1>', $side['title']);
                     }
 

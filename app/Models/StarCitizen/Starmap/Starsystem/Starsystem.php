@@ -91,8 +91,6 @@ class Starsystem extends HasTranslations
 
     /**
      * The celestial objects in this system
-     *
-     * @return HasMany
      */
     public function celestialObjects(): HasMany
     {
@@ -101,8 +99,6 @@ class Starsystem extends HasTranslations
 
     /**
      * Celestial objects with type 'STAR'
-     *
-     * @return HasMany
      */
     public function stars(): HasMany
     {
@@ -111,8 +107,6 @@ class Starsystem extends HasTranslations
 
     /**
      * Celestial objects with type 'PLANET'
-     *
-     * @return HasMany
      */
     public function planets(): HasMany
     {
@@ -121,8 +115,6 @@ class Starsystem extends HasTranslations
 
     /**
      * Celestial objects with type 'SATELLITE'
-     *
-     * @return HasMany
      */
     public function moons(): HasMany
     {
@@ -131,8 +123,6 @@ class Starsystem extends HasTranslations
 
     /**
      * Celestial objects with type 'MANMADE'
-     *
-     * @return HasMany
      */
     public function stations(): HasMany
     {
@@ -141,8 +131,6 @@ class Starsystem extends HasTranslations
 
     /**
      * All jump points
-     *
-     * @return Collection
      */
     public function jumppoints(): Collection
     {
@@ -154,8 +142,6 @@ class Starsystem extends HasTranslations
 
     /**
      * Star System Affiliation
-     *
-     * @return BelongsToMany
      */
     public function affiliation(): BelongsToMany
     {

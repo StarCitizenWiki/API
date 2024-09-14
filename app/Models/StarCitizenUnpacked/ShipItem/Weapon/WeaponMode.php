@@ -40,9 +40,6 @@ class WeaponMode extends Model
         return $this->belongsTo(Weapon::class, 'ship_weapon_id', 'id');
     }
 
-    /**
-     * @return HasManyThrough
-     */
     public function damages(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -56,6 +53,7 @@ class WeaponMode extends Model
     public function getDamagePerSecondAttribute(): float
     {
         $multiplier = $this->rounds_per_minute / 60;
+
         return $this->weapon->damage * $multiplier;
     }
 }

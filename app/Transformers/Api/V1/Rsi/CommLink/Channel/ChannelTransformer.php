@@ -22,12 +22,7 @@ use OpenApi\Attributes as OA;
 )]
 class ChannelTransformer extends V1Transformer
 {
-    /**
-     * @param Channel $channel
-     *
-     * @return array
-     */
-    #[ArrayShape(['name' => "mixed", 'slug' => "mixed", 'api_url' => "string"])]
+    #[ArrayShape(['name' => 'mixed', 'slug' => 'mixed', 'api_url' => 'string'])]
     public function transform(Channel $channel): array
     {
         return [

@@ -17,7 +17,7 @@ final class TractorBeam extends AbstractItemSpecification
             return null;
         }
 
-        $beam = collect($data)->first(fn($entry) => $entry['name'] === 'TractorBeam');
+        $beam = collect($data)->first(fn ($entry) => $entry['name'] === 'TractorBeam');
 
         if (empty($beam)) {
             return null;

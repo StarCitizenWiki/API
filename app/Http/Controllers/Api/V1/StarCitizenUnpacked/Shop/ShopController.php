@@ -15,10 +15,6 @@ use OpenApi\Attributes as OA;
 
 class ShopController extends ApiController
 {
-    /**
-     * @param ShopTransformer $transformer
-     * @param Request $request
-     */
     public function __construct(ShopTransformer $transformer, Request $request)
     {
         $this->transformer = $transformer;
@@ -54,7 +50,7 @@ class ShopController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/shop')
                 )
-            )
+            ),
         ]
     )]
     public function index(): Response
@@ -102,7 +98,7 @@ class ShopController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No shop with specified name found.',
-            )
+            ),
         ]
     )]
     public function show(Request $request): Response
@@ -171,7 +167,7 @@ class ShopController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No shop with specified position found.',
-            )
+            ),
         ]
     )]
     public function showPosition(Request $request): Response
@@ -236,7 +232,7 @@ class ShopController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No shop with specified name found.',
-            )
+            ),
         ]
     )]
     public function showName(Request $request): Response
@@ -311,7 +307,7 @@ class ShopController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No shop with specified name found.',
-            )
+            ),
         ]
     )]
     public function showShopAtPosition(Request $request): Response

@@ -12,6 +12,7 @@ use JsonException;
 final class Labels
 {
     private Collection $labels;
+
     private Collection $zhTranslations;
 
     /**

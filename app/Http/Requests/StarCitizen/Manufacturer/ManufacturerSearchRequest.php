@@ -6,6 +6,4 @@ namespace App\Http\Requests\StarCitizen\Manufacturer;
 
 use App\Http\Requests\AbstractSearchRequest;
 
-class ManufacturerSearchRequest extends AbstractSearchRequest
-{
-}
+class ManufacturerSearchRequest extends AbstractSearchRequest {}

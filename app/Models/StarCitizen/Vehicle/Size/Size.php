@@ -58,8 +58,6 @@ class Size extends HasTranslations
 
     /**
      * Ships
-     *
-     * @param Builder $query
      */
     public function scopeShip(Builder $query): void
     {
@@ -68,8 +66,6 @@ class Size extends HasTranslations
 
     /**
      * Ground Vehicles
-     *
-     * @param Builder $query
      */
     public function scopeGroundVehicle(Builder $query): void
     {

@@ -48,8 +48,6 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
 
     /**
      * Star systems defined in bootup
-     *
-     * @var Collection
      */
     private Collection $systems;
 
@@ -71,7 +69,7 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
     /**
      * Star Map Download
      *
-     * @param bool $force Set to true do force download even if file already exists
+     * @param  bool  $force  Set to true do force download even if file already exists
      */
     public function __construct($force = false)
     {
@@ -81,14 +79,12 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
         app('Log')::info('Starting Starmap Download');
 
-        if ($this->force || !Storage::disk(self::STARSYSTEM_DISK)->exists($this->timestamp)) {
+        if ($this->force || ! Storage::disk(self::STARSYSTEM_DISK)->exists($this->timestamp)) {
             $this->downloadBootup();
             $this->writeBootupDataToDisk();
 
@@ -145,12 +141,9 @@ class DownloadStarmap extends BaseDownloadData implements ShouldQueue
         }
     }
 
-    /**
-     * @param array $bootupData
-     */
     private function checkBootupStructure(array $bootupData): void
     {
-        if (!$this->checkDataStructureIsValid($bootupData, static::BOOTUP_CHECKLIST)) {
+        if (! $this->checkDataStructureIsValid($bootupData, static::BOOTUP_CHECKLIST)) {
             app('Log')::error('Can not read Star-Systems from RSI');
 
             $this->fail('Can not read Star-Systems from RSI');

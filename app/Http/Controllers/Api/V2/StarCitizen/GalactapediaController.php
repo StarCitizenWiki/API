@@ -170,7 +170,7 @@ class GalactapediaController extends AbstractApiV2Controller
     )]
     public function search(Request $request): AnonymousResourceCollection
     {
-        $rules = (new GalactapediaSearchRequest())->rules();
+        $rules = (new GalactapediaSearchRequest)->rules();
         $request->validate($rules);
 
         $query = $this->cleanQueryName($request->get('query'));

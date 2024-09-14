@@ -17,8 +17,7 @@ class WeaponTransformer extends TransformerAbstract
     ];
 
     /**
-     * @param Weapon $weapon
-     * @return array
+     * @param  Weapon  $weapon
      */
     public function transform($weapon): array
     {
@@ -37,11 +36,11 @@ class WeaponTransformer extends TransformerAbstract
 
     public function includeDamages($weapon): Collection
     {
-        return $this->collection($weapon->damages ?? [], new WeaponDamageTransformer());
+        return $this->collection($weapon->damages ?? [], new WeaponDamageTransformer);
     }
 
     public function includeModes($weapon): Collection
     {
-        return $this->collection($weapon->modes ?? [], new WeaponModeTransformer());
+        return $this->collection($weapon->modes ?? [], new WeaponModeTransformer);
     }
 }

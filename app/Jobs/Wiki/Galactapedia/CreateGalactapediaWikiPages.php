@@ -21,15 +21,13 @@ use Illuminate\Queue\SerializesModels;
 class CreateGalactapediaWikiPages implements ShouldQueue
 {
     use Dispatchable;
+    use GetWikiCsrfToken;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetWikiCsrfToken;
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

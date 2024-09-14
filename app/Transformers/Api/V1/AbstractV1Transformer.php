@@ -16,19 +16,25 @@ use Throwable;
 abstract class AbstractV1Transformer extends TransformerAbstract
 {
     public const COMM_LINKS_SHOW = '/api/comm-links/%d';
+
     public const COMM_LINKS_SERIES_SHOW = '/api/comm-links/series/%s';
+
     public const COMM_LINKS_CHANNELS_SHOW = '/api/comm-links/channels/%s';
+
     public const COMM_LINKS_CATEGORIES_SHOW = '/api/comm-links/categories/%s';
 
     public const VEHICLES_SHOW = '/api/vehicles/%s';
 
     public const STARMAP_STARSYSTEM_SHOW = '/api/starmap/starsystems/%s';
+
     public const STARMAP_CELESTIAL_OBJECTS_SHOW = '/api/starmap/celestial-objects/%s';
 
     public const GALACTAPEDIA_ARTICLE_SHOW = '/api/galactapedia/%s';
 
     public const UNPACKED_CHAR_ARMOR_SHOW = '/api/char/armor/%s';
+
     public const UNPACKED_WEAPON_PERSONAL_SHOW = '/api/weapons/personal/%s';
+
     public const UNPACKED_CLOTHING_SHOW = '/api/char/clothing/%s';
 
     public const UNPACKED_FOOD_SHOW = '/api/food/%s';
@@ -41,29 +47,23 @@ abstract class AbstractV1Transformer extends TransformerAbstract
     /**
      * Formats the fragment and returns an absolute api url
      *
-     * @param string $fragment
-     * @param mixed  ...$routeKey
-     *
-     * @return string
+     * @param  mixed  ...$routeKey
      */
     protected function makeApiUrl(string $fragment, ...$routeKey): string
     {
-        return sprintf('%s' . $fragment, config('app.url'), ...$routeKey);
+        return sprintf('%s'.$fragment, config('app.url'), ...$routeKey);
     }
 
     /**
      * Instantiates a new transformer and sets the $bases locale if both transformers implement
      * LocalizableTransformerInterface
      *
-     * @param string                   $class
-     * @param TransformerAbstract|null $base
      *
-     * @return TransformerAbstract
      * @throws Throwable
      */
     protected function makeTransformer(string $class, ?TransformerAbstract $base = null): TransformerAbstract
     {
-        throw_if(!class_exists($class), new RuntimeException("Class $class not found."));
+        throw_if(! class_exists($class), new RuntimeException("Class $class not found."));
 
         $transformer = app($class);
 

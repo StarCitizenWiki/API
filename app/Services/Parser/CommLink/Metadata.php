@@ -140,9 +140,6 @@ class Metadata extends BaseElement
      */
     private const NO_TITLE_FOUND = 'No Title Found';
 
-    /**
-     * @var Crawler
-     */
     private Crawler $commLink;
 
     /**
@@ -152,18 +149,13 @@ class Metadata extends BaseElement
 
     /**
      * Metadata constructor.
-     *
-     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {
         $this->commLink = $commLinkDocument;
-        $this->metaData = new Collection();
+        $this->metaData = new Collection;
     }
 
-    /**
-     * @return Collection
-     */
     public function getMetaData(): Collection
     {
         $this->extractTitle();
@@ -233,7 +225,7 @@ class Metadata extends BaseElement
      * Tries to Extract the Comm-Link Category
      * Defaults to 'Undefined' if not found
      *
-     * @param string|null $category Manual category to use
+     * @param  string|null  $category  Manual category to use
      */
     private function extractCategory(?string $category = null): void
     {
@@ -242,12 +234,12 @@ class Metadata extends BaseElement
         if ($category === null && $this->commLink->filter(self::CATEGORY_SELECTOR)->count() > 0) {
             $category = $this->commLink->filter(self::CATEGORY_SELECTOR)->text();
 
-            if (!empty($category)) {
+            if (! empty($category)) {
                 $category = $this->cleanText($category);
             }
         }
 
-        if (!empty($category)) {
+        if (! empty($category)) {
             $categoryId = Category::query()->firstOrCreate(
                 [
                     'name' => $category,
@@ -263,7 +255,7 @@ class Metadata extends BaseElement
      * Tries to Extract the Comm-Link Channel
      * Defaults to 'Undefined' if not found
      *
-     * @param string|null $channel Manual channel to use
+     * @param  string|null  $channel  Manual channel to use
      */
     private function extractChannel(?string $channel = null): void
     {
@@ -278,7 +270,7 @@ class Metadata extends BaseElement
             }
         }
 
-        if (!empty($channel)) {
+        if (! empty($channel)) {
             $channel = $this->cleanText($channel);
 
             $channelId = Channel::query()->firstOrCreate(
@@ -296,7 +288,7 @@ class Metadata extends BaseElement
      * Tries to Extract the Comm-Link Series
      * Defaults to 'None' if not found
      *
-     * @param string|null $series Manual series to use
+     * @param  string|null  $series  Manual series to use
      */
     private function extractSeries(?string $series = null): void
     {
@@ -306,7 +298,7 @@ class Metadata extends BaseElement
             $series = $this->commLink->filter(self::SERIES_SELECTOR)->text();
         }
 
-        if (!empty($series)) {
+        if (! empty($series)) {
             $series = $this->cleanText($series);
 
             $seriesId = Series::query()->firstOrCreate(
@@ -331,7 +323,7 @@ class Metadata extends BaseElement
             $href = $this->commLink->filter('a.add-comment')->attr('href');
         }
 
-        if (!empty($href)) {
+        if (! empty($href)) {
             $href = $this->cleanText(str_replace('/connect?jumpto=', '', $href));
         }
 
@@ -345,7 +337,7 @@ class Metadata extends BaseElement
     {
         $count = 0;
         if ($this->commLink->filter('.comment-count')->count() > 0) {
-            $count = (int)$this->commLink->filter('.comment-count')->first()->text();
+            $count = (int) $this->commLink->filter('.comment-count')->first()->text();
         }
 
         $this->metaData->put('comment_count', $count);
@@ -362,7 +354,7 @@ class Metadata extends BaseElement
         if ($this->commLink->filter(self::CREATED_AT_SELECTOR)->count() > 0) {
             $createdAt = $this->commLink->filter(self::CREATED_AT_SELECTOR)->text();
 
-            if (!empty($createdAt)) {
+            if (! empty($createdAt)) {
                 $createdAt = Carbon::parse($createdAt)->toDateTimeString();
             }
         }

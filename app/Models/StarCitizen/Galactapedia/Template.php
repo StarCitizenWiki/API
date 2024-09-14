@@ -24,7 +24,7 @@ class Template extends Model
     ];
 
     protected $fillable = [
-        'template'
+        'template',
     ];
 
     public function article(): BelongsToMany

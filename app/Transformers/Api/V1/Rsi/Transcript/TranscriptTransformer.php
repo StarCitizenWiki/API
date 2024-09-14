@@ -18,11 +18,6 @@ class TranscriptTransformer extends V1Transformer
         'german',
     ];
 
-    /**
-     * @param Transcript $transcript
-     *
-     * @return array
-     */
     public function transform(Transcript $transcript): array
     {
         return [
@@ -38,29 +33,18 @@ class TranscriptTransformer extends V1Transformer
         ];
     }
 
-
-    /**
-     * @param Transcript $commLink
-     *
-     * @return Item
-     */
     public function includeEnglish(Transcript $commLink): Item
     {
         $translation = $commLink->english();
 
-        return $this->item($translation, new TranslationTransformer());
+        return $this->item($translation, new TranslationTransformer);
     }
 
-    /**
-     * @param Transcript $commLink
-     *
-     * @return Item
-     */
     public function includeGerman(Transcript $commLink): Item
     {
         //$translation = $commLink->german();
         $translation = null; // Disable this for now
 
-        return $this->item($translation, new TranslationTransformer());
+        return $this->item($translation, new TranslationTransformer);
     }
 }

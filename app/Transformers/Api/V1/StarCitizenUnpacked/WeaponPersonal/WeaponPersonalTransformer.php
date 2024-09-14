@@ -18,11 +18,6 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
         'attachmentPorts',
     ];
 
-    /**
-     * @param WeaponPersonal $weapon
-     *
-     * @return array
-     */
     public function transform(WeaponPersonal $weapon): array
     {
         $this->missingTranslations = [];
@@ -57,7 +52,7 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
 
         $baseModel = $weapon->baseModel;
         if ($baseModel !== null && $baseModel->item->name !== $weapon->item->name) {
-            $data['base_model'] = (new WeaponPersonalLinkTransformer())->transform($baseModel);
+            $data['base_model'] = (new WeaponPersonalLinkTransformer)->transform($baseModel);
         }
 
         $data += [
@@ -69,28 +64,23 @@ class WeaponPersonalTransformer extends AbstractCommodityTransformer
         return $data;
     }
 
-    /**
-     * @param WeaponPersonal $weapon
-     *
-     * @return Collection
-     */
     public function includeModes(WeaponPersonal $weapon): Collection
     {
-        return $this->collection($weapon->modes, new WeaponPersonalModeTransformer());
+        return $this->collection($weapon->modes, new WeaponPersonalModeTransformer);
     }
 
     public function includeDamages(WeaponPersonal $weapon): Collection
     {
-        return $this->collection($weapon->ammunition->damages, new WeaponPersonalAmmunitionDamageTransformer());
+        return $this->collection($weapon->ammunition->damages, new WeaponPersonalAmmunitionDamageTransformer);
     }
 
     public function includeAttachments(WeaponPersonal $weapon): Collection
     {
-        return $this->collection($weapon->attachments, new WeaponPersonalAttachmentsTransformer());
+        return $this->collection($weapon->attachments, new WeaponPersonalAttachmentsTransformer);
     }
 
     public function includeAttachmentPorts(WeaponPersonal $weapon): Collection
     {
-        return $this->collection($weapon->attachmentPorts, new WeaponPersonalAttachmentPortsTransformer());
+        return $this->collection($weapon->attachmentPorts, new WeaponPersonalAttachmentPortsTransformer);
     }
 }

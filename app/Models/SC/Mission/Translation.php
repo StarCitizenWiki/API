@@ -16,5 +16,4 @@ class Translation extends AbstractTranslation
         'item_uuid',
         'translation',
     ];
-
 }

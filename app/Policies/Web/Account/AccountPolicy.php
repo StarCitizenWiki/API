@@ -17,8 +17,6 @@ class AccountPolicy extends BaseAdminPolicy
     use HandlesAuthorization;
 
     /**
-     * @param \App\Models\Account\User\User $user
-     *
      * @return bool
      */
     public function view(User $user)
@@ -27,8 +25,6 @@ class AccountPolicy extends BaseAdminPolicy
     }
 
     /**
-     * @param \App\Models\Account\User\User $user
-     *
      * @return bool
      */
     public function update(User $user)

@@ -9,11 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class CharArmorLinkTransformer extends AbstractCommodityTransformer
 {
-    /**
-     * @param CharArmor $armor
-     *
-     * @return array
-     */
     public function transform(CharArmor $armor): array
     {
         return [

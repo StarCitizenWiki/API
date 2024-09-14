@@ -28,8 +28,6 @@ class CreateImageHashes extends BaseDownloadData implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param array $commLinkIds
      */
     public function __construct(array $commLinkIds = [])
     {
@@ -38,15 +36,14 @@ class CreateImageHashes extends BaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
-        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+        if (! extension_loaded('gd') && ! extension_loaded('imagick')) {
             app('Log')::error('Required extension "GD" or "Imagick" not available.');
 
             $this->fail('Required extension "GD" or "Imagick" not available.');
+
             return;
         }
 

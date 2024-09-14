@@ -9,11 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class FoodLinkTransformer extends AbstractCommodityTransformer
 {
-    /**
-     * @param Food $food
-     *
-     * @return array
-     */
     public function transform(Food $food): array
     {
         return [

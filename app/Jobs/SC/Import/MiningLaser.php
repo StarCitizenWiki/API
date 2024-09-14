@@ -18,7 +18,6 @@ class MiningLaser extends AbstractItemCreationJob
     use Queueable;
     use SerializesModels;
 
-
     /**
      * Execute the job.
      */

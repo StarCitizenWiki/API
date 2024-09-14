@@ -36,6 +36,6 @@ class ShieldTransformer extends AbstractCommodityTransformer
 
     public function includeAbsorption(Shield $item): Collection
     {
-        return $this->collection($item->absorptions, new ShieldAbsorptionTransformer());
+        return $this->collection($item->absorptions, new ShieldAbsorptionTransformer);
     }
 }

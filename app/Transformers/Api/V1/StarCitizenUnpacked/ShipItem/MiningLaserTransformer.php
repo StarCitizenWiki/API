@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Transformers\Api\V1\StarCitizenUnpacked\ShipItem;
 
-use App\Models\StarCitizenUnpacked\ShipItem\MiningLaser;
 use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class MiningLaserTransformer extends AbstractCommodityTransformer

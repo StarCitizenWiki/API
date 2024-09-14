@@ -22,14 +22,12 @@ class ImportMsrp extends AbstractRSIDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
         $this->makeClient();
 
-        $query = <<<QUERY
+        $query = <<<'QUERY'
 {
     ships {
       id
@@ -55,7 +53,7 @@ QUERY;
             ]
         );
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             app('Log')::error('Could not connect to RSI Pledge Store API, retrying in 5 minutes.');
 
             $this->release(300);
@@ -80,7 +78,7 @@ QUERY;
                         );
                     }
 
-                    if (!empty($vehicle['skus'])) {
+                    if (! empty($vehicle['skus'])) {
                         collect($vehicle['skus'])->each(function (array $sku) use ($model) {
                             $model->skus()->updateOrCreate([
                                 'cig_id' => $sku['id'],

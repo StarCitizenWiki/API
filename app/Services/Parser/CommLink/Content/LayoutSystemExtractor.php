@@ -14,12 +14,12 @@ use Symfony\Component\DomCrawler\Crawler;
 
 final class LayoutSystemExtractor implements ContentExtractorInterface
 {
-    use GIntroductionExtractorTrait;
-    use GTumbrilFeaturesExtractorrait;
+    use GBannerAdvancedExtractorTrait;
     use GExploreExtractorTrait;
     use GGridExtractorTrait;
-    use GBannerAdvancedExtractorTrait;
+    use GIntroductionExtractorTrait;
     use GSkusExtractorTrait;
+    use GTumbrilFeaturesExtractorrait;
 
     private Crawler $page;
 

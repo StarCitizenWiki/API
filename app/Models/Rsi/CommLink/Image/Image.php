@@ -6,7 +6,6 @@ namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 /**
@@ -44,9 +42,6 @@ class Image extends Model
         'metadata',
     ];
 
-    /**
-     * @return BelongsToMany
-     */
     public function commLinks(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -58,9 +53,6 @@ class Image extends Model
             ->orderByDesc('cig_id');
     }
 
-    /**
-     * @return BelongsToMany
-     */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -71,9 +63,6 @@ class Image extends Model
         )->orderByDesc('images_count');
     }
 
-    /**
-     * @return HasOne
-     */
     public function hash(): HasOne
     {
         return $this->hasOne(ImageHash::class, 'comm_link_image_id')
@@ -86,17 +75,11 @@ class Image extends Model
             );
     }
 
-    /**
-     * @return HasMany
-     */
     public function duplicates(): HasMany
     {
         return $this->hasMany(__CLASS__, 'base_image_id', 'id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function baseImage(): BelongsTo
     {
         return $this->belongsTo(
@@ -108,11 +91,6 @@ class Image extends Model
 
     /**
      * Retrieve similar images to this one
-     *
-     * @param int $similarity
-     * @param int $limit
-     *
-     * @return Collection
      */
     public function similarImages(int $similarity = 90, int $limit = 15): Collection
     {
@@ -123,7 +101,7 @@ class Image extends Model
         return ImageHash::query()
             ->select(['comm_link_image_hashes.comm_link_image_id', 'pdq_quality'])
             ->selectRaw(
-                <<<SQL
+                <<<'SQL'
 (BIT_COUNT(CONV(HEX(pdq_hash1), 16, 10) ^ CONV(?, 16, 10)) +
 BIT_COUNT(CONV(HEX(pdq_hash2), 16, 10) ^ CONV(?, 16, 10)) +
 BIT_COUNT(CONV(HEX(pdq_hash3), 16, 10) ^ CONV(?, 16, 10)) +
@@ -156,7 +134,7 @@ SQL,
                         $image->similarity_method = __('Basierend auf Merkmalen des Inhalts');
                     } else {
                         $image->similarity = round((1 - ($data->pdq_distance / 256)) * 100);
-                        $image->similarity_method = ''; #PDQ
+                        $image->similarity_method = ''; //PDQ
                     }
 
                     $image->pdq_distance = $data->pdq_distance ?? $image->p_distance;
@@ -172,17 +150,12 @@ SQL,
 
     /**
      * Check if the hash exists
-     *
-     * @return bool
      */
     public function isHashed(): bool
     {
         return $this->hash->perceptual_hash !== 'DEADBEEF';
     }
 
-    /**
-     * @return HasOne
-     */
     public function metadata(): HasOne
     {
         return $this->hasOne(ImageMetadata::class, 'comm_link_image_id')
@@ -197,8 +170,6 @@ SQL,
 
     /**
      * Image Name
-     *
-     * @return string
      */
     public function getNameAttribute(): string
     {
@@ -207,14 +178,12 @@ SQL,
 
     /**
      * Generates a downloadable image link
-     *
-     * @return string
      */
     public function getUrlAttribute(): string
     {
         $url = config('api.rsi_url');
 
-        if (!Str::startsWith($this->src, ['/media', '/rsi', '/layoutscache', '/i/'])) {
+        if (! Str::startsWith($this->src, ['/media', '/rsi', '/layoutscache', '/i/'])) {
             $url = 'https://media.robertsspaceindustries.com';
         }
 
@@ -223,8 +192,6 @@ SQL,
 
     /**
      * Returns a local or remote url if the image is local or remote
-     *
-     * @return string
      */
     public function getLocalOrRemoteUrl(): string
     {

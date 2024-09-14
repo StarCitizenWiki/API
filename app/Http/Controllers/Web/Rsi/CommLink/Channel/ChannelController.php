@@ -26,7 +26,6 @@ class ChannelController extends Controller
     /**
      * All Channels
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -45,9 +44,7 @@ class ChannelController extends Controller
     /**
      * Get all Comm-Links of a given Channel
      *
-     * @param Channel $channel
      *
-     * @return View
      *
      * @throws AuthorizationException
      */

@@ -19,10 +19,6 @@ use OpenApi\Attributes as OA;
 
 class GalactapediaController extends ApiController
 {
-    /**
-     * @param Request $request
-     * @param ArticleTransformer $transformer
-     */
     public function __construct(Request $request, ArticleTransformer $transformer)
     {
         $this->transformer = $transformer;
@@ -61,7 +57,7 @@ class GalactapediaController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/galactapedia_article')
                 )
-            )
+            ),
         ]
     )]
     public function index(): Response
@@ -112,7 +108,7 @@ class GalactapediaController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Article with specified ID found.',
-            )
+            ),
         ]
     )]
     public function show(Request $request)
@@ -161,7 +157,7 @@ class GalactapediaController extends ApiController
                         type: 'json',
                     ),
                     example: '{"query": "Banu"}',
-                )
+                ),
             ]
         ),
         tags: ['Galactapedia', 'RSI-Website'],
@@ -177,12 +173,12 @@ class GalactapediaController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Article found.',
-            )
+            ),
         ],
     )]
     public function search(Request $request)
     {
-        $rules = (new GalactapediaSearchRequest())->rules();
+        $rules = (new GalactapediaSearchRequest)->rules();
         try {
             $request->validate($rules);
         } catch (ValidationException $e) {

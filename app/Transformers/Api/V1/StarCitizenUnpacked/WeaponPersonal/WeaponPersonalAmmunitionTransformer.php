@@ -9,11 +9,6 @@ use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 class WeaponPersonalAmmunitionTransformer extends AbstractTranslationTransformer
 {
-    /**
-     * @param WeaponPersonalAmmunition $ammunition
-     *
-     * @return array
-     */
     public function transform(WeaponPersonalAmmunition $ammunition): array
     {
         return [

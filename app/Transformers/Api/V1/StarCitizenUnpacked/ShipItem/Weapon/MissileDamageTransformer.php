@@ -9,11 +9,6 @@ use League\Fractal\TransformerAbstract;
 
 class MissileDamageTransformer extends TransformerAbstract
 {
-    /**
-     * @param Model $mode
-     *
-     * @return array
-     */
     public function transform(Model $mode): array
     {
         return [

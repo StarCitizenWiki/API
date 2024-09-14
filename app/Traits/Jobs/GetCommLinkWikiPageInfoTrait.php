@@ -14,18 +14,11 @@ trait GetCommLinkWikiPageInfoTrait
 {
     /**
      * MediaWiki API Query with Authentication
-     *
-     * @var bool
      */
     private bool $queryWithAuth = false;
 
     /**
      * Gets Page Info for given Comm-Links keyed by CIG ID
-     *
-     * @param Collection $commLinks
-     * @param bool       $queryWithAuth
-     *
-     * @return Collection
      */
     private function getPageInfoForCommLinks(Collection $commLinks, bool $queryWithAuth = false): Collection
     {
@@ -40,8 +33,8 @@ trait GetCommLinkWikiPageInfoTrait
         $res = $this->getMediaWikiQuery($pages);
         $query = $res->getQuery();
 
-        if (!isset($query['pages'])) {
-            return new Collection();
+        if (! isset($query['pages'])) {
+            return new Collection;
         }
 
         return collect($query['pages'])->keyBy(
@@ -53,10 +46,6 @@ trait GetCommLinkWikiPageInfoTrait
 
     /**
      * Query the Wiki for given Pages
-     *
-     * @param string $pages
-     *
-     * @return MediaWikiResponse
      */
     private function getMediaWikiQuery(string $pages): MediaWikiResponse
     {
@@ -75,9 +64,6 @@ trait GetCommLinkWikiPageInfoTrait
         return $response;
     }
 
-    /**
-     * @param MediaWikiResponse $response
-     */
     private function formatApiError(MediaWikiResponse $response): void
     {
         throw new RuntimeException(
@@ -89,11 +75,6 @@ trait GetCommLinkWikiPageInfoTrait
         );
     }
 
-    /**
-     * @param string $page
-     *
-     * @return array
-     */
     private function getCommLinkConfig(string $page = 'Comm-Link:Translation-Header'): array
     {
         $response = MediaWikiApi::parse()->page($page)->prop('wikitext')->request();

@@ -19,22 +19,17 @@ class LinkRenderer implements NodeRendererInterface
     private bool $useLanguageLinks;
 
     /**
-     * @param bool $useLanguageLinks Whether to prefix links with Special:MyLanguage/
+     * @param  bool  $useLanguageLinks  Whether to prefix links with Special:MyLanguage/
      */
     public function __construct(bool $useLanguageLinks = false)
     {
         $this->useLanguageLinks = $useLanguageLinks;
     }
 
-    /**
-     * @param Node $node
-     * @param ChildNodeRendererInterface $childRenderer
-     * @return string
-     */
     public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
-        if (!($node instanceof Link)) {
-            throw new InvalidArgumentException('Incompatible inline type: ' . get_class($node));
+        if (! ($node instanceof Link)) {
+            throw new InvalidArgumentException('Incompatible inline type: '.get_class($node));
         }
 
         $urlText = $childRenderer->renderNodes($node->children());
@@ -42,6 +37,7 @@ class LinkRenderer implements NodeRendererInterface
         $url = parse_url($node->getUrl());
         if ($url === false) {
             app('Log')::error(sprintf('URL "%s" could not be parsed.', $node->getUrl()));
+
             return $node->getUrl();
         }
 
@@ -81,10 +77,6 @@ class LinkRenderer implements NodeRendererInterface
 
     /**
      * WIP
-     *
-     * @param string $articleTitle
-     * @param $urlText
-     * @return array
      */
     private function replaceKnownTranslations(string $articleTitle, $urlText): array
     {

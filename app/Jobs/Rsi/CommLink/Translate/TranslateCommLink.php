@@ -30,9 +30,6 @@ class TranslateCommLink implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * @var CommLink
-     */
     private CommLink $commLink;
 
     /**
@@ -47,8 +44,6 @@ class TranslateCommLink implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param CommLink $commLink
      */
     public function __construct(CommLink $commLink)
     {
@@ -57,16 +52,15 @@ class TranslateCommLink implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
         app('Log')::info('Translating Comm-Link with ID {$this->commLink->cig_id}');
         $targetLocale = config('services.deepl.target_locale');
 
-        if (null !== optional($this->commLink->german())->translation) {
+        if (optional($this->commLink->german())->translation !== null) {
             $this->delete();
+
             return;
         }
 
@@ -83,16 +77,16 @@ class TranslateCommLink implements ShouldQueue
         try {
             $translation = $translator->translate(config('services.deepl.target_locale'), $formality);
         } catch (
-            QuotaException |
-            CallException |
-            AuthenticationException |
-            InvalidArgumentException |
+            QuotaException|
+            CallException|
+            AuthenticationException|
+            InvalidArgumentException|
             TextLengthException $e
         ) {
             $this->fail($e);
 
             return;
-        } catch (ConnectException | RateLimitedException $e) {
+        } catch (ConnectException|RateLimitedException $e) {
             $this->release(60);
 
             return;

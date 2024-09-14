@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 abstract class AbstractTranslation extends Model
 {
-    use ModelChangelog;
     use HasFactory;
+    use ModelChangelog;
 
     private const ATTR_LOCALE_CODE = '.locale_code';
 
@@ -30,8 +30,6 @@ abstract class AbstractTranslation extends Model
 
     /**
      * Language Relation
-     *
-     * @return BelongsTo
      */
     public function language(): BelongsTo
     {
@@ -40,25 +38,17 @@ abstract class AbstractTranslation extends Model
 
     /**
      * English Translations
-     *
-     * @param Builder $query
-     *
-     * @return Builder
      */
     public function scopeEnglish(Builder $query): Builder
     {
-        return $query->where($this->getTable() . self::ATTR_LOCALE_CODE, config('language.english'));
+        return $query->where($this->getTable().self::ATTR_LOCALE_CODE, config('language.english'));
     }
 
     /**
      * German Translations
-     *
-     * @param Builder $query
-     *
-     * @return Builder
      */
     public function scopeGerman(Builder $query): Builder
     {
-        return $query->where($this->getTable() . self::ATTR_LOCALE_CODE, config('language.german'));
+        return $query->where($this->getTable().self::ATTR_LOCALE_CODE, config('language.german'));
     }
 }

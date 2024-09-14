@@ -25,10 +25,10 @@ use Illuminate\Support\Facades\Storage;
 class ImportCommLinks implements ShouldQueue
 {
     use Dispatchable;
+    use GetFoldersTrait;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetFoldersTrait;
 
     /**
      * @var int Offset to start parsing from
@@ -38,7 +38,7 @@ class ImportCommLinks implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param int $modifiedFolderTime Include folders that were created in the last x minutes. -1 = all
+     * @param  int  $modifiedFolderTime  Include folders that were created in the last x minutes. -1 = all
      */
     public function __construct(int $modifiedFolderTime = 5)
     {
@@ -59,17 +59,17 @@ class ImportCommLinks implements ShouldQueue
                 function ($commLinkDir) use ($commLinks) {
                     $file = Arr::last(Storage::disk('comm_links')->files($commLinkDir));
 
-                    if (null !== $file) {
+                    if ($file !== null) {
                         $file = preg_split('/\/|\\\/', $file);
-                        $commLink = $commLinks->get((int)$commLinkDir, null);
+                        $commLink = $commLinks->get((int) $commLinkDir, null);
 
-                        dispatch(new ImportCommLink((int)$commLinkDir, Arr::last($file), $commLink));
+                        dispatch(new ImportCommLink((int) $commLinkDir, Arr::last($file), $commLink));
                     }
                 }
             )
             ->map(
                 function ($directory) {
-                    return (int)$directory;
+                    return (int) $directory;
                 }
             )
             ->toArray();
@@ -79,8 +79,6 @@ class ImportCommLinks implements ShouldQueue
 
     /**
      * Create Metadata, Image Hashes, Translations and Wiki Pages
-     *
-     * @param array $commLinkIds
      */
     private function dispatchChain(array $commLinkIds): void
     {
@@ -98,7 +96,7 @@ class ImportCommLinks implements ShouldQueue
         $apiUrlNotNull = config('mediawiki.api_url') !== null;
 
         if ($clientNotNull && $apiUrlNotNull) {
-            dispatch(new CreateCommLinkWikiPages())->delay(90);
+            dispatch(new CreateCommLinkWikiPages)->delay(90);
         }
 
         Artisan::call('comm-links:compute-similar-image-ids --recent');

@@ -27,13 +27,13 @@ class TranslationResourceFactory
         } elseif (is_callable([$model, 'translations'])) {
             $collection = new TranslationCollection($model->translations);
         } else {
-            return new MissingValue();
+            return new MissingValue;
         }
 
         $transformed = $collection->toArray($request);
 
         if ($request->has('locale')) {
-            return $transformed[$request->get('locale')] ?? $transformed[Language::ENGLISH] ?? new MissingValue();
+            return $transformed[$request->get('locale')] ?? $transformed[Language::ENGLISH] ?? new MissingValue;
         }
 
         return $collection;

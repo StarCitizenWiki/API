@@ -32,7 +32,7 @@ class ComputeSimilarImageIds extends Command
             ->whereNull('base_image_id')
             //->whereRelation('metadata', 'size', '>=', 250 * 1024)
             ->with([
-                'metadata' => fn($query) => $query->orderBy('size', 'DESC'),
+                'metadata' => fn ($query) => $query->orderBy('size', 'DESC'),
             ]);
 
         if ($this->option('recent') === true) {

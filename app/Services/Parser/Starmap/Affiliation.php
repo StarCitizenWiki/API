@@ -17,16 +17,13 @@ class Affiliation
     /**
      * Affiliation constructor.
      *
-     * @param array|Collection $rawData
+     * @param  array|Collection  $rawData
      */
     public function __construct($rawData)
     {
         $this->rawData = new Collection($rawData);
     }
 
-    /**
-     * @return AffiliationModel
-     */
     public function getAffiliation(): AffiliationModel
     {
         $data = $this->getData();

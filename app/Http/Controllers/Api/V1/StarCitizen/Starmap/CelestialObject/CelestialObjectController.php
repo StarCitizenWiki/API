@@ -18,9 +18,6 @@ class CelestialObjectController extends ApiController
 {
     /**
      * CelestialObjectController constructor.
-     *
-     * @param Request                    $request
-     * @param CelestialObjectTransformer $transformer
      */
     public function __construct(Request $request, CelestialObjectTransformer $transformer)
     {
@@ -28,18 +25,13 @@ class CelestialObjectController extends ApiController
         parent::__construct($request);
     }
 
-    /**
-     * @return Response
-     */
     public function index(): Response
     {
         return $this->getResponse(CelestialObject::query());
     }
 
     /**
-     * @param string|int $code
-     *
-     * @return Response
+     * @param  string|int  $code
      */
     public function show($code): Response
     {
@@ -60,8 +52,6 @@ class CelestialObjectController extends ApiController
 
     /**
      * Search Endpoint
-     *
-     * @return Response
      */
     public function search(): Response
     {

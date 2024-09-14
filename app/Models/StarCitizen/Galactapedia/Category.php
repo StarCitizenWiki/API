@@ -25,7 +25,7 @@ class Category extends Model
         'cig_id',
         'name',
         'slug',
-        'thumbnail'
+        'thumbnail',
     ];
 
     public function article(): BelongsToMany

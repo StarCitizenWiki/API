@@ -10,8 +10,6 @@ class ImageUploadRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -20,8 +18,6 @@ class ImageUploadRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -34,20 +30,20 @@ class ImageUploadRequest extends FormRequest
             ],
             'image' => [
                 'required',
-                'exists:comm_link_images,id'
+                'exists:comm_link_images,id',
             ],
             'description' => [
                 'required',
                 'string',
                 'min:10',
-                'max:255'
+                'max:255',
             ],
             'categories' => [
                 'required',
                 'string',
                 'min:3',
                 'max:255',
-            ]
+            ],
         ];
     }
 }

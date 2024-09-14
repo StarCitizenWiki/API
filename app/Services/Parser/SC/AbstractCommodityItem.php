@@ -91,9 +91,6 @@ abstract class AbstractCommodityItem
 
     /**
      * Tries to remove the leading part of a description containing data
-     *
-     * @param string $description
-     * @return string
      */
     protected function getDescriptionText(string $description): string
     {

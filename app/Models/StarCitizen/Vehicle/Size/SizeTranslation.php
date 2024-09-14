@@ -20,9 +20,6 @@ class SizeTranslation extends Translation
         'translation',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function size(): BelongsTo
     {
         return $this->belongsTo(Size::class, 'size_id');

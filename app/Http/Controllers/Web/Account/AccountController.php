@@ -45,8 +45,6 @@ class AccountController extends Controller
     }
 
     /**
-     * @param Request $request
-     *
      * @return RedirectResponse
      *
      * @throws AuthorizationException
@@ -56,7 +54,7 @@ class AccountController extends Controller
         $this->authorize('web.account.update');
 
         Validator::validate($request->all(), [
-           'language' => 'required|in:en,de'
+            'language' => 'required|in:en,de',
         ]);
 
         Auth::user()->settings()->updateOrCreate(
@@ -66,7 +64,7 @@ class AccountController extends Controller
             [
                 'receive_comm_link_notifications' => $request->has('receive_comm_link_notifications'),
                 'receive_api_notifications' => $request->has('api_notifications'),
-                'language' => $request->get('language')
+                'language' => $request->get('language'),
             ]
         );
 

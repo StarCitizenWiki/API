@@ -62,8 +62,6 @@ class CommLink extends HasTranslations
 
     /**
      * Hide Subscriber Comm-Links from anons
-     *
-     * @return void
      */
     protected static function boot(): void
     {
@@ -72,7 +70,7 @@ class CommLink extends HasTranslations
         static::addGlobalScope(
             'limit_subscriber',
             static function (Builder $builder) {
-                if (!Auth::check()) {
+                if (! Auth::check()) {
                     $builder->whereRelation('channel', 'name', '!=', 'Subscriber');
                 }
             }
@@ -109,8 +107,6 @@ class CommLink extends HasTranslations
 
     /**
      * Channel Model
-     *
-     * @return BelongsTo
      */
     public function channel(): BelongsTo
     {
@@ -119,8 +115,6 @@ class CommLink extends HasTranslations
 
     /**
      * Category Model
-     *
-     * @return BelongsTo
      */
     public function category(): BelongsTo
     {
@@ -129,8 +123,6 @@ class CommLink extends HasTranslations
 
     /**
      * Series Model
-     *
-     * @return BelongsTo
      */
     public function series(): BelongsTo
     {
@@ -139,8 +131,6 @@ class CommLink extends HasTranslations
 
     /**
      * Images Collection
-     *
-     * @return BelongsToMany
      */
     public function images(): BelongsToMany
     {
@@ -149,25 +139,17 @@ class CommLink extends HasTranslations
 
     /**
      * Links Collection
-     *
-     * @return BelongsToMany
      */
     public function links(): BelongsToMany
     {
         return $this->belongsToMany(Link::class, 'comm_link_link', 'comm_link_id', 'comm_link_link_id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function translations(): HasMany
     {
         return $this->hasMany(CommLinkTranslation::class);
     }
 
-    /**
-     * @return HasManyThrough
-     */
     public function translationChangelogs(): HasManyThrough
     {
         return $this->hasManyThrough(

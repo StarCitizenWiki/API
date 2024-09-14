@@ -29,7 +29,7 @@ class AuthRepositoryStub implements AuthRepositoryInterface
      */
     public function getUserFromProvider(Request $request): User
     {
-        return new User();
+        return new User;
     }
 
     /**
@@ -39,7 +39,7 @@ class AuthRepositoryStub implements AuthRepositoryInterface
     {
         $user = User::query()->where('username', 'Local Wiki Admin')->first();
 
-        if (null !== $user) {
+        if ($user !== null) {
             return $user;
         }
 

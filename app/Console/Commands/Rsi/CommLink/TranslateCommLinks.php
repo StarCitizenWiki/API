@@ -28,14 +28,12 @@ class TranslateCommLinks extends CommLinkCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         $this->info('Dispatching Comm-Link Translation');
 
-        $modifiedTime = (int)$this->argument('modifiedTime');
+        $modifiedTime = (int) $this->argument('modifiedTime');
 
         if ($modifiedTime > 0) {
             $this->info("Including Comm-Links that were created in the last '{$modifiedTime}' minutes");
@@ -44,7 +42,6 @@ class TranslateCommLinks extends CommLinkCommand
         }
 
         TranslateCommLinksJob::dispatch($this->filterDirectories('comm_links', $modifiedTime)->toArray());
-        ;
 
         return CommLinkCommand::SUCCESS;
     }

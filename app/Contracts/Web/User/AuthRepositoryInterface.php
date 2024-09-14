@@ -22,28 +22,16 @@ interface AuthRepositoryInterface
 
     /**
      * Returns the User from the OAuth Provider.
-     *
-     * @param Request $request
-     *
-     * @return User
      */
     public function getUserFromProvider(Request $request): User;
 
     /**
      * Returns the associated local user. Creates a new Record if no user has been found for the given provider.
-     *
-     * @param User   $oauthUser
-     * @param string $provider
-     *
-     * @return User
      */
     public function getOrCreateLocalUser(User $oauthUser, string $provider): User;
 
     /**
      * Syncs the given wiki groups to the local record.
-     *
-     * @param User $oauthUser
-     * @param User $user
      */
     public function syncLocalUserGroups(User $oauthUser, User $user): void;
 }

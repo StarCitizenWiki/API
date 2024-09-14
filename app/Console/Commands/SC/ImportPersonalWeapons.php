@@ -24,8 +24,6 @@ class ImportPersonalWeapons extends AbstractQueueCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -33,7 +31,7 @@ class ImportPersonalWeapons extends AbstractQueueCommand
             'sc:import-items',
             [
                 '--skipVehicles',
-                '--type' => 'WeaponPersonal'
+                '--type' => 'WeaponPersonal',
             ]
         );
     }

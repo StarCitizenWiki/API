@@ -17,9 +17,7 @@ use App\Services\UploadWikiImage;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 
 class UploadItemImages extends AbstractQueueCommand
 {

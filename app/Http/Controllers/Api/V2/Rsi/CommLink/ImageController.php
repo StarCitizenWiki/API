@@ -6,21 +6,14 @@ namespace App\Http\Controllers\Api\V2\Rsi\CommLink;
 
 use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
 use App\Http\Filters\ImageTagFilter;
-use App\Http\Requests\AbstractSearchRequest;
 use App\Http\Requests\Rsi\CommLink\Image\ImageSearchRequest;
-use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
-use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ImageController extends AbstractApiV2Controller
 {
@@ -40,14 +33,14 @@ class ImageController extends AbstractApiV2Controller
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/comm_link_image_v2')
                 )
-            )
+            ),
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = QueryBuilder::for(Image::class, $request)
             ->allowedFilters([
-                AllowedFilter::custom('tags', new ImageTagFilter()),
+                AllowedFilter::custom('tags', new ImageTagFilter),
             ])
             ->orderByDesc('id')
             ->paginate($this->limit)
@@ -71,7 +64,7 @@ class ImageController extends AbstractApiV2Controller
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/comm_link_image_v2')
                 )
-            )
+            ),
         ]
     )]
     public function random(Request $request): AnonymousResourceCollection
@@ -103,7 +96,7 @@ class ImageController extends AbstractApiV2Controller
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/comm_link_image_v2')
                 )
-            )
+            ),
         ]
     )]
     public function search(ImageSearchRequest $request): AnonymousResourceCollection
@@ -113,7 +106,7 @@ class ImageController extends AbstractApiV2Controller
                 AllowedFilter::partial('tags', 'tags.name'),
             ])
             ->whereNull('base_image_id')
-            ->whereRaw("LOWER(src) LIKE ?", [sprintf('%%%s%%', strtolower($request->get('query')))])
+            ->whereRaw('LOWER(src) LIKE ?', [sprintf('%%%s%%', strtolower($request->get('query')))])
             ->whereRelation('metadata', 'size', '>', 0)
             ->limit($this->limit)
             ->orderByDesc('created_at')

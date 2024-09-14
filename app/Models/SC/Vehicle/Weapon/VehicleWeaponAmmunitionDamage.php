@@ -25,9 +25,6 @@ class VehicleWeaponAmmunitionDamage extends Model
         'damage' => 'double',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function ammunition(): BelongsTo
     {
         return $this->belongsTo(VehicleWeaponAmmunition::class, 'ammunition_id');

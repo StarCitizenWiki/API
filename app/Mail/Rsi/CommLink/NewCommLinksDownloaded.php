@@ -21,8 +21,6 @@ class NewCommLinksDownloaded extends Mailable
 
     /**
      * Create a new message instance.
-     *
-     * @param Collection $commLinks
      */
     public function __construct(Collection $commLinks)
     {

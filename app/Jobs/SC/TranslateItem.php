@@ -27,8 +27,6 @@ class TranslateItem implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param Item $item
      */
     public function __construct(Item $item)
     {
@@ -37,8 +35,6 @@ class TranslateItem implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -49,8 +45,9 @@ class TranslateItem implements ShouldQueue
         $german = optional($this->item->german())->translation;
 
         // Delete job german and english translation length don't differ in length by <= 20%
-        if (empty($english) || (null !== $german && ((strlen($german) / strlen($english)) > 0.80))) {
+        if (empty($english) || ($german !== null && ((strlen($german) / strlen($english)) > 0.80))) {
             $this->delete();
+
             return;
         }
 
@@ -58,7 +55,7 @@ class TranslateItem implements ShouldQueue
 
         try {
             $translation = $translator->translate(config('services.deepl.target_locale'));
-        } catch (ConnectException | RateLimitedException $e) {
+        } catch (ConnectException|RateLimitedException $e) {
             $this->release(60);
 
             return;

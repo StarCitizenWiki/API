@@ -18,7 +18,7 @@ abstract class AbstractQueueCommand extends Command
     protected $bar;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function info($string, $verbosity = null): void
     {
@@ -30,7 +30,7 @@ abstract class AbstractQueueCommand extends Command
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function error($string, $verbosity = null): void
     {
@@ -44,7 +44,7 @@ abstract class AbstractQueueCommand extends Command
     /**
      * Creates a progressbar if output is not null
      *
-     * @param int $size Progressbar size
+     * @param  int  $size  Progressbar size
      */
     public function createProgressBar(int $size): void
     {

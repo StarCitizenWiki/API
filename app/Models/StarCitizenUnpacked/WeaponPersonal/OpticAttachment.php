@@ -7,7 +7,6 @@ namespace App\Models\StarCitizenUnpacked\WeaponPersonal;
 use App\Models\StarCitizenUnpacked\CommodityItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class OpticAttachment extends CommodityItem
 {

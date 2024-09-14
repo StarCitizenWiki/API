@@ -13,14 +13,12 @@ class SendShipMatrixStructureChangedNotification
 {
     /**
      * Handle the event.
-     *
-     * @return void
      */
     public function handle(): void
     {
         /** @var Collection $admins */
         $admins = User::query()->whereNotNull('email')->whereHas('adminGroup')->get();
 
-        Notification::send($admins, new ShipMatrixStructureChangedNotification());
+        Notification::send($admins, new ShipMatrixStructureChangedNotification);
     }
 }

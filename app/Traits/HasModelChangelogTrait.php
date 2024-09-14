@@ -14,8 +14,6 @@ trait HasModelChangelogTrait
 {
     /**
      * Changelogs
-     *
-     * @return MorphMany
      */
     public function changelogs(): MorphMany
     {

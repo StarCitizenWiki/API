@@ -27,8 +27,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startCommLinkWikiPageCreationJob(): RedirectResponse
@@ -49,7 +47,6 @@ class JobController extends Controller
     /**
      * Update Comm-Link Proofread Status
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */
@@ -57,7 +54,7 @@ class JobController extends Controller
     {
         $this->authorize('web.jobs.start_proofread_update');
 
-        $this->dispatch(new UpdateCommLinkProofReadStatus());
+        $this->dispatch(new UpdateCommLinkProofReadStatus);
 
         return redirect()->route(self::DASHBOARD_ROUTE)->withMessages(
             [

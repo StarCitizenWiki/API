@@ -22,21 +22,19 @@ use RuntimeException;
 class ImportShipMatrix implements ShouldQueue
 {
     use Dispatchable;
+    use GetNewestShipMatrixFilename;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetNewestShipMatrixFilename;
 
     private ?string $shipMatrixFileName = null;
 
     /**
      * Create a new job instance.
-     *
-     * @param null|string $shipMatrixFileName
      */
     public function __construct(?string $shipMatrixFileName = null)
     {
-        if (null !== $shipMatrixFileName) {
+        if ($shipMatrixFileName !== null) {
             $this->shipMatrixFileName = $shipMatrixFileName;
         } else {
             try {
@@ -49,8 +47,6 @@ class ImportShipMatrix implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -59,7 +55,7 @@ class ImportShipMatrix implements ShouldQueue
         try {
             $content = Storage::disk('vehicles')->get($this->shipMatrixFileName ?? 'HowCanThisBeNull??');
             if ($content === null) {
-                throw new FileNotFoundException();
+                throw new FileNotFoundException;
             }
 
             $vehicles = json_decode(
@@ -77,6 +73,7 @@ class ImportShipMatrix implements ShouldQueue
             );
 
             $this->fail($e);
+
             return;
         } catch (JsonException $e) {
             app('Log')::error(
@@ -87,6 +84,7 @@ class ImportShipMatrix implements ShouldQueue
             );
 
             $this->delete();
+
             return;
         }
 

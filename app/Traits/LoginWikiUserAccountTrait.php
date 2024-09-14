@@ -19,7 +19,7 @@ trait LoginWikiUserAccountTrait
      */
     private function loginWikiUserAccount(): void
     {
-        if (!Session::has(config('mediawiki.driver.session.token'))) {
+        if (! Session::has(config('mediawiki.driver.session.token'))) {
             throw new RuntimeException('Session has no user data');
         }
 

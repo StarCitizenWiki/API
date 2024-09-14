@@ -9,11 +9,6 @@ use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 class CharArmorAttachmentTransformer extends AbstractTranslationTransformer
 {
-    /**
-     * @param CharArmorAttachment $mode
-     *
-     * @return array
-     */
     public function transform(CharArmorAttachment $mode): array
     {
         return [

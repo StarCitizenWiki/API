@@ -26,11 +26,8 @@ class ImportShipMatrix extends Command
      */
     protected $description = 'Import the newest downloaded ship matrix file into the database';
 
-
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {

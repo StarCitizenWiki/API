@@ -68,7 +68,7 @@ class ShopItem extends Pivot
     ];
 
     protected $with = [
-        'rental'
+        'rental',
     ];
 
     public function getOffsettedPriceAttribute()

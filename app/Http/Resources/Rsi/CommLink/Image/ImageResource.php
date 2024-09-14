@@ -33,7 +33,6 @@ class ImageResource extends AbstractBaseResource
      * Transform the resource into an array.
      *
      * @param  Request  $request
-     * @return array
      */
     public function toArray($request): array
     {
@@ -45,9 +44,9 @@ class ImageResource extends AbstractBaseResource
             'mime_type' => $this->metadata->mime,
             'last_modified' => $this->metadata->last_modified,
             $this->mergeWhen($this->whenLoaded('tags'), [
-                'tags' => $this->tags->map(fn ($tag) => $tag->translated_name)
+                'tags' => $this->tags->map(fn ($tag) => $tag->translated_name),
             ]),
-            'similar_url' => $this->makeApiUrl(static::COMM_LINK_IMAGES_SIMILAR, $this->getRouteKey() . '/similar')
+            'similar_url' => $this->makeApiUrl(static::COMM_LINK_IMAGES_SIMILAR, $this->getRouteKey().'/similar'),
         ];
     }
 }

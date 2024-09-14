@@ -27,7 +27,6 @@ class StarsystemController extends AbstractApiV2Controller
         return StarsystemResource::collection($query);
     }
 
-
     public function show(Request $request): StarsystemResource
     {
         ['code' => $code] = Validator::validate(
@@ -56,10 +55,9 @@ class StarsystemController extends AbstractApiV2Controller
         return new StarsystemResource($starsystem);
     }
 
-
     public function search(Request $request): AnonymousResourceCollection
     {
-        $rules = (new StarsystemRequest())->rules();
+        $rules = (new StarsystemRequest)->rules();
         $request->validate($rules);
 
         $query = $this->cleanQueryName($request->get('query'));

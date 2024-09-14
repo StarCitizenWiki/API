@@ -14,10 +14,8 @@ trait GetFoldersTrait
     /**
      * Filter folders that where created in the last X minutes on a given disk
      *
-     * @param string $disk The disk name to filter
-     * @param int $findTimeMinutes Include directories created in the last X minutes or all if -1
-     *
-     * @return Collection
+     * @param  string  $disk  The disk name to filter
+     * @param  int  $findTimeMinutes  Include directories created in the last X minutes or all if -1
      */
     private function filterDirectories(string $disk, int $findTimeMinutes): Collection
     {

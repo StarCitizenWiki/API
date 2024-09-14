@@ -59,11 +59,6 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
         'subtype',
     ];
 
-    /**
-     * @param CelestialObject $celestialObject
-     *
-     * @return array
-     */
     public function transform(CelestialObject $celestialObject): array
     {
         return [
@@ -109,34 +104,22 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
 
     /**
      * Celestial Object affiliation, included by default
-     *
-     * @param CelestialObject $celestialObject
-     *
-     * @return Collection
      */
     public function includeAffiliation(CelestialObject $celestialObject): Collection
     {
-        return $this->collection($celestialObject->affiliation, new AffiliationTransformer(), 'affiliation');
+        return $this->collection($celestialObject->affiliation, new AffiliationTransformer, 'affiliation');
     }
 
     /**
      * Celestial object subtype, included by default
-     *
-     * @param CelestialObject $celestialObject
-     *
-     * @return Item
      */
     public function includeSubtype(CelestialObject $celestialObject): Item
     {
-        return $this->item($celestialObject->subtype, new SubtypeTransformer(), 'subtype');
+        return $this->item($celestialObject->subtype, new SubtypeTransformer, 'subtype');
     }
 
     /**
      * The objects star system
-     *
-     * @param CelestialObject $celestialObject
-     *
-     * @return Item
      */
     public function includeStarsystem(CelestialObject $celestialObject): Item
     {
@@ -148,14 +131,12 @@ class CelestialObjectTransformer extends AbstractTranslationTransformer
     }
 
     /**
-     * @param CelestialObject $celestialObject
-     *
      * @return Item|void
      */
     public function includeJumppoint(CelestialObject $celestialObject)
     {
         if ($celestialObject->jumppoint() !== null) {
-            return $this->item($celestialObject->jumppoint(), new JumppointTransformer());
+            return $this->item($celestialObject->jumppoint(), new JumppointTransformer);
         }
     }
 }

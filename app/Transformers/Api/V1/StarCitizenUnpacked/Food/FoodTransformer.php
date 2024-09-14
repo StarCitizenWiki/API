@@ -10,14 +10,9 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 class FoodTransformer extends AbstractCommodityTransformer
 {
     protected array $availableIncludes = [
-        'shops'
+        'shops',
     ];
 
-    /**
-     * @param Food $food
-     *
-     * @return array
-     */
     public function transform(Food $food): array
     {
         $this->missingTranslations = [];

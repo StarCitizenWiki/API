@@ -19,7 +19,6 @@ class UserPolicy extends BaseAdminPolicy
     /**
      * Admin Index
      *
-     * @param \App\Models\Account\User\User $user
      *
      * @return bool
      */
@@ -31,7 +30,6 @@ class UserPolicy extends BaseAdminPolicy
     /**
      * Admin Update
      *
-     * @param \App\Models\Account\User\User $user
      *
      * @return bool
      */
@@ -43,7 +41,6 @@ class UserPolicy extends BaseAdminPolicy
     /**
      * Admin delete
      *
-     * @param \App\Models\Account\User\User $user
      *
      * @return bool
      */

@@ -21,11 +21,6 @@ use OpenApi\Attributes as OA;
 )]
 class StarsystemLinkTransformer extends V1Transformer
 {
-    /**
-     * @param Starsystem $starsystem
-     *
-     * @return array
-     */
     public function transform(Starsystem $starsystem): array
     {
         return [

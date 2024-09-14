@@ -25,9 +25,6 @@ class Image extends BaseElement
      */
     private const POST_BACKGROUND = '#post-background';
 
-    /**
-     * @var Crawler
-     */
     private Crawler $commLink;
 
     /**
@@ -37,8 +34,6 @@ class Image extends BaseElement
 
     /**
      * Image constructor.
-     *
-     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {
@@ -60,7 +55,7 @@ class Image extends BaseElement
             static function ($image) {
                 $host = parse_url($image['src'], PHP_URL_HOST);
 
-                return null === $host || in_array($host, self::RSI_DOMAINS, true);
+                return $host === null || in_array($host, self::RSI_DOMAINS, true);
             }
         )
             ->filter(
@@ -123,7 +118,7 @@ class Image extends BaseElement
             function (Crawler $crawler) {
                 $src = $crawler->attr('src');
 
-                if (null !== $src && !empty($src)) {
+                if ($src !== null && ! empty($src)) {
                     $this->images[] = [
                         'src' => trim($src),
                         'alt' => $crawler->attr('alt') ?? '',
@@ -176,7 +171,7 @@ class Image extends BaseElement
                 ->each(
                     function (Crawler $crawler) use ($path, $attr) {
                         $attributes = $attr;
-                        if (!is_array($attributes)) {
+                        if (! is_array($attributes)) {
                             $attributes = [$attr];
                         }
 
@@ -198,7 +193,7 @@ class Image extends BaseElement
                                 }
                             }
 
-                            if (!is_array($images)) {
+                            if (! is_array($images)) {
                                 $images = [$images];
                             }
 
@@ -224,7 +219,7 @@ class Image extends BaseElement
                                     ];
                                 }
 
-                                if (!empty($data) && $data['src'] !== null) {
+                                if (! empty($data) && $data['src'] !== null) {
                                     $this->images[] = $data;
                                 }
                             }
@@ -240,12 +235,12 @@ class Image extends BaseElement
             $background = $this->commLink->filter(self::POST_BACKGROUND);
             $src = $background->attr('style');
 
-            if (null !== $src && !empty($src)) {
+            if ($src !== null && ! empty($src)) {
                 if (preg_match('/(\/media\/.*\.\w+)/', $src, $src)) {
                     $src = $src[1];
                 }
 
-                if (!empty($src)) {
+                if (! empty($src)) {
                     $this->images[] = [
                         'src' => trim($src),
                         'alt' => self::POST_BACKGROUND,
@@ -324,13 +319,10 @@ class Image extends BaseElement
 
     /**
      * Adds all found image matches
-     *
-     * @param array $matches
-     * @param string $alt
      */
     private function addImages(array $matches, string $alt = ''): void
     {
-        if (!empty($matches[1])) {
+        if (! empty($matches[1])) {
             collect($matches[1])->each(
                 function ($src) use ($alt) {
                     $this->images[] = [
@@ -345,9 +337,7 @@ class Image extends BaseElement
     /**
      * Cleans the IMG SRC.
      *
-     * @param string $src IMG SRC
-     *
-     * @return string
+     * @param  string  $src  IMG SRC
      */
     public static function cleanImgSource(string $src): string
     {
@@ -373,10 +363,6 @@ class Image extends BaseElement
 
     /**
      * Try to get Original RSI Hash.
-     *
-     * @param string $src
-     *
-     * @return string|null
      */
     public static function getDirHash(string $src): ?string
     {

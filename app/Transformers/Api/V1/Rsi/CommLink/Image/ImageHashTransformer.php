@@ -18,11 +18,6 @@ class ImageHashTransformer extends ImageTransformer
         'commLinks',
     ];
 
-    /**
-     * @param Image $image
-     *
-     * @return array
-     */
     public function transform(Image $image): array
     {
         $data = parent::transform($image);
@@ -34,15 +29,10 @@ class ImageHashTransformer extends ImageTransformer
         return $data;
     }
 
-    /**
-     * @param Image $image
-     *
-     * @return Collection
-     */
     public function includeCommLinks(Image $image): Collection
     {
         $links = $image->commLinks;
 
-        return $this->collection($links, new CommLinkLinkTransformer());
+        return $this->collection($links, new CommLinkLinkTransformer);
     }
 }

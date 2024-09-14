@@ -17,7 +17,7 @@ class UserSetting extends Model
         'receive_comm_link_notifications',
         'receive_api_notifications',
         'no_api_throttle',
-        'language'
+        'language',
     ];
 
     protected $casts = [
@@ -28,33 +28,22 @@ class UserSetting extends Model
 
     /**
      * The associated Admin
-     *
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @param Builder $query
-     */
     public function scopeReceiveApiNotifications(Builder $query): void
     {
         $query->where('receive_api_notifications', true);
     }
 
-    /**
-     * @param Builder $query
-     */
     public function scopeReceiveCommLinkNotifications(Builder $query): void
     {
         $query->where('receive_comm_link_notifications', true);
     }
 
-    /**
-     * @return bool
-     */
     public function isUnthrottled(): bool
     {
         return $this->no_api_throttle ?? false;

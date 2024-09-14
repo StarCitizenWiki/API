@@ -21,9 +21,6 @@ class ProductionNote extends HasTranslations
         'translations',
     ];
 
-    /**
-     * @return HasMany
-     */
     public function translations(): HasMany
     {
         return $this->hasMany(ProductionNoteTranslation::class);

@@ -14,9 +14,7 @@ abstract class AbstractBaseUserPolicy
     /**
      * Don't allow Access if Account is blocked
      *
-     * @param User  $user
-     * @param mixed $ability
-     *
+     * @param  mixed  $ability
      * @return bool
      */
     public function before(User $user, $ability)

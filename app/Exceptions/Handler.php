@@ -40,9 +40,7 @@ class Handler extends ExceptionHandler
      * Report or log an exception.
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param Throwable $exception The thrown Exception
-     *
-     * @return void
+     * @param  Throwable  $exception  The thrown Exception
      *
      * @throws Exception|Throwable
      */
@@ -54,9 +52,8 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param \Illuminate\Http\Request $request   The HTTP Request
-     * @param Throwable               $exception The Exception to render
-     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP Request
+     * @param  Throwable  $exception  The Exception to render
      * @return \Illuminate\Http\Response | \Symfony\Component\HttpFoundation\Response
      */
     public function render($request, Throwable $exception)
@@ -71,9 +68,8 @@ class Handler extends ExceptionHandler
     /**
      * Convert an authentication exception into an unauthenticated response.
      *
-     * @param \Illuminate\Http\Request                 $request   The HTTP Request
-     * @param \Illuminate\Auth\AuthenticationException $exception The Auth Exception
-     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP Request
+     * @param  \Illuminate\Auth\AuthenticationException  $exception  The Auth Exception
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception)
@@ -86,9 +82,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return bool
+     * @param  \Illuminate\Http\Request  $request
      */
     protected function wantsJson($request): bool
     {
@@ -97,9 +91,6 @@ class Handler extends ExceptionHandler
 
     /**
      * Get the status code from the exception.
-     *
-     * @param Throwable $exception
-     * @return int
      */
     protected function getStatusCode(Throwable $exception): int
     {

@@ -11,7 +11,6 @@ use App\Http\Resources\SC\Manufacturer\ManufacturerLinkResource;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
-
 #[OA\Schema(
     schema: 'hardpoint_item_v2',
     title: 'Hardpoint Item',

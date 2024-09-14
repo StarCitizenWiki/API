@@ -25,18 +25,13 @@ class ImportStats extends Command
      *
      * @var string
      */
-    protected $description = 'Import the newest downloaded funding statistics file into the database. ' .
-    'WARNING: Creates a new database record based on the latest downloaded file, can create DUPLICATE records';
+    protected $description = 'Import the newest downloaded funding statistics file into the database. '.
+        'WARNING: Creates a new database record based on the latest downloaded file, can create DUPLICATE records';
 
-    /**
-     * @var Dispatcher
-     */
     private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
-     *
-     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -47,13 +42,11 @@ class ImportStats extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         $this->info('Starting funding statistics import');
-        $this->dispatcher->dispatch(new ImportStat());
+        $this->dispatcher->dispatch(new ImportStat);
 
         return 0;
     }

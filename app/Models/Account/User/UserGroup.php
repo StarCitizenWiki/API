@@ -50,9 +50,6 @@ class UserGroup extends Model
         'permission_level',
     ];
 
-    /**
-     * @return BelongsToMany
-     */
     public function admins(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
@@ -60,8 +57,6 @@ class UserGroup extends Model
 
     /**
      * Scope that Targets only Admins
-     *
-     * @param Builder $query
      */
     public function scopeAdmin(Builder $query): void
     {

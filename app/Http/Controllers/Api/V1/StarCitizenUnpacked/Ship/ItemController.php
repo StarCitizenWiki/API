@@ -33,9 +33,6 @@ class ItemController extends ApiController
 
     /**
      * ShipController constructor.
-     *
-     * @param ShipItemTransformer $transformer
-     * @param Request $request
      */
     public function __construct(ShipItemTransformer $transformer, Request $request)
     {
@@ -46,8 +43,6 @@ class ItemController extends ApiController
 
     /**
      * View all items
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -57,8 +52,6 @@ class ItemController extends ApiController
     /**
      * View a singular item
      *
-     * @param Request $request
-     * @return Response
      * @throws ValidationException
      */
     public function show(Request $request): Response
@@ -92,13 +85,10 @@ class ItemController extends ApiController
 
     /**
      * View a singular item
-     *
-     * @param ItemSearchRequest $request
-     * @return Response
      */
     public function search(ItemSearchRequest $request): Response
     {
-        $rules = (new ItemSearchRequest())->rules();
+        $rules = (new ItemSearchRequest)->rules();
         $request->validate($rules);
 
         $query = $this->cleanQueryName($request->get('query'));

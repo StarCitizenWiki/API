@@ -55,6 +55,4 @@ use OpenApi\Attributes as OA;
     ]
 )]
 
-class PersonalWeaponAttachmentResource extends AbstractBaseResource
-{
-}
+class PersonalWeaponAttachmentResource extends AbstractBaseResource {}

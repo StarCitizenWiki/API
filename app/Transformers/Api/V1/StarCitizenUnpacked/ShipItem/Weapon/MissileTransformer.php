@@ -14,10 +14,6 @@ class MissileTransformer extends TransformerAbstract
         'damages',
     ];
 
-    /**
-     * @param Missile $missile
-     * @return array
-     */
     public function transform(Missile $missile): array
     {
         return [
@@ -29,6 +25,6 @@ class MissileTransformer extends TransformerAbstract
 
     public function includeDamages(Missile $missile): Collection
     {
-        return $this->collection($missile->damages, new MissileDamageTransformer());
+        return $this->collection($missile->damages, new MissileDamageTransformer);
     }
 }

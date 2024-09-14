@@ -11,9 +11,6 @@ trait GIntroductionExtractorTrait
 {
     /**
      * Extract <g-introduction> content
-     *
-     * @param Crawler $page
-     * @return string
      */
     public function getIntroduction(Crawler $page): string
     {
@@ -33,13 +30,13 @@ trait GIntroductionExtractorTrait
                 }
 
                 $out = [];
-                if (isset($info['title']) && !empty($info['title'])) {
+                if (isset($info['title']) && ! empty($info['title'])) {
                     $out[] = sprintf('<h1>%s</h1>', $info['title']);
                 }
-                if (isset($info['subtitle']) && !empty($info['subtitle'])) {
+                if (isset($info['subtitle']) && ! empty($info['subtitle'])) {
                     $out[] = sprintf('<h2>%s</h2>', $info['subtitle']);
                 }
-                if (isset($info['contents']) && !empty($info['contents'])) {
+                if (isset($info['contents']) && ! empty($info['contents'])) {
                     $out[] = collect($info['contents'])->implode("\n");
                 }
 

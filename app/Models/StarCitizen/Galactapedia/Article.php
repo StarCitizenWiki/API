@@ -45,10 +45,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
 
     private static array $ticks = ['’', '´', '‘', '’', '’', '’', '\'', '’', '’', 'ˈ', '`', '´'];
 
-    /**
-     * @param string $translation
-     * @return string
-     */
     public static function normalizeContent(string $translation): string
     {
         $translation = preg_replace(
@@ -64,24 +60,18 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         $translation = str_replace(['“', '”'], '"', $translation);
         $translation = str_replace(self::$ticks, '\'', $translation);
 
-        if (!Normalizer::isNormalized($translation)) {
+        if (! Normalizer::isNormalized($translation)) {
             $translation = Normalizer::normalize($translation);
         }
 
         return trim($translation);
     }
 
-    /**
-     * @return string
-     */
     public function getRouteKey(): string
     {
         return $this->cig_id ?? '';
     }
 
-    /**
-     * @return string
-     */
     public function getCleanTitleAttribute(): string
     {
         return self::normalizeContent($this->title);
@@ -89,8 +79,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
 
     /**
      * Creates a link to the rsi galactapedia
-     *
-     * @return string
      */
     public function getUrlAttribute(): string
     {
@@ -122,9 +110,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         return self::query()->where('id', '>', $this->id)->orderBy('id')->first(['cig_id']);
     }
 
-    /**
-     * @return HasMany
-     */
     public function translations(): HasMany
     {
         return $this->hasMany(ArticleTranslation::class);
@@ -132,8 +117,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
 
     /**
      * Categories of the article
-     *
-     * @return BelongsToMany
      */
     public function categories(): BelongsToMany
     {
@@ -147,8 +130,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
 
     /**
      * Tags of the article
-     *
-     * @return BelongsToMany
      */
     public function tags(): BelongsToMany
     {
@@ -162,8 +143,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
 
     /**
      * Article properties
-     *
-     * @return HasMany
      */
     public function properties(): HasMany
     {
@@ -174,8 +153,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
 
     /**
      * Related articles
-     *
-     * @return BelongsToMany
      */
     public function related(): BelongsToMany
     {
@@ -189,8 +166,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
 
     /**
      * GraphQL Templates associated with this article
-     *
-     * @return BelongsToMany
      */
     public function templates(): BelongsToMany
     {
@@ -202,9 +177,6 @@ class Article extends AbstractHasTranslations implements HasChangelogsInterface
         );
     }
 
-    /**
-     * @return HasManyThrough
-     */
     public function translationChangelogs(): HasManyThrough
     {
         return $this->hasManyThrough(

@@ -25,25 +25,16 @@ abstract class AbstractHasTranslations extends Model
      */
     abstract public function translations();
 
-    /**
-     * @return Model|null
-     */
     public function english(): ?Model
     {
         return $this->translations->keyBy(self::LOCALE_CODE)->get(Language::ENGLISH, null);
     }
 
-    /**
-     * @return Model|null
-     */
     public function german(): ?Model
     {
         return $this->translations->keyBy(self::LOCALE_CODE)->get(Language::GERMAN, null);
     }
 
-    /**
-     * @return Model|null
-     */
     public function chinese(): ?Model
     {
         return $this->translations->keyBy(self::LOCALE_CODE)->get(Language::CHINESE, null);
@@ -56,8 +47,6 @@ abstract class AbstractHasTranslations extends Model
 
     /**
      * Translations Right Joined with Languages.
-     *
-     * @return Collection
      */
     public function translationsCollection(): Collection
     {

@@ -9,11 +9,6 @@ use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 class WeaponPersonalAttachmentPortsTransformer extends AbstractTranslationTransformer
 {
-    /**
-     * @param WeaponPersonalAttachmentPort $port
-     *
-     * @return array
-     */
     public function transform(WeaponPersonalAttachmentPort $port): array
     {
         return [

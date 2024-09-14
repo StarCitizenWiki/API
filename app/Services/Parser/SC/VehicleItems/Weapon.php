@@ -10,7 +10,7 @@ final class Weapon extends AbstractItemSpecification
 {
     public static function getData(Collection $item): ?array
     {
-        if (!isset($item['Weapon'])) {
+        if (! isset($item['Weapon'])) {
             return null;
         }
 
@@ -44,7 +44,7 @@ final class Weapon extends AbstractItemSpecification
 
     private static function buildModesPart($weapon): array
     {
-        if (!isset($weapon['Weapon']['Modes'])) {
+        if (! isset($weapon['Weapon']['Modes'])) {
             return [];
         }
 

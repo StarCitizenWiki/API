@@ -15,22 +15,15 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 class Content extends BaseElement
 {
-    /**
-     * @var Crawler
-     */
     private Crawler $commLink;
 
     /**
      * Remove node closure
-     *
-     * @var Closure
      */
     private Closure $removeNode;
 
     /**
      * Content constructor.
-     *
-     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {
@@ -49,7 +42,6 @@ class Content extends BaseElement
     /**
      * Tries to extract the Comm-Link Content as Text
      *
-     * @return string
      *
      * @throws InvalidArgumentException
      */
@@ -62,10 +54,6 @@ class Content extends BaseElement
 
     /**
      * Removes some Tags, converts newlines to br
-     *
-     * @param string $content
-     *
-     * @return string
      */
     private function cleanContent(string $content): string
     {
@@ -73,7 +61,7 @@ class Content extends BaseElement
 
         // Replace non-breaking spaces with normal ones
         $content = str_replace(' ', ' ', $content);
-        $content = (string)str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
+        $content = (string) str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
 
         // Remove empty p Tags
         $content = preg_replace('/<p>\s*?<\/p>/m', '', $content);
@@ -91,16 +79,16 @@ class Content extends BaseElement
         $content = preg_replace('/<\/h([1-6])>/m', "</h$1>\n", $content);
 
         // Add New Lines to ending p tags
-        $content = (string)str_replace('</p>', "</p>\n\n", $content);
+        $content = (string) str_replace('</p>', "</p>\n\n", $content);
 
         // Replace multiple br with one
         $content = preg_replace("/(?:<br>\n?){2,}+/m", '<br>', $content);
 
         // Replace br with new line
-        $content = (string)str_replace('<br>', "\n", $content);
+        $content = (string) str_replace('<br>', "\n", $content);
 
         // Replace li with new line
-        $content = (string)str_replace('</li>', "</li>\n\n", $content);
+        $content = (string) str_replace('</li>', "</li>\n\n", $content);
 
         // Remove all tags
         $content = strip_tags($content);
@@ -119,14 +107,10 @@ class Content extends BaseElement
 
     /**
      * Removes problematic HTML Elements
-     *
-     * @param string $html
-     *
-     * @return string
      */
     private function removeElements(string $html): string
     {
-        $crawler = new Crawler();
+        $crawler = new Crawler;
         $crawler->addHtmlContent($html);
 
         $crawler = $this->removeScriptStyleElements($crawler);
@@ -141,10 +125,6 @@ class Content extends BaseElement
 
     /**
      * Removes all script and style Elements
-     *
-     * @param Crawler $crawler
-     *
-     * @return Crawler
      */
     private function removeScriptStyleElements(Crawler $crawler): Crawler
     {
@@ -164,10 +144,6 @@ class Content extends BaseElement
 
     /**
      * Removes Store Sections from Special Ship Pages
-     *
-     * @param Crawler $crawler
-     *
-     * @return Crawler
      */
     private function removeStoreSections(Crawler $crawler): Crawler
     {
@@ -187,10 +163,6 @@ class Content extends BaseElement
 
     /**
      * Removes Annotation Elements
-     *
-     * @param Crawler $crawler
-     *
-     * @return Crawler
      */
     private function removeSupElements(Crawler $crawler): Crawler
     {
@@ -201,10 +173,6 @@ class Content extends BaseElement
 
     /**
      * Removes the Comment container
-     *
-     * @param Crawler $crawler
-     *
-     * @return Crawler
      */
     private function removeCommentsContainer(Crawler $crawler): Crawler
     {
@@ -215,10 +183,6 @@ class Content extends BaseElement
 
     /**
      * Remove Audio/Video Elements
-     *
-     * @param Crawler $crawler
-     *
-     * @return Crawler
      */
     private function removeAudioVideoElements(Crawler $crawler): Crawler
     {
@@ -234,10 +198,6 @@ class Content extends BaseElement
     /**
      * Remove Common Comm-Link Elements
      * .clearfix, .cboth (clear both), image links, .centerimage, hr, c-slider
-     *
-     * @param Crawler $crawler
-     *
-     * @return Crawler
      */
     private function removeCommonElements(Crawler $crawler): Crawler
     {

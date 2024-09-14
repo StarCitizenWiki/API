@@ -29,15 +29,10 @@ class TranslateTranscript implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * @var Transcript
-     */
     private Transcript $transcript;
 
     /**
      * Create a new job instance.
-     *
-     * @param Transcript $transcript
      */
     public function __construct(Transcript $transcript)
     {
@@ -49,7 +44,7 @@ class TranslateTranscript implements ShouldQueue
      */
     public function handle(): void
     {
-        if (null === $this->transcript->english()) {
+        if ($this->transcript->english() === null) {
             return;
         }
 
@@ -83,7 +78,7 @@ class TranslateTranscript implements ShouldQueue
             app('Log')::warning($e->getMessage());
 
             return;
-        } catch (CallException | AuthenticationException | InvalidArgumentException $e) {
+        } catch (CallException|AuthenticationException|InvalidArgumentException $e) {
             app('Log')::warning(sprintf('%s: %s', 'Translation failed with Message', $e->getMessage()));
 
             $this->fail($e);

@@ -36,8 +36,6 @@ class Jumppoint extends Model
 
     /**
      * Jump point entry object
-     *
-     * @return BelongsTo
      */
     public function entry(): BelongsTo
     {
@@ -46,8 +44,6 @@ class Jumppoint extends Model
 
     /**
      * Jump point exit object
-     *
-     * @return BelongsTo
      */
     public function exit(): BelongsTo
     {

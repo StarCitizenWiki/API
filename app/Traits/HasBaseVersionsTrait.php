@@ -44,13 +44,11 @@ trait HasBaseVersionsTrait
     /**
      * Tries to find the base model of this item
      * Removes the color string from the name and searches all armors
-     *
-     * @return self|null
      */
     public function getBaseModelAttribute(): ?self
     {
         foreach (self::$splits as $split) {
-            if (!Str::contains($this->item->name, $split)) {
+            if (! Str::contains($this->item->name, $split)) {
                 continue;
             }
 

@@ -12,7 +12,7 @@ final class PowerPlant extends AbstractItemSpecification
     {
         $attachDef = self::getAttachDef($item);
 
-        if ($attachDef === null || (!isset($attachDef['Type']) && $attachDef['Type'] !== 'PowerPlant')) {
+        if ($attachDef === null || (! isset($attachDef['Type']) && $attachDef['Type'] !== 'PowerPlant')) {
             return null;
         }
 

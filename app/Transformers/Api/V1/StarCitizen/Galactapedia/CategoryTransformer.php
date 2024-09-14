@@ -20,11 +20,6 @@ use OpenApi\Attributes as OA;
 )]
 class CategoryTransformer extends V1Transformer
 {
-    /**
-     * @param Category $category
-     *
-     * @return array
-     */
     public function transform(Category $category): array
     {
         return [

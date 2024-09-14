@@ -19,9 +19,6 @@ class ManufacturerTranslation extends Translation
         'description',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function manufacturer(): BelongsTo
     {
         return $this->belongsTo(Manufacturer::class);

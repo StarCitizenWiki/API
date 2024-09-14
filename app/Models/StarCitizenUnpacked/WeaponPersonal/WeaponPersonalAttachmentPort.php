@@ -27,9 +27,6 @@ class WeaponPersonalAttachmentPort extends Model
         'max_size' => 'int',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function weapon(): BelongsTo
     {
         return $this->belongsTo(WeaponPersonal::class, 'weapon_id');

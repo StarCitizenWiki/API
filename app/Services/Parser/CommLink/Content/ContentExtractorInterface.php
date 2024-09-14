@@ -11,7 +11,7 @@ interface ContentExtractorInterface
     /**
      * ContentParserInterface constructor.
      *
-     * @param Crawler $page The page to parse
+     * @param  Crawler  $page  The page to parse
      */
     public function __construct(Crawler $page);
 
@@ -29,7 +29,6 @@ interface ContentExtractorInterface
      * Check if a parser can parse the page
      * Usually checks if the element filter exists in the page.
      *
-     * @param Crawler $page
      * @return array Two element array containing a bool on position 0 and the number of matched elements on position 1
      */
     public static function canParse(Crawler $page): array;

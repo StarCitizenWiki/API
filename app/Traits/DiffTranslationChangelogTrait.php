@@ -14,10 +14,6 @@ trait DiffTranslationChangelogTrait
 {
     /**
      * Modifies a collection of changelogs to include diffed texts of changed translations
-     *
-     * @param Collection $collection
-     * @param Model $model
-     * @return Collection
      */
     protected function diffTranslations(Collection $collection, Model $model): Collection
     {
@@ -25,7 +21,7 @@ trait DiffTranslationChangelogTrait
 
         $collection->each(
             static function (ModelChangelog $changelog) use ($model) {
-                if (!isset($changelog->changelog['changes']['translation'])) {
+                if (! isset($changelog->changelog['changes']['translation'])) {
                     return;
                 }
 

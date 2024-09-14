@@ -34,15 +34,10 @@ class DownloadCommLink extends CommLinkCommand
      */
     protected $description = 'Download Comm-Links with given IDs';
 
-    /**
-     * @var Dispatcher
-     */
     private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
-     *
-     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -53,8 +48,6 @@ class DownloadCommLink extends CommLinkCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -65,7 +58,7 @@ class DownloadCommLink extends CommLinkCommand
         )
             ->filter(
                 static function ($id) {
-                    return (int)$id >= self::FIRST_COMM_LINK_ID;
+                    return (int) $id >= self::FIRST_COMM_LINK_ID;
                 }
             )
             ->tap(
@@ -103,7 +96,7 @@ class DownloadCommLink extends CommLinkCommand
     {
         $this->info("\nImporting Comm-Links");
         $this->dispatcher->dispatch(new ImportCommLinks(30));
-        $this->dispatcher->dispatch(new CreateImageMetadata());
-        $this->dispatcher->dispatch(new CreateImageHashes());
+        $this->dispatcher->dispatch(new CreateImageMetadata);
+        $this->dispatcher->dispatch(new CreateImageHashes);
     }
 }

@@ -26,15 +26,10 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * @var Image
-     */
     private Image $image;
 
     /**
      * Create a new job instance.
-     *
-     * @param Image $image
      */
     public function __construct(Image $image)
     {
@@ -43,8 +38,6 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -100,9 +93,6 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
         );
     }
 
-    /**
-     * @return string
-     */
     private function generateLocalDirName(): string
     {
         try {
@@ -114,9 +104,6 @@ class DownloadCommLinkImage extends BaseDownloadData implements ShouldQueue
 
     /**
      * Writes the image data to file
-     *
-     * @param string $data
-     * @param string $folder
      */
     private function writeImage(string $data, string $folder): void
     {

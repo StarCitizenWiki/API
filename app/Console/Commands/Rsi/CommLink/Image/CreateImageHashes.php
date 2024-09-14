@@ -28,8 +28,6 @@ class CreateImageHashes extends QueueCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -59,8 +57,6 @@ class CreateImageHashes extends QueueCommand
     /**
      * The images to create hashes for
      * Image needs to have an attached comm link and metadata
-     *
-     * @return Builder
      */
     private function getImages(): Builder
     {

@@ -15,9 +15,6 @@ class StatController extends ApiController
 {
     /**
      * StatsAPIController constructor.
-     *
-     * @param Request         $request
-     * @param StatTransformer $transformer
      */
     public function __construct(Request $request, StatTransformer $transformer)
     {
@@ -33,7 +30,7 @@ class StatController extends ApiController
                 ref: '#/components/schemas/stat',
                 response: 200,
                 description: 'List of stats'
-            )
+            ),
         ]
     )]
     public function latest(): Response
@@ -58,7 +55,7 @@ class StatController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/stat')
                 )
-            )
+            ),
         ]
     )]
     public function index(): Response

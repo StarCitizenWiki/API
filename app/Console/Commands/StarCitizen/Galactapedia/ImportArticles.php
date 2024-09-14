@@ -24,12 +24,11 @@ class ImportArticles extends AbstractQueueCommand
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         \App\Jobs\StarCitizen\Galactapedia\ImportArticles::dispatch();
+
         return 0;
     }
 }

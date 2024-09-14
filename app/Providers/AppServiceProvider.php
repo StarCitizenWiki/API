@@ -6,9 +6,7 @@ namespace App\Providers;
 
 use Carbon\Carbon;
 use FilesystemIterator;
-use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -32,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrap();
         Carbon::setLocale(config('app.locale'));
 
-        if ('production' === config('app.env')) {
+        if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
     }
@@ -63,7 +61,5 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
-    {
-    }
+    public function register() {}
 }

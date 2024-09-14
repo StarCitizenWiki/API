@@ -57,41 +57,26 @@ class WeaponPersonal extends CommodityItem
         return trim($exploded[0]);
     }
 
-    /**
-     * @return HasMany
-     */
     public function modes(): HasMany
     {
         return $this->hasMany(WeaponPersonalMode::class, 'weapon_id', 'id');
     }
 
-    /**
-     * @return Optional
-     */
     public function getMagazineAttribute(): Optional
     {
         return optional($this->attachments()->where('position', 'Magazine Well')->first());
     }
 
-    /**
-     * @return HasOne
-     */
     public function ammunition(): HasOne
     {
         return $this->hasOne(WeaponPersonalAmmunition::class, 'weapon_id', 'id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function attachmentPorts(): HasMany
     {
         return $this->hasMany(WeaponPersonalAttachmentPort::class, 'weapon_id', 'id');
     }
 
-    /**
-     * @return BelongsToMany
-     */
     public function attachments(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -102,9 +87,6 @@ class WeaponPersonal extends CommodityItem
         );
     }
 
-    /**
-     * @return HasManyThrough
-     */
     public function damages(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -118,6 +100,7 @@ class WeaponPersonal extends CommodityItem
     public function getBaseModelAttribute(): ?self
     {
         $baseName = preg_replace('/"[\w\s\']+"\s/', '', $this->item->name);
+
         return self::query()
             ->whereHas('item', function (Builder $query) use ($baseName) {
                 $query->where('name', $baseName);

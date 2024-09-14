@@ -21,7 +21,7 @@ final class CargoGrid extends AbstractItemSpecification
                         'x' => $item['inventoryContainer']['x'],
                         'y' => $item['inventoryContainer']['y'],
                         'z' => $item['inventoryContainer']['z'],
-                    ]
+                    ],
                 ]);
             } else {
                 return null;
@@ -33,7 +33,7 @@ final class CargoGrid extends AbstractItemSpecification
             'y' => Arr::get($data, 'dimensions.y'),
             'z' => Arr::get($data, 'dimensions.z'),
         ], static function ($entry) {
-            return !empty($entry);
+            return ! empty($entry);
         });
     }
 }

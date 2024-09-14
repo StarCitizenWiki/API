@@ -77,9 +77,6 @@ class ShipItem extends CommodityItem
         return $this->hasOne(ShipItemDurabilityData::class, 'ship_item_id')->withDefault();
     }
 
-    /**
-     * @return HasOne
-     */
     public function specification(): HasOne
     {
         switch ($this->item->type) {
@@ -127,7 +124,7 @@ class ShipItem extends CommodityItem
             case 'PersonalInventory':
                 return $this->hasOne(PersonalInventory::class, 'uuid', 'uuid');
             default:
-                throw new ModelNotFoundException();
+                throw new ModelNotFoundException;
         }
     }
 }

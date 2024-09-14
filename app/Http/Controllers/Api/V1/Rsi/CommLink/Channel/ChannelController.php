@@ -20,9 +20,6 @@ class ChannelController extends ApiController
 {
     /**
      * StatsAPIController constructor.
-     *
-     * @param Request            $request
-     * @param ChannelTransformer $transformer
      */
     public function __construct(Request $request, ChannelTransformer $transformer)
     {
@@ -45,7 +42,7 @@ class ChannelController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/comm_link_channel')
                 )
-            )
+            ),
         ]
     )]
     public function index(): Response
@@ -77,7 +74,7 @@ class ChannelController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Channel with specified name found.',
-            )
+            ),
         ]
     )]
     public function show(string $channel): Response
@@ -91,7 +88,7 @@ class ChannelController extends ApiController
             return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $channel)], 404);
         }
 
-        $this->transformer = new CommLinkTransformer();
+        $this->transformer = new CommLinkTransformer;
 
         return $this->getResponse($channel->commLinks()->orderByDesc('cig_id'));
     }

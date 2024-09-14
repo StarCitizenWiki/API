@@ -15,10 +15,6 @@ use stdClass;
 abstract class AbstractRSIDownloadData extends BaseDownloadData
 {
     /**
-     * @param string $rawResponseBody
-     *
-     * @return stdClass
-     *
      * @throws InvalidDataException
      */
     protected function parseResponseBody(string $rawResponseBody): stdClass
@@ -26,7 +22,7 @@ abstract class AbstractRSIDownloadData extends BaseDownloadData
         try {
             $response = json_decode($rawResponseBody, false, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
-            $response = (object)['success' => 0];
+            $response = (object) ['success' => 0];
         }
 
         if (($response->success ?? 0) !== 1) {

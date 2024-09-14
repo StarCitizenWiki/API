@@ -18,9 +18,6 @@ class ProductionStatusTranslation extends Translation
         'translation',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function productionStatus(): BelongsTo
     {
         return $this->belongsTo(ProductionStatus::class);

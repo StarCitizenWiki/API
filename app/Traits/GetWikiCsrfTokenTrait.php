@@ -21,15 +21,15 @@ trait GetWikiCsrfTokenTrait
     /**
      * Requests an csrf token
      *
-     * @param string $configPrefix The config prefix see loginWikiBotAccount
-     * @param bool $refresh Set to true to force request a new token
-     * @param bool $tryUser Try to use user credentials
-     * @return string|null
+     * @param  string  $configPrefix  The config prefix see loginWikiBotAccount
+     * @param  bool  $refresh  Set to true to force request a new token
+     * @param  bool  $tryUser  Try to use user credentials
+     *
      * @throws ErrorException If the request was not successful
      */
     protected function getCsrfToken(string $configPrefix, bool $refresh = false, bool $tryUser = false): ?string
     {
-        if (self::$csrfToken !== null && !$refresh) {
+        if (self::$csrfToken !== null && ! $refresh) {
             return self::$csrfToken;
         }
 
@@ -53,13 +53,13 @@ trait GetWikiCsrfTokenTrait
     /**
      * Requests an csrf token
      *
-     * @param bool $refresh Set to true to force request a new token
-     * @return string|null
+     * @param  bool  $refresh  Set to true to force request a new token
+     *
      * @throws ErrorException If the request was not successful
      */
     protected function getCsrfTokenForUser(bool $refresh = false): ?string
     {
-        if (self::$csrfToken !== null && !$refresh) {
+        if (self::$csrfToken !== null && ! $refresh) {
             return self::$csrfToken;
         }
 
@@ -75,7 +75,6 @@ trait GetWikiCsrfTokenTrait
     /**
      * Do the actual request
      *
-     * @return MediaWikiResponse
      * @throws ErrorException
      */
     private function requestToken(): MediaWikiResponse
@@ -86,7 +85,7 @@ trait GetWikiCsrfTokenTrait
             if ($token->hasErrors()) {
                 throw new ErrorException(json_encode($token->getBody(), JSON_THROW_ON_ERROR));
             }
-        } catch (GuzzleException | JsonException $e) {
+        } catch (GuzzleException|JsonException $e) {
             throw new ErrorException($e->getMessage());
         }
 

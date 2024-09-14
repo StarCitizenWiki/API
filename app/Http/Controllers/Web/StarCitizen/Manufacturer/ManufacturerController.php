@@ -28,9 +28,6 @@ class ManufacturerController extends Controller
         $this->middleware('auth')->except('index');
     }
 
-    /**
-     * @return View
-     */
     public function index(): View
     {
         return view(
@@ -45,9 +42,7 @@ class ManufacturerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param string $manufacturer
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -75,10 +70,7 @@ class ManufacturerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param ManufacturerTranslationRequest $request
-     * @param string                         $manufacturer
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

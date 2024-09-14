@@ -27,7 +27,7 @@ final class ImportMetadata implements ShouldQueue
     private bool $chunkAll;
 
     /**
-     * @param bool $chunkAll Load 2000 metadata per chunk and sort by date
+     * @param  bool  $chunkAll  Load 2000 metadata per chunk and sort by date
      */
     public function __construct(bool $chunkAll = false)
     {
@@ -36,8 +36,6 @@ final class ImportMetadata implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -56,8 +54,9 @@ final class ImportMetadata implements ShouldQueue
                                 512,
                                 JSON_THROW_ON_ERROR
                             );
-                        } catch (FileNotFoundException | JsonException $e) {
+                        } catch (FileNotFoundException|JsonException $e) {
                             app('Log')::warning($e->getMessage());
+
                             return null;
                         }
 
@@ -88,7 +87,7 @@ final class ImportMetadata implements ShouldQueue
                         ];
                     })
                     ->filter(function ($in) {
-                        return !empty($in);
+                        return ! empty($in);
                     })
                     ->sortBy('upload_date')
                     ->each(function (array $data) {

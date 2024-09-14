@@ -30,8 +30,8 @@ use Illuminate\Support\Str;
 
 class Item extends HasTranslations
 {
-    use ModelChangelog;
     use HasFactory;
+    use ModelChangelog;
 
     protected $table = 'star_citizen_unpacked_items';
 
@@ -95,7 +95,6 @@ class Item extends HasTranslations
             });
     }
 
-
     public function shopsRaw(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -133,29 +132,29 @@ class Item extends HasTranslations
              */
             case Str::contains($this->type, 'Char_Armor'):
                 return $this->hasOne(CharArmor::class, 'uuid', 'uuid')->withDefault();
-            /**
-             * Char Clothing
-             */
+                /**
+                 * Char Clothing
+                 */
             case Str::contains($this->type, 'Char_Clothing'):
                 return $this->hasOne(Clothing::class, 'uuid', 'uuid')->withDefault();
 
-            /**
-             * Personal Weapons
-             */
+                /**
+                 * Personal Weapons
+                 */
             case Str::contains($this->type, 'WeaponPersonal'):
                 return $this->hasOne(WeaponPersonal::class, 'uuid', 'uuid')->withDefault();
             case Str::contains($this->type, 'WeaponAttachment'):
                 return $this->hasOne(Attachment::class, 'uuid', 'uuid')->withDefault();
 
-            /**
-             * Vehicles
-             */
+                /**
+                 * Vehicles
+                 */
             case Str::contains($this->type, 'Vehicle'):
                 return $this->hasOne(Vehicle::class, 'uuid', 'uuid')->withDefault();
 
-            /**
-             * Ship Items
-             */
+                /**
+                 * Ship Items
+                 */
             case $this->type === 'WeaponGun':
             case Str::contains($this->type, 'WeaponGun'):
                 return $this->hasOne(Weapon::class, 'uuid', 'uuid')->withDefault();

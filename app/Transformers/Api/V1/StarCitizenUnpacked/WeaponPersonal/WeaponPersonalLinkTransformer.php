@@ -9,11 +9,6 @@ use App\Transformers\Api\V1\StarCitizenUnpacked\AbstractCommodityTransformer;
 
 class WeaponPersonalLinkTransformer extends AbstractCommodityTransformer
 {
-    /**
-     * @param WeaponPersonal $weaponPersonal
-     *
-     * @return array
-     */
     public function transform(WeaponPersonal $weaponPersonal): array
     {
         return [

@@ -22,11 +22,6 @@ use OpenApi\Attributes as OA;
 )]
 class RelatedArticleTransformer extends V1Transformer
 {
-    /**
-     * @param Article $article
-     *
-     * @return array
-     */
     public function transform(Article $article): array
     {
         return [
@@ -36,7 +31,7 @@ class RelatedArticleTransformer extends V1Transformer
             'api_url' => $this->makeApiUrl(
                 self::GALACTAPEDIA_ARTICLE_SHOW,
                 $article->getRouteKey(),
-            )
+            ),
         ];
     }
 }

@@ -25,9 +25,6 @@ class WeaponPersonalMagazine extends Model
         'max_ammo_count' => 'double',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function weapon(): BelongsTo
     {
         return $this->belongsTo(WeaponPersonal::class, 'weapon_id');

@@ -41,8 +41,6 @@ class CommLinkController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return View
      */
     public function index(): View
     {
@@ -58,10 +56,6 @@ class CommLinkController extends Controller
 
     /**
      * Display the specified resource.
-     *
-     * @param int $commLinkId
-     *
-     * @return View
      */
     public function show(int $commLinkId): View
     {
@@ -97,9 +91,7 @@ class CommLinkController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param CommLink $commLink
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -125,10 +117,6 @@ class CommLinkController extends Controller
 
     /**
      * Returns all Comm-Link Version Files in a Comm-Link Folder.
-     *
-     * @param int $commLinkCigId
-     *
-     * @return array
      */
     private function getCommLinkVersions(int $commLinkCigId): array
     {
@@ -148,11 +136,6 @@ class CommLinkController extends Controller
 
     /**
      * Parses Comm-Link Version Names to a Human readable String, creates Data array to use in views.
-     *
-     * @param array  $versions
-     * @param string $currentVersion
-     *
-     * @return array
      */
     private function processCommLinkVersions(array $versions, string $currentVersion): array
     {
@@ -179,10 +162,7 @@ class CommLinkController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param CommLinkRequest $request
-     * @param CommLink        $commLink
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */
@@ -218,10 +198,7 @@ class CommLinkController extends Controller
     /**
      * Preview a Comm-Link Version.
      *
-     * @param CommLink $commLink
-     * @param string   $version
      *
-     * @return View
      *
      * @throws AuthorizationException
      * @throws FileNotFoundException
@@ -232,10 +209,10 @@ class CommLinkController extends Controller
 
         $content = Storage::disk('comm_links')->get("{$commLink->cig_id}/{$version}.html");
         if ($content === null) {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException;
         }
 
-        $crawler = new Crawler();
+        $crawler = new Crawler;
         $crawler->addHtmlContent($content);
 
         $contentParser = new Content($crawler);

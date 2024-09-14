@@ -31,13 +31,12 @@ class ImportCommLink extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         if ($this->option('all') === true) {
             ImportCommLinksJob::dispatch(-1);
+
             return Command::SUCCESS;
         }
 
@@ -47,14 +46,14 @@ class ImportCommLink extends Command
             return Command::FAILURE;
         }
 
-        $id = (int)$this->argument('id');
+        $id = (int) $this->argument('id');
 
         try {
             $commLink = CommLink::query()->where('cig_id', $id)->firstOrFail();
         } catch (ModelNotFoundException $e) {
             return Artisan::call('comm-links:download', [
                 'id' => $id,
-                '--import' => true
+                '--import' => true,
             ]);
         }
 

@@ -14,9 +14,6 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 class Link extends BaseElement
 {
-    /**
-     * @var Crawler
-     */
     private Crawler $commLink;
 
     /**
@@ -26,8 +23,6 @@ class Link extends BaseElement
 
     /**
      * Link constructor.
-     *
-     * @param Crawler $commLinkDocument
      */
     public function __construct(Crawler $commLinkDocument)
     {
@@ -59,7 +54,6 @@ class Link extends BaseElement
         return array_unique($linkIds);
     }
 
-
     /**
      * Extracts all <a> Elements from the Crawler
      * Saves href and Link Texts
@@ -74,7 +68,7 @@ class Link extends BaseElement
                 function (Crawler $crawler) {
                     $href = $crawler->attr('href');
 
-                    if (null !== $href && null !== parse_url($href, PHP_URL_HOST)) {
+                    if ($href !== null && parse_url($href, PHP_URL_HOST) !== null) {
                         $this->links[] = [
                             'href' => $href,
                             'text' => $crawler->text(),
@@ -87,9 +81,9 @@ class Link extends BaseElement
                 function (Crawler $crawler) {
                     $src = $crawler->attr('src');
 
-                    if (null !== $src && null !== parse_url($src, PHP_URL_HOST)) {
-                        if (null === parse_url($src, PHP_URL_SCHEME)) {
-                            $src = 'https:' . $src;
+                    if ($src !== null && parse_url($src, PHP_URL_HOST) !== null) {
+                        if (parse_url($src, PHP_URL_SCHEME) === null) {
+                            $src = 'https:'.$src;
                         }
 
                         $this->links[] = [

@@ -6,6 +6,4 @@ namespace App\Http\Requests\StarCitizen\Starmap;
 
 use App\Http\Requests\AbstractSearchRequest;
 
-class StarsystemRequest extends AbstractSearchRequest
-{
-}
+class StarsystemRequest extends AbstractSearchRequest {}

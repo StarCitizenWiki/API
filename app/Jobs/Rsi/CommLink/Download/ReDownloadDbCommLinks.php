@@ -30,7 +30,7 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
     /**
      * ReDownloadDbCommLinks constructor.
      *
-     * @param bool $skipExisting Don't download existing Comm-Links
+     * @param  bool  $skipExisting  Don't download existing Comm-Links
      */
     public function __construct(bool $skipExisting = false)
     {
@@ -39,15 +39,13 @@ class ReDownloadDbCommLinks extends BaseDownloadData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
         app('Log')::info('Re-Downloading all DB Comm-Links');
 
         $latestDbPost = CommLink::query()->orderByDesc('cig_id')->first();
-        if (null === $latestDbPost) {
+        if ($latestDbPost === null) {
             $this->fail(new InvalidArgumentException('No Comm-Links in DB Found'));
 
             return;

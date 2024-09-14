@@ -67,7 +67,7 @@ class ImportVehicles extends AbstractQueueCommand
                 $this->bar->advance();
                 $chunk
                     ->filter(function (array $vehicle) {
-                        return $this->isNotIgnoredClass($vehicle['ClassName']);
+                        return isset($vehicle['ClassName']) && $this->isNotIgnoredClass($vehicle['ClassName']);
                     })
                     ->map(function (array $vehicle) {
                         $vehicle['filePathRaw'] = scdata(sprintf(

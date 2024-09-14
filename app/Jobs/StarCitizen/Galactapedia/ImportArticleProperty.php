@@ -24,8 +24,6 @@ class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQu
 
     /**
      * Create a new job instance.
-     *
-     * @param Article $article
      */
     public function __construct(Article $article)
     {
@@ -34,8 +32,6 @@ class ImportArticleProperty extends AbstractBaseDownloadData implements ShouldQu
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -77,20 +73,20 @@ QUERY,
 
         $result = $result->json() ?? [];
 
-        if (!isset($result['data']['Article']['template'][0][$this->article->templates[0]->template])) {
+        if (! isset($result['data']['Article']['template'][0][$this->article->templates[0]->template])) {
             return;
         }
 
         $result = $result['data']['Article']['template'][0][$this->article->templates[0]->template];
 
         collect($fields)->each(function (string $field) use ($result) {
-            if (!isset($result[$field]) || empty($result[$field])) {
+            if (! isset($result[$field]) || empty($result[$field])) {
                 return;
             }
 
             $match = preg_match_all('/\[([^\]]+)\][^\)]+\)/', $result[$field], $matches);
 
-            if ($match === false || $match === 0 || !isset($matches[1])) {
+            if ($match === false || $match === 0 || ! isset($matches[1])) {
                 $matches = [
                     [],
                     [
@@ -101,7 +97,7 @@ QUERY,
 
             collect($matches[1])
                 ->filter(function (string $match) {
-                    return !empty($match);
+                    return ! empty($match);
                 })
                 ->each(function (string $match) use ($field) {
                     $this->article->properties()->updateOrCreate([
@@ -115,9 +111,9 @@ QUERY,
     private function getTemplateFields(): ?Collection
     {
         $result = $this->makeClient()->post('galactapedia/graphql', [
-            'query' => <<<QUERY
-query ArticleAfterCursor(\$type: String!) {
-  template: __type(name: \$type) {
+            'query' => <<<'QUERY'
+query ArticleAfterCursor($type: String!) {
+  template: __type(name: $type) {
     fields {
       name
       type {
@@ -141,7 +137,7 @@ QUERY,
 
         $result = $result->json() ?? [];
 
-        if (!isset($result['data']['template']['fields'])) {
+        if (! isset($result['data']['template']['fields'])) {
             return null;
         }
 

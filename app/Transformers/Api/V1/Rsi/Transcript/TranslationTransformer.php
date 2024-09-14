@@ -9,11 +9,6 @@ use App\Transformers\Api\V1\AbstractV1Transformer as V1Transformer;
 
 class TranslationTransformer extends V1Transformer
 {
-    /**
-     * @param TranscriptTranslation|null $translation
-     *
-     * @return array
-     */
     public function transform(?TranscriptTranslation $translation): array
     {
         if ($translation === null) {

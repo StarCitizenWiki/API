@@ -35,7 +35,6 @@ class ItemContainer extends Model
         return $this->scu * (10 ** $this->unit);
     }
 
-
     public function getDimensionAttribute(): float
     {
         return $this->width * $this->height * $this->length;

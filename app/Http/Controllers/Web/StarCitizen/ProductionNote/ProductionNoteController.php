@@ -29,7 +29,6 @@ class ProductionNoteController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -50,9 +49,7 @@ class ProductionNoteController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param ProductionNote $note
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -72,10 +69,7 @@ class ProductionNoteController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TranslationRequest $request
-     * @param ProductionNote     $note
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

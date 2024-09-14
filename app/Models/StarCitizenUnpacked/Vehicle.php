@@ -130,8 +130,6 @@ class Vehicle extends CommodityItem
 
     /**
      * The Vehicle Manufacturer
-     *
-     * @return BelongsTo
      */
     public function vehicle(): BelongsTo
     {

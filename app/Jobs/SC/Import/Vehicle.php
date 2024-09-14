@@ -37,20 +37,17 @@ class Vehicle implements ShouldQueue
      */
     private readonly int $minPartDamage;
 
-    private array $shipData;
-
-    public function __construct(array $shipData)
+    public function __construct(private readonly array $shipData)
     {
-        $this->shipData = $shipData;
-        $this->hardpoints = new Collection();
-        $this->parts = new Collection();
+        $this->hardpoints = new Collection;
+        $this->parts = new Collection;
 
         $this->minPartDamage = 100;
     }
 
     public function handle(): void
     {
-        $manufacturers = (new Manufacturers())->getData();
+        $manufacturers = (new Manufacturers)->getData();
 
         $vehicle = $this->shipData;
 

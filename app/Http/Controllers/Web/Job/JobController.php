@@ -24,7 +24,6 @@ class JobController extends Controller
     /**
      * View failed jobs
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -53,7 +52,6 @@ class JobController extends Controller
     /**
      * Truncate the failed job table
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

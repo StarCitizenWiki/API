@@ -17,14 +17,23 @@ class Component extends BaseElement
     private const COMPONENTS = 'compiled';
 
     private const TYPE = 'type';
+
     private const NAME = 'name';
+
     private const MOUNTS = 'mounts';
+
     private const COMPONENT_SIZE = 'component_size';
+
     private const CATEGORY = 'category';
+
     private const SIZE = 'size';
+
     private const DETAILS = 'details';
+
     private const QUANTITY = 'quantity';
+
     private const MANUFACTURER = 'manufacturer';
+
     private const COMPONENT_CLASS = 'component_class';
 
     /**
@@ -34,7 +43,7 @@ class Component extends BaseElement
     {
         app('Log')::debug('Getting Component IDs');
 
-        if (!$this->rawData->has(self::COMPONENTS)) {
+        if (! $this->rawData->has(self::COMPONENTS)) {
             return [];
         }
 
@@ -76,11 +85,6 @@ class Component extends BaseElement
         return $ids->toArray();
     }
 
-    /**
-     * @param Collection $data
-     *
-     * @return Model|null
-     */
     public function getComponent(Collection $data): ?Model
     {
         app('Log')::debug('Getting Component');
@@ -100,10 +104,10 @@ class Component extends BaseElement
         );
 
         $component->pivotData = [
-            'mounts' => (int)$data->get(self::MOUNTS),
+            'mounts' => (int) $data->get(self::MOUNTS),
             'size' => $data->get(self::SIZE),
             'details' => $this->normalizeString($data->get(self::DETAILS)),
-            'quantity' => (int)$data->get(self::QUANTITY),
+            'quantity' => (int) $data->get(self::QUANTITY),
         ];
 
         return $component;

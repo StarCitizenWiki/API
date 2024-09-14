@@ -78,7 +78,6 @@ use OpenApi\Attributes as OA;
             ), nullable: true
         ),
 
-
     ],
     type: 'object'
 )]

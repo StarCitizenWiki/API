@@ -20,22 +20,24 @@ use StarCitizenWiki\MediaWikiApi\Facades\MediaWikiApi;
 class ApproveRevisions implements ShouldQueue
 {
     use Dispatchable;
+    use GetWikiCsrfToken;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
-    use GetWikiCsrfToken;
 
     private array $pageTitles;
+
     private string $token = '';
+
     private bool $onlyApproveNew;
+
     private bool $resolveRedirects;
 
     /**
      * Create a new job instance.
      *
-     * @param array $pageTitles
-     * @param bool $onlyApproveNew True if only recently created pages shall be approved
-     * @param bool $resolveRedirects True if a given title should be checked against redirects
+     * @param  bool  $onlyApproveNew  True if only recently created pages shall be approved
+     * @param  bool  $resolveRedirects  True if a given title should be checked against redirects
      */
     public function __construct(array $pageTitles, bool $onlyApproveNew = true, bool $resolveRedirects = false)
     {
@@ -46,8 +48,6 @@ class ApproveRevisions implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -167,8 +167,6 @@ class ApproveRevisions implements ShouldQueue
 
     /**
      * Approve revisions
-     *
-     * @param Collection $ids
      */
     private function approveRevisions(Collection $ids): void
     {

@@ -17,10 +17,6 @@ class SendCommLinksChangedNotification
 {
     /**
      * Handle the event.
-     *
-     * @param CommLinksChangedEvent $event
-     *
-     * @return void
      */
     public function handle(CommLinksChangedEvent $event): void
     {

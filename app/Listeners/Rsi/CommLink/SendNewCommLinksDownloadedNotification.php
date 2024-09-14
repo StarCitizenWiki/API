@@ -17,10 +17,6 @@ class SendNewCommLinksDownloadedNotification
 {
     /**
      * Handle the event.
-     *
-     * @param NewCommLinksDownloaded $event
-     *
-     * @return void
      */
     public function handle(NewCommLinksDownloaded $event): void
     {

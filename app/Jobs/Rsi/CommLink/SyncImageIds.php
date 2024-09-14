@@ -27,7 +27,7 @@ class SyncImageIds implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param int $offset Directory Offset
+     * @param  int  $offset  Directory Offset
      */
     public function __construct(int $offset = 0)
     {
@@ -43,7 +43,7 @@ class SyncImageIds implements ShouldQueue
 
         $commLinks->each(
             function ($commLink) {
-                if (!Storage::disk('comm_links')->exists((string)$commLink->cig_id)) {
+                if (! Storage::disk('comm_links')->exists((string) $commLink->cig_id)) {
                     return;
                 }
 

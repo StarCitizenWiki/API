@@ -139,7 +139,7 @@ abstract class AbstractApiController extends Controller
     {
         parent::__construct();
         $this->request = $request;
-        $this->manager = new Manager();
+        $this->manager = new Manager;
         $this->manager->parseIncludes($request->get('include', ''));
 
         $this->processRequestParams();

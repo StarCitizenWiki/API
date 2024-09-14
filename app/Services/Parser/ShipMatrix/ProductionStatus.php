@@ -18,8 +18,6 @@ class ProductionStatus extends BaseElement
     private const PRODUCTION_STATUS = 'production_status';
 
     /**
-     * @return ProductionStatusModel
-     *
      * @throws ModelNotFoundException
      */
     public function getProductionStatus(): ProductionStatusModel
@@ -28,7 +26,7 @@ class ProductionStatus extends BaseElement
 
         $status = $this->rawData->get(self::PRODUCTION_STATUS);
 
-        if (null === $status) {
+        if ($status === null) {
             app('Log')::debug('Status not set in Matrix, returning default (undefined)');
 
             return ProductionStatusModel::findOrFail(1);
@@ -52,9 +50,6 @@ class ProductionStatus extends BaseElement
         return $productionStatusTranslation->productionStatus;
     }
 
-    /**
-     * @return ProductionStatusModel
-     */
     private function createNewProductionStatus(): ProductionStatusModel
     {
         app('Log')::debug('Creating new Production Status');

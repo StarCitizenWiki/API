@@ -25,8 +25,6 @@ class ModelUpdating
 
     /**
      * Create a new event instance.
-     *
-     * @param Model $model
      */
     public function __construct(Model $model)
     {

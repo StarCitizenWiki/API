@@ -18,8 +18,6 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
 {
     /**
      * Array containing missing translations for each transformed model
-     *
-     * @var array
      */
     protected array $missingTranslations = [];
 
@@ -32,8 +30,6 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
 
     /**
      * Set the Locale
-     *
-     * @param string $localeCode
      */
     public function setLocale(string $localeCode): void
     {
@@ -49,10 +45,8 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
      * If a valid locale code is set this function will return the corresponding translation or use english as a
      * fallback
      *
-     * @param HasTranslations $model
      *
-     * @param string|array    $translationKey
-     *
+     * @param  string|array  $translationKey
      * @return array|string the Translation
      */
     protected function getTranslation(HasTranslations $model, $translationKey = 'translation')
@@ -74,7 +68,7 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
             }
         )->filter(
             function ($translations) {
-                return !empty($translations);
+                return ! empty($translations);
             }
         );
 
@@ -86,7 +80,7 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
             $data->each(
                 function ($translations, $localeCode) use (&$return) {
                     foreach ($translations as $translationKey => $translation) {
-                        if (!isset($return[$translationKey])) {
+                        if (! isset($return[$translationKey])) {
                             $return[$translationKey] = [];
                         }
 
@@ -105,11 +99,8 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
      * Get a singular translation by key
      * Returns english fallback is key is unavailable
      *
-     * @param Language|AbstractTranslation $translation
-     * @param string|array                 $translationKey
-     * @param HasTranslations              $model
-     * @param Collection                   $translations
-     *
+     * @param  Language|AbstractTranslation  $translation
+     * @param  string|array  $translationKey
      * @return array|mixed
      */
     private function getSingleTranslation(
@@ -120,7 +111,7 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
     ) {
         $inArray = in_array($translation->locale_code, $this->missingTranslations, true);
 
-        if ($translation instanceof Language && !$inArray) {
+        if ($translation instanceof Language && ! $inArray) {
             $this->addMissingTranslation($translation->locale_code);
         }
 
@@ -134,7 +125,7 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
             return $translationData;
         }
 
-        if (!isset($translation[$translationKey])) {
+        if (! isset($translation[$translationKey])) {
             $this->addMissingTranslation($model->getRouteKey());
 
             return $translations['en_EN'][$translationKey];
@@ -146,11 +137,11 @@ abstract class AbstractTranslationTransformer extends V1Transformer implements L
     /**
      * Adds a missing translation key to the array if it does not already exist
      *
-     * @param string|int $key The key to add
+     * @param  string|int  $key  The key to add
      */
     private function addMissingTranslation($key): void
     {
-        if (!in_array($key, $this->missingTranslations, true)) {
+        if (! in_array($key, $this->missingTranslations, true)) {
             $this->missingTranslations[] = $key;
         }
     }

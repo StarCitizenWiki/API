@@ -10,9 +10,6 @@ use Illuminate\Contracts\View\View;
 
 class VehicleController extends Controller
 {
-    /**
-     * @return View
-     */
     public function index(): View
     {
         return view('web.starcitizenunpacked.vehicle.index', [

@@ -22,14 +22,12 @@ class CommLinkSchedule extends Command
      *
      * @var string
      */
-    protected $description = 'Download missing Comm-Links. Parse the download, create metadata and hashes. ' .
-    'If a DeepL API key is set, Comm-Links will be translated. ' .
-    'If a MediaWiki Account is configured, Wiki Comm-Link pages will be created';
+    protected $description = 'Download missing Comm-Links. Parse the download, create metadata and hashes. '.
+        'If a DeepL API key is set, Comm-Links will be translated. '.
+        'If a MediaWiki Account is configured, Wiki Comm-Link pages will be created';
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {

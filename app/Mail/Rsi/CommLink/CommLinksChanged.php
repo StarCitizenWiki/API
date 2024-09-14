@@ -18,12 +18,11 @@ class CommLinksChanged extends Mailable
     use SerializesModels;
 
     private Collection $commLinksWithoutContent;
+
     private Collection $commLinksWithContent;
 
     /**
      * Create a new message instance.
-     *
-     * @param Collection $commLinks
      */
     public function __construct(Collection $commLinks)
     {

@@ -16,5 +16,4 @@ class GiverTranslation extends AbstractTranslation
         'item_uuid',
         'translation',
     ];
-
 }

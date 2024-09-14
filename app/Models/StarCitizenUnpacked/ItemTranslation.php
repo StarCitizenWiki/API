@@ -28,7 +28,6 @@ class ItemTranslation extends AbstractTranslation
     /**
      * Fix escaped newlines
      *
-     * @param $translation
      * @return array|string|string[]
      */
     public function getTranslationAttribute($translation)

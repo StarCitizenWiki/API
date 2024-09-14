@@ -73,7 +73,6 @@ class ShopItemTransformer extends TransformerAbstract
             'version' => $item->shop_data->version,
         ];
 
-
         if (isset($item->shop_data->rental->id)) {
             $data['rental_price_days'] = [
                 1 => $item->shop_data->price1,

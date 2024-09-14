@@ -32,8 +32,6 @@ class TrackApiRouteCall implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -48,6 +46,6 @@ class TrackApiRouteCall implements ShouldQueue
                 'url' => $this->request['url'],
                 'domain' => parse_url(config('app.url'))['host'],
             ])
-            ->onError(fn() => $this->delete());
+            ->onError(fn () => $this->delete());
     }
 }

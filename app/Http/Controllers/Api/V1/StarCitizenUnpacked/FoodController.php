@@ -17,9 +17,6 @@ class FoodController extends ApiController
 {
     /**
      * ClothingController constructor.
-     *
-     * @param FoodTransformer $transformer
-     * @param Request $request
      */
     public function __construct(FoodTransformer $transformer, Request $request)
     {

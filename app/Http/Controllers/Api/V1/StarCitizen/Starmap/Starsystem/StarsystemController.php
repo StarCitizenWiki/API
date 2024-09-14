@@ -21,9 +21,6 @@ class StarsystemController extends ApiController
 {
     /**
      * StarsystemController constructor.
-     *
-     * @param Request               $request
-     * @param StarsystemTransformer $transformer
      */
     public function __construct(Request $request, StarsystemTransformer $transformer)
     {
@@ -59,13 +56,13 @@ class StarsystemController extends ApiController
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/starsystem')
                 )
-            )
+            ),
         ]
     )]
     public function index(Request $request): Response
     {
         if ($request->has('transformer') && $request->get('transformer', null) === 'link') {
-            $this->transformer = new StarsystemLinkTransformer();
+            $this->transformer = new StarsystemLinkTransformer;
         }
 
         return $this->getResponse(Starsystem::query()->orderBy('name'));
@@ -110,7 +107,7 @@ class StarsystemController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No System with specified Code found.',
-            )
+            ),
         ]
     )]
     public function show(Request $request)
@@ -147,41 +144,41 @@ class StarsystemController extends ApiController
         return $this->getResponse($starsystem);
     }
 
-//    #[OA\Post(
-//        path: '/api/starmap/starsystems/search',
-//        requestBody: new OA\RequestBody(
-//            description: 'Starsystem name',
-//            required: true,
-//            content: [
-//                new OA\MediaType(
-//                    mediaType: 'application/json',
-//                    schema: new OA\Schema(
-//                        schema: 'query',
-//                        type: 'json',
-//                    ),
-//                    example: '{"query": "SOL"}',
-//                )
-//            ]
-//        ),
-//        tags: ['Starmap', 'RSI-Website'],
-//        responses: [
-//            new OA\Response(
-//                response: 200,
-//                description: 'List of systems matching the query',
-//                content: new OA\JsonContent(
-//                    type: 'array',
-//                    items: new OA\Items(ref: '#/components/schemas/starsystem')
-//                )
-//            ),
-//            new OA\Response(
-//                response: 404,
-//                description: 'No System found.',
-//            )
-//        ],
-//    )]
+    //    #[OA\Post(
+    //        path: '/api/starmap/starsystems/search',
+    //        requestBody: new OA\RequestBody(
+    //            description: 'Starsystem name',
+    //            required: true,
+    //            content: [
+    //                new OA\MediaType(
+    //                    mediaType: 'application/json',
+    //                    schema: new OA\Schema(
+    //                        schema: 'query',
+    //                        type: 'json',
+    //                    ),
+    //                    example: '{"query": "SOL"}',
+    //                )
+    //            ]
+    //        ),
+    //        tags: ['Starmap', 'RSI-Website'],
+    //        responses: [
+    //            new OA\Response(
+    //                response: 200,
+    //                description: 'List of systems matching the query',
+    //                content: new OA\JsonContent(
+    //                    type: 'array',
+    //                    items: new OA\Items(ref: '#/components/schemas/starsystem')
+    //                )
+    //            ),
+    //            new OA\Response(
+    //                response: 404,
+    //                description: 'No System found.',
+    //            )
+    //        ],
+    //    )]
     public function search(Request $request)
     {
-        $rules = (new StarsystemRequest())->rules();
+        $rules = (new StarsystemRequest)->rules();
 
         try {
             $request->validate($rules);

@@ -15,8 +15,6 @@ class TranslationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -25,8 +23,6 @@ class TranslationRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
     public function rules(): array
     {
@@ -36,9 +32,9 @@ class TranslationRequest extends FormRequest
 
         foreach ($localeCodes as $code => $language) {
             if (config('language.english') === $language->locale_code) {
-                $rules[$code] = 'required' . $rule;
+                $rules[$code] = 'required'.$rule;
             } else {
-                $rules[$code] = 'present' . $rule;
+                $rules[$code] = 'present'.$rule;
             }
         }
 

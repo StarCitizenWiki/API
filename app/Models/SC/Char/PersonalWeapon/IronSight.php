@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class IronSight extends CommodityItem
 {
-    use HasFactory;
     use HasDescriptionDataTrait;
+    use HasFactory;
 
     protected $table = 'sc_item_iron_sights';
 

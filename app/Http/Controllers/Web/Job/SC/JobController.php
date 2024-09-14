@@ -23,8 +23,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startItemImportJob(): RedirectResponse
@@ -43,8 +41,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startVehicleImportJob(): RedirectResponse
@@ -63,8 +59,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startShopImportJob(): RedirectResponse
@@ -83,8 +77,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startImageUploadJob(): RedirectResponse
@@ -103,8 +95,6 @@ class JobController extends Controller
     }
 
     /**
-     * @return RedirectResponse
-     *
      * @throws AuthorizationException
      */
     public function startTranslateJob(): RedirectResponse

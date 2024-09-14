@@ -28,7 +28,6 @@ class CelestialObjectController extends AbstractApiV2Controller
         return CelestialObjectResource::collection($query);
     }
 
-
     public function show(Request $request): AbstractBaseResource
     {
         ['code' => $code] = Validator::validate(
@@ -57,10 +56,9 @@ class CelestialObjectController extends AbstractApiV2Controller
         return new CelestialObjectResource($starsystem);
     }
 
-
     public function search(Request $request): AnonymousResourceCollection
     {
-        $rules = (new StarsystemRequest())->rules();
+        $rules = (new StarsystemRequest)->rules();
         $request->validate($rules);
 
         $query = $this->cleanQueryName($request->get('query'));

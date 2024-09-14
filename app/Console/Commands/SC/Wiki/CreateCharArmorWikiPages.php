@@ -175,6 +175,6 @@ TEMPLATE;
 
     public static function getNameForModel($model): string
     {
-        return (new self())->getPageText($model);
+        return (new self)->getPageText($model);
     }
 }

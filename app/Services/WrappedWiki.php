@@ -14,9 +14,6 @@ class WrappedWiki
 {
     /**
      * Tries to resolve a title to the final redirected title on the wiki
-     *
-     * @param string $title
-     * @return string
      */
     public static function getRedirectTitle(string $title): string
     {
@@ -30,7 +27,7 @@ class WrappedWiki
             return $title;
         }
 
-        if ($query->hasErrors() || !isset($query->getQuery()['redirects'][0])) {
+        if ($query->hasErrors() || ! isset($query->getQuery()['redirects'][0])) {
             return $title;
         }
 
@@ -39,9 +36,6 @@ class WrappedWiki
 
     /**
      * Page content of the wiki page or null on error or not found
-     *
-     * @param string $title
-     * @return string|null
      */
     public static function getWikiPageText(string $title): ?string
     {
@@ -69,7 +63,6 @@ class WrappedWiki
     /**
      * Checks if a given title exists
      *
-     * @param string $title
      * @return bool|null Null on failure
      */
     public static function pageExists(string $title): ?bool
@@ -87,6 +80,6 @@ class WrappedWiki
             return null;
         }
 
-        return !isset($pageContent->getQuery()['pages']['-1']);
+        return ! isset($pageContent->getQuery()['pages']['-1']);
     }
 }

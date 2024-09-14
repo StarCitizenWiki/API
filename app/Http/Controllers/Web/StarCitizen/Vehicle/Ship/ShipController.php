@@ -19,7 +19,6 @@ class ShipController extends Controller
 {
     /**
      * ShipsController constructor.
-     *
      */
     public function __construct()
     {
@@ -27,9 +26,6 @@ class ShipController extends Controller
         $this->middleware('auth')->except(['index']);
     }
 
-    /**
-     * @return View
-     */
     public function index(): View
     {
         return view(
@@ -43,9 +39,7 @@ class ShipController extends Controller
     /**
      * Display Ship data, edit Translations
      *
-     * @param Ship $ship
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -73,10 +67,7 @@ class ShipController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TranslationRequest $request
-     * @param Ship               $ship
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

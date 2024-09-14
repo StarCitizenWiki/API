@@ -30,7 +30,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/vehicle_link',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -48,7 +48,7 @@ use OpenApi\Attributes as OA;
                             property: 'data',
                             ref: '#/components/schemas/vehicle_link',
                             type: 'array',
-                            items: new OA\Items(),
+                            items: new OA\Items,
                         ),
                     ],
                     type: 'object',
@@ -66,11 +66,6 @@ class ManufacturerTransformer extends TranslationTransformer
         'vehicles',
     ];
 
-    /**
-     * @param Manufacturer $manufacturer
-     *
-     * @return array
-     */
     public function transform(Manufacturer $manufacturer): array
     {
         $this->missingTranslations = [];
@@ -89,10 +84,8 @@ class ManufacturerTransformer extends TranslationTransformer
      * If a valid locale code is set this function will return the corresponding translation or use english as a
      * fallback
      *
-     * @param HasTranslations $model
      *
-     * @param string          $translationKey
-     *
+     * @param  string  $translationKey
      * @return array|string the Translation
      */
     protected function getTranslation(HasTranslations $model, $translationKey = 'translation')
@@ -100,23 +93,13 @@ class ManufacturerTransformer extends TranslationTransformer
         return parent::getTranslation($model, ['known_for', 'description']);
     }
 
-    /**
-     * @param Manufacturer $manufacturer
-     *
-     * @return Collection
-     */
     public function includeShips(Manufacturer $manufacturer): Collection
     {
-        return $this->collection($manufacturer->ships, new VehicleLinkTransformer());
+        return $this->collection($manufacturer->ships, new VehicleLinkTransformer);
     }
 
-    /**
-     * @param Manufacturer $manufacturer
-     *
-     * @return Collection
-     */
     public function includeVehicles(Manufacturer $manufacturer): Collection
     {
-        return $this->collection($manufacturer->vehicles, new VehicleLinkTransformer());
+        return $this->collection($manufacturer->vehicles, new VehicleLinkTransformer);
     }
 }

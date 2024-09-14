@@ -10,6 +10,4 @@ use Exception;
  * Class InvalidDataException
  * General Exception to throw if Data is invalid
  */
-class InvalidDataException extends Exception
-{
-}
+class InvalidDataException extends Exception {}

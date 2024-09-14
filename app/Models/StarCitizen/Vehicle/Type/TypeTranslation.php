@@ -20,9 +20,6 @@ class TypeTranslation extends Translation
         'translation',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function type(): BelongsTo
     {
         return $this->belongsTo(Type::class, 'type_id');

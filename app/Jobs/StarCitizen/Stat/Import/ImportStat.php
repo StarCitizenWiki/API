@@ -30,12 +30,10 @@ class ImportStat implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param string|null $statFileName
      */
     public function __construct(?string $statFileName = null)
     {
-        if (null === $statFileName) {
+        if ($statFileName === null) {
             $timestamp = now()->format('Y-m-d');
             $statFileName = "stats_{$timestamp}.json";
         }
@@ -45,8 +43,6 @@ class ImportStat implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -56,7 +52,7 @@ class ImportStat implements ShouldQueue
         try {
             $content = Storage::disk(self::STATS_DISK)->get(sprintf('%d/%s', $year, $this->statFileName));
             if ($content === null) {
-                throw new FileNotFoundException();
+                throw new FileNotFoundException;
             }
 
             $stat = json_decode(
@@ -67,7 +63,7 @@ class ImportStat implements ShouldQueue
             );
         } catch (FileNotFoundException $e) {
             app('Log')::error(
-                "File {$this->statFileName} not found on Disk " . self::STATS_DISK,
+                "File {$this->statFileName} not found on Disk ".self::STATS_DISK,
                 [
                     'message' => $e->getMessage(),
                 ]
@@ -85,15 +81,16 @@ class ImportStat implements ShouldQueue
             );
 
             $this->delete();
+
             return;
         }
 
         // RSI liefert Funds als String ohne Dezimalpunkt aus, letzten beiden Zahlen sind Cent-Beträge der Funds
-        $funds = substr_replace((string)$stat->funds, '.', -2, 0);
+        $funds = substr_replace((string) $stat->funds, '.', -2, 0);
 
         Stat::create(
             [
-                'funds' => number_format((float)$funds, 2, '.', ''),
+                'funds' => number_format((float) $funds, 2, '.', ''),
                 'fans' => $stat->fans,
                 'fleet' => $stat->fleet ?? $stat->fans,
             ]

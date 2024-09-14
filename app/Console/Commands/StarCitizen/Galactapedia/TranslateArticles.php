@@ -27,11 +27,8 @@ class TranslateArticles extends AbstractQueueCommand
      */
     protected $description = 'Translate all available Galactapedia articles.';
 
-
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {

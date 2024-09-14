@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-
-if (!function_exists('str_split_unicode')) {
+if (! function_exists('str_split_unicode')) {
     /**
      * Splits a Unicode String into the given length chunks.
      *
-     * @param string $str
-     * @param int    $length
      *
      * @return array|array[]|false|string[]
      */
@@ -18,7 +15,7 @@ if (!function_exists('str_split_unicode')) {
         if ($length > 1) {
             $chunks = array_chunk($tmp, $length);
             foreach ($chunks as $i => $chunk) {
-                $chunks[$i] = implode('', (array)$chunk);
+                $chunks[$i] = implode('', (array) $chunk);
             }
             $tmp = $chunks;
         }
@@ -27,12 +24,9 @@ if (!function_exists('str_split_unicode')) {
     }
 }
 
-if (!function_exists('scdata')) {
+if (! function_exists('scdata')) {
     /**
      * Generate a link to the scunpacked data
-     *
-     * @param string $path
-     * @return string
      */
     function scdata(string $path): string
     {

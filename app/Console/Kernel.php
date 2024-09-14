@@ -132,21 +132,13 @@ class Kernel extends ConsoleKernel
         CreateFoodWikiPages::class,
         UploadItemImages::class,
 
-
         PopulateData::class,
     ];
 
-    /**
-     * @var Schedule
-     */
     private Schedule $schedule;
 
     /**
      * Define the application's command schedule.
-     *
-     * @param Schedule $schedule
-     *
-     * @return void
      */
     protected function schedule(Schedule $schedule): void
     {
@@ -173,8 +165,6 @@ class Kernel extends ConsoleKernel
 
     /**
      * Register the Closure based commands for the application.
-     *
-     * @return void
      */
     protected function commands(): void
     {

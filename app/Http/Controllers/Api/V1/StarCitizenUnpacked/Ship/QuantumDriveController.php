@@ -17,9 +17,6 @@ class QuantumDriveController extends ApiController
 {
     /**
      * ShipController constructor.
-     *
-     * @param ShipItemTransformer $transformer
-     * @param Request $request
      */
     public function __construct(ShipItemTransformer $transformer, Request $request)
     {

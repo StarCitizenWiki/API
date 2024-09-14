@@ -63,7 +63,7 @@ class CommLinkSearchController extends AbstractApiV2Controller
     )]
     public function searchByTitle(Request $request): AnonymousResourceCollection
     {
-        $request->validate((new CommLinkSearchRequest())->rules());
+        $request->validate((new CommLinkSearchRequest)->rules());
 
         $query = $request->get('keyword') ?? $request->get('query');
 
@@ -115,7 +115,7 @@ class CommLinkSearchController extends AbstractApiV2Controller
     )]
     public function reverseImageLinkSearch(Request $request): AnonymousResourceCollection
     {
-        $request->validate((new ReverseImageLinkSearchRequest())->rules());
+        $request->validate((new ReverseImageLinkSearchRequest)->rules());
 
         $image = Image::query();
 
@@ -211,7 +211,7 @@ class CommLinkSearchController extends AbstractApiV2Controller
     {
         $this->checkExtensionsLoaded();
 
-        $request->validate((new ReverseImageSearchRequest())->rules());
+        $request->validate((new ReverseImageSearchRequest)->rules());
 
         /** @var PDQHash $hash */
         [$hash, $quality] = PDQHasher::computeHashAndQualityFromFilename(
@@ -223,7 +223,7 @@ class CommLinkSearchController extends AbstractApiV2Controller
         $pdqHash = $hash->to64BitStrings();
 
         $hashData = [
-            'perceptual_hash' => (new ImageHash(new PerceptualHash2()))->hash($request->file('image'))->toHex(),
+            'perceptual_hash' => (new ImageHash(new PerceptualHash2))->hash($request->file('image'))->toHex(),
             'pdq_hash1' => $pdqHash[0],
             'pdq_hash2' => $pdqHash[1],
             'pdq_hash3' => $pdqHash[2],

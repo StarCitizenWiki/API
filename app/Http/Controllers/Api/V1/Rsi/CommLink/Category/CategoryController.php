@@ -20,9 +20,6 @@ class CategoryController extends ApiController
 {
     /**
      * CategoryController constructor.
-     *
-     * @param Request             $request
-     * @param CategoryTransformer $transformer
      */
     public function __construct(Request $request, CategoryTransformer $transformer)
     {
@@ -77,7 +74,7 @@ class CategoryController extends ApiController
             new OA\Response(
                 response: 404,
                 description: 'No Category with specified name found.',
-            )
+            ),
         ]
     )]
     public function show(string $category): Response
@@ -91,7 +88,7 @@ class CategoryController extends ApiController
             return new Response(['code' => 404, 'message' => sprintf(static::NOT_FOUND_STRING, $category)], 404);
         }
 
-        $this->transformer = new CommLinkTransformer();
+        $this->transformer = new CommLinkTransformer;
 
         return $this->getResponse($category->commLinks()->orderByDesc('cig_id'));
     }

@@ -28,7 +28,6 @@ class TranscriptController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -49,7 +48,6 @@ class TranscriptController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Transcript $transcript
      *
      * @return Factory|View
      *
@@ -72,9 +70,7 @@ class TranscriptController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param Transcript $transcript
      *
-     * @return View
      *
      * @throws AuthorizationException
      */
@@ -95,10 +91,7 @@ class TranscriptController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param TranscriptUpdateRequest $request
-     * @param Transcript              $transcript
      *
-     * @return RedirectResponse
      *
      * @throws AuthorizationException
      */

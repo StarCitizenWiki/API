@@ -8,7 +8,6 @@ use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
-
 #[OA\Schema(
     schema: 'clothing_item_v2',
     title: 'Clothing Item',

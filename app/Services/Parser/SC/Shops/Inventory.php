@@ -53,7 +53,7 @@ final class Inventory
             'rentable' => $inventory['shopRentThis'] ?? false,
         ];
 
-        if (isset($inventory['rentalTemplates']) && !empty($inventory['rentalTemplates'])) {
+        if (isset($inventory['rentalTemplates']) && ! empty($inventory['rentalTemplates'])) {
             $rentalData = collect($inventory['rentalTemplates'])
                 ->filter(function (array $rental) {
                     return isset($rental['RentalDuration']);
@@ -65,7 +65,7 @@ final class Inventory
                 })
                 ->toArray();
 
-            if (!isset($rentalData['percentage_2'])) {
+            if (! isset($rentalData['percentage_2'])) {
                 $data['rental'] = $rentalData;
             }
         }

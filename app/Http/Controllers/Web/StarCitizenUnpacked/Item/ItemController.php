@@ -13,10 +13,6 @@ class ItemController extends Controller
 {
     /**
      * An In-Game Item
-     *
-     * @param string $item
-     *
-     * @return View
      */
     public function show(string $item): View
     {
@@ -28,9 +24,6 @@ class ItemController extends Controller
         );
     }
 
-    /**
-     * @return View
-     */
     public function index(): View
     {
         return view('web.starcitizenunpacked.item.index')->with('apiToken', optional(Auth::user())->api_token);

@@ -13,6 +13,7 @@ class ShopItemRental extends Model
     protected $primaryKey = 'node_uuid';
 
     public $timestamps = false;
+
     public $incrementing = false;
 
     protected $table = 'sc_shop_item_rentals';

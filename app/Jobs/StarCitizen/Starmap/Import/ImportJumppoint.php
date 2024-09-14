@@ -22,15 +22,12 @@ class ImportJumppoint implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * @var Collection
-     */
     protected Collection $rawData;
 
     /**
      * Create a new job instance.
      *
-     * @param array|Collection $rawData
+     * @param  array|Collection  $rawData
      */
     public function __construct($rawData)
     {
@@ -39,8 +36,6 @@ class ImportJumppoint implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {

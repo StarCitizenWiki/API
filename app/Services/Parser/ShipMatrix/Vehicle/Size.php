@@ -18,8 +18,6 @@ class Size extends BaseElement
     private const VEHICLE_SIZE = 'size';
 
     /**
-     * @return VehicleSize
-     *
      * @throws ModelNotFoundException
      */
     public function getVehicleSize(): VehicleSize
@@ -28,7 +26,7 @@ class Size extends BaseElement
 
         $size = $this->rawData->get(self::VEHICLE_SIZE);
 
-        if (null === $size) {
+        if ($size === null) {
             app('Log')::debug('Vehicle Size not set in Matrix, returning default (undefined)');
 
             return VehicleSize::findOrFail(1);
@@ -52,9 +50,6 @@ class Size extends BaseElement
         return $sizeTranslation->size;
     }
 
-    /**
-     * @return VehicleSize
-     */
     private function createNewVehicleSize(): VehicleSize
     {
         app('Log')::debug('Creating new Vehicle Size');

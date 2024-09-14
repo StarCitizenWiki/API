@@ -15,7 +15,7 @@ class Shield extends AbstractShipItemSpecification
     protected $table = 'star_citizen_unpacked_ship_shields';
 
     protected $with = [
-        'absorptions'
+        'absorptions',
     ];
 
     protected $fillable = [

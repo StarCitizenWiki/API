@@ -10,11 +10,6 @@ use League\CommonMark\Renderer\NodeRendererInterface;
 
 class ParagraphRenderer implements NodeRendererInterface
 {
-    /**
-     * @param Node $node
-     * @param ChildNodeRendererInterface $childRenderer
-     * @return string
-     */
     public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
         return sprintf("%s\n", $childRenderer->renderNodes($node->children()));

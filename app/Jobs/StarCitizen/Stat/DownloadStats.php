@@ -27,6 +27,7 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
     use SerializesModels;
 
     private const STATS_ENDPOINT = '/api/stats/getCrowdfundStats';
+
     private const STATS_DISK = 'stats';
 
     private bool $force = false;
@@ -34,7 +35,7 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
     /**
      * DownloadShipMatrix constructor.
      *
-     * @param bool $force Set to true do force download even if file already exists
+     * @param  bool  $force  Set to true do force download even if file already exists
      */
     public function __construct($force = false)
     {
@@ -44,7 +45,6 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
      * @throws JsonException
      */
     public function handle(): void
@@ -53,7 +53,7 @@ class DownloadStats extends RSIDownloadData implements ShouldQueue
 
         $path = sprintf('%d/stats_%s.json', now()->year, now()->format('Y-m-d'));
 
-        if (!$this->force && Storage::disk(self::STATS_DISK)->exists($path)) {
+        if (! $this->force && Storage::disk(self::STATS_DISK)->exists($path)) {
             return;
         }
 

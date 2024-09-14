@@ -46,14 +46,9 @@ class CharArmorTransformer extends AbstractCommodityTransformer
 {
     protected array $availableIncludes = [
         'attachments',
-        'shops'
+        'shops',
     ];
 
-    /**
-     * @param CharArmor $armor
-     *
-     * @return array
-     */
     public function transform(CharArmor $armor): array
     {
         $this->missingTranslations = [];
@@ -79,7 +74,7 @@ class CharArmorTransformer extends AbstractCommodityTransformer
 
         $baseModel = $armor->baseModel;
         if ($baseModel !== null && $baseModel->item->name !== $armor->item->name) {
-            $data['base_model'] = (new CharArmorLinkTransformer())->transform($baseModel);
+            $data['base_model'] = (new CharArmorLinkTransformer)->transform($baseModel);
         }
 
         $data += [
@@ -92,20 +87,14 @@ class CharArmorTransformer extends AbstractCommodityTransformer
         return $data;
     }
 
-    /**
-     * @param CharArmor $armor
-     *
-     * @return Collection
-     */
     public function includeAttachments(CharArmor $armor): Collection
     {
-        return $this->collection($armor->attachments, new CharArmorAttachmentTransformer());
+        return $this->collection($armor->attachments, new CharArmorAttachmentTransformer);
     }
 
     /**
      * Re-formats the resistances into multiple arrays
      *
-     * @param CharArmor $armor
      * @return array[]
      */
     private function mapResistances(CharArmor $armor): array
@@ -118,10 +107,10 @@ class CharArmorTransformer extends AbstractCommodityTransformer
         });
 
         return [
-                'temperature' => [
-                    'min' => $armor->temp_resistance_min,
-                    'max' => $armor->temp_resistance_max,
-                ],
-            ] + $mapped->toArray();
+            'temperature' => [
+                'min' => $armor->temp_resistance_min,
+                'max' => $armor->temp_resistance_max,
+            ],
+        ] + $mapped->toArray();
     }
 }

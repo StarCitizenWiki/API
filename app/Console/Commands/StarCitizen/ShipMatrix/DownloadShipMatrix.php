@@ -29,15 +29,10 @@ class DownloadShipMatrix extends Command
      */
     protected $description = 'Download the ship matrix and optionally import it';
 
-    /**
-     * @var Dispatcher
-     */
     private Dispatcher $dispatcher;
 
     /**
      * Create a new command instance.
-     *
-     * @param Dispatcher $dispatcher
      */
     public function __construct(Dispatcher $dispatcher)
     {
@@ -48,8 +43,6 @@ class DownloadShipMatrix extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -57,13 +50,13 @@ class DownloadShipMatrix extends Command
             $this->info('Downloading Ship Matrix and starting import');
             DownloadShipMatrixJob::withChain(
                 [
-                    new CheckShipMatrixStructure(),
-                    new ImportShipMatrix(),
+                    new CheckShipMatrixStructure,
+                    new ImportShipMatrix,
                 ]
             )->dispatch();
         } else {
             $this->info('Dispatching Ship Matrix Download Job');
-            $this->dispatcher->dispatch(new DownloadShipMatrixJob());
+            $this->dispatcher->dispatch(new DownloadShipMatrixJob);
         }
 
         return 0;

@@ -122,7 +122,7 @@ class ManufacturerController extends AbstractApiV2Controller
     )]
     public function search(ItemSearchRequest $request): JsonResource
     {
-        $rules = (new ItemSearchRequest())->rules();
+        $rules = (new ItemSearchRequest)->rules();
         $request->validate($rules);
 
         $query = $this->cleanQueryName($request->get('query'));

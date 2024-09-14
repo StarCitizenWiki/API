@@ -22,8 +22,7 @@ class CommLinkLinkResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param Request $request
-     * @return array
+     * @param  Request  $request
      */
     public function toArray($request): array
     {

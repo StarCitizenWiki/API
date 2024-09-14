@@ -39,7 +39,7 @@ final class VueArticleExtractor implements ContentExtractorInterface
                 $content .= ltrim(
                     collect($data)->filter(
                         function ($data) {
-                            return null !== $data;
+                            return $data !== null;
                         }
                     )->implode('<br>')
                 );

@@ -9,11 +9,6 @@ use App\Transformers\Api\V1\StarCitizen\AbstractTranslationTransformer;
 
 class CharArmorResistanceTransformer extends AbstractTranslationTransformer
 {
-    /**
-     * @param CharArmorResistance $resistance
-     *
-     * @return array
-     */
     public function transform(CharArmorResistance $resistance): array
     {
         return [

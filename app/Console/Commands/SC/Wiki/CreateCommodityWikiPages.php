@@ -120,13 +120,13 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
         $items = $shop
             ->items
             ->filter(function (Item $item) {
-                return !str_contains($item->name, '[PLACEHOLDER]');
+                return ! str_contains($item->name, '[PLACEHOLDER]');
             })
             ->filter(function (Item $item) {
-                return !in_array($item->type, $this->ignoredTypes, true);
+                return ! in_array($item->type, $this->ignoredTypes, true);
             })
             ->filter(function (Item $item) {
-                return !str_contains($item->type, 'Char_Clothing');
+                return ! str_contains($item->type, 'Char_Clothing');
             })
             ->sortBy('name')
             ->map(function (Item $item) use ($shop) {
@@ -142,7 +142,7 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
         $title = sprintf('Spieldaten/Handelswaren/%s/%s', $shop->position, $shop->name);
 
         if (empty(trim($items))) {
-            dump('Delete: ' . $title);
+            dump('Delete: '.$title);
             try {
                 $token = $this->getCsrfToken('services.wiki_translations');
                 MediaWikiApi::action('delete', 'POST')
@@ -153,7 +153,7 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
                     ->request();
 
                 return;
-            } catch (ErrorException | GuzzleException $e) {
+            } catch (ErrorException|GuzzleException $e) {
                 $this->error($e->getMessage());
 
                 return;
@@ -161,7 +161,7 @@ class CreateCommodityWikiPages extends AbstractQueueCommand
         }
 
         // phpcs:disable
-        $format = <<<FORMAT
+        $format = <<<'FORMAT'
 <noinclude>
 {{Alert|color=info|title=Information|content=Diese Seite enthält Daten über Kauf- und Mietpreise von Handelswaren in Star Citizen.<br>Diese Daten werden automatisch durch die Star Citizen Wiki API verwaltet.}}<!--
 START: Semantic MediaWiki SubObjects -->
@@ -182,7 +182,7 @@ FORMAT;
                 ->csrfToken($token)
                 ->summary('Updating Commodity Prices')
                 ->request();
-        } catch (ErrorException | GuzzleException $e) {
+        } catch (ErrorException|GuzzleException $e) {
             $this->error($e->getMessage());
 
             return;
@@ -216,17 +216,17 @@ FORMAT;
         return [
             'UUID' => $item->uuid,
             'Name' => str_replace('[PH]', '', $item->name),
-            'Basispreis' => $formatter->format($item->shop_data->base_price) . 'aUEC',
-            'Preis' => $formatter->format($item->shop_data->offsetted_price) . 'aUEC',
-            'Minimalpreis' => $formatter->format($item->shop_data->priceRange['min']) . 'aUEC',
-            'Maximalpreis' => $formatter->format($item->shop_data->priceRange['max']) . 'aUEC',
+            'Basispreis' => $formatter->format($item->shop_data->base_price).'aUEC',
+            'Preis' => $formatter->format($item->shop_data->offsetted_price).'aUEC',
+            'Minimalpreis' => $formatter->format($item->shop_data->priceRange['min']).'aUEC',
+            'Maximalpreis' => $formatter->format($item->shop_data->priceRange['max']).'aUEC',
             'Preisoffset' => $formatter->format($item->shop_data->base_price_offset),
             'Rabatt' => $formatter->format($item->shop_data->max_discount),
             'Premium' => $formatter->format($item->shop_data->max_premium),
             'Bestand' => $formatter->format($item->shop_data->inventory),
             'Maximalbestand' => $formatter->format($item->shop_data->max_inventory),
             'Wiederauffüllungsrate' => $formatter->format($item->shop_data->refresh_rate),
-            'Typ' => $item->type . '@en',
+            'Typ' => $item->type.'@en',
             'Kaufbar' => $item->shop_data->buyable,
             'Verkaufbar' => $item->shop_data->sellable,
             'Mietbar' => $item->shop_data->rentable,

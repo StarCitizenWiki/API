@@ -14,15 +14,10 @@ use function get_class;
 
 class StrongRenderer implements NodeRendererInterface
 {
-    /**
-     * @param Node $node
-     * @param ChildNodeRendererInterface $childRenderer
-     * @return string
-     */
     public function render(Node $node, ChildNodeRendererInterface $childRenderer): string
     {
-        if (!($node instanceof Strong)) {
-            throw new InvalidArgumentException('Incompatible inline type: ' . get_class($node));
+        if (! ($node instanceof Strong)) {
+            throw new InvalidArgumentException('Incompatible inline type: '.get_class($node));
         }
 
         return sprintf(

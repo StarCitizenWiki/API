@@ -17,9 +17,7 @@ class Ammunition implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public function __construct(readonly public array $data)
-    {
-    }
+    public function __construct(readonly public array $data) {}
 
     /**
      * Execute the job.

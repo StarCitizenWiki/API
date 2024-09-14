@@ -41,7 +41,6 @@ class ImageController extends Controller
     /**
      * All downloaded Images, excluding those that could not be found
      *
-     * @param Request $request
      *
      * @return Factory|View
      */
@@ -54,7 +53,7 @@ class ImageController extends Controller
         $mimes = array_filter($request->get('mime', []));
         $tags = array_filter($request->get('tag', []));
 
-        if (!empty($mimes)) {
+        if (! empty($mimes)) {
             $query->whereHas(
                 'metadata',
                 function (Builder $query) use ($mimes) {
@@ -65,7 +64,7 @@ class ImageController extends Controller
             $query->whereHas('metadata');
         }
 
-        if (!empty($tags)) {
+        if (! empty($tags)) {
             $query->whereRelation(
                 'tags',
                 function (Builder $query) use ($tags) {
@@ -74,7 +73,7 @@ class ImageController extends Controller
             );
         }
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $query->whereHas('commLinks');
         }
 
@@ -94,8 +93,6 @@ class ImageController extends Controller
     }
 
     /**
-     * @param Request $request
-     *
      * @return Factory|View
      */
     public function indexByTag(Request $request)
@@ -111,14 +108,12 @@ class ImageController extends Controller
     }
 
     /**
-     * @param Image $image
-     *
      * @return Factory|View
      */
     public function show(Image $image)
     {
-        if (!Auth::check() && $image->commLinks()->count() === 0) {
-            throw new ModelNotFoundException();
+        if (! Auth::check() && $image->commLinks()->count() === 0) {
+            throw new ModelNotFoundException;
         }
 
         return view(
@@ -130,10 +125,6 @@ class ImageController extends Controller
     }
 
     /**
-     * @param ImageUploadRequest $request
-     *
-     * @return string
-     *
      * @throws GuzzleException
      * @throws AuthorizationException|JsonException
      */
@@ -143,15 +134,11 @@ class ImageController extends Controller
 
         $params = $request->validated();
 
-        return (new UploadWikiImage())->uploadCommLinkImage($params);
+        return (new UploadWikiImage)->uploadCommLinkImage($params);
     }
 
     /**
      * Retrieve similar images based on a hash
-     *
-     * @param Request $request
-     *
-     * @return View
      */
     public function similarImages(Request $request): View
     {
@@ -167,10 +154,6 @@ class ImageController extends Controller
 
     /**
      * View for editing the tags of an image
-     *
-     * @param Image $image
-     *
-     * @return View
      */
     public function editTags(Image $image): View
     {
@@ -179,18 +162,13 @@ class ImageController extends Controller
             [
                 'tags' => Tag::query()->orderBy('name')->get(),
                 'image' => $image,
-                'image_tags' => $image->tags->map(fn(Tag $tag) => $tag->name),
+                'image_tags' => $image->tags->map(fn (Tag $tag) => $tag->name),
             ]
         );
     }
 
     /**
      * Save tags to an image
-     *
-     * @param Image $image
-     * @param AddImageTagsRequest $request
-     *
-     * @return RedirectResponse
      */
     public function saveTags(Image $image, AddImageTagsRequest $request): RedirectResponse
     {
@@ -211,10 +189,6 @@ class ImageController extends Controller
 
     /**
      * Search for images by filename
-     *
-     * @param ImageSearchRequest $request
-     *
-     * @return View
      */
     public function search(ImageSearchRequest $request): View
     {

@@ -22,10 +22,6 @@ class ModelUpdating
 
     /**
      * Handle the event.
-     *
-     * @param ModelUpdateEvent $event
-     *
-     * @return void
      */
     public function handle(ModelUpdateEvent $event): void
     {
@@ -54,9 +50,9 @@ class ModelUpdating
             ModelChangelog::create([
                 'type' => $data['type'],
                 'changelog' => [
-                        'item_uuid' => $this->model->item_uuid,
-                        'shop_uuid' => $this->model->shop_uuid,
-                    ] + ($data['changelog'] ?? []),
+                    'item_uuid' => $this->model->item_uuid,
+                    'shop_uuid' => $this->model->shop_uuid,
+                ] + ($data['changelog'] ?? []),
                 'changelog_type' => get_class($this->model),
                 'user_id' => 0,
                 'changelog_id' => $this->model->item_id,
@@ -70,8 +66,6 @@ class ModelUpdating
 
     /**
      * Creates the Changelog Array
-     *
-     * @return array
      */
     private function getChangelogData(): ?array
     {
@@ -79,7 +73,7 @@ class ModelUpdating
 
         $changes = $this->getChanges();
 
-        if (!empty($changes)) {
+        if (! empty($changes)) {
             $changelog['changes'] = $this->getChanges();
         }
 
@@ -94,14 +88,12 @@ class ModelUpdating
 
     /**
      * Returns the Changelog Type of this Model
-     *
-     * @return string
      */
     private function getChangelogType(): string
     {
         if ($this->model->wasRecentlyCreated) {
             $type = 'creation';
-        } elseif (null !== $this->model->deleted_at) {
+        } elseif ($this->model->deleted_at !== null) {
             $type = 'deletion';
         } else {
             $type = 'update';
@@ -110,23 +102,20 @@ class ModelUpdating
         return $type;
     }
 
-    /**
-     * @return array
-     */
     private function getChanges(): array
     {
         /** Don't create changes for Model Creations, since all Old values will be null */
-        if ($this->model->wasRecentlyCreated || null !== $this->model->deleted_at) {
+        if ($this->model->wasRecentlyCreated || $this->model->deleted_at !== null) {
             return [];
         }
 
         return collect($this->model->getDirty())
             ->filter(function ($value, $key) {
-                if (!is_numeric($value)) {
+                if (! is_numeric($value)) {
                     return true;
                 }
 
-                return round((float)$value) !== round((float)$this->model->getOriginal($key));
+                return round((float) $value) !== round((float) $this->model->getOriginal($key));
             })
             ->map(
                 function ($value, $key) {
@@ -152,11 +141,9 @@ class ModelUpdating
 
     /**
      * Changing Admin ID
-     *
-     * @return int
      */
     private function getCreatorId(): int
     {
-        return (int)(Auth::check() ? Auth::id() : 0);
+        return (int) (Auth::check() ? Auth::id() : 0);
     }
 }

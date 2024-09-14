@@ -27,14 +27,8 @@ use League\CommonMark\Renderer\HtmlRenderer;
  */
 final class WikiTextRenderer
 {
-    /**
-     * @var MarkdownParser
-     */
     private MarkdownParser $parser;
 
-    /**
-     * @var HtmlRenderer
-     */
     private HtmlRenderer $renderer;
 
     /**
@@ -45,13 +39,13 @@ final class WikiTextRenderer
         $environment = new Environment([
             'html_input' => 'strip',
         ]);
-        $environment->addExtension(new CommonMarkCoreExtension());
-        $environment->addRenderer(Heading::class, new HeadingRenderer());
-        $environment->addRenderer(ThematicBreak::class, new ThematicBreakRenderer());
-        $environment->addRenderer(Paragraph::class, new ParagraphRenderer());
+        $environment->addExtension(new CommonMarkCoreExtension);
+        $environment->addRenderer(Heading::class, new HeadingRenderer);
+        $environment->addRenderer(ThematicBreak::class, new ThematicBreakRenderer);
+        $environment->addRenderer(Paragraph::class, new ParagraphRenderer);
         $environment->addRenderer(Link::class, new LinkRenderer($useLanguageLinks));
-        $environment->addRenderer(Emphasis::class, new EmphasisRenderer());
-        $environment->addRenderer(Strong::class, new StrongRenderer());
+        $environment->addRenderer(Emphasis::class, new EmphasisRenderer);
+        $environment->addRenderer(Strong::class, new StrongRenderer);
 
         $this->parser = new MarkdownParser($environment);
         $this->renderer = new HtmlRenderer($environment);

@@ -20,11 +20,6 @@ use OpenApi\Attributes as OA;
 )]
 class TagTransformer extends V1Transformer
 {
-    /**
-     * @param Tag $tag
-     *
-     * @return array
-     */
     public function transform(Tag $tag): array
     {
         return [

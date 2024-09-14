@@ -31,9 +31,6 @@ class Channel extends Model
         return 'slug';
     }
 
-    /**
-     * @return HasMany
-     */
     public function commLinks(): HasMany
     {
         return $this->hasMany(CommLink::class);

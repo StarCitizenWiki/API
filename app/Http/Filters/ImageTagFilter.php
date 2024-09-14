@@ -10,7 +10,7 @@ use Spatie\QueryBuilder\Filters\Filter;
 class ImageTagFilter implements Filter
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function __invoke(Builder $query, $value, string $property)
     {

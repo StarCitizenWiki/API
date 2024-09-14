@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 abstract class AbstractShipItemSpecification extends Model
 {
     protected $with = [
-        'shipItem'
+        'shipItem',
     ];
 
     public function shipItem(): BelongsTo

@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Missile extends CommodityItem
 {
-    use HasFactory;
     use HasDescriptionDataTrait;
+    use HasFactory;
 
     protected $table = 'sc_item_missiles';
 
@@ -54,6 +54,7 @@ class Missile extends CommodityItem
     public function getClusterSizeAttribute(): int
     {
         $cluster = $this->item->ports()->count();
+
         return $cluster === 0 ? 1 : $cluster;
     }
 

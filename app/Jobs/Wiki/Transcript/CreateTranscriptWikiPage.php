@@ -42,9 +42,7 @@ class CreateTranscriptWikiPage implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Transcript $transcript
-     * @param string     $token
-     * @param string     $template   The Template to include before every translation
+     * @param  string  $template  The Template to include before every translation
      */
     public function __construct(Transcript $transcript, string $token, string $template)
     {
@@ -63,7 +61,7 @@ class CreateTranscriptWikiPage implements ShouldQueue
         try {
             $text = optional($this->commLink->german())->translation;
 
-            if (null !== $text && !Normalizer::isNormalized($text)) {
+            if ($text !== null && ! Normalizer::isNormalized($text)) {
                 $text = Normalizer::normalize($text);
             }
 

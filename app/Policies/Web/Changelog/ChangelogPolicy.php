@@ -19,7 +19,6 @@ class ChangelogPolicy extends BaseUserPolicy
     /**
      * View all / single resource
      *
-     * @param \App\Models\Account\User\User $user
      *
      * @return bool
      */

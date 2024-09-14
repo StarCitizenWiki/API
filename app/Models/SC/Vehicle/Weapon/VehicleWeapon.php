@@ -60,7 +60,6 @@ class VehicleWeapon extends CommodityItem
         return $this->ammunition->damage;
     }
 
-
     public function getWeaponClassAttribute()
     {
         return $this->getDescriptionDatum('Class');

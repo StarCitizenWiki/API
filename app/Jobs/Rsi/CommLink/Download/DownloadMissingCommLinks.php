@@ -31,12 +31,11 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     use SerializesModels;
 
     public const FIRST_COMM_LINK_ID = 12663;
+
     public const COMM_LINK_BASE_URL = 'https://robertsspaceindustries.com/comm-link';
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -44,7 +43,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 
         $response = $this->makeClient()->get(self::COMM_LINK_BASE_URL);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             app('Log')::error('Could not connect to RSI, retrying in 5 minutes.');
             $this->release(300);
 
@@ -75,7 +74,6 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     /**
      * Extracts Post ids from html
      *
-     * @param string $body
      *
      * @return array Ids
      */
@@ -83,7 +81,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
     {
         $postIds = [];
 
-        $crawler = new Crawler();
+        $crawler = new Crawler;
 
         $crawler->addHtmlContent($body, 'UTF-8');
         $crawler->filter('#channel .hub-blocks .hub-block')
@@ -99,16 +97,12 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
 
     /**
      * Extract latest Comm-Link id from Website
-     *
-     * @param Crawler $link
-     *
-     * @return int
      */
     private function extractIdFromLink(Crawler $link): int
     {
         $linkHref = $link->attr('href');
 
-        if (null === $linkHref) {
+        if ($linkHref === null) {
             return 0;
         }
 
@@ -116,13 +110,11 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         $linkHref = end($linkHref);
         $linkHref = explode('-', $linkHref);
 
-        return (int)$linkHref[0];
+        return (int) $linkHref[0];
     }
 
     /**
      * Dispatches download jobs for all missing ids
-     *
-     * @param array $postIDs
      */
     private function downloadCommLinks(array $postIDs): void
     {
@@ -162,7 +154,7 @@ class DownloadMissingCommLinks extends BaseDownloadData implements ShouldQueue
         }
 
         for ($id = $dbId; $id <= $latestPostId; $id++) {
-            if (!$missing->contains($id)) {
+            if (! $missing->contains($id)) {
                 dispatch(new DownloadCommLink($id, true));
             }
         }

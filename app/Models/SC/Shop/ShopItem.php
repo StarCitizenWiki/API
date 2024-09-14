@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\SC\Shop;
 
-use App\Events\ModelUpdating;
 use App\Models\SC\Item\Item;
-use App\Traits\HasModelChangelogTrait as ModelChangelog;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -61,7 +59,7 @@ class ShopItem extends Pivot
     ];
 
     protected $with = [
-        'rental'
+        'rental',
     ];
 
     public function getOffsettedPriceAttribute()

@@ -7,6 +7,4 @@ namespace App\Repositories;
 /**
  * Class BaseAPITrait
  */
-abstract class AbstractBaseRepository
-{
-}
+abstract class AbstractBaseRepository {}
