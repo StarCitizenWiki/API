@@ -2,29 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api\V2\SC\Vehicle;
+namespace App\Http\Controllers\Api\V3\SC\Vehicle;
 
-use App\Http\Controllers\Api\V2\AbstractApiV2Controller;
-use App\Http\Requests\StarCitizen\Vehicle\VehicleSearchRequest;
 use App\Http\Resources\AbstractBaseResource;
-use App\Http\Resources\SC\Vehicle\VehicleLinkResource;
+use App\Http\Resources\SC\Vehicle\VehicleResourceV3;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
 use App\Models\SC\Vehicle\Vehicle as UnpackedVehicle;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
-use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class VehicleController extends AbstractApiV2Controller
+class VehicleController extends \App\Http\Controllers\Api\V2\SC\Vehicle\VehicleController
 {
     #[OA\Get(
-        path: '/api/v2/vehicles',
+        path: '/api/v3/vehicles',
         tags: ['Vehicles', 'RSI-Website', 'In-Game'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
@@ -46,28 +42,17 @@ class VehicleController extends AbstractApiV2Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = QueryBuilder::for(Vehicle::class, $request)
-            ->withoutEagerLoads()
-            ->with(['manufacturer'])
-            ->orderBy('name')
-            ->allowedFilters([
-                AllowedFilter::partial('manufacturer', 'manufacturer.name'),
-                AllowedFilter::exact('chassis_id', 'chassis_id'),
-            ])
-            ->paginate($this->limit)
-            ->appends(request()->query());
-
-        return VehicleLinkResource::collection($query);
+        return parent::index($request);
     }
 
     #[OA\Get(
-        path: '/api/v2/vehicles/{name}',
+        path: '/api/v3/vehicles/{name}',
         tags: ['Vehicles', 'RSI-Website', 'In-Game'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/locale'),
             new OA\Parameter(
-                name: 'filter[hardpoint]',
-                description: 'Filter hardpoint types, prefix with "!" to remove these hardpoints.',
+                name: 'filter[ports]',
+                description: 'Filter port types, prefix with "!" to remove these ports.',
                 in: 'query', schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
@@ -80,7 +65,7 @@ class VehicleController extends AbstractApiV2Controller
                         type: 'string',
                         enum: [
                             'components',
-                            'hardpoints',
+                            'ports',
                             'shops',
                         ]
                     ),
@@ -104,7 +89,7 @@ class VehicleController extends AbstractApiV2Controller
                 description: 'A singular vehicle',
                 content: new OA\JsonContent(
                     oneOf: [
-                        new OA\Schema(ref: '#/components/schemas/sc_vehicle_v2'),
+                        new OA\Schema(ref: '#/components/schemas/sc_vehicle_v3'),
                         new OA\Schema(ref: '#/components/schemas/vehicle_v2'),
                     ],
                 )
@@ -155,11 +140,11 @@ class VehicleController extends AbstractApiV2Controller
             throw new NotFoundHttpException('No Vehicle with specified name found.'.$request->vehicle);
         }
 
-        return new \App\Http\Resources\SC\Vehicle\VehicleResource($vehicleModel);
+        return new VehicleResourceV3($vehicleModel);
     }
 
     #[OA\Post(
-        path: '/api/v2/vehicles/search',
+        path: '/api/v3/vehicles/search',
         requestBody: new OA\RequestBody(
             description: 'Vehicle (partial) name or slug',
             required: true,
@@ -197,39 +182,6 @@ class VehicleController extends AbstractApiV2Controller
     )]
     public function search(Request $request): AnonymousResourceCollection
     {
-        $rules = (new VehicleSearchRequest())->rules();
-
-        $request->validate($rules);
-
-        $identifier = $this->cleanQueryName($request->get('query'));
-        $underscored = str_replace(' ', '_', $identifier);
-
-        $queryBuilder = QueryBuilder::for(UnpackedVehicle::class)
-            ->where(function (Builder $query) use ($identifier, $underscored) {
-                $query->Where('class_name', 'LIKE', "%{$underscored}")
-                    ->orWhere('class_name', $identifier)
-                    ->orWhere('item_uuid', $identifier)
-                    ->orWhere('name', 'LIKE', "%{$identifier}%");
-            })
-            ->allowedFilters([
-                AllowedFilter::partial('manufacturer', 'manufacturer.name'),
-            ])
-            ->paginate($this->limit)
-            ->appends(request()->query());
-
-        if ($queryBuilder->count() === 0) {
-            $queryBuilder = QueryBuilder::for(Vehicle::class, $request)
-                ->where('name', 'LIKE', "%{$identifier}%")
-                ->orWhere('slug', $identifier)
-                ->orWhereRelation('sc', 'item_uuid', $identifier)
-                ->paginate($this->limit)
-                ->appends(request()->query());
-        }
-
-        if ($queryBuilder->count() === 0) {
-            throw new NotFoundHttpException(sprintf(static::NOT_FOUND_STRING, $identifier));
-        }
-
-        return VehicleLinkResource::collection($queryBuilder);
+        return parent::search($request);
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('openapi', static function () {
     $openapi = \OpenApi\Generator::scan([
+        app_path('Http/Controllers/Api/V3'),
         app_path('Http/Controllers/Api/V2'),
         app_path('Http/Resources'),
     ]);
