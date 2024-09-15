@@ -50,6 +50,12 @@ class HardpointResourceV3 extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
+        $hasItem = ! empty($this->equipped_item_uuid);
+
+        if ($hasItem) {
+            $this->load('item');
+        }
+
         $data = [
             'name' => $this->hardpoint_name,
             'position' => $this->position,
@@ -58,20 +64,20 @@ class HardpointResourceV3 extends AbstractBaseResource
                 'max' => $this->max_size,
             ],
             'class_name' => $this->class_name,
-            'health' => $this->item?->durabilityData?->health,
-            'compatible_types' => array_filter([
+            'health' => $hasItem ? $this->item?->durabilityData?->health : null,
+            'compatible_types' => $hasItem ? array_filter([
                 array_filter([
                     'type' => $this->item?->type,
                     'sub_types' => array_filter([$this->item?->sub_type]),
                 ]),
-            ]),
+            ]) : null,
             $this->mergeWhen(...$this->addItem()),
-            $this->mergeWhen($this->children->count() > 0, [
+            $this->mergeWhen($this->children !== null && $this->children->count() > 0, fn () => [
                 'ports' => self::collection($this->children),
             ]),
         ];
 
-        if (($this->item?->uuid !== null) && $this->min_size === 0) {
+        if ($hasItem && $this->min_size === 0) {
             $data['sizes']['min'] = $this->item->size;
             $data['sizes']['max'] = $this->item->size;
         }
@@ -81,11 +87,15 @@ class HardpointResourceV3 extends AbstractBaseResource
 
     private function addItem(): array
     {
+        if (empty($this->equipped_item_uuid)) {
+            return [false, []];
+        }
+
         if (
             $this->vehicleItem->exists ||
             ($this->item !== null && ($this->item->exists || $this->item->isTurret() || $this->item->type === 'Cargo'))
         ) {
-            return [true, ['equipped_item' => new HardpointItemResourceV3($this->item)]];
+            return [true, fn () => ['equipped_item' => new HardpointItemResourceV3($this->item)]];
         }
 
         return [false, []];

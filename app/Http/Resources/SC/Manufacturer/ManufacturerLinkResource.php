@@ -37,7 +37,7 @@ class ManufacturerLinkResource extends AbstractBaseResource
             'name' => $this->name,
             'code' => $this->code,
             'link' => $this->makeApiUrl(self::MANUFACTURERS_SHOW, urlencode($this->name)),
-            $this->mergeWhen(str_contains($include, 'counts'), [
+            $this->mergeWhen(str_contains($include, 'counts'), fn () => [
                 'ships_count' => $this->shipsCount(),
                 'vehicles_count' => $this->groundVehiclesCount(),
                 'items_count' => $this->itemsCount(),

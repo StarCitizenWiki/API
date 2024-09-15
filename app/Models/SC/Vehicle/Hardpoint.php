@@ -16,7 +16,6 @@ class Hardpoint extends Model
 
     protected $with = [
         'children',
-        'item',
     ];
 
     protected $fillable = [
@@ -53,7 +52,8 @@ class Hardpoint extends Model
             VehicleItem::class,
             'uuid',
             'equipped_item_uuid',
-        )->withDefault();
+        )
+            ->withDefault();
     }
 
     public function item(): HasOne
@@ -62,7 +62,8 @@ class Hardpoint extends Model
             Item::class,
             'uuid',
             'equipped_item_uuid',
-        )->withDefault();
+        )
+            ->withDefault();
     }
 
     /**

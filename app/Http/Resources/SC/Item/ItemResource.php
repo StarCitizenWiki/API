@@ -272,117 +272,117 @@ class ItemResource extends AbstractTranslationResource
         return match (true) {
             $this->type === 'Armor' => [
                 $specification->exists,
-                ['emp' => new ArmorResource($specification)],
+                fn () => ['emp' => new ArmorResource($specification)],
             ],
             $this->type === 'Bomb' => [
                 $specification->exists,
-                ['bomb' => new BombResource($specification)],
+                fn () => ['bomb' => new BombResource($specification)],
             ],
             $this->type === 'Cooler' => [
                 $specification->exists,
-                ['cooler' => new CoolerResource($specification)],
+                fn () => ['cooler' => new CoolerResource($specification)],
             ],
             str_contains($this->type, 'Char_Clothing'), str_contains($this->type, 'Char_Armor') => [
                 $specification->exists,
-                ['clothing' => new ClothingResource($specification)],
+                fn () => ['clothing' => new ClothingResource($specification)],
             ],
             $this->type === 'EMP' => [
                 $specification->exists,
-                ['emp' => new EmpResource($specification)],
+                fn () => ['emp' => new EmpResource($specification)],
             ],
             $this->type === 'Food', $this->type === 'Bottle', $this->type === 'Drink' => [
                 $specification->exists,
-                ['food' => new FoodResource($specification)],
+                fn () => ['food' => new FoodResource($specification)],
             ],
             $this->type === 'FlightController' => [
                 $specification->exists,
-                ['flight_controller' => new FlightControllerResource($specification)],
+                fn () => ['flight_controller' => new FlightControllerResource($specification)],
             ],
             $this->type === 'FuelTank', $this->type === 'QuantumFuelTank', $this->type === 'ExternalFuelTank' => [
                 $specification->exists,
-                ['fuel_tank' => new FuelTankResource($specification)],
+                fn () => ['fuel_tank' => new FuelTankResource($specification)],
             ],
             $this->type === 'FuelIntake' => [
                 $specification->exists,
-                ['fuel_intake' => new FuelIntakeResource($specification)],
+                fn () => ['fuel_intake' => new FuelIntakeResource($specification)],
             ],
             $this->sub_type === 'Hacking' => [
                 $specification->exists,
-                ['hacking_chip' => new HackingChipResource($specification)],
+                fn () => ['hacking_chip' => new HackingChipResource($specification)],
             ],
             $this->type === 'MainThruster', $this->type === 'ManneuverThruster' => [
                 $specification->exists,
-                ['thruster' => new ThrusterResource($specification)],
+                fn () => ['thruster' => new ThrusterResource($specification)],
             ],
             $this->sub_type === 'Magazine' => [
                 $specification->exists,
-                ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification)],
+                fn () => ['personal_weapon_magazine' => new PersonalWeaponMagazineResource($specification)],
             ],
             $this->type === 'Missile', $this->type === 'Torpedo' => [
                 $specification->exists,
-                ['missile' => new MissileResource($specification)],
+                fn () => ['missile' => new MissileResource($specification)],
             ],
             $this->type === 'MiningModifier' => [
                 $specification->exists,
-                ['mining_module' => new MiningModuleResource($specification)],
+                fn () => ['mining_module' => new MiningModuleResource($specification)],
             ],
             $this->type === 'PowerPlant' => [
                 $specification->exists,
-                ['power_plant' => new PowerPlantResource($specification)],
+                fn () => ['power_plant' => new PowerPlantResource($specification)],
             ],
             $this->type === 'QuantumInterdictionGenerator' => [
                 $specification->exists,
-                ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($specification)],
+                fn () => ['quantum_interdiction_generator' => new QuantumInterdictionGeneratorResource($specification)],
             ],
             $this->type === 'QuantumDrive' => [
                 $specification->exists,
-                ['quantum_drive' => new QuantumDriveResource($specification)],
+                fn () => ['quantum_drive' => new QuantumDriveResource($specification)],
             ],
             $this->type === 'SalvageModifier' => [
                 $specification->exists,
-                ['salvage_modifier' => new SalvageModifierResource($specification)],
+                fn () => ['salvage_modifier' => new SalvageModifierResource($specification)],
             ],
             $this->type === 'SelfDestruct' => [
                 $specification->exists,
-                ['self_destruct' => new SelfDestructResource($specification)],
+                fn () => ['self_destruct' => new SelfDestructResource($specification)],
             ],
             $this->type === 'Shield' => [
                 $specification->exists,
-                ['shield' => new ShieldResource($specification)],
+                fn () => ['shield' => new ShieldResource($specification)],
             ],
             $this->type === 'TractorBeam' || $this->type === 'TowingBeam' => [
                 $specification->exists,
-                ['tractor_beam' => new TractorBeamResource($specification)],
+                fn () => ['tractor_beam' => new TractorBeamResource($specification)],
             ],
             $this->type === 'WeaponPersonal' && $this->sub_type === 'Grenade' => [
                 $specification->exists,
-                ['grenade' => new GrenadeResource($specification)],
+                fn () => ['grenade' => new GrenadeResource($specification)],
             ],
             $this->type === 'WeaponPersonal' && $this->sub_type === 'Knife' => [
                 $specification->exists,
-                ['knife' => new KnifeResource($specification)],
+                fn () => ['knife' => new KnifeResource($specification)],
             ],
             $this->type === 'WeaponPersonal' => [
                 $specification->exists,
-                ['personal_weapon' => new PersonalWeaponResource($specification)],
+                fn () => ['personal_weapon' => new PersonalWeaponResource($specification)],
             ],
             $this->sub_type === 'IronSight' => [
                 $specification->exists,
-                ['iron_sight' => new IronSightResource($specification)],
+                fn () => ['iron_sight' => new IronSightResource($specification)],
             ],
             $this->type === 'WeaponAttachment' && in_array($this->sub_type, ['Barrel', 'BottomAttachment', 'Utility'], true) => [
                 $specification->exists,
-                ['barrel_attach' => new BarrelAttachResource($specification)],
+                fn () => ['barrel_attach' => new BarrelAttachResource($specification)],
             ],
             $this->type === 'WeaponGun', $this->type === 'WeaponDefensive' => [
                 $specification->exists,
-                [($this->type === 'WeaponGun' ?
+                fn () => [($this->type === 'WeaponGun' ?
                     'vehicle_weapon' :
                     'counter_measure') => new VehicleWeaponResource($specification), ],
             ],
             $this->type === 'WeaponMining' => [
                 $specification->exists,
-                ['mining_laser' => new MiningLaserResource($specification)],
+                fn () => ['mining_laser' => new MiningLaserResource($specification)],
             ],
             default => [false, []],
         };
@@ -414,7 +414,7 @@ class ItemResource extends AbstractTranslationResource
 
         return [
             true,
-            [
+            fn () => [
                 'position' => match ($this->sub_type) {
                     'Magazine' => 'Magazine Well',
                     'Barrel' => 'Barrel',

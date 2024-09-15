@@ -66,9 +66,9 @@ class HardpointItemResourceV3 extends ItemResource
             'manufacturer' => new ManufacturerLinkResource($this->manufacturer),
             'type' => $this->cleanType(),
             'sub_type' => $this->sub_type,
-            $this->mergeWhen($this->isTurret(), $this->addTurretData()),
+            $this->mergeWhen($this->isTurret(), fn () => $this->addTurretData()),
             $this->mergeWhen(...$this->addSpecification()),
-            $this->mergeWhen($this->container->exists, [
+            $this->mergeWhen($this->container->exists, fn () => [
                 'inventory' => new ItemContainerResource($this->container),
             ]),
             'ports' => ItemPortResource::collection($this->whenLoaded('ports')),

@@ -47,22 +47,28 @@ class HardpointResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
+        $hasItem = ! empty($this->equipped_item_uuid);
+
+        if ($hasItem) {
+            $this->load('item');
+        }
+
         $data = [
             'name' => $this->hardpoint_name,
             'position' => $this->position,
             'min_size' => $this->min_size,
             'max_size' => $this->max_size,
             'class_name' => $this->class_name,
-            'health' => $this->item?->durabilityData?->health,
-            'type' => $this->item?->type,
-            'sub_type' => $this->item?->sub_type,
+            'health' => $hasItem ? $this->item?->durabilityData?->health : null,
+            'type' => $hasItem ? $this->item?->type : null,
+            'sub_type' => $hasItem ? $this->item?->sub_type : null,
             $this->mergeWhen(...$this->addItem()),
-            $this->mergeWhen($this->children->count() > 0, [
+            $this->mergeWhen($this->children !== null && $this->children->count() > 0, fn () => [
                 'children' => self::collection($this->children),
             ]),
         ];
 
-        if ($this->item?->uuid !== null) {
+        if ($hasItem) {
             $data += [
                 'type' => $this->item->type,
                 'sub_type' => $this->item->sub_type,
@@ -79,11 +85,15 @@ class HardpointResource extends AbstractBaseResource
 
     private function addItem(): array
     {
+        if (empty($this->equipped_item_uuid)) {
+            return [false, []];
+        }
+
         if (
             $this->vehicleItem->exists ||
             ($this->item !== null && ($this->item->exists || $this->item->isTurret() || $this->item->type === 'Cargo'))
         ) {
-            return [true, ['item' => new HardpointItemResource($this->item)]];
+            return [true, fn () => ['item' => new HardpointItemResource($this->item)]];
         }
 
         return [false, []];

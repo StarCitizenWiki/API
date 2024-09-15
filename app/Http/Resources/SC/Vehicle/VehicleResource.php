@@ -347,7 +347,7 @@ class VehicleResource extends AbstractBaseResource
                 'scm_to_zero' => $this->scm_to_zero,
                 'max_to_zero' => $this->handling?->max_to_zero ?? $this->max_to_zero,
                 // Ground Vehicles
-                $this->mergeWhen($this->handling !== null, [
+                $this->mergeWhen($this->handling !== null, fn () => [
                     'reverse' => $this->handling?->reverse_speed,
                 ]),
             ],
@@ -367,7 +367,7 @@ class VehicleResource extends AbstractBaseResource
                 'yaw' => $this->flightController?->yaw,
                 'roll' => $this->flightController?->roll,
                 // Ground Vehicles
-                $this->mergeWhen($this->handling !== null, [
+                $this->mergeWhen($this->handling !== null, fn () => [
                     'v0_steer_max' => $this->handling?->v0_steer_max,
                     'kv_steer_max' => $this->handling?->kv_steer_max,
                     'vmax_steer_max' => $this->handling?->vmax_steer_max,
@@ -387,7 +387,7 @@ class VehicleResource extends AbstractBaseResource
                     'maneuvering_g' => $this->acceleration_g_maneuvering,
                 ],
             ],
-            $this->mergeWhen($this->armor?->exists, [
+            $this->mergeWhen($this->armor?->exists, fn () => [
                 'armor' => new ArmorResource($this->armor),
             ]),
             'foci' => [
@@ -407,10 +407,10 @@ class VehicleResource extends AbstractBaseResource
                 'expedite_time' => $this->expedite_time,
                 'expedite_cost' => $this->expedite_cost,
             ],
-            $this->mergeWhen(in_array('hardpoints', $includes, true), [
+            $this->mergeWhen(in_array('hardpoints', $includes, true), fn () => [
                 'hardpoints' => HardpointResource::collection($hardpoints),
             ]),
-            $this->mergeWhen(in_array('shops', $includes, true), [
+            $this->mergeWhen(in_array('shops', $includes, true), fn () => [
                 'shops' => ShopResource::collection($this->item->shops),
             ]),
             'parts' => VehiclePartResource::collection($this->whenLoaded('partsWithoutParent')),
@@ -436,7 +436,7 @@ class VehicleResource extends AbstractBaseResource
 
         return [
             true,
-            [
+            fn () => [
                 'quantum' => [
                     'quantum_speed' => $normal->drive_speed,
                     'quantum_spool_time' => $normal->spool_up_time,
