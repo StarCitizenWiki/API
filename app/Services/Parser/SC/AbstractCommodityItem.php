@@ -114,6 +114,9 @@ abstract class AbstractCommodityItem
     protected function getName(array $attachDef, string $default): string
     {
         $key = substr($attachDef['Localization']['Name'], 1);
+        if (str_contains($key, '_Desc_')) {
+            $key = str_replace('_Desc_', '_Name_', $key);
+        }
         $name = $this->labels->getData()->get($key);
         $nameP = $this->labels->getData()->get($key.',P');
         $name = $this->cleanString(trim($name ?? $nameP ?? $default));
