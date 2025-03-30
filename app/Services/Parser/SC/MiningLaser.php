@@ -40,7 +40,7 @@ final class MiningLaser extends AbstractCommodityItem
 
         $optimal_range = str_replace('m', '', $data['optimal_range'] ?? '');
         $maximum_range = str_replace('m', '', $data['maximum_range'] ?? '');
-        $extraction = str_replace('SCU/s', '', $data['extraction_throughput'] ?? $data['collection_throughput'] ?? '');
+        $extraction = str_replace(['SCU/s', 'c'], '', $data['extraction_throughput'] ?? $data['collection_throughput'] ?? '');
 
         return [
             'uuid' => $this->getUUID(),
