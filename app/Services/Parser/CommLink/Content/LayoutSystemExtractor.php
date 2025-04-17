@@ -69,7 +69,7 @@ final class LayoutSystemExtractor implements ContentExtractorInterface
 
         return [
             $count > 0,
-            $count,
+            $count + 10,
         ];
     }
 }

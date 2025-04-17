@@ -19,6 +19,7 @@ class ContentExtractorFactory
                 LayoutSystemExtractor::class,
                 VueArticleExtractor::class,
                 GFeatureExtractor::class,
+                AlexandriaExtractor::class,
             ]
         )
             ->map(
@@ -26,6 +27,7 @@ class ContentExtractorFactory
                     return array_merge(call_user_func([$parser, 'canParse'], $crawler), [$parser]);
                 }
             )
+            ->filter(fn (array $res) => $res[0] === true)
             ->sortByDesc('1') // Sort by count of matched items
             ->map(
                 function (array $result) use ($crawler) {

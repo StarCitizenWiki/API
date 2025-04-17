@@ -72,7 +72,7 @@ class Image extends BaseElement
                     $imageIDs[] = ImageModel::query()->firstOrCreate(
                         [
                             'src' => $this->cleanText($src),
-                            'alt' => $this->cleanText($image['alt']),
+                            'alt' => $this->cleanText($image['alt'] ?? ''),
                             'dir' => self::getDirHash($src),
                         ]
                     )->id;
@@ -96,6 +96,7 @@ class Image extends BaseElement
         $this->extractMediaImages();
         $this->extractRsiImages();
         $this->extractGElementImages();
+        $this->extractAlexandriaImages();
 
         if ($this->isSpecialPage($this->commLink)) {
             $this->commLink->filterXPath('//template')->each(
@@ -303,6 +304,89 @@ class Image extends BaseElement
         );
 
         $this->addImages($matches);
+    }
+
+    /**
+     * Extracts images from Alexandria content
+     */
+    private function extractAlexandriaImages(): void
+    {
+        // Extract from g-platform-client-component elements
+        $this->commLink->filterXPath('//g-platform-client-component')->each(
+            function (Crawler $component) {
+                try {
+                    $properties = $component->attr(':properties');
+                    if (! empty($properties)) {
+                        $this->extractImagesFromProperties($properties);
+                    }
+                } catch (\InvalidArgumentException $e) {
+                    // Do Nothing
+                }
+            }
+        );
+
+        // Extract from g-banner-advanced elements
+        $this->commLink->filterXPath('//g-banner-advanced')->each(
+            function (Crawler $banner) {
+                try {
+                    $mediaAttr = $banner->attr(':media');
+                    if (! empty($mediaAttr)) {
+                        $mediaJson = json_decode($mediaAttr, true);
+                        if (isset($mediaJson['background']['picture']['originalFormat']['max'])) {
+                            $this->images[] = [
+                                'src' => trim($mediaJson['background']['picture']['originalFormat']['max']),
+                            ];
+                        }
+                    }
+                } catch (\InvalidArgumentException $e) {
+                    // Do Nothing
+                }
+            }
+        );
+    }
+
+    /**
+     * Extract images from component properties
+     */
+    private function extractImagesFromProperties(string $properties): void
+    {
+        $json = json_decode($properties, true);
+
+        if (! $json || ! isset($json['componentProps'])) {
+            return;
+        }
+
+        // Check for backgrounds in layers
+        if (isset($json['componentProps']['layers']) && is_array($json['componentProps']['layers'])) {
+            foreach ($json['componentProps']['layers'] as $layer) {
+                if (isset($layer['backgroundImage']['heapImage']['source'])) {
+                    $this->images[] = [
+                        'src' => trim($layer['backgroundImage']['heapImage']['source']),
+                    ];
+                }
+
+                if (isset($layer['backgroundImage']['optimizedImage']['originalFormat']['max'])) {
+                    $this->images[] = [
+                        'src' => trim($layer['backgroundImage']['optimizedImage']['originalFormat']['max']),
+                    ];
+                }
+            }
+        }
+
+        // Check for image components
+        if (isset($json['componentProps']['image'])) {
+            if (isset($json['componentProps']['image']['source'])) {
+                $this->images[] = [
+                    'src' => trim($json['componentProps']['image']['source']),
+                ];
+            }
+
+            if (isset($json['componentProps']['image']['originalFormat']['max'])) {
+                $this->images[] = [
+                    'src' => trim($json['componentProps']['image']['originalFormat']['max']),
+                ];
+            }
+        }
     }
 
     private function getFilterSelector(): string

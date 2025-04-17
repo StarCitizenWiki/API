@@ -14,6 +14,9 @@ use App\Services\Parser\CommLink\Link;
 use App\Services\Parser\CommLink\Metadata;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,6 +25,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -47,6 +51,11 @@ class ImportCommLink implements ShouldQueue
     public const SPECIAL_PAGE_SELECTOR = '#layout-system';
 
     /**
+     * Alexandria components selector
+     */
+    public const ALEXANDRIA_SELECTOR = 'g-platform-client-component, g-banner-advanced, g-navigation-sales';
+
+    /**
      * @var int Comm-Link ID
      */
     private int $commLinkId;
@@ -65,13 +74,15 @@ class ImportCommLink implements ShouldQueue
 
     private Crawler $crawler;
 
+    private const ALEXANDRIA_URL_PATTERN = 'https://robertsspaceindustries.com/alexandria/html';
+
     /**
      * Create a new job instance.
      *
      * @param  int  $id  Comm-Link ID
      * @param  string  $file  Current File Name
      * @param  CommLink|null  $commLink  Optional Comm-Link Model to update
-     * @param  bool  $forceImport  Flag to Force Import from current file
+     * @param  bool  $forceImport  Flag to Force Import from the current file
      */
     public function __construct(int $id, string $file, ?CommLink $commLink = null, bool $forceImport = false)
     {
@@ -104,14 +115,44 @@ class ImportCommLink implements ShouldQueue
             throw new FileNotFoundException;
         }
 
+        // Check and process dynamic content if needed
+        if ($this->containsDynamicContent($content)) {
+            try {
+                $content = $this->processDynamicContent($content);
+                // Save the updated content
+                Storage::disk('comm_links')->put($this->filePath(), $content);
+                app('Log')::info(
+                    "Successfully processed dynamic content for Comm-Link {$this->commLinkId}",
+                    [
+                        'file' => $this->file,
+                    ]
+                );
+            } catch (Exception $e) {
+                app('Log')::error(
+                    "Failed to process dynamic content for Comm-Link {$this->commLinkId}",
+                    [
+                        'error' => $e->getMessage(),
+                        'file' => $this->file,
+                    ]
+                );
+            }
+        }
+
         $this->crawler = new Crawler;
-        $this->crawler->addHtmlContent($content, 'UTF-8');
+        $this->crawler->addHtmlContent($content);
 
         $post = $this->crawler->filter(self::POST_SELECTOR);
         $subscribers = $this->crawler->filter(self::SUBSCRIBERS_SELECTOR);
         $specialPage = $this->crawler->filter(self::SPECIAL_PAGE_SELECTOR);
+        $alexandriaComponents = $this->crawler->filter(self::ALEXANDRIA_SELECTOR);
 
-        if ($post->count() === 0 && $subscribers->count() === 0 && $specialPage->count() === 0) {
+        // Check if we have any content to parse
+        if (
+            $post->count() === 0 &&
+            $subscribers->count() === 0 &&
+            $specialPage->count() === 0 &&
+            $alexandriaComponents->count() === 0
+        ) {
             app('Log')::info("Comm-Link with id {$this->commLinkId} has no content");
 
             return;
@@ -122,6 +163,85 @@ class ImportCommLink implements ShouldQueue
         } else {
             $this->checkCommLinkForChanges();
         }
+    }
+
+    /**
+     * Check if the content contains dynamic content loading
+     */
+    private function containsDynamicContent(string $content): bool
+    {
+        return str_contains($content, self::ALEXANDRIA_URL_PATTERN);
+    }
+
+    /**
+     * Process and replace dynamic content
+     *
+     * @throws Exception
+     */
+    private function processDynamicContent(string $content): string
+    {
+
+        $processedContent = $content;
+
+        $crawler = new Crawler;
+        $crawler->addHtmlContent($content, 'UTF-8');
+        $toReplace = [];
+        $crawler->filter('script')->each(function (Crawler $node, $i) use (&$toReplace) {
+            if (str_contains($node->html(), self::ALEXANDRIA_URL_PATTERN)) {
+                $toReplace[] = $node->html();
+            }
+        });
+
+        $alexandriaContent = '';
+
+        foreach ($toReplace as $scriptTag) {
+            if (! preg_match('/https:\/\/robertsspaceindustries\.com\/alexandria\/html[^"\'\s]*/i', $scriptTag, $urlMatches)) {
+                app('Log')::warning(
+                    "Failed to extract Alexandria URL from script tag in Comm-Link {$this->commLinkId}",
+                    [
+                        'script_tag' => substr($scriptTag, 0, 150).'...',
+                    ]
+                );
+
+                continue;
+            }
+
+            $alexandriaUrl = $urlMatches[0];
+
+            try {
+                $client = new Client([
+                    'timeout' => 30,
+                ]);
+
+                $response = $client->get($alexandriaUrl);
+
+                if ($response->getStatusCode() !== 200) {
+                    throw new RuntimeException('Alexandria endpoint returned status code: '.$response->getStatusCode());
+                }
+
+                $dynamicContent = $response->getBody()->getContents();
+
+                if (empty($dynamicContent)) {
+                    throw new RuntimeException('Alexandria endpoint returned empty content');
+                }
+
+                $processedContent = str_replace($scriptTag, '', $processedContent);
+
+                $alexandriaContent .= $dynamicContent;
+
+                app('Log')::debug(
+                    "Successfully replaced Alexandria content in Comm-Link {$this->commLinkId}",
+                    [
+                        'url' => $alexandriaUrl,
+                        'content_length' => strlen($dynamicContent),
+                    ]
+                );
+            } catch (GuzzleException $e) {
+                throw new RuntimeException("Failed to fetch dynamic content from {$alexandriaUrl}: {$e->getMessage()}");
+            }
+        }
+
+        return preg_replace('/<div id="layout-system".*?>.*?<\/div>/s', sprintf('<div id="layout-system">%s</div>', $alexandriaContent), $processedContent);
     }
 
     /**

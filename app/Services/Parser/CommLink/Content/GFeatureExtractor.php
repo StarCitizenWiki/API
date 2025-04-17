@@ -25,33 +25,32 @@ final class GFeatureExtractor implements ContentExtractorInterface
     {
         $content = $this->getIntroduction($this->page);
 
-        $this->page->filterXPath('//g-features')->each(
-            function (Crawler $crawler) use (&$content) {
-                $this->getGFeaturesIntro($crawler, $content);
+        $extract = function (Crawler $crawler) use (&$content) {
+            $this->getGFeaturesIntro($crawler, $content);
 
-                $crawler->filterXPath(self::getFilter())->each(function (Crawler $crawler) use (&$content) {
-                    $crawler->filterXPath('//template')->each(function (Crawler $crawler) use (&$content) {
-                        $slot = $crawler->attr('slot');
-                        switch ($slot) {
-                            case 'title':
-                                $content .= sprintf('<h2>%s</h2>', $crawler->text());
-                                break;
+            $crawler->filterXPath('//template')->each(function (Crawler $crawler) use (&$content) {
+                $slot = $crawler->attr('slot');
+                switch ($slot) {
+                    case 'title':
+                        $content .= sprintf('<h2>%s</h2>', $crawler->text());
+                        break;
 
-                            case 'subtitle':
-                                $content .= sprintf('<h3>%s</h3>', $crawler->text());
-                                break;
+                    case 'subtitle':
+                        $content .= sprintf('<h3>%s</h3>', $crawler->text());
+                        break;
 
-                            case 'body':
-                                $content .= $crawler->html();
-                                break;
+                    case 'body':
+                        $content .= $crawler->html();
+                        break;
 
-                            default:
-                                break;
-                        }
-                    });
-                });
-            }
-        );
+                    default:
+                        break;
+                }
+            });
+        };
+
+        //$this->page->filterXPath('//g-features')->each($extract);
+        $this->page->filterXPath('//g-feature')->each($extract);
 
         return $content;
     }
