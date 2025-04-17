@@ -68,7 +68,8 @@ class VehicleController extends AbstractApiV2Controller
             new OA\Parameter(
                 name: 'filter[hardpoint]',
                 description: 'Filter hardpoint types, prefix with "!" to remove these hardpoints.',
-                in: 'query', schema: new OA\Schema(type: 'string')
+                in: 'query',
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
                 name: 'include',

@@ -268,7 +268,6 @@ class ImportMissions extends Command
                     'mission_end_reason' => $data['missionDeadline']['missionEndReason'],
                 ]);
             }
-
         });
     }
 

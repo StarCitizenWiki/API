@@ -53,7 +53,8 @@ class VehicleController extends \App\Http\Controllers\Api\V2\SC\Vehicle\VehicleC
             new OA\Parameter(
                 name: 'filter[ports]',
                 description: 'Filter port types, prefix with "!" to remove these ports.',
-                in: 'query', schema: new OA\Schema(type: 'string')
+                in: 'query',
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
                 name: 'include',

@@ -27,7 +27,6 @@ class Scope extends Model
         return $this->belongsToMany(
             Standing::class,
             'sc_reputation_scope_standing',
-
         );
     }
 }

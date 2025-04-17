@@ -30,6 +30,11 @@ services:
       - "traefik.http.routers.api-star-citizen.rule=Host(`api.star-citizen.wiki`)"
       - "traefik.http.routers.api-star-citizen.entryPoints=https"
       - "traefik.http.routers.api-star-citizen.tls=true"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
 
 
   db:
@@ -47,7 +52,10 @@ services:
       MYSQL_PASSWORD:
     networks:
       - internal
-
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
 
   ofelia:
     image:
@@ -60,6 +68,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./docker/ofelia.ini:/etc/ofelia/config.ini:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
 
 
 networks:

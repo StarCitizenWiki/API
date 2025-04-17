@@ -36,7 +36,6 @@ class Ammunition extends Model
     public function piercability(): HasOne
     {
         return $this->hasOne(AmmunitionPiercability::class, 'ammunition_uuid', 'uuid');
-
     }
 
     public function damages(): HasMany

@@ -109,7 +109,7 @@ class Item extends HasTranslations
             'only_usable',
             static function (Builder $builder) {
                 $builder
-//                    ->where('sc_items.name', '<>', '<= PLACEHOLDER =>')
+            //                    ->where('sc_items.name', '<>', '<= PLACEHOLDER =>')
                     ->where('sc_items.class_name', 'NOT LIKE', '%test%')
                     ->where('sc_items.class_name', 'NOT LIKE', '%opaque%')
                     ->where('sc_items.class_name', 'NOT LIKE', '%nodraw%')
@@ -481,7 +481,6 @@ class Item extends HasTranslations
     public function baseVariant(): BelongsTo
     {
         return $this->belongsTo(self::class, 'base_id', 'id');
-
     }
 
     public function variants(): HasMany

@@ -40,7 +40,8 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'frontal_oscillation_randomness_multiplier', type: 'double', nullable: true),
                     new OA\Property(property: 'animated_recoil_multiplier', type: 'double', nullable: true),
                 ]
-            ), nullable: true
+            ),
+            nullable: true
         ),
         new OA\Property(
             property: 'spread',
@@ -54,7 +55,8 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'decay_multiplier', type: 'double', nullable: true),
                     new OA\Property(property: 'additive_modifier', type: 'double', nullable: true),
                 ]
-            ), nullable: true
+            ),
+            nullable: true
         ),
         new OA\Property(
             property: 'aim',
@@ -64,7 +66,8 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'zoom_scale', type: 'double', nullable: true),
                     new OA\Property(property: 'zoom_time_scale', type: 'double', nullable: true),
                 ]
-            ), nullable: true
+            ),
+            nullable: true
         ),
         new OA\Property(
             property: 'slavage',
@@ -75,7 +78,8 @@ use OpenApi\Attributes as OA;
                     new OA\Property(property: 'extraction_efficiency', type: 'double', nullable: true),
                     new OA\Property(property: 'speed_multiplier', type: 'double', nullable: true),
                 ]
-            ), nullable: true
+            ),
+            nullable: true
         ),
 
     ],

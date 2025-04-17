@@ -14,7 +14,6 @@ class ManufacturerFixer
         self::init();
 
         return self::$manufacturers->firstWhere('code', $code);
-
     }
 
     public static function getByName(string $name): ?array
