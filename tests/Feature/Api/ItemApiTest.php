@@ -20,10 +20,7 @@ class ItemApiTest extends TestCase
         $this->withoutMiddleware();
     }
 
-    public function refreshDatabase(): void
-    {
-
-    }
+    public function refreshDatabase(): void {}
 
     /**
      * GET each item and check that it is a 200 status

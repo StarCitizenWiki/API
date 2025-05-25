@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Rsi\CommLink\Image;
 
@@ -9,11 +11,8 @@ use App\Models\Account\User\UserGroup;
  * Class Images Controller Test
  *
  * @covers \App\Policies\Web\Rsi\CommLink\CommLinkPolicy<extended>
- *
  * @covers \App\Http\Middleware\CheckUserState
- *
  * @covers \App\Providers\RouteServiceProvider
- *
  * @covers \App\Models\Rsi\CommLink\Series\Series
  */
 class ImageControllerBlockedTest extends ImageControllerTestCase

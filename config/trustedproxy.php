@@ -17,7 +17,7 @@ return [
      * of your proxy (e.g. if using ELB or similar).
      *
      */
-/*    'proxies' => [
+    /*    'proxies' => [
         '127.0.0.1',
     ], // [<ip addresses>,], '*', '<ip addresses>,'*/
 

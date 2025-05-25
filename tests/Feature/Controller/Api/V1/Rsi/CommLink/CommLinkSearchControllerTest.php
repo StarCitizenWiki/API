@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink;
 
@@ -9,11 +11,9 @@ use Tests\Feature\Controller\Api\V1\ApiTestCase;
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController<extended>
- *
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Link\LinkTransformer<extended>
- *
  * @covers \App\Models\Rsi\CommLink\CommLink<extended>
  */
 class CommLinkSearchControllerTest extends ApiTestCase
@@ -78,7 +78,6 @@ class CommLinkSearchControllerTest extends ApiTestCase
     {
         self::markTestSkipped();
     }
-
 
     /**
      * Show Method Tests
@@ -208,7 +207,6 @@ class CommLinkSearchControllerTest extends ApiTestCase
 
         $response->assertStatus(422);
     }
-
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::searchByTitle

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User;
 
@@ -10,11 +12,8 @@ use Illuminate\Http\Response;
  * Class UserControllerTest
  *
  * @covers \App\Policies\Web\User\UserPolicy<extended>
- *
  * @covers \App\Models\Account\User\User
- *
  * @covers \App\Http\Middleware\CheckUserState
- *
  * @covers \App\Providers\RouteServiceProvider
  */
 class UserControllerBlockedTest extends UserControllerTestCase

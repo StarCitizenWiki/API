@@ -14,7 +14,6 @@ class DownloadStarmapTest extends TestCase
     /**
      * Download starmap
      *
-     * @return void
      *
      * @covers \App\Console\Commands\Starmap\Download\DownloadStarmap
      */
@@ -36,7 +35,6 @@ class DownloadStarmapTest extends TestCase
     /**
      * Download starmap and import
      *
-     * @return void
      *
      * @covers \App\Console\Commands\Starmap\Download\DownloadStarmap
      */

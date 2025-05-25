@@ -19,7 +19,7 @@ use Tests\TestCase;
  */
 class ParseCommLinkTest extends TestCase
 {
-    private $commLink = <<<EOL
+    private $commLink = <<<'EOL'
 <html>
 <head>
     <meta charset="utf-8">

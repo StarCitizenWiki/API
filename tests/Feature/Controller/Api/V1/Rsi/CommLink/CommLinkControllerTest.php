@@ -1,22 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link\Link;
-use Tests\Feature\Controller\Api\V1\ApiTestCase;
 use Illuminate\Support\Collection;
+use Tests\Feature\Controller\Api\V1\ApiTestCase;
 
 /**
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkController<extended>
- *
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Link\LinkTransformer<extended>
- *
  * @covers \App\Models\Rsi\CommLink\CommLink<extended>
  */
 class CommLinkControllerTest extends ApiTestCase
@@ -81,7 +81,6 @@ class CommLinkControllerTest extends ApiTestCase
     {
         parent::testIndexInvalidLimit($limit);
     }
-
 
     /**
      * Show Method Tests
@@ -159,9 +158,7 @@ class CommLinkControllerTest extends ApiTestCase
         $response->assertOk()
             ->assertJsonStructure(
                 [
-                    'data' =>
-                        $structure
-                    ,
+                    'data' => $structure,
                 ]
             )
             ->assertJsonCount(

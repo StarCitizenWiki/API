@@ -7,17 +7,13 @@ namespace Tests\Feature\Console\Commands\CommLink\Import;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Console\Exception\RuntimeException;
 use Tests\TestCase;
 
 class ImportCommLinkTest extends TestCase
 {
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
     public function testHandleMissingId(): void
     {
@@ -26,8 +22,6 @@ class ImportCommLinkTest extends TestCase
 
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
     public function testHandleAllOption(): void
     {
@@ -37,8 +31,6 @@ class ImportCommLinkTest extends TestCase
 
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
     public function testHandle(): void
     {

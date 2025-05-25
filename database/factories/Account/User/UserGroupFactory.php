@@ -97,4 +97,3 @@ class UserGroupFactory extends Factory
         );
     }
 }
-

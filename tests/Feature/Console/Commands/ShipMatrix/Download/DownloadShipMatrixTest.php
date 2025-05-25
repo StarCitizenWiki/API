@@ -15,8 +15,6 @@ class DownloadShipMatrixTest extends TestCase
 {
     /**
      * Test without import
-     *
-     * @return void
      */
     public function testHandleWithoutImport(): void
     {
@@ -31,8 +29,6 @@ class DownloadShipMatrixTest extends TestCase
 
     /**
      * Test with import
-     *
-     * @return void
      */
     public function testHandleWithImport(): void
     {

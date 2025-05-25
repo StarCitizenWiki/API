@@ -12,8 +12,6 @@ class SyncImageIdsTest extends TestCase
 {
     /**
      * Test handle without offset
-     *
-     * @return void
      */
     public function testHandle(): void
     {
@@ -29,8 +27,6 @@ class SyncImageIdsTest extends TestCase
 
     /**
      * Test handle with offset
-     *
-     * @return void
      */
     public function testHandleOffset(): void
     {
@@ -46,8 +42,6 @@ class SyncImageIdsTest extends TestCase
 
     /**
      * Test handle with invalid offset
-     *
-     * @return void
      */
     public function testHandleInvalidOffset(): void
     {

@@ -9,8 +9,6 @@ class CreateGalactapediaArticleTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -33,9 +31,6 @@ class CreateGalactapediaArticleTranslationsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @param $table
-     * @return void
      */
     public function down($table): void
     {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders\StarCitizen;
 
-use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +12,6 @@ class ProductionStatusTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {

@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\Vehicle\Ship;
 
-use App\Http\Controllers\Web\StarCitizen\Vehicle\Ship\ShipController;
 use App\Models\StarCitizen\Vehicle\Ship\Ship;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Http\Response;
@@ -37,7 +38,6 @@ class ShipControllerTestCase extends StarCitizenTestCase
                 ->assertSee(Ship::count());
         }
     }
-
 
     /**
      * Edit Tests
@@ -76,7 +76,6 @@ class ShipControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Vehicle\Ship\ShipController::edit
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
-     *
      * @covers \App\Exceptions\Handler
      */
     public function testEditNotFound()
@@ -87,7 +86,6 @@ class ShipControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
 
-
     /**
      * Update Tests
      */
@@ -97,9 +95,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Vehicle\Ship\ShipController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
-     *
      * @covers \App\Http\Requests\System\TranslationRequest
-     *
      * @covers \App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation
      * @covers \App\Models\System\ModelChangelog
      */
@@ -116,7 +112,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -126,7 +122,6 @@ class ShipControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Vehicle\Ship\ShipController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
-     *
      * @covers \App\Exceptions\Handler
      */
     public function testUpdateNotFound()
@@ -142,7 +137,7 @@ class ShipControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }

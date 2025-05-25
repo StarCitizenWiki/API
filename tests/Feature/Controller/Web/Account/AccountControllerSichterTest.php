@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Account;
 
@@ -7,7 +9,6 @@ use App\Models\Account\User\UserGroup;
 
 /**
  * @covers \App\Http\Controllers\Web\Account\AccountController
- *
  * @covers \App\Policies\Web\Account\AccountPolicy<extended>
  */
 class AccountControllerSichterTest extends AccountControllerTestCase

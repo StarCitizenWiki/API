@@ -113,7 +113,7 @@ abstract class AbstractCommodityItem
 
     protected function getName(array $attachDef, string $default): string
     {
-        $key = substr($attachDef['Localization']['Name'], 1);
+        $key = substr($attachDef['Localization']['__Name'], 1);
         if (str_contains($key, '_Desc_')) {
             $key = str_replace('_Desc_', '_Name_', $key);
         }
@@ -126,7 +126,7 @@ abstract class AbstractCommodityItem
 
     protected function getDescriptionKey(array $attachDef): string
     {
-        return substr($attachDef['Localization']['Description'], 1);
+        return substr($attachDef['Localization']['__Description'], 1);
     }
 
     protected function getDescription(array $attachDef, string $locale = 'en'): string
@@ -148,7 +148,8 @@ abstract class AbstractCommodityItem
             'code' => 'UNKN',
             'uuid' => '00000000-0000-0000-0000-000000000000',
         ];
-        $manufacturer = $manufacturers->get($attachDef['Manufacturer'], $default);
+
+        $manufacturer = $manufacturers->get($attachDef['Manufacturer']['__ref'] ?? $attachDef['Manufacturer'], $default);
 
         if ($manufacturer['name'] === '@LOC_PLACEHOLDER') {
             $manufacturer = $default;

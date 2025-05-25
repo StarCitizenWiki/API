@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Rsi\CommLink\Category;
 
-use App\Http\Controllers\Web\Rsi\CommLink\Category\CategoryController;
 use App\Models\Rsi\CommLink\Category\Category;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Http\Response;

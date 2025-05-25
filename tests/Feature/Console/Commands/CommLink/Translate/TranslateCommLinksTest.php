@@ -12,8 +12,6 @@ class TranslateCommLinksTest extends TestCase
 {
     /**
      * Test handle without offset
-     *
-     * @return void
      */
     public function testHandle(): void
     {
@@ -28,8 +26,6 @@ class TranslateCommLinksTest extends TestCase
 
     /**
      * Test handle with offset
-     *
-     * @return void
      */
     public function testHandleOffset(): void
     {

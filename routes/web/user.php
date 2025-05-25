@@ -1,8 +1,10 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 use App\Models\Rsi\CommLink\Image\Image;
 
-Route::get('/', static fn() => redirect()->to('/dashboard'))->name('index');
+Route::get('/', static fn () => redirect()->to('/dashboard'))->name('index');
 
 Route::get('/comm-links/{commLink}', 'Rsi\CommLink\CommLinkController@show')->name('comm-links.show');
 
@@ -48,7 +50,6 @@ Route::group(
                         'Job\Rsi\CommLink\JobController@startCommLinkDownloadJob'
                     )->name('download-comm-links');
 
-
                     Route::post(
                         'create-wiki-pages',
                         'Job\Wiki\CommLink\JobController@startCommLinkWikiPageCreationJob'
@@ -58,7 +59,6 @@ Route::group(
                         'update-proofread-status',
                         'Job\Wiki\CommLink\JobController@startCommLinkProofReadStatusUpdateJob'
                     )->name('update-proofread-status');
-
 
                     Route::post(
                         'download-ship-matrix',
@@ -72,7 +72,6 @@ Route::group(
                         'import-vehicle-loaner',
                         'Job\StarCitizen\Vehicle\JobController@startLoanerImportJob'
                     )->name('import-vehicle-loaner');
-
 
                     Route::post(
                         'import-galactapedia-categories',
@@ -90,7 +89,6 @@ Route::group(
                         'create-galactapedia-pages',
                         'Job\StarCitizen\Galactapedia\JobController@startCreateWikiPagesJob'
                     )->name('create-galactapedia-pages');
-
 
                     Route::post(
                         'import-sc-items',
@@ -258,7 +256,6 @@ Route::group(
                         );
                 }
             );
-
 
         Route::namespace('StarCitizenUnpacked')
             ->name('starcitizenunpacked.')

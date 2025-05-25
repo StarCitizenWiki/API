@@ -34,9 +34,9 @@ class CommLinkFactory extends Factory
 
             'title' => $this->faker->sentence(),
             'comment_count' => $this->faker->numberBetween(0, 2000),
-            'url' => $this->faker->boolean() ? '/comm-link/SCW/' . $cigId . '-IMPORT' : null,
+            'url' => $this->faker->boolean() ? '/comm-link/SCW/'.$cigId.'-IMPORT' : null,
 
-            'file' => Carbon::now()->format('Y-m-d_His') . '.html',
+            'file' => Carbon::now()->format('Y-m-d_His').'.html',
 
             'channel_id' => Channel::factory(),
             'category_id' => Category::factory(),

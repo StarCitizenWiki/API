@@ -10,15 +10,15 @@ use Tests\TestCase;
 
 /**
  * Class DownloadStatsJobTest
+ *
  * @runTestsInSeparateProcesses
+ *
  * @preserveGlobalState disabled
  */
 class DownloadCommLinkTest extends TestCase
 {
     /**
      * @covers \App\Jobs\Rsi\CommLink\Download\DownloadCommLink::handle
-     *
-     * @return void
      */
     public function testRequestWithServerError(): void
     {
@@ -44,8 +44,6 @@ class DownloadCommLinkTest extends TestCase
      * @covers \App\Jobs\Rsi\CommLink\Download\DownloadCommLink::handle
      * @covers \App\Jobs\Rsi\CommLink\Download\DownloadCommLink::removeRsiToken
      * @covers \App\Jobs\Rsi\CommLink\Download\DownloadCommLink::writeFile
-     *
-     * @return void
      */
     public function testRequestWithSuccess(): void
     {

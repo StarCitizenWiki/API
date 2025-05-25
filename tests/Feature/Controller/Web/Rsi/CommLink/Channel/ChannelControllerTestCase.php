@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Rsi\CommLink\Channel;
 
-use App\Http\Controllers\Web\Rsi\CommLink\Channel\ChannelController;
 use App\Models\Rsi\CommLink\Channel\Channel;
 use App\Models\Rsi\CommLink\CommLink;
 use Illuminate\Http\Response;

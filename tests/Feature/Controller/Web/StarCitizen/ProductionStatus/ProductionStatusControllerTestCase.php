@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\ProductionStatus;
 
-use App\Http\Controllers\Web\StarCitizen\ProductionStatus\ProductionStatusController;
 use App\Models\StarCitizen\ProductionStatus\ProductionStatus;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -31,12 +30,11 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
 
         if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('web.starcitizen.production_statuses.index')
-#                ->assertDontSee(__('Keine Übersetzungen vorhanden'))
+//                ->assertDontSee(__('Keine Übersetzungen vorhanden'))
                 ->assertSee(__('Produktionsstatus'))
                 ->assertSee(__('en_EN'));
         }
     }
-
 
     /**
      * Edit Tests
@@ -77,7 +75,6 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
 
-
     /**
      * Update Tests
      */
@@ -86,9 +83,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\ProductionStatus\ProductionStatusController::update
-     *
      * @covers \App\Http\Requests\System\TranslationRequest
-     *
      * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
@@ -104,7 +99,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -124,7 +119,7 @@ class ProductionStatusControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }

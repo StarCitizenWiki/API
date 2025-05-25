@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\ProductionStatus;
 
@@ -7,7 +9,6 @@ use Illuminate\Http\Response;
 
 /**
  * @covers \App\Policies\Web\TranslationPolicy<extended>
- *
  * @covers \App\Models\StarCitizen\ProductionStatus\ProductionStatus<extended>
  */
 class ProductionStatusControllerUserTest extends ProductionStatusControllerTestCase

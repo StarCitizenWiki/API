@@ -8,13 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
         Schema::create('sc_vehicle_weapon_modes', function (Blueprint $table) {
-            $table->id();            
+            $table->id();
             $table->unsignedBigInteger('weapon_id');
             $table->string('mode')->nullable();
             $table->string('localised')->nullable();
@@ -33,8 +31,6 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {

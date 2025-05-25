@@ -9,7 +9,9 @@ use Tests\TestCase;
 
 /**
  * Class DownloadShipMatrixTest
+ *
  * @runTestsInSeparateProcesses
+ *
  * @preserveGlobalState disabled
  */
 class DownloadShipMatrixTest extends TestCase
@@ -86,7 +88,7 @@ class DownloadShipMatrixTest extends TestCase
 
         Storage::persistentFake('vehicles');
 
-        $job = new DownloadShipMatrix();
+        $job = new DownloadShipMatrix;
         $job->handle();
 
         Storage::persistentFake('vehicles')->assertExists("$dirName/$filename");

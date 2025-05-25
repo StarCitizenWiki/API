@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\User;
 
-use App\Http\Controllers\Web\User\UserController;
 use App\Models\Account\User\User;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\UserTestCase;
@@ -28,7 +29,6 @@ class UserControllerTestCase extends UserTestCase
             $response->assertViewIs('web.users.index');
         }
     }
-
 
     /**
      * Edit Tests
@@ -60,7 +60,6 @@ class UserControllerTestCase extends UserTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
 
-
     /**
      * Update Tests
      */
@@ -78,7 +77,7 @@ class UserControllerTestCase extends UserTestCase
             [
                 'api_token' => $user->api_token,
                 'no_api_throttle' => 'on',
-                'language' => 'de'
+                'language' => 'de',
             ]
         );
 

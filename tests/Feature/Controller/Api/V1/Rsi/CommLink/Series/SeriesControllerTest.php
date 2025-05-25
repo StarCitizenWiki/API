@@ -1,19 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink\Series;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Series\Series;
-use Tests\Feature\Controller\Api\V1\ApiTestCase;
 use Illuminate\Support\Collection;
+use Tests\Feature\Controller\Api\V1\ApiTestCase;
 
 /**
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\Series\SeriesController<extended>
- *
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Series\SeriesTransformer<extended>
- *
  * @covers \App\Models\Rsi\CommLink\Series\Series<extended>
  */
 class SeriesControllerTest extends ApiTestCase
@@ -75,7 +75,6 @@ class SeriesControllerTest extends ApiTestCase
         parent::testIndexInvalidLimit($limit);
     }
 
-
     /**
      * Show Method Tests
      */
@@ -133,7 +132,6 @@ class SeriesControllerTest extends ApiTestCase
 
         $response->assertNotFound();
     }
-
 
     /**
      * Creates Faked Comm-Links in DB

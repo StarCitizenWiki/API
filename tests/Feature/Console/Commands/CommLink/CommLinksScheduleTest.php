@@ -19,8 +19,6 @@ class CommLinksScheduleTest extends TestCase
 {
     /**
      * Test basic chain
-     *
-     * @return void
      */
     public function testHandle(): void
     {
@@ -38,8 +36,6 @@ class CommLinksScheduleTest extends TestCase
 
     /**
      * Test basic chain
-     *
-     * @return void
      */
     public function testHandleWithChain(): void
     {
@@ -57,8 +53,6 @@ class CommLinksScheduleTest extends TestCase
 
     /**
      * Test DeepL chain
-     *
-     * @return void
      */
     public function testHandleDeepLChain(): void
     {
@@ -80,8 +74,6 @@ class CommLinksScheduleTest extends TestCase
 
     /**
      * Test create wiki pages chain
-     *
-     * @return void
      */
     public function testHandleWikiChain(): void
     {
@@ -106,8 +98,6 @@ class CommLinksScheduleTest extends TestCase
 
     /**
      * Test all chain
-     *
-     * @return void
      */
     public function testHandleAllChain(): void
     {

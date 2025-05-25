@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Dashboard;
 
@@ -8,7 +10,6 @@ use App\Models\Account\User\UserGroup;
  * Class AdminControllerTest
  *
  * @covers \App\Policies\Web\DashboardPolicy<extended>
- *
  * @covers \App\Http\Middleware\CheckUserState
  */
 class DashboardControllerSysopTest extends DashboardControllerTestCase

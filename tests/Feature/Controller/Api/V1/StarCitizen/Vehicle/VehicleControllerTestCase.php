@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
@@ -22,7 +24,6 @@ class VehicleControllerTestCase extends StarCitizenTestCase
      */
     protected const VEHICLE_COUNT = 10;
 
-
     /**
      * Index Method Tests
      */
@@ -43,7 +44,6 @@ class VehicleControllerTestCase extends StarCitizenTestCase
         parent::testIndexInvalidLimit($limit);
     }
 
-
     /**
      * Show Method Tests
      */
@@ -51,7 +51,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * Test Show Specific Vehicle
      *
-     * @param string $name The Vehicle Name
+     * @param  string  $name  The Vehicle Name
      */
     public function testShow(string $name): void
     {
@@ -62,9 +62,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * Creates a Vehicle with specified Name and default translation
      *
-     * @param string $name The Name
-     *
-     * @return Vehicle
+     * @param  string  $name  The Name
      */
     protected function makeVehicleWithName(string $name): Vehicle
     {
@@ -81,7 +79,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * Test Show Specific Vehicle with multiple Translations
      *
-     * @param string $name The Vehicle Name
+     * @param  string  $name  The Vehicle Name
      */
     public function testShowMultipleTranslations(string $name): void
     {
@@ -94,7 +92,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * Test Show Specific Vehicle with only german Translation
      *
-     * @param string $name The Vehicle Name
+     * @param  string  $name  The Vehicle Name
      */
     public function testShowLocaleGerman(string $name): void
     {
@@ -104,7 +102,6 @@ class VehicleControllerTestCase extends StarCitizenTestCase
         parent::testShowLocaleGerman($name);
     }
 
-
     /**
      * Search Method Tests
      */
@@ -112,7 +109,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * Test Show Specific Vehicle with invalid Locale Code
      *
-     * @param string $name The Vehicle Name
+     * @param  string  $name  The Vehicle Name
      */
     public function testShowLocaleInvalid(string $name): void
     {
@@ -125,7 +122,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * Test Search for specific Vehicle
      *
-     * @param string $name The Vehicle Name
+     * @param  string  $name  The Vehicle Name
      */
     public function testSearch(string $name): void
     {
@@ -137,7 +134,7 @@ class VehicleControllerTestCase extends StarCitizenTestCase
     /**
      * Test Search for specific Vehicle with German Translations
      *
-     * @param string $name The Vehicle Name
+     * @param  string  $name  The Vehicle Name
      */
     public function testSearchWithGermanTranslation(string $name): void
     {

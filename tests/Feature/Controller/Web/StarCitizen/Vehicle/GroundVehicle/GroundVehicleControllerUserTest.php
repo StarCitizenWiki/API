@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\Vehicle\GroundVehicle;
 
@@ -7,7 +9,6 @@ use Illuminate\Http\Response;
 
 /**
  * @covers \App\Policies\Web\StarCitizen\Vehicle\VehiclePolicy<extended>
- *
  * @covers \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle<extended>
  */
 class GroundVehicleControllerUserTest extends GroundVehicleControllerTestCase

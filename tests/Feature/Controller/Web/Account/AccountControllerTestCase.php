@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Account;
 
-use App\Http\Controllers\Web\Account\AccountController;
 use App\Models\Account\User\User;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\UserTestCase;
@@ -31,7 +32,6 @@ class AccountControllerTestCase extends UserTestCase
         }
     }
 
-
     /**
      * Update Tests
      */
@@ -45,7 +45,7 @@ class AccountControllerTestCase extends UserTestCase
             route('web.account.update', $this->user->getRouteKey()),
             [
                 'api_notifications' => 'on',
-                'language' => 'de'
+                'language' => 'de',
             ]
         );
 
@@ -59,5 +59,4 @@ class AccountControllerTestCase extends UserTestCase
             $this->assertTrue(User::find($this->user->id)->receiveApiNotifications());
         }
     }
-
 }

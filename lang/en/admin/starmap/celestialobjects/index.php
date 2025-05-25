@@ -1,4 +1,5 @@
 <?php
+
 return [
     'header' => 'Starmap Celestial Objects',
     'celestialobjects' => 'Celestial Objects',

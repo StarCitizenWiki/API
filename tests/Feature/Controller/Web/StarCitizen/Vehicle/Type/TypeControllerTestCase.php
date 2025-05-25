@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\Vehicle\Type;
 
-use App\Http\Controllers\Web\StarCitizen\Vehicle\Type\TypeController;
 use App\Models\StarCitizen\Vehicle\Type\Type;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -76,7 +75,6 @@ class TypeControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
 
-
     /**
      * Update Tests
      */
@@ -85,9 +83,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Vehicle\Type\TypeController::update
-     *
      * @covers \App\Http\Requests\System\TranslationRequest
-     *
      * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
@@ -103,7 +99,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -123,7 +119,7 @@ class TypeControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }

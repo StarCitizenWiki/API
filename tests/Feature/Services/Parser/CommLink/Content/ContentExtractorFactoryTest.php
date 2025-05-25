@@ -17,7 +17,7 @@ class ContentExtractorFactoryTest extends TestCase
     public function testFactoryGetDefault(): void
     {
         $this->markTestSkipped('Layoutsystem is artificially boosted');
-        $content = <<<Content
+        $content = <<<'Content'
 <html>
 <head>
 <title>Example</title>
@@ -45,7 +45,7 @@ Content;
      */
     public function testFactoryGetLayoutSystem(): void
     {
-        $content = <<<Content
+        $content = <<<'Content'
 <html>
 <head>
 <title>Example</title>
@@ -67,7 +67,7 @@ Content;
     public function testFactoryGetVue(): void
     {
         $this->markTestSkipped('Layoutsystem is artificially boosted');
-        $content = <<<Content
+        $content = <<<'Content'
 <html>
 <head>
 <title>Example</title>
@@ -96,7 +96,7 @@ Content;
     public function testFactoryGetDefaultIfCountEqual(): void
     {
         $this->markTestSkipped('Layoutsystem is artificially boosted');
-        $content = <<<Content
+        $content = <<<'Content'
 <html>
 <head>
 <title>Example</title>

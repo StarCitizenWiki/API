@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen\Vehicle;
 
@@ -8,9 +10,7 @@ use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController<extended>
- *
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\GroundVehicle\GroundVehicleTransformer<extended>
- *
  * @covers \App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle<extended>
  * @covers \App\Models\StarCitizen\Manufacturer\Manufacturer<extended>
  * @covers \App\Models\StarCitizen\ProductionNote\ProductionNote<extended>
@@ -63,7 +63,6 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
         ],
     ];
 
-
     /**
      * Index Method Tests
      */
@@ -91,7 +90,6 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
     {
         parent::testIndexInvalidLimit($limit);
     }
-
 
     /**
      * Show Method Tests
@@ -136,7 +134,6 @@ class GroundVehicleControllerTest extends VehicleControllerTestCase
     {
         parent::testShowLocaleInvalid($name);
     }
-
 
     /**
      * Search Method Tests

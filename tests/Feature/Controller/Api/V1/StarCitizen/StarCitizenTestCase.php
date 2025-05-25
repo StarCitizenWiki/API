@@ -1,7 +1,8 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
-
 
 use App\Http\Controllers\Api\AbstractApiController;
 use Tests\Feature\Controller\Api\V1\ApiTestCase;
@@ -15,7 +16,7 @@ class StarCitizenTestCase extends ApiTestCase
     /**
      * Test Show Specific Resource
      *
-     * @param string $name The Resource Name
+     * @param  string  $name  The Resource Name
      */
     public function testShow(string $name): void
     {
@@ -65,7 +66,7 @@ class StarCitizenTestCase extends ApiTestCase
     /**
      * Test Show Specific Resource with multiple Translations
      *
-     * @param string $name The Resource Name
+     * @param  string  $name  The Resource Name
      */
     public function testShowMultipleTranslations(string $name): void
     {
@@ -101,7 +102,7 @@ class StarCitizenTestCase extends ApiTestCase
     /**
      * Test Show Specific Resource with only german Translation
      *
-     * @param string $name The Resource Name
+     * @param  string  $name  The Resource Name
      */
     public function testShowLocaleGerman(string $name): void
     {
@@ -129,7 +130,7 @@ class StarCitizenTestCase extends ApiTestCase
     /**
      * Test Show Specific Resource with invalid Locale Code
      *
-     * @param string $name The Resource Name
+     * @param  string  $name  The Resource Name
      */
     public function testShowLocaleInvalid(string $name): void
     {
@@ -157,7 +158,6 @@ class StarCitizenTestCase extends ApiTestCase
             ->assertHeader('content-type', 'application/json');
     }
 
-
     /**
      * Search Method Tests
      */
@@ -165,7 +165,7 @@ class StarCitizenTestCase extends ApiTestCase
     /**
      * Test Search for specific Resource
      *
-     * @param string $name The Resource Name
+     * @param  string  $name  The Resource Name
      */
     public function testSearch(string $name): void
     {
@@ -196,7 +196,7 @@ class StarCitizenTestCase extends ApiTestCase
     /**
      * Test Search for specific Resource
      *
-     * @param string $name The Resource Name
+     * @param  string  $name  The Resource Name
      */
     public function testSearchWithGermanTranslation(string $name): void
     {

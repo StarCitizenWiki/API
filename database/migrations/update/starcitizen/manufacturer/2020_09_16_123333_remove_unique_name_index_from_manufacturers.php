@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /*
  * Copyright (c) 2020
@@ -17,8 +19,6 @@ class RemoveUniqueNameIndexFromManufacturers extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -32,8 +32,6 @@ class RemoveUniqueNameIndexFromManufacturers extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {

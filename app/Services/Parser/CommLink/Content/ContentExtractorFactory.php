@@ -9,9 +9,9 @@ use Symfony\Component\DomCrawler\Crawler;
 class ContentExtractorFactory
 {
     /**
-     * @return ContentExtractorInterface The parser matching the most elements
+     * @return ContentExtractorInterface|null The parser matching the most elements
      */
-    public static function getParserFromCrawler(Crawler $crawler): ContentExtractorInterface
+    public static function getParserFromCrawler(Crawler $crawler): ?ContentExtractorInterface
     {
         return collect(
             [

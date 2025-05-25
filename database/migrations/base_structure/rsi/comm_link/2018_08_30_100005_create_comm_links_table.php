@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -30,7 +32,6 @@ class CreateCommLinksTable extends Migration
                 $table->unsignedInteger('series_id');
 
                 $table->timestamps();
-
 
                 $table->foreign('channel_id')->references('id')->on('comm_link_channels')->onDelete('cascade');
                 $table->foreign('category_id')->references('id')->on('comm_link_categories')->onDelete('cascade');

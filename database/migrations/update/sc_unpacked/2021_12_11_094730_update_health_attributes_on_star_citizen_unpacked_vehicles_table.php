@@ -22,7 +22,7 @@ class UpdateHealthAttributesOnStarCitizenUnpackedVehiclesTable extends Migration
         });
 
         Schema::table('star_citizen_unpacked_vehicles', function (Blueprint $table) {
-            $table->unsignedDouble('health')->nullable() ->after('mass');
+            $table->unsignedDouble('health')->nullable()->after('mass');
         });
     }
 

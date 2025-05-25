@@ -12,8 +12,6 @@ class ImportShipMatrixTest extends TestCase
 {
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
     public function testHandle(): void
     {

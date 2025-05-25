@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Accounts;
 
-use App\Models\Account\User\UserGroup;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,13 +13,13 @@ use Illuminate\Support\Facades\DB;
 class UserGroupTableSeeder extends Seeder
 {
     public const ATTR_PERMISSION_LEVEL = 'permission_level';
+
     public const ATTR_NAME = 'name';
+
     public const TBL_GROUPS = 'user_groups';
 
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {

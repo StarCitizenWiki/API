@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\Vehicle\Size;
 
-use App\Http\Controllers\Web\StarCitizen\Vehicle\Size\SizeController;
 use App\Models\StarCitizen\Vehicle\Size\Size;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -34,7 +35,6 @@ class SizeControllerTestCase extends StarCitizenTestCase
                 ->assertSee(__('en_EN'));
         }
     }
-
 
     /**
      * Edit Tests
@@ -75,7 +75,6 @@ class SizeControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
 
-
     /**
      * Update Tests
      */
@@ -84,9 +83,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Vehicle\Size\SizeController::update
-     *
      * @covers \App\Http\Requests\System\TranslationRequest
-     *
      * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
@@ -102,7 +99,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -122,7 +119,7 @@ class SizeControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }

@@ -10,7 +10,6 @@ use App\Models\Account\User\UserGroup;
  * Class AdminControllerTest
  *
  * @covers \App\Policies\Web\DashboardPolicy<extended>
- *
  * @covers \App\Http\Middleware\CheckUserState
  */
 class DashboardControllerSichterTest extends DashboardControllerTestCase

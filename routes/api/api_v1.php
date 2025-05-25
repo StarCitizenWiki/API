@@ -582,7 +582,7 @@ Route::group(
                             '/{item}',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.power-plants.show',
-                                'uses' => 'PowerPlantController@show'
+                                'uses' => 'PowerPlantController@show',
                             ]
                         )->where('item', '(.*)');
                     }
@@ -611,7 +611,7 @@ Route::group(
                             '/{item}',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.quantum-drives.show',
-                                'uses' => 'QuantumDriveController@show'
+                                'uses' => 'QuantumDriveController@show',
                             ]
                         )->where('item', '(.*)');
                     }
@@ -640,7 +640,7 @@ Route::group(
                             '/{item}',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.shields.show',
-                                'uses' => 'ShieldController@show'
+                                'uses' => 'ShieldController@show',
                             ]
                         )->where('item', '(.*)');
                     }
@@ -669,7 +669,7 @@ Route::group(
                             '/{item}',
                             [
                                 'as' => 'api.v1.scunpacked.ship-items.weapons.show',
-                                'uses' => 'WeaponController@show'
+                                'uses' => 'WeaponController@show',
                             ]
                         )->where('item', '(.*)');
                     }

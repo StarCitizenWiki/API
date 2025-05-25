@@ -10,15 +10,15 @@ use Tests\TestCase;
 
 /**
  * Class DownloadStatsJobTest
+ *
  * @runTestsInSeparateProcesses
+ *
  * @preserveGlobalState disabled
  */
 class DownloadStatsJobTest extends TestCase
 {
     /**
      * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::handle
-     *
-     * @return void
      */
     public function testRequestWithServerError(): void
     {
@@ -45,8 +45,6 @@ class DownloadStatsJobTest extends TestCase
     /**
      * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::handle
      * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::parseResponseBody
-     *
-     * @return void
      */
     public function testRequestWithInvalidData(): void
     {
@@ -75,8 +73,6 @@ class DownloadStatsJobTest extends TestCase
      * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::handle
      * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::saveStats
      * @covers \App\Jobs\StarCitizen\Stat\DownloadStats::parseResponseBody
-     *
-     * @return void
      */
     public function testRequestWithSuccess(): void
     {
@@ -88,7 +84,7 @@ class DownloadStatsJobTest extends TestCase
 
         Storage::persistentFake('stats');
 
-        $job = new DownloadStats();
+        $job = new DownloadStats;
 
         $job->handle();
 

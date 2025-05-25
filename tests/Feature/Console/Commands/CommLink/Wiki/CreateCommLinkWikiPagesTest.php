@@ -12,8 +12,6 @@ class CreateCommLinkWikiPagesTest extends TestCase
 {
     /**
      * Test handle
-     *
-     * @return void
      */
     public function testHandle(): void
     {

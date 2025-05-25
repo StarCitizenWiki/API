@@ -1,24 +1,24 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link\Link;
-use Tests\Feature\Controller\Api\V1\ApiTestCase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Tests\Feature\Controller\Api\V1\ApiTestCase;
 
 /**
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController<extended>
- *
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\CommLinkTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Image\ImageHashTransformer<extended>
  * @covers \App\Transformers\Api\V1\Rsi\CommLink\Link\LinkTransformer<extended>
- *
  * @covers \App\Models\Rsi\CommLink\CommLink<extended>
  */
 class ImageControllerTest extends ApiTestCase
@@ -254,7 +254,6 @@ class ImageControllerTest extends ApiTestCase
         $response->assertStatus(422);
     }
 
-
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch
      * @covers \App\Http\Requests\Rsi\CommLink\ReverseImageSearchRequest
@@ -304,7 +303,6 @@ class ImageControllerTest extends ApiTestCase
 
         $response->assertStatus(422);
     }
-
 
     /**
      * @covers \App\Http\Controllers\Api\V1\Rsi\CommLink\CommLinkSearchController::reverseImageSearch

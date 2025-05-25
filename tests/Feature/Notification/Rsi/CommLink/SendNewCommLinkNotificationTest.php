@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 /**
  * User: Hannes
  * Date: 13.09.2018
@@ -22,6 +24,7 @@ use Tests\TestCase;
 class SendNewCommLinkNotificationTest extends TestCase
 {
     private $admins;
+
     private $commLinks;
 
     /**
@@ -35,7 +38,7 @@ class SendNewCommLinkNotificationTest extends TestCase
     {
         Notification::fake();
 
-        event(new NewCommLinksDownloadedEvent());
+        event(new NewCommLinksDownloadedEvent);
 
         Notification::assertSentTo([$this->admins], NewCommLinksDownloadedNotification::class);
     }

@@ -15,8 +15,6 @@ class DownloadCommLinkTest extends TestCase
 {
     /**
      * Download singular Comm-Link
-     *
-     * @return void
      */
     public function testDownloadOne(): void
     {
@@ -35,8 +33,6 @@ class DownloadCommLinkTest extends TestCase
 
     /**
      * Download multiple Comm-Links
-     *
-     * @return void
      */
     public function testDownloadMultiple(): void
     {
@@ -55,8 +51,6 @@ class DownloadCommLinkTest extends TestCase
 
     /**
      * Call command without id
-     *
-     * @return void
      */
     public function testDownloadNoIds(): void
     {
@@ -69,8 +63,6 @@ class DownloadCommLinkTest extends TestCase
 
     /**
      * Download singular Comm-Link and import
-     *
-     * @return void
      */
     public function testDownloadImport(): void
     {

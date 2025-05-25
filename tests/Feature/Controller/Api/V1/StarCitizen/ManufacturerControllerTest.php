@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
@@ -11,10 +13,8 @@ use Illuminate\Support\Str;
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController<extended>
- *
  * @covers \App\Transformers\Api\V1\StarCitizen\Manufacturer\ArticleTransformer<extended>
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\VehicleLinkTransformer
- *
  * @covers \App\Models\StarCitizen\Manufacturer\Manufacturer<extended>
  */
 class ManufacturerControllerTest extends StarCitizenTestCase
@@ -38,7 +38,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
         'known_for',
         'description',
     ];
-
 
     /**
      * Index Method Tests
@@ -68,7 +67,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
         parent::testIndexInvalidLimit($limit);
     }
 
-
     /**
      * Show Method Tests
      */
@@ -88,9 +86,7 @@ class ManufacturerControllerTest extends StarCitizenTestCase
     /**
      * Creates a Manufacturer with specified Name and default translation
      *
-     * @param string $name The Name
-     *
-     * @return Manufacturer
+     * @param  string  $name  The Name
      */
     private function makeManufacturerWithName(string $name): Manufacturer
     {
@@ -128,7 +124,6 @@ class ManufacturerControllerTest extends StarCitizenTestCase
 
         parent::testShowLocaleGerman($name);
     }
-
 
     /**
      * Search Method Tests

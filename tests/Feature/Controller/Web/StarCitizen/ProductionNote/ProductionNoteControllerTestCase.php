@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\ProductionNote;
 
-use App\Http\Controllers\Web\StarCitizen\ProductionNote\ProductionNoteController;
 use App\Models\StarCitizen\ProductionNote\ProductionNote;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
@@ -36,7 +35,6 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
                 ->assertSee(__('en_EN'));
         }
     }
-
 
     /**
      * Edit Tests
@@ -77,7 +75,6 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
 
-
     /**
      * Update Tests
      */
@@ -86,9 +83,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
      * Test Update
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\ProductionNote\ProductionNoteController::update
-     *
      * @covers \App\Http\Requests\System\TranslationRequest
-     *
      * @covers \App\Models\System\ModelChangelog
      */
     public function testUpdate()
@@ -104,7 +99,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -124,7 +119,7 @@ class ProductionNoteControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }

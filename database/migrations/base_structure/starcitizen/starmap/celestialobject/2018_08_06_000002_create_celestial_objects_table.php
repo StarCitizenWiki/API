@@ -10,8 +10,6 @@ class CreateCelestialObjectsTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -81,8 +79,6 @@ class CreateCelestialObjectsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {

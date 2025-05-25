@@ -14,8 +14,6 @@ class DownloadStatsTest extends TestCase
 {
     /**
      * Test without import
-     *
-     * @return void
      */
     public function testHandleWithoutImport(): void
     {
@@ -30,8 +28,6 @@ class DownloadStatsTest extends TestCase
 
     /**
      * Test with import
-     *
-     * @return void
      */
     public function testHandleWithImport(): void
     {

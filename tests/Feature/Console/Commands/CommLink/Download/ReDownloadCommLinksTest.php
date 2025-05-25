@@ -13,8 +13,6 @@ class ReDownloadCommLinksTest extends TestCase
 {
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
     public function testHandle(): void
     {
@@ -33,8 +31,6 @@ class ReDownloadCommLinksTest extends TestCase
 
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
     public function testHandleMissingSkipOption(): void
     {

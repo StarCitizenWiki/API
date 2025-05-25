@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Rsi\CommLink\Search;
 
@@ -12,11 +14,8 @@ use Illuminate\Http\Response;
  *
  * @covers \App\Policies\Web\Rsi\CommLink\CommLinkPolicy<extended>
  * @covers \App\Http\Requests\Rsi\CommLink\CommLinkSearchRequest
- *
  * @covers \App\Http\Middleware\CheckUserState
- *
  * @covers \App\Providers\RouteServiceProvider
- *
  * @covers \App\Models\Rsi\CommLink\CommLink
  */
 class CommLinkControllerUserTest extends CommLinkSearchControllerTestCase
@@ -24,6 +23,7 @@ class CommLinkControllerUserTest extends CommLinkSearchControllerTestCase
     protected const RESPONSE_STATUSES = [
         'search' => \Illuminate\Http\Response::HTTP_OK,
     ];
+
     protected $searchData;
 
     /**

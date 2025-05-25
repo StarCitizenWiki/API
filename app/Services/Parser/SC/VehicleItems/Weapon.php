@@ -50,7 +50,6 @@ final class Weapon extends AbstractItemSpecification
 
         $modes = collect($weapon['Weapon']['Modes'])
             ->map(function (array $mode) {
-
                 return [
                     'mode' => $mode['Name'],
                     'localised' => $mode['LocalisedName'],

@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Rsi\CommLink\Series;
 
-use App\Http\Controllers\Web\Rsi\CommLink\Series\SeriesController;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Series\Series;
 use Illuminate\Http\Response;

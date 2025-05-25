@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Database\Seeders\Accounts\UserGroupTableSeeder;
-use Database\Seeders\StarCitizen\ProductionNoteTableSeeder;
-use Database\Seeders\StarCitizen\ProductionStatusTableSeeder;
-use Database\Seeders\StarCitizen\Vehicle\SizeTableSeeder;
-use Database\Seeders\StarCitizen\Vehicle\TypeTableSeeder;
-use Database\Seeders\StarCitizen\StatTableSeeder;
 use Database\Seeders\Rsi\CommLink\CategoryTableSeeder;
 use Database\Seeders\Rsi\CommLink\ChannelTableSeeder;
 use Database\Seeders\Rsi\CommLink\SeriesTableSeeder;
+use Database\Seeders\StarCitizen\ProductionNoteTableSeeder;
+use Database\Seeders\StarCitizen\ProductionStatusTableSeeder;
+use Database\Seeders\StarCitizen\StatTableSeeder;
+use Database\Seeders\StarCitizen\Vehicle\SizeTableSeeder;
+use Database\Seeders\StarCitizen\Vehicle\TypeTableSeeder;
 use Database\Seeders\System\LanguageTableSeeder;
 use Illuminate\Database\Seeder;
 

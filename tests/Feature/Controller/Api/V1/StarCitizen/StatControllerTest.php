@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Api\V1\StarCitizen;
 
@@ -9,9 +11,7 @@ use Tests\Feature\Controller\Api\V1\ApiTestCase;
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Stat\StatController<extended>
- *
  * @covers \App\Transformers\Api\V1\StarCitizen\Stat\StatTransformer<extended>
- *
  * @covers \App\Models\StarCitizen\Stat\Stat<extended>
  */
 class StatControllerTest extends ApiTestCase
@@ -35,7 +35,6 @@ class StatControllerTest extends ApiTestCase
         'fleet',
         'timestamp',
     ];
-
 
     /**
      * Index Method Tests
@@ -65,7 +64,6 @@ class StatControllerTest extends ApiTestCase
         parent::testIndexInvalidLimit($limit);
     }
 
-
     /**
      * Show Method Tests
      */
@@ -92,7 +90,6 @@ class StatControllerTest extends ApiTestCase
             )
             ->assertHeader('content-type', 'application/json');
     }
-
 
     /**
      * Creates Faked Stats in DB

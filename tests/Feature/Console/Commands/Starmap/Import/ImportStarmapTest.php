@@ -11,7 +11,6 @@ class ImportStarmapTest extends TestCase
     /**
      * A basic feature test example.
      *
-     * @return void
      *
      * @covers \App\Console\Commands\Starmap\Import\ImportStarmap
      */

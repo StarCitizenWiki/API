@@ -20,13 +20,12 @@ class ImageTest extends TestCase
      * @covers \App\Services\Parser\CommLink\Image::extractCssBackgrounds
      * @covers \App\Services\Parser\CommLink\Image::extractMediaImages
      * @covers \App\Services\Parser\CommLink\Image::extractRsiImages
-     *
      * @covers \App\Services\Parser\CommLink\Image::cleanImgSource
      * @covers \App\Services\Parser\CommLink\Image::getDirHash
      */
     public function testParseImage(): void
     {
-        $content = <<<HTML
+        $content = <<<'HTML'
 <html>
 <head>
 <style>
@@ -58,7 +57,7 @@ class ImageTest extends TestCase
 </html>
 HTML;
 
-        $crawler = new Crawler();
+        $crawler = new Crawler;
         $crawler->addHtmlContent($content);
 
         $image = new Image($crawler);
@@ -75,7 +74,7 @@ HTML;
      */
     public function testParsePostBackground(): void
     {
-        $content = <<<HTML
+        $content = <<<'HTML'
 <html>
 <head>
 </head>
@@ -87,7 +86,7 @@ HTML;
 </html>
 HTML;
 
-        $crawler = new Crawler();
+        $crawler = new Crawler;
         $crawler->addHtmlContent($content);
 
         $image = new Image($crawler);
@@ -104,7 +103,7 @@ HTML;
      */
     public function testParseSourceAttrs(): void
     {
-        $content = <<<HTML
+        $content = <<<'HTML'
 <html>
 <head>
 </head>
@@ -118,7 +117,7 @@ HTML;
 </html>
 HTML;
 
-        $crawler = new Crawler();
+        $crawler = new Crawler;
         $crawler->addHtmlContent($content);
 
         $image = new Image($crawler);
@@ -135,7 +134,7 @@ HTML;
      */
     public function testParseSpecialPage(): void
     {
-        $content = <<<HTML
+        $content = <<<'HTML'
 <html>
 <head>
 </head>
@@ -151,7 +150,7 @@ HTML;
 </html>
 HTML;
 
-        $crawler = new Crawler();
+        $crawler = new Crawler;
         $crawler->addHtmlContent($content);
 
         $image = new Image($crawler);

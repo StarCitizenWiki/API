@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Rsi\CommLink;
 
-use App\Http\Controllers\Web\Rsi\CommLink\CommLinkController;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\CommLinkTranslation;
@@ -12,7 +11,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Tests\Feature\Controller\Web\UserTestCase;
-
 
 /**
  * Class Comm-Link Controller Test Case.
@@ -33,7 +31,7 @@ class CommLinkControllerTestCase extends UserTestCase
         $response = $this->actingAs($this->user)->get(route('web.rsi.comm-links.index'));
 
         $response->assertStatus(static::RESPONSE_STATUSES['index']);
-        if (Response::HTTP_OK === $response->status()) {
+        if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('web.rsi.comm_links.index')->assertSee($this->commLink->title);
         }
     }
@@ -49,7 +47,7 @@ class CommLinkControllerTestCase extends UserTestCase
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['show']);
-        if (Response::HTTP_OK === $response->status()) {
+        if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('web.rsi.comm_links.show')
                 ->assertSee($this->commLink->title)
                 ->assertSee(__('en_EN'))
@@ -65,14 +63,13 @@ class CommLinkControllerTestCase extends UserTestCase
      * @covers \App\Http\Controllers\Web\Rsi\CommLink\CommLinkController::edit
      * @covers \App\Http\Controllers\Web\Rsi\CommLink\CommLinkController::getCommLinkVersions
      * @covers \App\Http\Controllers\Web\Rsi\CommLink\CommLinkController::processCommLinkVersions
-     *
      * @covers \App\Policies\Web\Rsi\CommLink\CommLinkPolicy::update
      */
     public function testEdit(): void
     {
         Storage::disk('comm_links')->put(
             "{$this->commLink->cig_id}/{$this->commLink->file}",
-            <<<EOF
+            <<<'EOF'
 <html>
     <head>
         <title>Test</title>
@@ -93,7 +90,7 @@ EOF
         );
 
         $response->assertStatus(static::RESPONSE_STATUSES['edit']);
-        if (Response::HTTP_OK === $response->status()) {
+        if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('web.rsi.comm_links.edit')
                 ->assertSee(__('Comm-Link bearbeiten'))
                 ->assertSee(__('Lesen'))
@@ -105,11 +102,8 @@ EOF
 
     /**
      * @covers \App\Http\Controllers\Web\Rsi\CommLink\CommLinkController::update
-     *
      * @covers \App\Http\Requests\Rsi\CommLink\CommLinkRequest
-     *
      * @covers \App\Policies\Web\Rsi\CommLink\CommLinkPolicy::update
-     *
      * @covers \App\Models\Rsi\CommLink\CommLink
      * @covers \App\Models\System\ModelChangelog
      * @covers \App\Events\ModelUpdating
@@ -136,11 +130,8 @@ EOF
 
     /**
      * @covers \App\Http\Controllers\Web\Rsi\CommLink\CommLinkController::update
-     *
      * @covers \App\Http\Requests\Rsi\CommLink\CommLinkRequest
-     *
      * @covers \App\Policies\Web\Rsi\CommLink\CommLinkPolicy::update
-     *
      * @covers \App\Models\Rsi\CommLink\CommLink
      * @covers \App\Models\System\ModelChangelog
      * @covers \App\Events\ModelUpdating
@@ -169,7 +160,7 @@ EOF
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_version']);
 
-        if (Response::HTTP_OK === $response->status()) {
+        if ($response->status() === Response::HTTP_OK) {
             Bus::assertDispatched(ImportCommLink::class);
 
             $response->assertViewIs('web.rsi.comm_links.show')
@@ -179,7 +170,6 @@ EOF
 
     /**
      * @covers \App\Http\Controllers\Web\Rsi\CommLink\CommLinkController::preview
-     *
      * @covers \App\Services\Parser\CommLink\Content
      */
     public function testPreview(): void
@@ -188,7 +178,7 @@ EOF
 
         Storage::disk('comm_links')->put(
             "{$this->commLink->cig_id}/{$version}.html",
-            <<<EOF
+            <<<'EOF'
 <html>
     <head>
         <title>Test</title>
@@ -210,7 +200,7 @@ EOF
 
         $response->assertStatus(static::RESPONSE_STATUSES['preview']);
 
-        if (Response::HTTP_OK === $response->status()) {
+        if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('web.rsi.comm_links.preview')
                 ->assertSee(__('Preview Content'));
         }

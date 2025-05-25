@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Dashboard;
 
-use App\Http\Controllers\Web\DashboardController;
 use Illuminate\Http\Response;
 use Octfx\DeepLy\DeepLy;
 use Octfx\DeepLy\ResponseBag\UsageBag;
@@ -17,7 +16,6 @@ class DashboardControllerTestCase extends UserTestCase
 {
     /**
      * @covers \App\Http\Controllers\Web\DashboardController::index
-     *
      * @covers \App\Policies\Web\DashboardPolicy::view
      */
     public function testShow(): void
@@ -33,7 +31,7 @@ class DashboardControllerTestCase extends UserTestCase
         $response = $this->actingAs($this->user)->followingRedirects()->get(route('web.dashboard'));
         $response->assertStatus(static::RESPONSE_STATUSES['show']);
 
-        if (Response::HTTP_OK === $response->status()) {
+        if ($response->status() === Response::HTTP_OK) {
             $response->assertViewIs('web.dashboard');
         }
     }

@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\Changelog;
 
-use App\Http\Controllers\Web\Changelog\ChangelogController;
 use Illuminate\Http\Response;
 use Tests\Feature\Controller\Web\UserTestCase;
 
@@ -13,7 +14,6 @@ class ChangelogTestCase extends UserTestCase
 {
     /**
      * @covers \App\Http\Controllers\Web\Changelog\ChangelogController::index
-     *
      * @covers \App\Policies\Web\Changelog\ChangelogPolicy
      */
     public function testIndex()

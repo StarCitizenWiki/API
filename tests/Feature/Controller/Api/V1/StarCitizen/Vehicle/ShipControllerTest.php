@@ -11,9 +11,7 @@ use App\Models\StarCitizen\Vehicle\Ship\Ship;
  * {@inheritdoc}
  *
  * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\Ship\ShipController<extended>
- *
  * @covers \App\Transformers\Api\V1\StarCitizen\Vehicle\Ship\ShipTransformer<extended>
- *
  * @covers \App\Models\StarCitizen\Vehicle\Ship\Ship<extended>
  * @covers \App\Models\StarCitizen\Manufacturer\Manufacturer<extended>
  * @covers \App\Models\StarCitizen\ProductionNote\ProductionNote<extended>
@@ -77,7 +75,6 @@ class ShipControllerTest extends VehicleControllerTestCase
         ],
     ];
 
-
     /**
      * Index Method Tests
      */
@@ -105,7 +102,6 @@ class ShipControllerTest extends VehicleControllerTestCase
     {
         parent::testIndexInvalidLimit($limit);
     }
-
 
     /**
      * Show Method Tests
@@ -205,7 +201,6 @@ class ShipControllerTest extends VehicleControllerTestCase
             )
             ->assertJsonCount($vehicle->components->count(), 'data.components.data');
     }
-
 
     /**
      * Search Method Tests

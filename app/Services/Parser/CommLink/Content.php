@@ -47,7 +47,7 @@ class Content extends BaseElement
      */
     public function getContent(): string
     {
-        $content = ContentExtractorFactory::getParserFromCrawler($this->commLink)->getContent();
+        $content = ContentExtractorFactory::getParserFromCrawler($this->commLink)?->getContent();
 
         return empty($content) ? '' : $this->cleanContent($content);
     }

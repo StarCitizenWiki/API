@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\Vehicle\GroundVehicle;
 
-use App\Http\Controllers\Web\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController;
 use App\Models\StarCitizen\Vehicle\GroundVehicle\GroundVehicle;
 use App\Models\StarCitizen\Vehicle\Vehicle\Vehicle;
 use Illuminate\Http\Response;
@@ -39,7 +38,6 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
                 ->assertSee(GroundVehicle::count());
         }
     }
-
 
     /**
      * Edit Tests
@@ -76,7 +74,6 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::edit
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
-     *
      * @covers \App\Exceptions\Handler
      */
     public function testEditNotFound()
@@ -87,7 +84,6 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
 
-
     /**
      * Update Tests
      */
@@ -97,9 +93,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
-     *
      * @covers \App\Http\Requests\System\TranslationRequest
-     *
      * @covers \App\Models\StarCitizen\Vehicle\Vehicle\VehicleTranslation
      * @covers \App\Models\System\ModelChangelog
      */
@@ -116,7 +110,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -126,7 +120,6 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Vehicle\GroundVehicle\GroundVehicleController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Vehicle\VehicleController
-     *
      * @covers \App\Exceptions\Handler
      */
     public function testUpdateNotFound()
@@ -142,7 +135,7 @@ class GroundVehicleControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }

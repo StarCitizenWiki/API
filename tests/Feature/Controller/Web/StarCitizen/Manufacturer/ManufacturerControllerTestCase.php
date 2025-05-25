@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature\Controller\Web\StarCitizen\Manufacturer;
 
@@ -37,7 +39,6 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
         }
     }
 
-
     /**
      * Edit Tests
      */
@@ -73,7 +74,6 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Manufacturer\ManufacturerController::edit
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
-     *
      * @covers \App\Exceptions\Handler
      */
     public function testEditNotFound()
@@ -84,7 +84,6 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
         $response->assertStatus(static::RESPONSE_STATUSES['edit_not_found']);
     }
 
-
     /**
      * Update Tests
      */
@@ -94,9 +93,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Manufacturer\ManufacturerController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
-     *
      * @covers \App\Http\Requests\StarCitizen\Manufacturer\ManufacturerTranslationRequest
-     *
      * @covers \App\Models\StarCitizen\Manufacturer\ManufacturerTranslation
      * @covers \App\Models\System\ModelChangelog
      */
@@ -115,7 +112,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update']);
     }
@@ -125,7 +122,6 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
      *
      * @covers \App\Http\Controllers\Web\StarCitizen\Manufacturer\ManufacturerController::update
      * @covers \App\Http\Controllers\Api\V1\StarCitizen\Manufacturer\ManufacturerController::show
-     *
      * @covers \App\Exceptions\Handler
      */
     public function testUpdateNotFound()
@@ -140,7 +136,7 @@ class ManufacturerControllerTestCase extends StarCitizenTestCase
             ]
         );
 
-        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass()));
+        self::assertNotEquals(ValidationException::class, get_class($response->exception ?? new \stdClass));
 
         $response->assertStatus(static::RESPONSE_STATUSES['update_not_found']);
     }
