@@ -19,8 +19,6 @@ use OpenApi\Attributes as OA;
             new OA\Property(property: 'damage', type: 'double', nullable: true),
             new OA\Property(property: 'downed', type: 'double', nullable: true),
         ], type: 'object'),
-        new OA\Property(property: 'max_reallocation', type: 'double', nullable: true),
-        new OA\Property(property: 'reallocation_rate', type: 'double', nullable: true),
     ],
     type: 'object'
 )]
@@ -36,8 +34,6 @@ class ShieldResource extends AbstractBaseResource
                 'downed' => $this->downed_regen_delay,
                 'damage' => $this->damage_regen_delay,
             ],
-            'max_reallocation' => $this->max_reallocation,
-            'reallocation_rate' => $this->reallocation_rate,
         ];
     }
 }

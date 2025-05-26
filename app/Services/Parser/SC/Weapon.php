@@ -59,7 +59,7 @@ final class Weapon extends AbstractCommodityItem
 
     private function buildAmmunitionWeaponPart(Collection $rawData): array
     {
-        if (! $rawData->has('ammo')) {
+        if (! isset($rawData['Item']['stdItem']['Ammunition'])) {
             return [];
         }
 
@@ -67,44 +67,44 @@ final class Weapon extends AbstractCommodityItem
             return $entry['damage'] > 0;
         };
 
-        $damage = collect(Arr::get($rawData, 'ammo.projectileParams.BulletProjectileParams.damage'))
-            ->flatMap(function ($entry) {
-                return collect($entry)
-                    ->map(function ($damage, $key) {
-                        return [
-                            'type' => 'impact',
-                            'name' => strtolower(str_replace('Damage', '', $key)),
-                            'damage' => $damage,
-                        ];
-                    });
+        $magazineKey = 'Raw.Entity.Components.SCItemWeaponComponentParams.Magazine.';
+        $baseKey = $magazineKey.'Components.SAmmoContainerComponentParams.0.';
+        $baseKeyDefensive = 'Raw.Entity.Components.SAmmoContainerComponentParams';
+        $damageKey = $baseKey.'projectileParams.BulletProjectileParams.damage.DamageInfo';
+        $explosionDamageKey = $baseKey.'projectileParams.BulletProjectileParams.detonationParams.ProjectileDetonationParams.explosionParams.damage.DamageInfo';
+        $pierceKey = $baseKey.'projectileParams.BulletProjectileParams.pierceabilityParams.';
+        $falloffKey = $baseKey.'projectileParams.BulletProjectileParams.damageDropParams.BulletDamageDropParams.';
+
+        $damage = collect(Arr::get($rawData, $damageKey))
+            ->map(function ($damage, $key) {
+                return [
+                    'type' => 'impact',
+                    'name' => strtolower(str_replace('Damage', '', $key)),
+                    'damage' => $damage,
+                ];
             })
             ->filter($damageFilter)
+            ->values()
             ->toArray();
 
-        // phpcs:ignore Generic.Files.LineLength.TooLong
-        $detonation = collect(Arr::get($rawData, 'ammo.projectileParams.BulletProjectileParams.detonationParams.ProjectileDetonationParams.explosionParams.damage'))
-            ->flatMap(function ($entry) {
-                return collect($entry)
-                    ->map(function ($damage, $key) {
-                        return [
-                            'type' => 'detonation',
-                            'name' => strtolower(str_replace('Damage', '', $key)),
-                            'damage' => $damage,
-                        ];
-                    });
+        $detonation = collect(Arr::get($rawData, $explosionDamageKey))
+            ->map(function ($damage, $key) {
+                return [
+                    'type' => 'detonation',
+                    'name' => strtolower(str_replace('Damage', '', $key)),
+                    'damage' => $damage,
+                ];
             })
             ->filter($damageFilter)
+            ->values()
             ->toArray();
-
-        $pierceKey = 'ammo.projectileParams.BulletProjectileParams.pierceabilityParams.';
-        $falloffKey = 'ammo.projectileParams.BulletProjectileParams.damageDropParams.BulletDamageDropParams.';
 
         return [
-            'uuid' => Arr::get($rawData, 'ammo.__ref'),
-            'size' => Arr::get($rawData, 'ammo.size') ?? 1,
-            'speed' => Arr::get($rawData, 'ammo.speed'),
-            'lifetime' => Arr::get($rawData, 'ammo.lifetime'),
-            'range' => (float) Arr::get($rawData, 'ammo.speed', 0) * (float) Arr::get($rawData, 'ammo.lifetime', 0),
+            'uuid' => Arr::get($rawData, $magazineKey.'__ref') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParamsRecord'),
+            'size' => Arr::get($rawData, $baseKey.'size') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.size') ?? 1,
+            'speed' => Arr::get($rawData, $baseKey.'speed') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.speed'),
+            'lifetime' => Arr::get($rawData, $baseKey.'lifetime') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.lifetime'),
+            'range' => ((float) (Arr::get($rawData, $baseKey.'speed') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.speed') ?? 0)) * ((float) (Arr::get($rawData, $baseKey.'lifetime') ?? Arr::get($rawData, $baseKeyDefensive.'.ammoParams.lifetime') ?? 0)),
             'damages' => array_filter([
                 'impact' => $damage,
                 'detonation' => $detonation,
@@ -152,7 +152,7 @@ final class Weapon extends AbstractCommodityItem
 
         $base = [
             'mode' => $mode['name'],
-            'localised' => $this->labels->getData()->get(substr($mode['localisedName'], 1)),
+            'localised' => $this->labels->getData()->get(substr($mode['__localisedName'], 1)),
         ];
 
         switch (strtolower($mode['name'])) {
@@ -164,6 +164,14 @@ final class Weapon extends AbstractCommodityItem
                     'ammo_per_shot' => $mode['launchParams']['SProjectileLauncher']['ammoCost'] ?? 1,
                     'pellets_per_shot' => $mode['launchParams']['SProjectileLauncher']['pelletCount'] ?? 1,
                 ];
+
+                if (empty($data['rounds_per_minute']) && isset($mode['sequenceEntries'][0]['weaponAction']['SWeaponActionFireSingleParams'])) {
+                    $data = [
+                        'type' => 'single',
+                        ...$this->buildMode($mode['sequenceEntries'][0]['weaponAction']['SWeaponActionFireSingleParams']),
+                    ];
+                }
+
                 break;
 
             case 'rapid':
@@ -194,12 +202,18 @@ final class Weapon extends AbstractCommodityItem
                 break;
 
             case 'looping':
-                $sequence = $mode['sequenceEntries'][0]['weaponAction']['SWeaponActionFireSingleParams'] ??
-                    $mode['sequenceEntries'][0]['weaponAction']['SWeaponActionFireBurstParams'] ?? [];
+                $sequence =
+                    $mode['sequenceEntries'][0]['weaponAction']['SWeaponActionFireSingleParams'] ??
+                    $mode['sequenceEntries'][0]['weaponAction']['SWeaponActionFireBurstParams'] ??
+                    $mode['sequenceEntries']['SWeaponSequenceEntryParams']['weaponAction']['SWeaponActionFireSingleParams'] ??
+                    $mode['sequenceEntries']['SWeaponSequenceEntryParams']['weaponAction']['SWeaponActionFireBurstParams'] ??
+                    [];
 
-                $data = $this->buildMode($sequence) + [
+                $data = [
                     'type' => 'sequence',
+                    ...$this->buildMode($sequence),
                 ];
+
                 break;
 
             case 'burst':
@@ -215,7 +229,10 @@ final class Weapon extends AbstractCommodityItem
                 $data = [];
         }
 
-        return $base + $data;
+        return [
+            ...$base,
+            ...$data,
+        ];
     }
 
     private function buildModesPart(): array
@@ -231,7 +248,7 @@ final class Weapon extends AbstractCommodityItem
                 return $this->buildMode($mode);
             });
 
-        return $modes->toArray();
+        return $modes->values()->toArray();
     }
 
     private function buildAttachmentsPart(): array
@@ -296,21 +313,23 @@ final class Weapon extends AbstractCommodityItem
 
     private function buildMagazinePart(Collection $rawData)
     {
-        $data = Arr::get($rawData, 'magazine.Components.SAmmoContainerComponentParams');
+        $magazineKey = 'Raw.Entity.Components.SCItemWeaponComponentParams.Magazine.Components.SAmmoContainerComponentParams';
+
+        $data = Arr::get($rawData, $magazineKey);
 
         if (empty($data)) {
             return [];
         }
 
         return [
-            'initial_ammo_count' => $data['initialAmmoCount'] ?? 0,
-            'max_ammo_count' => $data['maxAmmoCount'] ?? $data['maxRestockCount'] ?? 0,
+            'initial_ammo_count' => Arr::get($data, 'initialAmmoCount', 0),
+            'max_ammo_count' => Arr::get($data, 'maxAmmoCount', 0),
         ];
     }
 
     private function buildRegenConsumption(Collection $rawData)
     {
-        $data = Arr::get($rawData, 'Raw.Entity.Components.SCItemWeaponComponentParams.weaponRegenConsumerParams.0');
+        $data = Arr::get($rawData, 'Raw.Entity.Components.SCItemWeaponComponentParams.weaponRegenConsumerParams.SWeaponRegenConsumerParams');
 
         if (empty($data)) {
             return [];

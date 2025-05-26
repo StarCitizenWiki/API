@@ -24,7 +24,7 @@ final class Grenade extends AbstractCommodityItem
             'Damage Type' => 'damage_type',
         ]);
 
-        $damage = collect(Arr::get($grenade, 'explosionParams.damage.0', []))->sum();
+        $damage = collect(Arr::get($grenade, 'explosionParams.damage.DamageInfo', []))->sum();
 
         return [
             'uuid' => $this->getUUID(),

@@ -18,11 +18,11 @@ final class QuantumInterdictionGenerator extends AbstractItemSpecification
         }
 
         return array_filter([
-            'jammer_range' => Arr::get($data, 'jammerSettings.0.jammerRange'),
-            'interdiction_range' => Arr::get($data, 'quantumInterdictionPulseSettings.0.radiusMeters'),
-            'charge_duration' => Arr::get($data, 'quantumInterdictionPulseSettings.0.chargeTimeSecs'),
-            'discharge_duration' => Arr::get($data, 'quantumInterdictionPulseSettings.0.dischargeTimeSecs'),
-            'cooldown_duration' => Arr::get($data, 'quantumInterdictionPulseSettings.0.cooldownTimeSecs'),
+            'jammer_range' => Arr::get($data, 'jammerSettings.SCItemQuantumJammerParams.jammerRange'),
+            'interdiction_range' => Arr::get($data, 'quantumInterdictionPulseSettings.SCItemQuantumInterdictionPulseParams.radiusMeters'),
+            'charge_duration' => Arr::get($data, 'quantumInterdictionPulseSettings.SCItemQuantumInterdictionPulseParams.chargeTimeSecs'),
+            'discharge_duration' => Arr::get($data, 'quantumInterdictionPulseSettings.SCItemQuantumInterdictionPulseParams.dischargeTimeSecs'),
+            'cooldown_duration' => Arr::get($data, 'quantumInterdictionPulseSettings.SCItemQuantumInterdictionPulseParams.cooldownTimeSecs'),
         ], static function ($entry) {
             return $entry !== null;
         });

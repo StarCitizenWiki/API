@@ -72,9 +72,9 @@ class PersonalWeapon extends AbstractItemCreationJob
                 ], [
                     'localised' => $mode['localised'],
                     'type' => $mode['type'],
-                    'rounds_per_minute' => $mode['rounds_per_minute'],
-                    'ammo_per_shot' => $mode['ammo_per_shot'],
-                    'pellets_per_shot' => $mode['pellets_per_shot'],
+                    'rounds_per_minute' => $mode['rounds_per_minute'] ?? 0,
+                    'ammo_per_shot' => $mode['ammo_per_shot'] ?? 0,
+                    'pellets_per_shot' => $mode['pellets_per_shot'] ?? 0,
                 ]);
             });
     }

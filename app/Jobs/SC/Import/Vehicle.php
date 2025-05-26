@@ -54,7 +54,7 @@ class Vehicle implements ShouldQueue
         try {
             $rawData = File::get($vehicle['filePathRaw']);
 
-            $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR)['Raw'];
+            $vehicle['rawData'] = json_decode($rawData, true, 512, JSON_THROW_ON_ERROR);
         } catch (FileNotFoundException|JsonException $e) {
             $this->fail($e->getMessage());
         }
@@ -135,8 +135,8 @@ class Vehicle implements ShouldQueue
             'length' => $vehicle['Length'] ?? 0,
 
             'crew' => $vehicle['Crew'],
-            'weapon_crew' => $vehicle['WeaponCrew'],
-            'operations_crew' => $vehicle['OperationsCrew'],
+            'weapon_crew' => $vehicle['WeaponCrew'] ?? 0,
+            'operations_crew' => $vehicle['OperationsCrew'] ?? 0,
             'mass' => $vehicle['Mass'],
             'health' => $vehicle['Health'] ?? null,
 
@@ -337,7 +337,7 @@ class Vehicle implements ShouldQueue
         collect($hardpoints)
             // Create vehicle parts
             ->each(function ($hardpoint) use ($vehicle) {
-                $isBaseBody = $hardpoint['class'] === 'Animated' && $hardpoint['damagemax'] === 0;
+                $isBaseBody = $hardpoint['class'] === 'Animated' && ($hardpoint['damagemax'] ?? $hardpoint['damageMax'] ?? null) === 0;
                 $isPart = ! empty($hardpoint['name']) && isset($hardpoint['damageMax']) && $hardpoint['damageMax'] > $this->minPartDamage;
 
                 if ($isBaseBody || $isPart) {
@@ -360,7 +360,7 @@ class Vehicle implements ShouldQueue
                 return $hardpoint['class'] === 'ItemPort';
             })
             ->filter(function (array $hardpoint) {
-                return isset($hardpoint['ItemPort']) && ! empty($hardpoint['ItemPort']['flags']) && $hardpoint['ItemPort']['minSize'] > 0;
+                return isset($hardpoint['ItemPort']) && ! empty($hardpoint['ItemPort']['flags']) && ($hardpoint['ItemPort']['minSize'] ?? 0) > 0;
             })
             ->filter(function (array $hardpoint) {
                 // Filter out some

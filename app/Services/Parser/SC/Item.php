@@ -224,17 +224,15 @@ final class Item extends AbstractCommodityItem
 
     private function getInventoryContainer(): array
     {
-        $container = $this->get('ResourceContainer.capacity');
+        $container = Arr::get($this->item, 'Item.stdItem.InventoryContainer');
 
         if ($container !== null) {
-            [$unit, $scu] = $this->convertToSCU($container);
-
             return [
                 'width' => 0,
                 'height' => 0,
                 'length' => 0,
-                'scu' => $scu,
-                'unit' => $unit,
+                'scu' => Arr::get($container, 'SCU'),
+                'unit' => Arr::get($container, 'unit', 0),
             ];
         }
 

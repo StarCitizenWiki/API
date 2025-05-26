@@ -45,6 +45,7 @@ class VehicleItem extends AbstractItemCreationJob
     public function handle(): void
     {
         $this->loadLabels();
+
         try {
             $parser = new \App\Services\Parser\SC\VehicleItems\VehicleItem($this->filePath, $this->labels);
         } catch (FileNotFoundException|JsonException $e) {
@@ -213,7 +214,7 @@ class VehicleItem extends AbstractItemCreationJob
         PowerPlant::query()->withoutGlobalScopes()->updateOrCreate([
             'item_uuid' => $item['uuid'],
         ], [
-            'power_output' => $item['power_plant']['power_output'],
+            'power_output' => $item['power_plant']['power_output'] ?? 0,
         ]);
     }
 
@@ -228,8 +229,8 @@ class VehicleItem extends AbstractItemCreationJob
             'decay_ratio' => $item['shield']['decay_ratio'],
             'downed_regen_delay' => $item['shield']['downed_regen_delay'],
             'damage_regen_delay' => $item['shield']['damage_regen_delay'],
-            'max_reallocation' => $item['shield']['max_reallocation'],
-            'reallocation_rate' => $item['shield']['reallocation_rate'],
+            'max_reallocation' => 0, //$item['shield']['max_reallocation'],
+            'reallocation_rate' => 0, //$item['shield']['reallocation_rate'],
         ]);
 
         //        foreach ($item['shield']['absorptions'] as $type => $absorption) {

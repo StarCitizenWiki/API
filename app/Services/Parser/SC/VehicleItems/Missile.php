@@ -31,12 +31,12 @@ final class Missile extends AbstractItemSpecification
             'explosion_radius_max' => Arr::get($data, 'explosionParams.maxPhysRadius'),
 
             'damages' => array_filter([
-                'physical' => Arr::get($data, 'explosionParams.damage.0.DamagePhysical'),
-                'energy' => Arr::get($data, 'explosionParams.damage.0.DamageEnergy'),
-                'distortion' => Arr::get($data, 'explosionParams.damage.0.DamageDistortion'),
-                'thermal' => Arr::get($data, 'explosionParams.damage.0.DamageThermal'),
-                'biochemical' => Arr::get($data, 'explosionParams.damage.0.DamageBiochemical'),
-                'stun' => Arr::get($data, 'explosionParams.damage.0.DamageStun'),
+                'physical' => Arr::get($data, 'explosionParams.damage.DamageInfo.DamagePhysical'),
+                'energy' => Arr::get($data, 'explosionParams.damage.DamageInfo.DamageEnergy'),
+                'distortion' => Arr::get($data, 'explosionParams.damage.DamageInfo.DamageDistortion'),
+                'thermal' => Arr::get($data, 'explosionParams.damage.DamageInfo.DamageThermal'),
+                'biochemical' => Arr::get($data, 'explosionParams.damage.DamageInfo.DamageBiochemical'),
+                'stun' => Arr::get($data, 'explosionParams.damage.DamageInfo.DamageStun'),
             ]),
         ], static function ($entry) {
             return $entry !== null;
